@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.kevoree.modeling</groupId>
+    <artifactId>org.kevoree.modeling.emf.scala.gencode</artifactId>
+    <version>1.0.1</version>
+    <name>Kevoree :: Modeling :: EMF-Scala :: GenCode</name>
+
+    <parent>
+        <artifactId>org.kevoree.modeling.root</artifactId>
+        <groupId>org.kevoree.modeling</groupId>
+        <version>1.0.1</version>
+        <relativePath>../org.kevoree.modeling.root/pom.xml</relativePath>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kevoree.extra</groupId>
+            <artifactId>org.kevoree.extra.emf.library</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

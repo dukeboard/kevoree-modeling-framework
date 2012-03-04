@@ -1,0 +1,125 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.kevoree.modeling</groupId>
+    <artifactId>org.kevoree.modeling.root</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.1</version>
+    <name>Kevoree :: Modeling :: Root</name>
+    <url>https://github.com/dukeboard/kevoree-modeling-framework</url>
+
+    <properties>
+        <emf.version>2.7.0</emf.version>
+        <scala.version>2.10.0-M2</scala.version>
+        <bundle.vendor>IRISA/INRIA</bundle.vendor>
+        <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
+        <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
+    </properties>
+
+    <modules>
+        <module>../org.kevoree.modeling.emf.scala.gencode</module>
+        <module>../org.kevoree.modeling.emf.scala.gencode.mavenplugin</module>
+        <module>../org.kevoree.modeling.emf.scala.gencode.sample</module>
+    </modules>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jvmArgs>
+                        <jvmArg>-Xms64m</jvmArg>
+                        <jvmArg>-Xmx1024m</jvmArg>
+                    </jvmArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>${basedir}/../LICENSE_HEADER</header>
+                    <strictCheck>true</strictCheck>
+                    <properties>
+                        <owner>Francois Fouquet</owner>
+                        <year>${project.inceptionYear}</year>
+                        <email>fouquet.f@gmail.com</email>
+                    </properties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+    <distributionManagement>
+        <repository>
+            <id>maven2.kevoree.release</id>
+            <url>http://maven.kevoree.org/archiva/repository/release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven2.kevoree.snapshots</id>
+            <url>http://maven.kevoree.org/archiva/repository/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>kevoree-libs-release-local</id>
+            <url>http://maven.kevoree.org/release</url>
+        </repository>
+        <repository>
+            <id>kevoree-snapshots</id>
+            <url>http://maven.kevoree.org/snapshots</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>plugin.kevoree-github</id>
+            <url>http://maven.kevoree.org/release</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>plugin.kevoree-snapshots</id>
+            <url>http://maven.kevoree.org/snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
