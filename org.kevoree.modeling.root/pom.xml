@@ -4,7 +4,7 @@
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.root</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <name>Kevoree :: Modeling :: Root</name>
     <url>https://github.com/dukeboard/kevoree-modeling-framework</url>
 
@@ -19,7 +19,7 @@
     <modules>
         <module>../org.kevoree.modeling.emf.scala.gencode</module>
         <module>../org.kevoree.modeling.emf.scala.gencode.mavenplugin</module>
-        <module>../org.kevoree.modeling.emf.scala.gencode.sample</module>
+        <!--module>../org.kevoree.modeling.emf.scala.gencode.sample</module-->
     </modules>
 
 
