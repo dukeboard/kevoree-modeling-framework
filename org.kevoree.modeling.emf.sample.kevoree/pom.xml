@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.kevoree.modeling.emf.scala.gencode.sample</artifactId>
+    <artifactId>org.kevoree.modeling.emf.sample.kevoree</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: EMF-Scala :: GenCode :: Sample</name>
+    <name>Kevoree :: Modeling :: EMF-Scala :: Sample :: Kevoree</name>
 
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
-        <version>1.0.1</version>
+        <version>1.0.2-SNAPSHOT</version>
         <relativePath>../org.kevoree.modeling.root/pom.xml</relativePath>
     </parent>
 
@@ -22,7 +22,7 @@
             <plugin>
                 <groupId>org.kevoree.modeling</groupId>
                 <artifactId>org.kevoree.modeling.emf.scala.gencode.mavenplugin</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.2-SNAPSHOT</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
