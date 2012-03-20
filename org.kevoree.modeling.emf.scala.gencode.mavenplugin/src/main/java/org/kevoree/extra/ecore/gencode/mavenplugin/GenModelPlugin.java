@@ -32,11 +32,11 @@ import java.io.File;
 /**
  * Generates files based on grammar files with Antlr tool.
  *
+ * @author <a href="mailto:ffouquet@irisa.fr">Fouquet François</a>
+ * @version $Id$
  * @goal generate
  * @phase generate-sources
  * @requiresDependencyResolution compile
- * @author <a href="mailto:ffouquet@irisa.fr">Fouquet François</a>
- * @version $Id$
  */
 public class GenModelPlugin extends AbstractMojo {
 
@@ -48,11 +48,12 @@ public class GenModelPlugin extends AbstractMojo {
     private File ecore;
     /**
      * Source base directory
+     *
      * @parameter default-value="${project.build.directory}/generated-sources/kmf"
      */
     private File output;
-    
-  /**
+
+    /**
      * code root package
      *
      * @parameter
@@ -65,7 +66,14 @@ public class GenModelPlugin extends AbstractMojo {
      *
      * @parameter
      */
-    private Boolean clearOutput=true;
+    private Boolean clearOutput = true;
+
+    /**
+     * Only generate model structure
+     *
+     * @parameter
+     */
+    private Boolean modelOnly = false;
 
 
     /**
@@ -77,7 +85,7 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private MavenProject project;
 
-   private boolean deleteDirectory(File path) {
+    private boolean deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
             for (int i = 0; i < files.length; i++) {
@@ -93,20 +101,15 @@ public class GenModelPlugin extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        //File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-
-
-        if(clearOutput) {
+        if (clearOutput) {
             deleteDirectory(output);
         }
-
-        org.kevoree.tools.ecore.gencode.Generator gen = new org.kevoree.tools.ecore.gencode.Generator(output,rootPackage);//, getLog());
-        gen.generateModel(ecore,project.getVersion());
-        gen.generateLoader(ecore);
-        gen.generateSerializer(ecore);
-
-        //Util.createGenModel(ecore, genmodel, output, getLog(),clearOutput);
-
-        this.project.addCompileSourceRoot( output.getAbsolutePath() );
+        org.kevoree.tools.ecore.gencode.Generator gen = new org.kevoree.tools.ecore.gencode.Generator(output, rootPackage);//, getLog());
+        gen.generateModel(ecore, project.getVersion());
+        if (!modelOnly) {
+            gen.generateLoader(ecore);
+            gen.generateSerializer(ecore);
+        }
+        this.project.addCompileSourceRoot(output.getAbsolutePath());
     }
 }
