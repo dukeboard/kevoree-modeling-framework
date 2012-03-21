@@ -33,7 +33,7 @@ import java.io._
  */
 
 
-class RootLoader(genDir: String, genPackage: String, elementNameInParent: String, elementType: EClass, modelingPackage: EPackage, packagePrefix : String) {
+class RootLoader(genDir: String, genPackage: String, elementNameInParent: String, elementType: EClass, modelingPackage: EPackage, packagePrefix : Option[String]) {
 
   def generateLoader() {
     ProcessorHelper.checkOrCreateFolder(genDir)
@@ -43,11 +43,16 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     generateContext()
     val subLoaders = generateSubs(elementType)
 
+    val packageOfModel = packagePrefix match {
+      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + modelingPackage.getName + "._"}
+      case None => modelingPackage.getName + "._"
+    }
+    
     pr.println("package " + genPackage + ";")
     pr.println()
     pr.println("import xml.{XML,NodeSeq}")
     pr.println("import java.io.{File, FileInputStream, InputStream}")
-    pr.println("import " + packagePrefix + "." + modelingPackage.getName + "._")
+    pr.println("import " + packageOfModel )
     pr.println("import " + genPackage + ".sub._")
     pr.println()
 
@@ -82,7 +87,11 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
   }
 
   private def generateContext() {
-    val el = new ContextGenerator(genDir, genPackage, elementType, packagePrefix + "." + modelingPackage.getName)
+    val packageOfModel = packagePrefix match {
+      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + modelingPackage.getName}
+      case None => modelingPackage.getName
+    }
+    val el = new ContextGenerator(genDir, genPackage, elementType, packageOfModel)
     el.generateContext()
   }
 
@@ -90,17 +99,23 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     var factory = modelingPackage.getName
     factory = factory.substring(0, 1).toUpperCase + factory.substring(1) + "Factory"
 
+    val packageOfModel = packagePrefix match {
+      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + modelingPackage.getName}
+      case None => modelingPackage.getName
+    }
+
+
     val context = elementType.getName + "LoadContext"
     //modelingPackage.getEClassifiers.filter(cl => !cl.equals(elementType)).foreach{ ref =>
     var listContainedElementsTypes = List[EClass]()
     currentType.getEAllContainments.foreach {
       ref =>
         if (!ref.getEReferenceType.isInterface) {
-          val el = new BasicElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packagePrefix + "." + modelingPackage.getName)
+          val el = new BasicElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
           el.generateLoader()
         } else {
           //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-          val el = new InterfaceElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packagePrefix + "." + modelingPackage.getName)
+          val el = new InterfaceElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
           el.generateLoader()
         }
 

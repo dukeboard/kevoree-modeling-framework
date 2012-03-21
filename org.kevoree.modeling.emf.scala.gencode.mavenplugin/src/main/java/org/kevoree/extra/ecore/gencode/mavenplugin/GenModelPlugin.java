@@ -58,7 +58,7 @@ public class GenModelPlugin extends AbstractMojo {
      *
      * @parameter
      */
-    private String rootPackage;
+    private String packagePrefix;
 
 
     /**
@@ -104,7 +104,7 @@ public class GenModelPlugin extends AbstractMojo {
         if (clearOutput) {
             deleteDirectory(output);
         }
-        org.kevoree.tools.ecore.gencode.Generator gen = new org.kevoree.tools.ecore.gencode.Generator(output, rootPackage);//, getLog());
+        org.kevoree.tools.ecore.gencode.Generator gen = new org.kevoree.tools.ecore.gencode.Generator(output, scala.Option.apply(packagePrefix));//, getLog());
         gen.generateModel(ecore, project.getVersion());
         if (!modelOnly) {
             gen.generateLoader(ecore);

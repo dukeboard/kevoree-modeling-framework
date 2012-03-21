@@ -34,17 +34,29 @@ import org.kevoree.tools.ecore.gencode.ProcessorHelper
  */
 
 object LoaderGenerator {
-  var rootXmiPackage : EPackage = null
+  //var rootXmiPackage : EPackage = null
 }
 
-class LoaderGenerator(location: String, rootPackage: String, rootXmiPackage: EPackage) {
+class LoaderGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage) {
 
-  LoaderGenerator.rootXmiPackage = rootXmiPackage
+  //LoaderGenerator.rootXmiPackage = rootXmiPackage
 
   def generateLoader() {
+
+    val packageName = packagePrefix match {
+      case Some(parent) => {if(parent.endsWith(".")){parent}else{parent + "."}} + rootXmiPackage.getName + ".loader"
+      case None => rootXmiPackage.getName + ".loader"
+    }
+
     ProcessorHelper.lookForRootElement(rootXmiPackage) match {
       case cls : EClass => {
-        val el = new RootLoader(location+ "/"+ rootXmiPackage.getName + "/loader", rootPackage + "."+ rootXmiPackage.getName + ".loader", rootXmiPackage.getName+ ":" + cls.getName, cls, rootXmiPackage, rootPackage)
+        val el = new RootLoader(
+          genBaseDir+ "/"+ rootXmiPackage.getName + "/loader",
+          packageName,
+          rootXmiPackage.getName+ ":" + cls.getName,
+          cls,
+          rootXmiPackage,
+          packagePrefix)
         el.generateLoader()
       }
       case _@e => throw new UnsupportedOperationException("Root container not found. Returned:" + e)

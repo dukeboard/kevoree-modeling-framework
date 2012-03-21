@@ -34,25 +34,32 @@ import org.kevoree.tools.ecore.gencode.cloner.ClonerGenerator
 
 object Processor extends TraitGenerator with PackageFactoryGenerator with ClassGenerator with ClonerGenerator{
 
-  def process(location: String, pack: EPackage, containerPack: Option[String] , modelVersion : String, isRoot : Boolean = false) {
+  /**
+   * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
+   * @param baseDir the directory in which the package @pack will be generated.
+   * @param pack the EPackage to be generated
+   * @param parentPackage is the value of the parent package
+   * @param modelVersion the version of the model to be included in headers
+   * @param isRoot specifies if the method call is made on the root package
+   */
+  def process(baseDir: String, pack: EPackage, parentPackage: Option[String] , modelVersion : String, isRoot : Boolean = false) {
     //log.debug("Processing package: " + containerPack + "." + pack.getName)
-    val dir = location + "/" + pack.getName
-    val thisPack =
-      containerPack match {
-        case None => pack.getName
-        case Some(container) => container + "." + pack.getName
-      }
+    val genDir = baseDir + "/" + pack.getName
+    val packageName = parentPackage match {
+      case Some(parent) => {if(parent.endsWith(".")){parent}else{parent + "."}} + pack.getName
+      case None => pack.getName
+    }
 
-    ProcessorHelper.checkOrCreateFolder(dir)
-    ProcessorHelper.checkOrCreateFolder(dir + "/impl")
-    generatePackageFactory(dir, thisPack, pack,modelVersion)
-    generateContainerTrait(dir, thisPack, pack)
+    ProcessorHelper.checkOrCreateFolder(genDir)
+    ProcessorHelper.checkOrCreateFolder(genDir + "/impl")
+    generatePackageFactory(genDir, packageName, pack,modelVersion)
+    generateContainerTrait(genDir, packageName, pack)
     //generateMutableTrait(dir, thisPack, pack)
-    pack.getEClassifiers.foreach(c => process(dir, thisPack, c, pack))
-    pack.getESubpackages.foreach(p => process(dir, pack, Some(thisPack),modelVersion))
+    pack.getEClassifiers.foreach(c => process(genDir, packageName, c, pack))
+    pack.getESubpackages.foreach(p => process(genDir, pack, Some(packageName),modelVersion))
 
     if(isRoot){
-      generateCloner(pack,location,thisPack)
+      generateCloner(pack,baseDir,packageName)
     }
 
 

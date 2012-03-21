@@ -32,14 +32,20 @@ import org.kevoree.tools.ecore.gencode.ProcessorHelper
  * Time: 20:55
  */
 
-class SerializerGenerator(location: String, rootPackage: String, rootXmiPackage: EPackage) {
+class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage) {
 
 
   def generateSerializer() {
+
+    val basePackage = packagePrefix match {
+      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + rootXmiPackage.getName}
+      case None => rootXmiPackage.getName
+    }
+
     ProcessorHelper.lookForRootElement(rootXmiPackage) match {
       case cls: EClass => {
-        generateSerializer(location + "/" + rootXmiPackage.getName, rootPackage + "." + rootXmiPackage.getName, rootXmiPackage.getName + ":" + cls.getName, cls, rootXmiPackage, true)
-        generateDefaultSerializer(location + "/" + rootXmiPackage.getName, rootPackage + "." + rootXmiPackage.getName, cls, rootXmiPackage)
+        generateSerializer(genBaseDir + "/" + rootXmiPackage.getName, basePackage, rootXmiPackage.getName + ":" + cls.getName, cls, rootXmiPackage, true)
+        generateDefaultSerializer(genBaseDir + "/" + rootXmiPackage.getName, basePackage, cls, rootXmiPackage)
       }
       case _@e => throw new UnsupportedOperationException("Root container not found. Returned:" + e)
     }
@@ -104,7 +110,11 @@ class SerializerGenerator(location: String, rootPackage: String, rootXmiPackage:
 
 
   private def generateToXmiMethod(cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
-    buffer.println("import org.kevoree._")
+    val packageOfModel = packagePrefix match {
+      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + rootXmiPackage.getName}
+      case None => rootXmiPackage.getName
+    }
+    buffer.println("import " + packageOfModel + "._")
     buffer.println("trait " + cls.getName + "Serializer ")
 
     var subTraits = ( cls.getEAllContainments ).map(sub => sub.getEReferenceType.getName + "Serializer").toSet

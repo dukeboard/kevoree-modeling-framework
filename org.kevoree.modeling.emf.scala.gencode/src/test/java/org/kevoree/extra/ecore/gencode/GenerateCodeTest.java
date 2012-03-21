@@ -42,7 +42,7 @@ public class GenerateCodeTest {
 
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-        Generator gen = new Generator(rootDir, rootPackage);
+        Generator gen = new Generator(rootDir, scala.Option.apply(rootPackage));
         gen.generateModel(ecoreFile,"1.4.0");
 
     }
@@ -53,7 +53,7 @@ public class GenerateCodeTest {
 
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-        Generator gen = new Generator(rootDir, rootPackage);
+        Generator gen = new Generator(rootDir, scala.Option.apply(rootPackage));
         gen.generateLoader(ecoreFile);
 
     }
@@ -63,7 +63,7 @@ public class GenerateCodeTest {
         //File rootDir = new File("../org.kevoree.extra.ecore.loader.test/src/main/scala/");
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-        Generator gen = new Generator(rootDir, rootPackage);
+        Generator gen = new Generator(rootDir, scala.Option.apply(rootPackage));
         gen.generateSerializer(ecoreFile);
 
     }
