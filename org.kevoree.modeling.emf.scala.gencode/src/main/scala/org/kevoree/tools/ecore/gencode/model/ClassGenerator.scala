@@ -21,11 +21,10 @@ package org.kevoree.tools.ecore.gencode.model
 
 import java.io.{File, PrintWriter}
 import org.kevoree.tools.ecore.gencode.ProcessorHelper._
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
 import xmi.impl.XMIResourceImpl
-import org.kevoree.tools.ecore.gencode.cloner.ClonerGenerator
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,9 +35,11 @@ import org.kevoree.tools.ecore.gencode.cloner.ClonerGenerator
 
 trait ClassGenerator extends ClonerGenerator {
 
-  def generateCompanion(location: String, pack: String, cls: EClass, packElement: EPackage) {
-    val pr = new PrintWriter(new File(location + "/impl/" + cls.getName + "Impl.scala"),"utf-8")
+  def generateCompanion(ctx:GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+    val pr = new PrintWriter(new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala"),"utf-8")
     //System.out.println("Classifier class:" + cls.getClass)
+
+    val pack = ProcessorHelper.fqn(ctx, packElement)
 
     pr.println("package " + pack + ".impl;")
     pr.println()
@@ -85,12 +86,15 @@ trait ClassGenerator extends ClonerGenerator {
     pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
   }
 
-  def generateClass(location: String, pack: String, cls: EClass, packElement: EPackage) {
-    val pr = new PrintWriter(new File(location + "/" + cls.getName + ".scala"),"utf-8")
+  def generateClass(ctx:GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+    val pr = new PrintWriter(new File(currentPackageDir + "/" + cls.getName + ".scala"),"utf-8")
     //System.out.println("Generating class:" + cls.getName)
+
+       val pack = ProcessorHelper.fqn(ctx, packElement)
 
     pr.println("package " + pack + ";")
     pr.println()
+
     //pr.println("import " + pack + ".impl._;")
     //pr.println()
     pr.println(generateHeader(packElement))
@@ -128,6 +132,8 @@ trait ClassGenerator extends ClonerGenerator {
             ref.getEReferenceType.getName
           }
           )
+
+        
 
         if (ref.getUpperBound == -1) {
           // multiple values
@@ -203,7 +209,6 @@ trait ClassGenerator extends ClonerGenerator {
 
     //GENERATE CLONE METHOD
     generateCloneMethods(pack,cls,pr,packElement)
-
 
     pr.println("")
     pr.println("}")

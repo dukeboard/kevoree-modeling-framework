@@ -123,6 +123,71 @@ object ProcessorHelper {
     res
   }     */
 
+  def getPackageGenDir(ctx:GenerationContext, pack:EPackage) : String = {
+    var modelGenBaseDir = ctx.getRootGenerationDirectory.getAbsolutePath + "/"
+    ctx.getPackagePrefix.map(prefix => modelGenBaseDir += prefix.replace(".", "/") + "/")
+    modelGenBaseDir += fqn(pack).replace(".", "/") + "/"
+    modelGenBaseDir
+  }
+
+  /**
+   * Computes the Fully Qualified Name of the package in the context of the model.
+   * @param pack the package which FQN has to be computed
+   * @return the Fully Qualified package name
+   */
+  def fqn(pack:EPackage) : String = {
+    var locFqn = pack.getName
+    var parentPackage = pack.getESuperPackage;
+    while(parentPackage != null) {
+      locFqn = parentPackage.getName + "." + locFqn
+      parentPackage = parentPackage.getESuperPackage
+    }
+    locFqn
+  }
+
+  /**
+   * Computes the Fully Qualified Name of the package in the context of the generation (i.e. including the package prefix if any).
+   * @param ctx the generation context
+   * @param pack the package which FQN has to be computed
+   * @return the Fully Qualified package name
+   */
+  def fqn(ctx:GenerationContext, pack:EPackage) : String = {
+    ctx.getPackagePrefix match {
+      case Some(prefix) => {
+        if(prefix.endsWith(".")) {
+          prefix + fqn(pack)
+        } else {
+          prefix + "." + fqn(pack)
+        }
+      }
+      case None => fqn(pack)
+    }
+  }
+
+  /**
+   * Computes the Fully Qualified Name of the class in the context of the model.
+   * @param cls the class which FQN has to be computed
+   * @return the Fully Qualified Class name
+   */
+  def fqn(cls:EClassifier) : String = {
+    fqn(cls.getEPackage) + "." + cls.getName
+  }
+
+  /**
+   * Computes the Fully Qualified Name of the class in the context of the generation (i.e. including the package prefix if any).
+   * @param ctx the generation context
+   * @param cls the class which FQN has to be computed
+   * @return the Fully Qualified Class name
+   */
+  def fqn(ctx:GenerationContext, cls:EClassifier) : String = {
+    fqn(ctx, cls.getEPackage) + "." + cls.getName
+  }
+
+
+
+
+
+
   private def lookForRootElementByName(rootXmiPackage : EPackage, rootContainerClassName: String) : Option[EClass] = {
     var possibleRoot : Option[EClass] = None
     //Search in the current package
@@ -177,7 +242,7 @@ object ProcessorHelper {
                 //System.out.println("\t\tReference::[name:" + reference.getName + ", type:" + reference.getEReferenceType.getName + ", isContainement:" + reference.isContainment + ", isContainer:" + reference.isContainer + "]")
               }
             }
-            case _@e => throw new UnsupportedOperationException(e.getClass.getName + " did not match anything while looking for root element.")
+            case _@e => throw new UnsupportedOperationException(e.getClass.getName + " did not match anything while looking for containerRoot element.")
           }
         }
 
@@ -209,7 +274,7 @@ object ProcessorHelper {
         } match {
           case b: Buffer[EClassifier] => {
             if (b.size != 1) {
-              b.foreach(classifier => System.out.println("Possible root:" + classifier.getName))
+              b.foreach(classifier => System.out.println("Possible containerRoot:" + classifier.getName))
             } else {
               System.out.println("RootElement:" + b.get(0).getName)
               possibleRoot = Some(b.get(0).asInstanceOf[EClass])

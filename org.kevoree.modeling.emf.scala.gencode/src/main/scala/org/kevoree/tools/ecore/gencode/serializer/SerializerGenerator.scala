@@ -23,7 +23,7 @@ import scala.collection.JavaConversions._
 import java.io.{File, FileOutputStream, PrintWriter}
 import org.kevoree.tools.ecore.gencode.loader.RootLoader
 import org.eclipse.emf.ecore.{EReference, EAttribute, EPackage, EClass}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,28 +32,29 @@ import org.kevoree.tools.ecore.gencode.ProcessorHelper
  * Time: 20:55
  */
 
-class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage, rootXmiContainerClassName: Option[String]) {
+class SerializerGenerator(ctx:GenerationContext) {
 
 
-  def generateSerializer() {
+  def generateSerializer(pack:EPackage) {
 
-    val basePackage = packagePrefix match {
-      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + rootXmiPackage.getName}
-      case None => rootXmiPackage.getName
-    }
+    val serializerGenBaseDir = ProcessorHelper.getPackageGenDir(ctx, pack) + "/serializer/"
+    ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
 
-    ProcessorHelper.lookForRootElement(rootXmiPackage, rootXmiContainerClassName) match {
+    val modelPackage = ProcessorHelper.fqn(ctx, pack)
+
+
+    ctx.getRootContainerInPackage(pack) match {
       case Some(cls: EClass) => {
-        generateSerializer(genBaseDir + "/" + rootXmiPackage.getName, basePackage, rootXmiPackage.getName + ":" + cls.getName, cls, rootXmiPackage, true)
-        generateDefaultSerializer(genBaseDir + "/" + rootXmiPackage.getName, basePackage, cls, rootXmiPackage)
+        generateSerializer(serializerGenBaseDir, modelPackage, pack.getName + ":" + cls.getName, cls, pack, true)
+        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, pack)
       }
       case None => throw new UnsupportedOperationException("Root container not found. Returned one.")
     }
   }
 
-  def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootXmiPackage: EPackage) {
-    ProcessorHelper.checkOrCreateFolder(genDir + "/serializer")
-    val pr = new PrintWriter(new File(genDir + "/serializer/" + "ModelSerializer.scala"),"utf-8")
+  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootXmiPackage: EPackage) {
+
+    val pr = new PrintWriter(new File(genDir + "ModelSerializer.scala"),"utf-8")
     pr.println("package " + packageName + ".serializer")
     pr.println("class ModelSerializer extends " + root.getName + "Serializer {")
     pr.println()
@@ -73,28 +74,28 @@ class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], roo
   }
 
 
-  def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false): Unit = {
-    ProcessorHelper.checkOrCreateFolder(genDir + "/serializer")
+  private def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false): Unit = {
+   // ProcessorHelper.checkOrCreateFolder(genDir + "/serializer")
     //PROCESS SELF
-    System.out.println("[DEBUG] SerializerGenerator::generateSerializer => " + root.getName)
+    //System.out.println("[DEBUG] SerializerGenerator::generateSerializer => " + root.getName)
 
-    val file = new File(genDir + "/serializer/" + root.getName + "Serializer.scala")
+    val file = new File(genDir + root.getName + "Serializer.scala")
 
     //if(!file.exists()) {
     val pr = new PrintWriter(file,"utf-8")
     pr.println("package " + packageName + ".serializer")
-    generateToXmiMethod(root, pr, rootXmiPackage.getName + ":" + root.getName, isRoot)
+    generateToXmiMethod(rootXmiPackage, root, pr, rootXmiPackage.getName + ":" + root.getName, isRoot)
     pr.flush()
     pr.close()
 
     //PROCESS SUB
     root.getEAllContainments.foreach {
       sub =>
-        val subfile = new File(genDir + "/serializer/" + sub.getEReferenceType.getName + "Serializer.scala")
+        val subfile = new File(genDir + sub.getEReferenceType.getName + "Serializer.scala")
         if(!subfile.exists()) {
           val subpr = new PrintWriter(subfile,"utf-8")
           subpr.println("package " + packageName + ".serializer")
-          generateToXmiMethod(sub.getEReferenceType, subpr, sub.getName)
+          generateToXmiMethod(rootXmiPackage, sub.getEReferenceType, subpr, sub.getName)
           subpr.flush()
           subpr.close()
 
@@ -120,11 +121,9 @@ class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], roo
   }
 
 
-  private def generateToXmiMethod(cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
-    val packageOfModel = packagePrefix match {
-      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + rootXmiPackage.getName}
-      case None => rootXmiPackage.getName
-    }
+  private def generateToXmiMethod(pack: EPackage, cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
+    val packageOfModel = ProcessorHelper.fqn(ctx, pack)
+
     buffer.println("import " + packageOfModel + "._")
     buffer.println()
     buffer.println("trait " + cls.getName + "Serializer ")

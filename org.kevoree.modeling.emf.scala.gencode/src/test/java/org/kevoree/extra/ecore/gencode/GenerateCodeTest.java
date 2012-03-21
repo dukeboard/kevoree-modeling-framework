@@ -20,6 +20,7 @@
 package org.kevoree.extra.ecore.gencode;
 
 import org.junit.Test;
+import org.kevoree.tools.ecore.gencode.GenerationContext;
 import org.kevoree.tools.ecore.gencode.Generator;
 import org.kevoree.tools.ecore.gencode.serializer.SerializerGenerator;
 
@@ -42,7 +43,13 @@ public class GenerateCodeTest {
 
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-        Generator gen = new Generator(rootDir, scala.Option.apply(rootPackage), scala.Option.apply((String)null));
+
+        GenerationContext ctx = new GenerationContext();
+        ctx.setPackagePrefix(scala.Option.apply(rootPackage));
+        ctx.setRootGenerationDirectory(rootDir);
+        ctx.setRootContainerClassName(scala.Option.apply((String)null));
+
+        Generator gen = new Generator(ctx);
         gen.generateModel(ecoreFile,"1.4.0");
 
     }
@@ -53,7 +60,14 @@ public class GenerateCodeTest {
 
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-        Generator gen = new Generator(rootDir, scala.Option.apply(rootPackage), scala.Option.apply((String)null));
+
+        GenerationContext ctx = new GenerationContext();
+        ctx.setPackagePrefix(scala.Option.apply(rootPackage));
+        ctx.setRootGenerationDirectory(rootDir);
+        ctx.setRootContainerClassName(scala.Option.apply((String)null));
+
+
+        Generator gen = new Generator(ctx);
         gen.generateLoader(ecoreFile);
 
     }
@@ -63,7 +77,13 @@ public class GenerateCodeTest {
         //File rootDir = new File("../org.kevoree.extra.ecore.loader.test/src/main/scala/");
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-        Generator gen = new Generator(rootDir, scala.Option.apply(rootPackage), scala.Option.apply((String)null));
+
+        GenerationContext ctx = new GenerationContext();
+        ctx.setPackagePrefix(scala.Option.apply(rootPackage));
+        ctx.setRootGenerationDirectory(rootDir);
+        ctx.setRootContainerClassName(scala.Option.apply((String)null));
+
+        Generator gen = new Generator(ctx);
         gen.generateSerializer(ecoreFile);
 
     }

@@ -20,7 +20,7 @@ package org.kevoree.tools.ecore.gencode.model
 
 import org.eclipse.emf.ecore.{EPackage, EEnum}
 import java.io.{File, PrintWriter}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 
 /**
@@ -33,11 +33,13 @@ import org.kevoree.tools.ecore.gencode.ProcessorHelper
 
 trait EnumGenerator {
 
-  def generateEnum(genBaseDir: String, packageName: String, en: EEnum, packElement: EPackage) {
+  def generateEnum(ctx : GenerationContext, currentPackageDir: String, packElement: EPackage, en: EEnum) {
     var formattedEnumName: String = en.getName.substring(0, 1).toUpperCase
     formattedEnumName += en.getName.substring(1)
 
-    val pr = new PrintWriter(new File(genBaseDir + "/" + formattedEnumName + ".scala"), "utf-8")
+    val pr = new PrintWriter(new File(currentPackageDir + "/" + formattedEnumName + ".scala"), "utf-8")
+
+    val packageName = ProcessorHelper.fqn(ctx, packElement)
 
     //Header
     pr.println("package " + packageName + ";")

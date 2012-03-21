@@ -19,11 +19,11 @@
 
 package org.kevoree.tools.ecore.gencode.loader
 
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import org.eclipse.emf.ecore.{EPackage, EClass}
 import scala.collection.JavaConversions._
 import xml.XML
 import java.io._
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,26 +33,23 @@ import java.io._
  */
 
 
-class RootLoader(genDir: String, genPackage: String, elementNameInParent: String, elementType: EClass, modelingPackage: EPackage, packagePrefix : Option[String]) {
+class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPackage) {
 
-  def generateLoader() {
+  def generateLoader(elementType: EClass, elementNameInParent: String) {
     ProcessorHelper.checkOrCreateFolder(genDir)
     val pr = new PrintWriter(new File(genDir + "/" + elementType.getName + "Loader.scala"),"utf-8")
     //System.out.println("Classifier class:" + cls.getClass)
 
-    generateContext()
+    generateContext(elementType)
     val subLoaders = generateSubs(elementType)
-
-    val packageOfModel = packagePrefix match {
-      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + modelingPackage.getName + "._"}
-      case None => modelingPackage.getName + "._"
-    }
+    val modelPackage = ProcessorHelper.fqn(ctx, modelingPackage)
+    val genPackage =  modelPackage + ".loader"
 
     pr.println("package " + genPackage + ";")
     pr.println()
     pr.println("import xml.{XML,NodeSeq}")
     pr.println("import java.io.{File, FileInputStream, InputStream}")
-    pr.println("import " + packageOfModel )
+    pr.println("import " + modelPackage + "._" )
     pr.println("import " + genPackage + ".sub._")
     pr.println()
 
@@ -71,13 +68,13 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     val context = elementType.getName + "LoadContext"
     val rootContainerName = elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1)
 
-    generateLoadMethod(pr)
+    generateLoadMethod(pr, elementType)
     pr.println("")
-    generateDeserialize(pr, context, rootContainerName)
+    generateDeserialize(pr, context, rootContainerName, elementType)
     pr.println("")
-    generateLoadElementsMethod(pr, context, rootContainerName)
+    generateLoadElementsMethod(pr, context, rootContainerName, elementType)
     pr.println("")
-    generateResolveElementsMethod(pr, context)
+    generateResolveElementsMethod(pr, context, elementType)
 
     pr.println("")
     pr.println("}")
@@ -86,12 +83,9 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     pr.close()
   }
 
-  private def generateContext() {
-    val packageOfModel = packagePrefix match {
-      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + modelingPackage.getName}
-      case None => modelingPackage.getName
-    }
-    val el = new ContextGenerator(genDir, genPackage, elementType, packageOfModel)
+  private def generateContext(elementType: EClass) {
+    val packageOfModel = ProcessorHelper.fqn(ctx, modelingPackage)
+    val el = new ContextGenerator(genDir, packageOfModel + ".loader", elementType, packageOfModel)
     el.generateContext()
   }
 
@@ -99,13 +93,10 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     var factory = modelingPackage.getName
     factory = factory.substring(0, 1).toUpperCase + factory.substring(1) + "Factory"
 
-    val packageOfModel = packagePrefix match {
-      case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + modelingPackage.getName}
-      case None => modelingPackage.getName
-    }
+    val packageOfModel = ProcessorHelper.fqn(ctx, modelingPackage)
+    val genPackage = packageOfModel + ".loader"
 
-
-    val context = elementType.getName + "LoadContext"
+    val context = currentType.getName + "LoadContext"
     //modelingPackage.getEClassifiers.filter(cl => !cl.equals(elementType)).foreach{ ref =>
     var listContainedElementsTypes = List[EClass]()
     currentType.getEAllContainments.foreach {
@@ -114,11 +105,11 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
         if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
 
           if (!ref.getEReferenceType.isInterface) {
-            val el = new BasicElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
+            val el = new BasicElementLoader(ctx, genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
             el.generateLoader()
           } else {
             //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-            val el = new InterfaceElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
+            val el = new InterfaceElementLoader(ctx, genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
             el.generateLoader()
           }
           if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
@@ -132,14 +123,14 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     listContainedElementsTypes
   }
 
-  private def generateLoadMethod(pr: PrintWriter) {
+  private def generateLoadMethod(pr: PrintWriter, elementType: EClass) {
 
     pr.println("\t\tdef loadModel(str: String) : Option[" + elementType.getName + "] = {")
     pr.println("\t\t\t\tval xmlStream = XML.loadString(str)")
     pr.println("\t\t\t\tval document = NodeSeq fromSeq xmlStream")
     pr.println("\t\t\t\tdocument.headOption match {")
     pr.println("\t\t\t\t\t\tcase Some(rootNode) => Some(deserialize(rootNode))")
-    pr.println("\t\t\t\t\t\tcase None => System.out.println(\"" + elementType.getName + "Loader::Noting at the root !\");None")
+    pr.println("\t\t\t\t\t\tcase None => System.out.println(\"" + elementType.getName + "Loader::Noting at the containerRoot !\");None")
     pr.println("\t\t\t\t}")
     pr.println("\t\t}")
 
@@ -153,7 +144,7 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     pr.println("\t\t\t\tval document = NodeSeq fromSeq xmlStream")
     pr.println("\t\t\t\tdocument.headOption match {")
     pr.println("\t\t\t\t\t\tcase Some(rootNode) => Some(deserialize(rootNode))")
-    pr.println("\t\t\t\t\t\tcase None => System.out.println(\"" + elementType.getName + "Loader::Noting at the root !\");None")
+    pr.println("\t\t\t\t\t\tcase None => System.out.println(\"" + elementType.getName + "Loader::Noting at the containerRoot !\");None")
     pr.println("\t\t\t\t}")
     pr.println("\t\t}")
 
@@ -161,7 +152,7 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
   }
 
 
-  private def generateDeserialize(pr: PrintWriter, context: String, rootContainerName: String) {
+  private def generateDeserialize(pr: PrintWriter, context: String, rootContainerName: String, elementType: EClass) {
 
     var factory = modelingPackage.getName
     factory = factory.substring(0, 1).toUpperCase + factory.substring(1) + "Factory"
@@ -181,7 +172,7 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
   }
 
 
-  private def generateLoadElementsMethod(pr: PrintWriter, context : String, rootContainerName: String) {
+  private def generateLoadElementsMethod(pr: PrintWriter, context : String, rootContainerName: String, elementType: EClass) {
 
     pr.println("\t\tprivate def load" + elementType.getName + "(rootNode: NodeSeq, context : " + context + ") {")
     pr.println("")
@@ -195,7 +186,7 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     pr.println("\t\t}")
   }
 
-  private def generateResolveElementsMethod(pr: PrintWriter, context : String) {
+  private def generateResolveElementsMethod(pr: PrintWriter, context : String, elementType: EClass) {
     //val context = elementType.getName + "LoadContext"
     //val rootContainerName = elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1)
     pr.println("\t\tprivate def resolveElements(rootNode: NodeSeq, context : " + context + ") {")

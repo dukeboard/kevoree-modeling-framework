@@ -20,9 +20,9 @@
 package org.kevoree.tools.ecore.gencode.loader
 
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,7 +31,7 @@ import scala.collection.JavaConversions._
  * Time: 17:24
  */
 
-class BasicElementLoader(genDir: String, genPackage: String, elementType: EClass, context: String, factory: String, modelingPackage: EPackage, modelPackage: String) {
+class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: String, elementType: EClass, context: String, factory: String, modelingPackage: EPackage, modelPackage: String) {
 
   def generateLoader() {
     //Creation of the generation dir
@@ -89,12 +89,12 @@ class BasicElementLoader(genDir: String, genPackage: String, elementType: EClass
         if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
         if (!ref.getEReferenceType.isInterface) {
           //Generates loaders for simple elements
-          val el = new BasicElementLoader(genDir, genPackage, ref.getEReferenceType, context, factory, modelingPackage, modelPackage)
+          val el = new BasicElementLoader(ctx, genDir, genPackage, ref.getEReferenceType, context, factory, modelingPackage, modelPackage)
           el.generateLoader()
 
         } else {
           //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-          val el = new InterfaceElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, modelPackage)
+          val el = new InterfaceElementLoader(ctx, genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, modelPackage)
           el.generateLoader()
         }
         if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {

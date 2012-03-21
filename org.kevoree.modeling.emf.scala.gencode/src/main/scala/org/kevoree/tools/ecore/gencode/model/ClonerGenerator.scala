@@ -1,3 +1,5 @@
+package org.kevoree.tools.ecore.gencode.model
+
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
  * you may not use this file except in compliance with the License.
@@ -17,17 +19,15 @@
  */
 
 
-package org.kevoree.tools.ecore.gencode.cloner
-
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import scala.collection.JavaConversions._
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 
 /**
  * Created by IntelliJ IDEA.
- * User: duke
+ * User: Francois Fouquet
  * Date: 02/10/11
  * Time: 20:55
  * To change this template use File | Settings | File Templates.
@@ -35,15 +35,13 @@ import scala.collection.JavaConversions._
 
 trait ClonerGenerator {
 
-  //val location: String
-  //val rootPackage: String
-  //val rootXmiPackage: EPackage
 
-  def generateCloner(rootXmiPackage: EPackage, location: String, rootPackage: String, rootXmiContainerClassName:Option[String]) {
+  def generateCloner(ctx:GenerationContext, currentPackageDir : String, pack: EPackage) {
     try {
-      ProcessorHelper.lookForRootElement(rootXmiPackage,rootXmiContainerClassName) match {
+
+      ctx.getRootContainerInPackage(pack) match {
         case Some(cls: EClass) => {
-          generateDefaultCloner(location + "/" + rootXmiPackage.getName, rootPackage, cls, rootXmiPackage)
+          generateDefaultCloner(ctx, currentPackageDir, pack, cls)
         }
         case None => throw new UnsupportedOperationException("Root container not found. Returned None")
       }
@@ -53,16 +51,19 @@ trait ClonerGenerator {
 
   }
 
-  def generateDefaultCloner(genDir: String, packageName: String, root: EClass, rootXmiPackage: EPackage) {
-    ProcessorHelper.checkOrCreateFolder(genDir + "/cloner")
-    val pr = new PrintWriter(new File(genDir + "/cloner/" + "ModelCloner.scala"),"utf-8")
+  def generateDefaultCloner(ctx : GenerationContext, currentPackageDir : String, pack: EPackage, containerRoot: EClass) {
+    ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/cloner")
+    val pr = new PrintWriter(new File(currentPackageDir + "/cloner/ModelCloner.scala"), "utf-8")
+
+    val packageName = ProcessorHelper.fqn(ctx, pack)
+
     pr.println("package " + packageName + ".cloner")
     pr.println("class ModelCloner {")
 
     pr.println("def clone[A](o : A) : A = {")
 
     pr.println("o match {")
-    pr.println("case o : " + packageName + "." + root.getName + " => {")
+    pr.println("case o : " + packageName + "." + containerRoot.getName + " => {")
     pr.println("val context = new java.util.IdentityHashMap[Object,Object]()")
     pr.println("o.getClonelazy(context)")
     pr.println("o.resolve(context).asInstanceOf[A]")
@@ -76,30 +77,30 @@ trait ClonerGenerator {
   }
 
   /*
-  def generateCloner(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false): Unit = {
+  def generateCloner(genDir: String, packageName: String, refNameInParent: String, containerRoot: EClass, pack: EPackage, isRoot: Boolean = false): Unit = {
     ProcessorHelper.checkOrCreateFolder(genDir + "/cloner")
     //PROCESS SELF
-    val pr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + root.getName + "Cloner.scala")))
+    val pr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + containerRoot.getName + "Cloner.scala")))
     pr.println("package " + packageName + ".cloner")
-    generateToHashMethod(packageName, root, pr, rootXmiPackage, isRoot)
+    generateToHashMethod(packageName, containerRoot, pr, pack, isRoot)
     pr.flush()
     pr.close()
 
     //PROCESS SUB
-    root.getEAllContainments.foreach {
+    containerRoot.getEAllContainments.foreach {
       sub =>
         val subpr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + sub.getEReferenceType.getName + "Cloner.scala")))
         subpr.println("package " + packageName + ".cloner")
-        generateToHashMethod(packageName, sub.getEReferenceType, subpr, rootXmiPackage)
+        generateToHashMethod(packageName, sub.getEReferenceType, subpr, pack)
         subpr.flush()
         subpr.close()
 
         //¨PROCESS ALL SUB TYPE
         ProcessorHelper.getConcreteSubTypes(sub.getEReferenceType).foreach {
           subsubType =>
-            generateCloner(genDir, packageName, sub.getName, subsubType, rootXmiPackage)
+            generateCloner(genDir, packageName, sub.getName, subsubType, pack)
         }
-        generateCloner(genDir, packageName, sub.getName, sub.getEReferenceType, rootXmiPackage)
+        generateCloner(genDir, packageName, sub.getName, sub.getEReferenceType, pack)
 
     }
   }*/

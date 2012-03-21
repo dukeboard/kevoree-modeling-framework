@@ -26,6 +26,8 @@ package org.kevoree.extra.ecore.gencode.mavenplugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.kevoree.tools.ecore.gencode.GenerationContext;
+import org.kevoree.tools.ecore.gencode.Generator;
 
 import java.io.File;
 
@@ -54,7 +56,7 @@ public class GenModelPlugin extends AbstractMojo {
     private File output;
 
     /**
-     * code root package
+     * code containerRoot package
      *
      * @parameter
      */
@@ -111,7 +113,14 @@ public class GenModelPlugin extends AbstractMojo {
         if (clearOutput) {
             deleteDirectory(output);
         }
-        org.kevoree.tools.ecore.gencode.Generator gen = new org.kevoree.tools.ecore.gencode.Generator(output, scala.Option.apply(packagePrefix), scala.Option.apply(rootXmiContainerClassName));//, getLog());
+
+        GenerationContext ctx = new GenerationContext();
+        ctx.setPackagePrefix(scala.Option.apply(packagePrefix));
+        ctx.setRootGenerationDirectory(output);
+        ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
+
+
+        Generator gen = new Generator(ctx);//, getLog());
         gen.generateModel(ecore, project.getVersion());
         if (!modelOnly) {
             gen.generateLoader(ecore);

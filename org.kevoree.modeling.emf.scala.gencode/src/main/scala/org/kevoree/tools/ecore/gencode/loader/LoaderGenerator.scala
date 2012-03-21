@@ -24,7 +24,7 @@ package org.kevoree.tools.ecore.gencode.loader
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore.{EClassifier, EClass, EPackage}
 import collection.mutable.Buffer
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,31 +33,18 @@ import org.kevoree.tools.ecore.gencode.ProcessorHelper
  * Time: 18:09
  */
 
-object LoaderGenerator {
-  //var rootXmiPackage : EPackage = null
-}
+class LoaderGenerator(ctx : GenerationContext) {
 
-class LoaderGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage, rootXmiContainerClassName: Option[String]) {
+  def generateLoader(pack : EPackage) {
 
-  //LoaderGenerator.rootXmiPackage = rootXmiPackage
+    val loaderGenBaseDir = ProcessorHelper.getPackageGenDir(ctx, pack) + "/loader/"
+    ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
-  def generateLoader() {
+    val el = new RootLoader(ctx, loaderGenBaseDir, pack)
 
-    val packageName = packagePrefix match {
-      case Some(parent) => {if(parent.endsWith(".")){parent}else{parent + "."}} + rootXmiPackage.getName + ".loader"
-      case None => rootXmiPackage.getName + ".loader"
-    }
-
-    ProcessorHelper.lookForRootElement(rootXmiPackage,rootXmiContainerClassName) match {
+    ctx.getRootContainerInPackage(pack) match {
       case Some(cls : EClass) => {
-        val el = new RootLoader(
-          genBaseDir+ "/"+ rootXmiPackage.getName + "/loader",
-          packageName,
-          rootXmiPackage.getName+ ":" + cls.getName,
-          cls,
-          rootXmiPackage,
-          packagePrefix)
-        el.generateLoader()
+        el.generateLoader(cls, pack.getName+ ":" + cls.getName)
       }
       case None => throw new UnsupportedOperationException("Root container not found. Returned None.")
     }

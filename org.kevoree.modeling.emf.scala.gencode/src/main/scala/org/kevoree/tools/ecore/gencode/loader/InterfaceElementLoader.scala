@@ -20,8 +20,8 @@
 package org.kevoree.tools.ecore.gencode.loader
 
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import java.io.{FileOutputStream, PrintWriter, File}
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,7 +30,7 @@ import java.io.{FileOutputStream, PrintWriter, File}
  * Time: 17:53
  */
 
-class InterfaceElementLoader(genDir: String, genPackage: String, elementType: EClass, context: String, factory: String, modelingPackage: EPackage, modelPackage : String) {
+class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage: String, elementType: EClass, context: String, factory: String, modelingPackage: EPackage, modelPackage : String) {
 
 
   def generateLoader() {
@@ -86,11 +86,11 @@ class InterfaceElementLoader(genDir: String, genPackage: String, elementType: EC
     ProcessorHelper.getConcreteSubTypes(elementType).foreach {
       concreteType =>
         if (!concreteType.isInterface) {
-          val el = new BasicElementLoader(genDir, genPackage, concreteType, context, factory, modelingPackage,modelPackage)
+          val el = new BasicElementLoader(ctx, genDir, genPackage, concreteType, context, factory, modelingPackage,modelPackage)
           el.generateLoader()
         } else {
           //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-          val el = new InterfaceElementLoader(genDir, genPackage, concreteType, context, factory, modelingPackage,modelPackage)
+          val el = new InterfaceElementLoader(ctx, genDir, genPackage, concreteType, context, factory, modelingPackage,modelPackage)
           el.generateLoader()
         }
         if (!listContainedElementsTypes.contains(concreteType)) {
