@@ -39,13 +39,13 @@ trait ClonerGenerator {
   //val rootPackage: String
   //val rootXmiPackage: EPackage
 
-  def generateCloner(rootXmiPackage: EPackage, location: String, rootPackage: String) {
+  def generateCloner(rootXmiPackage: EPackage, location: String, rootPackage: String, rootXmiContainerClassName:Option[String]) {
     try {
-      ProcessorHelper.lookForRootElement(rootXmiPackage) match {
-        case cls: EClass => {
+      ProcessorHelper.lookForRootElement(rootXmiPackage,rootXmiContainerClassName) match {
+        case Some(cls: EClass) => {
           generateDefaultCloner(location + "/" + rootXmiPackage.getName, rootPackage, cls, rootXmiPackage)
         }
-        case _@e => throw new UnsupportedOperationException("Root container not found. Returned:" + e)
+        case None => throw new UnsupportedOperationException("Root container not found. Returned None")
       }
     } catch {
       case _@e => println("Warn cloner not generated")

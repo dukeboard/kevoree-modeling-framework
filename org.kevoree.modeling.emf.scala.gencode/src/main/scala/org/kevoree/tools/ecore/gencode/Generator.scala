@@ -42,7 +42,7 @@ import serializer.SerializerGenerator
  * @param rootGenerationDirectory is the directory where the sources will be generated.
  * @param packagePrefix can be used to specify an additional package prefix.
  */
-class Generator(rootGenerationDirectory: File, packagePrefix: Option[String]) {
+class Generator(rootGenerationDirectory: File, packagePrefix: Option[String], rootXmiContainerClassName : Option[String]) {
 
   /**
    * Triggers the generation of the given <i>ecore</i> file implementation.
@@ -61,7 +61,7 @@ class Generator(rootGenerationDirectory: File, packagePrefix: Option[String]) {
     resource.getContents.foreach {
       elem =>
         elem match {
-          case pack: EPackage => Processor.process(modelGenBaseDir, pack, packagePrefix, modelVersion, true)
+          case pack: EPackage => Processor.process(modelGenBaseDir, pack, packagePrefix, modelVersion, true, rootXmiContainerClassName)
           case _ => println("No model generator for root element of class: " + elem.getClass)
         }
     }
@@ -79,7 +79,7 @@ class Generator(rootGenerationDirectory: File, packagePrefix: Option[String]) {
     resource.getContents.foreach {
       elem => elem match {
         case pack: EPackage => {
-          val loaderGenerator = new LoaderGenerator(loaderGenBaseDir, packagePrefix, pack)
+          val loaderGenerator = new LoaderGenerator(loaderGenBaseDir, packagePrefix, pack, rootXmiContainerClassName)
           loaderGenerator.generateLoader()
         }
         case _ => println("No loader generator for root element of class: " + elem.getClass)
@@ -99,7 +99,7 @@ class Generator(rootGenerationDirectory: File, packagePrefix: Option[String]) {
     resource.getContents.foreach {
       elem => elem match {
         case pack: EPackage => {
-          val serializerGenerator = new SerializerGenerator(serializerGenBaseDir, packagePrefix, pack)
+          val serializerGenerator = new SerializerGenerator(serializerGenBaseDir, packagePrefix, pack, rootXmiContainerClassName)
           serializerGenerator.generateSerializer()
         }
         case _ => println("No serializer generator for root element of class: " + elem.getClass)

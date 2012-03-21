@@ -46,7 +46,7 @@ with EnumGenerator {
    * @param modelVersion the version of the model to be included in headers
    * @param isRoot specifies if the method call is made on the root package
    */
-  def process(baseDir: String, pack: EPackage, parentPackage: Option[String] , modelVersion : String, isRoot : Boolean = false) {
+  def process(baseDir: String, pack: EPackage, parentPackage: Option[String] , modelVersion : String, isRoot : Boolean = false, rootXmiContainerClassName: Option[String]) {
     //log.debug("Processing package: " + containerPack + "." + pack.getName)
     val genDir = baseDir + "/" + pack.getName
     val packageName = parentPackage match {
@@ -60,10 +60,10 @@ with EnumGenerator {
     generateContainerTrait(genDir, packageName, pack)
     //generateMutableTrait(dir, thisPack, pack)
     pack.getEClassifiers.foreach(c => process(genDir, packageName, c, pack))
-    pack.getESubpackages.foreach(subPack => process(genDir, subPack, Some(packageName),modelVersion))
+    pack.getESubpackages.foreach(subPack => process(genDir, subPack, Some(packageName),modelVersion, false, rootXmiContainerClassName))
 
     if(isRoot){
-      generateCloner(pack,baseDir,packageName)
+      generateCloner(pack,baseDir,packageName,rootXmiContainerClassName)
     }
 
   }

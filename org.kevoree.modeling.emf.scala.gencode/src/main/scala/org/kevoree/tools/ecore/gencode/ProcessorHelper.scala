@@ -123,70 +123,103 @@ object ProcessorHelper {
     res
   }     */
 
-  def lookForRootElement(rootXmiPackage : EPackage) : EClassifier = {
+  private def lookForRootElementByName(rootXmiPackage : EPackage, rootContainerClassName: String) : Option[EClass] = {
+    var possibleRoot : Option[EClass] = None
+    //Search in the current package
+    if(rootXmiPackage.getEClassifiers.forall(classifier=>{
+      classifier match {
+        case cls : EClass => {
+          if(cls.getName.equals(rootContainerClassName)) {
+            possibleRoot = Some(cls)
+            false
+          }else {
+            true
+          }
+        }
+        case _ => true
+      }
+    })) { // not found, looking into sub-packages
+      rootXmiPackage.getESubpackages.forall(subpackage =>{
+        possibleRoot = lookForRootElementByName(subpackage, rootContainerClassName)
+        possibleRoot match {
+          case Some(cls) => false
+          case None => true
+        }
+      })
+    }
+    possibleRoot
+  }
+
+  def lookForRootElement(rootXmiPackage : EPackage, rootContainerClassName: Option[String] = None) : Option[EClass] = {
 
     var referencedElements: List[String] = List[String]()
+    var possibleRoot : Option[EClass] = None
 
-    rootXmiPackage.getEClassifiers.foreach {
-      classifier => classifier match {
-        case cls: EClass => {
-          //System.out.println("Class::" + cls.getName)
-          cls.getEAllContainments.foreach {
-            reference =>
-              if (!referencedElements.contains(reference.getEReferenceType.getName)) {
-                referencedElements = referencedElements ++ List(reference.getEReferenceType.getName)
-                reference.getEReferenceType.getEAllSuperTypes.foreach{st =>
-                  if (!referencedElements.contains(st.getName)) {
-                    referencedElements = referencedElements ++ List(st.getName)
+    rootContainerClassName match {
+      case Some(className) => {
+        possibleRoot = lookForRootElementByName(rootXmiPackage, className)
+      }
+      case None =>{
+        rootXmiPackage.getEClassifiers.foreach {
+          classifier => classifier match {
+            case cls: EClass => {
+              //System.out.println("Class::" + cls.getName)
+              cls.getEAllContainments.foreach {
+                reference =>
+                  if (!referencedElements.contains(reference.getEReferenceType.getName)) {
+                    referencedElements = referencedElements ++ List(reference.getEReferenceType.getName)
+                    reference.getEReferenceType.getEAllSuperTypes.foreach{st =>
+                      if (!referencedElements.contains(st.getName)) {
+                        referencedElements = referencedElements ++ List(st.getName)
+                      }
+                    }
+                  }
+                //System.out.println("\t\tReference::[name:" + reference.getName + ", type:" + reference.getEReferenceType.getName + ", isContainement:" + reference.isContainment + ", isContainer:" + reference.isContainer + "]")
+              }
+            }
+            case _@e => throw new UnsupportedOperationException(e.getClass.getName + " did not match anything while looking for root element.")
+          }
+        }
+
+        //System.out.println("References:" + referencedElements.mkString(","))
+
+        rootXmiPackage.getEClassifiers.filter {
+          classif =>
+            classif match {
+              case cls: EClass => {
+
+                if(cls.getEAllContainments.size() == 0) {
+                  false
+                } else if (referencedElements.contains(cls.getName)) {
+                  false
+                } else {
+                  // System.out.println(cls.getEAllSuperTypes.mkString(cls.getName +" supertypes [\n\t\t",",\n\t\t","]"))
+                  cls.getEAllSuperTypes.find{st =>
+                    val mat = referencedElements.contains(st.getName)
+                    // System.out.println(st.getName + " Match:: " + mat)
+                    mat
+                  } match {
+                    case Some(s) => false
+                    case None => true
                   }
                 }
               }
-              //System.out.println("\t\tReference::[name:" + reference.getName + ", type:" + reference.getEReferenceType.getName + ", isContainement:" + reference.isContainment + ", isContainer:" + reference.isContainer + "]")
-          }
-        }
-        case _@e => throw new UnsupportedOperationException(e.getClass.getName + " did not match anything while looking for root element.")
-      }
-    }
-
-    //System.out.println("References:" + referencedElements.mkString(","))
-
-    rootXmiPackage.getEClassifiers.filter {
-      classif =>
-        classif match {
-          case cls: EClass => {
-
-            if(cls.getEAllContainments.size() == 0) {
-              false
-            } else if (referencedElements.contains(cls.getName)) {
-              false
+              case _ => false
+            }
+        } match {
+          case b: Buffer[EClassifier] => {
+            if (b.size != 1) {
+              b.foreach(classifier => System.out.println("Possible root:" + classifier.getName))
             } else {
-             // System.out.println(cls.getEAllSuperTypes.mkString(cls.getName +" supertypes [\n\t\t",",\n\t\t","]"))
-              cls.getEAllSuperTypes.find{st =>
-                val mat = referencedElements.contains(st.getName)
-               // System.out.println(st.getName + " Match:: " + mat)
-                mat
-              } match {
-                case Some(s) => false
-                case None => true
-              }
+              System.out.println("RootElement:" + b.get(0).getName)
+              possibleRoot = Some(b.get(0).asInstanceOf[EClass])
             }
           }
-          case _ => false
-        }
-    } match {
-      case b: Buffer[EClassifier] => {
-        if (b.size != 1) {
-          b.foreach(classifier => System.out.println("Possible root:" + classifier.getName))
-          null
-        } else {
-          System.out.println("RootElement:" + b.get(0).getName)
-          b.get(0)
+          case _@e => System.out.println("Root element not found. Returned:" + e.getClass);null
         }
       }
-      case _@e => System.out.println("Root element not found. Returned:" + e.getClass);null
     }
-
-
+    possibleRoot
   }
 
 }

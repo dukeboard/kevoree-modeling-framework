@@ -37,7 +37,7 @@ object LoaderGenerator {
   //var rootXmiPackage : EPackage = null
 }
 
-class LoaderGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage) {
+class LoaderGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage, rootXmiContainerClassName: Option[String]) {
 
   //LoaderGenerator.rootXmiPackage = rootXmiPackage
 
@@ -48,8 +48,8 @@ class LoaderGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmi
       case None => rootXmiPackage.getName + ".loader"
     }
 
-    ProcessorHelper.lookForRootElement(rootXmiPackage) match {
-      case cls : EClass => {
+    ProcessorHelper.lookForRootElement(rootXmiPackage,rootXmiContainerClassName) match {
+      case Some(cls : EClass) => {
         val el = new RootLoader(
           genBaseDir+ "/"+ rootXmiPackage.getName + "/loader",
           packageName,
@@ -59,7 +59,7 @@ class LoaderGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmi
           packagePrefix)
         el.generateLoader()
       }
-      case _@e => throw new UnsupportedOperationException("Root container not found. Returned:" + e)
+      case None => throw new UnsupportedOperationException("Root container not found. Returned None.")
     }
   }
 

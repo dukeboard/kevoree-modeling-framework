@@ -32,7 +32,7 @@ import org.kevoree.tools.ecore.gencode.ProcessorHelper
  * Time: 20:55
  */
 
-class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage) {
+class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], rootXmiPackage: EPackage, rootXmiContainerClassName: Option[String]) {
 
 
   def generateSerializer() {
@@ -42,12 +42,12 @@ class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], roo
       case None => rootXmiPackage.getName
     }
 
-    ProcessorHelper.lookForRootElement(rootXmiPackage) match {
-      case cls: EClass => {
+    ProcessorHelper.lookForRootElement(rootXmiPackage, rootXmiContainerClassName) match {
+      case Some(cls: EClass) => {
         generateSerializer(genBaseDir + "/" + rootXmiPackage.getName, basePackage, rootXmiPackage.getName + ":" + cls.getName, cls, rootXmiPackage, true)
         generateDefaultSerializer(genBaseDir + "/" + rootXmiPackage.getName, basePackage, cls, rootXmiPackage)
       }
-      case _@e => throw new UnsupportedOperationException("Root container not found. Returned:" + e)
+      case None => throw new UnsupportedOperationException("Root container not found. Returned one.")
     }
   }
 

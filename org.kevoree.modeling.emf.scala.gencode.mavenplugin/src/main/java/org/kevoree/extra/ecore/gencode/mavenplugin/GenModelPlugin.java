@@ -60,6 +60,13 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private String packagePrefix;
 
+    /**
+     * Root XMI Container
+     *
+     * @parameter
+     */
+    private String rootXmiContainerClassName;
+
 
     /**
      * Clear output dir
@@ -104,7 +111,7 @@ public class GenModelPlugin extends AbstractMojo {
         if (clearOutput) {
             deleteDirectory(output);
         }
-        org.kevoree.tools.ecore.gencode.Generator gen = new org.kevoree.tools.ecore.gencode.Generator(output, scala.Option.apply(packagePrefix));//, getLog());
+        org.kevoree.tools.ecore.gencode.Generator gen = new org.kevoree.tools.ecore.gencode.Generator(output, scala.Option.apply(packagePrefix), scala.Option.apply(rootXmiContainerClassName));//, getLog());
         gen.generateModel(ecore, project.getVersion());
         if (!modelOnly) {
             gen.generateLoader(ecore);
