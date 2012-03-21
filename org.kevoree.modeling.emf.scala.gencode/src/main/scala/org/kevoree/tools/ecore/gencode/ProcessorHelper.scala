@@ -23,8 +23,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import scala.collection.JavaConversions._
-import org.eclipse.emf.ecore.{EClassifier, EClass, EPackage}
 import collection.mutable.Buffer
+import org.eclipse.emf.ecore._
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,6 +41,14 @@ object ProcessorHelper {
   }
 
 
+  def convertType(aType: EDataType): String = {
+    aType match {
+      case theType:EEnum => theType.getName
+      case _@theType => convertType(theType.getInstanceClassName)
+      //case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + aType.getClass); null
+    }
+  }
+
   def convertType(theType: String): String = {
     theType match {
       case "bool" | "boolean" | "java.lang.Boolean" => "java.lang.Boolean"
@@ -55,6 +63,7 @@ object ProcessorHelper {
     word match {
       case "type" => "`type`"
       case "object" => "`object`"
+      case "requires" => "`requires`"
       case _ => word //throw new UnsupportedOperationException("ProcessorHelper::protectReservedWords::No matching found for word: " + word);null
     }
   }

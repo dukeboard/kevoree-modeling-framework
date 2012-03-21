@@ -107,12 +107,13 @@ trait ClassGenerator extends ClonerGenerator {
       att =>
 
         pr.print("\t\tprivate var " + protectReservedWords(att.getName) + " : ")
-        ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) match {
+        ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("java.lang.String = \"\"\n")
           case "java.lang.Integer" => pr.println("java.lang.Integer = 0\n")
           case "java.lang.Boolean" => pr.println("java.lang.Boolean = false\n")
           case "java.lang.Object" => pr.println("java.lang.Object = null\n")
-          case _@e => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has net been converted in a known type. Can not initialize.")
+          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+          case _@className => pr.println( className )
         }
 
     }
@@ -153,12 +154,12 @@ trait ClassGenerator extends ClonerGenerator {
       att =>
       //Generate getter
         pr.print("\n\t\tdef get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + " : " +
-          ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + " = {\n")
+          ProcessorHelper.convertType(att.getEAttributeType) + " = {\n")
         pr.println("\t\t\t\t" + protectReservedWords(att.getName) + "\n\t\t}")
 
         //generate setter
         pr.print("\n\t\tdef set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + ") {\n")
+        pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
         pr.println("\t\t\t\tthis." + protectReservedWords(att.getName) + " = " + protectReservedWords(att.getName) + "\n\t\t}")
     }
 
