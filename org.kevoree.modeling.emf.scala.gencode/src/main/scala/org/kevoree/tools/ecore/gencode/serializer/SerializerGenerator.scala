@@ -76,7 +76,12 @@ class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], roo
   def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false): Unit = {
     ProcessorHelper.checkOrCreateFolder(genDir + "/serializer")
     //PROCESS SELF
-    val pr = new PrintWriter(new File(genDir + "/serializer/" + root.getName + "Serializer.scala"),"utf-8")
+    System.out.println("[DEBUG] SerializerGenerator::generateSerializer => " + root.getName)
+
+    val file = new File(genDir + "/serializer/" + root.getName + "Serializer.scala")
+
+    //if(!file.exists()) {
+    val pr = new PrintWriter(file,"utf-8")
     pr.println("package " + packageName + ".serializer")
     generateToXmiMethod(root, pr, rootXmiPackage.getName + ":" + root.getName, isRoot)
     pr.flush()
@@ -85,22 +90,28 @@ class SerializerGenerator(genBaseDir: String, packagePrefix: Option[String], roo
     //PROCESS SUB
     root.getEAllContainments.foreach {
       sub =>
-        val subpr = new PrintWriter(new File(genDir + "/serializer/" + sub.getEReferenceType.getName + "Serializer.scala"),"utf-8")
-        subpr.println("package " + packageName + ".serializer")
-        generateToXmiMethod(sub.getEReferenceType, subpr, sub.getName)
-        subpr.flush()
-        subpr.close()
+        val subfile = new File(genDir + "/serializer/" + sub.getEReferenceType.getName + "Serializer.scala")
+        if(!subfile.exists()) {
+          val subpr = new PrintWriter(subfile,"utf-8")
+          subpr.println("package " + packageName + ".serializer")
+          generateToXmiMethod(sub.getEReferenceType, subpr, sub.getName)
+          subpr.flush()
+          subpr.close()
 
-        //¨PROCESS ALL SUB TYPE
-        ProcessorHelper.getConcreteSubTypes(sub.getEReferenceType).foreach {
-          subsubType =>
-            generateSerializer(genDir, packageName, sub.getName, subsubType, rootXmiPackage)
+          //¨PROCESS ALL SUB TYPE
+          ProcessorHelper.getConcreteSubTypes(sub.getEReferenceType).foreach {
+            subsubType =>
+              if(subsubType != root) {//avoid looping in case of self-containment
+                generateSerializer(genDir, packageName, sub.getName, subsubType, rootXmiPackage)
+              }
+          }
+          if(sub.getEReferenceType != root) {//avoid looping in case of self-containment
+            generateSerializer(genDir, packageName, sub.getName, sub.getEReferenceType, rootXmiPackage)
+          }
         }
-        generateSerializer(genDir, packageName, sub.getName, sub.getEReferenceType, rootXmiPackage)
 
     }
-
-
+    // }
   }
 
 

@@ -65,6 +65,7 @@ class Generator(rootGenerationDirectory: File, packagePrefix: Option[String], ro
           case _ => println("No model generator for root element of class: " + elem.getClass)
         }
     }
+    System.out.println("Done with model generation")
   }
 
   def generateLoader(ecoreFile: File) {
@@ -85,6 +86,7 @@ class Generator(rootGenerationDirectory: File, packagePrefix: Option[String], ro
         case _ => println("No loader generator for root element of class: " + elem.getClass)
       }
     }
+    System.out.println("Done with loader generation")
   }
 
   def generateSerializer(ecoreFile: File) {
@@ -105,6 +107,7 @@ class Generator(rootGenerationDirectory: File, packagePrefix: Option[String], ro
         case _ => println("No serializer generator for root element of class: " + elem.getClass)
       }
     }
+    System.out.println("Done with serializer generation")
   }
 /*
   def generateCloner(ecoreFile: File) {

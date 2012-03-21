@@ -86,6 +86,7 @@ class BasicElementLoader(genDir: String, genPackage: String, elementType: EClass
 
     currentType.getEAllContainments.foreach {
       ref =>
+        if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
         if (!ref.getEReferenceType.isInterface) {
           //Generates loaders for simple elements
           val el = new BasicElementLoader(genDir, genPackage, ref.getEReferenceType, context, factory, modelingPackage, modelPackage)
@@ -98,6 +99,7 @@ class BasicElementLoader(genDir: String, genPackage: String, elementType: EClass
         }
         if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
           listContainedElementsTypes = listContainedElementsTypes ++ List(ref.getEReferenceType)
+        }
         }
     }
 

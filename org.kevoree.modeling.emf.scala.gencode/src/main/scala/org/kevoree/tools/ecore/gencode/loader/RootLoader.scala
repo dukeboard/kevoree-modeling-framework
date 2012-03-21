@@ -47,7 +47,7 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
       case Some(prefix) => {if(prefix.endsWith(".")){prefix}else{prefix + "."} + modelingPackage.getName + "._"}
       case None => modelingPackage.getName + "._"
     }
-    
+
     pr.println("package " + genPackage + ";")
     pr.println()
     pr.println("import xml.{XML,NodeSeq}")
@@ -110,17 +110,20 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
     var listContainedElementsTypes = List[EClass]()
     currentType.getEAllContainments.foreach {
       ref =>
-        if (!ref.getEReferenceType.isInterface) {
-          val el = new BasicElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
-          el.generateLoader()
-        } else {
-          //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-          val el = new InterfaceElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
-          el.generateLoader()
-        }
 
-        if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
-          listContainedElementsTypes = listContainedElementsTypes ++ List(ref.getEReferenceType)
+        if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
+
+          if (!ref.getEReferenceType.isInterface) {
+            val el = new BasicElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
+            el.generateLoader()
+          } else {
+            //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
+            val el = new InterfaceElementLoader(genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, packageOfModel)
+            el.generateLoader()
+          }
+          if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
+            listContainedElementsTypes = listContainedElementsTypes ++ List(ref.getEReferenceType)
+          }
         }
     }
 
@@ -186,7 +189,7 @@ class RootLoader(genDir: String, genPackage: String, elementNameInParent: String
       ref =>
         pr.println("\t\t\t\tval " + ref.getName + " = load" + ref.getEReferenceType.getName + "(\"/\", rootNode, \"" + ref.getName + "\", context)")
         pr.println("\t\t\t\tcontext." + rootContainerName + ".set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ")")
-//        pr.println("\t\t\t\t" + ref.getName + ".foreach{e=>e.eContainer=" + context + "." + rootContainerName + " }")
+        //        pr.println("\t\t\t\t" + ref.getName + ".foreach{e=>e.eContainer=" + context + "." + rootContainerName + " }")
         pr.println("")
     }
     pr.println("\t\t}")
