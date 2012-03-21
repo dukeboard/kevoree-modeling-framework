@@ -56,7 +56,7 @@ object Processor extends TraitGenerator with PackageFactoryGenerator with ClassG
     generateContainerTrait(genDir, packageName, pack)
     //generateMutableTrait(dir, thisPack, pack)
     pack.getEClassifiers.foreach(c => process(genDir, packageName, c, pack))
-    pack.getESubpackages.foreach(p => process(genDir, pack, Some(packageName),modelVersion))
+    pack.getESubpackages.foreach(subPack => process(genDir, subPack, Some(packageName),modelVersion))
 
     if(isRoot){
       generateCloner(pack,baseDir,packageName)

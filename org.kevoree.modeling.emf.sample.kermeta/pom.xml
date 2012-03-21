@@ -32,7 +32,6 @@
                         </goals>
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
-                            <rootPackage></rootPackage>
                         </configuration>
                     </execution>
                 </executions>
