@@ -45,7 +45,7 @@ object ProcessorHelper {
     theType match {
       case "bool" | "boolean" | "java.lang.Boolean" => "java.lang.Boolean"
       case "java.lang.String" | "String" => "java.lang.String"
-      case "java.lang.Integer" => "java.lang.Integer"
+      case "int" | "java.lang.Integer" => "java.lang.Integer"
       case "java.lang.Object" => "java.lang.Object"
       case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + theType); null
     }
@@ -54,6 +54,7 @@ object ProcessorHelper {
   def protectReservedWords(word: String): String = {
     word match {
       case "type" => "`type`"
+      case "object" => "`object`"
       case _ => word //throw new UnsupportedOperationException("ProcessorHelper::protectReservedWords::No matching found for word: " + word);null
     }
   }

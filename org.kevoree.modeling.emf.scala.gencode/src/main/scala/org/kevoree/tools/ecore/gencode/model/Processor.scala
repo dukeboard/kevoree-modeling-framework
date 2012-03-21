@@ -21,9 +21,9 @@ package org.kevoree.tools.ecore.gencode.model
 
 import scala.collection.JavaConversions._
 import org.kevoree.tools.ecore.gencode.ProcessorHelper
-import org.eclipse.emf.ecore.{EClass, EClassifier, EPackage}
 import scala.None
 import org.kevoree.tools.ecore.gencode.cloner.ClonerGenerator
+import org.eclipse.emf.ecore._
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,7 +32,11 @@ import org.kevoree.tools.ecore.gencode.cloner.ClonerGenerator
  * Time: 08:32
  */
 
-object Processor extends TraitGenerator with PackageFactoryGenerator with ClassGenerator with ClonerGenerator{
+object Processor extends TraitGenerator
+with PackageFactoryGenerator
+with ClassGenerator
+with ClonerGenerator
+with EnumGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
@@ -62,9 +66,6 @@ object Processor extends TraitGenerator with PackageFactoryGenerator with ClassG
       generateCloner(pack,baseDir,packageName)
     }
 
-
-
-
   }
 
 
@@ -75,7 +76,13 @@ object Processor extends TraitGenerator with PackageFactoryGenerator with ClassG
         generateClass(location, pack, cl, packElement)
         generateCompanion(location, pack, cl, packElement)
       }
-      case _ => println("No processor found for classifier: " + cls.getClass)
+      case dt : EDataType => { dt match {
+        case enum : EEnum => generateEnum(location, pack, enum, packElement)
+        case _ => System.out.println("Generic DataType " + cls.getName + " ignored for generation.")
+      }
+
+      }
+      case _ => println("No processor found for classifier: " + cls)
     }
 
   }
