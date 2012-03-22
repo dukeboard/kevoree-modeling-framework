@@ -31,7 +31,7 @@ import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
  * Time: 17:24
  */
 
-class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: String, elementType: EClass, context: String, factory: String, modelingPackage: EPackage, modelPackage: String) {
+class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: String, elementType: EClass, context: String, modelingPackage: EPackage, modelPackage: String) {
 
   def generateLoader() {
     //Creation of the generation dir
@@ -89,12 +89,12 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
         if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
         if (!ref.getEReferenceType.isInterface) {
           //Generates loaders for simple elements
-          val el = new BasicElementLoader(ctx, genDir, genPackage, ref.getEReferenceType, context, factory, modelingPackage, modelPackage)
+          val el = new BasicElementLoader(ctx, genDir, genPackage, ref.getEReferenceType, context, modelingPackage, modelPackage)
           el.generateLoader()
 
         } else {
           //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-          val el = new InterfaceElementLoader(ctx, genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, factory, modelingPackage, modelPackage)
+          val el = new InterfaceElementLoader(ctx, genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, modelingPackage, modelPackage)
           el.generateLoader()
         }
         if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
@@ -110,8 +110,8 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
   }
 
   private def generateCollectionLoadingMethod(pr: PrintWriter) {
-    pr.println("\t\tdef load" + elementType.getName + "(parentId: String, parentNode: NodeSeq, refNameInParent : String, context : " + context + ") : List[" + elementType.getName + "] = {")
-    pr.println("\t\t\t\tvar loadedElements = List[" + elementType.getName + "]()")
+    pr.println("\t\tdef load" + elementType.getName + "(parentId: String, parentNode: NodeSeq, refNameInParent : String, context : " + context + ") : List[" + ProcessorHelper.fqn(ctx,elementType) + "] = {")
+    pr.println("\t\t\t\tvar loadedElements = List[" + ProcessorHelper.fqn(ctx,elementType) + "]()")
     pr.println("\t\t\t\tvar i = 0")
     pr.println("\t\t\t\tval " + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List = (parentNode \\\\ refNameInParent)") //\"" + elementNameInParent + "\")")
     pr.println("\t\t\t\t" + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List.foreach { xmiElem =>")
@@ -124,8 +124,12 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
   }
 
   private def generateElementLoadingMethod(pr: PrintWriter) {
-    pr.println("\t\tdef load" + elementType.getName + "Element(elementId: String, elementNode: NodeSeq, context : " + context + ") : " + elementType.getName + " = {")
+    pr.println("\t\tdef load" + elementType.getName + "Element(elementId: String, elementNode: NodeSeq, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " = {")
     pr.println("\t\t")
+
+    val ePackageName = elementType.getEPackage.getName
+    val factory = ProcessorHelper.fqn(ctx,elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
+
     pr.println("\t\t\t\tval modelElem = " + factory + ".create" + elementType.getName)
     pr.println("\t\t\t\tcontext.map += elementId -> modelElem")
     pr.println("")
@@ -173,7 +177,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
   private def generateElementResolutionMethod(pr: PrintWriter) {
     pr.println("\t\tdef resolve" + elementType.getName + "Element(elementId: String, elementNode: NodeSeq, context : " + context + ") {")
     pr.println("")
-    pr.println("\t\t\t\tval modelElem = context.map(elementId).asInstanceOf[" + elementType.getName + "]")
+    pr.println("\t\t\t\tval modelElem = context.map(elementId).asInstanceOf[" + ProcessorHelper.fqn(ctx,elementType) + "]")
     pr.println("")
     elementType.getEAllAttributes.foreach {
       att =>
@@ -214,9 +218,9 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
         }
         methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
         if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
-          pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase Some(s: " + ref.getEReferenceType.getName + ") => modelElem." + methName + "(Some(s))")
+          pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
         } else {
-          pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase Some(s: " + ref.getEReferenceType.getName + ") => modelElem." + methName + "(s)")
+          pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
         }
 
 

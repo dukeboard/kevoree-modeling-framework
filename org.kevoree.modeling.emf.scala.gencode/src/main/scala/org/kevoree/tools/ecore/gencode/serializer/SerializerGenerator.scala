@@ -58,16 +58,16 @@ class SerializerGenerator(ctx:GenerationContext) {
     pr.println("package " + packageName + ".serializer")
     pr.println("class ModelSerializer extends " + root.getName + "Serializer {")
     pr.println()
-    pr.println("def serialize(o : Object) : scala.xml.Node = {")
+    pr.println("\tdef serialize(o : Object) : scala.xml.Node = {")
     pr.println()
-    pr.println("o match {")
-    pr.println("case o : " + packageName + "." + root.getName + " => {")
-    pr.println("val context = get" + root.getName + "XmiAddr(o,\"/\")")
-    pr.println(root.getName + "toXmi(o,context)")
-    pr.println("}")
-    pr.println("case _ => null")
-    pr.println("}") //END MATCH
-    pr.println("}") //END serialize method
+    pr.println("\t\to match {")
+    pr.println("\t\t\tcase o : " + packageName + "." + root.getName + " => {")
+    pr.println("\t\t\t\tval context = get" + root.getName + "XmiAddr(o,\"/\")")
+    pr.println("\t\t\t\t" + root.getName + "toXmi(o,context)")
+    pr.println("\t\t\t}")
+    pr.println("\t\t\tcase _ => null")
+    pr.println("\t\t}") //END MATCH
+    pr.println("\t}") //END serialize method
     pr.println("}") //END TRAIT
     pr.flush()
     pr.close()
@@ -140,7 +140,8 @@ class SerializerGenerator(ctx:GenerationContext) {
     buffer.println()
 
     //GENERATE GET XMI ADDR
-    buffer.println("\tdef get" + cls.getName + "XmiAddr(selfObject : " + cls.getName + ",previousAddr : String): Map[Object,String] = {")
+    System.out.println("[DEBUG] SerializerGen::" + cls)
+    buffer.println("\tdef get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ",previousAddr : String): Map[Object,String] = {")
     buffer.println("\t\tvar subResult = Map[Object,String]()")
     buffer.println("\t\tvar i = 0")
     cls.getEAllContainments.foreach {
@@ -168,7 +169,7 @@ class SerializerGenerator(ctx:GenerationContext) {
     buffer.println()
     buffer.println("\t\tselfObject match {")
     ProcessorHelper.getConcreteSubTypes(cls).foreach { subType =>
-      buffer.println("\t\t\tcase o : "+subType.getName+" =>subResult = subResult ++ get" + subType.getName + "XmiAddr(o,previousAddr)")
+      buffer.println("\t\t\tcase o : "+ProcessorHelper.fqn(ctx,subType)+" =>subResult = subResult ++ get" + subType.getName + "XmiAddr(o,previousAddr)")
     }
     buffer.println("\t\t\tcase _ => ")
     buffer.println("\t\t}")
@@ -178,15 +179,15 @@ class SerializerGenerator(ctx:GenerationContext) {
 
 
     if (isRoot) {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + cls.getName + ", addrs : Map[Object,String]) : scala.xml.Node = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ", addrs : Map[Object,String]) : scala.xml.Node = {")
     } else {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + cls.getName + ",refNameInParent : String, addrs : Map[Object,String]) : scala.xml.Node = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ",refNameInParent : String, addrs : Map[Object,String]) : scala.xml.Node = {")
     }
 
     buffer.println("\t\tselfObject match {")
     ProcessorHelper.getConcreteSubTypes(cls).foreach {
       subType =>
-        buffer.println("\t\t\tcase o : "+subType.getName+" => "+subType.getName+"toXmi(o,refNameInParent,addrs)")
+        buffer.println("\t\t\tcase o : "+ProcessorHelper.fqn(ctx,subType)+" => "+subType.getName+"toXmi(o,refNameInParent,addrs)")
     }
 
     buffer.println("\t\t\tcase _ => {")
@@ -220,8 +221,8 @@ class SerializerGenerator(ctx:GenerationContext) {
 
     }
 
-    buffer.println("\t\t\t\t\t\tsubresult    ")
-    buffer.println("\t\t\t\t\t}              ")
+    buffer.println("\t\t\t\t\t\tsubresult")
+    buffer.println("\t\t\t\t\t}")
 
 
 

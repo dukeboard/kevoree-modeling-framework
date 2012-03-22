@@ -101,7 +101,7 @@ trait ClassGenerator extends ClonerGenerator {
     //case class name
     pr.print("trait " + cls.getName)
 
-    pr.println((generateSuperTypes(cls, packElement) match {
+    pr.println((generateSuperTypes(ctx, cls, packElement) match {
       case None => "{"
       case Some(s) => s + " {"
     }))
@@ -129,7 +129,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.getEReferenceType.getName == null) {
             resolveCrossRefTypeDef(cls, ref, pack)
           } else {
-            ref.getEReferenceType.getName
+            ProcessorHelper.fqn(ctx, ref.getEReferenceType)//.getName
           }
           )
 
@@ -176,7 +176,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.getEReferenceType.getName == null) {
             resolveCrossRefTypeDef(cls, ref, pack)
           } else {
-            ref.getEReferenceType.getName
+            ProcessorHelper.fqn(ctx, ref.getEReferenceType)//.getName
           }
           )
 
@@ -208,7 +208,7 @@ trait ClassGenerator extends ClonerGenerator {
 
 
     //GENERATE CLONE METHOD
-    generateCloneMethods(pack,cls,pr,packElement)
+    generateCloneMethods(ctx, cls,pr,packElement)
 
     pr.println("")
     pr.println("}")
