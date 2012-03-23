@@ -48,7 +48,11 @@ with EnumGenerator {
     ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
 
     generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
-    generateContainerTrait(ctx, currentPackageDir, currentPackage)
+
+    if(ctx.getKevoreeContainer.isEmpty) {
+      generateContainerTrait(ctx, currentPackageDir, currentPackage)
+    }
+
     //generateMutableTrait(dir, thisPack, pack)
     currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c))
     currentPackage.getESubpackages.foreach(subPack => process(subPack, modelVersion))

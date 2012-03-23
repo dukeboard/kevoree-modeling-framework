@@ -49,13 +49,14 @@ class Generator(ctx:GenerationContext) {
   def generateModel(ecoreFile: File, modelVersion : String) {
 
     val model = ctx.getEcoreModel(ecoreFile)
+    val modelGen = new ModelGenerator(ctx)
 
     System.out.println("Launching model generation")
     model.getContents.foreach {
       elem =>
         elem match {
           case pack: EPackage => {
-            val modelGen = new ModelGenerator(ctx)
+
             modelGen.process(pack, modelVersion, true)
           }
           case _ => println("No model generator for containerRoot element of class: " + elem.getClass)

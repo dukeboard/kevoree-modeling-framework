@@ -53,10 +53,10 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
 
       //Generates the Trait
       pr.print("trait " + elementType.getName + "Loader")
-      if (subLoaders.size > 0) {
-        var stringListSubLoaders = List[String]()
-        subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
-        pr.println(stringListSubLoaders.mkString(" extends ", " with ", " {"))
+        if (subLoaders.size > 0) {
+          var stringListSubLoaders = List[String]()
+          subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
+          pr.println(stringListSubLoaders.mkString(" extends ", " with ", " {"))
       } else {
         pr.println("{")
       }

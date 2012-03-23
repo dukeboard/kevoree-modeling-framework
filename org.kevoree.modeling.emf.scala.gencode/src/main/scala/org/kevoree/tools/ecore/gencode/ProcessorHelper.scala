@@ -83,7 +83,7 @@ object ProcessorHelper {
 
   def generateSuperTypes(ctx : GenerationContext, cls: EClass, packElement: EPackage): Option[String] = {
     var superTypeList: Option[String] = None
-    superTypeList = Some(" extends " + packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container")
+    superTypeList = Some(" extends " + ctx.getKevoreeContainer.get)
     // superTypeList = Some(superTypeList.get + "with " + packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Mutable")
     cls.getESuperTypes.foreach {
       superType => superTypeList = Some(superTypeList.get + " with " + ProcessorHelper.fqn(ctx,superType))
