@@ -165,7 +165,7 @@ trait ClassGenerator extends ClonerGenerator {
           // else
           pr.println("\t\tprivate var " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
         } else {
-          throw new UnsupportedOperationException("GenDefConsRef::None standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
+          throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
     }
 
@@ -354,7 +354,7 @@ trait ClassGenerator extends ClonerGenerator {
           res += "\t\t\t\tdic.setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= None }) )\n"
           res += "\t\t\t\t}"
         } else {
-          res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= None }) )\n"
+          res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= _ }) )\n"
         }
       } else {
         res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{e=>e.setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(e)}))}\n"

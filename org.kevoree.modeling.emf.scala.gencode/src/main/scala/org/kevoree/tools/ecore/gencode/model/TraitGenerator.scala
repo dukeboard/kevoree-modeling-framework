@@ -68,6 +68,8 @@ trait TraitGenerator {
     pr.println("}")
     pr.flush()
     pr.close()
+
+    ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, packElement) +"." +formatedFactoryName))
   }
 
 }

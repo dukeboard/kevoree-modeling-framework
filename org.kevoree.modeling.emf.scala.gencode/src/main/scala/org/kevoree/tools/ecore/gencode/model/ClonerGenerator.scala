@@ -23,6 +23,7 @@ import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.{EPackage, EClass}
 import scala.collection.JavaConversions._
 import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
+import org.kevoree.tools.ecore.gencode.ProcessorHelper._
 
 
 /**
@@ -161,17 +162,28 @@ trait ClonerGenerator {
 
     cls.getEAllContainments.foreach {
       contained =>
-        contained.getUpperBound match {
-          case 1 => {
-            buffer.println("\t\tthis." + getGetter(contained.getName) + ".map{ sub =>")
-            buffer.println("\t\t\tsub.getClonelazy(subResult)")
-            buffer.println("\t\t}")
-          }
-          case -1 => {
-            buffer.println("\t\tthis." + getGetter(contained.getName) + ".foreach{ sub => ")
-            buffer.println("\t\t\tsub.getClonelazy(subResult)")
-            buffer.println("\t\t}")
-          }
+
+
+        if (contained.getUpperBound == -1) {
+          // multiple values
+          buffer.println("\t\tthis." + getGetter(contained.getName) + ".foreach{ sub => ")
+          buffer.println("\t\t\tsub.getClonelazy(subResult)")
+          buffer.println("\t\t}")
+        } else if (contained.getUpperBound == 1 && contained.getLowerBound == 0) {
+          // optional single ref
+          buffer.println("\t\tthis." + getGetter(contained.getName) + ".map{ sub =>")
+          buffer.println("\t\t\tsub.getClonelazy(subResult)")
+          buffer.println("\t\t}")
+        } else if (contained.getUpperBound == 1 && contained.getLowerBound == 1) {
+          // mandatory single ref
+          buffer.println("\t\tthis." + getGetter(contained.getName) + ".getClonelazy(subResult)")
+        } else if (contained.getLowerBound > 1) {
+          // else
+          buffer.println("\t\tthis." + getGetter(contained.getName) + ".foreach{ sub => ")
+          buffer.println("\t\t\tsub.getClonelazy(subResult)")
+          buffer.println("\t\t}")
+        } else {
+          throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
         }
         buffer.println()
     }
@@ -235,9 +247,13 @@ trait ClonerGenerator {
       contained =>
         contained.getUpperBound match {
           case 1 => {
+            if(contained.getLowerBound == 0) {
             buffer.println("\t\tthis." + getGetter(contained.getName) + ".map{ sub =>")
             buffer.println("\t\t\tsub.resolve(addrs)")
             buffer.println("\t\t}")
+            } else {
+              buffer.println("\t\tthis." + getGetter(contained.getName) + ".resolve(addrs)")
+            }
           }
           case -1 => {
             buffer.println("\t\tthis." + getGetter(contained.getName) + ".foreach{ sub => ")

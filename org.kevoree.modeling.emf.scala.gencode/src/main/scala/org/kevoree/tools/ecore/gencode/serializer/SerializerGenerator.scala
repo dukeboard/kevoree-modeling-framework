@@ -75,7 +75,7 @@ class SerializerGenerator(ctx:GenerationContext) {
 
 
   private def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false): Unit = {
-   // ProcessorHelper.checkOrCreateFolder(genDir + "/serializer")
+    // ProcessorHelper.checkOrCreateFolder(genDir + "/serializer")
     //PROCESS SELF
     //System.out.println("[DEBUG] SerializerGenerator::generateSerializer => " + root.getName)
 
@@ -128,11 +128,26 @@ class SerializerGenerator(ctx:GenerationContext) {
     buffer.println()
     buffer.println("trait " + cls.getName + "Serializer ")
 
-    var subTraits = ( cls.getEAllContainments ).map(sub => sub.getEReferenceType.getName + "Serializer").toSet
-    subTraits = ( subTraits ++ ProcessorHelper.getConcreteSubTypes(cls).map(sub => sub.getName + "Serializer")).toSet
 
-    if (subTraits.size >= 1) {
-      buffer.print(subTraits.mkString(" extends ", " with ", " "))
+    var stringListSubSerializers = Set[String]()
+
+    if (cls.getEAllContainments.size > 0) {
+      cls.getEAllContainments.foreach{contained =>
+        if(contained.getEReferenceType != cls) {
+          stringListSubSerializers = stringListSubSerializers ++ Set(contained.getEReferenceType.getName + "Serializer")
+        }
+      }
+    }
+      val subTypes = ProcessorHelper.getConcreteSubTypes(cls)
+      if(subTypes.size > 0) {
+        subTypes.foreach{sub =>
+          stringListSubSerializers = stringListSubSerializers ++ Set(sub.getName + "Serializer")
+        }
+      }
+
+
+    if (stringListSubSerializers.size > 0) {
+      buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
     }
 
     buffer.println("{")

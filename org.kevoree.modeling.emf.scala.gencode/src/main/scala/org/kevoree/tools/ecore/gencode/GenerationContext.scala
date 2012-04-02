@@ -87,6 +87,12 @@ class GenerationContext {
      }
    }
   }
+
+  private var kevoreeContainer : Option[String] = None
+  def getKevoreeContainer = kevoreeContainer
+  def setKevoreeContainer (ct : Option[String]) {
+    kevoreeContainer = ct
+  }
   
   
 }
