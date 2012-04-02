@@ -21,6 +21,7 @@ package org.kevoree.tools.ecore.gencode.loader
 
 import java.io.{File, FileOutputStream, PrintWriter}
 import org.eclipse.emf.ecore.EClass
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,7 +30,7 @@ import org.eclipse.emf.ecore.EClass
  * Time: 15:25
  */
 
-class ContextGenerator(genDir: String, genPackage: String, elementType: EClass, modelPackage : String) {
+class ContextGenerator(ctx:GenerationContext, genDir: String, genPackage: String, elementType: EClass, modelPackage : String) {
 
 
   def generateContext() {
@@ -46,7 +47,7 @@ class ContextGenerator(genDir: String, genPackage: String, elementType: EClass, 
     pr.println()
     pr.println("\t\tvar xmiContent : NodeSeq = null")
     pr.println()
-    pr.println("\t\tvar "+elementType.getName.substring(0,1).toLowerCase + elementType.getName.substring(1)+" : "+elementType.getName+" = null")
+    pr.println("\t\tvar "+elementType.getName.substring(0,1).toLowerCase + elementType.getName.substring(1)+" : "+ ProcessorHelper.fqn(ctx,elementType)+" = null")
     pr.println()
     pr.println("\t\tvar map : Map[String, Any] = null")
     pr.println()

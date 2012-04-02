@@ -20,9 +20,9 @@
 package org.kevoree.tools.ecore.gencode.model
 
 import java.io.{File, FileOutputStream, PrintWriter}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore.{EClass, EPackage}
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,17 +34,18 @@ import org.eclipse.emf.ecore.{EClass, EPackage}
 trait PackageFactoryGenerator {
 
 
-    def generatePackageFactory(location: String, pack: String, packElement: EPackage , modelVersion : String) {
+  def generatePackageFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
 
-    val pr = new PrintWriter(new File(location + "/" + formatedFactoryName + ".scala"),"utf-8")
+    val pr = new PrintWriter(new File(packageGenDir + "/" + formatedFactoryName + ".scala"),"utf-8")
 
+    val packageName = ProcessorHelper.fqn(ctx, packElement)
 
-    pr.println("package " + pack + ";")
+    pr.println("package " + packageName + ";")
     pr.println()
-    pr.println("import " + pack + ".impl._;")
+    pr.println("import " + packageName + ".impl._;")
     pr.println()
     pr.println(ProcessorHelper.generateHeader(packElement))
     //case class name

@@ -21,11 +21,10 @@ package org.kevoree.tools.ecore.gencode.model
 
 import java.io.{File, PrintWriter}
 import org.kevoree.tools.ecore.gencode.ProcessorHelper._
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
 import xmi.impl.XMIResourceImpl
-import org.kevoree.tools.ecore.gencode.cloner.ClonerGenerator
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,9 +35,11 @@ import org.kevoree.tools.ecore.gencode.cloner.ClonerGenerator
 
 trait ClassGenerator extends ClonerGenerator {
 
-  def generateCompanion(location: String, pack: String, cls: EClass, packElement: EPackage) {
-    val pr = new PrintWriter(new File(location + "/impl/" + cls.getName + "Impl.scala"),"utf-8")
+  def generateCompanion(ctx:GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+    val pr = new PrintWriter(new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala"),"utf-8")
     //System.out.println("Classifier class:" + cls.getClass)
+
+    val pack = ProcessorHelper.fqn(ctx, packElement)
 
     pr.println("package " + pack + ".impl;")
     pr.println()
@@ -85,19 +86,22 @@ trait ClassGenerator extends ClonerGenerator {
     pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
   }
 
-  def generateClass(location: String, pack: String, cls: EClass, packElement: EPackage) {
-    val pr = new PrintWriter(new File(location + "/" + cls.getName + ".scala"),"utf-8")
+  def generateClass(ctx:GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+    val pr = new PrintWriter(new File(currentPackageDir + "/" + cls.getName + ".scala"),"utf-8")
     //System.out.println("Generating class:" + cls.getName)
+
+       val pack = ProcessorHelper.fqn(ctx, packElement)
 
     pr.println("package " + pack + ";")
     pr.println()
+
     //pr.println("import " + pack + ".impl._;")
     //pr.println()
     pr.println(generateHeader(packElement))
     //case class name
     pr.print("trait " + cls.getName)
 
-    pr.println((generateSuperTypes(cls, packElement) match {
+    pr.println((generateSuperTypes(ctx, cls, packElement) match {
       case None => "{"
       case Some(s) => s + " {"
     }))
@@ -107,12 +111,13 @@ trait ClassGenerator extends ClonerGenerator {
       att =>
 
         pr.print("\t\tprivate var " + protectReservedWords(att.getName) + " : ")
-        ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) match {
+        ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("java.lang.String = \"\"\n")
           case "java.lang.Integer" => pr.println("java.lang.Integer = 0\n")
           case "java.lang.Boolean" => pr.println("java.lang.Boolean = false\n")
           case "java.lang.Object" => pr.println("java.lang.Object = null\n")
-          case _@e => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has net been converted in a known type. Can not initialize.")
+          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+          case _@className => pr.println( className )
         }
 
     }
@@ -124,9 +129,11 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.getEReferenceType.getName == null) {
             resolveCrossRefTypeDef(cls, ref, pack)
           } else {
-            ref.getEReferenceType.getName
+            ProcessorHelper.fqn(ctx, ref.getEReferenceType)//.getName
           }
           )
+
+        
 
         if (ref.getUpperBound == -1) {
           // multiple values
@@ -153,12 +160,12 @@ trait ClassGenerator extends ClonerGenerator {
       att =>
       //Generate getter
         pr.print("\n\t\tdef get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + " : " +
-          ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + " = {\n")
+          ProcessorHelper.convertType(att.getEAttributeType) + " = {\n")
         pr.println("\t\t\t\t" + protectReservedWords(att.getName) + "\n\t\t}")
 
         //generate setter
         pr.print("\n\t\tdef set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + ") {\n")
+        pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
         pr.println("\t\t\t\tthis." + protectReservedWords(att.getName) + " = " + protectReservedWords(att.getName) + "\n\t\t}")
     }
 
@@ -169,7 +176,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.getEReferenceType.getName == null) {
             resolveCrossRefTypeDef(cls, ref, pack)
           } else {
-            ref.getEReferenceType.getName
+            ProcessorHelper.fqn(ctx, ref.getEReferenceType)//.getName
           }
           )
 
@@ -201,8 +208,7 @@ trait ClassGenerator extends ClonerGenerator {
 
 
     //GENERATE CLONE METHOD
-    generateCloneMethods(pack,cls,pr,packElement)
-
+    generateCloneMethods(ctx, cls,pr,packElement)
 
     pr.println("")
     pr.println("}")

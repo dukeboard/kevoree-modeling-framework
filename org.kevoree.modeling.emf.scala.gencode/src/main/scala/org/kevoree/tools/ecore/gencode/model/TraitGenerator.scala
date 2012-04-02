@@ -21,7 +21,7 @@ package org.kevoree.tools.ecore.gencode.model
 
 import org.eclipse.emf.ecore.EPackage
 import java.io.{File, FileOutputStream, PrintWriter}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,15 +33,15 @@ import org.kevoree.tools.ecore.gencode.ProcessorHelper
 trait TraitGenerator {
 
 
-  def generateContainerTrait(location: String, pack: String, packElement: EPackage) {
+  def generateContainerTrait(ctx : GenerationContext, packageGenDir: String, packElement: EPackage) {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Container"
 
-    val pr = new PrintWriter(new File(location + "/" + formatedFactoryName + ".scala"),"utf-8")
+    val pr = new PrintWriter(new File(packageGenDir + "/" + formatedFactoryName + ".scala"),"utf-8")
 
 
-    pr.println("package " + pack + ";")
+    pr.println("package " + ProcessorHelper.fqn(ctx, packElement) + ";")
     pr.println()
     //pr.println("import " + pack + ".;")
     pr.println()
@@ -55,16 +55,16 @@ trait TraitGenerator {
     pr.println("\t private var internal_unsetCmd : Option[()=>Any] = None ")
 
     //generate getter
-    pr.println("def eContainer = internal_eContainer")
+    pr.println("\tdef eContainer = internal_eContainer")
 
     //generate setter
-    pr.print("\n\t\tdef setEContainer( container : " + formatedFactoryName + ", unsetCmd : Option[()=>Any] ) {\n")
-    pr.println("val tempUnsetCmd = internal_unsetCmd")
-    pr.println("internal_unsetCmd = None")
-    pr.println("tempUnsetCmd.map{inCmd => inCmd() }")
-    pr.println("\t\t\t\tthis.internal_eContainer = container\n")
-    pr.println("internal_unsetCmd = unsetCmd")
-    pr.println("}")
+    pr.print("\n\tdef setEContainer( container : " + formatedFactoryName + ", unsetCmd : Option[()=>Any] ) {\n")
+    pr.println("\t\tval tempUnsetCmd = internal_unsetCmd")
+    pr.println("\t\tinternal_unsetCmd = None")
+    pr.println("\t\ttempUnsetCmd.map{inCmd => inCmd() }")
+    pr.println("\t\tthis.internal_eContainer = container\n")
+    pr.println("\t\tinternal_unsetCmd = unsetCmd")
+    pr.println("\t}")
     pr.println("}")
     pr.flush()
     pr.close()

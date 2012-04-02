@@ -20,8 +20,8 @@
 package org.kevoree.tools.ecore.gencode.loader
 
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import java.io.{FileOutputStream, PrintWriter, File}
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,7 +30,7 @@ import java.io.{FileOutputStream, PrintWriter, File}
  * Time: 17:53
  */
 
-class InterfaceElementLoader(genDir: String, genPackage: String, elementType: EClass, context: String, factory: String, modelingPackage: EPackage, modelPackage : String) {
+class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage: String, elementType: EClass, context: String, modelingPackage: EPackage, modelPackage : String) {
 
 
   def generateLoader() {
@@ -86,11 +86,11 @@ class InterfaceElementLoader(genDir: String, genPackage: String, elementType: EC
     ProcessorHelper.getConcreteSubTypes(elementType).foreach {
       concreteType =>
         if (!concreteType.isInterface) {
-          val el = new BasicElementLoader(genDir, genPackage, concreteType, context, factory, modelingPackage,modelPackage)
+          val el = new BasicElementLoader(ctx, genDir, genPackage, concreteType, context, modelingPackage,modelPackage)
           el.generateLoader()
         } else {
           //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-          val el = new InterfaceElementLoader(genDir, genPackage, concreteType, context, factory, modelingPackage,modelPackage)
+          val el = new InterfaceElementLoader(ctx, genDir, genPackage, concreteType, context, modelingPackage,modelPackage)
           el.generateLoader()
         }
         if (!listContainedElementsTypes.contains(concreteType)) {
@@ -104,8 +104,8 @@ class InterfaceElementLoader(genDir: String, genPackage: String, elementType: EC
   }
 
   private def generateLoadingMethod(pr: PrintWriter) {
-    pr.println("\t\tdef load" + elementType.getName + "(parentId : String, parentNode : NodeSeq, refNameInParent : String, context : " + context + ") : List[" + elementType.getName + "] = {")
-    pr.println("\t\t\t\tvar loadedElements = List[" + elementType.getName + "]()")
+    pr.println("\t\tdef load" + elementType.getName + "(parentId : String, parentNode : NodeSeq, refNameInParent : String, context : " + context + ") : List[" + ProcessorHelper.fqn(ctx,elementType) + "] = {")
+    pr.println("\t\t\t\tvar loadedElements = List[" + ProcessorHelper.fqn(ctx,elementType) + "]()")
     pr.println("\t\t\t\tvar i = 0")
     pr.println("\t\t\t\tval " + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List = (parentNode \\\\ refNameInParent)") //\"" + elementNameInParent + "\")")
     pr.println("\t\t\t\t" + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List.foreach { xmiElem =>")
@@ -115,7 +115,7 @@ class InterfaceElementLoader(genDir: String, genPackage: String, elementType: EC
     pr.println("\t\t\t\t\t\t\t\t\t\t\t\ts.value.text match {")
     ProcessorHelper.getConcreteSubTypes(elementType).foreach {
       concreteType =>
-        pr.println("\t\t\t\t\t\t\t\t\t\t\t\tcase \"" + modelingPackage.getName + ":" + concreteType.getName + "\" => {")
+        pr.println("\t\t\t\t\t\t\t\t\t\t\t\tcase \"" + modelingPackage.getName + ":" + ProcessorHelper.fqn(ctx,concreteType) + "\" => {")
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tloadedElements = loadedElements ++ List(load" + concreteType.getName + "Element(currentElementId,xmiElem,context))")
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t}")
     }
@@ -142,7 +142,7 @@ class InterfaceElementLoader(genDir: String, genPackage: String, elementType: EC
     pr.println("\t\t\t\t\t\t\t\t\t\t\t\ts.value.text match {")
     ProcessorHelper.getConcreteSubTypes(elementType).foreach {
       concreteType =>
-        pr.println("\t\t\t\t\t\t\t\t\t\t\t\tcase \"" + modelingPackage.getName + ":" + concreteType.getName + "\" => {")
+        pr.println("\t\t\t\t\t\t\t\t\t\t\t\tcase \"" + modelingPackage.getName + ":" + ProcessorHelper.fqn(ctx,concreteType) + "\" => {")
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tresolve" + concreteType.getName + "Element(currentElementId,xmiElem,context)")
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t}")
     }

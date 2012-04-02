@@ -1,28 +1,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.kevoree.modeling.emf.scala.gencode.sample</artifactId>
+    <artifactId>org.kevoree.modeling.emf.sample.kermeta</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: EMF-Scala :: GenCode :: Sample</name>
+    <name>Kevoree :: Modeling :: EMF-Scala :: Sample :: Kermeta</name>
 
-    <version>1.0.1</version>
+    <version>1.1.0-SNAPSHOT</version>
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
-        <version>1.1.0</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../org.kevoree.modeling.root/pom.xml</relativePath>
     </parent>
 
     <properties>
-        <metamodel.ecore>metamodel/kevoree.ecore</metamodel.ecore>
+        <metamodel.ecore>metamodel/kermeta.ecore</metamodel.ecore>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.kevoree.extra</groupId>
+            <artifactId>org.kevoree.extra.emf.library</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.kevoree.modeling</groupId>
                 <artifactId>org.kevoree.modeling.emf.scala.gencode.mavenplugin</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
@@ -32,7 +40,7 @@
                         </goals>
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
-                            <rootPackage>org</rootPackage>
+                            <rootXmiContainerClassName>ModelingUnit</rootXmiContainerClassName>
                         </configuration>
                     </execution>
                 </executions>

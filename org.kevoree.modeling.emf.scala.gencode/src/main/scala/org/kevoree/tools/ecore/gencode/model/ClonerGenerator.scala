@@ -1,3 +1,5 @@
+package org.kevoree.tools.ecore.gencode.model
+
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
  * you may not use this file except in compliance with the License.
@@ -17,17 +19,15 @@
  */
 
 
-package org.kevoree.tools.ecore.gencode.cloner
-
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import org.kevoree.tools.ecore.gencode.ProcessorHelper
 import scala.collection.JavaConversions._
+import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 
 /**
  * Created by IntelliJ IDEA.
- * User: duke
+ * User: Francois Fouquet
  * Date: 02/10/11
  * Time: 20:55
  * To change this template use File | Settings | File Templates.
@@ -35,17 +35,15 @@ import scala.collection.JavaConversions._
 
 trait ClonerGenerator {
 
-  //val location: String
-  //val rootPackage: String
-  //val rootXmiPackage: EPackage
 
-  def generateCloner(rootXmiPackage: EPackage, location: String, rootPackage: String) {
+  def generateCloner(ctx:GenerationContext, currentPackageDir : String, pack: EPackage) {
     try {
-      ProcessorHelper.lookForRootElement(rootXmiPackage) match {
-        case cls: EClass => {
-          generateDefaultCloner(location + "/" + rootXmiPackage.getName, rootPackage, cls, rootXmiPackage)
+
+      ctx.getRootContainerInPackage(pack) match {
+        case Some(cls: EClass) => {
+          generateDefaultCloner(ctx, currentPackageDir, pack, cls)
         }
-        case _@e => throw new UnsupportedOperationException("Root container not found. Returned:" + e)
+        case None => throw new UnsupportedOperationException("Root container not found. Returned None")
       }
     } catch {
       case _@e => println("Warn cloner not generated")
@@ -53,53 +51,56 @@ trait ClonerGenerator {
 
   }
 
-  def generateDefaultCloner(genDir: String, packageName: String, root: EClass, rootXmiPackage: EPackage) {
-    ProcessorHelper.checkOrCreateFolder(genDir + "/cloner")
-    val pr = new PrintWriter(new File(genDir + "/cloner/" + "ModelCloner.scala"),"utf-8")
+  def generateDefaultCloner(ctx : GenerationContext, currentPackageDir : String, pack: EPackage, containerRoot: EClass) {
+    ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/cloner")
+    val pr = new PrintWriter(new File(currentPackageDir + "/cloner/ModelCloner.scala"), "utf-8")
+
+    val packageName = ProcessorHelper.fqn(ctx, pack)
+
     pr.println("package " + packageName + ".cloner")
     pr.println("class ModelCloner {")
 
-    pr.println("def clone[A](o : A) : A = {")
+    pr.println("\tdef clone[A](o : A) : A = {")
 
-    pr.println("o match {")
-    pr.println("case o : " + packageName + "." + root.getName + " => {")
-    pr.println("val context = new java.util.IdentityHashMap[Object,Object]()")
-    pr.println("o.getClonelazy(context)")
-    pr.println("o.resolve(context).asInstanceOf[A]")
-    pr.println("}")
-    pr.println("case _ => null.asInstanceOf[A]")
-    pr.println("}") //END MATCH
-    pr.println("}") //END serialize method
+    pr.println("\t\to match {")
+    pr.println("\t\t\tcase o : " + ProcessorHelper.fqn(ctx, containerRoot) + " => {")
+    pr.println("\t\t\t\tval context = new java.util.IdentityHashMap[Object,Object]()")
+    pr.println("\t\t\t\to.getClonelazy(context)")
+    pr.println("\t\t\t\to.resolve(context).asInstanceOf[A]")
+    pr.println("\t\t\t}")
+    pr.println("\t\t\tcase _ => null.asInstanceOf[A]")
+    pr.println("\t\t}") //END MATCH
+    pr.println("\t}") //END serialize method
     pr.println("}") //END TRAIT
     pr.flush()
     pr.close()
   }
 
   /*
-  def generateCloner(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false): Unit = {
+  def generateCloner(genDir: String, packageName: String, refNameInParent: String, containerRoot: EClass, pack: EPackage, isRoot: Boolean = false): Unit = {
     ProcessorHelper.checkOrCreateFolder(genDir + "/cloner")
     //PROCESS SELF
-    val pr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + root.getName + "Cloner.scala")))
+    val pr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + containerRoot.getName + "Cloner.scala")))
     pr.println("package " + packageName + ".cloner")
-    generateToHashMethod(packageName, root, pr, rootXmiPackage, isRoot)
+    generateToHashMethod(packageName, containerRoot, pr, pack, isRoot)
     pr.flush()
     pr.close()
 
     //PROCESS SUB
-    root.getEAllContainments.foreach {
+    containerRoot.getEAllContainments.foreach {
       sub =>
         val subpr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + sub.getEReferenceType.getName + "Cloner.scala")))
         subpr.println("package " + packageName + ".cloner")
-        generateToHashMethod(packageName, sub.getEReferenceType, subpr, rootXmiPackage)
+        generateToHashMethod(packageName, sub.getEReferenceType, subpr, pack)
         subpr.flush()
         subpr.close()
 
         //¨PROCESS ALL SUB TYPE
         ProcessorHelper.getConcreteSubTypes(sub.getEReferenceType).foreach {
           subsubType =>
-            generateCloner(genDir, packageName, sub.getName, subsubType, rootXmiPackage)
+            generateCloner(genDir, packageName, sub.getName, subsubType, pack)
         }
-        generateCloner(genDir, packageName, sub.getName, sub.getEReferenceType, rootXmiPackage)
+        generateCloner(genDir, packageName, sub.getName, sub.getEReferenceType, pack)
 
     }
   }*/
@@ -113,7 +114,7 @@ trait ClonerGenerator {
     "set" + name.charAt(0).toUpper + name.substring(1)
   }
 
-  def generateCloneMethods(packageName: String, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
+  def generateCloneMethods(ctx:GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
     /*  buffer.println("import " + packageName + "._")
     buffer.println("trait " + cls.getName + "Cloner ")
 
@@ -131,7 +132,7 @@ trait ClonerGenerator {
 
 
     if (cls.getESuperTypes.size() > 0) {
-      buffer.print("override ")
+      buffer.print("\toverride ")
     }
     buffer.println("def getClonelazy(subResult : java.util.IdentityHashMap[Object,Object]): Unit = {")
     //buffer.println("var subResult = new java.util.IdentityHashMap[Object,Object]()")
@@ -142,10 +143,10 @@ trait ClonerGenerator {
 
     var formatedName: String = cls.getName.substring(0, 1).toUpperCase
     formatedName += cls.getName.substring(1)
-    buffer.println("val selfObjectClone = " + formatedFactoryName + ".create" + formatedName)
+    buffer.println("\t\tval selfObjectClone = " + formatedFactoryName + ".create" + formatedName)
     cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
       att =>
-        buffer.println("selfObjectClone." + getSetter(att.getName) + "(this." + getGetter(att.getName) + ")")
+        buffer.println("\t\tselfObjectClone." + getSetter(att.getName) + "(this." + getGetter(att.getName) + ")")
     }
 
     // buffer.println("this match {")
@@ -156,32 +157,33 @@ trait ClonerGenerator {
     //  buffer.println("case _ => subResult += this -> selfObjectClone")
     // buffer.println("}")
 
-    buffer.println("subResult.put(this,selfObjectClone)")
+    buffer.println("\t\tsubResult.put(this,selfObjectClone)")
 
     cls.getEAllContainments.foreach {
       contained =>
         contained.getUpperBound match {
           case 1 => {
-            buffer.println("this." + getGetter(contained.getName) + ".map{ sub =>")
-            buffer.println("sub.getClonelazy(subResult)")
-            buffer.println("}")
+            buffer.println("\t\tthis." + getGetter(contained.getName) + ".map{ sub =>")
+            buffer.println("\t\t\tsub.getClonelazy(subResult)")
+            buffer.println("\t\t}")
           }
           case -1 => {
-            buffer.println("this." + getGetter(contained.getName) + ".foreach{ sub => ")
-            buffer.println("sub.getClonelazy(subResult)")
-            buffer.println("}")
+            buffer.println("\t\tthis." + getGetter(contained.getName) + ".foreach{ sub => ")
+            buffer.println("\t\t\tsub.getClonelazy(subResult)")
+            buffer.println("\t\t}")
           }
         }
+        buffer.println()
     }
 
     //buffer.println("subResult") //result
-    buffer.println("}") //END METHOD
+    buffer.println("\t}") //END METHOD
 
     //GENERATE CLONE METHOD
 
     //CALL SUB TYPE OR PROCESS OBJECT
     if (cls.getESuperTypes.size() > 0) {
-      buffer.print("override ")
+      buffer.print("\toverride ")
     }
     buffer.println("def resolve(addrs : java.util.IdentityHashMap[Object,Object]) : " + cls.getName + " = {")
 
@@ -194,7 +196,7 @@ trait ClonerGenerator {
     buffer.println("case _ => {")
 */
     //GET CLONED OBJECT
-    buffer.println("val clonedSelfObject = addrs.get(this).asInstanceOf[" + cls.getName + "]")
+    buffer.println("\t\tval clonedSelfObject = addrs.get(this).asInstanceOf[" + ProcessorHelper.fqn(ctx, cls) + "]")
     //SET ALL REFERENCE
     cls.getEAllReferences.foreach {
       ref =>
@@ -205,49 +207,49 @@ trait ClonerGenerator {
               ref.getLowerBound match {
                 case 0 => {
                   // 0 to 1 relationship . Test Optional result
-                  buffer.println("this." + getGetter(ref.getName) + ".map{sub =>")
-                  buffer.println("clonedSelfObject." + getSetter(ref.getName) + "(Some(addrs.get(sub).asInstanceOf[" + ref.getEReferenceType.getName + "]))")
-                  buffer.println("}")
+                  buffer.println("\t\tthis." + getGetter(ref.getName) + ".map{sub =>")
+                  buffer.println("\t\t\tclonedSelfObject." + getSetter(ref.getName) + "(Some(addrs.get(sub).asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "]))")
+                  buffer.println("\t\t}")
                 }
                 case 1 => {
                   // 1 to 1 relationship
-                  buffer.println("clonedSelfObject." + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + ").asInstanceOf[" + ref.getEReferenceType.getName + "])")
+                  buffer.println("\t\tclonedSelfObject." + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + ").asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "])")
                 }
               }
             }
             case _ => {
-              buffer.println("this." + getGetter(ref.getName) + ".foreach{sub =>")
+              buffer.println("\t\tthis." + getGetter(ref.getName) + ".foreach{sub =>")
               var formatedName: String = ref.getName.substring(0, 1).toUpperCase
               formatedName += ref.getName.substring(1)
-              buffer.println("clonedSelfObject.add" + formatedName + "(addrs.get(sub).asInstanceOf[" + ref.getEReferenceType.getName + "])")
-              buffer.println("}")
+              buffer.println("\t\t\tclonedSelfObject.add" + formatedName + "(addrs.get(sub).asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "])")
+              buffer.println("\t\t}")
             }
           }
         } else {
           println("Warning ---- Not found EReferenceType ignored reference")
         }
-
-
+        buffer.println()
     }
     //RECUSIVE CALL ON ECONTAINEMENT
     cls.getEAllContainments.foreach {
       contained =>
         contained.getUpperBound match {
           case 1 => {
-            buffer.println("this." + getGetter(contained.getName) + ".map{ sub =>")
-            buffer.println("sub.resolve(addrs)")
-            buffer.println("}")
+            buffer.println("\t\tthis." + getGetter(contained.getName) + ".map{ sub =>")
+            buffer.println("\t\t\tsub.resolve(addrs)")
+            buffer.println("\t\t}")
           }
           case -1 => {
-            buffer.println("this." + getGetter(contained.getName) + ".foreach{ sub => ")
-            buffer.println("sub.resolve(addrs)")
-            buffer.println("}")
+            buffer.println("\t\tthis." + getGetter(contained.getName) + ".foreach{ sub => ")
+            buffer.println("\t\t\tsub.resolve(addrs)")
+            buffer.println("\t\t}")
           }
         }
+        buffer.println()
     }
 
-    buffer.println("clonedSelfObject") //RETURN CLONED OBJECT
-    buffer.println("}") //END METHOD
+    buffer.println("\t\tclonedSelfObject") //RETURN CLONED OBJECT
+    buffer.println("\t}") //END METHOD
   }
 
 
