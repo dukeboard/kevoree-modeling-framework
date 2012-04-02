@@ -160,8 +160,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("\t\t\t\tval context = new " + context)
     pr.println("\t\t\t\tcontext." + rootContainerName + " = " + factory + ".create" + elementType.getName)
     pr.println("\t\t\t\tcontext.xmiContent = rootNode")
-    pr.println("\t\t\t\tcontext.map = Map[String, Any]()")
-    pr.println("\t\t\t\tcontext.stats = Map[String, Int]()")
+    pr.println("\t\t\t\tcontext.map += (\"/\"->context."+rootContainerName+")")
 
     pr.println("\t\t\t\tload" + elementType.getName + "(rootNode, context)")
     pr.println("\t\t\t\tresolveElements(rootNode, context)")
@@ -178,7 +177,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     elementType.getEAllContainments.foreach {
       ref =>
         pr.println("\t\t\t\tval " + ref.getName + " = load" + ref.getEReferenceType.getName + "(\"/\", rootNode, \"" + ref.getName + "\", context)")
-        pr.println("\t\t\t\tcontext." + rootContainerName + ".set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ")")
+        pr.println("\t\t\t\tcontext." + rootContainerName + ".set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ".toList)")
         //        pr.println("\t\t\t\t" + ref.getName + ".foreach{e=>e.eContainer=" + context + "." + rootContainerName + " }")
         pr.println("")
     }

@@ -110,13 +110,13 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
   }
 
   private def generateCollectionLoadingMethod(pr: PrintWriter) {
-    pr.println("\t\tdef load" + elementType.getName + "(parentId: String, parentNode: NodeSeq, refNameInParent : String, context : " + context + ") : List[" + ProcessorHelper.fqn(ctx,elementType) + "] = {")
-    pr.println("\t\t\t\tvar loadedElements = List[" + ProcessorHelper.fqn(ctx,elementType) + "]()")
+    pr.println("\t\tdef load" + elementType.getName + "(parentId: String, parentNode: NodeSeq, refNameInParent : String, context : " + context + ") : scala.collection.mutable.ListBuffer[" + ProcessorHelper.fqn(ctx,elementType) + "] = {")
+    pr.println("\t\t\t\tvar loadedElements = new scala.collection.mutable.ListBuffer[" + ProcessorHelper.fqn(ctx,elementType) + "]()")
     pr.println("\t\t\t\tvar i = 0")
     pr.println("\t\t\t\tval " + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List = (parentNode \\\\ refNameInParent)") //\"" + elementNameInParent + "\")")
     pr.println("\t\t\t\t" + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List.foreach { xmiElem =>")
     pr.println("\t\t\t\t\t\tval currentElementId = parentId + \"/@\" + refNameInParent + \".\" + i")
-    pr.println("\t\t\t\t\t\tloadedElements = loadedElements ++ List(load" + elementType.getName + "Element(currentElementId,xmiElem,context))")
+    pr.println("\t\t\t\t\t\tloadedElements.append(load" + elementType.getName + "Element(currentElementId,xmiElem,context))")
     pr.println("\t\t\t\t\t\ti += 1")
     pr.println("\t\t\t\t}")
     pr.println("\t\t\t\tloadedElements")
@@ -151,7 +151,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           pr.println("\t\t\t\t}")
         } else {
           pr.println("\t\t\t\tval " + ref.getName + " = load" + ref.getEReferenceType.getName + "(elementId, elementNode, \"" + ref.getName + "\", context)")
-          pr.println("\t\t\t\tmodelElem.set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ")")
+          pr.println("\t\t\t\tmodelElem.set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ".toList)")
           //         pr.println("\t\t\t\t" + ref.getName + ".foreach{ e => e.eContainer = modelElem }")
         }
         pr.println("")

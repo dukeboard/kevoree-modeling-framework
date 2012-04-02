@@ -49,9 +49,9 @@ class ContextGenerator(ctx:GenerationContext, genDir: String, genPackage: String
     pr.println()
     pr.println("\t\tvar "+elementType.getName.substring(0,1).toLowerCase + elementType.getName.substring(1)+" : "+ ProcessorHelper.fqn(ctx,elementType)+" = null")
     pr.println()
-    pr.println("\t\tvar map : Map[String, Any] = null")
+    pr.println("\t\tval map : scala.collection.mutable.Map[String, Any] = new scala.collection.mutable.HashMap[String, Any]()")
     pr.println()
-    pr.println("\t\tvar stats : Map[String, Int] = null")
+    pr.println("\t\tval stats : scala.collection.mutable.Map[String, Int] = new scala.collection.mutable.HashMap[String, Int]()")
     pr.println()
 
     pr.println("}")

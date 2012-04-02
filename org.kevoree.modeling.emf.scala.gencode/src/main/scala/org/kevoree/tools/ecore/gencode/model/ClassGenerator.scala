@@ -15,6 +15,23 @@
  * 	Fouquet Francois
  * 	Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 
 
 package org.kevoree.tools.ecore.gencode.model
@@ -35,8 +52,8 @@ import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 trait ClassGenerator extends ClonerGenerator {
 
-  def generateCompanion(ctx:GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
-    val pr = new PrintWriter(new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala"),"utf-8")
+  def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+    val pr = new PrintWriter(new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala"), "utf-8")
     //System.out.println("Classifier class:" + cls.getClass)
 
     val pack = ProcessorHelper.fqn(ctx, packElement)
@@ -86,11 +103,11 @@ trait ClassGenerator extends ClonerGenerator {
     pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
   }
 
-  def generateClass(ctx:GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
-    val pr = new PrintWriter(new File(currentPackageDir + "/" + cls.getName + ".scala"),"utf-8")
+  def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+    val pr = new PrintWriter(new File(currentPackageDir + "/" + cls.getName + ".scala"), "utf-8")
     //System.out.println("Generating class:" + cls.getName)
 
-       val pack = ProcessorHelper.fqn(ctx, packElement)
+    val pack = ProcessorHelper.fqn(ctx, packElement)
 
     pr.println("package " + pack + ";")
     pr.println()
@@ -117,7 +134,7 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.lang.Boolean" => pr.println("java.lang.Boolean = false\n")
           case "java.lang.Object" => pr.println("java.lang.Object = null\n")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case _@className => pr.println( className )
+          case _@className => pr.println(className)
         }
 
     }
@@ -129,11 +146,11 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.getEReferenceType.getName == null) {
             resolveCrossRefTypeDef(cls, ref, pack)
           } else {
-            ProcessorHelper.fqn(ctx, ref.getEReferenceType)//.getName
+            ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
           }
           )
 
-        
+
 
         if (ref.getUpperBound == -1) {
           // multiple values
@@ -176,7 +193,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.getEReferenceType.getName == null) {
             resolveCrossRefTypeDef(cls, ref, pack)
           } else {
-            ProcessorHelper.fqn(ctx, ref.getEReferenceType)//.getName
+            ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
           }
           )
 
@@ -208,7 +225,7 @@ trait ClassGenerator extends ClonerGenerator {
 
 
     //GENERATE CLONE METHOD
-    generateCloneMethods(ctx, cls,pr,packElement)
+    generateCloneMethods(ctx, cls, pr, packElement)
 
     pr.println("")
     pr.println("}")
@@ -257,7 +274,7 @@ trait ClassGenerator extends ClonerGenerator {
     }
     res += " = {"
     //Method core
-    res += "\n\t\t\t\t" + protectReservedWords(ref.getName)+".toList"
+    res += "\n\t\t\t\t" + protectReservedWords(ref.getName) + (if (!isSingleRef) {".toList"}else{""})
     res += "\n\t\t}"
 
 
@@ -312,15 +329,27 @@ trait ClassGenerator extends ClonerGenerator {
       if (isSingleRef) {
         res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
       } else {
-        res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + " = " + protectReservedWords(ref.getName) + "\n"
+
+        res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".clear()\n"
+        res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".insertAll(0," + protectReservedWords(ref.getName) + ")\n"
       }
 
     } else {
-      res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = " + protectReservedWords(ref.getName) + "\n"
+
+      if (isSingleRef) {
+        res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
+      } else {
+        res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".clear()\n"
+        res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".insertAll(0," + protectReservedWords(ref.getName) + ")\n"
+
+      }
+
+
+     // res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = " + protectReservedWords(ref.getName) + "\n"
     }
     if (cls.getEAllContainments.contains(ref)) {
       if (isSingleRef) {
-        if(isOptional){
+        if (isOptional) {
           res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map{ dic=>"
           res += "\t\t\t\tdic.setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= None }) )\n"
           res += "\t\t\t\t}"
@@ -344,7 +373,7 @@ trait ClassGenerator extends ClonerGenerator {
     if (cls.getEAllContainments.contains(ref)) {
       res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}))\n"
     }
-    res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = this." + protectReservedWords(ref.getName) + " ++ List(" + protectReservedWords(ref.getName) + ")\n"
+    res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".append(" + protectReservedWords(ref.getName) + ")\n"
     res += "\t\t}"
     res += "\n"
     res += "\n\t\tdef addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
@@ -368,9 +397,13 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\t\t\t\t\t\tthrow new UnsupportedOperationException(\"The list of " + protectReservedWords(ref.getName) + " must contain at least " + ref.getLowerBound + " element. Connot remove sizeof(" + protectReservedWords(ref.getName) + ")=\"+this." + protectReservedWords(ref.getName) + ".size)\n"
       res += "\t\t\t\t} else {\n"
     }
+    /*
     res += "\t\t\t\t\t\tvar nList = List[" + typeRefName + "]()\n"
     res += "\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".foreach(e => if(e != (" + protectReservedWords(ref.getName) + ")) nList = nList ++ List(e))\n"
     res += "\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + " = nList\n"
+    */
+    res += "\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".remove(this."+ protectReservedWords(ref.getName) +".indexOf("+protectReservedWords(ref.getName)+"))\n"
+
     if (cls.getEAllContainments.contains(ref)) {
       res += "\t\t\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(null,None)\n"
     }

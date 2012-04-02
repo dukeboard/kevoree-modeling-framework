@@ -140,9 +140,12 @@ class SerializerGenerator(ctx:GenerationContext) {
     buffer.println()
 
     //GENERATE GET XMI ADDR
-    System.out.println("[DEBUG] SerializerGen::" + cls)
-    buffer.println("\tdef get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ",previousAddr : String): Map[Object,String] = {")
-    buffer.println("\t\tvar subResult = Map[Object,String]()")
+    //System.out.println("[DEBUG] SerializerGen::" + cls)
+    buffer.println("\tdef get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ",previousAddr : String): scala.collection.mutable.Map[Object,String] = {")
+    buffer.println("\t\tvar subResult = scala.collection.mutable.Map[Object,String]()")
+
+    buffer.println("\t\tif(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
+
     buffer.println("\t\tvar i = 0")
     cls.getEAllContainments.foreach {
       subClass =>
@@ -151,14 +154,14 @@ class SerializerGenerator(ctx:GenerationContext) {
             buffer.println()
             buffer.println("\t\tselfObject." + getGetter(subClass.getName) + ".map{ sub =>")
             buffer.println("\t\t\tsubResult +=  sub -> (previousAddr+\"/@" + subClass.getName + "\" ) ")
-            buffer.println("\t\t\tsubResult = subResult ++ get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + "\")")
+            buffer.println("\t\t\tsubResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + "\")")
             buffer.println("\t\t}")
           }
           case -1 => {
             buffer.println("\t\ti=0")
             buffer.println("\t\tselfObject." + getGetter(subClass.getName) + ".foreach{ sub => ")
             buffer.println("\t\t\tsubResult +=  sub -> (previousAddr+\"/@" + subClass.getName + ".\"+i) ")
-            buffer.println("\t\t\tsubResult = subResult ++ get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i)")
+            buffer.println("\t\t\tsubResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i)")
             buffer.println("\t\t\ti=i+1")
             buffer.println("\t\t}")
             buffer.println()
@@ -169,7 +172,7 @@ class SerializerGenerator(ctx:GenerationContext) {
     buffer.println()
     buffer.println("\t\tselfObject match {")
     ProcessorHelper.getConcreteSubTypes(cls).foreach { subType =>
-      buffer.println("\t\t\tcase o : "+ProcessorHelper.fqn(ctx,subType)+" =>subResult = subResult ++ get" + subType.getName + "XmiAddr(o,previousAddr)")
+      buffer.println("\t\t\tcase o : "+ProcessorHelper.fqn(ctx,subType)+" =>subResult ++= get" + subType.getName + "XmiAddr(o,previousAddr)")
     }
     buffer.println("\t\t\tcase _ => ")
     buffer.println("\t\t}")
@@ -179,9 +182,9 @@ class SerializerGenerator(ctx:GenerationContext) {
 
 
     if (isRoot) {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ", addrs : Map[Object,String]) : scala.xml.Node = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ", addrs : scala.collection.mutable.Map[Object,String]) : scala.xml.Node = {")
     } else {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ",refNameInParent : String, addrs : Map[Object,String]) : scala.xml.Node = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx,cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String]) : scala.xml.Node = {")
     }
 
     buffer.println("\t\tselfObject match {")
@@ -200,7 +203,7 @@ class SerializerGenerator(ctx:GenerationContext) {
 
 
     buffer.println("\t\t\t\t\tdef child = {")
-    buffer.println("\t\t\t\t\t\tvar subresult: List[scala.xml.Node] = List()  ")
+    buffer.println("\t\t\t\t\t\tvar subresult: scala.collection.mutable.ListBuffer[scala.xml.Node] = new scala.collection.mutable.ListBuffer[scala.xml.Node]()")
 
     cls.getEAllContainments.foreach {
       subClass =>
@@ -208,12 +211,12 @@ class SerializerGenerator(ctx:GenerationContext) {
         subClass.getUpperBound match {
           case 1 => {
             buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
-            buffer.println("\t\t\t\t\t\t\tsubresult = subresult ++ List(" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
+            buffer.println("\t\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
             buffer.println("\t\t\t\t\t\t}")
           }
           case -1 => {
             buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".foreach { so => ")
-            buffer.println("\t\t\t\t\t\t\tsubresult = subresult ++ List(" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
+            buffer.println("\t\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
             buffer.println("\t\t\t\t\t\t}")
           }
 
