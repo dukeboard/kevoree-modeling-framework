@@ -17,7 +17,7 @@
         <metamodel.ecore>metamodel/fsm.ecore</metamodel.ecore>
     </properties>
     
-        <profiles>
+    <profiles>
         <profile>
             <id>org.kevoree.platform.osgi.android.mac</id>
             <activation>
@@ -41,7 +41,7 @@
             </properties>
         </profile>
     </profiles>
-    
+
 
     <build>
         <plugins>
