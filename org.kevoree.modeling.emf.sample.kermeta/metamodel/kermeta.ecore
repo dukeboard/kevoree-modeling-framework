@@ -1182,8 +1182,6 @@
               eType="#//kermeta/language/structure/Type"/>
           <eStructuralFeatures xsi:type="ecore:EReference" name="sourceType" lowerBound="1"
               eType="#//kermeta/language/structure/TypeDefinition" eOpposite="#//kermeta/language/structure/TypeDefinition/typeMappings"/>
-          <eStructuralFeatures xsi:type="ecore:EReference" name="mapping" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EObject"
-              containment="true"/>
         </eClassifiers>
         <eClassifiers xsi:type="ecore:EClass" name="UnresolvedInferredType" eSuperTypes="#//kermeta/language/structure/Unresolved #//kermeta/language/structure/Type">
           <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
