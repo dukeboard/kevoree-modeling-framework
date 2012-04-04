@@ -85,7 +85,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("\tdef serialize(o : Object) : scala.xml.Node = {")
     pr.println()
     pr.println("\t\to match {")
-    pr.println("\t\t\tcase o : " + packageName + "." + root.getName + " => {")
+    pr.println("\t\t\tcase o : " + ProcessorHelper.fqn(ctx, root) + " => {")
     pr.println("\t\t\t\tval context = get" + root.getName + "XmiAddr(o,\"/\")")
     pr.println("\t\t\t\t" + root.getName + "toXmi(o,context)")
     pr.println("\t\t\t}")
@@ -210,11 +210,19 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
       subClass =>
         subClass.getUpperBound match {
           case 1 => {
+            if(subClass.getLowerBound == 0) {
             buffer.println()
             buffer.println("\t\tselfObject." + getGetter(subClass.getName) + ".map{ sub =>")
             buffer.println("\t\t\tsubResult +=  sub -> (previousAddr+\"/@" + subClass.getName + "\" ) ")
             buffer.println("\t\t\tsubResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + "\")")
             buffer.println("\t\t}")
+            } else {
+              buffer.println()
+              //buffer.println("\t\t + ".map{ sub =>")
+              buffer.println("\t\tsubResult +=  selfObject." + getGetter(subClass.getName) + " -> (previousAddr+\"/@" + subClass.getName + "\" ) ")
+              buffer.println("\t\tsubResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(selfObject." + getGetter(subClass.getName) + ",previousAddr+\"/@" + subClass.getName + "\")")
+              //buffer.println("\t\t}")
+            }
           }
           case -1 => {
             buffer.println("\t\ti=0")
@@ -229,10 +237,10 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
     }
 
     buffer.println()
-    buffer.println("\t\tselfObject match {")
+    buffer.println("\t\tselfObject.getClass.getName match {")
     ProcessorHelper.getConcreteSubTypes(cls).foreach {
       subType =>
-        buffer.println("\t\t\tcase o : " + ProcessorHelper.fqn(ctx, subType) + " =>subResult ++= get" + subType.getName + "XmiAddr(o,previousAddr)")
+        buffer.println("\t\t\tcase \"" + ProcessorHelper.fqn(ctx, subType) + "\" =>subResult ++= get" + subType.getName + "XmiAddr(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],previousAddr)")
     }
     buffer.println("\t\t\tcase _ => ")
     buffer.println("\t\t}")
@@ -247,10 +255,10 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
       buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String]) : scala.xml.Node = {")
     }
 
-    buffer.println("\t\tselfObject match {")
+    buffer.println("\t\tselfObject.getClass.getName match {")
     ProcessorHelper.getConcreteSubTypes(cls).foreach {
       subType =>
-        buffer.println("\t\t\tcase o : " + ProcessorHelper.fqn(ctx, subType) + " => " + subType.getName + "toXmi(o,refNameInParent,addrs)")
+        buffer.println("\t\t\tcase \"" + ProcessorHelper.fqn(ctx, subType) + "\" => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs)")
     }
 
     buffer.println("\t\t\tcase _ => {")
@@ -270,9 +278,15 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
 
         subClass.getUpperBound match {
           case 1 => {
+            if(subClass.getLowerBound == 0) {
             buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
             buffer.println("\t\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
             buffer.println("\t\t\t\t\t\t}")
+            } else {
+              //buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
+              buffer.println("\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + ",\"" + subClass.getName + "\",addrs))")
+             // buffer.println("\t\t\t\t\t\t}")
+            }
           }
           case -1 => {
             buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".foreach { so => ")
