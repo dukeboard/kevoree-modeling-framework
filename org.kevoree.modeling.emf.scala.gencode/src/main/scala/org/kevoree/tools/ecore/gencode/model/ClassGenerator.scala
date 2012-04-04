@@ -134,7 +134,7 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.lang.Boolean" => pr.println("java.lang.Boolean = false\n")
           case "java.lang.Object" => pr.println("java.lang.Object = null\n")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case _@className => pr.println(className)
+          case _@className => pr.println(className+"=_")
         }
 
     }

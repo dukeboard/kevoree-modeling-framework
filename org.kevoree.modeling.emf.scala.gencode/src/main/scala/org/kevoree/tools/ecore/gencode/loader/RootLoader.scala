@@ -74,7 +74,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("")
     generateLoadElementsMethod(pr, context, rootContainerName, elementType)
     pr.println("")
-    generateResolveElementsMethod(pr, context, elementType)
+    generateResolveElementsMethod(pr, context, rootContainerName, elementType)
 
     pr.println("")
     pr.println("}")
@@ -181,16 +181,47 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
         //        pr.println("\t\t\t\t" + ref.getName + ".foreach{e=>e.eContainer=" + context + "." + rootContainerName + " }")
         pr.println("")
     }
+
     pr.println("\t\t}")
   }
 
-  private def generateResolveElementsMethod(pr: PrintWriter, context : String, elementType: EClass) {
+  private def generateResolveElementsMethod(pr: PrintWriter, context : String, rootContainerName: String, elementType: EClass) {
     //val context = elementType.getName + "LoadContext"
     //val rootContainerName = elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1)
     pr.println("\t\tprivate def resolveElements(rootNode: NodeSeq, context : " + context + ") {")
     elementType.getEAllContainments.foreach {
       ref =>
         pr.println("\t\t\t\tresolve" + ref.getEReferenceType.getName + "(\"/\", rootNode, \"" + ref.getName + "\", context)")
+    }
+
+
+    elementType.getEAllReferences.filter(ref => !elementType.getEAllContainments.contains(ref)).foreach {
+      ref =>
+        pr.println("\t\t\t\t(rootNode \\ \"@" + ref.getName + "\").headOption match {")
+        pr.println("\t\t\t\t\t\tcase Some(head) => {")
+        pr.println("\t\t\t\t\t\t\t\thead.text.split(\" \").foreach {")
+        pr.println("\t\t\t\t\t\t\t\t\t\txmiRef =>")
+        pr.println("\t\t\t\t\t\t\t\t\t\t\t\tcontext.map.get(xmiRef) match {")
+        var methName: String = ""
+        if (ref.getUpperBound == 1) {
+          methName = "set"
+        } else {
+          methName = "add"
+        }
+        methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+        if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
+          pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => context." + rootContainerName+"."+ methName + "(Some(s))")
+        } else {
+          pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => context." + rootContainerName+"."+ methName + "(s)")
+        }
+
+
+        pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase None => System.out.println(\"" + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
+        pr.println("\t\t\t\t\t\t\t\t\t\t\t\t}")
+        pr.println("\t\t\t\t\t\t\t\t\t\t}")
+        pr.println("\t\t\t\t\t\t\t\t}")
+        pr.println("\t\t\t\t\t\tcase None => //No subtype for this library")
+        pr.println("\t\t\t\t}")
     }
     pr.println("\t\t}")
   }

@@ -63,7 +63,7 @@
                     </execution>
                 </executions>
             </plugin>
-                        
+                <!--        
             <plugin>
                 <groupId>com.pyx4me</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
@@ -110,7 +110,7 @@
                         <lib>${java.lib.location}</lib>
                     </libs>
                 </configuration>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 
