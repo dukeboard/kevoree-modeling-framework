@@ -76,10 +76,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FSM.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="FSM.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/target/generated-sources/kmf/org/fsmSample/FSM.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="18" selection-start="1100" selection-end="1100" vertical-scroll-proportion="0.0335097">
+            <state line="64" column="30" selection-start="1917" selection-end="1917" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="State.scala" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/target/generated-sources/kmf/org/fsmSample/State.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="39" column="8" selection-start="1136" selection-end="1136" vertical-scroll-proportion="0.4398148">
               <folding />
             </state>
           </provider>
@@ -92,6 +101,7 @@
       <list>
         <option value="$PROJECT_DIR$/target/generated-sources/kmf/org/fsmSample/serializer/ModelSerializer.scala" />
         <option value="$PROJECT_DIR$/target/generated-sources/kmf/org/fsmSample/FSM.scala" />
+        <option value="$PROJECT_DIR$/target/generated-sources/kmf/org/fsmSample/State.scala" />
       </list>
     </option>
   </component>
@@ -137,10 +147,9 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="258" />
-    <option name="y" value="58" />
-    <option name="width" value="1528" />
-    <option name="height" value="1035" />
+    <option name="x" value="-1440" />
+    <option name="width" value="1440" />
+    <option name="height" value="900" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -487,7 +496,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="258" y="58" width="1528" height="1035" extended-state="6" />
+    <frame x="-1440" y="0" width="1440" height="900" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -499,10 +508,10 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.31848854" sideWeight="0.66411376" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33859396" sideWeight="0.605905" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24156545" sideWeight="0.66411376" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3358862" sideWeight="0.9993252" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25681493" sideWeight="0.605905" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.394095" sideWeight="0.9993252" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="ResolveWindow" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -597,7 +606,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/target/generated-sources/kmf/org/fsmSample/FSM.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="18" selection-start="1100" selection-end="1100" vertical-scroll-proportion="0.0335097">
+        <state line="64" column="30" selection-start="1917" selection-end="1917" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/target/generated-sources/kmf/org/fsmSample/State.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="8" selection-start="1136" selection-end="1136" vertical-scroll-proportion="0.4398148">
           <folding />
         </state>
       </provider>

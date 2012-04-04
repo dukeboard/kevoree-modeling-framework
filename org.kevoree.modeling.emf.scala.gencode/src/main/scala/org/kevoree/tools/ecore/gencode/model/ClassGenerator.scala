@@ -290,10 +290,26 @@ trait ClassGenerator extends ClonerGenerator {
     res
   }
 
+
   private def generateSetter(ctx:GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
+    val oppositRef = ref.asInstanceOf[EReference].getEOpposite
+    if(oppositRef != null) {
+      generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,true) + generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,false)
+    } else {
+      generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,false)
+    }
+  }
+
+    private def generateSetterOp(ctx:GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean, noOpposite : Boolean): String = {
     //generate setter
     var res = ""
-    res += "\n\t\tdef set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+
+    if(noOpposite){
+      res += "\n\t\tdef noOpposite_set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+    } else {
+      res += "\n\t\tdef set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+    }
+
     res += "(" + protectReservedWords(ref.getName) + " : "
 
     //Set parameter type
@@ -330,7 +346,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (isSingleRef) {
         res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
         val oppositRef = ref.asInstanceOf[EReference].getEOpposite
-        if(oppositRef != null) {
+        if(oppositRef != null && !noOpposite) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           res += "\t\t\t\t\t" + protectReservedWords(ref.getName) + ".map{e=>\n"
           res += "\t\t\t\t\t\tif(!e.get"+formatedOpositName+".contains(this)) {\n"
@@ -348,7 +364,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (isSingleRef) {
         res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
         val oppositRef = ref.asInstanceOf[EReference].getEOpposite
-        if(oppositRef != null) {
+        if(oppositRef != null && !noOpposite) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           res += "\t\t\t\t\tif(!" + protectReservedWords(ref.getName) + ".get"+formatedOpositName+".contains(this)) {\n"
           res += "\t\t\t\t\t\t" + protectReservedWords(ref.getName) + ".add"+formatedOpositName+"(this)\n"
@@ -420,13 +436,13 @@ trait ClassGenerator extends ClonerGenerator {
         result += "\t\t\t\t\t}\n"
       } else if(!oppositRef.isRequired) {//Option
         result += "\t\t\t\t\t"+protectReservedWords(ref.getName)+".get"+formatedOpositName+" match {\n"
-        result += "\t\t\t\t\t\tcase Some(e) => if(e != this) {"+protectReservedWords(ref.getName)+".set"+formatedOpositName+"(Some(this))}\n"
-        result += "\t\t\t\t\t\tcase None => "+protectReservedWords(ref.getName)+".set"+formatedOpositName+"(Some(this))\n"
+        result += "\t\t\t\t\t\tcase Some(e) => {"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(Some(this))}\n"
+        result += "\t\t\t\t\t\tcase None => "+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
         result += "\t\t\t\t\t}\n"
       } else { //mandatory single
-      result += "\t\t\t\t\tif("+protectReservedWords(ref.getName)+".get"+formatedOpositName+" != this) {\n"
-      result += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".set"+formatedOpositName+"(this)\n"
-      result += "\t\t\t\t\t}\n"
+      //result += "\t\t\t\t\tif("+protectReservedWords(ref.getName)+".get"+formatedOpositName+" != this) {\n"
+      result += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(this)\n"
+      //result += "\t\t\t\t\t}\n"
       }
     }
     result
