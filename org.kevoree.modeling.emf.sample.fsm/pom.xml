@@ -19,7 +19,7 @@
     
     <profiles>
         <profile>
-            <id>org.kevoree.platform.osgi.android.mac</id>
+            <id>org.kevoree.modeling.emf.sample.fsm.mac</id>
             <activation>
                 <os>
                     <family>mac</family>
