@@ -25,10 +25,7 @@ import org.fsmSample.loader.FSMLoader;
 import org.fsmSample.serializer.ModelSerializer;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 
@@ -38,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class MainTest {
 
     @Test
-    public void loadTest() {
+    public void loadTest() throws IOException {
         MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
         //double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10,6)  ;
 
@@ -78,9 +75,13 @@ public class MainTest {
         System.err.println("time to create in ms "+ (end - start));
 
         ModelSerializer sav = new ModelSerializer();
+
+        File tempFile = File.createTempFile("tempKMFBench","xmi");
+        tempFile.deleteOnExit();
+
         PrintWriter pr;
         try {
-            pr = new PrintWriter(new FileOutputStream(new File("toto.xmi")));
+            pr = new PrintWriter(new FileOutputStream(tempFile));
 
             pr.print(sav.serialize(root));
             pr.flush();
@@ -103,7 +104,7 @@ public class MainTest {
         System.err.println("memory used in MB "+ mem);
 
         long beforeLoad = System.nanoTime();
-        FSM loaded = FSMLoader.loadModel(new File("toto.xmi")).get();
+        FSM loaded = FSMLoader.loadModel(tempFile).get();
         double  loadTime = (System.nanoTime() - beforeLoad ) / Math.pow(10,6);
 
         System.out.println("time to load in ms "+ loadTime);
@@ -112,10 +113,12 @@ public class MainTest {
 
         //assertTrue("Loading time overpassed 1second for " + loaded.getOwnedState().size() + " elements", loadTime < 1000);
 
+        tempFile.delete();
+
     }
     
     
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         MainTest m = new MainTest();
         m.loadTest();
     }

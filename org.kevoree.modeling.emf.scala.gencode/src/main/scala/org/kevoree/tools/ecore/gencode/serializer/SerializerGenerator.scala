@@ -32,6 +32,23 @@
  * Fouquet Francois
  * Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 
 
 package org.kevoree.tools.ecore.gencode.serializer
@@ -201,7 +218,7 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
     //GENERATE GET XMI ADDR
     //System.out.println("[DEBUG] SerializerGen::" + cls)
     buffer.println("\tdef get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): scala.collection.mutable.Map[Object,String] = {")
-    buffer.println("\t\tvar subResult = scala.collection.mutable.Map[Object,String]()")
+    buffer.println("\t\tvar subResult = new scala.collection.mutable.HashMap[Object,String]()")
 
     buffer.println("\t\tif(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
 
@@ -210,12 +227,12 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
       subClass =>
         subClass.getUpperBound match {
           case 1 => {
-            if(subClass.getLowerBound == 0) {
-            buffer.println()
-            buffer.println("\t\tselfObject." + getGetter(subClass.getName) + ".map{ sub =>")
-            buffer.println("\t\t\tsubResult +=  sub -> (previousAddr+\"/@" + subClass.getName + "\" ) ")
-            buffer.println("\t\t\tsubResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + "\")")
-            buffer.println("\t\t}")
+            if (subClass.getLowerBound == 0) {
+              buffer.println()
+              buffer.println("\t\tselfObject." + getGetter(subClass.getName) + ".map{ sub =>")
+              buffer.println("\t\t\tsubResult +=  sub -> (previousAddr+\"/@" + subClass.getName + "\" ) ")
+              buffer.println("\t\t\tsubResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + "\")")
+              buffer.println("\t\t}")
             } else {
               buffer.println()
               //buffer.println("\t\t + ".map{ sub =>")
@@ -237,13 +254,18 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
     }
 
     buffer.println()
-    buffer.println("\t\tselfObject.getClass.getName match {")
-    ProcessorHelper.getConcreteSubTypes(cls).foreach {
-      subType =>
-        buffer.println("\t\t\tcase \"" + ProcessorHelper.fqn(ctx, subType) + "\" =>subResult ++= get" + subType.getName + "XmiAddr(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],previousAddr)")
+
+    if (subTypes.size > 0) {
+      buffer.println("\t\tselfObject.getClass.getName match {")
+      subTypes.foreach {
+        subType =>
+          buffer.println("\t\t\tcase \"" + ProcessorHelper.fqn(ctx, subType) + "\" =>subResult ++= get" + subType.getName + "XmiAddr(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],previousAddr)")
+      }
+      buffer.println("\t\t\tcase _ => ")
+      buffer.println("\t\t}")
     }
-    buffer.println("\t\t\tcase _ => ")
-    buffer.println("\t\t}")
+
+
 
     buffer.println("\t\tsubResult")
     buffer.println("\t}")
@@ -278,14 +300,14 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
 
         subClass.getUpperBound match {
           case 1 => {
-            if(subClass.getLowerBound == 0) {
-            buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
-            buffer.println("\t\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
-            buffer.println("\t\t\t\t\t\t}")
+            if (subClass.getLowerBound == 0) {
+              buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
+              buffer.println("\t\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
+              buffer.println("\t\t\t\t\t\t}")
             } else {
               //buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
               buffer.println("\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + ",\"" + subClass.getName + "\",addrs))")
-             // buffer.println("\t\t\t\t\t\t}")
+              // buffer.println("\t\t\t\t\t\t}")
             }
           }
           case -1 => {
