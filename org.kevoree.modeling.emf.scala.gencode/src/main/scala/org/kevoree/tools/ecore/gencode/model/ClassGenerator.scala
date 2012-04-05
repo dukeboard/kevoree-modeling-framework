@@ -285,22 +285,18 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\n\t\t\t\t" + protectReservedWords(ref.getName)
       res += "\n\t\t}"
     }
-
-
     res
   }
 
 
   private def generateSetter(ctx:GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
     val oppositRef = ref.asInstanceOf[EReference].getEOpposite
-    if(oppositRef != null) {
-      generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,true) + generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,false)
-    } else {
-      generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,false)
-    }
+    (if(oppositRef != null && !ref.isMany) {
+      generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,true)
+    }else{""}) + generateSetterOp(ctx,cls,ref,typeRefName,isOptional,isSingleRef,false)
   }
 
-    private def generateSetterOp(ctx:GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean, noOpposite : Boolean): String = {
+  private def generateSetterOp(ctx:GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean, noOpposite : Boolean): String = {
     //generate setter
     var res = ""
 
@@ -341,42 +337,37 @@ trait ClassGenerator extends ClonerGenerator {
     res += " ) {\n"
 
     //Method core
-    if (isOptional) {
+    /*if (isOptional) {
 
       if (isSingleRef) {
         res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
-        val oppositRef = ref.asInstanceOf[EReference].getEOpposite
-        if(oppositRef != null && !noOpposite) {
-          val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-          res += "\t\t\t\t\t" + protectReservedWords(ref.getName) + ".map{e=>\n"
-          res += "\t\t\t\t\t\tif(!e.get"+formatedOpositName+".contains(this)) {\n"
-          res += "\t\t\t\t\t\t\te.add"+formatedOpositName+"(this)\n"
-          res += "\t\t\t\t\t\t}\n"
-          res += "\t\t\t\t\t}\n"
-        }
       } else {
         res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".clear()\n"
         res += "\t\t\t\t\t\t\t\tthis." + protectReservedWords(ref.getName) + ".insertAll(0," + protectReservedWords(ref.getName) + ")\n"
       }
 
-    } else {
+    } else {*/
 
-      if (isSingleRef) {
+    if (isSingleRef) {
+      if(noOpposite) {
         res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
-        val oppositRef = ref.asInstanceOf[EReference].getEOpposite
-        if(oppositRef != null && !noOpposite) {
-          val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-          res += "\t\t\t\t\tif(!" + protectReservedWords(ref.getName) + ".get"+formatedOpositName+".contains(this)) {\n"
-          res += "\t\t\t\t\t\t" + protectReservedWords(ref.getName) + ".add"+formatedOpositName+"(this)\n"
-          res += "\t\t\t\t\t}\n"
-        }
-
       } else {
-        res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".clear()\n"
-        res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".insertAll(0," + protectReservedWords(ref.getName) + ")\n"
-
+        val oppositRef = ref.asInstanceOf[EReference].getEOpposite
+        if(oppositRef != null) {
+          val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
+          if(oppositRef.isMany) {
+            res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".add" + formatedOpositName + "(this)\n"
+          }
+        } else {
+          res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
+        }
       }
+    } else {
+      res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".clear()\n"
+      res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".insertAll(0," + protectReservedWords(ref.getName) + ")\n"
+
     }
+    //}
 
 
     // res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = " + protectReservedWords(ref.getName) + "\n"
@@ -386,35 +377,16 @@ trait ClassGenerator extends ClonerGenerator {
         if (isOptional) {
           res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map{ dic=>"
           res += "\t\t\t\tdic.setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= None }) )\n"
-          val oppositRef = ref.asInstanceOf[EReference].getEOpposite
-          if(oppositRef != null) {
-            val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-            res += "\t\t\t\t\tif(dic.get"+formatedOpositName+" != this) {\n"
-            res += "\t\t\t\t\t\tdic.set"+formatedOpositName+"(this)\n"
-            res += "\t\t\t\t\t}\n"
-          }
+          res += oppositTestAndAdd(ref,"dic")
           res += "\t\t\t\t}"
         } else {
           res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= _:"+ProcessorHelper.fqn(ctx, ref.getEReferenceType)+" }) )\n"
-          res += oppositTestAndAdd(ref)
+          res += oppositTestAndAdd(ref, protectReservedWords(ref.getName))
         }
       } else {
         res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{e=>\n"
         res += "\t\t\t\t\te.setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(e)}))\n"
-        val oppositRef = ref.asInstanceOf[EReference].getEOpposite
-        if(oppositRef != null) {
-          val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-          if(!oppositRef.isRequired) {
-            res += "\t\t\t\t\te.get"+formatedOpositName+" match {\n"
-            res += "\t\t\t\t\t\tcase Some(e2) => if(e2 != this){e.set"+formatedOpositName+"(Some(this))}\n"
-            res += "\t\t\t\t\t\tcase None => e.set"+formatedOpositName+"(Some(this))\n"
-            res += "\t\t\t\t\t}\n"
-          } else {
-            res += "\t\t\t\t\tif(e.get"+formatedOpositName+" != this) {\n"
-            res += "\t\t\t\t\t\te.set"+formatedOpositName+"(this)\n"
-            res += "\t\t\t\t\t}\n"
-          }
-        }
+        res += oppositTestAndAdd (ref, "e")
         res += "\t\t\t\t}\n"
 
       }
@@ -425,24 +397,33 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
 
-  private def oppositTestAndAdd(ref : EReference) : String = {
+  private def oppositTestAndAdd(ref : EReference, refCurrentName:String) : String = {
     var result = ""
     val oppositRef = ref.asInstanceOf[EReference].getEOpposite
     if(oppositRef != null) {
       val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
       if(oppositRef.isMany) {//List
-        result += "\t\t\t\t\tif(!"+protectReservedWords(ref.getName)+".get"+formatedOpositName+".contains(this)) {\n"
-        result += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".add"+formatedOpositName+"(this)\n"
-        result += "\t\t\t\t\t}\n"
+        //result += "\t\t\t\t\tif(!"+refCurrentName+".get"+formatedOpositName+".contains(this)) {\n"
+        result += "\t\t\t\t\t\t"+refCurrentName+".add"+formatedOpositName+"(this)\n"
+        //result += "\t\t\t\t\t}\n"
       } else if(!oppositRef.isRequired) {//Option
-        result += "\t\t\t\t\t"+protectReservedWords(ref.getName)+".get"+formatedOpositName+" match {\n"
-        result += "\t\t\t\t\t\tcase Some(e) => {"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(Some(this))}\n"
-        result += "\t\t\t\t\t\tcase None => "+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
+        result += "\t\t\t\t\t"+refCurrentName+".get"+formatedOpositName+" match {\n"
+        result += "\t\t\t\t\t\tcase Some(e) => {\n"
+        result += "\t\t\t\t\t\t\tif("+refCurrentName+".get"+formatedOpositName+".isInstanceOf["+ref.getEContainingClass.getName+"] && "+refCurrentName+".get"+formatedOpositName+" != this) {\n"
+        result += "\t\t\t\t\t\t\t\t"+refCurrentName+".get"+formatedOpositName+".remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "("+refCurrentName+")\n"
+        result += "\t\t\t\t\t\t\t}\n"
+        result += "\t\t\t\t\t\t\t"+refCurrentName+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
+        result += "\t\t\t\t\t\t}\n"
+        result += "\t\t\t\t\t\tcase None => "+refCurrentName+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
         result += "\t\t\t\t\t}\n"
       } else { //mandatory single
-      //result += "\t\t\t\t\tif("+protectReservedWords(ref.getName)+".get"+formatedOpositName+" != this) {\n"
-      result += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(this)\n"
-      //result += "\t\t\t\t\t}\n"
+        //result += "\t\t\t\t\tif("+protectReservedWords(ref.getName)+".get"+formatedOpositName+" != this) {\n"
+        //result += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(this)\n"
+        result += "\t\t\t\t\tif("+refCurrentName+".get"+formatedOpositName+".isInstanceOf["+ref.getEContainingClass.getName+"] && "+refCurrentName+".get"+formatedOpositName+" != this) {\n"
+        result += "\t\t\t\t\t\t"+refCurrentName+".get"+formatedOpositName+".remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "("+refCurrentName+")\n"
+        result += "\t\t\t\t\t}\n"
+        result += "\t\t\t\t\t"+refCurrentName+".noOpposite_set"+formatedOpositName+"(this)\n"
+        //result += "\t\t\t\t\t}\n"
       }
     }
     result
@@ -457,7 +438,7 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}))\n"
     }
     res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".append(" + protectReservedWords(ref.getName) + ")\n"
-    res += oppositTestAndAdd(ref)
+    res += oppositTestAndAdd(ref, protectReservedWords(ref.getName))
     res += "\t\t}"
     res += "\n"
     res += "\n\t\tdef addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
@@ -494,9 +475,9 @@ trait ClassGenerator extends ClonerGenerator {
       if(oppositRef != null) {
         val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
         if(!oppositRef.isRequired) {
-          res += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".set"+formatedOpositName+"(None)\n"
+          res += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(None)\n"
         } else {
-          res += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".set"+formatedOpositName+"(_:"+cls.getName+")\n"
+          res += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(_:"+cls.getName+")\n"
         }
       }
     }
