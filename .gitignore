@@ -28,3 +28,4 @@ keystore
 /kevoree-core/org.kevoree.basechecker/target/
 /kevoree-core/org.kevoree.kompare/target/
 /kevoree-library/org.kevoree.library.restChannels/target/
+**.idea
