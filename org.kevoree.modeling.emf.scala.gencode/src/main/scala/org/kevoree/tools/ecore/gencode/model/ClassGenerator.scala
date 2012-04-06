@@ -356,7 +356,14 @@ trait ClassGenerator extends ClonerGenerator {
         if(oppositRef != null) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if(oppositRef.isMany) {
-            res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".add" + formatedOpositName + "(this)\n"
+            if(ref.isRequired) {
+              res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".add" + formatedOpositName + "(this)\n"
+            } else {
+              res += "\t\t\t\t" + protectReservedWords(ref.getName) + " match {\n"
+              res += "\t\t\t\t  case Some(tc) => tc.add" + formatedOpositName + "(this)\n"
+              res += "\t\t\t\t  case None => if(this." + protectReservedWords(ref.getName) + ".isDefined){this." + protectReservedWords(ref.getName) + ".get.remove" + formatedOpositName + "(this)}\n"
+              res += "\t\t\t\t}\n"
+            }
           }
         } else {
           res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
@@ -384,9 +391,9 @@ trait ClassGenerator extends ClonerGenerator {
           res += oppositTestAndAdd(ref, protectReservedWords(ref.getName))
         }
       } else {
-        res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{e=>\n"
-        res += "\t\t\t\t\te.setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(e)}))\n"
-        res += oppositTestAndAdd (ref, "e")
+        res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{el=>\n"
+        res += "\t\t\t\t\tel.setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)}))\n"
+        res += oppositTestAndAdd (ref, "el")
         res += "\t\t\t\t}\n"
 
       }
@@ -409,8 +416,8 @@ trait ClassGenerator extends ClonerGenerator {
       } else if(!oppositRef.isRequired) {//Option
         result += "\t\t\t\t\t"+refCurrentName+".get"+formatedOpositName+" match {\n"
         result += "\t\t\t\t\t\tcase Some(e) => {\n"
-        result += "\t\t\t\t\t\t\tif("+refCurrentName+".get"+formatedOpositName+".isInstanceOf["+ref.getEContainingClass.getName+"] && "+refCurrentName+".get"+formatedOpositName+" != this) {\n"
-        result += "\t\t\t\t\t\t\t\t"+refCurrentName+".get"+formatedOpositName+".remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "("+refCurrentName+")\n"
+        result += "\t\t\t\t\t\t\tif(e.isInstanceOf["+ref.getEContainingClass.getName+"] && e != this) {\n"
+        result += "\t\t\t\t\t\t\t\te.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "("+refCurrentName+")\n"
         result += "\t\t\t\t\t\t\t}\n"
         result += "\t\t\t\t\t\t\t"+refCurrentName+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
         result += "\t\t\t\t\t\t}\n"

@@ -273,12 +273,13 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
     buffer.println()
 
     if (subTypes.size > 0) {
-      buffer.println("\t\tselfObject.getClass.getName match {")
+      buffer.println("\t\tselfObject match {")
       subTypes.foreach {
         subType =>
-          buffer.println("\t\t\tcase \"" + ProcessorHelper.fqn(ctx, subType) + "\" =>subResult ++= get" + subType.getName + "XmiAddr(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],previousAddr)")
+          buffer.println("\t\t\tcase o:" + ProcessorHelper.fqn(ctx, subType) + " =>subResult ++= get" + subType.getName + "XmiAddr(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],previousAddr)")
       }
-      buffer.println("\t\t\tcase _ => ")
+
+      buffer.println("\t\t\tcase _ => \n")//throw new InternalError(\""+ cls.getName +"Serializer did not match anything for selfObject class name: \" + selfObject.getClass.getName)")
       buffer.println("\t\t}")
     }
 
@@ -294,13 +295,14 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
       buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String]) : scala.xml.Node = {")
     }
 
-    buffer.println("\t\tselfObject.getClass.getName match {")
+    buffer.println("\t\tselfObject match {")
     ProcessorHelper.getConcreteSubTypes(cls).foreach {
       subType =>
-        buffer.println("\t\t\tcase \"" + ProcessorHelper.fqn(ctx, subType) + "\" => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs)")
+        buffer.println("\t\t\tcase o:" + ProcessorHelper.fqn(ctx, subType) + " => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs)")
     }
 
     buffer.println("\t\t\tcase _ => {")
+   // buffer.println("\t\t\t\tSystem.out.println(\"[WARNING]\" + getClass.getName + \": \" + selfObject.getClass.getName + \" did not match anything in " + cls.getName + "toXMI\")")
     buffer.println("\t\t\tnew scala.xml.Node {")
     if (!isRoot) {
       buffer.println("\t\t\t\t\tdef label = refNameInParent")
