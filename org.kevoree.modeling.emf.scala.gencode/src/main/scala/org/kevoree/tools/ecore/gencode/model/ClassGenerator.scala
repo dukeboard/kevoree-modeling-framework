@@ -154,7 +154,7 @@ trait ClassGenerator extends ClonerGenerator {
 
         if (ref.getUpperBound == -1) {
           // multiple values
-          pr.println("\t\tprivate val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
+          pr.println("\t\tprivate val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
           pr.println("\t\tprivate var " + protectReservedWords(ref.getName) + " : Option[" + typeRefName + "] = None\n")
@@ -163,7 +163,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("\t\tprivate var " + protectReservedWords(ref.getName) + " : " + typeRefName + " = _\n")
         } else if (ref.getLowerBound > 1) {
           // else
-          pr.println("\t\tprivate val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
+          pr.println("\t\tprivate val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
