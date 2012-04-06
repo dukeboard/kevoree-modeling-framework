@@ -83,7 +83,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
   private def generateSubs(): List[EClass] = {
 
     var listContainedElementsTypes = List[EClass]()
-    ProcessorHelper.getConcreteSubTypes(elementType).foreach {
+    ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
         if (!concreteType.isInterface) {
           val el = new BasicElementLoader(ctx, genDir, genPackage, concreteType, context, modelingPackage,modelPackage)
@@ -113,7 +113,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     pr.println("\t\t\t\t\t\txmiElem.attributes.find(att => att.key.equals(\"type\")) match {")
     pr.println("\t\t\t\t\t\t\t\tcase Some(s) => {")
     pr.println("\t\t\t\t\t\t\t\t\t\t\t\ts.value.text match {")
-    ProcessorHelper.getConcreteSubTypes(elementType).foreach {
+    ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\tcase \"" + modelingPackage.getName + ":" + concreteType.getName + "\" => {")
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tloadedElements.append(load" + concreteType.getName + "Element(currentElementId,xmiElem,context))")
@@ -140,7 +140,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     pr.println("\t\t\t\t\t\txmiElem.attributes.find(att => att.key.equals(\"type\")) match {")
     pr.println("\t\t\t\t\t\t\t\t\t\tcase Some(s) => {")
     pr.println("\t\t\t\t\t\t\t\t\t\t\t\ts.value.text match {")
-    ProcessorHelper.getConcreteSubTypes(elementType).foreach {
+    ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\tcase \"" + modelingPackage.getName + ":" + concreteType.getName + "\" => {")
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tresolve" + concreteType.getName + "Element(currentElementId,xmiElem,context)")

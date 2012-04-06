@@ -91,14 +91,14 @@ object ProcessorHelper {
     superTypeList
   }
 
-  def getConcreteSubTypes(iface : EClass) : List[EClass] = {
+  def getAllConcreteSubTypes(iface : EClass) : List[EClass] = {
     var res = List[EClass]()
     iface.getEPackage.getEClassifiers.filter(cl => cl.isInstanceOf[EClass]).foreach{cls=>
       if(!cls.asInstanceOf[EClass].isInterface
         && !cls.asInstanceOf[EClass].isAbstract
         && cls.asInstanceOf[EClass].getEAllSuperTypes.contains(iface)) {
 
-        if(res.exists(previousC => cls.asInstanceOf[EClass].getEAllSuperTypes.contains(previousC))){
+        if(!res.exists(previousC => cls.asInstanceOf[EClass].getEAllSuperTypes.contains(previousC))){
           res = List(cls.asInstanceOf[EClass]) ++ res
         } else {
           res = res ++ List(cls.asInstanceOf[EClass])
@@ -106,22 +106,41 @@ object ProcessorHelper {
       }
     }
     res
-  }    /*
-  def getSubTypes(iface : EClass) : List[EClass] = {
+  }
+  def getDirectConcreteSubTypes(iface : EClass) : List[EClass] = {
     var res = List[EClass]()
     iface.getEPackage.getEClassifiers.filter(cl => cl.isInstanceOf[EClass]).foreach{cls=>
-      if(cls.asInstanceOf[EClass].getEAllSuperTypes.contains(iface)) {
-        //IS A SUB TYPE NEED TO ADD
-        if(res.exists(previousC => cls.asInstanceOf[EClass].getEAllSuperTypes.contains(previousC))){
-          res = List(cls.asInstanceOf[EClass]) ++ res
-        } else {
+      if(!cls.asInstanceOf[EClass].isInterface
+        && !cls.asInstanceOf[EClass].isAbstract
+        && cls.asInstanceOf[EClass].getEAllSuperTypes.contains(iface)) {
+
+        //adds an element only if the collection does not already contain one of its supertypes
+        if(!res.exists(previousC => cls.asInstanceOf[EClass].getEAllSuperTypes.contains(previousC))){
+          //remove potential subtypes already inserted in the collection
+          res = res.filterNot{ c => c.asInstanceOf[EClass].getEAllSuperTypes.contains(cls)}
           res = res ++ List(cls.asInstanceOf[EClass])
         }
-
       }
     }
     res
-  }     */
+  }
+
+  /*
+def getSubTypes(iface : EClass) : List[EClass] = {
+var res = List[EClass]()
+iface.getEPackage.getEClassifiers.filter(cl => cl.isInstanceOf[EClass]).foreach{cls=>
+ if(cls.asInstanceOf[EClass].getEAllSuperTypes.contains(iface)) {
+   //IS A SUB TYPE NEED TO ADD
+   if(res.exists(previousC => cls.asInstanceOf[EClass].getEAllSuperTypes.contains(previousC))){
+     res = List(cls.asInstanceOf[EClass]) ++ res
+   } else {
+     res = res ++ List(cls.asInstanceOf[EClass])
+   }
+
+ }
+}
+res
+}     */
 
   def getPackageGenDir(ctx:GenerationContext, pack:EPackage) : String = {
     var modelGenBaseDir = ctx.getRootGenerationDirectory.getAbsolutePath + "/"

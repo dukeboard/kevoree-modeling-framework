@@ -160,7 +160,7 @@ class SerializerGenerator(ctx: GenerationContext) {
           subpr.close()
 
           //¨PROCESS ALL SUB TYPE
-          ProcessorHelper.getConcreteSubTypes(sub.getEReferenceType).foreach {
+          ProcessorHelper.getAllConcreteSubTypes(sub.getEReferenceType).foreach {
             subsubType =>
               if (subsubType != root) {
                 //avoid looping in case of self-containment
@@ -204,7 +204,7 @@ class SerializerGenerator(ctx: GenerationContext) {
           }
       }
     }
-    val subTypes = ProcessorHelper.getConcreteSubTypes(cls)
+    val subTypes = ProcessorHelper.getDirectConcreteSubTypes(cls)
     if (subTypes.size > 0) {
       subTypes.foreach {
         sub =>
@@ -296,7 +296,17 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
     }
 
     buffer.println("\t\tselfObject match {")
-    ProcessorHelper.getConcreteSubTypes(cls).foreach {
+    var subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
+    //subtypesList.s
+   /*
+    System.out.println("[DEBUG]Prior sorting:" + subtypesList.map{c=>c.getName}.mkString("[",",","]"))
+    subtypesList = subtypesList.sortWith{(e1,e2) => {
+      System.out.println("[DEBUG]Sorting (" + e1.getName + "," + e2.getName + ") result e1.ST.contains(e2): " + e1.getEAllSuperTypes.contains(e2))
+      e1.asInstanceOf[EClass].getEAllSuperTypes.contains(e2)
+    }}
+    System.out.println("[DEBUG]After sorting:" + subtypesList.map{c=>c.getName}.mkString("[",",","]"))
+    */
+    subtypesList.foreach {
       subType =>
         buffer.println("\t\t\tcase o:" + ProcessorHelper.fqn(ctx, subType) + " => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs)")
     }
