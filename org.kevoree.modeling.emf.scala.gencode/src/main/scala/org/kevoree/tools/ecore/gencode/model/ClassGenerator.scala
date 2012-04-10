@@ -463,9 +463,9 @@ trait ClassGenerator extends ClonerGenerator {
     res += "\n\t\tdef remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ") {\n"
     if (isOptional) {
-      res += "\t\t\t\tif(this." + protectReservedWords(ref.getName) + ".size != 0 ) {\n"
+      res += "\t\t\t\tif(this." + protectReservedWords(ref.getName) + ".size != 0 && this."+protectReservedWords(ref.getName) +".indexOf("+protectReservedWords(ref.getName)+") != -1 ) {\n"
     } else {
-      res += "\t\t\t\tif(this." + protectReservedWords(ref.getName) + ".size == " + ref.getLowerBound + ") {\n"
+      res += "\t\t\t\tif(this." + protectReservedWords(ref.getName) + ".size == " + ref.getLowerBound + "&& this."+protectReservedWords(ref.getName) +".indexOf("+protectReservedWords(ref.getName)+") != -1 ) {\n"
       res += "\t\t\t\t\t\tthrow new UnsupportedOperationException(\"The list of " + protectReservedWords(ref.getName) + " must contain at least " + ref.getLowerBound + " element. Connot remove sizeof(" + protectReservedWords(ref.getName) + ")=\"+this." + protectReservedWords(ref.getName) + ".size)\n"
       res += "\t\t\t\t} else {\n"
     }
