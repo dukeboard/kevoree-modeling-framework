@@ -23,7 +23,6 @@ import org.fsmSample.State;
 import org.fsmSample.Transition;
 import org.fsmSample.loader.FSMLoader;
 import org.fsmSample.serializer.ModelSerializer;
-import org.junit.Test;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -31,10 +30,8 @@ import java.lang.management.MemoryMXBean;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
 
-
-public class MainTest {
+public class MainWOOppositeTest {
 
     //@Test
     public void flatFsmTest(PrintWriter statPr,int STATES) throws IOException {
@@ -47,7 +44,7 @@ public class MainTest {
         FSM root = FsmSampleFactory.createFSM();
         State initial = FsmSampleFactory.createState();
         initial.setName("s0");
-        //initial.setOwningFSM(root);
+        initial.setOwningFSM(root);
         root.setCurrentState(initial);
         root.setInitialState(initial);
         root.addOwnedState(initial);
@@ -59,11 +56,14 @@ public class MainTest {
             State  s1 = FsmSampleFactory.createState();
             s1.setName("s"+i);
             root.addOwnedState(s1);
+            s1.setOwningFSM(root);
             Transition t = FsmSampleFactory.createTransition();
-            t.setSource(s0); //Uses the set for one side
-            s1.addIncomingTransition(t); //Uses the add for the other side
+            t.setSource(s0);
+            t.setTarget(s1);
             t.setInput("ti" +i);
             t.setOutput("to" +i);
+            s0.addOutgoingTransition(t);
+            s1.addIncomingTransition(t);
             s0 = s1;
         }
 
@@ -145,6 +145,7 @@ public class MainTest {
         FSM root = FsmSampleFactory.createFSM();
         State initial = FsmSampleFactory.createState();
         initial.setName("s0");
+        initial.setOwningFSM(root);
         root.setCurrentState(initial);
         root.setInitialState(initial);
         root.addOwnedState(initial);
@@ -159,18 +160,24 @@ public class MainTest {
                 State  rightState = FsmSampleFactory.createState();
                 leftState.setName("s"+ n++);
                 rightState.setName("s"+ n++);
-                root.addOwnedState(leftState); //using add for one side
-                rightState.setOwningFSM(root); //using add for the other side
+                root.addOwnedState(leftState);
+                root.addOwnedState(rightState);
+                leftState.setOwningFSM(root);
+                rightState.setOwningFSM(root);
                 Transition leftTrans = FsmSampleFactory.createTransition();
                 Transition rightTrans = FsmSampleFactory.createTransition();
                 leftTrans.setSource(s);
+                rightTrans.setSource(s);
                 leftTrans.setTarget(leftState);
-                s.addOutgoingTransition(rightTrans);
-                rightState.addIncomingTransition(rightTrans);
+                rightTrans.setTarget(rightState);
                 leftTrans.setInput("ti" + n);
                 leftTrans.setOutput("to" + n);
                 rightTrans.setInput("ti" + n);
                 rightTrans.setOutput("to" + n);
+                s.addOutgoingTransition(rightTrans);
+                rightState.addIncomingTransition(rightTrans);
+                s.addOutgoingTransition(leftTrans);
+                rightState.addIncomingTransition(leftTrans);
                 thisLevel.add(rightState);
                 thisLevel.add(leftState);
             }
@@ -242,7 +249,7 @@ public class MainTest {
     
     
     public static void main(String[] args) throws InterruptedException, IOException {
-        MainTest m = new MainTest();
+        MainWOOppositeTest m = new MainWOOppositeTest();
 
 
         //=====  Flat FSM test //
@@ -250,6 +257,11 @@ public class MainTest {
         File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(),".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
+        m.flatFsmTest(pr,25000);
+        m.flatFsmTest(pr,750000);
+        pr.flush();
+        pr.close();
+        /*
         int step = 25000;
         for(int i = 1 ; i*step <= 750000;i++) {
             m.flatFsmTest(pr, i*step);
@@ -271,6 +283,6 @@ public class MainTest {
         pr2.close();
 
         System.out.println("results in " + f.getAbsolutePath());
-
+*/
     }
 }
