@@ -410,7 +410,7 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
               ref.getLowerBound match {
                 case 0 => {
                   buffer.println("\t\t\t\t\t\tselfObject." + getGetter(ref.getName) + ".map{sub =>")
-                  buffer.println("\t\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(sub).getOrElse{\"non contained reference\"},scala.xml.Null))")
+                  buffer.println("\t\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"},scala.xml.Null))")
                   buffer.println("\t\t\t\t\t\t}")
                 }
                 case 1 => {
@@ -418,10 +418,10 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
 
                   if (ref.getEOpposite != null) {
                     if (ref.getEOpposite.getUpperBound != -1) {
-                      buffer.println("\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{\"non contained reference\"},scala.xml.Null))")
+                      buffer.println("\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"},scala.xml.Null))")
                     }
                   } else {
-                    buffer.println("\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{\"non contained reference\"},scala.xml.Null))")
+                    buffer.println("\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"},scala.xml.Null))")
                   }
 
                 }
@@ -432,7 +432,7 @@ buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
             case _ => {
               buffer.println("\t\t\t\t\t\tvar subadrs" + ref.getName + " : List[String] = List()")
               buffer.println("\t\t\t\t\t\tselfObject." + getGetter(ref.getName) + ".foreach{sub =>")
-              buffer.println("\t\t\t\t\t\t\tsubadrs" + ref.getName + " = subadrs" + ref.getName + " ++ List(addrs.get(sub).getOrElse{\"non contained reference\"})")
+              buffer.println("\t\t\t\t\t\t\tsubadrs" + ref.getName + " = subadrs" + ref.getName + " ++ List(addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"})")
               buffer.println("\t\t\t\t\t\t}")
               buffer.println("\t\t\t\t\t\tif(subadrs" + ref.getName + ".size > 0){")
               buffer.println("\t\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",subadrs" + ref.getName + ".mkString(\" \"),scala.xml.Null))")

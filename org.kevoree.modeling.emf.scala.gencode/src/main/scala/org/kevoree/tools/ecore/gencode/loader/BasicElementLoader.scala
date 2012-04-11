@@ -226,7 +226,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
         }
 
 
-        pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase None => System.out.println(\"" + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
+        pr.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\tcase None => throw new Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
         pr.println("\t\t\t\t\t\t\t\t\t\t\t\t}")
         pr.println("\t\t\t\t\t\t\t\t\t\t}")
         pr.println("\t\t\t\t\t\t\t\t}")
