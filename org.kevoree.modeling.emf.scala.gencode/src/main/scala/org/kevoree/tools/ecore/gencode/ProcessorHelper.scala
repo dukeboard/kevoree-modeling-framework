@@ -55,6 +55,7 @@ object ProcessorHelper {
       case "java.lang.String" | "String" => "java.lang.String"
       case "int" | "java.lang.Integer" => "java.lang.Integer"
       case "java.lang.Object" => "java.lang.Object"
+      case "java.util.Date" => "java.util.Date"
       case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + theType); null
     }
   }
