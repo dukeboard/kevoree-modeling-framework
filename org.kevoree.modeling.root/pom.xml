@@ -4,13 +4,13 @@
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.root</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <name>Kevoree :: Modeling :: Root</name>
     <url>https://github.com/dukeboard/kevoree-modeling-framework</url>
 
     <properties>
         <emf.version>2.7.0</emf.version>
-        <scala.version>2.10.0-M2</scala.version>
+        <scala.version>2.9.2</scala.version>
         <bundle.vendor>IRISA/INRIA</bundle.vendor>
         <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
@@ -20,7 +20,6 @@
         <module>../org.kevoree.modeling.emf.scala.gencode</module>
         <module>../org.kevoree.modeling.emf.scala.gencode.mavenplugin</module>
     </modules>
-
 
     <build>
         <plugins>

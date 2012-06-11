@@ -6,13 +6,13 @@
 
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.emf.scala.gencode</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <name>Kevoree :: Modeling :: EMF-Scala :: GenCode</name>
 
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
         <relativePath>../org.kevoree.modeling.root/pom.xml</relativePath>
     </parent>
 

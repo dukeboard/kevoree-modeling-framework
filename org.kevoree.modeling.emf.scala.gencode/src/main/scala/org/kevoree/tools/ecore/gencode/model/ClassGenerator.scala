@@ -347,6 +347,9 @@ trait ClassGenerator extends ClonerGenerator {
       }
 
     } else {*/
+    if (cls.getEAllContainments.contains(ref)) {
+    res += "if(this."+protectReservedWords(ref.getName)+"!= "+protectReservedWords(ref.getName)+"){\n"
+    }
 
     if (isSingleRef) {
       if(noOpposite) {
@@ -398,6 +401,10 @@ trait ClassGenerator extends ClonerGenerator {
 
       }
     }
+    if (cls.getEAllContainments.contains(ref)) {
+    res += "}\n"  //END TEST == IF
+    }
+
     res += "\n\t\t}"
     res
 
