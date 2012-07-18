@@ -5,11 +5,11 @@
     <packaging>jar</packaging>
     <name>Kevoree :: Modeling :: EMF-Scala :: Sample :: Kermeta</name>
 
-    <version>1.2.3</version>
+    <version>1.2.4-SNAPSHOT</version>
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
-        <version>1.2.3</version>
+        <version>1.2.4-SNAPSHOT</version>
         <relativePath>../org.kevoree.modeling.root/pom.xml</relativePath>
     </parent>
 
