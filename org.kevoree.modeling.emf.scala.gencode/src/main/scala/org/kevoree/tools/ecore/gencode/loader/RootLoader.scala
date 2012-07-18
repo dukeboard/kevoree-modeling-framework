@@ -19,7 +19,7 @@
 
 package org.kevoree.tools.ecore.gencode.loader
 
-import org.eclipse.emf.ecore.{EPackage, EClass}
+import org.eclipse.emf.ecore.{EReference, EPackage, EClass}
 import scala.collection.JavaConversions._
 import xml.XML
 import java.io._
@@ -175,9 +175,18 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("\t\tprivate def load" + elementType.getName + "(rootNode: NodeSeq, context : " + context + ") {")
     pr.println("")
     elementType.getEAllContainments.foreach {
-      ref =>
+      refa =>
+        val ref = refa.asInstanceOf[EReference]
         pr.println("\t\t\t\tval " + ref.getName + " = load" + ref.getEReferenceType.getName + "(\"/\", rootNode, \"" + ref.getName + "\", context)")
-        pr.println("\t\t\t\tcontext." + rootContainerName + ".set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ".toList)")
+        if(!ref.isMany) {
+          if (!ref.isRequired) {
+            pr.println("\t\t\t\tcontext." + rootContainerName + ".set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ".headOption)")
+          } else {
+            pr.println("\t\t\t\tcontext." + rootContainerName + ".set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ".head)")
+          }
+        } else {
+          pr.println("\t\t\t\tcontext." + rootContainerName + ".set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + ref.getName + ".toList)")
+        }
         //        pr.println("\t\t\t\t" + ref.getName + ".foreach{e=>e.eContainer=" + context + "." + rootContainerName + " }")
         pr.println("")
     }
