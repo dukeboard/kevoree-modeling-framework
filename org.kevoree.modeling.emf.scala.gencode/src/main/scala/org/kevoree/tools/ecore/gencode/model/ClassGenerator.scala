@@ -300,10 +300,12 @@ trait ClassGenerator extends ClonerGenerator {
     //generate setter
     var res = ""
 
+    val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+
     if(noOpposite){
-      res += "\n\t\tdef noOpposite_set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+      res += "\n\t\tdef noOpposite_set" + formatedLocalRefName
     } else {
-      res += "\n\t\tdef set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+      res += "\n\t\tdef set" + formatedLocalRefName
     }
 
     res += "(" + protectReservedWords(ref.getName) + " : "
@@ -348,7 +350,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     } else {*/
     if (cls.getEAllContainments.contains(ref)) {
-    res += "if(this."+protectReservedWords(ref.getName)+"!= "+protectReservedWords(ref.getName)+"){\n"
+      res += "if(this."+protectReservedWords(ref.getName)+"!= "+protectReservedWords(ref.getName)+"){\n"
     }
 
     if (isSingleRef) {
@@ -367,6 +369,15 @@ trait ClassGenerator extends ClonerGenerator {
               res += "\t\t\t\t  case None => if(this." + protectReservedWords(ref.getName) + ".isDefined){this." + protectReservedWords(ref.getName) + ".get.remove" + formatedOpositName + "(this)}\n"
               res += "\t\t\t\t}\n"
             }
+          } else {
+            if(ref.isRequired) {
+              res += "\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set" + formatedOpositName + "(this)\n"
+              res += "\t\t\t\tnoOpposite_set"+formatedLocalRefName+"("+protectReservedWords(ref.getName)+")"
+            } else {
+
+            }
+
+
           }
         } else {
           res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
@@ -400,9 +411,7 @@ trait ClassGenerator extends ClonerGenerator {
         res += "\t\t\t\t}\n"
 
       }
-    }
-    if (cls.getEAllContainments.contains(ref)) {
-    res += "}\n"  //END TEST == IF
+      res += "}\n"  //END TEST == IF
     }
 
     res += "\n\t\t}"
