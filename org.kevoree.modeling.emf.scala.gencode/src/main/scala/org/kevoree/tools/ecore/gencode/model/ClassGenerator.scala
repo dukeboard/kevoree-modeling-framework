@@ -350,7 +350,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     } else {*/
     if (cls.getEAllContainments.contains(ref)) {
-      res += "if(this."+protectReservedWords(ref.getName)+"!= "+protectReservedWords(ref.getName)+"){\n"
+      res += "\t\t\tif(this."+protectReservedWords(ref.getName)+"!= "+protectReservedWords(ref.getName)+"){\n"
     }
 
     if (isSingleRef) {
@@ -370,13 +370,12 @@ trait ClassGenerator extends ClonerGenerator {
               res += "\t\t\t\t}\n"
             }
           } else {
-            if(ref.isRequired) {
-              res += "\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set" + formatedOpositName + "(this)\n"
-              res += "\t\t\t\tnoOpposite_set"+formatedLocalRefName+"("+protectReservedWords(ref.getName)+")"
+            if(oppositRef.isContainment) {
+              res += "\t\t\t\t"+protectReservedWords(ref.getName)+".set" + formatedOpositName + "(this)\n"
             } else {
-
+              res += "\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set" + formatedOpositName + "(this)\n"
+              res += "\t\t\t\tnoOpposite_set"+formatedLocalRefName+"("+protectReservedWords(ref.getName)+")\n"
             }
-
 
           }
         } else {
@@ -393,25 +392,30 @@ trait ClassGenerator extends ClonerGenerator {
 
     // res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = " + protectReservedWords(ref.getName) + "\n"
     // }
+
+
+    //Is the current ref contained in this class ?
     if (cls.getEAllContainments.contains(ref)) {
       if (isSingleRef) {
-        if (isOptional) {
+        if (isOptional) { //Optional contained single ref
           res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map{ dic=>"
           res += "\t\t\t\tdic.setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= None }) )\n"
           res += oppositTestAndAdd(ref,"dic")
           res += "\t\t\t\t}"
-        } else {
-          res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= _:"+ProcessorHelper.fqn(ctx, ref.getEReferenceType)+" }) )\n"
-          res += oppositTestAndAdd(ref, protectReservedWords(ref.getName))
+        } else {//mandatory contained single ref
+          if(noOpposite) {
+            res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= _:"+ProcessorHelper.fqn(ctx, ref.getEReferenceType)+" }) )\n"
+          }
+          //res += oppositTestAndAdd(ref, protectReservedWords(ref.getName))
         }
-      } else {
+      } else { //contained List
         res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{el=>\n"
-        res += "\t\t\t\t\tel.setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)}))\n"
+        res += "\t\t\t\t\tel.setEContainer(this,Some(()=>{this.remove" + formatedLocalRefName + "(el)}))\n"
         res += oppositTestAndAdd (ref, "el")
         res += "\t\t\t\t}\n"
 
       }
-      res += "}\n"  //END TEST == IF
+      res += "\t\t\t}\n"  //END TEST == IF
     }
 
     res += "\n\t\t}"
