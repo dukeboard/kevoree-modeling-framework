@@ -59,14 +59,14 @@ class GenerationContext {
   
   private var modelFileMap : Map[String, XMIResource] = Map.empty[String, XMIResource]
   def getEcoreModel(ecorefile : File) : XMIResource = {
-    modelFileMap.get(URI.create(ecorefile.getAbsolutePath).getPath) match {
+    modelFileMap.get(ecorefile.toURI.getPath) match {
       case Some(file) => file
       case None => {
         System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
         val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
-        val resource = new XMIResourceImpl(fileUri);
-        resource.load(null);
-        modelFileMap = modelFileMap + ((fileUri.path(), resource))
+        val resource = new XMIResourceImpl(fileUri)
+        resource.load(null)
+        modelFileMap = modelFileMap + ((ecorefile.toURI.getPath, resource))
         resource
       }
     }
