@@ -18,4 +18,5 @@ Should you face any difficulties or experiemnt any problem, please feel free to 
 
 Authors : Fouquet Francois, Nain Gregory
 
+Developments supported by IRISA, INRIA-Rennes, Université de Luxembourg, Interdisciplinary Center for Security, Reliability and Trust (SnT).
 
