@@ -5,11 +5,11 @@
     <packaging>jar</packaging>
     <name>Kevoree :: Modeling :: EMF-Scala :: Sample :: Kevoree</name>
 
-    <version>1.2.4-SNAPSHOT</version>
+    <version>1.2.5-SNAPSHOT</version>
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
-        <version>1.2.4-SNAPSHOT</version>
+        <version>1.2.5-SNAPSHOT</version>
         <relativePath>../org.kevoree.modeling.root/pom.xml</relativePath>
     </parent>
 
@@ -22,7 +22,7 @@
             <plugin>
                 <groupId>org.kevoree.modeling</groupId>
                 <artifactId>org.kevoree.modeling.emf.scala.gencode.mavenplugin</artifactId>
-                <version>1.2.4-SNAPSHOT</version>
+                <version>1.2.5-SNAPSHOT</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
