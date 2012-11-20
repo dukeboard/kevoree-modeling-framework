@@ -143,7 +143,7 @@ object ProcessorHelper {
    * @return the Fully Qualified package name
    */
   def fqn(pack:EPackage) : String = {
-    var locFqn = pack.getName
+    var locFqn = protectReservedWords(pack.getName)
     var parentPackage = pack.getESuperPackage;
     while(parentPackage != null) {
       locFqn = parentPackage.getName + "." + locFqn
