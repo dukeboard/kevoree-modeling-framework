@@ -62,12 +62,16 @@ trait ClonerGenerator {
     pr.println("class ModelCloner {")
 
     pr.println("\tdef clone[A](o : A) : A = {")
+    pr.println("\t clone(o,false)")
+    pr.println("\t}") //END serialize method
 
+
+    pr.println("\tdef clone[A](o : A,readOnly : Boolean) : A = {")
     pr.println("\t\to match {")
     pr.println("\t\t\tcase o : " + ProcessorHelper.fqn(ctx, containerRoot) + " => {")
     pr.println("\t\t\t\tval context = new java.util.IdentityHashMap[Object,Object]()")
     pr.println("\t\t\t\to.getClonelazy(context)")
-    pr.println("\t\t\t\to.resolve(context).asInstanceOf[A]")
+    pr.println("\t\t\t\to.resolve(context,readOnly).asInstanceOf[A]")
     pr.println("\t\t\t}")
     pr.println("\t\t\tcase _ => null.asInstanceOf[A]")
     pr.println("\t\t}") //END MATCH
@@ -197,7 +201,7 @@ trait ClonerGenerator {
     if (cls.getESuperTypes.size() > 0) {
       buffer.print("\toverride ")
     }
-    buffer.println("def resolve(addrs : java.util.IdentityHashMap[Object,Object]) : " + cls.getName + " = {")
+    buffer.println("def resolve(addrs : java.util.IdentityHashMap[Object,Object],readOnly:Boolean) : " + cls.getName + " = {")
 
     /*
     buffer.println("this match {")
@@ -249,7 +253,7 @@ trait ClonerGenerator {
           case 1 => {
             if(contained.getLowerBound == 0) {
             buffer.println("\t\tthis." + getGetter(contained.getName) + ".map{ sub =>")
-            buffer.println("\t\t\tsub.resolve(addrs)")
+            buffer.println("\t\t\tsub.resolve(addrs,readOnly)")
             buffer.println("\t\t}")
             } else {
               buffer.println("\t\tthis." + getGetter(contained.getName) + ".resolve(addrs)")
@@ -257,13 +261,13 @@ trait ClonerGenerator {
           }
           case -1 => {
             buffer.println("\t\tthis." + getGetter(contained.getName) + ".foreach{ sub => ")
-            buffer.println("\t\t\tsub.resolve(addrs)")
+            buffer.println("\t\t\tsub.resolve(addrs,readOnly)")
             buffer.println("\t\t}")
           }
         }
         buffer.println()
     }
-
+    buffer.println("\t\tif(readOnly){setReadOnly()}")
     buffer.println("\t\tclonedSelfObject") //RETURN CLONED OBJECT
     buffer.println("\t}") //END METHOD
   }

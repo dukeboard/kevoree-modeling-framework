@@ -183,6 +183,7 @@ trait ClassGenerator extends ClonerGenerator {
         //generate setter
         pr.print("\n\t\tdef set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
         pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
+        pr.println("\t\t\tif(isReadOnly){throw new Exception(\"ReadOnly Element are not modifiable\")}")
         pr.println("\t\t\tthis." + protectReservedWords(att.getName) + " = " + protectReservedWords(att.getName))
         pr.println("\t\t}")
     }
@@ -337,6 +338,8 @@ trait ClassGenerator extends ClonerGenerator {
     }
     // res += {if (isOptional) {"]"}else{""}}
     res += " ) {\n"
+    res += ("\t\t\t\tif(isReadOnly()){throw new Exception(\"ReadOnly Element are not modifiable\")}\n")
+
 
     //Method core
     /*if (isOptional) {
@@ -461,6 +464,8 @@ trait ClassGenerator extends ClonerGenerator {
     var res = ""
     res += "\n\t\tdef add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ") {\n"
+    res += ("\t\t\t\tif(isReadOnly()){throw new Exception(\"ReadOnly Element are not modifiable\")}\n")
+
     if (cls.getEAllContainments.contains(ref)) {
       res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}))\n"
     }
@@ -470,6 +475,8 @@ trait ClassGenerator extends ClonerGenerator {
     res += "\n"
     res += "\n\t\tdef addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "(" + protectReservedWords(ref.getName) + " : List[" + typeRefName + "]) {\n"
+    res += ("\t\t\t\tif(isReadOnly()){throw new Exception(\"ReadOnly Element are not modifiable\")}\n")
+
     res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{ elem => add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}\n"
     res += "\t\t}"
 
