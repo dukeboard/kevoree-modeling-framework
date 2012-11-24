@@ -375,6 +375,12 @@ trait ClassGenerator extends ClonerGenerator {
     res += " ) {\n"
     res += ("\t\t\t\tif(isReadOnly()){throw new Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
 
+    if (!isSingleRef) {
+      //Clear cache
+      res += (protectReservedWords(ref.getName) + "_scala_cache=null\n")
+      res += (protectReservedWords(ref.getName) + "_java_cache=null\n")
+    }
+
     if (cls.getEAllContainments.contains(ref)) {
       res += "\t\t\tif(this." + protectReservedWords(ref.getName) + "!= " + protectReservedWords(ref.getName) + "){\n"
     }
