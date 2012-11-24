@@ -256,7 +256,7 @@ trait ClonerGenerator {
             buffer.println("\t\t\tsub.resolve(addrs,readOnly)")
             buffer.println("\t\t}")
             } else {
-              buffer.println("\t\tthis." + getGetter(contained.getName) + ".resolve(addrs)")
+              buffer.println("\t\tthis." + getGetter(contained.getName) + ".resolve(addrs,readOnly)")
             }
           }
           case -1 => {
