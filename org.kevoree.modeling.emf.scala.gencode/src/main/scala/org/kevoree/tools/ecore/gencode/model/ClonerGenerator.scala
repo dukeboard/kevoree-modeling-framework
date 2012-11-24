@@ -267,7 +267,7 @@ trait ClonerGenerator {
         }
         buffer.println()
     }
-    buffer.println("\t\tif(readOnly){clonedSelfObject.setReadOnly()}")
+    buffer.println("\t\tif(readOnly){clonedSelfObject.setInternalReadOnly()}")
     buffer.println("\t\tclonedSelfObject") //RETURN CLONED OBJECT
     buffer.println("\t}") //END METHOD
   }

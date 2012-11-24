@@ -57,18 +57,18 @@ trait TraitGenerator {
     //generate getter
     pr.println("\tdef eContainer = internal_eContainer")
 
-    pr.println("\tprivate var readOnlyElem = false")
-    pr.println("\tdef setReadOnly(){")
-    pr.println("\t\treadOnlyElem = true")
+    pr.println("\tprivate var internal_readOnlyElem = false")
+    pr.println("\tdef setInternalReadOnly(){")
+    pr.println("\t\tinternal_readOnlyElem = true")
     pr.println("\t}")
 
     pr.println("\tdef isReadOnly() : Boolean = {")
-    pr.println("\t\treadOnlyElem")
+    pr.println("\t\tinternal_readOnlyElem")
     pr.println("\t}")
 
     //generate setter
     pr.print("\n\tdef setEContainer( container : " + formatedFactoryName + ", unsetCmd : Option[()=>Any] ) {\n")
-    pr.println("\t\tif(readOnlyElem){throw new Exception(\"ReadOnly Element are not modifiable\")}")
+    pr.println("\t\tif(internal_readOnlyElem){throw new Exception(\"ReadOnly Element are not modifiable\")}")
     pr.println("\t\tval tempUnsetCmd = internal_unsetCmd")
     pr.println("\t\tinternal_unsetCmd = None")
     pr.println("\t\ttempUnsetCmd.map{inCmd => inCmd() }")

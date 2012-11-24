@@ -71,9 +71,8 @@
 package org.kevoree.tools.ecore.gencode.serializer
 
 import scala.collection.JavaConversions._
-import java.io.{File, FileOutputStream, PrintWriter}
-import org.kevoree.tools.ecore.gencode.loader.RootLoader
-import org.eclipse.emf.ecore.{EReference, EAttribute, EPackage, EClass}
+import java.io.{File, PrintWriter}
+import org.eclipse.emf.ecore.{EPackage, EClass}
 import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
@@ -83,7 +82,7 @@ import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
  * Time: 20:55
  */
 
-class SerializerGenerator(ctx: GenerationContext) {
+class SerializerGeneratorBackup(ctx: GenerationContext) {
 
 
   def generateSerializer(pack: EPackage) {
@@ -116,12 +115,12 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("{")
 
     pr.println()
-    pr.println("\tdef serialize(o : Object,ostream : java.io.OutputStream) = {")
+    pr.println("\tdef serialize(o : Object) : scala.xml.Node = {")
     pr.println()
     pr.println("\t\to match {")
     pr.println("\t\t\tcase o : " + ProcessorHelper.fqn(ctx, root) + " => {")
     pr.println("\t\t\t\tval context = get" + root.getName + "XmiAddr(o,\"/\")")
-    pr.println("\t\t\t\t" + root.getName + "toXmi(o,context,ostream)")
+    pr.println("\t\t\t\t" + root.getName + "toXmi(o,context)")
     pr.println("\t\t\t}")
     pr.println("\t\t\tcase _ => null")
     pr.println("\t\t}") //END MATCH
@@ -211,14 +210,21 @@ class SerializerGenerator(ctx: GenerationContext) {
           stringListSubSerializers = stringListSubSerializers ++ Set(Tuple2(ProcessorHelper.fqn(ctx, sub), sub.getName)) // + "Serializer")
       }
     }
+
+    /*
+if (stringListSubSerializers.size > 0) {
+buffer.print(stringListSubSerializers.mkString(" extends ", " with ", " "))
+}       */
+
     buffer.println("{")
+
     buffer.println()
 
 
     stringListSubSerializers.foreach {
       sub =>
         buffer.println("def get" + sub._2 + "XmiAddr(o : " + sub._1 + ",previousAddr : String) : scala.collection.mutable.Map[Object,String]") //PRINT ABSTRACT USEFULL METHOD
-        buffer.println("def " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.OutputStream)")
+        buffer.println("def " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String]) : scala.xml.Node")
     }
     buffer.println()
     buffer.println()
@@ -283,41 +289,83 @@ class SerializerGenerator(ctx: GenerationContext) {
 
 
     if (isRoot) {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.OutputStream) = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : scala.collection.mutable.Map[Object,String]) : scala.xml.Node = {")
     } else {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.OutputStream) = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String]) : scala.xml.Node = {")
     }
 
     buffer.println("\t\tselfObject match {")
     var subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
+    //subtypesList.s
+   /*
+    System.out.println("[DEBUG]Prior sorting:" + subtypesList.map{c=>c.getName}.mkString("[",",","]"))
+    subtypesList = subtypesList.sortWith{(e1,e2) => {
+      System.out.println("[DEBUG]Sorting (" + e1.getName + "," + e2.getName + ") result e1.ST.contains(e2): " + e1.getEAllSuperTypes.contains(e2))
+      e1.asInstanceOf[EClass].getEAllSuperTypes.contains(e2)
+    }}
+    System.out.println("[DEBUG]After sorting:" + subtypesList.map{c=>c.getName}.mkString("[",",","]"))
+    */
     subtypesList.foreach {
       subType =>
-        buffer.println("\t\t\tcase o:" + ProcessorHelper.fqn(ctx, subType) + " => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs,ostream)")
+        buffer.println("\t\t\tcase o:" + ProcessorHelper.fqn(ctx, subType) + " => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs)")
     }
+
     buffer.println("\t\t\tcase _ => {")
 
-    buffer.println("ostream.write('<')")
+
+    buffer.println("\t\t\tnew scala.xml.Node {")
     if (!isRoot) {
-      buffer.println("ostream.write(refNameInParent.getBytes)")
+      buffer.println("\t\t\t\t\tdef label = refNameInParent")
     } else {
-      buffer.println("ostream.write(\"" + refNameInParent + "\".getBytes)")
+      buffer.println("\t\t\t\t\tdef label = \"" + refNameInParent + "\"")
     }
+    buffer.println("\t\t\t\t\tdef child = {")
+    buffer.println("\t\t\t\t\t\tvar subresult: scala.collection.mutable.ListBuffer[scala.xml.Node] = new scala.collection.mutable.ListBuffer[scala.xml.Node]()")
+    cls.getEAllContainments.foreach {
+      subClass =>
+        subClass.getUpperBound match {
+          case 1 => {
+            if (subClass.getLowerBound == 0) {
+              buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
+              buffer.println("\t\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
+              buffer.println("\t\t\t\t\t\t}")
+            } else {
+              buffer.println("\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + ",\"" + subClass.getName + "\",addrs))")
+            }
+          }
+          case -1 => {
+            buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".foreach { so => ")
+            buffer.println("\t\t\t\t\t\t\tsubresult += (" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs))")
+            buffer.println("\t\t\t\t\t\t}")
+          }
+        }
+    }
+    buffer.println("\t\t\t\t\t\tsubresult")
+    buffer.println("\t\t\t\t\t}")
     if (isRoot || cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
+      buffer.println("\t\t\t\t\toverride def attributes  : scala.xml.MetaData =  { ")
+      buffer.println("\t\t\t\t\t\tvar subAtts : scala.xml.MetaData = scala.xml.Null")
       if (isRoot) {
-        buffer.println("ostream.write(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\".getBytes)")
-        buffer.println("ostream.write(\" xmlns:xsi=\\\"http://wwww.w3.org/2001/XMLSchema-instance\\\"\".getBytes)")
-        buffer.println("ostream.write(\" xmi:version=\\\"2.0\\\"\".getBytes)")
-        buffer.println("ostream.write(\" xmlns:xml=\\\"http://www.omg.org/XMI\\\"\".getBytes)")
+        buffer.println("\t\t\t\t\t\tsubAtts=subAtts.append(new scala.xml.UnprefixedAttribute(\"xmlns:" + cls.getEPackage.getNsPrefix + "\",\"" + cls.getEPackage.getNsURI + "\",scala.xml.Null))")
+        buffer.println("\t\t\t\t\t\tsubAtts=subAtts.append(new scala.xml.UnprefixedAttribute(\"xmlns:xsi\",\"http://wwww.w3.org/2001/XMLSchema-instance\",scala.xml.Null))")
+        buffer.println("\t\t\t\t\t\tsubAtts=subAtts.append(new scala.xml.UnprefixedAttribute(\"xmi:version\",\"2.0\",scala.xml.Null))")
+        buffer.println("\t\t\t\t\t\tsubAtts=subAtts.append(new scala.xml.UnprefixedAttribute(\"xmlns:xml\",\"http://www.omg.org/XMI\",scala.xml.Null))")
       }
-      buffer.println("ostream.write(\" xsi:type=\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\"\".getBytes)")
+      buffer.println("\t\t\t\t\t\tsubAtts=subAtts.append(new scala.xml.UnprefixedAttribute(\"xsi:type\",\"" + cls.getEPackage.getName + ":" + cls.getName + "\",scala.xml.Null))")
       cls.getEAllAttributes.foreach {
         att =>
           att.getUpperBound match {
             case 1 => {
               att.getLowerBound match {
+                /*
+           case 0 => {
+             buffer.println("selfObject." + getGetter(att.getName) + ".map{sub =>")
+             buffer.println("subAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + att.getName + "\",sub.toString,scala.xml.Null))")
+             buffer.println("}")
+           }     */
                 case _ => {
                   buffer.println("\t\t\t\t\t\tif(selfObject." + getGetter(att.getName) + ".toString != \"\"){")
-                  buffer.println("\t\t\t\t\t\t\tostream.write((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "+\"\\\"\").getBytes)")
+                  buffer.println("\t\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + att.getName + "\",selfObject." + getGetter(att.getName) + ".toString,scala.xml.Null))")
                   buffer.println("\t\t\t\t\t\t}")
                 }
               }
@@ -332,16 +380,16 @@ class SerializerGenerator(ctx: GenerationContext) {
               ref.getLowerBound match {
                 case 0 => {
                   buffer.println("\t\t\t\t\t\tselfObject." + getGetter(ref.getName) + ".map{sub =>")
-                  buffer.println("\t\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\").getBytes)")
+                  buffer.println("\t\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"},scala.xml.Null))")
                   buffer.println("\t\t\t\t\t\t}")
                 }
                 case 1 => {
                   if (ref.getEOpposite != null) {
                     if (ref.getEOpposite.getUpperBound != -1) {
-                      buffer.println("\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\").getBytes)")
+                      buffer.println("\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"},scala.xml.Null))")
                     }
                   } else {
-                    buffer.println("\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\").getBytes)")
+                    buffer.println("\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"},scala.xml.Null))")
                   }
 
                 }
@@ -353,45 +401,23 @@ class SerializerGenerator(ctx: GenerationContext) {
               buffer.println("\t\t\t\t\t\t\tsubadrs" + ref.getName + " = subadrs" + ref.getName + " ++ List(addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"})")
               buffer.println("\t\t\t\t\t\t}")
               buffer.println("\t\t\t\t\t\tif(subadrs" + ref.getName + ".size > 0){")
-              buffer.println("\t\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+subadrs" + ref.getName + ".mkString(\" \")+\"\\\"\").getBytes)")
+              buffer.println("\t\t\t\t\t\t\tsubAtts= subAtts.append(new scala.xml.UnprefixedAttribute(\"" + ref.getName + "\",subadrs" + ref.getName + ".mkString(\" \"),scala.xml.Null))")
               buffer.println("\t\t\t\t\t\t}")
             }
           }
       }
+      buffer.print("\t\t\t\t\t\tsubAtts")
+      buffer.println("\t\t\t\t\t}")
     }
-    buffer.println("ostream.write('>')")
-    buffer.println("ostream.write(10)")
-    cls.getEAllContainments.foreach {
-      subClass =>
-        subClass.getUpperBound match {
-          case 1 => {
-            if (subClass.getLowerBound == 0) {
-              buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".map { so => ")
-              buffer.println("\t\t\t\t\t\t\t" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream)")
-              buffer.println("\t\t\t\t\t\t}")
-            } else {
-              buffer.println("\t\t\t\t\t\t" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + ",\"" + subClass.getName + "\",addrs,ostream)")
-            }
-          }
-          case -1 => {
-            buffer.println("\t\t\t\t\t\tselfObject." + getGetter(subClass.getName) + ".foreach { so => ")
-            buffer.println("\t\t\t\t\t\t\t" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream)")
-            buffer.println("\t\t\t\t\t\t}")
-          }
-        }
-    }
-    //Close Tag
-    buffer.println("ostream.write('<')")
-    buffer.println("ostream.write('/')")
-    if (!isRoot) {
-      buffer.println("ostream.write(refNameInParent.getBytes)")
-    } else {
-      buffer.println("ostream.write(\"" + refNameInParent + "\".getBytes)")
-    }
-    buffer.println("ostream.write('>')")
-    buffer.println("ostream.write(10)")
-
     buffer.println("\t\t\t\t}")
+    buffer.println("\t\t\t}") //End new Node
+
+
+
+
+
+
+
     buffer.println("\t\t}") //End MATCH CASE
     buffer.println("\t}") //END TO XMI
     buffer.println("}") //END TRAIT
