@@ -506,8 +506,19 @@ trait ClassGenerator extends ClonerGenerator {
     res += "\n\t\tdef addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "(" + protectReservedWords(ref.getName) + " : List[" + typeRefName + "]) {\n"
     res += ("\t\t\t\tif(isReadOnly()){throw new Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
+    //Clear cache
+    res += (protectReservedWords(ref.getName) + "_scala_cache=null\n")
+    res += (protectReservedWords(ref.getName) + "_java_cache=null\n")
+    res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".insertAll("+protectReservedWords(ref.getName)+".size," + protectReservedWords(ref.getName) + ")\n"
 
-    res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{ elem => add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}\n"
+    if (cls.getEAllContainments.contains(ref)) {
+      res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{el=>\n"
+      res += "\t\t\t\tel.setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)}))\n"
+      res += oppositTestAndAdd(ref, "el")
+      res += "\t\t\t\t}\n"
+    }
+
+    //res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{ elem => add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}\n"
     res += "\t\t}"
     res
   }
