@@ -121,7 +121,9 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("\t\to match {")
     pr.println("\t\t\tcase o : " + ProcessorHelper.fqn(ctx, root) + " => {")
     pr.println("\t\t\t\tval context = get" + root.getName + "XmiAddr(o,\"/\")")
-    pr.println("\t\t\t\t" + root.getName + "toXmi(o,context,ostream)")
+    pr.println("\t\t\t\tval wt = new java.io.PrintStream(ostream)")
+    pr.println("\t\t\t\t" + root.getName + "toXmi(o,context,wt)")
+    pr.println("\t\t\t\twt.close")
     pr.println("\t\t\t}")
     pr.println("\t\t\tcase _ => null")
     pr.println("\t\t}") //END MATCH
@@ -218,7 +220,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     stringListSubSerializers.foreach {
       sub =>
         buffer.println("def get" + sub._2 + "XmiAddr(o : " + sub._1 + ",previousAddr : String) : scala.collection.mutable.Map[Object,String]") //PRINT ABSTRACT USEFULL METHOD
-        buffer.println("def " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.OutputStream)")
+        buffer.println("def " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.PrintStream)")
     }
     buffer.println()
     buffer.println()
@@ -283,9 +285,9 @@ class SerializerGenerator(ctx: GenerationContext) {
 
 
     if (isRoot) {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.OutputStream) = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.PrintStream) = {")
     } else {
-      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.OutputStream) = {")
+      buffer.println("\tdef " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.PrintStream) = {")
     }
 
     buffer.println("\t\tselfObject match {")
@@ -296,20 +298,20 @@ class SerializerGenerator(ctx: GenerationContext) {
     }
     buffer.println("\t\t\tcase _ => {")
 
-    buffer.println("ostream.write('<')")
+    buffer.println("ostream.print('<')")
     if (!isRoot) {
-      buffer.println("ostream.write(refNameInParent.getBytes)")
+      buffer.println("ostream.print(refNameInParent)")
     } else {
-      buffer.println("ostream.write(\"" + refNameInParent + "\".getBytes)")
+      buffer.println("ostream.print(\"" + refNameInParent + "\")")
     }
     if (isRoot || cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
       if (isRoot) {
-        buffer.println("ostream.write(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\".getBytes)")
-        buffer.println("ostream.write(\" xmlns:xsi=\\\"http://wwww.w3.org/2001/XMLSchema-instance\\\"\".getBytes)")
-        buffer.println("ostream.write(\" xmi:version=\\\"2.0\\\"\".getBytes)")
-        buffer.println("ostream.write(\" xmlns:xml=\\\"http://www.omg.org/XMI\\\"\".getBytes)")
+        buffer.println("ostream.print(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
+        buffer.println("ostream.print(\" xmlns:xsi=\\\"http://wwww.w3.org/2001/XMLSchema-instance\\\"\")")
+        buffer.println("ostream.print(\" xmi:version=\\\"2.0\\\"\")")
+        buffer.println("ostream.print(\" xmlns:xml=\\\"http://www.omg.org/XMI\\\"\")")
       }
-      buffer.println("ostream.write(\" xsi:type=\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\"\".getBytes)")
+      buffer.println("ostream.print(\" xsi:type=\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\"\")")
       cls.getEAllAttributes.foreach {
         att =>
           att.getUpperBound match {
@@ -317,7 +319,7 @@ class SerializerGenerator(ctx: GenerationContext) {
               att.getLowerBound match {
                 case _ => {
                   buffer.println("\t\t\t\t\t\tif(selfObject." + getGetter(att.getName) + ".toString != \"\"){")
-                  buffer.println("\t\t\t\t\t\t\tostream.write((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "+\"\\\"\").getBytes)")
+                  buffer.println("\t\t\t\t\t\t\tostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "+\"\\\"\"))")
                   buffer.println("\t\t\t\t\t\t}")
                 }
               }
@@ -332,16 +334,16 @@ class SerializerGenerator(ctx: GenerationContext) {
               ref.getLowerBound match {
                 case 0 => {
                   buffer.println("\t\t\t\t\t\tselfObject." + getGetter(ref.getName) + ".map{sub =>")
-                  buffer.println("\t\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\").getBytes)")
+                  buffer.println("\t\t\t\t\t\t\tostream.print((\" " + ref.getName + "=\\\"\"+addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\"))")
                   buffer.println("\t\t\t\t\t\t}")
                 }
                 case 1 => {
                   if (ref.getEOpposite != null) {
                     if (ref.getEOpposite.getUpperBound != -1) {
-                      buffer.println("\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\").getBytes)")
+                      buffer.println("\t\t\t\t\t\tostream.print((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\"))")
                     }
                   } else {
-                    buffer.println("\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\").getBytes)")
+                    buffer.println("\t\t\t\t\t\tostream.print((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"}+\"\\\"\"))")
                   }
 
                 }
@@ -353,14 +355,14 @@ class SerializerGenerator(ctx: GenerationContext) {
               buffer.println("\t\t\t\t\t\t\tsubadrs" + ref.getName + " = subadrs" + ref.getName + " ++ List(addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference\"})")
               buffer.println("\t\t\t\t\t\t}")
               buffer.println("\t\t\t\t\t\tif(subadrs" + ref.getName + ".size > 0){")
-              buffer.println("\t\t\t\t\t\t\tostream.write((\" " + ref.getName + "=\\\"\"+subadrs" + ref.getName + ".mkString(\" \")+\"\\\"\").getBytes)")
+              buffer.println("\t\t\t\t\t\t\tostream.print((\" " + ref.getName + "=\\\"\"+subadrs" + ref.getName + ".mkString(\" \")+\"\\\"\"))")
               buffer.println("\t\t\t\t\t\t}")
             }
           }
       }
     }
-    buffer.println("ostream.write('>')")
-    buffer.println("ostream.write(10)")
+    buffer.println("ostream.print('>')")
+    buffer.println("ostream.println()")
     cls.getEAllContainments.foreach {
       subClass =>
         subClass.getUpperBound match {
@@ -381,15 +383,14 @@ class SerializerGenerator(ctx: GenerationContext) {
         }
     }
     //Close Tag
-    buffer.println("ostream.write('<')")
-    buffer.println("ostream.write('/')")
+    buffer.println("ostream.print(\"</\")")
     if (!isRoot) {
-      buffer.println("ostream.write(refNameInParent.getBytes)")
+      buffer.println("ostream.print(refNameInParent)")
     } else {
-      buffer.println("ostream.write(\"" + refNameInParent + "\".getBytes)")
+      buffer.println("ostream.print(\"" + refNameInParent + "\")")
     }
-    buffer.println("ostream.write('>')")
-    buffer.println("ostream.write(10)")
+    buffer.println("ostream.print('>')")
+    buffer.println("ostream.println()")
 
     buffer.println("\t\t\t\t}")
     buffer.println("\t\t}") //End MATCH CASE
