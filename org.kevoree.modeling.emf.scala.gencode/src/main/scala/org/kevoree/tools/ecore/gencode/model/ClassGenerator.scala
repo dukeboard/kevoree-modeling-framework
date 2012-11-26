@@ -617,7 +617,14 @@ trait ClassGenerator extends ClonerGenerator {
   private def generateRemoveAllMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean): String = {
     var res = ""
     res += "\n\t\tdef removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() {\n"
-    res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".foreach{ elem => remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}\n"
+    res += ("\t\t\t\tif(isReadOnly()){throw new Exception(\"ReadOnly Element are not modifiable\")}\n")
+    res += (protectReservedWords(ref.getName) + "_scala_cache=null\n")
+    res += (protectReservedWords(ref.getName) + "_java_cache=null\n")
+    if (cls.getEAllContainments.contains(ref)) {
+      res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".foreach{ elem => elem.setEContainer(null,None)}\n"
+    }
+    res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".clear\n"
+
     res += "\t\t}"
     res
   }
