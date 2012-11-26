@@ -509,7 +509,7 @@ trait ClassGenerator extends ClonerGenerator {
     //Clear cache
     res += (protectReservedWords(ref.getName) + "_scala_cache=null\n")
     res += (protectReservedWords(ref.getName) + "_java_cache=null\n")
-    res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".insertAll("+protectReservedWords(ref.getName)+".size," + protectReservedWords(ref.getName) + ")\n"
+    res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".appendAll(" + protectReservedWords(ref.getName) + ")\n"
 
     if (cls.getEAllContainments.contains(ref)) {
       res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".foreach{el=>\n"
