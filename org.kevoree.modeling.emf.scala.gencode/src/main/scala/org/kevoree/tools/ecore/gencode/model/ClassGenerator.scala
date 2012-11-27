@@ -395,6 +395,12 @@ trait ClassGenerator extends ClonerGenerator {
         if(oppositRef != null) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
+
+            res += "if(this."+protectReservedWords(ref.getName)+" != null){"
+            res += "this."+protectReservedWords(ref.getName)+".remove"+formatedOpositName+"(this)\n"
+            res += "}\n"
+
+            res += "if("+protectReservedWords(ref.getName)+"!=null){"
             if (ref.isRequired) {
               res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".add" + formatedOpositName + "(this)\n"
             } else {
@@ -403,6 +409,9 @@ trait ClassGenerator extends ClonerGenerator {
               res += "\t\t\t\t  case None => if(this." + protectReservedWords(ref.getName) + ".isDefined){this." + protectReservedWords(ref.getName) + ".get.remove" + formatedOpositName + "(this)}\n"
               res += "\t\t\t\t}\n"
             }
+            res += "}"
+
+
           } else {
             if (oppositRef.isContainment) {
               res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".set" + formatedOpositName + "(this)\n"
