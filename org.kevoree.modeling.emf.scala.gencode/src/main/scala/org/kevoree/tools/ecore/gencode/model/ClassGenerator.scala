@@ -613,7 +613,7 @@ trait ClassGenerator extends ClonerGenerator {
       } else if(!oppositRef.isRequired) {
         res += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(None)\n"
       } else {
-        res += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(_:"+cls.getName+")\n"
+        res += "\t\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(null)\n"
       }
     }
 
