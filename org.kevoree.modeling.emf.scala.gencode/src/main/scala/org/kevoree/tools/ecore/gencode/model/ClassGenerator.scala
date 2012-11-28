@@ -396,7 +396,7 @@ trait ClassGenerator extends ClonerGenerator {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
 
-            res += "if(this."+protectReservedWords(ref.getName)+" != null){"
+            res += "if(this."+protectReservedWords(ref.getName)+" != null){\n"
             res += "this."+protectReservedWords(ref.getName)+".remove"+formatedOpositName+"(this)\n"
             res += "}\n"
 
@@ -442,10 +442,10 @@ trait ClassGenerator extends ClonerGenerator {
       if (isSingleRef) {
         if (isOptional) {
           //Optional contained single ref
-          res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map{ dic=>"
+          res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map{ dic=>\n"
           res += "\t\t\t\tdic.setEContainer(this, Some(() => { this." + protectReservedWords(ref.getName) + "= None }) )\n"
           res += oppositTestAndAdd(ref, "dic")
-          res += "\t\t\t\t}"
+          res += "\t\t\t\t}\n"
         } else {
           //mandatory contained single ref
           if (noOpposite) {
@@ -488,8 +488,8 @@ trait ClassGenerator extends ClonerGenerator {
         result += "\t\t\t\t\t\t}\n"
         result += "\t\t\t\t\t\tcase None => " + refCurrentName + ".noOpposite_set" + formatedOpositName + "(Some(this))\n"
         result += "\t\t\t\t\t}\n"
-        result += "\t\t\t\t\t\tcase None => "+refCurrentName+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
-        result += "\t\t\t\t\t}\n"
+        //result += "\t\t\t\t\t\tcase None => "+refCurrentName+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
+        //result += "\t\t\t\t\t}\n"
       } else { //mandatory single   1--?
         result += "\t\t\t\t\tif("+refCurrentName+".get"+formatedOpositName+".isInstanceOf["+ref.getEContainingClass.getName+"] && "+refCurrentName+".get"+formatedOpositName+" != this) {\n"
         result += "\t\t\t\t\t\t"+refCurrentName+".get"+formatedOpositName+".remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "("+refCurrentName+")\n"
@@ -502,7 +502,7 @@ trait ClassGenerator extends ClonerGenerator {
 
   private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String): String = {
       generateAddMethodOp(cls, ref, typeRefName,false) +
-        (if(ref.getEOpposite != null && ref.getEOpposite.isMany){
+        (if(ref.getEOpposite != null ){//} && ref.getEOpposite.isMany){
           generateAddMethodOp(cls, ref, typeRefName, true)
         }else{""}) +
     generateAddAllMethodOp(cls, ref, typeRefName)
