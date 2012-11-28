@@ -218,18 +218,24 @@ trait ClonerGenerator {
       ref =>
 
         if (ref.getEReferenceType.getName != null) {
+
+          var noOpPrefix = ""
+          if(ref.getEOpposite != null){
+            noOpPrefix = "noOpposite_"
+          }
+
           ref.getUpperBound match {
             case 1 => {
               ref.getLowerBound match {
                 case 0 => {
                   // 0 to 1 relationship . Test Optional result
                   buffer.println("\t\tthis." + getGetter(ref.getName) + ".map{sub =>")
-                  buffer.println("\t\t\tclonedSelfObject." + getSetter(ref.getName) + "(Some(addrs.get(sub).asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "]))")
+                  buffer.println("\t\t\tclonedSelfObject."+noOpPrefix + getSetter(ref.getName) + "(Some(addrs.get(sub).asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "]))")
                   buffer.println("\t\t}")
                 }
                 case 1 => {
                   // 1 to 1 relationship
-                  buffer.println("\t\tclonedSelfObject." + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + ").asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "])")
+                  buffer.println("\t\tclonedSelfObject."+noOpPrefix + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + ").asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "])")
                 }
               }
             }
@@ -237,7 +243,7 @@ trait ClonerGenerator {
               buffer.println("\t\tthis." + getGetter(ref.getName) + ".foreach{sub =>")
               var formatedName: String = ref.getName.substring(0, 1).toUpperCase
               formatedName += ref.getName.substring(1)
-              buffer.println("\t\t\tclonedSelfObject.add" + formatedName + "(addrs.get(sub).asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "])")
+              buffer.println("\t\t\tclonedSelfObject."+noOpPrefix+"add"+ formatedName + "(addrs.get(sub).asInstanceOf[" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "])")
               buffer.println("\t\t}")
             }
           }
