@@ -397,6 +397,9 @@ trait ClassGenerator extends ClonerGenerator {
             res += "\t\t\t\tif(this."+protectReservedWords(ref.getName)+" != null){\n"
             res += "\t\t\t\t\tthis."+protectReservedWords(ref.getName)+".noOpposite_remove"+formatedOpositName+"(this)\n"
             res += "\t\t\t\t}\n"
+            res += "\t\t\t\tif("+protectReservedWords(ref.getName)+" != null){\n"
+            res += "\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_add"+formatedOpositName+"(this)\n"
+            res += "\t\t\t\t}\n"
           } else {
             res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".map { currentRef => currentRef.noOpposite_remove" + formatedOpositName + "(this) }\n"
             res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map {newRef => newRef.noOpposite_add"+ formatedOpositName +"(this)}\n"
@@ -548,9 +551,12 @@ trait ClassGenerator extends ClonerGenerator {
         //result += "\t\t\t\t\t\tcase None => "+refCurrentName+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
         //result += "\t\t\t\t\t}\n"
       } else { //mandatory single   1--?
+
+        /*
         result += "\t\t\t\t\tif("+refCurrentName+".get"+formatedOpositName+".isInstanceOf["+ref.getEContainingClass.getName+"] && "+refCurrentName+".get"+formatedOpositName+" != this) {\n"
         result += "\t\t\t\t\t\t"+refCurrentName+".get"+formatedOpositName+".remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "("+refCurrentName+")\n"
         result += "\t\t\t\t\t}\n"
+        */
         result += "\t\t\t\t\t"+refCurrentName+".noOpposite_set"+formatedOpositName+"(this)\n"
       }
     }
