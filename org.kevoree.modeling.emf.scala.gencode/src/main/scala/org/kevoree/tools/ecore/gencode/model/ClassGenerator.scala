@@ -391,98 +391,42 @@ trait ClassGenerator extends ClonerGenerator {
     if (!ref.isMany) { // => Single ref : 0,1 or 1
       if ( !noOpposite && (oppositRef != null)) { //Generation of no
         val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-        if (oppositRef.isMany) {
 
-          if(ref.isRequired) {
+        if (oppositRef.isMany) {  // 0,1 or 1  -- *
+
+          if(ref.isRequired) { // Single Ref  1
             res += "\t\t\t\tif(this."+protectReservedWords(ref.getName)+" != null){\n"
             res += "\t\t\t\t\tthis."+protectReservedWords(ref.getName)+".noOpposite_remove"+formatedOpositName+"(this)\n"
             res += "\t\t\t\t}\n"
             res += "\t\t\t\tif("+protectReservedWords(ref.getName)+" != null){\n"
             res += "\t\t\t\t\t"+protectReservedWords(ref.getName)+".noOpposite_add"+formatedOpositName+"(this)\n"
             res += "\t\t\t\t}\n"
-          } else {
+          } else {  // Single Ref  0,1
             res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".map { currentRef => currentRef.noOpposite_remove" + formatedOpositName + "(this) }\n"
             res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map {newRef => newRef.noOpposite_add"+ formatedOpositName +"(this)}\n"
           }
-          //res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
 
+        } else { // => // 0,1 or 1  --  0,1 or 1
 
-
-
-          /*
-          if(ref.isRequired) { // 1 -- *
-
-          } else { // 0,1 -- *
-            res += "if(this." + protectReservedWords(ref.getName) + ".isDefined){\n"
-            res += "this."+protectReservedWords(ref.getName)+".get.remove"+formatedOpositName+"(this)\n"
-          }
-
-          res += "}\n"
-
-          res += "if("+protectReservedWords(ref.getName)+"!=null){"
-          if (ref.isRequired) {
-            res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".add" + formatedOpositName + "(this)\n"
-          } else {
-            res += "\t\t\t\t" + protectReservedWords(ref.getName) + " match {\n"
-            res += "\t\t\t\t  case Some(tc) => tc.add" + formatedOpositName + "(this)\n"
-            res += "\t\t\t\t  case None => if(this." + protectReservedWords(ref.getName) + ".isDefined){this." + protectReservedWords(ref.getName) + ".get.remove" + formatedOpositName + "(this)}\n"
-            res += "\t\t\t\t}\n"
-          }
-          res += "}"
-          */
-
-        } else { // => !oppositeRef.isMany
-
-          if(ref.isRequired) {
+          if(ref.isRequired) { // 1 -- 0,1 or 1
             res += "\t\t\t\tif(this."+protectReservedWords(ref.getName)+" != null){\n"
             res += "\t\t\t\t\tthis."+protectReservedWords(ref.getName)+".noOpposite_set"+formatedOpositName+"(_)\n"
             res += "\t\t\t\t}\n"
-          } else {
-            if(oppositRef.isRequired) {
+          } else {// 0,1 -- 0,1 or 1
+            if(oppositRef.isRequired) {// 0,1 -- 1
               res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".map {currentRef => currentRef.noOpposite_set" + formatedOpositName + "(_) }\n"
               res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map {newRef => newRef.noOpposite_set"+ formatedOpositName +"(this)}\n"
-            } else {
+            } else {  // 0,1 -- 0,1
               res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".map {currentRef => currentRef.noOpposite_set" + formatedOpositName + "(None) }\n"
               res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".map {newRef => newRef.noOpposite_set"+ formatedOpositName +"(Some(this))}\n"
             }
 
           }
-          //res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
-
-
-          /*
-          if (oppositRef.isContainment) {
-
-            res += "\t\t\t\t" + protectReservedWords(ref.getName) + " match {\n"
-            if(oppositRef.isRequired) {
-              //   [0,]1 --<> 1
-              res += "\t\t\t\t  case Some(tc) => tc.noOpposite_set" + formatedOpositName + "(this)\n"
-              res += "\t\t\t\t  case None => if(this." + protectReservedWords(ref.getName) + ".isDefined){this." + protectReservedWords(ref.getName) + ".get.noOpposite_set" + formatedOpositName + "(_)}\n"
-            } else {
-              //   [0,],1 --<> 0,1
-              res += "\t\t\t\t  case Some(tc) => tc.noOpposite_set" + formatedOpositName + "(Some(this))\n"
-              res += "\t\t\t\t  case None => if(this." + protectReservedWords(ref.getName) + ".isDefined){this." + protectReservedWords(ref.getName) + ".get.noOpposite_set" + formatedOpositName + "(None)}\n"
-            }
-
-            res += "\t\t\t\t}\n"
-
-
-            //res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".set" + formatedOpositName + "(this)\n"
-
-
-          } else {
-            res += "\t\t\t\t" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)\n"
-            //res += "\t\t\t\tnoOpposite_set" + formatedLocalRefName + "(" + protectReservedWords(ref.getName) + ")\n"
-          }
-          res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
-          */
         }
       }
 
       //Setting of local reference
       res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
-
-
 
     } else { // => Collection ref : * or +
       res += "\t\t\t\tthis." + protectReservedWords(ref.getName) + ".clear()\n"
