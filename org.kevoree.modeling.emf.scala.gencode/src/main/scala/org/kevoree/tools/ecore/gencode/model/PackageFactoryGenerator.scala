@@ -39,7 +39,8 @@ trait PackageFactoryGenerator {
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
 
-    val pr = new PrintWriter(new File(packageGenDir + "/" + formatedFactoryName + ".scala"),"utf-8")
+    val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".scala")
+    val pr = new PrintWriter(localFile,"utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, packElement)
 
@@ -64,6 +65,8 @@ trait PackageFactoryGenerator {
 
     pr.flush()
     pr.close()
+
+    ProcessorHelper.formatScalaSource(localFile)
   }
 
 

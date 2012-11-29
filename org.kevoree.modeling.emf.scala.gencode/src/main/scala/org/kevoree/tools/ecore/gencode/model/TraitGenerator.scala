@@ -38,7 +38,9 @@ trait TraitGenerator {
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Container"
 
-    val pr = new PrintWriter(new File(packageGenDir + "/" + formatedFactoryName + ".scala"),"utf-8")
+    val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".scala")
+
+    val pr = new PrintWriter(localFile,"utf-8")
 
 
     pr.println("package " + ProcessorHelper.fqn(ctx, packElement) + ";")
@@ -79,6 +81,7 @@ trait TraitGenerator {
     pr.flush()
     pr.close()
 
+    ProcessorHelper.formatScalaSource(localFile)
     ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, packElement) +"." +formatedFactoryName))
   }
 

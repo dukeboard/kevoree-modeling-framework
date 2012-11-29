@@ -37,7 +37,8 @@ trait EnumGenerator {
     var formattedEnumName: String = en.getName.substring(0, 1).toUpperCase
     formattedEnumName += en.getName.substring(1)
 
-    val pr = new PrintWriter(new File(currentPackageDir + "/" + formattedEnumName + ".scala"), "utf-8")
+    val localFile = new File(currentPackageDir + "/" + formattedEnumName + ".scala")
+    val pr = new PrintWriter(localFile, "utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, packElement)
 
@@ -58,6 +59,7 @@ trait EnumGenerator {
     pr.println("case class Unknown" + formattedEnumName + "(name: String, value: Int) extends " + formattedEnumName)
     pr.flush()
     pr.close()
+    ProcessorHelper.formatScalaSource(localFile)
   }
 
 }

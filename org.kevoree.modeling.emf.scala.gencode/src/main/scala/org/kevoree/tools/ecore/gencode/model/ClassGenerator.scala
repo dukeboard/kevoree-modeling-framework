@@ -70,7 +70,8 @@ import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 trait ClassGenerator extends ClonerGenerator {
 
   def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
-    val pr = new PrintWriter(new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala"), "utf-8")
+    val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala")
+    val pr = new PrintWriter(localFile, "utf-8")
     //System.out.println("Classifier class:" + cls.getClass)
 
     val pack = ProcessorHelper.fqn(ctx, packElement)
@@ -90,6 +91,8 @@ trait ClassGenerator extends ClonerGenerator {
 
     pr.flush()
     pr.close()
+
+    ProcessorHelper.formatScalaSource(localFile)
 
   }
 
@@ -121,7 +124,8 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
   def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
-    val pr = new PrintWriter(new File(currentPackageDir + "/" + cls.getName + ".scala"), "utf-8")
+    val localFile = new File(currentPackageDir + "/" + cls.getName + ".scala")
+    val pr = new PrintWriter(localFile, "utf-8")
     //System.out.println("Generating class:" + cls.getName)
 
     val pack = ProcessorHelper.fqn(ctx, packElement)
@@ -255,6 +259,8 @@ trait ClassGenerator extends ClonerGenerator {
 
     pr.flush()
     pr.close()
+
+    ProcessorHelper.formatScalaSource(localFile)
 
   }
 
