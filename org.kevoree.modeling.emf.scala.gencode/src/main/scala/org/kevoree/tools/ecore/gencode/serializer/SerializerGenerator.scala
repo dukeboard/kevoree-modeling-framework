@@ -56,7 +56,10 @@ class SerializerGenerator(ctx: GenerationContext) {
     }
   }
 
+
+  /*
   private def formatScalaSource(in : File){
+
     val preferences = FormattingPreferences().setPreference(IndentSpaces, 3)
     try {
       val formattedScala = ScalaFormatter.format(Source.fromFile(in,"utf-8").getLines().mkString("\n"), preferences)
@@ -68,7 +71,7 @@ class SerializerGenerator(ctx: GenerationContext) {
       case e: ScalaParserException => println("Syntax error in Scala source")
     }
   }
-
+   */
 
   private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootXmiPackage: EPackage, sub: Set[String]) {
 
@@ -100,7 +103,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.flush()
     pr.close()
 
-    formatScalaSource(genFile)
+    ProcessorHelper.formatScalaSource(genFile)
 
   }
 
@@ -121,7 +124,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.flush()
     pr.close()
 
-    formatScalaSource(file)
+    ProcessorHelper.formatScalaSource(file)
 
 
     //PROCESS SUB
@@ -135,7 +138,7 @@ class SerializerGenerator(ctx: GenerationContext) {
           subpr.flush()
           subpr.close()
 
-          formatScalaSource(subfile)
+          ProcessorHelper.formatScalaSource(subfile)
 
 
           //¨PROCESS ALL SUB TYPE

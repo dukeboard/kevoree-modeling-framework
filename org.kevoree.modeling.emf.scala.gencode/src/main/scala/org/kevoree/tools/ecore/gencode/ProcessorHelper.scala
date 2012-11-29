@@ -19,12 +19,16 @@
 
 package org.kevoree.tools.ecore.gencode
 
-import java.io.File
+import java.io.{PrintWriter, File}
 import java.text.SimpleDateFormat
 import java.util.Date
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import org.eclipse.emf.ecore._
+import scalariform.formatter.preferences.{IndentSpaces, FormattingPreferences}
+import scalariform.formatter.ScalaFormatter
+import io.Source
+import scalariform.parser.ScalaParserException
 
 /**
  * Created by IntelliJ IDEA.
@@ -293,5 +297,20 @@ object ProcessorHelper {
     }
     possibleRoot
   }
+
+  def formatScalaSource(in : File){
+    val preferences = FormattingPreferences().setPreference(IndentSpaces, 3)
+    try {
+      val formattedScala = ScalaFormatter.format(Source.fromFile(in,"utf-8").getLines().mkString("\n"), preferences)
+      val pr = new PrintWriter(in, "utf-8")
+      pr.write(formattedScala)
+      pr.flush()
+      pr.close()
+    } catch {
+      case e: ScalaParserException => println("Syntax error in Scala source")
+    }
+  }
+
+
 
 }
