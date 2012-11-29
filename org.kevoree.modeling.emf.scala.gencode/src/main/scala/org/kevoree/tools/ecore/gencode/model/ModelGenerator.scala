@@ -45,9 +45,11 @@ with EnumGenerator {
 
     val currentPackageDir = ProcessorHelper.getPackageGenDir(ctx, currentPackage)
     ProcessorHelper.checkOrCreateFolder(currentPackageDir)
-    ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
+    if(currentPackage.getEClassifiers.size() != 0) {
+      ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
+      generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
+    }
 
-    generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
 
     if(ctx.getKevoreeContainer.isEmpty) {
       generateContainerTrait(ctx, currentPackageDir, currentPackage)

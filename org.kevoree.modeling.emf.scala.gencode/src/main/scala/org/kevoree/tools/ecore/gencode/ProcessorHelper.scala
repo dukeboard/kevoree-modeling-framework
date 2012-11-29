@@ -307,7 +307,7 @@ object ProcessorHelper {
       pr.flush()
       pr.close()
     } catch {
-      case e: ScalaParserException => println("Syntax error in Scala source")
+      case e: ScalaParserException => println("Syntax error in Scala source:" + in.getName)
     }
   }
 
