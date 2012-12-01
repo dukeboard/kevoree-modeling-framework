@@ -289,7 +289,7 @@ class SerializerGenerator(ctx: GenerationContext) {
         buffer.println("ostream.print(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
         buffer.println("ostream.print(\" xmlns:xsi=\\\"http://wwww.w3.org/2001/XMLSchema-instance\\\"\")")
         buffer.println("ostream.print(\" xmi:version=\\\"2.0\\\"\")")
-        buffer.println("ostream.print(\" xmlns:xml=\\\"http://www.omg.org/XMI\\\"\")")
+        buffer.println("ostream.print(\" xmlns:xmi=\\\"http://www.omg.org/XMI\\\"\")")
       }
       buffer.println("ostream.print(\" xsi:type=\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\"\")")
       cls.getEAllAttributes.foreach {
