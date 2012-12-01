@@ -20,7 +20,7 @@
 package org.kevoree.tools.ecore.gencode
 
 import java.io.File
-import loader.LoaderGenerator
+import loader.xml.LoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.EPackage
 import scala.collection.JavaConversions._
