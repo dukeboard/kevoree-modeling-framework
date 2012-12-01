@@ -17,9 +17,9 @@
  */
 
 
-package org.kevoree.tools.ecore.gencode.loader
+package org.kevoree.tools.ecore.gencode.loader.xpath
 
-import java.io.{File, FileOutputStream, PrintWriter}
+import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.EClass
 import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 

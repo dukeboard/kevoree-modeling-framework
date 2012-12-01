@@ -17,10 +17,10 @@
  */
 
 
-package org.kevoree.tools.ecore.gencode.loader
+package org.kevoree.tools.ecore.gencode.loader.xpath
 
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import java.io.{FileOutputStream, PrintWriter, File}
+import java.io.{PrintWriter, File}
 import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**

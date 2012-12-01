@@ -17,13 +17,11 @@
  */
 
 
-package org.kevoree.tools.ecore.gencode.loader
+package org.kevoree.tools.ecore.gencode.loader.xpath
 
 //EClass, EClassifier,
 
-import scala.collection.JavaConversions._
-import org.eclipse.emf.ecore.{EClassifier, EClass, EPackage}
-import collection.mutable.Buffer
+import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
 
 /**
