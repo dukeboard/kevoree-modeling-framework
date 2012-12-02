@@ -96,6 +96,8 @@ public class MainTest {
 
         try {
             FileOutputStream os = new FileOutputStream(tempFile);
+            //ByteArrayOutputStream os = new ByteArrayOutputStream();
+
             //PrintWriter pr = new PrintWriter(os);
 
             marshalingStart = System.nanoTime();
@@ -104,7 +106,7 @@ public class MainTest {
             marshalingEnd = System.nanoTime();
             //pr.flush();
             //pr.close();
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -255,8 +257,8 @@ public class MainTest {
         File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(),".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
-        int step = 125000;
-        for(int i = 1 ; i*step <= 750000;i++) {
+        int step = 100000;
+        for(int i = 1 ; i*step <= 100000;i++) {
             m.flatFsmTest(pr, i*step);
         }
         pr.flush();
