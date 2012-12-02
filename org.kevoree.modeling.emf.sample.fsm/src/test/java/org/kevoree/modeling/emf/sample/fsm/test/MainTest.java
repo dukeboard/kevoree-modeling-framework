@@ -92,16 +92,18 @@ public class MainTest {
         File tempFile = File.createTempFile("tempKMFBench","xmi");
       //  tempFile.deleteOnExit();
 
-        PrintWriter pr;
         long marshalingStart=0, marshalingEnd=0;
 
         try {
-            pr = new PrintWriter(new FileOutputStream(tempFile));
+            FileOutputStream os = new FileOutputStream(tempFile);
+            //PrintWriter pr = new PrintWriter(os);
+
             marshalingStart = System.nanoTime();
-            pr.print(sav.serialize(root));
+            sav.serialize(root,os);
+            //pr.println(sav.serialize(root));
             marshalingEnd = System.nanoTime();
-            pr.flush();
-            pr.close();
+            //pr.flush();
+            //pr.close();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -203,16 +205,19 @@ public class MainTest {
         File tempFile = File.createTempFile("tempKMFBench","xmi");
         //tempFile.deleteOnExit();
 
-        PrintWriter pr;
         long marshalingStart=0, marshalingEnd=0;
 
         try {
-            pr = new PrintWriter(new FileOutputStream(tempFile));
+
+            FileOutputStream os = new FileOutputStream(tempFile);
+            //PrintWriter pr = new PrintWriter(os);
+
             marshalingStart = System.nanoTime();
-            pr.print(sav.serialize(root));
+            sav.serialize(root,os);
+            //pr.println(sav.serialize(root));
             marshalingEnd = System.nanoTime();
-            pr.flush();
-            pr.close();
+            //pr.flush();
+            //pr.close();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -250,7 +255,7 @@ public class MainTest {
         File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(),".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
-        int step = 25000;
+        int step = 125000;
         for(int i = 1 ; i*step <= 750000;i++) {
             m.flatFsmTest(pr, i*step);
         }

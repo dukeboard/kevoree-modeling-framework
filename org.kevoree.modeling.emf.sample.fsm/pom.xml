@@ -5,7 +5,6 @@
     <packaging>jar</packaging>
     <name>Kevoree :: Modeling :: EMF-Scala :: Sample :: Finite State Machine</name>
 
-    <version>1.2.4-SNAPSHOT</version>
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
