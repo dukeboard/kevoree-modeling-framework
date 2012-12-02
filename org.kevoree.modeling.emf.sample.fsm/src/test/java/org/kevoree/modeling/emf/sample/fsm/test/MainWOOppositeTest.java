@@ -92,16 +92,19 @@ public class MainWOOppositeTest {
         File tempFile = File.createTempFile("tempKMFBench","xmi");
       //  tempFile.deleteOnExit();
 
-        PrintWriter pr;
         long marshalingStart=0, marshalingEnd=0;
 
         try {
-            pr = new PrintWriter(new FileOutputStream(tempFile));
+
+            FileOutputStream os = new FileOutputStream(tempFile);
+            //PrintWriter pr = new PrintWriter(os);
+
             marshalingStart = System.nanoTime();
-            pr.print(sav.serialize(root));
+            sav.serialize(root,os);
+            //pr.println(sav.serialize(root));
             marshalingEnd = System.nanoTime();
-            pr.flush();
-            pr.close();
+            //pr.flush();
+            //pr.close();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -210,16 +213,19 @@ public class MainWOOppositeTest {
         File tempFile = File.createTempFile("tempKMFBench","xmi");
         //tempFile.deleteOnExit();
 
-        PrintWriter pr;
         long marshalingStart=0, marshalingEnd=0;
 
         try {
-            pr = new PrintWriter(new FileOutputStream(tempFile));
+
+            FileOutputStream os = new FileOutputStream(tempFile);
+            //PrintWriter pr = new PrintWriter(os);
+
             marshalingStart = System.nanoTime();
-            pr.print(sav.serialize(root));
+            sav.serialize(root,os);
+            //pr.println(sav.serialize(root));
             marshalingEnd = System.nanoTime();
-            pr.flush();
-            pr.close();
+            //pr.flush();
+            //pr.close();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
