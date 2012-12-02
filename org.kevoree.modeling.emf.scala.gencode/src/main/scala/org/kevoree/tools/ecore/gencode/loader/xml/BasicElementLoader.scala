@@ -124,52 +124,64 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     //pr.println("System.out.println(\"Stored:\" + elementId +\"->\"+ modelElem.class.getSimpleName)")
     pr.println("")
 
-    elementType.getEAllAttributes.foreach { att =>
-      val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
-      pr.println("val " + att.getName + "Val = context.xmiReader.getAttributeValue(null,\"" + att.getName + "\")")
-      pr.println("if("+att.getName+"Val != null && !" + att.getName + "Val.equals(\"\")){")
-      pr.println("modelElem." + methName + "(" + ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + ".valueOf(" + att.getName + "Val))")
-      pr.println("}")
+
+
+    val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
+    if(elementType.getEAllAttributes.size()>0 || references.size > 0) {
+
+      pr.println("for(i <- 0 until context.xmiReader.getAttributeCount) {")
+      pr.println("val prefix = context.xmiReader.getAttributePrefix(i)")
+      pr.println("if(prefix==null || prefix.equals(\"\")) {")
+      pr.println("context.xmiReader.getAttributeLocalName(i) match {")
       pr.println("")
-    }
-    pr.println("")
+      elementType.getEAllAttributes.foreach { att =>
 
-
-
-    elementType.getEAllReferences.filter(ref => !ref.isContainment).foreach {
-      ref =>
-        pr.println("val " + ref.getName + "Val = context.xmiReader.getAttributeValue(null,\"" + ref.getName + "\")")
-        pr.println("if("+ref.getName+"Val != null && !" + ref.getName + "Val.equals(\"\")){")
-
-        pr.println(ref.getName+"Val.split(\" \").foreach{ xmiRef =>")
-        pr.println("context.resolvers.append(()=>{")
-        pr.println("context.map.get(xmiRef) match {")
-        var methName: String = ""
-        if (ref.getUpperBound == 1) {
-          methName = "set"
-        } else {
-          methName = "add"
-        }
-        methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-        if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
-          pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
-        } else {
-          pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
-        }
-
-
-        pr.println("case None => throw new Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
-        pr.println("}")
-        pr.println("})")
-        pr.println("}")
+        val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
+        pr.println("case \""+att.getName+"\"=> {")
+        pr.println("val value = context.xmiReader.getAttributeValue(i)")
+        pr.println("modelElem." + methName + "(" + ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + ".valueOf(value))")
         pr.println("}")
         pr.println("")
+
+      }
+      references.foreach {
+        ref =>
+          pr.println("case \""+ref.getName+"\" => {")
+          pr.println("val value = context.xmiReader.getAttributeValue(i)")
+          pr.println("value.split(\" \").foreach{ xmiRef =>")
+          pr.println("context.resolvers.append(()=>{")
+          pr.println("context.map.get(xmiRef) match {")
+          var methName: String = ""
+          if (ref.getUpperBound == 1) {
+            methName = "set"
+          } else {
+            methName = "add"
+          }
+          methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+          if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
+            pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
+          } else {
+            pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
+          }
+
+          pr.println("case None => throw new Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
+          pr.println("}")
+          pr.println("})")
+          pr.println("}")
+          pr.println("}")
+          pr.println("")
+      }
+      pr.println("case _@e => System.out.println(\"AttributeName not in cases:\" + e)")
+      pr.println("")
+      pr.println("")
+      pr.println("")
+      pr.println("}")
+      pr.println(" }")
+      pr.println(" }")
+
+      pr.println("")
+
     }
-    pr.println("")
-
-
-
-
 
     if(elementType.getEAllContainments.size() > 0) {
       pr.println("var done = false")
