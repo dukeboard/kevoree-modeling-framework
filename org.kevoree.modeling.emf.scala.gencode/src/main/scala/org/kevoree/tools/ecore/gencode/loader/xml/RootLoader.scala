@@ -160,7 +160,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("do {")
     pr.println("while(reader.hasNext && reader.nextTag() != XMLStreamConstants.START_ELEMENT){}")
     pr.println("if(reader.getLocalName.equalsIgnoreCase(\""+rootContainerName+"\")) {")
-    pr.println("loadContainerRoot(context)")
+    pr.println("load"+ elementType.getName +"(context)")
     pr.println("context.resolvers.foreach{res=>res()}")
     pr.println("}")
     pr.println("}while(context." + rootContainerName + " == null && reader.hasNext)")
