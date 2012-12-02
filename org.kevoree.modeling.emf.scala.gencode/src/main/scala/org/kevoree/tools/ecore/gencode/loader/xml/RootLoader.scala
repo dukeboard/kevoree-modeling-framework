@@ -125,6 +125,8 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("val stringReader = new StringReader(str)")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory.createXMLStreamReader(stringReader)")
+    pr.println("factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, java.lang.Boolean.FALSE)")
+    pr.println("factory.setProperty(XMLInputFactory.IS_VALIDATING, java.lang.Boolean.FALSE)")
     pr.println("if(reader.hasNext) {")
     pr.println("Some(deserialize(reader))")
     pr.println("} else {")
@@ -138,9 +140,11 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
 
     pr.println("def loadModel(is: InputStream) : Option[" + ProcessorHelper.fqn(ctx,elementType) + "] = {")
-    pr.println("val isReader = new InputStreamReader(is)")
+    pr.println("val isReader = new java.io.BufferedReader(new InputStreamReader(is))")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory.createXMLStreamReader(isReader)")
+    pr.println("factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, java.lang.Boolean.FALSE)")
+    pr.println("factory.setProperty(XMLInputFactory.IS_VALIDATING, java.lang.Boolean.FALSE)")
     pr.println("if(reader.hasNext) {")
     pr.println("Some(deserialize(reader))")
     pr.println("} else {")

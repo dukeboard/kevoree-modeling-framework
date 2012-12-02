@@ -92,7 +92,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("o match {")
     pr.println("case o : " + ProcessorHelper.fqn(ctx, root) + " => {")
     pr.println("val context = get" + root.getName + "XmiAddr(o,\"/\")")
-    pr.println("val wt = new java.io.PrintStream(ostream)")
+    pr.println("val wt = new java.io.PrintStream(new java.io.BufferedInputStream(ostream))")
     pr.println("" + root.getName + "toXmi(o,context,wt)")
     pr.println("wt.close")
     pr.println("}")
@@ -277,6 +277,11 @@ class SerializerGenerator(ctx: GenerationContext) {
         buffer.println("case o:" + ProcessorHelper.fqn(ctx, subType) + " => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs,ostream)")
     }
     buffer.println("case _ => {")
+
+
+    if(isRoot){
+      buffer.println("ostream.println(\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\")")
+    }
 
     buffer.println("ostream.print('<')")
     if (!isRoot) {
