@@ -102,16 +102,24 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
 
   private def generateLoadingMethod(pr: PrintWriter) {
     pr.println("def load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " = {")
-    pr.println("val loadedElement = context.xmiReader.getAttributeValue(null, \"type\") match {")
-    ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
-      concreteType =>
-        pr.println("case \"" + modelingPackage.getName + ":" + concreteType.getName + "\" => {")
-        pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
+
+    pr.println("for(i <- 0 until context.xmiReader.getAttributeCount){")
+      pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
+      pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
+      pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
+        pr.println("val loadedElement = context.xmiReader.getAttributeValue(i) match {")
+          ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
+            concreteType =>
+              pr.println("case \"" + modelingPackage.getName + ":" + concreteType.getName + "\" => {")
+              pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
+              pr.println("}")
+          }
+          pr.println("case _@e => {throw new UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName);null}")
         pr.println("}")
-    }
-    pr.println("case _@e => throw new UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + e);null")
+        pr.println("return loadedElement")
+      pr.println("}")
     pr.println("}")
-    pr.println("loadedElement")
+    pr.println("null")
     pr.println("}")
   }
 
