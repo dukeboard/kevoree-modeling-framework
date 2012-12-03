@@ -546,7 +546,11 @@ trait ClassGenerator extends ClonerGenerator {
           if(oppositRef.isMany) {
             res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_add"+formatedOpositName+"(this)}\n"
           } else {
-            res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_set"+formatedOpositName+"(this)}\n"
+            if (oppositRef.isRequired) {
+              res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_set"+formatedOpositName+"(this)}\n"
+            } else {
+              res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_set"+formatedOpositName+"(Some(this))}\n"
+            }
           }
         }
       }
