@@ -171,6 +171,16 @@ trait ClassGenerator extends ClonerGenerator {
     }
   }
 
+  def generateGetIDAtt(cls : EClass) = {
+      if (getIdAtt(cls).isEmpty){
+        println(cls.getName)
+      }
+
+
+    "get"+getIdAtt(cls).get.getName.substring(0, 1).toUpperCase + getIdAtt(cls).get.getName.substring(1)
+  }
+
+
   def hasFindByIDMethod(cls: EClass) : Boolean = {
     cls.getEReferences.exists(ref => { hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)})
   }
@@ -278,11 +288,11 @@ trait ClassGenerator extends ClonerGenerator {
           // multiple values
           pr.println("private var " + protectReservedWords(ref.getName) + "_java_cache : java.util.List[" + typeRefName + "] = null\n")
           pr.println("private var " + protectReservedWords(ref.getName) + "_scala_cache : scala.collection.immutable.List[" + typeRefName + "] = null\n")
-          //if(hasFindByIDMethod(ref.getEReferenceType)){
-          //  pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap[Object," + typeRefName + "] = new java.util.HashMap[Object," + typeRefName + "]()\n")
-          //} else {
+          if(hasID(ref.getEReferenceType)){
+            pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap[Object," + typeRefName + "] = new java.util.HashMap[Object," + typeRefName + "]()\n")
+          } else {
             pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
-          //}
+          }
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
           pr.println("private var " + protectReservedWords(ref.getName) + " : Option[" + typeRefName + "] = None\n")
@@ -293,11 +303,11 @@ trait ClassGenerator extends ClonerGenerator {
           // else
           pr.println("private var " + protectReservedWords(ref.getName) + "_java_cache : java.util.List[" + typeRefName + "] = null\n")
           pr.println("private var " + protectReservedWords(ref.getName) + "_scala_cache : scala.collection.immutable.List[" + typeRefName + "] = null\n")
-          //if(hasFindByIDMethod(ref.getEReferenceType)){
-          //  pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap[Object," + typeRefName + "] = new java.util.HashMap[Object," + typeRefName + "]()\n")
-          //} else {
+          if(hasID(ref.getEReferenceType)){
+            pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap[Object," + typeRefName + "] = new java.util.HashMap[Object," + typeRefName + "]()\n")
+          } else {
             pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
-          //}
+          }
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
@@ -418,7 +428,14 @@ trait ClassGenerator extends ClonerGenerator {
       res += "if(" + protectReservedWords(ref.getName) + "_scala_cache != null){\n"
       res += protectReservedWords(ref.getName) + "_scala_cache\n"
       res += "} else {\n"
-      res += "val tempL : List[" + typeRefName + "] = " + protectReservedWords(ref.getName) + ".toList\n"
+
+      if (hasID(ref.getEReferenceType)){
+        res += "import scala.collection.JavaConversions._\n"
+        res += "val tempL : List[" + typeRefName + "] = " + protectReservedWords(ref.getName) + ".values().toList\n"
+      } else {
+        res += "val tempL : List[" + typeRefName + "] = " + protectReservedWords(ref.getName) + ".toList\n"
+      }
+
       res += protectReservedWords(ref.getName) + "_scala_cache = tempL\n"
       res += "tempL\n"
       res += "}\n"
@@ -432,7 +449,12 @@ trait ClassGenerator extends ClonerGenerator {
       res += protectReservedWords(ref.getName) + "_java_cache\n"
       res += "} else {\n"
       res += "import scala.collection.JavaConversions._\n"
-      res += "val tempL : java.util.List[" + typeRefName + "] = " + protectReservedWords(ref.getName) + ".toList\n"
+      if(hasID(ref.getEReferenceType)){
+        res += "val tempL : java.util.List[" + typeRefName + "] = " + protectReservedWords(ref.getName) + ".values().toList\n"
+      } else {
+        res += "val tempL : java.util.List[" + typeRefName + "] = " + protectReservedWords(ref.getName) + ".toList\n"
+      }
+
       res += protectReservedWords(ref.getName) + "_java_cache = tempL\n"
       res += "tempL\n"
       res += "}\n"
@@ -643,7 +665,15 @@ trait ClassGenerator extends ClonerGenerator {
     } else {
       // => Collection ref : * or +
       res += "this." + protectReservedWords(ref.getName) + ".clear()\n"
-      res += "this." + protectReservedWords(ref.getName) + ".insertAll(0," + protectReservedWords(ref.getName) + ")\n"
+
+      if(hasID(ref.getEReferenceType)){
+        res += protectReservedWords(ref.getName)+".foreach( el => {\n"
+        res += "this." + protectReservedWords(ref.getName) + ".put(el."+generateGetIDAtt(ref.getEReferenceType)+",el)\n"
+        res += "})\n"
+      } else {
+        res += "this." + protectReservedWords(ref.getName) + ".insertAll(0," + protectReservedWords(ref.getName) + ")\n"
+      }
+
       if (ref.isContainment) {
         if (oppositRef != null) {
           res += protectReservedWords(ref.getName) + ".foreach{elem=>\n"
@@ -669,13 +699,11 @@ trait ClassGenerator extends ClonerGenerator {
         if (oppositRef != null) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
-            res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_add" + formatedOpositName + "(this)}\n"
+              res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_add" + formatedOpositName + "(this)}\n"
           } else {
-            if (oppositRef.isRequired) {
-              res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_set" + formatedOpositName + "(this)}\n"
-            } else {
-              res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_set" + formatedOpositName + "(Some(this))}\n"
-            }
+
+            val callParam = if (oppositRef.isRequired){"this"} else {"Some(this)"}
+            res += protectReservedWords(ref.getName) + ".foreach{elem=>elem.noOpposite_set" + formatedOpositName + "("+callParam+")}\n"
           }
         }
       }
@@ -794,7 +822,17 @@ trait ClassGenerator extends ClonerGenerator {
     //Clear cache
     res += (protectReservedWords(ref.getName) + "_scala_cache=null\n")
     res += (protectReservedWords(ref.getName) + "_java_cache=null\n")
-    res += "this." + protectReservedWords(ref.getName) + ".appendAll(" + protectReservedWords(ref.getName) + ")\n"
+
+    if (hasID(ref.getEReferenceType)){
+
+      res += protectReservedWords(ref.getName)+".foreach(el => {\n"
+      res += "this." + protectReservedWords(ref.getName) + ".put(el."+generateGetIDAtt(ref.getEReferenceType)+",el)\n"
+      res += "})\n"
+
+    } else {
+      res += "this." + protectReservedWords(ref.getName) + ".appendAll(" + protectReservedWords(ref.getName) + ")\n"
+    }
+
 
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
       res += protectReservedWords(ref.getName) + ".foreach{el=>\n"
@@ -841,7 +879,13 @@ trait ClassGenerator extends ClonerGenerator {
     if (ref.isContainment) {
       res += "" + protectReservedWords(ref.getName) + ".setEContainer(this,Some(()=>{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}))\n"
     }
-    res += "this." + protectReservedWords(ref.getName) + ".append(" + protectReservedWords(ref.getName) + ")\n"
+
+    if (hasID(ref.getEReferenceType)){
+      res += "this." + protectReservedWords(ref.getName) + ".put("+protectReservedWords(ref.getName) +"."+generateGetIDAtt(ref.getEReferenceType)+","+ protectReservedWords(ref.getName) + ")\n"
+    } else {
+      res += "this." + protectReservedWords(ref.getName) + ".append("+ protectReservedWords(ref.getName) + ")\n"
+    }
+
 
 
     if (ref.getEOpposite != null && !noOpposite) {
@@ -903,14 +947,29 @@ trait ClassGenerator extends ClonerGenerator {
 
 
     if (isOptional) {
-      res += "if(this." + protectReservedWords(ref.getName) + ".size != 0 && this." + protectReservedWords(ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+      if(hasID(ref.getEReferenceType)){
+        res += "if(this." + protectReservedWords(ref.getName) + ".size != 0 && this." + protectReservedWords(ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "."+generateGetIDAtt(ref.getEReferenceType)+")) {\n"
+      } else {
+        res += "if(this." + protectReservedWords(ref.getName) + ".size != 0 && this." + protectReservedWords(ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+      }
+
     } else {
-      res += "if(this." + protectReservedWords(ref.getName) + ".size == " + ref.getLowerBound + "&& this." + protectReservedWords(ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+
+      if(hasID(ref.getEReferenceType)){
+        res += "if(this." + protectReservedWords(ref.getName) + ".size == " + ref.getLowerBound + "&& this." + protectReservedWords(ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "."+generateGetIDAtt(ref.getEReferenceType)+") ) {\n"
+      } else {
+        res += "if(this." + protectReservedWords(ref.getName) + ".size == " + ref.getLowerBound + "&& this." + protectReservedWords(ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+      }
+
       res += "throw new UnsupportedOperationException(\"The list of " + protectReservedWords(ref.getName) + " must contain at least " + ref.getLowerBound + " element. Connot remove sizeof(" + protectReservedWords(ref.getName) + ")=\"+this." + protectReservedWords(ref.getName) + ".size)\n"
       res += "} else {\n"
     }
 
-    res += "this." + protectReservedWords(ref.getName) + ".remove(this." + protectReservedWords(ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + "))\n"
+    if(hasID(ref.getEReferenceType)){
+      res += "this." + protectReservedWords(ref.getName) + ".remove(" + protectReservedWords(ref.getName) + "."+generateGetIDAtt(ref.getEReferenceType)+")\n"
+    } else {
+      res += "this." + protectReservedWords(ref.getName) + ".remove(this." + protectReservedWords(ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + "))\n"
+    }
 
     if (ref.isContainment) {
       res += "" + protectReservedWords(ref.getName) + ".setEContainer(null,None)\n"
@@ -946,7 +1005,14 @@ trait ClassGenerator extends ClonerGenerator {
     res += (protectReservedWords(ref.getName) + "_scala_cache=null\n")
     res += (protectReservedWords(ref.getName) + "_java_cache=null\n")
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
-      res += protectReservedWords(ref.getName) + ".foreach{el=>\n"
+
+      if(hasID(ref.getEReferenceType)){
+        res += "import scala.collection.JavaConversions._\n"
+        res += protectReservedWords(ref.getName) + ".values().foreach{el=>\n"
+      } else {
+        res += protectReservedWords(ref.getName) + ".foreach{el=>\n"
+      }
+
       if (ref.isContainment) {
         res += "el.setEContainer(null,None)\n"
       }
