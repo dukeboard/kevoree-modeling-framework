@@ -66,6 +66,23 @@
  * Fouquet Francois
  * Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 
 
 package org.kevoree.tools.ecore.gencode.model
@@ -76,6 +93,7 @@ import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
 import xmi.impl.XMIResourceImpl
 import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
+import scala.Some
 
 /**
  * Created by IntelliJ IDEA.
@@ -153,6 +171,10 @@ trait ClassGenerator extends ClonerGenerator {
     }
   }
 
+  def hasFindByIDMethod(cls: EClass) : Boolean = {
+    cls.getEReferences.exists(ref => { hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)})
+  }
+
   def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".scala")
     val pr = new PrintWriter(localFile, "utf-8")
@@ -192,13 +214,55 @@ trait ClassGenerator extends ClonerGenerator {
     }
 
 
-    //GENERATE findByID method
+    //GENERATE findByID methods
+    var generateReflexifMapper = false
     cls.getEReferences.foreach(ref => {
-      if (hasID(ref.getEReferenceType)) {
-        pr.print("def find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(){")
+      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1))  {
+        generateReflexifMapper = true
+        pr.println("def find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : "+protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType))+" = {")
+        pr.println("null//todo")
         pr.println("}")
       }
     })
+    if (generateReflexifMapper) {
+
+      if(cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))){
+        pr.print("override def ")
+      } else {
+        pr.print("def ")
+      }
+      pr.println("findById(query : String) : Object = {")
+      pr.println("val relationName = query.substring(0,query.indexOf('['))")
+      pr.println("val queryID = query.substring(query.indexOf('[')+1,query.indexOf(']'))")
+      pr.println("var subquery = \"\"")
+      pr.println("if (query.indexOf('/') != -1){")
+      pr.println("subquery = query.substring(query.indexOf('/')+1,query.size)")
+      pr.println("}")
+      pr.println("relationName match {")
+      cls.getEAllReferences.foreach(ref => {
+        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1))  {
+          pr.println("case \""+ref.getName+"\" => {")
+          pr.println("val objFound = find"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(queryID)")
+          pr.println("if(subquery != \"\"){")
+          if(hasFindByIDMethod(ref.getEReferenceType)){
+            pr.println("objFound.findById(subquery)")
+          } else {
+            pr.println("throw new Exception(\"KMFQL : rejected sucessor\")")
+          }
+          pr.println("} else {objFound}")
+          pr.println("}")
+
+        }
+      })
+      pr.println("}")
+
+
+
+
+      pr.println("}")
+    }
+
+
 
     cls.getEReferences.foreach {
       ref =>
@@ -212,11 +276,13 @@ trait ClassGenerator extends ClonerGenerator {
 
         if (ref.getUpperBound == -1) {
           // multiple values
-
-
           pr.println("private var " + protectReservedWords(ref.getName) + "_java_cache : java.util.List[" + typeRefName + "] = null\n")
           pr.println("private var " + protectReservedWords(ref.getName) + "_scala_cache : scala.collection.immutable.List[" + typeRefName + "] = null\n")
-          pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
+          //if(hasFindByIDMethod(ref.getEReferenceType)){
+          //  pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap[Object," + typeRefName + "] = new java.util.HashMap[Object," + typeRefName + "]()\n")
+          //} else {
+            pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
+          //}
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
           pr.println("private var " + protectReservedWords(ref.getName) + " : Option[" + typeRefName + "] = None\n")
@@ -227,7 +293,11 @@ trait ClassGenerator extends ClonerGenerator {
           // else
           pr.println("private var " + protectReservedWords(ref.getName) + "_java_cache : java.util.List[" + typeRefName + "] = null\n")
           pr.println("private var " + protectReservedWords(ref.getName) + "_scala_cache : scala.collection.immutable.List[" + typeRefName + "] = null\n")
-          pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
+          //if(hasFindByIDMethod(ref.getEReferenceType)){
+          //  pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap[Object," + typeRefName + "] = new java.util.HashMap[Object," + typeRefName + "]()\n")
+          //} else {
+            pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
+          //}
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
@@ -641,20 +711,20 @@ trait ClassGenerator extends ClonerGenerator {
     */
     res += "}\n" //END IF newRef != localRef
 
-    if(noOpposite && oppositRef != null && oppositRef.isMany){
+    if (noOpposite && oppositRef != null && oppositRef.isMany) {
       res += "else {\n"
       //DUPLICATE CASE OF SET / ONLY IN LOADER RUN
-        val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-        // 0,1 or 1  -- *
-        if (ref.isRequired) {
-          // Single Ref  1
-          res += "if(this." + protectReservedWords(ref.getName) + " != null){\n"
-          res += "this." + protectReservedWords(ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this)\n"
-          res += "}\n"
-        } else {
-          // Single Ref  0,1
-          res += "this." + protectReservedWords(ref.getName) + ".map { currentRef => currentRef.noOpposite_remove" + formatedOpositName + "(this) }\n"
-        }
+      val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
+      // 0,1 or 1  -- *
+      if (ref.isRequired) {
+        // Single Ref  1
+        res += "if(this." + protectReservedWords(ref.getName) + " != null){\n"
+        res += "this." + protectReservedWords(ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this)\n"
+        res += "}\n"
+      } else {
+        // Single Ref  0,1
+        res += "this." + protectReservedWords(ref.getName) + ".map { currentRef => currentRef.noOpposite_remove" + formatedOpositName + "(this) }\n"
+      }
       res += "}\n"
     }
 
