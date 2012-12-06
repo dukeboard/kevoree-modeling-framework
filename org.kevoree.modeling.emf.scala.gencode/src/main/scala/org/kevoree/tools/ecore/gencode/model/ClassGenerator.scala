@@ -230,7 +230,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1))  {
         generateReflexifMapper = true
         pr.println("def find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : "+protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType))+" = {")
-        pr.println("null//todo")
+        pr.println(protectReservedWords(ref.getName)+".get(key)")
         pr.println("}")
       }
     })
