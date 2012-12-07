@@ -1050,7 +1050,7 @@ trait ClassGenerator extends ClonerGenerator {
 
       if (hasID(ref.getEReferenceType)) {
         res += "import scala.collection.JavaConversions._\n"
-        res += protectReservedWords(ref.getName) + ".values().foreach{el=>\n"
+        res += protectReservedWords(ref.getName) + ".values().toList.foreach{el=>\n"
       } else {
         res += protectReservedWords(ref.getName) + ".foreach{el=>\n"
       }
