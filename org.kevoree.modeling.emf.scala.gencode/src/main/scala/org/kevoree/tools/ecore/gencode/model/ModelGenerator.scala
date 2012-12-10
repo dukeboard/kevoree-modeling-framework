@@ -44,6 +44,10 @@ with EnumGenerator {
   def process(currentPackage: EPackage, modelVersion : String, isRoot : Boolean = false) {
 
     val currentPackageDir = ProcessorHelper.getPackageGenDir(ctx, currentPackage)
+    val currentUserPackageDir = ProcessorHelper.getPackageUserDir(ctx, currentPackage)
+
+
+
     ProcessorHelper.checkOrCreateFolder(currentPackageDir)
     if(currentPackage.getEClassifiers.size() != 0) {
       ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
@@ -56,7 +60,7 @@ with EnumGenerator {
     }
 
     //generateMutableTrait(dir, thisPack, pack)
-    currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c))
+    currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c,currentUserPackageDir))
     currentPackage.getESubpackages.foreach(subPack => process(subPack, modelVersion))
 
     if(isRoot){
@@ -66,12 +70,12 @@ with EnumGenerator {
   }
 
 
-  private def process(currentPackageDir: String, packElement: EPackage, cls: EClassifier) {
+  private def process(currentPackageDir: String, packElement: EPackage, cls: EClassifier, userPackageDir : String) {
     //log.debug("Processing classifier:" + cls.getName)
     cls match {
       case cl: EClass => {
         generateClass(ctx, currentPackageDir, packElement, cl)
-        generateCompanion(ctx, currentPackageDir, packElement, cl)
+        generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
       }
       case dt : EDataType => { dt match {
         case enum : EEnum => generateEnum(ctx, currentPackageDir, packElement, enum)

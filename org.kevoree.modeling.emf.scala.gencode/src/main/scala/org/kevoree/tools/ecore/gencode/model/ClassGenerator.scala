@@ -69,8 +69,15 @@ import scala.Some
 
 trait ClassGenerator extends ClonerGenerator {
 
-  def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+  def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir : String) {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala")
+
+    val userFile = new File(srcCurrentDir + "/impl/" + cls.getName + "Impl.scala")
+    if(userFile.exists()){
+      return ;
+    }
+
+
     val pr = new PrintWriter(localFile, "utf-8")
     //System.out.println("Classifier class:" + cls.getClass)
 
@@ -227,14 +234,27 @@ trait ClassGenerator extends ClonerGenerator {
       } else {
         pr.print("def ")
       }
-      pr.println("findById(query : String) : Object = {")
+      pr.println("findByID[A](query : String, clazz : A) : Option[A] = {")
+      pr.println("try {")
+      pr.println("Some(findById(query).asInstanceOf[A])")
+      pr.println("}catch{")
+      pr.println("case _ => None")
+      pr.println("}")
+      pr.println("}")
 
+
+      if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
+        pr.print("override def ")
+      } else {
+        pr.print("def ")
+      }
+      pr.println("findById(query : String) : Object = {")
       pr.println("val firstSepIndex = query.indexOf('[')")
       pr.println("var queryID = \"\"")
       pr.println("var extraReadChar = 2")
 
 
-       val optionalRelationShipNameGen = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)).size == 1
+       val optionalRelationShipNameGen = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) /*&& (ref.getUpperBound == -1 || ref.getLowerBound > 1)*/).size == 1
 
 
       if (optionalRelationShipNameGen) {
@@ -301,6 +321,16 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("} else {objFound}")
           pr.println("}")
 
+        }
+        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1) ) {
+          pr.println("case \"" + ref.getName + "\" => {")
+          pr.println("get"+ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
+          pr.println("}")
+        }
+        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0) ) {
+          pr.println("case \"" + ref.getName + "\" => {")
+          pr.println("get"+ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)+".get")
+          pr.println("}")
         }
       })
       pr.println("}")

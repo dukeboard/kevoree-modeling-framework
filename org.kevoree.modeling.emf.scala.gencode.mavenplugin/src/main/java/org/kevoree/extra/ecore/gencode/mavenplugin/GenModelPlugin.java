@@ -56,6 +56,14 @@ public class GenModelPlugin extends AbstractMojo {
     private File output;
 
     /**
+     * Source user base directory
+     *
+     * @parameter default-value="src/main/scala"
+     */
+    private File inputScala;
+
+
+    /**
      * code containerRoot package
      *
      * @parameter
@@ -117,6 +125,7 @@ public class GenModelPlugin extends AbstractMojo {
         GenerationContext ctx = new GenerationContext();
         ctx.setPackagePrefix(scala.Option.apply(packagePrefix));
         ctx.setRootGenerationDirectory(output);
+        ctx.setRootUserDirectory(inputScala);
         ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
 
 

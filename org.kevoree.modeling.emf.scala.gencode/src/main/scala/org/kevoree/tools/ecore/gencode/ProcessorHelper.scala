@@ -141,6 +141,18 @@ object ProcessorHelper {
     modelGenBaseDir
   }
 
+  def getPackageUserDir(ctx:GenerationContext, pack:EPackage) : String = {
+    if(ctx.getRootUserDirectory != null){
+      var modelGenBaseDir = ctx.getRootUserDirectory.getAbsolutePath + "/"
+      ctx.getPackagePrefix.map(prefix => modelGenBaseDir += prefix.replace(".", "/") + "/")
+      modelGenBaseDir += fqn(pack).replace(".", "/") + "/"
+      modelGenBaseDir
+    } else {
+      ""
+    }
+  }
+
+
   /**
    * Computes the Fully Qualified Name of the package in the context of the model.
    * @param pack the package which FQN has to be computed

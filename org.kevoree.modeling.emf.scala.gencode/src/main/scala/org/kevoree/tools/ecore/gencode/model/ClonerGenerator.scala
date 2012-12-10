@@ -217,6 +217,10 @@ trait ClonerGenerator {
     cls.getEAllReferences.foreach {
       ref =>
 
+        if(ref.getEReferenceType == null){
+          throw new Exception("Null EType for "+ref.getName+" in "+cls.getName)
+        }
+
         if (ref.getEReferenceType.getName != null) {
 
           var noOpPrefix = ""
