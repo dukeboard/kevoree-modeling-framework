@@ -98,18 +98,6 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     listContainedElementsTypes
   }
 
-  private def generateCollectionLoadingMethod(pr: PrintWriter) {
-    pr.println("def load" + elementType.getName + "(parentId: String, parentNode: NodeSeq, refNameInParent : String, context : " + context + ") : scala.collection.mutable.ListBuffer[" + ProcessorHelper.fqn(ctx,elementType) + "] = {")
-    pr.println("val loadedElements = new scala.collection.mutable.ListBuffer[" + ProcessorHelper.fqn(ctx,elementType) + "]()")
-    pr.println("var i = 0")
-    pr.println("val " + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List = (parentNode \\\\ refNameInParent)") //\"" + elementNameInParent + "\")")
-    pr.println("" + elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1) + "List.foreach { xmiElem =>")
-    pr.println("loadedElements.append(load" + elementType.getName + "Element(parentId + \"/@\" + refNameInParent + \".\" + i,xmiElem,context))")
-    pr.println("i += 1")
-    pr.println("}")
-    pr.println("loadedElements")
-    pr.println("}")
-  }
 
   private def generateElementLoadingMethod(pr: PrintWriter) {
     pr.println("def load" + elementType.getName + "Element(elementId: String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " = {")
@@ -146,11 +134,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
       }
       references.foreach {
         ref =>
-          pr.println("case \""+ref.getName+"\" => {")
-          pr.println("val value = context.xmiReader.getAttributeValue(i)")
-          pr.println("value.split(\" \").foreach{ xmiRef =>")
-          pr.println("context.resolvers.append(()=>{")
-          pr.println("context.map.get(xmiRef) match {")
+
           var methName: String = ""
           if (ref.getUpperBound == 1) {
             methName = "set"
@@ -158,15 +142,31 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
             methName = "add"
           }
           methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+
+          pr.println("case \""+ref.getName+"\" => {")
+          pr.println("val value = context.xmiReader.getAttributeValue(i)")
+          pr.println("value.split(\" \").foreach{ xmiRef =>")
+          pr.println("context.map.get(xmiRef) match {")
           if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
             pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
           } else {
             pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
           }
-
+          pr.println("case None => {")
+          pr.println("context.resolvers.append(()=>{")
+          pr.println("context.map.get(xmiRef) match {")
+          if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
+            pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
+          } else {
+            pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
+          }
           pr.println("case None => throw new Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
+          pr.println("}")//match
+          pr.println("})")//append
           pr.println("}")
-          pr.println("})")
+          pr.println("}")
+          pr.println()
+
           pr.println("}")
           pr.println("}")
           pr.println("")
@@ -203,7 +203,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           if (!refa.isRequired) {
             pr.println("modelElem.set" + formattedReferenceName + "(Some(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context)))")
           } else {
-            pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context)))")
+            pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context))")
           }
         } else {
           pr.println("val i = context.elementsCount.getOrElse(elementId + \"/@" + refa.getName + "\",0)")

@@ -199,9 +199,9 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
       val formattedReferenceName = refa.getName.substring(0, 1).toUpperCase + refa.getName.substring(1)
       if(!refa.isMany) {
         if (!refa.isRequired) {
-          pr.println("context." + rootContainerName + ".set" + formattedReferenceName + "(" + refa.getName + ".headOption)")
+          pr.println("context." + rootContainerName + ".set" + formattedReferenceName + "(Some(load" + refa.getEReferenceType.getName + "Element(currentElementId, context)))")
         } else {
-          pr.println("context." + rootContainerName + ".set" + formattedReferenceName + "(" + refa.getName + ".head)")
+          pr.println("context." + rootContainerName + ".set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(currentElementId, context))")
         }
       } else {
         pr.println("context." + rootContainerName + ".add" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(currentElementId, context))")
