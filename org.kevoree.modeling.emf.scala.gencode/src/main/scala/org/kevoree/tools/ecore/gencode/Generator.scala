@@ -25,7 +25,7 @@ import model.ModelGenerator
 import org.eclipse.emf.ecore.EPackage
 import scala.collection.JavaConversions._
 
-import serializer.SerializerGenerator
+import serializer.{JSONSerializerGenerator, SerializerGenerator}
 
 /**
  * Created by IntelliJ IDEA.
@@ -95,6 +95,27 @@ class Generator(ctx:GenerationContext) {
     }
     System.out.println("Done with serializer generation")
   }
+
+
+  def generateJsonSerializer(ecoreFile: File) {
+
+    val model = ctx.getEcoreModel(ecoreFile)
+
+    System.out.println("Launching JSON serializer generation")
+    val serializerGenerator = new JSONSerializerGenerator(ctx)
+    model.getContents.foreach {
+      elem => elem match {
+        case pack: EPackage => serializerGenerator.generateSerializer(pack)
+        case _ => println("No serializer generator for containerRoot element of class: " + elem.getClass)
+      }
+    }
+    System.out.println("Done with serializer generation")
+  }
+
+
+
+
+
   /*
   def generateCloner(ecoreFile: File) {
     val resource = new XMIResourceImpl(URI.createFileURI(ecoreFile.getAbsolutePath));

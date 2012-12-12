@@ -320,7 +320,8 @@ trait ClassGenerator extends ClonerGenerator {
       }
       pr.println("findByQuery[A](query : String, clazz : Class[A]) : Option[A] = {")
       pr.println("try {")
-      pr.println("Some(findByQuery(query).asInstanceOf[A])")
+      pr.println("val res= findByQuery(query)")
+      pr.println("if(res != null){Some(res.asInstanceOf[A])} else {None}")
       pr.println("}catch{")
       pr.println("case _ => None")
       pr.println("}")
