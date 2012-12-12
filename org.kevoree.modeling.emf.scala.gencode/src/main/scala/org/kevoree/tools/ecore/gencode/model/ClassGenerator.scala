@@ -49,6 +49,40 @@
  * Fouquet Francois
  * Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 
 package org.kevoree.tools.ecore.gencode.model
 
@@ -58,6 +92,7 @@ import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
 import xmi.impl.XMIResourceImpl
 import org.kevoree.tools.ecore.gencode.{GenerationContext, ProcessorHelper}
+import scala.Some
 import scala.Some
 
 /**
@@ -69,12 +104,12 @@ import scala.Some
 
 trait ClassGenerator extends ClonerGenerator {
 
-  def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir : String) {
+  def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.scala")
 
     val userFile = new File(srcCurrentDir + "/impl/" + cls.getName + "Impl.scala")
-    if(userFile.exists()){
-      return ;
+    if (userFile.exists()) {
+      return;
     }
 
 
@@ -203,7 +238,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
         pr.print("override ")
       }
-      pr.println("def internalGetKey() : Object = {")
+      pr.println("def internalGetKey() : String = {")
       var first = true
       cls.getEAllAttributes.filter(att => att.isID).foreach {
         att =>
@@ -214,6 +249,15 @@ trait ClassGenerator extends ClonerGenerator {
           first = false
       }
       pr.println("}")
+
+      if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
+        pr.print("override ")
+      }
+      pr.println("def buildQuery() : String = {")
+      pr.println("eContainer.internalGetQuery(internalGetKey())")
+      pr.println("}")
+
+
     }
 
 
@@ -229,14 +273,54 @@ trait ClassGenerator extends ClonerGenerator {
     })
     if (generateReflexifMapper) {
 
+      pr.println("override def internalGetQuery(selfKey : String) : String = {")
+
+      pr.println("var res : Object = null")
+
+      cls.getEAllReferences.foreach(ref => {
+        if (hasID(ref.getEReferenceType)) {
+          if(ref.getUpperBound == 1){
+            if(ref.getLowerBound == 0){
+              pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".isDefined && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".get.internalGetKey() == selfKey){")
+              if (hasID(cls)) {
+                pr.println("return eContainer.internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
+              } else {
+                pr.println("return \""+ref.getName+"[\"+selfKey+\"]\"")
+              }
+              pr.println("}")
+            } else {
+              pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+" != null && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".internalGetKey() == selfKey){")
+              if (hasID(cls)) {
+                pr.println("return eContainer.internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
+              } else {
+                pr.println("return \""+ref.getName+"[\"+selfKey+\"]\"")
+              }
+              pr.println("}")
+            }
+          } else {
+             //MANY
+            pr.println("res = find"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+"ByID(selfKey)")
+            pr.println("if(res != null){")
+            if (hasID(cls)) {
+              pr.println("return eContainer.internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
+            } else {
+              pr.println("return \""+ref.getName+"[\"+selfKey+\"]\"")
+            }
+            pr.println("}")
+          }
+        }
+      })
+      pr.println("return null")
+      pr.println("}")
+
       if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
         pr.print("override def ")
       } else {
         pr.print("def ")
       }
-      pr.println("findByID[A](query : String, clazz : A) : Option[A] = {")
+      pr.println("findByQuery[A](query : String, clazz : Class[A]) : Option[A] = {")
       pr.println("try {")
-      pr.println("Some(findById(query).asInstanceOf[A])")
+      pr.println("Some(findByQuery(query).asInstanceOf[A])")
       pr.println("}catch{")
       pr.println("case _ => None")
       pr.println("}")
@@ -248,20 +332,17 @@ trait ClassGenerator extends ClonerGenerator {
       } else {
         pr.print("def ")
       }
-      pr.println("findById(query : String) : Object = {")
+      pr.println("findByQuery(query : String) : Object = {")
       pr.println("val firstSepIndex = query.indexOf('[')")
       pr.println("var queryID = \"\"")
       pr.println("var extraReadChar = 2")
 
-
-       val optionalRelationShipNameGen = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) /*&& (ref.getUpperBound == -1 || ref.getLowerBound > 1)*/).size == 1
-
-
+      val optionalRelationShipNameGen = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) /*&& (ref.getUpperBound == -1 || ref.getLowerBound > 1)*/).size == 1
       if (optionalRelationShipNameGen) {
         //Optional relationship definition
         val relationShipOptionalName = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)).get(0).getName
-        pr.println("val relationName = \""+relationShipOptionalName+"\"")
-        pr.println("val optionalDetected = { firstSepIndex != "+relationShipOptionalName.size+" }")
+        pr.println("val relationName = \"" + relationShipOptionalName + "\"")
+        pr.println("val optionalDetected = { firstSepIndex != " + relationShipOptionalName.size + " }")
         pr.println("if(optionalDetected){ extraReadChar = extraReadChar - 2 }")
       } else {
         pr.println("val relationName = query.substring(0,query.indexOf('['))")
@@ -314,7 +395,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("val objFound = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(queryID)")
           pr.println("if(subquery != \"\"){")
           if (hasFindByIDMethod(ref.getEReferenceType)) {
-            pr.println("objFound.findById(subquery)")
+            pr.println("objFound.findByQuery(subquery)")
           } else {
             pr.println("throw new Exception(\"KMFQL : rejected sucessor\")")
           }
@@ -322,14 +403,14 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
 
         }
-        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1) ) {
+        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
           pr.println("case \"" + ref.getName + "\" => {")
-          pr.println("get"+ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
+          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
           pr.println("}")
         }
-        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0) ) {
+        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
           pr.println("case \"" + ref.getName + "\" => {")
-          pr.println("get"+ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)+".get")
+          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + ".get")
           pr.println("}")
         }
       })

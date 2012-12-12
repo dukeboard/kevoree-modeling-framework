@@ -77,7 +77,11 @@ trait TraitGenerator {
     pr.println("\t\tthis.internal_eContainer = container\n")
     pr.println("\t\tinternal_unsetCmd = unsetCmd")
     pr.println("\t}")
+
+    pr.println("def internalGetQuery(selfKey : String) : String = null")
+
     pr.println("}")
+
     pr.flush()
     pr.close()
 
