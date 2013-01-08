@@ -154,20 +154,20 @@ trait ClassGenerator extends ClonerGenerator {
     cls.getEReferences.foreach(ref => {
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
         generateReflexifMapper = true
-        pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + " {")
+        pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
         pr.println("return "+protectReservedWords(ref.getName) + ".get(key)")
         pr.println("}")
       }
     })
     if (generateReflexifMapper) {
-      pr.println("override fun internalGetQuery(selfKey : String) : String {")
+      pr.println("override fun internalGetQuery(selfKey : String) : String? {")
       pr.println("var res : Any? = null")
 
       cls.getEAllReferences.foreach(ref => {
         if (hasID(ref.getEReferenceType)) {
           if(ref.getUpperBound == 1){
             if(ref.getLowerBound == 0){
-              pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".isDefined && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".get.internalGetKey() == selfKey){")
+              pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+"().isDefined && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+"().get.internalGetKey() == selfKey){")
               if (hasID(cls)) {
                 pr.println("return eContainer().internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
               } else {
@@ -175,7 +175,7 @@ trait ClassGenerator extends ClonerGenerator {
               }
               pr.println("}")
             } else {
-              pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+" != null && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".internalGetKey() == selfKey){")
+              pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+"() != null && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+"().internalGetKey() == selfKey){")
               if (hasID(cls)) {
                 pr.println("return eContainer().internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
               } else {
@@ -204,14 +204,13 @@ trait ClassGenerator extends ClonerGenerator {
       } else {
         pr.print("fun ")
       }
-      pr.println("findByQuery<A>(query : String, clazz : Class<A>) : scala.Option<A> {")
-      //pr.println("try {")
-      //pr.println("val res= findByQuery(query)")
-      //pr.println("if(res != null){Some(res.asInstanceOf<A>)} else {None}")
-      //pr.println("}catch{")
-      //pr.println("case _ => None")
-      //pr.println("}")
-      pr.println("return null")
+      pr.println("findByQuery<A>(query : String, clazz : Class<A>) : scala.Option<A>? {")
+      pr.println("try {")
+      pr.println("val res= findByQuery(query)")
+      pr.println("if(res != null){return scala.Option.apply(res as A)} else {return scala.Option.apply(null)}")
+      pr.println("}catch(e:Exception){")
+      pr.println("return scala.Option.apply(null)")
+      pr.println("}")
       pr.println("}")
 
       if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
@@ -219,7 +218,7 @@ trait ClassGenerator extends ClonerGenerator {
       } else {
         pr.print("fun ")
       }
-      pr.println("findByQuery(query : String) : Any {")
+      pr.println("findByQuery(query : String) : Any? {")
       pr.println("val firstSepIndex = query.indexOf('[')")
       pr.println("var queryID = \"\"")
       pr.println("var extraReadChar = 2")
@@ -229,7 +228,7 @@ trait ClassGenerator extends ClonerGenerator {
         //Optional relationship definition
         val relationShipOptionalName = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)).get(0).getName
         pr.println("val relationName = \"" + relationShipOptionalName + "\"")
-        pr.println("val optionalDetected = { firstSepIndex != " + relationShipOptionalName.size + " }")
+        pr.println("val optionalDetected = ( firstSepIndex != " + relationShipOptionalName.size + " )")
         pr.println("if(optionalDetected){ extraReadChar = extraReadChar - 2 }")
       } else {
         pr.println("val relationName = query.substring(0,query.indexOf('['))")
@@ -265,19 +264,19 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("}")
 
       if (optionalRelationShipNameGen) {
-        pr.println("var subquery = query.substring((if(optionalDetected()){0} else {relationName.size})+queryID.size+extraReadChar,query.size)")
+        pr.println("var subquery = query.substring((if(optionalDetected){0} else {relationName.size})+queryID.size+extraReadChar,query.size)")
       } else {
         pr.println("var subquery = query.substring(relationName.size+queryID.size+extraReadChar,query.size)")
       }
       pr.println("if (subquery.indexOf('/') != -1){")
       pr.println("subquery = subquery.substring(subquery.indexOf('/')+1,subquery.size)")
       pr.println("}")
-      pr.println("when(relationName) {")
+      pr.println("return when(relationName) {")
       cls.getEAllReferences.foreach(ref => {
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-          pr.println("is \"" + ref.getName + "\" -> {")
+          pr.println("\"" + ref.getName + "\" -> {")
           pr.println("val objFound = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(queryID)")
-          pr.println("if(subquery != \"\"){")
+          pr.println("if(subquery != \"\" && objFound != null){")
           if (hasFindByIDMethod(ref.getEReferenceType)) {
             pr.println("objFound.findByQuery(subquery)")
           } else {
@@ -288,13 +287,13 @@ trait ClassGenerator extends ClonerGenerator {
 
         }
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
-          pr.println("is \"" + ref.getName + "\" -> {")
-          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
+          pr.println("\"" + ref.getName + "\" -> {")
+          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)+"()")
           pr.println("}")
         }
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
-          pr.println("is \"" + ref.getName + "\" -> {")
-          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + ".get")
+          pr.println("\"" + ref.getName + "\" -> {")
+          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "().get")
           pr.println("}")
         }
       })
@@ -343,12 +342,12 @@ trait ClassGenerator extends ClonerGenerator {
         }
     }
 
-
+       /*
     pr.println("}")
     pr.flush()
     pr.close()
     return
-
+      */
 
     // Getters and Setters Generation
     cls.getEAttributes.foreach {
