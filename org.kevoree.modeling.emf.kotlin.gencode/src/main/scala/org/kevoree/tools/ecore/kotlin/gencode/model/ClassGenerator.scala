@@ -62,31 +62,14 @@ trait ClassGenerator extends ClonerGenerator {
 
   private def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String = {
 
-    //TODO : NETOYER :-)
-    //URI d'exemple:
-    //System.out.println("RefTypeInstanceType:" + ref.getEReferenceType)
-    //    System.out.println("RefType:" + ref.getEReferenceType.eIsProxy())
     val uri = ref.getEReferenceType.asInstanceOf[InternalEObject].eProxyURI()
     val uriString = uri.toString
-    /*
-    System.out.println("Tricky part")
-    System.out.println("Uri:" + uriString)
-    System.out.println("Trying to load URI:" + uriString)
-    */
     val resource = new XMIResourceImpl(uri)
     resource.load(null)
-
-    //System.out.println("Resolved Ref:" + resolvedRef)
     val packa = resource.getAllContents.next().asInstanceOf[EPackage]
-    //System.out.println("Package Name:" + packa.getName)
-
-    //System.out.println("RefTypeInstanceTypeUri:" + uri)
     val typName = uriString.substring(uriString.lastIndexOf("#//") + 3)
-    //System.out.println("RefTypeInstanceTypeName:" + typName)
-    //throw new UnsupportedOperationException("Reference type of ref:" + ref.getName + " in class:" + cls.getName + " is null.\n")
     pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
   }
-
 
   def hasID(cls: EClass): Boolean = {
     cls.getEAllAttributes.exists {
@@ -123,16 +106,13 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println(generateHeader(packElement))
     //case class name
     pr.print("trait " + cls.getName)
-
     pr.println((generateSuperTypes(ctx, cls, packElement) match {
       case None => "{"
       case Some(s) => s + " {"
     }))
 
-
     cls.getEAttributes.foreach {
       att =>
-
         pr.print("private var " + protectReservedWords(att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("java.lang.String")
@@ -142,9 +122,7 @@ trait ClassGenerator extends ClonerGenerator {
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
           case _@className => pr.println(className)
         }
-
     }
-
 
     if (hasID(cls)) {
       if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
@@ -168,8 +146,6 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("fun buildQuery() : String? {")
       pr.println("return eContainer().internalGetQuery(internalGetKey())")
       pr.println("}")
-
-
     }
 
 
@@ -185,7 +161,7 @@ trait ClassGenerator extends ClonerGenerator {
     })
     if (generateReflexifMapper) {
       pr.println("override fun internalGetQuery(selfKey : String) : String {")
-      pr.println("var res : Object = null")
+      pr.println("var res : Object? = null")
 
       cls.getEAllReferences.foreach(ref => {
         if (hasID(ref.getEReferenceType)) {
@@ -193,7 +169,7 @@ trait ClassGenerator extends ClonerGenerator {
             if(ref.getLowerBound == 0){
               pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".isDefined && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".get.internalGetKey() == selfKey){")
               if (hasID(cls)) {
-                pr.println("return eContainer.internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
+                pr.println("return eContainer().internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
               } else {
                 pr.println("return \""+ref.getName+"[\"+selfKey+\"]\"")
               }
@@ -201,7 +177,7 @@ trait ClassGenerator extends ClonerGenerator {
             } else {
               pr.println("if(get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+" != null && get"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+".internalGetKey() == selfKey){")
               if (hasID(cls)) {
-                pr.println("return eContainer.internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
+                pr.println("return eContainer().internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
               } else {
                 pr.println("return \""+ref.getName+"[\"+selfKey+\"]\"")
               }
@@ -212,7 +188,7 @@ trait ClassGenerator extends ClonerGenerator {
             pr.println("res = find"+protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))+"ByID(selfKey)")
             pr.println("if(res != null){")
             if (hasID(cls)) {
-              pr.println("return eContainer.internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
+              pr.println("return eContainer().internalGetQuery(internalGetKey())+\"/"+ref.getName+"[\"+selfKey+\"]\"")
             } else {
               pr.println("return \""+ref.getName+"[\"+selfKey+\"]\"")
             }
@@ -351,7 +327,7 @@ trait ClassGenerator extends ClonerGenerator {
           }
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
-          pr.println("private var " + protectReservedWords(ref.getName) + " : scala.Option[" + typeRefName + "] = None\n")
+          pr.println("private var " + protectReservedWords(ref.getName) + " : scala.Option<" + typeRefName + ">\n")
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
           // mandatory single ref
           pr.println("private var " + protectReservedWords(ref.getName) + " : " + typeRefName + " = _\n")
