@@ -343,12 +343,12 @@ trait ClassGenerator extends ClonerGenerator {
         }
     }
 
-        /*
+
     pr.println("}")
     pr.flush()
     pr.close()
     return
-     */
+
 
     // Getters and Setters Generation
     cls.getEAttributes.foreach {
