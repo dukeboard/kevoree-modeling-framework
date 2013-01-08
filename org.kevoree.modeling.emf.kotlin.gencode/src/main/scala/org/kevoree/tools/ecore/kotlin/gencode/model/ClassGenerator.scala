@@ -269,9 +269,6 @@ trait ClassGenerator extends ClonerGenerator {
       } else {
         pr.println("var subquery = query.substring(relationName.size+queryID.size+extraReadChar,query.size)")
       }
-
-
-
       pr.println("if (subquery.indexOf('/') != -1){")
       pr.println("subquery = subquery.substring(subquery.indexOf('/')+1,subquery.size)")
       pr.println("}")
@@ -284,7 +281,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (hasFindByIDMethod(ref.getEReferenceType)) {
             pr.println("objFound.findByQuery(subquery)")
           } else {
-            pr.println("throw new Exception(\"KMFQL : rejected sucessor\")")
+            pr.println("throw Exception(\"KMFQL : rejected sucessor\")")
           }
           pr.println("} else {objFound}")
           pr.println("}")
@@ -346,18 +343,18 @@ trait ClassGenerator extends ClonerGenerator {
         }
     }
 
-
+        /*
     pr.println("}")
     pr.flush()
     pr.close()
     return
-
+     */
 
     // Getters and Setters Generation
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
-        pr.print("\nfun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + " : " +
+        pr.print("\nfun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " +
           ProcessorHelper.convertType(att.getEAttributeType) + " = {\n")
         pr.println("" + protectReservedWords(att.getName) + "\n}")
 
