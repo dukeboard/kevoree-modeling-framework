@@ -161,7 +161,7 @@ trait ClassGenerator extends ClonerGenerator {
     })
     if (generateReflexifMapper) {
       pr.println("override fun internalGetQuery(selfKey : String) : String {")
-      pr.println("var res : Object? = null")
+      pr.println("var res : Any? = null")
 
       cls.getEAllReferences.foreach(ref => {
         if (hasID(ref.getEReferenceType)) {
@@ -219,7 +219,7 @@ trait ClassGenerator extends ClonerGenerator {
       } else {
         pr.print("fun ")
       }
-      pr.println("findByQuery(query : String) : Object {")
+      pr.println("findByQuery(query : String) : Any {")
       pr.println("val firstSepIndex = query.indexOf('[')")
       pr.println("var queryID = \"\"")
       pr.println("var extraReadChar = 2")
@@ -275,10 +275,10 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("if (subquery.indexOf('/') != -1){")
       pr.println("subquery = subquery.substring(subquery.indexOf('/')+1,subquery.size)")
       pr.println("}")
-      pr.println("relationName match {")
+      pr.println("when(relationName) {")
       cls.getEAllReferences.foreach(ref => {
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-          pr.println("case \"" + ref.getName + "\" => {")
+          pr.println("is \"" + ref.getName + "\" -> {")
           pr.println("val objFound = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(queryID)")
           pr.println("if(subquery != \"\"){")
           if (hasFindByIDMethod(ref.getEReferenceType)) {
@@ -291,16 +291,17 @@ trait ClassGenerator extends ClonerGenerator {
 
         }
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
-          pr.println("case \"" + ref.getName + "\" => {")
+          pr.println("is \"" + ref.getName + "\" -> {")
           pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
           pr.println("}")
         }
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
-          pr.println("case \"" + ref.getName + "\" => {")
+          pr.println("is \"" + ref.getName + "\" -> {")
           pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + ".get")
           pr.println("}")
         }
       })
+      pr.println("else -> {}")
       pr.println("}")
       pr.println("}")
     }
@@ -321,7 +322,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("private var " + protectReservedWords(ref.getName) + "_java_cache : java.util.List<" + typeRefName + ">")
           pr.println("private var " + protectReservedWords(ref.getName) + "_scala_cache : scala.collection.immutable.List<" + typeRefName + ">")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap<Object," + typeRefName + ">")
+            pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
           } else {
             pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer<" + typeRefName + ">")
           }
@@ -336,7 +337,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("private var " + protectReservedWords(ref.getName) + "_java_cache : java.util.List[" + typeRefName + "] = null\n")
           pr.println("private var " + protectReservedWords(ref.getName) + "_scala_cache : scala.collection.immutable.List[" + typeRefName + "] = null\n")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap[Object," + typeRefName + "] = new java.util.HashMap[Object," + typeRefName + "]()\n")
+            pr.println("private val " + protectReservedWords(ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = new java.util.HashMap[Any," + typeRefName + "]()\n")
           } else {
             pr.println("private val " + protectReservedWords(ref.getName) + " : scala.collection.mutable.ListBuffer[" + typeRefName + "] = new scala.collection.mutable.ListBuffer[" + typeRefName + "]()\n")
           }
