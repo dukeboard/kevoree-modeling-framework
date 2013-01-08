@@ -265,7 +265,7 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("}")
 
       if (optionalRelationShipNameGen) {
-        pr.println("var subquery = query.substring((if(optionalDetected){0} else {relationName.size})+queryID.size+extraReadChar,query.size)")
+        pr.println("var subquery = query.substring((if(optionalDetected()){0} else {relationName.size})+queryID.size+extraReadChar,query.size)")
       } else {
         pr.println("var subquery = query.substring(relationName.size+queryID.size+extraReadChar,query.size)")
       }
