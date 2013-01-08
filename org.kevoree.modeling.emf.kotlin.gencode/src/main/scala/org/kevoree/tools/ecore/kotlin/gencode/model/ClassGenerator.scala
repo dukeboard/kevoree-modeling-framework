@@ -73,8 +73,8 @@ trait ClassGenerator extends ClonerGenerator {
     System.out.println("Uri:" + uriString)
     System.out.println("Trying to load URI:" + uriString)
     */
-    val resource = new XMIResourceImpl(uri);
-    resource.load(null);
+    val resource = new XMIResourceImpl(uri)
+    resource.load(null)
 
     //System.out.println("Resolved Ref:" + resolvedRef)
     val packa = resource.getAllContents.next().asInstanceOf[EPackage]
@@ -104,8 +104,6 @@ trait ClassGenerator extends ClonerGenerator {
     if (getIdAtt(cls).isEmpty) {
       println(cls.getName)
     }
-
-
     "get" + getIdAtt(cls).get.getName.substring(0, 1).toUpperCase + getIdAtt(cls).get.getName.substring(1)
   }
 
@@ -119,10 +117,7 @@ trait ClassGenerator extends ClonerGenerator {
   def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
-    //System.out.println("Generating class:" + cls.getName)
-
     val pack = ProcessorHelper.fqn(ctx, packElement)
-
     pr.println("package " + pack + "")
     pr.println()
     pr.println(generateHeader(packElement))
@@ -183,15 +178,13 @@ trait ClassGenerator extends ClonerGenerator {
     cls.getEReferences.foreach(ref => {
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
         generateReflexifMapper = true
-        pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + " = {")
-        pr.println(protectReservedWords(ref.getName) + ".get(key)")
+        pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + " {")
+        pr.println("return "+protectReservedWords(ref.getName) + ".get(key)")
         pr.println("}")
       }
     })
     if (generateReflexifMapper) {
-
-      pr.println("override fun internalGetQuery(selfKey : String) : String = {")
-
+      pr.println("override fun internalGetQuery(selfKey : String) : String {")
       pr.println("var res : Object = null")
 
       cls.getEAllReferences.foreach(ref => {
@@ -235,31 +228,22 @@ trait ClassGenerator extends ClonerGenerator {
       } else {
         pr.print("fun ")
       }
-      pr.println("findByQuery[A](query : String, clazz : Class[A]) : scala.Option[A] = {")
-      pr.println("try {")
-      pr.println("val res= findByQuery(query)")
-      pr.println("if(res != null){Some(res.asInstanceOf[A])} else {None}")
-      pr.println("}catch{")
-      pr.println("case _ => None")
+      pr.println("findByQuery<A>(query : String, clazz : Class<A>) : scala.Option<A> {")
+      //pr.println("try {")
+      //pr.println("val res= findByQuery(query)")
+      //pr.println("if(res != null){Some(res.asInstanceOf<A>)} else {None}")
+      //pr.println("}catch{")
+      //pr.println("case _ => None")
+      //pr.println("}")
+      pr.println("return null")
       pr.println("}")
-      pr.println("}")
-
-
-
-
-pr.println("}")
-pr.flush()
-pr.close()
-return
-
-
 
       if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
         pr.print("override fun ")
       } else {
         pr.print("fun ")
       }
-      pr.println("findByQuery(query : String) : Object = {")
+      pr.println("findByQuery(query : String) : Object {")
       pr.println("val firstSepIndex = query.indexOf('[')")
       pr.println("var queryID = \"\"")
       pr.println("var extraReadChar = 2")
@@ -386,9 +370,13 @@ return
     }
 
 
+    pr.println("}")
+    pr.flush()
+    pr.close()
+    return
+
+
     // Getters and Setters Generation
-
-
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
@@ -404,7 +392,6 @@ return
         pr.println("}")
     }
 
-
     cls.getEReferences.foreach {
       ref =>
         val typeRefName = (
@@ -414,8 +401,6 @@ return
             ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
           }
           )
-
-
         if (ref.getUpperBound == -1) {
           // multiple values
           pr.println(generateGetter(ref, typeRefName, false, false))
@@ -438,12 +423,11 @@ return
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::None standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
-
     }
 
 
     //GENERATE CLONE METHOD
-    generateCloneMethods(ctx, cls, pr, packElement)
+    //generateCloneMethods(ctx, cls, pr, packElement)
 
     pr.println("}")
     pr.flush()
@@ -456,7 +440,7 @@ return
     //Generate getter
     val methName = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     var res = ""
-    res += "\nfun " + methName + " : "
+    res += "\nfun " + methName + "() : "
 
     //Set return type
     res += {
@@ -510,9 +494,8 @@ return
     }
     res += "}"
 
-
     if (!isSingleRef) {
-      res += "\nfun " + methName + "ForJ : java.util.List[" + typeRefName + "] = {\n"
+      res += "\nfun " + methName + "ForJ() : java.util.List[" + typeRefName + "] = {\n"
       res += "if(" + protectReservedWords(ref.getName) + "_java_cache != null){\n"
       res += protectReservedWords(ref.getName) + "_java_cache\n"
       res += "} else {\n"
@@ -834,61 +817,23 @@ return
   }
 
 
-  /* private def oppositTestAndAdd(ref: EReference, refCurrentName: String): String = {
-    var result = ""
-    val oppositRef = ref.getEOpposite
-    if(oppositRef != null) {
-      val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-      if(oppositRef.isMany && ref.isMany) {// *--*
-        result += ""+refCurrentName+".noOpposite_add"+formatedOpositName+"(this)\n"
-      } else if(oppositRef.isMany && !ref.isMany) {//List *--0,1
-        result += ""+refCurrentName+".add"+formatedOpositName+"(this)\n"
-      } else if(!oppositRef.isRequired) {//Option   0,1--?
-        result += ""+refCurrentName+".get"+formatedOpositName+" match {\n"
-        result += "case Some(e) => {\n"
-        result += "if(e.isInstanceOf[" + ref.getEContainingClass.getName + "] && e != this) {\n"
-        result += "e.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + refCurrentName + ")\n"
-        result += "}\n"
-        result += "" + refCurrentName + ".noOpposite_set" + formatedOpositName + "(Some(this))\n"
-        result += "}\n"
-        result += "case None => " + refCurrentName + ".noOpposite_set" + formatedOpositName + "(Some(this))\n"
-        result += "}\n"
-        //result += "case None => "+refCurrentName+".noOpposite_set"+formatedOpositName+"(Some(this))\n"
-        //result += "}\n"
-      } else { //mandatory single   1--?
-
-        /*
-        result += "if("+refCurrentName+".get"+formatedOpositName+".isInstanceOf["+ref.getEContainingClass.getName+"] && "+refCurrentName+".get"+formatedOpositName+" != this) {\n"
-        result += ""+refCurrentName+".get"+formatedOpositName+".remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "("+refCurrentName+")\n"
-        result += "}\n"
-        */
-        result += ""+refCurrentName+".noOpposite_set"+formatedOpositName+"(this)\n"
-      }
-    }
-    result
-  }*/
-
   private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String): String = {
     generateAddMethodOp(cls, ref, typeRefName, false) + generateAddAllMethodOp(cls, ref, typeRefName, false) +
       (if (ref.getEOpposite != null) {
-        //} && ref.getEOpposite.isMany){
         generateAddMethodOp(cls, ref, typeRefName, true) + generateAddAllMethodOp(cls, ref, typeRefName, true)
       } else {
         ""
       })
-
   }
 
   private def generateAddAllMethodOp(cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean): String = {
     var res = ""
-
     res += "\n"
     if (noOpposite) {
       res += "\nfun noOpposite_addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     } else {
       res += "\nfun addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     }
-
     res += "(" + protectReservedWords(ref.getName) + " : List[" + typeRefName + "]) {\n"
     res += ("if(isReadOnly()){throw new Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     //Clear cache
@@ -974,15 +919,7 @@ return
         res += protectReservedWords(ref.getName) + ".noOpposite_add" + formatedOpositName + "(this)"
       }
     }
-
-
-    /*
-    if(!noOpposite) {
-      res += oppositTestAndAdd(ref, protectReservedWords(ref.getName))
-    }
-    */
     res += "}"
-
     res
   }
 
@@ -994,7 +931,6 @@ return
       } else {
         ""
       })
-
   }
 
   private def generateRemoveMethodOp(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean): String = {
