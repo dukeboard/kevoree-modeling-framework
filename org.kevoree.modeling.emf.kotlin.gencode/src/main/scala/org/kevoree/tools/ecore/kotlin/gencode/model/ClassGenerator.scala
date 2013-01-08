@@ -355,7 +355,7 @@ trait ClassGenerator extends ClonerGenerator {
       att =>
       //Generate getter
         pr.print("\nfun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " +
-          ProcessorHelper.convertType(att.getEAttributeType) + " = {\n")
+          ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
         pr.println("" + protectReservedWords(att.getName) + "\n}")
 
         //generate setter
