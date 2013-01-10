@@ -53,13 +53,13 @@ object ProcessorHelper {
 
   def convertType(theType: String): String = {
     theType match {
-      case "bool" | "boolean" | "java.lang.Boolean" => "java.lang.Boolean"
-      case "java.lang.String" | "String" => "java.lang.String"
-      case "int" | "java.lang.Integer" => "java.lang.Integer"
-      case "float" | "java.lang.Float" => "java.lang.Float"
-      case "double" | "java.lang.Double" => "java.lang.Double"
-      case "long" | "java.lang.Long" => "java.lang.Long"
-      case "java.lang.Object" => "java.lang.Object"
+      case "bool" | "boolean" | "java.lang.Boolean" => "Boolean"
+      case "java.lang.String" | "String" => "String"
+      case "int" | "java.lang.Integer" => "Int"
+      case "float" | "java.lang.Float" => "Float"
+      case "double" | "java.lang.Double" => "Double"
+      case "long" | "java.lang.Long" => "Long"
+      case "java.lang.Object" => "Any"
       case "java.util.Date" => "java.util.Date"
       case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + theType); null
     }

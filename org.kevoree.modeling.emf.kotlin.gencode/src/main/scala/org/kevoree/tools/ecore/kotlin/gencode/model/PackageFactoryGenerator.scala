@@ -46,7 +46,7 @@ trait PackageFactoryGenerator {
 
     pr.println("package " + packageName + ";")
     pr.println()
-    pr.println("import " + packageName + ".impl._;")
+    pr.println("import " + packageName + ".impl.*;")
     pr.println()
     pr.println(ProcessorHelper.generateHeader(packElement))
     //case class name
@@ -58,7 +58,7 @@ trait PackageFactoryGenerator {
     packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach {
       cls =>
         val methodName = "create" + cls.getName
-        pr.println("\t fun " + methodName + "() : " + cls.getName + " = return " + cls.getName + "Impl")
+        pr.println("\t fun " + methodName + "() : " + cls.getName + " { return " + cls.getName + "Impl() }")
     }
     pr.println()
     pr.println("}")
