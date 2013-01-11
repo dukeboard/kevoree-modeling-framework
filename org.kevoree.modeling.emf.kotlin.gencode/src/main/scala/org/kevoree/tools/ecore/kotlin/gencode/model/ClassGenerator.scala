@@ -117,7 +117,7 @@ trait ClassGenerator extends ClonerGenerator {
      generateAllGetterSetterMethod(pr,cls,ctx,pack)
 
     //GENERATE CLONE METHOD
-    generateCloneMethods(ctx, cls, pr, packElement)
+   // generateCloneMethods(ctx, cls, pr, packElement)
     generateKMFQLMethods(pr,cls,ctx,pack)
 
     pr.println("}")

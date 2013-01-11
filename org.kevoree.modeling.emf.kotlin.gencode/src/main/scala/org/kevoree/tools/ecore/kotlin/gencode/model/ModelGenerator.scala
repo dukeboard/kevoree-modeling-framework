@@ -63,10 +63,10 @@ with EnumGenerator {
     currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c,currentUserPackageDir))
     currentPackage.getESubpackages.foreach(subPack => process(subPack, modelVersion))
 
-
+          /*
     if(isRoot){
       generateCloner(ctx, currentPackageDir, currentPackage)
-    }
+    }  */
 
   }
 

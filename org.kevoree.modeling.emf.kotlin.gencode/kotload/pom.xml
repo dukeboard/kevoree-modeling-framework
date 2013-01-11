@@ -22,11 +22,13 @@
             <artifactId>kotlin-js-library</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>2.9.2</version>
         </dependency>
+        -->
     </dependencies>
 
     <build>
