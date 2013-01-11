@@ -53,19 +53,19 @@ trait TraitGenerator {
     //case class name
     pr.println("trait " + formatedFactoryName + " {")
     pr.println()
-    pr.println(" private var internal_eContainer : " + formatedFactoryName+"?")
-    pr.println(" private var internal_unsetCmd : (()->Any)?")
+    pr.println(" var internal_eContainer : " + formatedFactoryName+"?")
+    pr.println(" var internal_unsetCmd : (()->Any)?")
 
     //generate getter
     pr.println("fun eContainer() : "+formatedFactoryName+"? { return internal_eContainer }")
 
-    pr.println("private var internal_readOnlyElem : Boolean")
+    pr.println("var internal_readOnlyElem : Boolean")
     pr.println("fun setInternalReadOnly(){")
-    pr.println("internal_readOnlyElem = true")
+    pr.println("this.internal_readOnlyElem = true")
     pr.println("}")
 
     pr.println("fun isReadOnly() : Boolean {")
-    pr.println("return internal_readOnlyElem")
+    pr.println("return this.internal_readOnlyElem")
     pr.println("}")
 
     //generate setter
