@@ -141,7 +141,7 @@ trait ClonerGenerator {
       contained =>
         if (contained.getUpperBound == -1) {
           // multiple values
-          buffer.println("this." + getGetter(contained.getName) + "().forEach{ sub -> ")
+          buffer.println("this." + getGetter(contained.getName) + "()?.forEach{ sub -> ")
           buffer.println("sub.getClonelazy(subResult)")
           buffer.println("}")
         } else if (contained.getUpperBound == 1 && contained.getLowerBound == 0) {
@@ -154,7 +154,7 @@ trait ClonerGenerator {
           buffer.println("\t\tthis." + getGetter(contained.getName) + ".getClonelazy(subResult)")
         } else if (contained.getLowerBound > 1) {
           // else
-          buffer.println("\t\tthis." + getGetter(contained.getName) + "().forEach{ sub -> ")
+          buffer.println("\t\tthis." + getGetter(contained.getName) + "()?.forEach{ sub -> ")
           buffer.println("\t\t\tsub.getClonelazy(subResult)")
           buffer.println("\t\t}")
         } else {
@@ -215,7 +215,7 @@ trait ClonerGenerator {
               //}
             }
             case _ => {
-              buffer.println("\t\tthis." + getGetter(ref.getName) + "().forEach{sub ->")
+              buffer.println("\t\tthis." + getGetter(ref.getName) + "()?.forEach{sub ->")
               var formatedName: String = ref.getName.substring(0, 1).toUpperCase
               formatedName += ref.getName.substring(1)
               buffer.println("\t\t\tclonedSelfObject."+noOpPrefix+"add"+ formatedName + "(addrs.get(sub) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
@@ -241,7 +241,7 @@ trait ClonerGenerator {
             }
           }
           case -1 => {
-            buffer.println("\t\tthis." + getGetter(contained.getName) + "().forEach{ sub -> ")
+            buffer.println("\t\tthis." + getGetter(contained.getName) + "()?.forEach{ sub -> ")
             buffer.println("\t\t\tsub.resolve(addrs,readOnly)")
             buffer.println("\t\t}")
           }
