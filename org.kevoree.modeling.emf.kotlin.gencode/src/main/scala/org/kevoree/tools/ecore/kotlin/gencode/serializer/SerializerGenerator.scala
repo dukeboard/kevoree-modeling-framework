@@ -20,7 +20,7 @@ package org.kevoree.tools.ecore.kotlin.gencode.serializer
 
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
-import org.eclipse.emf.ecore.{EPackage, EClass}
+import org.eclipse.emf.ecore.{EReference, EPackage, EClass}
 import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelper}
 
 /**
@@ -51,22 +51,6 @@ class SerializerGenerator(ctx: GenerationContext) {
   }
 
 
-  /*
-  private def formatScalaSource(in : File){
-
-    val preferences = FormattingPreferences().setPreference(IndentSpaces, 3)
-    try {
-      val formattedScala = ScalaFormatter.format(Source.fromFile(in,"utf-8").getLines().mkString("\n"), preferences)
-      val pr = new PrintWriter(in, "utf-8")
-      pr.write(formattedScala)
-      pr.flush()
-      pr.close()
-    } catch {
-      case e: ScalaParserException => println("Syntax error in Scala source")
-    }
-  }
-   */
-
   private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootXmiPackage: EPackage, sub: Set[String]) {
 
     val genFile = new File(genDir + "ModelSerializer.kt")
@@ -75,23 +59,23 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("class ModelSerializer ")
 
     if (sub.size > 0) {
-      pr.print(sub.mkString(" extends ", " with ", " "))
+      pr.print(sub.mkString(" : ", " , ", " "))
     }
 
     pr.println("{")
 
     pr.println()
-    pr.println("def serialize(o : Object,ostream : java.io.OutputStream) = {")
+    pr.println("fun serialize(o : Any,ostream : java.io.OutputStream) {")
     pr.println()
-    pr.println("o match {")
-    pr.println("case o : " + ProcessorHelper.fqn(ctx, root) + " => {")
+    pr.println("when(o) {")
+    pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
     pr.println("val context = get" + root.getName + "XmiAddr(o,\"/\")")
-    pr.println("val wt = new java.io.PrintStream(new java.io.BufferedOutputStream(ostream),false)")
+    pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
     pr.println("" + root.getName + "toXmi(o,context,wt)")
-    pr.println("wt.flush")
-    pr.println("wt.close")
+    pr.println("wt.flush()")
+    pr.println("wt.close()")
     pr.println("}")
-    pr.println("case _ => null")
+    pr.println("else -> { }")
     pr.println("}") //END MATCH
     pr.println("}") //END serialize method
     pr.println("}") //END TRAIT
@@ -163,7 +147,7 @@ class SerializerGenerator(ctx: GenerationContext) {
   private def generateToXmiMethod(pack: EPackage, cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
     val packageOfModel = ProcessorHelper.fqn(ctx, pack)
 
-    buffer.println("import " + packageOfModel + "._")
+    buffer.println("import " + packageOfModel + ".*")
     buffer.println()
     buffer.println("trait " + cls.getName + "Serializer ")
 
@@ -191,45 +175,41 @@ class SerializerGenerator(ctx: GenerationContext) {
 
     stringListSubSerializers.foreach {
       sub =>
-        buffer.println("def get" + sub._2 + "XmiAddr(o : " + sub._1 + ",previousAddr : String) : scala.collection.mutable.Map[Object,String]") //PRINT ABSTRACT USEFULL METHOD
-        buffer.println("def " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.PrintStream)")
+        buffer.println("fun get" + sub._2 + "XmiAddr(o : " + sub._1 + ",previousAddr : String) : Map<Any,String>") //PRINT ABSTRACT USEFULL METHOD
+        buffer.println("fun " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream)")
     }
     buffer.println()
     buffer.println()
     buffer.println()
 
 
-    //GENERATE GET XMI ADDR
+    //GENERATE GET XMI ADDR                                                                              0
     //System.out.println("[DEBUG] SerializerGen::" + cls)
-    buffer.println("def get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): scala.collection.mutable.Map[Object,String] = {")
-    buffer.println("var subResult = new scala.collection.mutable.HashMap[Object,String]()")
-
+    buffer.println("fun get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
+    buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
-
     buffer.println("var i = 0")
     cls.getEAllContainments.foreach {
       subClass =>
         subClass.getUpperBound match {
           case 1 => {
-            if (subClass.getLowerBound == 0) {
-              buffer.println()
-              buffer.println("selfObject." + getGetter(subClass.getName) + ".map{ sub =>")
-              buffer.println("subResult +=  sub -> (previousAddr+\"/@" + subClass.getName + "\" ) ")
-              buffer.println("subResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + "\")")
+            //if (subClass.getLowerBound == 0) {
+              buffer.println("val sub"+subClass.getName+" = selfObject."+getGetter(subClass.getName)+"()")
+              buffer.println("if(sub"+subClass.getName+"!= null){")
+              buffer.println("subResult.put(sub"+subClass.getName+",previousAddr+\"/@" + subClass.getName + "\" )")
+              buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(sub"+subClass.getName+",previousAddr+\"/@" + subClass.getName + "\"))")
               buffer.println("}")
-            } else {
-              buffer.println()
-              //buffer.println(" + ".map{ sub =>")
-              buffer.println("subResult +=  selfObject." + getGetter(subClass.getName) + " -> (previousAddr+\"/@" + subClass.getName + "\" ) ")
-              buffer.println("subResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(selfObject." + getGetter(subClass.getName) + ",previousAddr+\"/@" + subClass.getName + "\")")
-              //buffer.println("}")
-            }
+            //} else {
+            //  buffer.println("subResult.put(selfObject." + getGetter(subClass.getName) + "(),(previousAddr+\"/@" + subClass.getName + "\" ))")
+            //  buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(selfObject." + getGetter(subClass.getName) + "(),previousAddr+\"/@" + subClass.getName + "\"))")
+            //  //buffer.println("}")
+            //}
           }
           case -1 => {
             buffer.println("i=0")
-            buffer.println("selfObject." + getGetter(subClass.getName) + ".foreach{ sub => ")
-            buffer.println("subResult +=  sub -> (previousAddr+\"/@" + subClass.getName + ".\"+i) ")
-            buffer.println("subResult ++= get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i)")
+            buffer.println("selfObject." + getGetter(subClass.getName) + "().forEach{ sub -> ")
+            buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
+            buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i))")
             buffer.println("i=i+1")
             buffer.println("}")
             buffer.println()
@@ -238,43 +218,35 @@ class SerializerGenerator(ctx: GenerationContext) {
     }
 
     buffer.println()
-
     if (subTypes.size > 0) {
-      buffer.println("selfObject match {")
+      buffer.println("when(selfObject) {")
       subTypes.foreach {
         subType =>
-          buffer.println("case o:" + ProcessorHelper.fqn(ctx, subType) + " =>subResult ++= get" + subType.getName + "XmiAddr(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],previousAddr)")
+          buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> { subResult.putAll(get" + subType.getName + "XmiAddr(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",previousAddr)) }")
       }
-
-      buffer.println("case _ => \n")//throw new InternalError(\""+ cls.getName +"Serializer did not match anything for selfObject class name: \" + selfObject.getClass.getName)")
+      buffer.println("else -> {}")//throw new InternalError(\""+ cls.getName +"Serializer did not match anything for selfObject class name: \" + selfObject.getClass.getName)")
       buffer.println("}")
     }
-
-
-
-    buffer.println("subResult")
+    buffer.println("return subResult")
     buffer.println("}")
 
 
     if (isRoot) {
-      buffer.println("def " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.PrintStream) = {")
+      buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
     } else {
-      buffer.println("def " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : scala.collection.mutable.Map[Object,String], ostream : java.io.PrintStream) = {")
+      buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
     }
 
-    buffer.println("selfObject match {")
-    var subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
+    buffer.println("when(selfObject) {")
+    val subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
     subtypesList.foreach {
       subType =>
-        buffer.println("case o:" + ProcessorHelper.fqn(ctx, subType) + " => " + subType.getName + "toXmi(selfObject.asInstanceOf[" + ProcessorHelper.fqn(ctx, subType) + "],refNameInParent,addrs,ostream)")
+        buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {" + subType.getName + "toXmi(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",refNameInParent,addrs,ostream) }")
     }
-    buffer.println("case _ => {")
-
-
+    buffer.println("else -> {")
     if(isRoot){
       buffer.println("ostream.println(\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\")")
     }
-
     buffer.println("ostream.print('<')")
     if (!isRoot) {
       buffer.println("ostream.print(refNameInParent)")
@@ -295,8 +267,8 @@ class SerializerGenerator(ctx: GenerationContext) {
             case 1 => {
               att.getLowerBound match {
                 case _ => {
-                  buffer.println("if(selfObject." + getGetter(att.getName) + ".toString != \"\"){")
-                  buffer.println("ostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "+\"\\\"\"))")
+                  buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
+                  buffer.println("ostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()+\"\\\"\"))")
                   buffer.println("}")
                 }
               }
@@ -304,39 +276,95 @@ class SerializerGenerator(ctx: GenerationContext) {
             case -1 => println("WTF!")
           }
       }
+
+
+      def generateRef(ref : EReference){
+
+        buffer.println("val subsub"+ref.getName+" = selfObject."+getGetter(ref.getName)+"()")
+        buffer.println("if(subsub"+ref.getName+" != null){")
+
+        buffer.println("val subsubsub"+ref.getName+" = addrs.get(subsub"+ref.getName+")")
+        buffer.println("if(subsubsub"+ref.getName+" != null){")
+        buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+subsubsub"+ref.getName+"+\"\\\"\"))")
+        buffer.println("} else {")
+        buffer.println("throw Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \")")
+        buffer.println("}")
+
+        buffer.println("}")
+      }
+
       cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).foreach {
         ref =>
           ref.getUpperBound match {
+
             case 1 => {
               ref.getLowerBound match {
                 case 0 => {
-                  buffer.println("selfObject." + getGetter(ref.getName) + ".map{sub =>")
-                  buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference\");\"non contained reference "+cls.getName+"/"+ref.getName+" \"}+\"\\\"\"))")
+                  generateRef(ref)
+                }
+                case 1 => {
+                  if (ref.getEOpposite != null) {
+                    if (ref.getEOpposite.getUpperBound != -1) {
+                      generateRef(ref)
+                    } else {
+                      //OPTIMISATION, WE DON'T SAVE BOTH REFERENCE
+                      //WARNING ECLIPSE COMPAT VERIFICATION
+                    }
+                  } else {
+                    generateRef(ref)
+                  }
+                }
+              }
+
+              /*
+              ref.getLowerBound match {
+                case 0 => {
+                  buffer.println("val subsub"+ref.getName+" = selfObject."+getGetter(ref.getName)+"()")
+                  buffer.println("if(subsub"+ref.getName+" != null){")
+                  buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+subsub"+ref.getName+"+\"\\\"\"))")
+                  buffer.println("} else {")
+                  buffer.println("throw Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \")")
                   buffer.println("}")
                 }
                 case 1 => {
                   if (ref.getEOpposite != null) {
                     if (ref.getEOpposite.getUpperBound != -1) {
-                      buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \");\"non contained reference\"}+\"\\\"\"))")
+                      buffer.println("val subsub"+ref.getName+" = addrs.get(selfObject." + getGetter(ref.getName) + "())")
+                      buffer.println("if(subsub"+ref.getName+"!= null){")
+                      buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+subsub"+ref.getName+"+\"\\\"\"))")
+                      buffer.println("} else {")
+                      buffer.println("throw Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \")")
+                      buffer.println("}")
                     } else {
                        //OPTIMISATION, WE DON'T SAVE BOTH REFERENCE
                        //WARNING ECLIPSE COMPAT VERIFICATION
                     }
                   } else {
-                    buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+addrs.get(selfObject." + getGetter(ref.getName) + ").getOrElse{throw new Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \");\"non contained reference\"}+\"\\\"\"))")
+                    buffer.println("val subsub"+ref.getName+" = addrs.get(selfObject." + getGetter(ref.getName) + "())")
+                    buffer.println("if(subsub"+ref.getName+"!= null){")
+                    buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+subsub"+ref.getName+"+\"\\\"\"))")
+                    buffer.println("} else {")
+                    buffer.println("throw Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \")")
+                    buffer.println("}")
                   }
-
                 }
-              }
+              }*/
             }
             case _ => {
               //buffer.println("var subadrs" + ref.getName + " : List[String] = List()")
-              buffer.println("if(selfObject." + getGetter(ref.getName) + ".size > 0){")
+              buffer.println("if(selfObject." + getGetter(ref.getName) + "().count() > 0){")
               buffer.println("ostream.print(\" " + ref.getName + "=\\\"\")")
               buffer.println("var firstItLoop = true")
-              buffer.println("selfObject." + getGetter(ref.getName) + ".foreach{sub =>")
+              buffer.println("selfObject." + getGetter(ref.getName) + "().forEach{sub ->")
               buffer.println("if(!firstItLoop){ostream.print(\" \")}")
-              buffer.println("ostream.print(addrs.get(sub).getOrElse{throw new Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \");\"non contained reference\"})")
+
+              buffer.println("val subsub = addrs.get(sub)")
+              buffer.println("if(subsub != null){")
+              buffer.println("ostream.print(subsub)")
+              buffer.println("} else {")
+              buffer.println("throw Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \")")
+              buffer.println("}")
+
               buffer.println("firstItLoop=false")
               buffer.println("}")
               buffer.println("ostream.print(\"\\\"\")")
@@ -352,15 +380,16 @@ class SerializerGenerator(ctx: GenerationContext) {
         subClass.getUpperBound match {
           case 1 => {
             if (subClass.getLowerBound == 0) {
-              buffer.println("selfObject." + getGetter(subClass.getName) + ".map { so => ")
-              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream)")
+              buffer.println("val sub"+subClass.getName+" = selfObject."+getGetter(subClass.getName)+"()")
+              buffer.println("if(sub"+subClass.getName+"!= null){")
+              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(sub"+subClass.getName+",\"" + subClass.getName + "\",addrs,ostream)")
               buffer.println("}")
             } else {
               buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + ",\"" + subClass.getName + "\",addrs,ostream)")
             }
           }
           case -1 => {
-            buffer.println("selfObject." + getGetter(subClass.getName) + ".foreach { so => ")
+            buffer.println("selfObject." + getGetter(subClass.getName) + "().forEach { so -> ")
             buffer.println("" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream)")
             buffer.println("}")
           }

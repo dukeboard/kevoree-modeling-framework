@@ -146,8 +146,10 @@ trait ClonerGenerator {
           buffer.println("}")
         } else if (contained.getUpperBound == 1 && contained.getLowerBound == 0) {
           // optional single ref
-          buffer.println("if(this." + getGetter(contained.getName) + "()!= null){ ")
-          buffer.println("this."+getGetter(contained.getName)+"()?.getClonelazy(subResult)")
+
+          buffer.println("val subsubsubsub"+contained.getName+" = this."+getGetter(contained.getName)+"()")
+          buffer.println("if(subsubsubsub"+contained.getName+"!= null){ ")
+          buffer.println("subsubsubsub"+contained.getName+".getClonelazy(subResult)")
           buffer.println("}")
         } else if (contained.getUpperBound == 1 && contained.getLowerBound == 1) {
           // mandatory single ref
@@ -233,8 +235,9 @@ trait ClonerGenerator {
         contained.getUpperBound match {
           case 1 => {
             if(contained.getLowerBound == 0) {
-            buffer.println("if(this." + getGetter(contained.getName) + "()!=null){ ")
-            buffer.println("this."+getGetter(contained.getName)+"()?.resolve(addrs,readOnly)")
+            buffer.println("val subsubsub"+contained.getName+" = this."+getGetter(contained.getName)+"()")
+            buffer.println("if(subsubsub"+contained.getName+"!=null){ ")
+            buffer.println("subsubsub"+contained.getName+".resolve(addrs,readOnly)")
             buffer.println("}")
             } else {
               buffer.println("\t\tthis." + getGetter(contained.getName) + ".resolve(addrs,readOnly)")
