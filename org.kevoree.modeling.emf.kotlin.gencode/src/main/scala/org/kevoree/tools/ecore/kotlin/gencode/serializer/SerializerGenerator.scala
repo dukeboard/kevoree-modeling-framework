@@ -188,7 +188,11 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("fun get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
-    buffer.println("var i = 0")
+
+    if (cls.getEAllContainments.size() > 0){
+      buffer.println("var i = 0")
+    }
+
     cls.getEAllContainments.foreach {
       subClass =>
         subClass.getUpperBound match {
