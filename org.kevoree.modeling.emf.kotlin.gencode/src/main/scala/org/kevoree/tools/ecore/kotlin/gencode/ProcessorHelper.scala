@@ -53,9 +53,9 @@ object ProcessorHelper {
 
   def convertType(theType: String): String = {
     theType match {
-      case "bool" | "boolean" | "java.lang.Boolean" => "Boolean"
-      case "java.lang.String" | "String" => "String"
-      case "int" | "java.lang.Integer" => "Int"
+      case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" => "Boolean"
+      case "EString" | "java.lang.String" | "String" => "String"
+      case "EIntegerObject" | "int" | "java.lang.Integer" => "Int"
       case "float" | "java.lang.Float" => "Float"
       case "double" | "java.lang.Double" => "Double"
       case "long" | "java.lang.Long" => "Long"
@@ -78,8 +78,8 @@ object ProcessorHelper {
     var header = "";
     val formateur = new SimpleDateFormat("'Date:' dd MMM yy 'Time:' HH:mm")
     header += "/**\n"
-    header += " * Created by Ecore Model Generator.\n"
-    header += " * @authors: Gregory NAIN, Fouquet Francois\n"
+    header += " * Created by Kevoree Model Generator(KMF).\n"
+    header += " * @developers: Gregory Nain, Fouquet Francois\n"
     header += " * " + formateur.format(new Date) + "\n"
     header += " * Meta-Model:NS_URI=" + packElement.getNsURI + "\n"
     header += " */"

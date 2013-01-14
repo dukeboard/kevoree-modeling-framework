@@ -46,13 +46,11 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
       val pr = new PrintWriter(file,"utf-8")
       //System.out.println("Classifier class:" + cls.getClass)
 
-      pr.println("package " + genPackage)
+      pr.println("package " + genPackage + ";")
       pr.println()
-      pr.println("import xml.NodeSeq")
-      pr.println("import scala.collection.JavaConversions._")
       //Import parent package (org.kevoree.sub => org.kevoree._)
-      pr.println("import " + modelPackage + "._")
-      pr.println("import " + genPackage.substring(0,genPackage.lastIndexOf(".")) + "._")
+      pr.println("import " + modelPackage + ".*")
+      pr.println("import " + genPackage.substring(0,genPackage.lastIndexOf(".")) + ".*")
       pr.println()
 
       //Generates the Trait
@@ -60,7 +58,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
       if (subLoaders.size > 0) {
         var stringListSubLoaders = List[String]()
         subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
-        pr.println(stringListSubLoaders.mkString(" extends ", " with ", " {"))
+        pr.println(stringListSubLoaders.mkString(" : ", ", ", " {"))
       } else {
         pr.println("{")
       }
@@ -100,25 +98,25 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
   }
 
   private def generateLoadingMethod(pr: PrintWriter) {
-    pr.println("def load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " = {")
+    pr.println("fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
 
-    pr.println("for(i <- 0 until context.xmiReader.getAttributeCount){")
-      pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
-      pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
+    pr.println("for(i in 0.rangeTo(context.xmiReader?.getAttributeCount() as Int)){")
+      pr.println("val localName = context.xmiReader?.getAttributeLocalName(i)")
+      pr.println("val xsi = context.xmiReader?.getAttributePrefix(i)")
       pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
-        pr.println("val loadedElement = context.xmiReader.getAttributeValue(i) match {")
+        pr.println("val loadedElement = when(context.xmiReader?.getAttributeValue(i)) {")
           ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
             concreteType =>
-              pr.println("case \"" + modelingPackage.getName + ":" + concreteType.getName + "\" => {")
+              pr.println("\"" + modelingPackage.getName + ":" + concreteType.getName + "\" -> {")
               pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
               pr.println("}")
           }
-          pr.println("case _@e => {throw new UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName);null}")
+          pr.println("else -> {throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName);}")
         pr.println("}")
         pr.println("return loadedElement")
       pr.println("}")
     pr.println("}")
-    pr.println("null")
+    pr.println("return null")
     pr.println("}")
   }
 
