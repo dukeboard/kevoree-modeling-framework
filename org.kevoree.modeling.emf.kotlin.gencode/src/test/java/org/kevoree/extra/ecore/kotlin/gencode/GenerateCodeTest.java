@@ -39,12 +39,9 @@ public class GenerateCodeTest {
     public void generate() {
         File rootDir = new File("target/generated-sources/kevoree");
         //File rootDir = new File("../org.kevoree.extra.ecore.loader.test/src/main/scala/");
-
         String rootPackage = "org";
-
         System.out.println(getClass().getClassLoader().getResource("kevoree.ecore"));
-
-        File ecoreFile = new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/org.kevoree.modeling.emf.kotlin.gencode/src/test/resources/kevoree.ecore");
+        File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
 
         GenerationContext ctx = new GenerationContext();
         ctx.setPackagePrefix(scala.Option.apply(rootPackage));
@@ -73,11 +70,11 @@ public class GenerateCodeTest {
         Generator gen = new Generator(ctx);
         gen.generateLoader(ecoreFile);
 
-    }
+    }*/
 
     @Test
     public void generateSerializer() {
-        //File rootDir = new File("../org.kevoree.extra.ecore.loader.test/src/main/scala/");
+        File rootDir = new File("target/generated-sources/kevoree");
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
 
@@ -89,7 +86,7 @@ public class GenerateCodeTest {
         Generator gen = new Generator(ctx);
         gen.generateSerializer(ecoreFile);
 
-    }  */
+    }
 /*
     @Test
     public void generateCloner() {
