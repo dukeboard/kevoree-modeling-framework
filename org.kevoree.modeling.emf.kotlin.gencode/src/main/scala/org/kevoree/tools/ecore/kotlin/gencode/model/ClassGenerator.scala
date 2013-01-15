@@ -32,6 +32,57 @@
  * Fouquet Francois
  * Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 
 
 package org.kevoree.tools.ecore.kotlin.gencode.model
@@ -69,15 +120,15 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println(") : " + cls.getName + " {")
 
     //test if generation of variable from Base Trait
-   // if (cls.getESuperTypes.isEmpty) {
-      pr.println("override var internal_eContainer : KevoreeContainer? = null")
-      pr.println("override var internal_unsetCmd : (()->Any)? = null")
-      pr.println("override var internal_readOnlyElem : Boolean = false")
-  //  }
+    // if (cls.getESuperTypes.isEmpty) {
+    pr.println("override var internal_eContainer : KevoreeContainer? = null")
+    pr.println("override var internal_unsetCmd : (()->Any)? = null")
+    pr.println("override var internal_readOnlyElem : Boolean = false")
+    //  }
 
     //generate init
     cls.getEAllAttributes.foreach {
-      att =>  {
+      att => {
         pr.print("override public var _" + protectReservedWords(att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("String = \"\"")
@@ -107,25 +158,25 @@ trait ClassGenerator extends ClonerGenerator {
 
         if (ref.getUpperBound == -1) {
           // multiple values
-          pr.println("override var " + protectReservedWords("_"+ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
+          pr.println("override var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("override val " + protectReservedWords("_"+ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
+            pr.println("override val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
           } else {
-            pr.println("override val " + protectReservedWords("_"+ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
+            pr.println("override val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
           }
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
-          pr.println("override var " + protectReservedWords("_"+ref.getName) + " : " + typeRefName + "? = null")
+          pr.println("override var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
           // mandatory single ref
-          pr.println("override var " + protectReservedWords("_"+ref.getName) + " : " + typeRefName + "? = null")
+          pr.println("override var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
         } else if (ref.getLowerBound > 1) {
           // else
-          pr.println("override var " + protectReservedWords("_"+ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
+          pr.println("override var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("override val " + protectReservedWords("_"+ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
+            pr.println("override val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
           } else {
-            pr.println("override val " + protectReservedWords("_"+ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
+            pr.println("override val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
           }
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
@@ -201,7 +252,7 @@ trait ClassGenerator extends ClonerGenerator {
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
 
     //GENERATE CLONE METHOD
-     generateCloneMethods(ctx, cls, pr, packElement)
+    generateCloneMethods(ctx, cls, pr, packElement)
     generateKMFQLMethods(pr, cls, ctx, pack)
 
     pr.println("}")
@@ -243,7 +294,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
         generateReflexifMapper = true
         pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
-        pr.println("return " + protectReservedWords("_"+ref.getName) + ".get(key)")
+        pr.println("return " + protectReservedWords("_" + ref.getName) + ".get(key)")
         pr.println("}")
       }
     })
@@ -388,8 +439,27 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("else -> {}")
       pr.println("}")
       pr.println("}")
-    }
+    } else {
 
+
+      val superTypes = cls.getESuperTypes.toSet
+      if (superTypes.size > 0) {
+        pr.println()
+        pr.println("override fun internalGetQuery(selfKey : String) : String? {")
+        pr.println("var subResult : String? = null")
+        superTypes.foreach(superType => {
+          pr.println("subResult = super<"+superType.getName+">.internalGetQuery(selfKey)")
+          pr.println("if(subResult!=null){")
+          pr.println("  return subResult")
+          pr.println("}")
+        })
+        pr.println("return null")
+        pr.println("}")
+        pr.println("")
+      }
+
+
+    }
   }
 
 
@@ -420,25 +490,25 @@ trait ClassGenerator extends ClonerGenerator {
 
         if (ref.getUpperBound == -1) {
           // multiple values
-          pr.println("var " + protectReservedWords("_"+ref.getName) + "_java_cache : List<" + typeRefName + ">?")
+          pr.println("var " + protectReservedWords("_" + ref.getName) + "_java_cache : List<" + typeRefName + ">?")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("val " + protectReservedWords("_"+ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
+            pr.println("val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
           } else {
-            pr.println("val " + protectReservedWords("_"+ref.getName) + " :MutableList<" + typeRefName + ">")
+            pr.println("val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + ">")
           }
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
-          pr.println("var " + protectReservedWords("_"+ref.getName) + " : " + typeRefName + "?")
+          pr.println("var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "?")
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
           // mandatory single ref
-          pr.println("var " + protectReservedWords("_"+ref.getName) + " : " + typeRefName + "?")
+          pr.println("var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "?")
         } else if (ref.getLowerBound > 1) {
           // else
-          pr.println("var " + protectReservedWords("_"+ref.getName) + "_java_cache : List<" + typeRefName + ">?")
+          pr.println("var " + protectReservedWords("_" + ref.getName) + "_java_cache : List<" + typeRefName + ">?")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("val " + protectReservedWords("_"+ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
+            pr.println("val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
           } else {
-            pr.println("val " + protectReservedWords("_"+ref.getName) + " :MutableList<" + typeRefName + ">")
+            pr.println("val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + ">")
           }
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
@@ -455,7 +525,7 @@ trait ClassGenerator extends ClonerGenerator {
       //Generate getter
         pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " +
           ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
-        pr.println(" return " + protectReservedWords("_"+att.getName) + "\n}")
+        pr.println(" return " + protectReservedWords("_" + att.getName) + "\n}")
 
         //generate setter
         pr.print("\nfun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
@@ -544,19 +614,19 @@ trait ClassGenerator extends ClonerGenerator {
     //Method core
     if (isSingleRef) {
       res += "return "
-      res += protectReservedWords("_"+ref.getName)
+      res += protectReservedWords("_" + ref.getName)
       res += "\n"
     } else {
-      res += "return if(" + protectReservedWords("_"+ref.getName) + "_java_cache != null){\n"
-      res += protectReservedWords("_"+ref.getName) + "_java_cache as List<" + typeRefName + ">\n"
+      res += "return if(" + protectReservedWords("_" + ref.getName) + "_java_cache != null){\n"
+      res += protectReservedWords("_" + ref.getName) + "_java_cache as List<" + typeRefName + ">\n"
       res += "} else {\n"
       if (hasID(ref.getEReferenceType)) {
-        res += "val tempL = java.util.Collections.unmodifiableList(" + protectReservedWords("_"+ref.getName) + ".values().toList()) \n"
+        res += "val tempL = java.util.Collections.unmodifiableList(" + protectReservedWords("_" + ref.getName) + ".values().toList()) \n"
       } else {
-        res += "val tempL = java.util.Collections.unmodifiableList(" + protectReservedWords("_"+ref.getName) + ".toList()) \n"
+        res += "val tempL = java.util.Collections.unmodifiableList(" + protectReservedWords("_" + ref.getName) + ".toList()) \n"
       }
 
-      res += "_"+protectReservedWords(ref.getName) + "_java_cache = tempL\n"
+      res += "_" + protectReservedWords(ref.getName) + "_java_cache = tempL\n"
       res += "tempL\n"
       res += "}\n"
     }
@@ -622,10 +692,10 @@ trait ClassGenerator extends ClonerGenerator {
     }
     if (!isSingleRef) {
       //Clear cache
-      res += (protectReservedWords("_"+ref.getName) + "_java_cache=null\n")
+      res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
     }
 
-    res += "if(" + protectReservedWords("_"+ref.getName) + "!= " + protectReservedWords(ref.getName) + "){\n"
+    res += "if(" + protectReservedWords("_" + ref.getName) + "!= " + protectReservedWords(ref.getName) + "){\n"
     val oppositRef = ref.getEOpposite
 
     if (!ref.isMany) {
@@ -639,15 +709,15 @@ trait ClassGenerator extends ClonerGenerator {
 
           if (ref.isRequired) {
             // Single Ref  1
-            res += "if("+protectReservedWords("_"+ref.getName) + " != null){\n"
-            res += protectReservedWords("_"+ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this)\n"
+            res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
+            res += protectReservedWords("_" + ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this)\n"
             res += "}\n"
             res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
             res += "" + protectReservedWords(ref.getName) + ".noOpposite_add" + formatedOpositName + "(this)\n"
             res += "}\n"
           } else {
             // Single Ref  0,1
-            res += "if(" + protectReservedWords("_"+ref.getName) + " != null) { " + protectReservedWords("_"+ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this) }\n"
+            res += "if(" + protectReservedWords("_" + ref.getName) + " != null) { " + protectReservedWords("_" + ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this) }\n"
             res += "if(" + protectReservedWords(ref.getName) + "!=null) {" + protectReservedWords(ref.getName) + ".noOpposite_add" + formatedOpositName + "(this)}\n"
           }
 
@@ -657,15 +727,15 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.isRequired) {
             // 1 -- 0,1 or 1
 
-            res += "if(" + protectReservedWords("_"+ref.getName) + " != null){\n"
+            res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
             if (oppositRef.isRequired) {
               // 0,1 -- 1
-              res += "" + protectReservedWords("_"+ref.getName) + ".noOpposite_set" + formatedOpositName + "(null)\n"
+              res += "" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null)\n"
             } else {
-              res += "" + protectReservedWords("_"+ref.getName) + ".noOpposite_set" + formatedOpositName + "(None)\n"
+              res += "" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(None)\n"
             }
             if (ref.isContainment) {
-              res += "" + protectReservedWords("_"+ref.getName) + "?.setEContainer(null,null)\n"
+              res += "" + protectReservedWords("_" + ref.getName) + "?.setEContainer(null,null)\n"
             }
             res += "}\n"
 
@@ -688,12 +758,12 @@ trait ClassGenerator extends ClonerGenerator {
             if (oppositRef.isRequired) {
               // 0,1 -- 1
               if (!ref.isContainment) {
-                res += "if(this." + protectReservedWords(ref.getName) + "!=null){" + protectReservedWords("_"+ref.getName) + ".noOpposite_set" + formatedOpositName + "(null) }\n"
+                res += "if(this." + protectReservedWords(ref.getName) + "!=null){" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null) }\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!=null){" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
-                res += "if(" + protectReservedWords("_"+ref.getName) + "!=null) {\n"
-                res +=  protectReservedWords("_"+ref.getName) + ".noOpposite_set" + formatedOpositName + "(null)\n"
-                res +=  protectReservedWords("_"+ref.getName) + ".setEContainer(null,null)\n"
+                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
+                res += protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null)\n"
+                res += protectReservedWords("_" + ref.getName) + ".setEContainer(null,null)\n"
                 res += "}\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
                 res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)\n"
@@ -703,12 +773,12 @@ trait ClassGenerator extends ClonerGenerator {
             } else {
               // 0,1 -- 0,1
               if (!ref.isContainment) {
-                res += "if(" + protectReservedWords("_"+ref.getName) + "!=null) {" + protectReservedWords("_"+ref.getName) + ".noOpposite_set" + formatedOpositName + "(None) }\n"
+                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(None) }\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!=null) {" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(Some(this))}\n"
               } else {
-                res += "if(" + protectReservedWords("_"+ref.getName) + "!=null) {\n"
-                res += protectReservedWords("_"+ref.getName) + ".noOpposite_set" + formatedOpositName + "(None)\n"
-                res += protectReservedWords("_"+ref.getName) + ".setEContainer(null,null)\n"
+                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
+                res += protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(None)\n"
+                res += protectReservedWords("_" + ref.getName) + ".setEContainer(null,null)\n"
                 res += "}\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
                 res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(Some(this))\n"
@@ -725,14 +795,14 @@ trait ClassGenerator extends ClonerGenerator {
       if (noOpposite && ref.isContainment) {
         // containment relation in noOpposite Method
         if (!ref.isRequired) {
-          res += "if(" + protectReservedWords("_"+ref.getName) + "!=null){ " + protectReservedWords("_"+ref.getName) + ".setEContainer(null,null)}\n"
+          res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){ " + protectReservedWords("_" + ref.getName) + ".setEContainer(null,null)}\n"
           res += "if(" + protectReservedWords(ref.getName) + "!=null) {" + protectReservedWords(ref.getName) + ".setEContainer(this,null)}\n"
         } else {
-          res += "if(" + protectReservedWords("_"+ref.getName) + " != null){\n"
-          res +=  protectReservedWords("_"+ref.getName) + "?.setEContainer(null, null)\n"
+          res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
+          res += protectReservedWords("_" + ref.getName) + "?.setEContainer(null, null)\n"
           res += "}\n"
           res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-          res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { " + protectReservedWords("_"+ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + " } )\n"
+          res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { " + protectReservedWords("_" + ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + " } )\n"
           res += "}\n"
         }
       } else {
@@ -742,36 +812,36 @@ trait ClassGenerator extends ClonerGenerator {
             res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}} )\n"
           } else {
             if (ref.isRequired) {
-              res += "if(" + protectReservedWords("_"+ref.getName) + " != null){" + protectReservedWords("_"+ref.getName) + ".setEContainer(null, None)}\n"
+              res += "if(" + protectReservedWords("_" + ref.getName) + " != null){" + protectReservedWords("_" + ref.getName) + ".setEContainer(null, None)}\n"
               res += "if(" + protectReservedWords(ref.getName) + " != null){" + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { this." + protectReservedWords(ref.getName) + "= null})})}\n"
             } else {
-              res += "if(" + protectReservedWords("_"+ref.getName) + "!=null){ " + protectReservedWords("_"+ref.getName) + "?.setEContainer(null, null)}\n"
-              res += "if(" + protectReservedWords(ref.getName) + "!=null){ " + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { " + protectReservedWords("_"+ref.getName) + "= null}})}\n"
+              res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){ " + protectReservedWords("_" + ref.getName) + "?.setEContainer(null, null)}\n"
+              res += "if(" + protectReservedWords(ref.getName) + "!=null){ " + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { " + protectReservedWords("_" + ref.getName) + "= null}})}\n"
             }
           }
 
         }
       }
       //Setting of local reference
-      res +=  protectReservedWords("_"+ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
 
 
     } else {
       // -> Collection ref : * or +
-      res += protectReservedWords("_"+ref.getName) + ".clear()\n"
+      res += protectReservedWords("_" + ref.getName) + ".clear()\n"
 
       if (hasID(ref.getEReferenceType)) {
         res += protectReservedWords(ref.getName) + ".forEach{ el -> {\n"
-        res +=  protectReservedWords("_"+ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
+        res += protectReservedWords("_" + ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
         res += "}}\n"
       } else {
-        res += protectReservedWords("_"+ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
+        res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
       }
 
       if (ref.isContainment) {
         if (oppositRef != null) {
           res += protectReservedWords(ref.getName) + ".forEach{elem->\n"
-          res += "elem.setEContainer(this,Some(()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}))\n"
+          res += "elem.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}})\n"
 
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
@@ -850,16 +920,16 @@ trait ClassGenerator extends ClonerGenerator {
     res += "(" + protectReservedWords(ref.getName) + " :List<" + typeRefName + ">) {\n"
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     //Clear cache
-    res += (protectReservedWords("_"+ref.getName) + "_java_cache=null\n")
+    res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
 
     if (hasID(ref.getEReferenceType)) {
 
       res += protectReservedWords(ref.getName) + ".forEach{el -> {\n"
-      res += protectReservedWords("_"+ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
+      res += protectReservedWords("_" + ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
       res += "}}\n"
 
     } else {
-      res += protectReservedWords("_"+ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
     }
 
 
@@ -901,16 +971,16 @@ trait ClassGenerator extends ClonerGenerator {
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
 
     //Clear cache
-    res += (protectReservedWords("_"+ref.getName) + "_java_cache=null\n")
+    res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
 
     if (ref.isContainment) {
       res += "" + protectReservedWords(ref.getName) + ".setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}})\n"
     }
 
     if (hasID(ref.getEReferenceType)) {
-      res +=  protectReservedWords("_"+ref.getName) + ".put(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "()," + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + ".put(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "()," + protectReservedWords(ref.getName) + ")\n"
     } else {
-      res += protectReservedWords("_"+ref.getName) + ".add(" + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + ".add(" + protectReservedWords(ref.getName) + ")\n"
     }
 
 
@@ -959,33 +1029,33 @@ trait ClassGenerator extends ClonerGenerator {
 
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     //Clear cache
-    res += (protectReservedWords("_"+ref.getName) + "_java_cache=null\n")
+    res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
 
 
 
     if (isOptional) {
       if (hasID(ref.getEReferenceType)) {
-        res += "if(" + protectReservedWords("_"+ref.getName) + ".size != 0 && " + protectReservedWords("_"+ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "())) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size != 0 && " + protectReservedWords("_" + ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "())) {\n"
       } else {
-        res += "if(" + protectReservedWords("_"+ref.getName) + ".size != 0 && " + protectReservedWords("_"+ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size != 0 && " + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
       }
 
     } else {
 
       if (hasID(ref.getEReferenceType)) {
-        res += "if(" + protectReservedWords("_"+ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_"+ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "()) ) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_" + ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "()) ) {\n"
       } else {
-        res += "if(" + protectReservedWords("_"+ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_"+ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
       }
 
-      res += "throw UnsupportedOperationException(\"The list of " + protectReservedWords(ref.getName) + " must contain at least " + ref.getLowerBound + " element. Connot remove sizeof(" + protectReservedWords(ref.getName) + ")=\"+" + protectReservedWords("_"+ref.getName) + ".size)\n"
+      res += "throw UnsupportedOperationException(\"The list of " + protectReservedWords(ref.getName) + " must contain at least " + ref.getLowerBound + " element. Connot remove sizeof(" + protectReservedWords(ref.getName) + ")=\"+" + protectReservedWords("_" + ref.getName) + ".size)\n"
       res += "} else {\n"
     }
 
     if (hasID(ref.getEReferenceType)) {
-      res +=  protectReservedWords("_"+ref.getName) + ".remove(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "())\n"
+      res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "())\n"
     } else {
-      res += protectReservedWords("_"+ref.getName) + ".remove(" + protectReservedWords("_"+ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + "))\n"
+      res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + "))\n"
     }
 
     if (ref.isContainment) {
@@ -1026,10 +1096,10 @@ trait ClassGenerator extends ClonerGenerator {
       if (hasID(ref.getEReferenceType)) {
         //TODO CALL GETTER
 
-        res += protectReservedWords("_"+ref.getName) + "_java_cache?.forEach{elm->\n"
+        res += protectReservedWords("_" + ref.getName) + "_java_cache?.forEach{elm->\n"
         res += "val el = elm\n"
       } else {
-        res += "val temp_els = " + protectReservedWords("_"+ref.getName) + ".toList()\n"
+        res += "val temp_els = " + protectReservedWords("_" + ref.getName) + ".toList()\n"
         res += "temp_els.forEach{el->\n"
       }
 
@@ -1051,8 +1121,8 @@ trait ClassGenerator extends ClonerGenerator {
       }
       res += "}\n"
     }
-    res += (protectReservedWords("_"+ref.getName) + "_java_cache=null\n")
-    res +=  protectReservedWords("_"+ref.getName) + ".clear()\n"
+    res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
+    res += protectReservedWords("_" + ref.getName) + ".clear()\n"
 
     res += "}"
     res

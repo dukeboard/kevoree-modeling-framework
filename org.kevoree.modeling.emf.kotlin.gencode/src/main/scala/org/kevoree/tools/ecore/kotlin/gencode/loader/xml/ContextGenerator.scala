@@ -54,7 +54,7 @@ class ContextGenerator(ctx:GenerationContext, genDir: String, genPackage: String
     pr.println()
     pr.println("\t\tval elementsCount : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()")
     pr.println()
-    pr.println("\t\tval resolvers : java.util.AbstractList<() -> Any> = java.util.ArrayList<() -> Any>()")
+    pr.println("\t\tval resolvers : MutableList<() -> Any> = java.util.ArrayList<() -> Any>()")
     pr.println()
     pr.println("\t\tval stats : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()")
     pr.println()

@@ -116,7 +116,9 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
         pr.println("return loadedElement")
       pr.println("}")
     pr.println("}")
-    pr.println("return null")
+
+    pr.println("throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type: id\" + currentElementId);")
+
     pr.println("}")
   }
 
