@@ -189,9 +189,11 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
 
-    if (cls.getEAllContainments.size() > 0){
+    if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0){
       buffer.println("var i = 0")
     }
+
+    var firstUsed = true
 
     cls.getEAllContainments.foreach {
       subClass =>
@@ -210,7 +212,10 @@ class SerializerGenerator(ctx: GenerationContext) {
             //}
           }
           case -1 => {
-            buffer.println("i=0")
+            if (!firstUsed){
+              buffer.println("i=0")
+            }
+            firstUsed = false
             buffer.println("for(sub in selfObject." + getGetter(subClass.getName) + "()){")
             buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i))")

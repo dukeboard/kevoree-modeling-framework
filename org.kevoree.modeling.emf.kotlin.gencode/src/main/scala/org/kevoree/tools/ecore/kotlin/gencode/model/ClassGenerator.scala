@@ -690,7 +690,7 @@ trait ClassGenerator extends ClonerGenerator {
     //Read only protection
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     if (ref.isMany) {
-      res += "if(" + protectReservedWords(ref.getName) + " == null) throw IllegalArgumentException(\"The list in parameter of the setter cannot be null. Use removeAll to empty a collection.\")\n"
+      res += "if(" + protectReservedWords(ref.getName) + " == null){ throw IllegalArgumentException(\"The list in parameter of the setter cannot be null. Use removeAll to empty a collection.\") }\n"
     }
     if (!isSingleRef) {
       //Clear cache

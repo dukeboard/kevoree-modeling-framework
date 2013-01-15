@@ -21,6 +21,7 @@ import org.fsmSample.FSM;
 import org.fsmSample.FsmSampleFactory;
 import org.fsmSample.State;
 import org.fsmSample.Transition;
+import org.fsmSample.cloner.ModelCloner;
 import org.fsmSample.loader.FSMLoader;
 import org.fsmSample.serializer.ModelSerializer;
 import org.junit.Test;
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 public class MainTest {
 
     //@Test
-    public void flatFsmTest(PrintWriter statPr,int STATES) throws IOException {
+    public void flatFsmTest(PrintWriter statPr, int STATES) throws IOException {
         MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
 
         System.out.println("===== STATES : " + STATES + "=====");
@@ -52,47 +53,60 @@ public class MainTest {
         root.setInitialState(initial);
         root.addOwnedState(initial);
 
-       State s0 = initial;
+        State s0 = initial;
 
-        for (int i = 1; i<STATES ;i++){
+        for (int i = 1; i < STATES; i++) {
 
-            State  s1 = FsmSampleFactory.createState();
-            s1.setName("s"+i);
+            State s1 = FsmSampleFactory.createState();
+            s1.setName("s" + i);
             root.addOwnedState(s1);
             Transition t = FsmSampleFactory.createTransition();
             t.setSource(s0); //Uses the set for one side
             s1.addIncomingTransition(t); //Uses the add for the other side
-            t.setInput("ti" +i);
-            t.setOutput("to" +i);
+            t.setInput("ti" + i);
+            t.setOutput("to" + i);
             s0 = s1;
         }
 
         long creationEnd = System.nanoTime();
 
         System.gc();
-        try{
+        try {
             Thread.sleep(4000);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10,6)  ;
+        double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10, 6);
 
         System.out.println("FSM size: " + root.getOwnedState().size());
         statPr.print(root.getOwnedState().size() + ";");
 
-        System.out.println("Memory used: "+ mem + " MB");
-        statPr.print((mem + ";").replace(".",","));
+        System.out.println("Memory used: " + mem + " MB");
+        statPr.print((mem + ";").replace(".", ","));
 
-        String ct = "" + (creationEnd - creationStart)/ Math.pow(10,6);
-        System.out.println("Creation time: "+ ct + " ms");
-        statPr.print(ct.replace(".",",") + ";");
+        String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
+        System.out.println("Creation time: " + ct + " ms");
+        statPr.print(ct.replace(".", ",") + ";");
+
+
+        long cloneStart = 0, cloneEnd = 0;
+
+        ModelCloner cloner = new ModelCloner();
+        cloneStart = System.nanoTime();
+        cloner.clone(root);
+        cloneEnd = System.nanoTime();
+
+        String clonet = (cloneEnd - cloneStart) / Math.pow(10, 6) + "";
+        System.out.println("Cloning time: " + clonet + " ms");
+
+
         ModelSerializer sav = new ModelSerializer();
 
-        File tempFile = File.createTempFile("tempKMFBench","xmi");
-      //  tempFile.deleteOnExit();
+        File tempFile = File.createTempFile("tempKMFBench", "xmi");
+        //  tempFile.deleteOnExit();
 
-        long marshalingStart=0, marshalingEnd=0;
+        long marshalingStart = 0, marshalingEnd = 0;
 
         try {
             FileOutputStream os = new FileOutputStream(tempFile);
@@ -101,7 +115,7 @@ public class MainTest {
             //PrintWriter pr = new PrintWriter(os);
 
             marshalingStart = System.nanoTime();
-            sav.serialize(root,os);
+            sav.serialize(root, os);
             //pr.println(sav.serialize(root));
             marshalingEnd = System.nanoTime();
             //pr.flush();
@@ -112,22 +126,22 @@ public class MainTest {
         }
 
         //end = System.currentTimeMillis();
-        String mt = (marshalingEnd - marshalingStart)/ Math.pow(10,6) + "";
-        System.out.println("Marshaling time: "+ mt + " ms");
-        statPr.print(mt.replace(".",",") + ";");
+        String mt = (marshalingEnd - marshalingStart) / Math.pow(10, 6) + "";
+        System.out.println("Marshaling time: " + mt + " ms");
+        statPr.print(mt.replace(".", ",") + ";");
 
         long beforeLoad = System.nanoTime();
         FSM loaded = FSMLoader.loadModel(tempFile).get();
-        double loadTime = (System.nanoTime() - beforeLoad );// / Math.pow(10,6);
-        String lt = "" + loadTime/ Math.pow(10,6);
-        System.out.println("Load time: "+ lt + " ms");
-        statPr.println(lt.replace(".",","));
+        double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
+        String lt = "" + loadTime / Math.pow(10, 6);
+        System.out.println("Load time: " + lt + " ms");
+        statPr.println(lt.replace(".", ","));
         statPr.flush();
         //System.out.println("Initial State: "+ loaded.getInitialState());
 
         //assertTrue("Loading time overpassed 1second for " + loaded.getOwnedState().size() + " elements", loadTime < 1000);
 
-       // tempFile.delete();
+        // tempFile.delete();
 
         System.out.println("===== END STATES : " + STATES + "=====");
         System.out.println("");
@@ -155,14 +169,14 @@ public class MainTest {
 
         previousLevel.add(initial);
         int n = 1;
-        for (int d = 1; d<DEEP ;d++){
+        for (int d = 1; d < DEEP; d++) {
             List<State> thisLevel = new ArrayList<State>();
 
-            for(State s : previousLevel) {
-                State  leftState = FsmSampleFactory.createState();
-                State  rightState = FsmSampleFactory.createState();
-                leftState.setName("s"+ n++);
-                rightState.setName("s"+ n++);
+            for (State s : previousLevel) {
+                State leftState = FsmSampleFactory.createState();
+                State rightState = FsmSampleFactory.createState();
+                leftState.setName("s" + n++);
+                rightState.setName("s" + n++);
                 root.addOwnedState(leftState); //using add for one side
                 rightState.setOwningFSM(root); //using add for the other side
                 Transition leftTrans = FsmSampleFactory.createTransition();
@@ -186,28 +200,28 @@ public class MainTest {
         long creationEnd = System.nanoTime();
 
         System.gc();
-        try{
+        try {
             Thread.sleep(4000);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10,6)  ;
-        System.out.println("Memory used: "+ mem + " MB");
-        statPr.print((mem + ";").replace(".",","));
+        double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10, 6);
+        System.out.println("Memory used: " + mem + " MB");
+        statPr.print((mem + ";").replace(".", ","));
 
         System.out.println("FSM size: " + root.getOwnedState().size());
         statPr.print(root.getOwnedState().size() + ";");
 
-        String ct = "" + (creationEnd - creationStart)/ Math.pow(10,6);
-        System.out.println("Creation time: "+ ct + " ms");
-        statPr.print(ct.replace(".",",") + ";");
+        String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
+        System.out.println("Creation time: " + ct + " ms");
+        statPr.print(ct.replace(".", ",") + ";");
         ModelSerializer sav = new ModelSerializer();
 
-        File tempFile = File.createTempFile("tempKMFBench","xmi");
+        File tempFile = File.createTempFile("tempKMFBench", "xmi");
         //tempFile.deleteOnExit();
 
-        long marshalingStart=0, marshalingEnd=0;
+        long marshalingStart = 0, marshalingEnd = 0;
 
         try {
 
@@ -215,7 +229,7 @@ public class MainTest {
             //PrintWriter pr = new PrintWriter(os);
 
             marshalingStart = System.nanoTime();
-            sav.serialize(root,os);
+            sav.serialize(root, os);
             //pr.println(sav.serialize(root));
             marshalingEnd = System.nanoTime();
             //pr.flush();
@@ -226,53 +240,53 @@ public class MainTest {
         }
 
         //end = System.currentTimeMillis();
-        String mt = (marshalingEnd - marshalingStart)/ Math.pow(10,6) + "";
-        System.out.println("Marshaling time: "+ mt + " ms");
-        statPr.print(mt.replace(".",",") + ";");
+        String mt = (marshalingEnd - marshalingStart) / Math.pow(10, 6) + "";
+        System.out.println("Marshaling time: " + mt + " ms");
+        statPr.print(mt.replace(".", ",") + ";");
 
         long beforeLoad = System.nanoTime();
         FSM loaded = FSMLoader.loadModel(tempFile).get();
-        double loadTime = (System.nanoTime() - beforeLoad );// / Math.pow(10,6);
-        String lt = "" + loadTime/ Math.pow(10,6);
-        System.out.println("Load time: "+ lt + " ms");
-        statPr.println(lt.replace(".",","));
+        double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
+        String lt = "" + loadTime / Math.pow(10, 6);
+        System.out.println("Load time: " + lt + " ms");
+        statPr.println(lt.replace(".", ","));
         statPr.flush();
         //System.out.println("Initial State: "+ loaded.getInitialState());
 
         //assertTrue("Loading time overpassed 1second for " + loaded.getOwnedState().size() + " elements", loadTime < 1000);
 
-       // tempFile.delete();
+        // tempFile.delete();
 
         System.out.println("===== END DEEP :" + DEEP + "=====");
         System.out.println("");
     }
-    
-    
+
+
     public static void main(String[] args) throws InterruptedException, IOException {
         MainTest m = new MainTest();
 
 
         //=====  Flat FSM test //
 
-        File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(),".csv");
+        File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
-        int step = 100000;
-        for(int i = 1 ; i*step <= 100000;i++) {
-            m.flatFsmTest(pr, i*step);
+        int step = 50000;
+        for (int i = 1; i * step <= 100000; i++) {
+            m.flatFsmTest(pr, i * step);
         }
         pr.flush();
         pr.close();
 
         System.out.println("results in " + f.getAbsolutePath());
 
-       //=====  BinaryTreeLike FSM test //
+        //=====  BinaryTreeLike FSM test //
 
-        File f2 = File.createTempFile("KMF_BINARY_FSM_No_Opposite_TEST-" + System.currentTimeMillis(),".csv");
+        File f2 = File.createTempFile("KMF_BINARY_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr2 = new PrintWriter(f2);
         pr2.println("Deep;Memory;States;Creation;Marshaling;Loading");
-        for(int i = 1 ; Math.pow(2,i)<750000;i++) {
-            m.binaryFsmTest(pr2,i);
+        for (int i = 1; Math.pow(2, i) < 750000; i++) {
+            m.binaryFsmTest(pr2, i);
         }
         pr2.flush();
         pr2.close();
