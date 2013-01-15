@@ -102,7 +102,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     val ePackageName = elementType.getEPackage.getName
     val factory = ProcessorHelper.fqn(ctx,elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
 
-    pr.println("val elementTagName = context.xmiReader?.getLocalName()")
+    pr.println("val elementTagName = context.xmiReader.getLocalName()")
     pr.println("val modelElem = " + factory + ".create" + elementType.getName + "()")
     pr.println("context.map.put(elementId, modelElem)")
     //pr.println("System.out.println(\"Stored:\" + elementId +\"->\"+ modelElem.class.getSimpleName)")
@@ -151,7 +151,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
 
           pr.println("\""+ref.getName+"\" -> {")
 
-          pr.println("value?.split(\" \")?.forEach{ xmiRef ->")
+          pr.println("for(xmiRef in value?.split(\" \")!!.toList()) {")
           pr.println("val ref = context.map.get(xmiRef)")
           pr.println("if( ref != null) {")
          // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {

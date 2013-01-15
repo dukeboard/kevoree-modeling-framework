@@ -171,7 +171,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("while(reader.hasNext() && reader.nextTag() != XMLStreamConstants.START_ELEMENT){}")
     pr.println("if(reader.getLocalName()?.equalsIgnoreCase(\""+rootContainerName+"\") as Boolean) {")
     pr.println("load"+ elementType.getName +"(context)")
-    pr.println("context.resolvers.forEach{res->res()}")
+    pr.println("for(res in context.resolvers) {res()}")
     pr.println("}")
     pr.println("}while(context." + rootContainerName + " == null && reader.hasNext())")
     pr.println("")
@@ -188,13 +188,13 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     pr.println("private fun load" + elementType.getName + "(context : " + context + ") {")
     pr.println("")
-    pr.println("val elementTagName = context.xmiReader?.getLocalName()")
+    pr.println("val elementTagName = context.xmiReader.getLocalName()")
     pr.println("context." + rootContainerName + " = " + factory + ".create" + elementType.getName + "()")
     pr.println("context.map.put(\"/\", context."+rootContainerName+" as Any)")
     pr.println("")
     pr.println("var done = false")
-    pr.println("while(!done && (context.xmiReader?.hasNext() as Boolean)) {")
-    pr.println("val nextTag = context.xmiReader?.nextTag()")
+    pr.println("while(!done && (context.xmiReader.hasNext() as Boolean)) {")
+    pr.println("val nextTag = context.xmiReader.nextTag()")
     pr.println("when(nextTag){")
     pr.println("XMLStreamConstants.START_ELEMENT -> {")
     pr.println("when(context.xmiReader?.getLocalName()) {")
@@ -222,7 +222,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("}") // Match
     pr.println("}") // Case START_ELEMENT
     pr.println("XMLStreamConstants.END_ELEMENT -> {")
-    pr.println("if(context.xmiReader?.getLocalName()?.equals(elementTagName) as Boolean){done = true}")
+    pr.println("if(context.xmiReader.getLocalName()?.equals(elementTagName) as Boolean){done = true}")
     pr.println("}") //case END
     pr.println("else -> System.out.println(\"Ignored Value:\" + nextTag)")
     pr.println("}") // match
