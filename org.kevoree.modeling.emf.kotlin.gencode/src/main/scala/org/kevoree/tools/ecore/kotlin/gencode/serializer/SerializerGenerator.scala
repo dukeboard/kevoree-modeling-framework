@@ -104,17 +104,17 @@ class SerializerGenerator(ctx: GenerationContext) {
 
 
 
+
     //PROCESS SUB
     root.getEAllContainments.foreach {
       sub =>
         val subfile = new File(genDir + sub.getEReferenceType.getName + "Serializer.kt")
-        if (!subfile.exists()) {
+        //if (!subfile.exists()) {
           val subpr = new PrintWriter(subfile, "utf-8")
           subpr.println("package " + packageName + ".serializer")
           generateToXmiMethod(rootXmiPackage, sub.getEReferenceType, subpr, sub.getName)
           subpr.flush()
           subpr.close()
-
 
 
           //¨PROCESS ALL SUB TYPE
@@ -129,7 +129,7 @@ class SerializerGenerator(ctx: GenerationContext) {
             //avoid looping in case of self-containment
             subSerializer = subSerializer ++ generateSerializer(genDir, packageName, sub.getName, sub.getEReferenceType, rootXmiPackage)
           }
-        }
+        //}
 
     }
     // }

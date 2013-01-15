@@ -176,7 +176,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           pr.println("}")
          // pr.println("}")
       }
-      pr.println("else -> System.out.println(\"AttributeName not in cases:\" + attrName)")
+      pr.println("else->{System.out.println(\""+elementType.getName+">>AttributeName not in cases:\" + attrName);null }")
       pr.println("}")
       pr.println(" }")
       pr.println(" }")

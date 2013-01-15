@@ -53,7 +53,6 @@ public class GenerateCodeTest {
 
     }
 
-     /*
     @Test
     public void generateLoader() {
        // File rootDir = new File("../org.kevoree.extra.ecore.loader.test/src/main/scala/");
@@ -70,7 +69,7 @@ public class GenerateCodeTest {
         Generator gen = new Generator(ctx);
         gen.generateLoader(ecoreFile);
 
-    }    */
+    }
 
     @Test
     public void generateSerializer() {
