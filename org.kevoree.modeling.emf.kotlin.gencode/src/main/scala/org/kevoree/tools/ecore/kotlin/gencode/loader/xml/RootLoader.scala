@@ -37,9 +37,8 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
   def generateLoader(elementType: EClass, elementNameInParent: String) {
     ProcessorHelper.checkOrCreateFolder(genDir)
-    val localFile = new File(genDir + "/" + elementType.getName + "Loader.kt")
+    val localFile = new File(genDir + "/ModelLoader.kt")
     val pr = new PrintWriter(localFile,"utf-8")
-    //System.out.println("Classifier class:" + cls.getClass)
 
     generateContext(elementType)
     val subLoaders = generateSubs(elementType)
@@ -60,7 +59,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("import javax.xml.stream.XMLInputFactory")
     pr.println()
 
-    pr.print("object " + elementType.getName + "Loader")
+    pr.print("class ModelLoader ")
 
     if (subLoaders.size > 0) {
       var stringListSubLoaders = List[String]()
@@ -126,7 +125,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
   private def generateLoadMethod(pr: PrintWriter, elementType: EClass) {
 
-    pr.println("fun loadModel(str: String) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
+    pr.println("fun loadModelFromString(str: String) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
     pr.println("val stringReader = StringReader(str)")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory?.createXMLStreamReader(stringReader)")
@@ -140,12 +139,12 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("}")
     pr.println("}")
 
-    pr.println("fun loadModel(file: File) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
-    pr.println("return loadModel(FileInputStream(file))")
+    pr.println("fun loadModelFromPath(file: File) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
+    pr.println("return loadModelFromStream(FileInputStream(file))")
     pr.println("}")
 
 
-    pr.println("fun loadModel(inputStream: InputStream) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
+    pr.println("fun loadModelFromStream(inputStream: InputStream) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
     pr.println("val isReader = java.io.BufferedReader(InputStreamReader(inputStream))")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory?.createXMLStreamReader(isReader)")

@@ -98,7 +98,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
   }
 
   private def generateLoadingMethod(pr: PrintWriter) {
-    pr.println("fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
+    pr.println("protected fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
 
     pr.println("for(i in 0.rangeTo(context.xmiReader?.getAttributeCount() as Int)){")
       pr.println("val localName = context.xmiReader?.getAttributeLocalName(i)")
