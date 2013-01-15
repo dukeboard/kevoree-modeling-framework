@@ -131,7 +131,7 @@ trait ClassGenerator extends ClonerGenerator {
     //generate init
     cls.getEAllAttributes.foreach {
       att => {
-        pr.print("override public var _" + protectReservedWords(att.getName) + " : ")
+        pr.print("override public var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("String = \"\"")
           case "String" => pr.println("String = \"\"")
@@ -469,7 +469,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEAttributes.foreach {
       att =>
-        pr.print("var _" + protectReservedWords(att.getName) + " : ")
+        pr.print("var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("String")
           case "java.lang.Integer" => pr.println("Int")
@@ -533,7 +533,7 @@ trait ClassGenerator extends ClonerGenerator {
         pr.print("\nfun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
         pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
         pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
-        pr.println("_" + protectReservedWords(att.getName) + " = " + protectReservedWords(att.getName))
+        pr.println(protectReservedWords("_" + att.getName) + " = " + protectReservedWords(att.getName))
         pr.println("}")
     }
 
@@ -566,7 +566,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println(generateAddMethod(cls, ref, typeRefName))
           pr.println(generateRemoveMethod(cls, ref, typeRefName, false))
         } else {
-          throw new UnsupportedOperationException("GenDefConsRef::None standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
+          throw new UnsupportedOperationException("GenDefConsRef::Not a standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
     }
   }
@@ -628,7 +628,7 @@ trait ClassGenerator extends ClonerGenerator {
         res += "val tempL = java.util.Collections.unmodifiableList(" + protectReservedWords("_" + ref.getName) + ".toList()) \n"
       }
 
-      res += "_" + protectReservedWords(ref.getName) + "_java_cache = tempL\n"
+      res += protectReservedWords("_" + ref.getName) + "_java_cache = tempL\n"
       res += "tempL\n"
       res += "}\n"
     }
@@ -719,7 +719,7 @@ trait ClassGenerator extends ClonerGenerator {
             res += "}\n"
           } else {
             // Single Ref  0,1
-            res += "if(" + protectReservedWords("_" + ref.getName) + " != null) { " + protectReservedWords("_" + ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this) }\n"
+            res += "if(" + protectReservedWords("_" + ref.getName) + " != null) { " + protectReservedWords("_" + ref.getName) + "!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
             res += "if(" + protectReservedWords(ref.getName) + "!=null) {" + protectReservedWords(ref.getName) + ".noOpposite_add" + formatedOpositName + "(this)}\n"
           }
 
@@ -730,24 +730,16 @@ trait ClassGenerator extends ClonerGenerator {
             // 1 -- 0,1 or 1
 
             res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
-            if (oppositRef.isRequired) {
-              // 0,1 -- 1
               res += "" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null)\n"
-            } else {
-              res += "" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(None)\n"
-            }
+
             if (ref.isContainment) {
               res += "" + protectReservedWords("_" + ref.getName) + "?.setEContainer(null,null)\n"
             }
             res += "}\n"
 
             res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-            if (oppositRef.isRequired) {
-              // 0,1 -- 1
+
               res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)\n"
-            } else {
-              res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(Some(this))\n"
-            }
 
             if (ref.isContainment) {
               res += protectReservedWords(ref.getName) + "?.setEContainer(this,null)\n"
@@ -775,15 +767,15 @@ trait ClassGenerator extends ClonerGenerator {
             } else {
               // 0,1 -- 0,1
               if (!ref.isContainment) {
-                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(None) }\n"
-                res += "if(" + protectReservedWords(ref.getName) + "!=null) {" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(Some(this))}\n"
+                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null) }\n"
+                res += "if(" + protectReservedWords(ref.getName) + "!=null) {" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
-                res += protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(None)\n"
+                res += protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null)\n"
                 res += protectReservedWords("_" + ref.getName) + ".setEContainer(null,null)\n"
                 res += "}\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
-                res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(Some(this))\n"
+                res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)\n"
                 res += protectReservedWords(ref.getName) + "?.setEContainer(this,null)\n"
                 res += "}\n"
               }
@@ -813,13 +805,13 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.isMany) {
             res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}} )\n"
           } else {
-            if (ref.isRequired) {
-              res += "if(" + protectReservedWords("_" + ref.getName) + " != null){" + protectReservedWords("_" + ref.getName) + ".setEContainer(null, None)}\n"
+           /* if (ref.isRequired) {
+              res += "if(" + protectReservedWords("_" + ref.getName) + " != null){" + protectReservedWords("_" + ref.getName) + ".setEContainer(null, null)}\n"
               res += "if(" + protectReservedWords(ref.getName) + " != null){" + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { this." + protectReservedWords(ref.getName) + "= null})})}\n"
-            } else {
+            } else {*/
               res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){ " + protectReservedWords("_" + ref.getName) + "?.setEContainer(null, null)}\n"
               res += "if(" + protectReservedWords(ref.getName) + "!=null){ " + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { " + protectReservedWords("_" + ref.getName) + "= null}})}\n"
-            }
+            //}
           }
 
         }
@@ -852,7 +844,7 @@ trait ClassGenerator extends ClonerGenerator {
             if (oppositRef.isRequired) {
               res += "elem.noOpposite_set" + formatedOpositName + "(this)\n"
             } else {
-              res += "elem.noOpposite_set" + formatedOpositName + "(Some(this))\n"
+              res += "elem.noOpposite_set" + formatedOpositName + "(this)\n"
             }
           }
           res += "}\n"
@@ -866,11 +858,8 @@ trait ClassGenerator extends ClonerGenerator {
             res += "for(elem in "+protectReservedWords(ref.getName) + "){elem.noOpposite_add" + formatedOpositName + "(this)}\n"
           } else {
 
-            val callParam = if (oppositRef.isRequired) {
-              "this"
-            } else {
-              "Some(this)"
-            }
+            val callParam = "this"
+
             res += "for(elem in "+protectReservedWords(ref.getName) + "){elem.noOpposite_set" + formatedOpositName + "(" + callParam + ")}\n"
           }
         }
@@ -944,11 +933,7 @@ trait ClassGenerator extends ClonerGenerator {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
         if (!opposite.isMany) {
-          if (!opposite.isRequired) {
-            res += "el.noOpposite_set" + formatedOpositName + "(Some(this))"
-          } else {
             res += "el.noOpposite_set" + formatedOpositName + "(this)"
-          }
         } else {
           res += "el.noOpposite_add" + formatedOpositName + "(this)"
         }
@@ -992,11 +977,7 @@ trait ClassGenerator extends ClonerGenerator {
       val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
 
       if (!opposite.isMany) {
-        if (!opposite.isRequired) {
-          res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(Some(this))"
-        } else {
           res += protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)"
-        }
       } else {
         res += protectReservedWords(ref.getName) + ".noOpposite_add" + formatedOpositName + "(this)"
       }
@@ -1070,8 +1051,6 @@ trait ClassGenerator extends ClonerGenerator {
       val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
       if (oppositRef.isMany) {
         res += "" + protectReservedWords(ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this)\n"
-      } else if (!oppositRef.isRequired) {
-        res += "" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(None)\n"
       } else {
         res += "" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(null)\n"
       }
@@ -1112,11 +1091,7 @@ trait ClassGenerator extends ClonerGenerator {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
         if (!opposite.isMany) {
-          if (!opposite.isRequired) {
-            res += "el.noOpposite_set" + formatedOpositName + "(None)"
-          } else {
             res += "el.noOpposite_set" + formatedOpositName + "(null)"
-          }
         } else {
           res += "el.noOpposite_remove" + formatedOpositName + "(this)"
         }
