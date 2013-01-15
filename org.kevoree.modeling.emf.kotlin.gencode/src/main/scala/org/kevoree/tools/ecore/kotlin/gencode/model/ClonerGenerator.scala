@@ -5,7 +5,7 @@ package org.kevoree.tools.ecore.kotlin.gencode.model
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,8 +14,8 @@ package org.kevoree.tools.ecore.kotlin.gencode.model
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 
 
@@ -37,7 +37,7 @@ import org.kevoree.tools.ecore.kotlin.gencode.ProcessorHelper._
 trait ClonerGenerator {
 
 
-  def generateCloner(ctx:GenerationContext, currentPackageDir : String, pack: EPackage) {
+  def generateCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage) {
     try {
 
       ctx.getRootContainerInPackage(pack) match {
@@ -52,7 +52,7 @@ trait ClonerGenerator {
 
   }
 
-  def generateDefaultCloner(ctx : GenerationContext, currentPackageDir : String, pack: EPackage, containerRoot: EClass) {
+  def generateDefaultCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
     ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/cloner")
     val pr = new PrintWriter(new File(currentPackageDir + "/cloner/ModelCloner.kt"), "utf-8")
 
@@ -119,7 +119,7 @@ trait ClonerGenerator {
     "set" + name.charAt(0).toUpper + name.substring(1)
   }
 
-  def generateCloneMethods(ctx:GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
+  def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
 
     if (cls.getESuperTypes.size() > 0) {
       buffer.print("\toverride ")
@@ -131,7 +131,7 @@ trait ClonerGenerator {
 
     var formatedName: String = cls.getName.substring(0, 1).toUpperCase
     formatedName += cls.getName.substring(1)
-    buffer.println("\t\tval selfObjectClone = " + formatedFactoryName + ".create" + formatedName+"()")
+    buffer.println("\t\tval selfObjectClone = " + formatedFactoryName + ".create" + formatedName + "()")
     cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
       att =>
         buffer.println("\t\tselfObjectClone." + getSetter(att.getName) + "(this." + getGetter(att.getName) + "())")
@@ -141,22 +141,22 @@ trait ClonerGenerator {
       contained =>
         if (contained.getUpperBound == -1) {
           // multiple values
-          buffer.println("this." + getGetter(contained.getName) + "()?.forEach{ sub -> ")
+          buffer.println("this." + getGetter(contained.getName) + "().forEach{ sub -> ")
           buffer.println("sub.getClonelazy(subResult)")
           buffer.println("}")
         } else if (contained.getUpperBound == 1 && contained.getLowerBound == 0) {
           // optional single ref
 
-          buffer.println("val subsubsubsub"+contained.getName+" = this."+getGetter(contained.getName)+"()")
-          buffer.println("if(subsubsubsub"+contained.getName+"!= null){ ")
-          buffer.println("subsubsubsub"+contained.getName+".getClonelazy(subResult)")
+          buffer.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
+          buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
+          buffer.println("subsubsubsub" + contained.getName + ".getClonelazy(subResult)")
           buffer.println("}")
         } else if (contained.getUpperBound == 1 && contained.getLowerBound == 1) {
           // mandatory single ref
           buffer.println("\t\tthis." + getGetter(contained.getName) + ".getClonelazy(subResult)")
         } else if (contained.getLowerBound > 1) {
           // else
-          buffer.println("\t\tthis." + getGetter(contained.getName) + "()?.forEach{ sub -> ")
+          buffer.println("\t\tthis." + getGetter(contained.getName) + "().forEach{ sub -> ")
           buffer.println("\t\t\tsub.getClonelazy(subResult)")
           buffer.println("\t\t}")
         } else {
@@ -190,14 +190,14 @@ trait ClonerGenerator {
     cls.getEAllReferences.foreach {
       ref =>
 
-        if(ref.getEReferenceType == null){
-          throw new Exception("Null EType for "+ref.getName+" in "+cls.getName)
+        if (ref.getEReferenceType == null) {
+          throw new Exception("Null EType for " + ref.getName + " in " + cls.getName)
         }
 
         if (ref.getEReferenceType.getName != null) {
 
           var noOpPrefix = ""
-          if(ref.getEOpposite != null){
+          if (ref.getEOpposite != null) {
             noOpPrefix = "noOpposite_"
           }
 
@@ -212,15 +212,17 @@ trait ClonerGenerator {
                 }
                 case 1 => {
                   // 1 to 1 relationship  */
-                  buffer.println("clonedSelfObject."+noOpPrefix + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + "()) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-               // }
+              buffer.println("if(this." + getGetter(ref.getName) + "()!=null){")
+              buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + "()) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              buffer.println("}")
+              // }
               //}
             }
             case _ => {
-              buffer.println("\t\tthis." + getGetter(ref.getName) + "()?.forEach{sub ->")
+              buffer.println("\t\tthis." + getGetter(ref.getName) + "().forEach{sub ->")
               var formatedName: String = ref.getName.substring(0, 1).toUpperCase
               formatedName += ref.getName.substring(1)
-              buffer.println("\t\t\tclonedSelfObject."+noOpPrefix+"add"+ formatedName + "(addrs.get(sub) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              buffer.println("\t\t\tclonedSelfObject." + noOpPrefix + "add" + formatedName + "(addrs.get(sub) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               buffer.println("\t\t}")
             }
           }
@@ -234,17 +236,17 @@ trait ClonerGenerator {
       contained =>
         contained.getUpperBound match {
           case 1 => {
-            if(contained.getLowerBound == 0) {
-            buffer.println("val subsubsub"+contained.getName+" = this."+getGetter(contained.getName)+"()")
-            buffer.println("if(subsubsub"+contained.getName+"!=null){ ")
-            buffer.println("subsubsub"+contained.getName+".resolve(addrs,readOnly)")
-            buffer.println("}")
+            if (contained.getLowerBound == 0) {
+              buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
+              buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
+              buffer.println("subsubsub" + contained.getName + ".resolve(addrs,readOnly)")
+              buffer.println("}")
             } else {
               buffer.println("\t\tthis." + getGetter(contained.getName) + ".resolve(addrs,readOnly)")
             }
           }
           case -1 => {
-            buffer.println("\t\tthis." + getGetter(contained.getName) + "()?.forEach{ sub -> ")
+            buffer.println("\t\tthis." + getGetter(contained.getName) + "().forEach{ sub -> ")
             buffer.println("\t\t\tsub.resolve(addrs,readOnly)")
             buffer.println("\t\t}")
           }
