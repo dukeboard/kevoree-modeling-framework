@@ -166,8 +166,8 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
   private def generateDeserialize(pr: PrintWriter, context: String, rootContainerName: String, elementType: EClass) {
 
     pr.println("private fun deserialize(reader : XMLStreamReader): "+ProcessorHelper.fqn(ctx,elementType)+"? {")
-    pr.println("val context = " + context + "()")
-    pr.println("context.xmiReader = reader")
+    pr.println("val context = " + context + "(reader)")
+    //pr.println("context.xmiReader = reader")
     pr.println("do {")
     pr.println("while(reader.hasNext() && reader.nextTag() != XMLStreamConstants.START_ELEMENT){}")
     pr.println("if(reader.getLocalName()?.equalsIgnoreCase(\""+rootContainerName+"\") as Boolean) {")
