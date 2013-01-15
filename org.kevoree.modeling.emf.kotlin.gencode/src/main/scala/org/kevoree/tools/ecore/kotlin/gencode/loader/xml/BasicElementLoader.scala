@@ -96,7 +96,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
 
 
   private def generateElementLoadingMethod(pr: PrintWriter) {
-    pr.println("fun load" + elementType.getName + "Element(elementId: String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
+    pr.println("protected fun load" + elementType.getName + "Element(elementId: String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
     pr.println("")
 
     val ePackageName = elementType.getEPackage.getName
