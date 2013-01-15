@@ -191,7 +191,7 @@ trait ClonerGenerator {
     if (cls.getESuperTypes.size() > 0) {
       buffer.print("\toverride ")
     }
-    buffer.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean) : " + cls.getName + " {")
+    buffer.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean) : Any {")
 
     /*
     buffer.println("this match {")
