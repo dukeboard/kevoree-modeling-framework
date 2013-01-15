@@ -712,7 +712,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.isRequired) {
             // Single Ref  1
             res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
-            res += protectReservedWords("_" + ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this)\n"
+            res += protectReservedWords("_" + ref.getName) + "!!.noOpposite_remove" + formatedOpositName + "(this)\n"
             res += "}\n"
             res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
             res += "" + protectReservedWords(ref.getName) + ".noOpposite_add" + formatedOpositName + "(this)\n"
@@ -886,8 +886,8 @@ trait ClassGenerator extends ClonerGenerator {
       // 0,1 or 1  -- *
       if (ref.isRequired) {
         // Single Ref  1
-        res += "if(this." + protectReservedWords(ref.getName) + " != null){\n"
-        res += "this." + protectReservedWords(ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this)\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
+        res += protectReservedWords("_" + ref.getName) + "!!.noOpposite_remove" + formatedOpositName + "(this)\n"
         res += "}\n"
       } else {
         // Single Ref  0,1
