@@ -211,7 +211,7 @@ class SerializerGenerator(ctx: GenerationContext) {
           }
           case -1 => {
             buffer.println("i=0")
-            buffer.println("selfObject." + getGetter(subClass.getName) + "().forEach{ sub -> ")
+            buffer.println("for(sub in selfObject." + getGetter(subClass.getName) + "()){")
             buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i))")
             buffer.println("i=i+1")
@@ -359,7 +359,7 @@ class SerializerGenerator(ctx: GenerationContext) {
               buffer.println("if(selfObject." + getGetter(ref.getName) + "().count() > 0){")
               buffer.println("ostream.print(\" " + ref.getName + "=\\\"\")")
               buffer.println("var firstItLoop = true")
-              buffer.println("selfObject." + getGetter(ref.getName) + "().forEach{sub ->")
+              buffer.println("for(sub in selfObject." + getGetter(ref.getName) + "()){")
               buffer.println("if(!firstItLoop){ostream.print(\" \")}")
 
               buffer.println("val subsub = addrs.get(sub)")
@@ -393,7 +393,7 @@ class SerializerGenerator(ctx: GenerationContext) {
             }
           }
           case -1 => {
-            buffer.println("selfObject." + getGetter(subClass.getName) + "().forEach { so -> ")
+            buffer.println("for(so in selfObject." + getGetter(subClass.getName) + "()){")
             buffer.println("" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream)")
             buffer.println("}")
           }

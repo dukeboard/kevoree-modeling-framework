@@ -833,16 +833,16 @@ trait ClassGenerator extends ClonerGenerator {
       res += protectReservedWords("_" + ref.getName) + ".clear()\n"
 
       if (hasID(ref.getEReferenceType)) {
-        res += protectReservedWords(ref.getName) + ".forEach{ el -> {\n"
+        res += "for(el in "+protectReservedWords(ref.getName) + "){\n"
         res += protectReservedWords("_" + ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
-        res += "}}\n"
+        res += "}\n"
       } else {
         res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
       }
 
       if (ref.isContainment) {
         if (oppositRef != null) {
-          res += protectReservedWords(ref.getName) + ".forEach{elem->\n"
+          res += "for(elem in "+protectReservedWords(ref.getName) + "){\n"
           res += "elem.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}})\n"
 
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
@@ -857,13 +857,13 @@ trait ClassGenerator extends ClonerGenerator {
           }
           res += "}\n"
         } else {
-          res += protectReservedWords(ref.getName) + ".forEach{elem->elem.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}})}\n"
+          res += "for(elem in "+protectReservedWords(ref.getName) + "){elem.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}})}\n"
         }
       } else {
         if (oppositRef != null) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
-            res += protectReservedWords(ref.getName) + ".forEach{elem->elem.noOpposite_add" + formatedOpositName + "(this)}\n"
+            res += "for(elem in "+protectReservedWords(ref.getName) + "){elem.noOpposite_add" + formatedOpositName + "(this)}\n"
           } else {
 
             val callParam = if (oppositRef.isRequired) {
@@ -871,7 +871,7 @@ trait ClassGenerator extends ClonerGenerator {
             } else {
               "Some(this)"
             }
-            res += protectReservedWords(ref.getName) + ".forEach{elem->elem.noOpposite_set" + formatedOpositName + "(" + callParam + ")}\n"
+            res += "for(elem in "+protectReservedWords(ref.getName) + "){elem.noOpposite_set" + formatedOpositName + "(" + callParam + ")}\n"
           }
         }
       }
@@ -926,9 +926,9 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (hasID(ref.getEReferenceType)) {
 
-      res += protectReservedWords(ref.getName) + ".forEach{el -> {\n"
+      res += "for(el in "+protectReservedWords(ref.getName) + "){\n"
       res += protectReservedWords("_" + ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
-      res += "}}\n"
+      res += "}\n"
 
     } else {
       res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
@@ -936,7 +936,7 @@ trait ClassGenerator extends ClonerGenerator {
 
 
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
-      res += protectReservedWords(ref.getName) + ".forEach{el->\n"
+      res += "for(el in "+protectReservedWords(ref.getName) + "){\n"
       if (ref.isContainment) {
         res += "el.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)}})\n"
       }
@@ -1098,11 +1098,11 @@ trait ClassGenerator extends ClonerGenerator {
       if (hasID(ref.getEReferenceType)) {
         //TODO CALL GETTER
 
-        res += protectReservedWords("_" + ref.getName) + "_java_cache?.forEach{elm->\n"
+        res += "for(elm in "+protectReservedWords("_" + ref.getName + "_java_cache")+"!!){\n"
         res += "val el = elm\n"
       } else {
         res += "val temp_els = " + protectReservedWords("_" + ref.getName) + ".toList()\n"
-        res += "temp_els.forEach{el->\n"
+        res += "for(el in temp_els){\n"
       }
 
       if (ref.isContainment) {
