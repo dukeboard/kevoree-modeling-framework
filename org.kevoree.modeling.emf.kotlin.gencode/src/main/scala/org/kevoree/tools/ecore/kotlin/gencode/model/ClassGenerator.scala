@@ -121,7 +121,9 @@ trait ClassGenerator extends ClonerGenerator {
 
     //test if generation of variable from Base Trait
     // if (cls.getESuperTypes.isEmpty) {
-    pr.println("override var internal_eContainer : KevoreeContainer? = null")
+    val formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container"
+
+    pr.println("override var internal_eContainer : "+formatedFactoryName+"? = null")
     pr.println("override var internal_unsetCmd : (()->Any)? = null")
     pr.println("override var internal_readOnlyElem : Boolean = false")
     //  }
