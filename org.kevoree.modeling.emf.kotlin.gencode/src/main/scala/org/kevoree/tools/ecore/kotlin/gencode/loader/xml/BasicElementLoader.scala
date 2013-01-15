@@ -102,7 +102,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     val ePackageName = elementType.getEPackage.getName
     val factory = ProcessorHelper.fqn(ctx,elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
 
-    pr.println("val elementTagName = context.xmiReader?.getLocalName()")
+    pr.println("val elementTagName = context.xmiReader.getLocalName()")
     pr.println("val modelElem = " + factory + ".create" + elementType.getName + "()")
     pr.println("context.map.put(elementId, modelElem)")
     //pr.println("System.out.println(\"Stored:\" + elementId +\"->\"+ modelElem.class.getSimpleName)")
@@ -113,11 +113,11 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
     if(elementType.getEAllAttributes.size()>0 || references.size > 0) {
 
-      pr.println("for(i in 0.rangeTo(context.xmiReader?.getAttributeCount() as Int)) {")
-      pr.println("val prefix = context.xmiReader?.getAttributePrefix(i)")
+      pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1 as Int)) {")
+      pr.println("val prefix = context.xmiReader.getAttributePrefix(i)")
       pr.println("if(prefix==null || prefix.equals(\"\")) {")
-      pr.println("val attrName = context.xmiReader?.getAttributeLocalName(i)")
-      pr.println("val value = context.xmiReader?.getAttributeValue(i)")
+      pr.println("val attrName = context.xmiReader.getAttributeLocalName(i)")
+      pr.println("val value = context.xmiReader.getAttributeValue(i)")
       pr.println("when(attrName){")
       pr.println("")
       elementType.getEAllAttributes.foreach { att =>
@@ -151,7 +151,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
 
           pr.println("\""+ref.getName+"\" -> {")
 
-          pr.println("value?.split(\" \")?.forEach{ xmiRef ->")
+          pr.println("for(xmiRef in value?.split(\" \")!!.toList()) {")
           pr.println("val ref = context.map.get(xmiRef)")
           pr.println("if( ref != null) {")
          // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
@@ -188,9 +188,9 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     if(elementType.getEAllContainments.size() > 0) {
       pr.println("var done = false")
       pr.println("while(!done) {")
-      pr.println("when(context.xmiReader?.nextTag()){")
+      pr.println("when(context.xmiReader.nextTag()){")
       pr.println("XMLStreamConstants.START_ELEMENT -> {")
-      pr.println("when(context.xmiReader?.getLocalName()){")
+      pr.println("when(context.xmiReader.getLocalName()){")
       pr.println("")
 
       elementType.getEAllContainments.foreach {refa =>
@@ -222,7 +222,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
       pr.println("}")//Match
       pr.println("}")//Case Start
       pr.println("XMLStreamConstants.END_ELEMENT -> {")
-      pr.println("if(context.xmiReader?.getLocalName().equals(elementTagName) as Boolean){done = true}")
+      pr.println("if(context.xmiReader.getLocalName().equals(elementTagName) as Boolean){done = true}")
       pr.println("}") //case END
       pr.println("else -> {}")
       pr.println("}")//Match
