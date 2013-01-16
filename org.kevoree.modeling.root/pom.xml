@@ -19,6 +19,10 @@
     <modules>
         <module>../org.kevoree.modeling.emf.scala.gencode</module>
         <module>../org.kevoree.modeling.emf.scala.gencode.mavenplugin</module>
+
+        <module>../org.kevoree.modeling.emf.kotlin.gencode</module>
+        <module>../org.kevoree.modeling.emf.kotlin.gencode.mavenplugin</module>
+
     </modules>
 
     <build>
