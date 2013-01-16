@@ -17,6 +17,7 @@
  */
 package org.kevoree.modeling.emf.sample.fsm
 
+import org.fsmSample
 import org.fsmSample.{FsmSampleFactory, FSM}
 import org.junit.{Test, BeforeClass}
 
@@ -29,55 +30,58 @@ import org.junit.{Test, BeforeClass}
  * To change this template use File | Settings | File Templates.
  */
 
-
-object OppositTest {
+class OppositTest {
 
   var localFsm : FSM = _
 
-  @BeforeClass
-  def createModel() {
-    localFsm = FsmSampleFactory.createFSM
 
-    val initState = FsmSampleFactory.createState
+  def createModel() {
+    val factory = new fsmSample.FsmSampleFactory()
+    localFsm = factory.createFSM
+
+    val initState = factory.createState
     localFsm.addOwnedState(initState)
-    val middleState = FsmSampleFactory.createState
+    val middleState = factory.createState
     localFsm.addOwnedState(middleState)
-    val finalState = FsmSampleFactory.createState
+    val finalState = factory.createState
     localFsm.addOwnedState(finalState)
 
     localFsm.setInitialState(initState)
     localFsm.setCurrentState(middleState)
-    localFsm.setFinalState(List(finalState))
+    val list = new java.util.ArrayList[fsmSample.State]
+    list.add(finalState)
+    localFsm.setFinalState(list)
 
   }
-}
 
-
-class OppositTest {
 
   @Test
   def oppositTest() {
 
-    val t1 = FsmSampleFactory.createTransition
-    val t2 = FsmSampleFactory.createTransition
+    createModel()
 
-    OppositTest.localFsm.getInitialState.addOutgoingTransition(t1)
-    OppositTest.localFsm.getCurrentState.addIncomingTransition(t1)
+    val factory = new fsmSample.FsmSampleFactory()
 
-    assert(t1.getTarget == OppositTest.localFsm.getCurrentState, "Opposite relation 'target' not properly set.")
-    assert(t1.getSource == OppositTest.localFsm.getInitialState, "Opposite relation 'source' not properly set.")
+    val t1 = factory.createTransition
+    val t2 = factory.createTransition
 
-    t2.setSource(OppositTest.localFsm.getCurrentState)
-    t2.setTarget(OppositTest.localFsm.getFinalState.head)
+    localFsm.getInitialState.addOutgoingTransition(t1)
+    localFsm.getCurrentState.addIncomingTransition(t1)
 
-    assert(OppositTest.localFsm.getCurrentState.getOutgoingTransition.contains(t2), "Opposite relation 'outgoingTransition' not properly set.")
-    assert(OppositTest.localFsm.getFinalState.head.getIncomingTransition.contains(t2), "Opposite relation 'incomingTransition' not properly set.")
+    assert(t1.getTarget == localFsm.getCurrentState, "Opposite relation 'target' not properly set.")
+    assert(t1.getSource == localFsm.getInitialState, "Opposite relation 'source' not properly set.")
 
-    OppositTest.localFsm.getInitialState.removeOutgoingTransition(t1)
-    assert(!OppositTest.localFsm.getInitialState.getOutgoingTransition.contains(t1), "Removal of opposite relation 'outgoingTransition' not properly acting.")
+    t2.setSource(localFsm.getCurrentState)
+    t2.setTarget(localFsm.getFinalState.get(0))
 
-    t2.setTarget(OppositTest.localFsm.getInitialState)
-    assert(t2.getTarget == OppositTest.localFsm.getInitialState && OppositTest.localFsm.getInitialState.getIncomingTransition.contains(t2), "Moving of opposit did not go well.")
+    assert(localFsm.getCurrentState.getOutgoingTransition.contains(t2), "Opposite relation 'outgoingTransition' not properly set.")
+    assert(localFsm.getFinalState.get(0).getIncomingTransition.contains(t2), "Opposite relation 'incomingTransition' not properly set.")
+
+    localFsm.getInitialState.removeOutgoingTransition(t1)
+    assert(!localFsm.getInitialState.getOutgoingTransition.contains(t1), "Removal of opposite relation 'outgoingTransition' not properly acting.")
+
+    t2.setTarget(localFsm.getInitialState)
+    assert(t2.getTarget == localFsm.getInitialState && localFsm.getInitialState.getIncomingTransition.contains(t2), "Moving of opposit did not go well.")
   }
 
 }

@@ -15,75 +15,6 @@
  * 	Fouquet Francois
  * 	Nain Gregory
  */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-
 
 package org.kevoree.tools.ecore.kotlin.gencode.model
 
@@ -124,7 +55,7 @@ trait ClassGenerator extends ClonerGenerator {
     val formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container"
 
     pr.println("override var internal_eContainer : "+formatedFactoryName+"? = null")
-    pr.println("override var internal_unsetCmd : (()->Any)? = null")
+    pr.println("override var internal_unsetCmd : (()->Unit)? = null")
     pr.println("override var internal_readOnlyElem : Boolean = false")
     //  }
 
@@ -796,21 +727,21 @@ trait ClassGenerator extends ClonerGenerator {
           res += protectReservedWords("_" + ref.getName) + "?.setEContainer(null, null)\n"
           res += "}\n"
           res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-          res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { " + protectReservedWords("_" + ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + " } )\n"
+          res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + " )\n"
           res += "}\n"
         }
       } else {
         // containment with no opposite relation
         if (ref.isContainment && (ref.getEOpposite == null)) {
           if (ref.isMany) {
-            res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}} )\n"
+            res += protectReservedWords(ref.getName) + ".setEContainer(this, {() -> this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")} )\n"
           } else {
            /* if (ref.isRequired) {
               res += "if(" + protectReservedWords("_" + ref.getName) + " != null){" + protectReservedWords("_" + ref.getName) + ".setEContainer(null, null)}\n"
               res += "if(" + protectReservedWords(ref.getName) + " != null){" + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { this." + protectReservedWords(ref.getName) + "= null})})}\n"
             } else {*/
               res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){ " + protectReservedWords("_" + ref.getName) + "?.setEContainer(null, null)}\n"
-              res += "if(" + protectReservedWords(ref.getName) + "!=null){ " + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> { " + protectReservedWords("_" + ref.getName) + "= null}})}\n"
+              res += "if(" + protectReservedWords(ref.getName) + "!=null){ " + protectReservedWords(ref.getName) + ".setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= null})}\n"
             //}
           }
 
@@ -835,21 +766,17 @@ trait ClassGenerator extends ClonerGenerator {
       if (ref.isContainment) {
         if (oppositRef != null) {
           res += "for(elem in "+protectReservedWords(ref.getName) + "){\n"
-          res += "elem.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}})\n"
+          res += "elem.setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})\n"
 
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
             res += "elem.noOpposite_add" + formatedOpositName + "(this)\n"
           } else {
-            if (oppositRef.isRequired) {
               res += "elem.noOpposite_set" + formatedOpositName + "(this)\n"
-            } else {
-              res += "elem.noOpposite_set" + formatedOpositName + "(this)\n"
-            }
           }
           res += "}\n"
         } else {
-          res += "for(elem in "+protectReservedWords(ref.getName) + "){elem.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)}})}\n"
+          res += "for(elem in "+protectReservedWords(ref.getName) + "){elem.setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})}\n"
         }
       } else {
         if (oppositRef != null) {
@@ -927,7 +854,7 @@ trait ClassGenerator extends ClonerGenerator {
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
       res += "for(el in "+protectReservedWords(ref.getName) + "){\n"
       if (ref.isContainment) {
-        res += "el.setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)}})\n"
+        res += "el.setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
@@ -961,7 +888,7 @@ trait ClassGenerator extends ClonerGenerator {
     res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
 
     if (ref.isContainment) {
-      res += "" + protectReservedWords(ref.getName) + ".setEContainer(this,{()->{this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")}})\n"
+      res += "" + protectReservedWords(ref.getName) + ".setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
     }
 
     if (hasID(ref.getEReferenceType)) {

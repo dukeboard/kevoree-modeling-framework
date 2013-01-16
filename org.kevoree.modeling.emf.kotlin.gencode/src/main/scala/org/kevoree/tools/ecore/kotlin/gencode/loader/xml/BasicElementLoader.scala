@@ -160,7 +160,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
          // }
           pr.println("} else {")
-          pr.println("context.resolvers.add({()->{")
+          pr.println("context.resolvers.add({()->")
           pr.println("val ref = context.map.get(xmiRef)")
           pr.println("if(ref != null) {")
           //if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
@@ -170,7 +170,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           //}
           pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
           pr.println("}")//match
-          pr.println("}})")//append
+          pr.println("})")//append
           pr.println("}")
           pr.println("}")
           pr.println("}")
