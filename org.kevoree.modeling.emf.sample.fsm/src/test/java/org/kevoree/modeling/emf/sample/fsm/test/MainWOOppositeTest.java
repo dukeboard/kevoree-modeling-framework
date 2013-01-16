@@ -21,7 +21,7 @@ import org.fsmSample.FSM;
 import org.fsmSample.FsmSampleFactory;
 import org.fsmSample.State;
 import org.fsmSample.Transition;
-import org.fsmSample.loader.FSMLoader;
+import org.fsmSample.loader.ModelLoader;
 import org.fsmSample.serializer.ModelSerializer;
 
 import java.io.*;
@@ -41,8 +41,9 @@ public class MainWOOppositeTest {
 
         long creationStart = System.nanoTime();
 
-        FSM root = FsmSampleFactory.createFSM();
-        State initial = FsmSampleFactory.createState();
+        FsmSampleFactory factory = new FsmSampleFactory();
+        FSM root = factory.createFSM();
+        State initial = factory.createState();
         initial.setName("s0");
         initial.setOwningFSM(root);
         root.setCurrentState(initial);
@@ -53,11 +54,11 @@ public class MainWOOppositeTest {
 
         for (int i = 1; i<STATES ;i++){
 
-            State  s1 = FsmSampleFactory.createState();
+            State  s1 = factory.createState();
             s1.setName("s"+i);
             root.addOwnedState(s1);
             s1.setOwningFSM(root);
-            Transition t = FsmSampleFactory.createTransition();
+            Transition t = factory.createTransition();
             t.setSource(s0);
             t.setTarget(s1);
             t.setInput("ti" +i);
@@ -116,7 +117,8 @@ public class MainWOOppositeTest {
         statPr.print(mt.replace(".",",") + ";");
 
         long beforeLoad = System.nanoTime();
-        FSM loaded = FSMLoader.loadModel(tempFile).get();
+        ModelLoader loader = new ModelLoader();
+        FSM loaded = loader.loadModelFromPath(tempFile);
         double loadTime = (System.nanoTime() - beforeLoad );// / Math.pow(10,6);
         String lt = "" + loadTime/ Math.pow(10,6);
         System.out.println("Load time: "+ lt + " ms");
@@ -144,9 +146,9 @@ public class MainWOOppositeTest {
         List<State> previousLevel = new ArrayList<State>();
 
         long creationStart = System.nanoTime();
-
-        FSM root = FsmSampleFactory.createFSM();
-        State initial = FsmSampleFactory.createState();
+FsmSampleFactory factory = new FsmSampleFactory();
+        FSM root = factory.createFSM();
+        State initial = factory.createState();
         initial.setName("s0");
         initial.setOwningFSM(root);
         root.setCurrentState(initial);
@@ -159,16 +161,16 @@ public class MainWOOppositeTest {
             List<State> thisLevel = new ArrayList<State>();
 
             for(State s : previousLevel) {
-                State  leftState = FsmSampleFactory.createState();
-                State  rightState = FsmSampleFactory.createState();
+                State  leftState = factory.createState();
+                State  rightState = factory.createState();
                 leftState.setName("s"+ n++);
                 rightState.setName("s"+ n++);
                 root.addOwnedState(leftState);
                 root.addOwnedState(rightState);
                 leftState.setOwningFSM(root);
                 rightState.setOwningFSM(root);
-                Transition leftTrans = FsmSampleFactory.createTransition();
-                Transition rightTrans = FsmSampleFactory.createTransition();
+                Transition leftTrans = factory.createTransition();
+                Transition rightTrans = factory.createTransition();
                 leftTrans.setSource(s);
                 rightTrans.setSource(s);
                 leftTrans.setTarget(leftState);
@@ -237,7 +239,8 @@ public class MainWOOppositeTest {
         statPr.print(mt.replace(".",",") + ";");
 
         long beforeLoad = System.nanoTime();
-        FSM loaded = FSMLoader.loadModel(tempFile).get();
+        ModelLoader loader = new ModelLoader();
+        FSM loaded = loader.loadModelFromPath(tempFile);
         double loadTime = (System.nanoTime() - beforeLoad );// / Math.pow(10,6);
         String lt = "" + loadTime/ Math.pow(10,6);
         System.out.println("Load time: "+ lt + " ms");
