@@ -58,7 +58,7 @@ public class GenModelPlugin extends AbstractMojo {
     /**
      * Source user base directory
      *
-     * @parameter default-value="src/main/scala"
+     * @parameter default-value="src/main/java"
      */
     private File inputScala;
 
