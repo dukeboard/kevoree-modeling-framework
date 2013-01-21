@@ -61,8 +61,8 @@ object ProcessorHelper {
       case "long" | "java.lang.Long" => "Long"
       case "java.lang.Object" => "Any"
       case "java.util.Date" => "java.util.Date"
-      case "org.eclipse.emf.common.util.EList" => "java.util.List[Object]"
-      case "byte[]" => "Array[Byte]"
+      case "org.eclipse.emf.common.util.EList" => "java.util.List<Object>"
+      case "byte[]" => "Array<Byte>"
       case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + theType); null
     }
   }
