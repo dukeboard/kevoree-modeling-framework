@@ -54,7 +54,7 @@ trait TraitGenerator {
     pr.println("trait " + formatedFactoryName + " {")
     pr.println()
     pr.println(" var internal_eContainer : " + formatedFactoryName+"?")
-    pr.println(" var internal_unsetCmd : (()->Any)?")
+    pr.println(" var internal_unsetCmd : (()->Unit)?")
 
     //generate getter
     pr.println("fun eContainer() : "+formatedFactoryName+"? { return internal_eContainer }")
@@ -69,7 +69,7 @@ trait TraitGenerator {
     pr.println("}")
 
     //generate setter
-    pr.print("\nfun setEContainer( container : " + formatedFactoryName + "?, unsetCmd : (()->Any)? ) {\n")
+    pr.print("\nfun setEContainer( container : " + formatedFactoryName + "?, unsetCmd : (()->Unit)? ) {\n")
     pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
     pr.println("val tempUnsetCmd = internal_unsetCmd")
     pr.println("internal_unsetCmd = null")
