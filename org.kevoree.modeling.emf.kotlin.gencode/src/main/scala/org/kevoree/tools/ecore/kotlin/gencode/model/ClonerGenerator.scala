@@ -150,8 +150,16 @@ trait ClonerGenerator {
     formatedName += cls.getName.substring(1)
     buffer.println("\t\tval selfObjectClone = " + formatedFactoryName + ".create" + formatedName + "()")
     cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
-      att =>
-        buffer.println("\t\tselfObjectClone." + getSetter(att.getName) + "(this." + getGetter(att.getName) + "())")
+      att => {
+
+        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any"){
+          buffer.println("val subsubRef_"+att.getName+" = this."+getGetter(att.getName)+"()")
+          buffer.println("if( subsubRef_"+att.getName+"!=null){selfObjectClone." + getSetter(att.getName) + "(subsubRef_"+att.getName+")}")
+        } else {
+          buffer.println("\t\tselfObjectClone." + getSetter(att.getName) + "(this." + getGetter(att.getName) + "())")
+        }
+
+      }
     }
     buffer.println("\t\tsubResult.put(this,selfObjectClone)")
     cls.getEAllContainments.foreach {

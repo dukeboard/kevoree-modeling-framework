@@ -57,7 +57,7 @@ object ProcessorHelper {
       case "EString" | "java.lang.String" | "String" => "String"
       case "EIntegerObject" | "int" | "java.lang.Integer" => "Int"
       case "float" | "java.lang.Float" => "Float"
-      case "double" | "java.lang.Double" => "Double"
+      case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "Double"
       case "long" | "java.lang.Long" => "Long"
       case "java.lang.Object" => "Any"
       case "java.util.Date" => "java.util.Date"
