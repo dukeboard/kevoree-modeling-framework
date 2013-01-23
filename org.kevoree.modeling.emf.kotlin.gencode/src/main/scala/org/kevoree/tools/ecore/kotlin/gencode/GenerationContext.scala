@@ -44,6 +44,7 @@ import org.eclipse.emf.common.util.{URI => EmfUri}
 import java.net.URI
 import org.eclipse.emf.ecore.xmi.impl.{XMIResourceFactoryImpl, XMIResourceImpl}
 import org.eclipse.emf.ecore.{EPackage, EClass}
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -103,31 +104,21 @@ class GenerationContext {
   def getRootContainerClassName = rootXmiContainerClassName
 
 
-  private var modelFileMap: Map[String, XMIResource] = Map.empty[String, XMIResource]
+  // private var modelFileMap: Map[String, XMIResource] = Map.empty[String, XMIResource]
 
   def getEcoreModel(ecorefile: File): XMIResource = {
-    modelFileMap.get(ecorefile.toURI.getPath) match {
-      case Some(file) => file
-      case None => {
-        System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
-        val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
-        val rs = new ResourceSetImpl()
-        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION,new XMIResourceFactoryImpl())
-        val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
-        resource.load(null)
-        EcoreUtil.resolveAll(resource)
 
-        modelFileMap = modelFileMap + ((ecorefile.toURI.getPath, resource))
-           /*
-        import scala.collection.JavaConversions._
-        resource.getContents.foreach {
-          m =>
-            org.eclipse.emf.ecore.util.Diagnostician.INSTANCE.validate(m)
-        }    */
-        resource
-      }
-    }
+    System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
+    val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
+    val rs = new ResourceSetImpl()
+    Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION,new XMIResourceFactoryImpl())
+    val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
+    resource.load(null)
+    EcoreUtil.resolveAll(resource)
+
+    resource
   }
+
 
   private var rootContainers: Map[EPackage, EClass] = Map.empty[EPackage, EClass]
 
@@ -154,5 +145,7 @@ class GenerationContext {
     kevoreeContainer = ct
   }
 
+
+  var generatedLoaderFiles = new util.ArrayList[String]()
 
 }
