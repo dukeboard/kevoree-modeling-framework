@@ -26,7 +26,7 @@ import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.util.EcoreUtil
 import scala.collection.JavaConversions._
 
-import serializer.{JSONSerializerGenerator, SerializerGenerator}
+import serializer.{SerializerGenerator}
 
 /**
  * Created by IntelliJ IDEA.
@@ -96,7 +96,7 @@ class Generator(ctx:GenerationContext) {
     System.out.println("Done with serializer generation")
   }
 
-
+        /*
   def generateJsonSerializer(ecoreFile: File) {
 
     val model = ctx.getEcoreModel(ecoreFile)
@@ -110,7 +110,7 @@ class Generator(ctx:GenerationContext) {
       }
     }
     System.out.println("Done with serializer generation")
-  }
+  }       */
 
 
 

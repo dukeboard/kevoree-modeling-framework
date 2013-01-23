@@ -71,7 +71,7 @@ trait ClassGenerator extends ClonerGenerator {
     // if (cls.getESuperTypes.isEmpty) {
     val formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container"
 
-    pr.println("override var internal_eContainer : " + formatedFactoryName + "? = null")
+    pr.println("override var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
     pr.println("override var internal_unsetCmd : (()->Unit)? = null")
     pr.println("override var internal_readOnlyElem : Boolean = false")
     //  }
@@ -404,7 +404,9 @@ trait ClassGenerator extends ClonerGenerator {
         pr.println("override fun internalGetQuery(selfKey : String) : String? {")
         pr.println("var subResult : String? = null")
         superTypes.foreach(superType => {
-          pr.println("subResult = super<" + superType.getName + ">.internalGetQuery(selfKey)")
+
+          val ePackageName = ProcessorHelper.fqn(superType.getEPackage)
+          pr.println("subResult = super<"+ePackageName+"." + superType.getName + ">.internalGetQuery(selfKey)")
           pr.println("if(subResult!=null){")
           pr.println("  return subResult")
           pr.println("}")
@@ -710,7 +712,7 @@ trait ClassGenerator extends ClonerGenerator {
             if (oppositRef.isRequired) {
               // 0,1 -- 1
               if (!ref.isContainment) {
-                res += "if(this." + protectReservedWords(ref.getName) + "!=null){" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null) }\n"
+                res += "if(" + protectReservedWords("_"+ref.getName) + "!=null){" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null) }\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!=null){" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
@@ -834,7 +836,7 @@ trait ClassGenerator extends ClonerGenerator {
         res += "}\n"
       } else {
         // Single Ref  0,1
-        res += "if(this." + protectReservedWords(ref.getName) + "!=null){ this." + protectReservedWords(ref.getName) + ".noOpposite_remove" + formatedOpositName + "(this) }\n"
+        res += "if(" + protectReservedWords("_"+ref.getName) + "!=null){ " + protectReservedWords("_"+ref.getName) + "!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
       }
       res += "}\n"
     }

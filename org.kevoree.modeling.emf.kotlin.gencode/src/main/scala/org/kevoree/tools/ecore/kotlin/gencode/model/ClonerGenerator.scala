@@ -170,17 +170,17 @@ trait ClonerGenerator {
           buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")
           buffer.println("sub.getClonelazy(subResult)")
           buffer.println("}")
-        } else if (contained.getUpperBound == 1 && contained.getLowerBound == 0) {
+        } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/) {
           // optional single ref
 
           buffer.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
           buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
           buffer.println("subsubsubsub" + contained.getName + ".getClonelazy(subResult)")
           buffer.println("}")
-        } else if (contained.getUpperBound == 1 && contained.getLowerBound == 1) {
+       /* } else if (contained.getUpperBound == 1 && contained.getLowerBound == 1) {
           // mandatory single ref
-          buffer.println("\t\tthis." + getGetter(contained.getName) + ".getClonelazy(subResult)")
-        } else if (contained.getLowerBound > 1) {
+          buffer.println("\t\tthis." + getGetter(contained.getName) + "().getClonelazy(subResult)")
+        */} else if (contained.getLowerBound > 1) {
           // else
           buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")
           buffer.println("\t\t\tsub.getClonelazy(subResult)")
@@ -262,14 +262,14 @@ trait ClonerGenerator {
       contained =>
         contained.getUpperBound match {
           case 1 => {
-            if (contained.getLowerBound == 0) {
+            //if (contained.getLowerBound == 0) {
               buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
               buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
               buffer.println("subsubsub" + contained.getName + ".resolve(addrs,readOnly)")
               buffer.println("}")
-            } else {
-              buffer.println("\t\tthis." + getGetter(contained.getName) + ".resolve(addrs,readOnly)")
-            }
+            //} else {
+            //  buffer.println("\t\tthis." + getGetter(contained.getName) + "().resolve(addrs,readOnly)")
+            //}
           }
           case -1 => {
             buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")

@@ -65,13 +65,13 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("{")
 
     pr.println()
-    pr.println("fun serialize(o : Any,ostream : java.io.OutputStream) {")
+    pr.println("fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
-    pr.println("when(o) {")
+    pr.println("when(oMS) {")
     pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
-    pr.println("val context = get" + root.getName + "XmiAddr(o,\"/\")")
+    pr.println("val context = get" + root.getName + "XmiAddr(oMS,\"/\")")
     pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
-    pr.println("" + root.getName + "toXmi(o,context,wt)")
+    pr.println("" + root.getName + "toXmi(oMS,context,wt)")
     pr.println("wt.flush()")
     pr.println("wt.close()")
     pr.println("}")
@@ -179,8 +179,8 @@ class SerializerGenerator(ctx: GenerationContext) {
 
     stringListSubSerializers.foreach {
       sub =>
-        buffer.println("fun get" + sub._2 + "XmiAddr(o : " + sub._1 + ",previousAddr : String) : Map<Any,String>") //PRINT ABSTRACT USEFULL METHOD
-        buffer.println("fun " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream)")
+        buffer.println("open fun get" + sub._2 + "XmiAddr(o : " + sub._1 + ",previousAddr : String) : Map<Any,String>") //PRINT ABSTRACT USEFULL METHOD
+        buffer.println("open fun " + sub._2 + "toXmi(o :" + sub._1 + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream)")
     }
     buffer.println()
     buffer.println()
@@ -365,7 +365,7 @@ class SerializerGenerator(ctx: GenerationContext) {
             }
             case _ => {
               //buffer.println("var subadrs" + ref.getName + " : List[String] = List()")
-              buffer.println("if(selfObject." + getGetter(ref.getName) + "().count() > 0){")
+              buffer.println("if(selfObject." + getGetter(ref.getName) + "().size() > 0){")
               buffer.println("ostream.print(\" " + ref.getName + "=\\\"\")")
               buffer.println("var firstItLoop = true")
               buffer.println("for(sub in selfObject." + getGetter(ref.getName) + "()){")
@@ -398,7 +398,7 @@ class SerializerGenerator(ctx: GenerationContext) {
               buffer.println("" + subClass.getEReferenceType.getName + "toXmi(sub"+subClass.getName+",\"" + subClass.getName + "\",addrs,ostream)")
               buffer.println("}")
             } else {
-              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + ",\"" + subClass.getName + "\",addrs,ostream)")
+              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + "()!!,\"" + subClass.getName + "\",addrs,ostream)")
             }
           }
           case -1 => {

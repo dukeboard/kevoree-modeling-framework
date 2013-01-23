@@ -50,13 +50,17 @@ trait EnumGenerator {
     pr.println(ProcessorHelper.generateHeader(packElement))
 
     //Class core
-    pr.println("sealed trait " + formattedEnumName + " { def name: String; def value: Int }")
+    pr.println("trait " + formattedEnumName + " { fun name(): String\n fun value(): Int\n }")
     import scala.collection.JavaConversions._
     en.getELiterals.foreach {
       enumLit =>
-        pr.println("case object " + enumLit.getName.toUpperCase + " extends " + formattedEnumName + " { val name = \"" + enumLit.getName + "\"; val value = " + enumLit.getValue + " }")
+        pr.println("object " + enumLit.getName.toUpperCase + " : " + formattedEnumName + " {\n override fun name() : String {return \"" + enumLit.getName + "\"}\n override fun value() : Int {return " + enumLit.getValue + "}\n }")
     }
-    pr.println("case class Unknown" + formattedEnumName + "(name: String, value: Int) extends " + formattedEnumName)
+    pr.println("class Unknown" + formattedEnumName + "(val _name: String, val _value: Int) : " + formattedEnumName+" {")
+    pr.println("override fun name() : String {return _name}")
+    pr.println("override fun value() : Int {return _value}")
+    pr.println("}")
+
     pr.flush()
     pr.close()
   }

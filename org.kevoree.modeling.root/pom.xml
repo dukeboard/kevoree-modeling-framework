@@ -14,15 +14,14 @@
         <bundle.vendor>IRISA/INRIA</bundle.vendor>
         <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
+        <kotlin.version>0.4.297</kotlin.version>
     </properties>
 
     <modules>
         <module>../org.kevoree.modeling.emf.scala.gencode</module>
         <module>../org.kevoree.modeling.emf.scala.gencode.mavenplugin</module>
-
         <module>../org.kevoree.modeling.emf.kotlin.gencode</module>
         <module>../org.kevoree.modeling.emf.kotlin.gencode.mavenplugin</module>
-
     </modules>
 
     <build>
@@ -82,6 +81,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
+                        <goals> <goal>compile</goal> </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>process-test-sources</phase>
+                        <goals> <goal>test-compile</goal> </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
@@ -106,6 +122,26 @@
             <id>kevoree-snapshots</id>
             <url>http://maven.kevoree.org/snapshots</url>
         </repository>
+        <repository>
+            <id>jetbrains-release</id>
+            <url>http://repository.jetbrains.com/all</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jetbrains-snapshots</id>
+            <url>http://repository.jetbrains.com/all</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -116,6 +152,26 @@
         <pluginRepository>
             <id>plugin.kevoree-snapshots</id>
             <url>http://maven.kevoree.org/snapshots</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>jetbrains-release</id>
+            <url>http://repository.jetbrains.com/all</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>jetbrains-snapshots</id>
+            <url>http://repository.jetbrains.com/all</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
 

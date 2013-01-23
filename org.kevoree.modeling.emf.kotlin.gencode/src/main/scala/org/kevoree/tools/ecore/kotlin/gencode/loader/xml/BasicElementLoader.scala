@@ -156,7 +156,10 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           pr.println("if( ref != null) {")
          // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           //    pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
-         pr.println("modelElem." + methName + "(ref as "+ref.getEReferenceType.getName+")")          //} else {
+
+          val ePackageName = ProcessorHelper.fqn(ref.getEReferenceType.getEPackage)
+
+          pr.println("modelElem." + methName + "(ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")          //} else {
           //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
          // }
           pr.println("} else {")
@@ -164,7 +167,9 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           pr.println("val ref = context.map.get(xmiRef)")
           pr.println("if(ref != null) {")
           //if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
-            pr.println("modelElem." + methName + "(ref as "+ref.getEReferenceType.getName+")")
+
+
+            pr.println("modelElem." + methName + "(ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")
           //} else {
           //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
           //}
