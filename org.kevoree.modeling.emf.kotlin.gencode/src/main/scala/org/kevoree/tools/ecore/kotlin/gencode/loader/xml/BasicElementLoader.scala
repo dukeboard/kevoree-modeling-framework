@@ -38,7 +38,10 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     ProcessorHelper.checkOrCreateFolder(genDir)
     val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
 
-    if (!file.exists()) {
+
+
+    if (!ctx.generatedLoaderFiles.contains(genPackage + "." + elementType.getName)) {
+      ctx.generatedLoaderFiles.add(genPackage + "." + elementType.getName)
       //Does not override existing file. Should have been removed before if required.
       val subLoaders = generateSubs(elementType)
       val pr = new PrintWriter(file,"utf-8")
@@ -75,14 +78,13 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     currentType.getEAllContainments.foreach {
       ref =>
         if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
-          if (!ref.getEReferenceType.isInterface) {
+          if (!ref.getEReferenceType.isInterface && !ref.getEReferenceType.isAbstract) {
             //Generates loaders for simple elements
             val el = new BasicElementLoader(ctx, genDir, genPackage, ref.getEReferenceType, context, modelingPackage, modelPackage)
             el.generateLoader()
 
           } else {
-            //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-            val el = new InterfaceElementLoader(ctx, genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, modelingPackage, modelPackage)
+            val el = new InterfaceElementLoader(ctx, genDir, genPackage, ref.getEReferenceType, context, modelingPackage, modelPackage)
             el.generateLoader()
           }
           if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
@@ -113,11 +115,12 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
     val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
     if(elementType.getEAllAttributes.size()>0 || references.size > 0) {
 
-      pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1 as Int)) {")
+      pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1)) {")
       pr.println("val prefix = context.xmiReader.getAttributePrefix(i)")
       pr.println("if(prefix==null || prefix.equals(\"\")) {")
       pr.println("val attrName = context.xmiReader.getAttributeLocalName(i)")
       pr.println("val value = context.xmiReader.getAttributeValue(i)")
+      pr.println("if( value != null) {")
       pr.println("when(attrName){")
       pr.println("")
       elementType.getEAllAttributes.foreach { att =>
@@ -125,13 +128,13 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
         val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
         pr.println("\""+att.getName+"\" -> {")
         //pr.println("val value = context.xmiReader?.getAttributeValue(i)")
-       // pr.println("modelElem." + methName + "(" + ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + ".valueOf(value))")
+        // pr.println("modelElem." + methName + "(" + ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + ".valueOf(value))")
 
         val attTypeName = ProcessorHelper.convertType(att.getEAttributeType.getName)
         if(attTypeName.equals("String")) {
-          pr.println("modelElem." + methName + "(value as String)")
+          pr.println("modelElem." + methName + "(value)")
         } else {
-          pr.println("modelElem." + methName + "(value?.to"+ attTypeName +"() as "+attTypeName+")")
+          pr.println("modelElem." + methName + "(value.to"+ attTypeName +"() as "+attTypeName+")")
         }
 
         pr.println("}")
@@ -151,38 +154,41 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
 
           pr.println("\""+ref.getName+"\" -> {")
 
-          pr.println("for(xmiRef in value?.split(\" \")!!.toList()) {")
+          pr.println("for(xmiRef in value.split(\" \").toList()) {")
           pr.println("val ref = context.map.get(xmiRef)")
           pr.println("if( ref != null) {")
-         // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
+          // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           //    pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
 
           val ePackageName = ProcessorHelper.fqn(ref.getEReferenceType.getEPackage)
 
-          pr.println("modelElem." + methName + "(ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")          //} else {
+          //pr.println("modelElem." + methName + "(ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")          //} else {
+          pr.println("modelElem." + methName + "(ref as "+ ProcessorHelper.fqn(ctx,ref.getEReferenceType)+")")
+
           //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
-         // }
+          // }
           pr.println("} else {")
           pr.println("context.resolvers.add({()->")
-          pr.println("val ref = context.map.get(xmiRef)")
-          pr.println("if(ref != null) {")
+          pr.println("val "+ref.getName+"Ref = context.map.get(xmiRef)")
+          pr.println("if("+ref.getName+"Ref != null) {")
           //if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
 
 
-            pr.println("modelElem." + methName + "(ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")
+          //pr.println("modelElem." + methName + "("+ref.getName+"Ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")
+          pr.println("modelElem." + methName + "("+ref.getName+"Ref as "+ProcessorHelper.fqn(ctx,ref.getEReferenceType)+")")
           //} else {
           //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
           //}
-          pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)")
-          pr.println("}")//match
-          pr.println("})")//append
-          pr.println("}")
-          pr.println("}")
-          pr.println("}")
-         // pr.println("}")
+          pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)}")
+          pr.println("})")//Closure
+          pr.println("}") // Else
+          pr.println("}") // For
+          pr.println("}") // Case
+        // pr.println("}")
       }
-      pr.println("else->{System.out.println(\""+elementType.getName+">>AttributeName not in cases:\" + attrName);null }")
-      pr.println("}")
+      pr.println("else->{System.out.println(\""+elementType.getName+">>AttributeName not in cases:\" + attrName) }")
+      pr.println("}") // when
+      pr.println(" }") // if value not null
       pr.println(" }")
       pr.println(" }")
 
@@ -210,7 +216,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
           //if (!refa.isRequired) {
           //  pr.println("modelElem.set" + formattedReferenceName + "(Some(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context)))")
           //} else {
-            pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context))")
+          pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context))")
           //}
         } else {
           pr.println("val i = context.elementsCount.get(elementId + \"/@" + refa.getName + "\") ?: 0")
@@ -227,7 +233,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
       pr.println("}")//Match
       pr.println("}")//Case Start
       pr.println("XMLStreamConstants.END_ELEMENT -> {")
-      pr.println("if(context.xmiReader.getLocalName().equals(elementTagName) as Boolean){done = true}")
+      pr.println("if(context.xmiReader.getLocalName().equals(elementTagName)){done = true}")
       pr.println("}") //case END
       pr.println("else -> {}")
       pr.println("}")//Match

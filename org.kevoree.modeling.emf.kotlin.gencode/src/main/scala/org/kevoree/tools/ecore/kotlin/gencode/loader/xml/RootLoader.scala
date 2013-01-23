@@ -107,7 +107,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
         if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
 
-          if (!ref.getEReferenceType.isInterface) {
+          if (!ref.getEReferenceType.isInterface && !ref.getEReferenceType.isAbstract) {
             val el = new BasicElementLoader(ctx, genDir + "/sub/", genPackage + ".sub", ref.getEReferenceType, context, modelingPackage, packageOfModel)
             el.generateLoader()
           } else {
@@ -169,7 +169,8 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     //pr.println("context.xmiReader = reader")
     pr.println("do {")
     pr.println("while(reader.hasNext() && reader.nextTag() != XMLStreamConstants.START_ELEMENT){}")
-    pr.println("if(reader.getLocalName()?.equalsIgnoreCase(\""+rootContainerName+"\") as Boolean) {")
+    pr.println("val localName = reader.getLocalName()")
+    pr.println("if(localName != null && localName.equalsIgnoreCase(\""+rootContainerName+"\")) {")
     pr.println("load"+ elementType.getName +"(context)")
     pr.println("for(res in context.resolvers) {res()}")
     pr.println("}")
@@ -197,7 +198,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("val nextTag = context.xmiReader.nextTag()")
     pr.println("when(nextTag){")
     pr.println("XMLStreamConstants.START_ELEMENT -> {")
-    pr.println("when(context.xmiReader?.getLocalName()) {")
+    pr.println("when(context.xmiReader.getLocalName()) {")
 
     elementType.getEAllContainments.foreach {refa =>
       pr.println("\""+refa.getName+"\" -> {")
@@ -218,7 +219,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     }
 
 
-    pr.println("else -> System.out.println(\"Tag unrecognized: \" + context.xmiReader?.getLocalName() + \" in \" + this.javaClass.getSimpleName())")
+    pr.println("else -> System.out.println(\"Tag unrecognized: \" + context.xmiReader.getLocalName() + \" in \" + this.javaClass.getSimpleName())")
     pr.println("}") // Match
     pr.println("}") // Case START_ELEMENT
     pr.println("XMLStreamConstants.END_ELEMENT -> {")

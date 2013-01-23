@@ -39,9 +39,10 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     ProcessorHelper.checkOrCreateFolder(genDir)
     val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
 
-    if (!file.exists()) { //Does not override existing file. Should have been removed before if required.
-    //System.out.println("Generation of loader for " + elementType.getName)
-    val subLoaders = generateSubs()
+    if (!ctx.generatedLoaderFiles.contains(genPackage + "." + elementType.getName)) {
+      ctx.generatedLoaderFiles.add(genPackage + "." + elementType.getName)
+      //System.out.println("Generation of loader for " + elementType.getName)
+      val subLoaders = generateSubs()
 
       val pr = new PrintWriter(file,"utf-8")
       //System.out.println("Classifier class:" + cls.getClass)
@@ -82,7 +83,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     var listContainedElementsTypes = List[EClass]()
     ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
-        if (!concreteType.isInterface) {
+        if (!concreteType.isInterface && !concreteType.isAbstract) {
           val el = new BasicElementLoader(ctx, genDir, genPackage, concreteType, context, modelingPackage,modelPackage)
           el.generateLoader()
         } else {
@@ -101,20 +102,20 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     pr.println("protected fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
 
     pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1 as Int)){")
-      pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
-      pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
-      pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
-        pr.println("val loadedElement = when(context.xmiReader.getAttributeValue(i)) {")
-          ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
-            concreteType =>
-              pr.println("\"" + modelingPackage.getName + ":" + concreteType.getName + "\" -> {")
-              pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
-              pr.println("}")
-          }
-          pr.println("else -> {throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName);}")
+    pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
+    pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
+    pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
+    pr.println("val loadedElement = when(context.xmiReader.getAttributeValue(i)) {")
+    ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
+      concreteType =>
+        pr.println("\"" + modelingPackage.getName + ":" + concreteType.getName + "\" -> {")
+        pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
         pr.println("}")
-        pr.println("return loadedElement")
-      pr.println("}")
+    }
+    pr.println("else -> {throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName);}")
+    pr.println("}")
+    pr.println("return loadedElement")
+    pr.println("}")
     pr.println("}")
 
     pr.println("throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type: id\" + currentElementId);")
