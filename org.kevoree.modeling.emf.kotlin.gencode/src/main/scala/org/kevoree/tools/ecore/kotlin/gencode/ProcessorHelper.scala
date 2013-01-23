@@ -55,7 +55,7 @@ object ProcessorHelper {
     theType match {
       case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"
       case "EString" | "java.lang.String" | "String" => "String"
-      case "EIntegerObject" | "int" | "java.lang.Integer" => "Int"
+      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" => "Int"
       case "float" | "java.lang.Float" => "Float"
       case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "Double"
       case "long" | "java.lang.Long" => "Long"
@@ -65,7 +65,7 @@ object ProcessorHelper {
       case "byte[]" => "Array<Byte>"
       case "char"|"Char"=> "Char"
       case "java.math.BigInteger" => "java.math.BigInteger"
-      case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + theType); null
+      case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
     }
   }
 
