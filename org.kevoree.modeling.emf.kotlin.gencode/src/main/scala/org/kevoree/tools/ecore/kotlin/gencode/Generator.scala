@@ -23,6 +23,7 @@ import java.io.File
 import loader.xml.LoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.util.EcoreUtil
 import scala.collection.JavaConversions._
 
 import serializer.{JSONSerializerGenerator, SerializerGenerator}
@@ -49,7 +50,6 @@ class Generator(ctx:GenerationContext) {
   def generateModel(ecoreFile: File, modelVersion : String) {
 
     val model = ctx.getEcoreModel(ecoreFile)
-
     val modelGen = new ModelGenerator(ctx)
 
     System.out.println("Launching model generation")

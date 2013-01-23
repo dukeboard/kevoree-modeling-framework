@@ -53,7 +53,7 @@ object ProcessorHelper {
 
   def convertType(theType: String): String = {
     theType match {
-      case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" => "Boolean"
+      case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"
       case "EString" | "java.lang.String" | "String" => "String"
       case "EIntegerObject" | "int" | "java.lang.Integer" => "Int"
       case "float" | "java.lang.Float" => "Float"
@@ -61,8 +61,10 @@ object ProcessorHelper {
       case "long" | "java.lang.Long" => "Long"
       case "java.lang.Object" => "Any"
       case "java.util.Date" => "java.util.Date"
-      case "org.eclipse.emf.common.util.EList" => "java.util.List<Object>"
+      //case "org.eclipse.emf.common.util.EList" => "java.util.List<Object>"
       case "byte[]" => "Array<Byte>"
+      case "char"|"Char"=> "Char"
+      case "java.math.BigInteger" => "java.math.BigInteger"
       case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + theType); null
     }
   }

@@ -37,6 +37,7 @@ package org.kevoree.tools.ecore.kotlin.gencode.model
 
 
 import java.io.{File, PrintWriter}
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.{EPackage, EClass}
 import scala.collection.JavaConversions._
 import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelper}
@@ -252,7 +253,7 @@ trait ClonerGenerator {
             }
           }
         } else {
-          println("Warning ---- Not found EReferenceType ignored reference")
+          println("Warning ---- Not found EReferenceType:Name ignored reference "+ref.getName+"->"+ref.getEReferenceType+"||>"+EcoreUtil.resolve(ref.getEReferenceType,ref.eResource()).toString())
         }
         buffer.println()
     }

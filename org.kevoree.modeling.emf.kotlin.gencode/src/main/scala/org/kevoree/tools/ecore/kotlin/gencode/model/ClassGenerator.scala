@@ -89,7 +89,13 @@ trait ClassGenerator extends ClonerGenerator {
           case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = false")
           case "java.lang.Object" | "Any" => pr.println("Any? = null")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+
+          case "float" |"Float"=> "Float = 0"
+          case "char" |"Char"=> "Char = 'a'"
+          case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
+
           case _@className => {
+
             println("--->" + className)
             pr.println(className)
           }

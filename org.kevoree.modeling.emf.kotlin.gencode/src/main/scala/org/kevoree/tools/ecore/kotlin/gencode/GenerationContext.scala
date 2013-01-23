@@ -35,11 +35,14 @@
 package org.kevoree.tools.ecore.kotlin.gencode
 
 import java.io.File
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.common.util.{URI => EmfUri}
 
 import java.net.URI
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl
+import org.eclipse.emf.ecore.xmi.impl.{XMIResourceFactoryImpl, XMIResourceImpl}
 import org.eclipse.emf.ecore.{EPackage, EClass}
 
 /**
@@ -108,8 +111,12 @@ class GenerationContext {
       case None => {
         System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
         val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
-        val resource = new XMIResourceImpl(fileUri)
+        val rs = new ResourceSetImpl()
+        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION,new XMIResourceFactoryImpl())
+        val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
         resource.load(null)
+        EcoreUtil.resolveAll(resource)
+
         modelFileMap = modelFileMap + ((ecorefile.toURI.getPath, resource))
            /*
         import scala.collection.JavaConversions._
@@ -117,7 +124,6 @@ class GenerationContext {
           m =>
             org.eclipse.emf.ecore.util.Diagnostician.INSTANCE.validate(m)
         }    */
-
         resource
       }
     }

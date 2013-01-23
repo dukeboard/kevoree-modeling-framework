@@ -84,10 +84,13 @@ class SerializerGenerator(ctx: GenerationContext) {
 
 
   }
+  var alreadyGenerated = Set[EClass]()
 
 
   private def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false): Set[String] = {
     var subSerializer = Set[String](root.getName + "Serializer")
+
+
 
     // ProcessorHelper.checkOrCreateFolder(genDir + "/serializer")
     //PROCESS SELF
@@ -120,8 +123,9 @@ class SerializerGenerator(ctx: GenerationContext) {
           //¨PROCESS ALL SUB TYPE
           ProcessorHelper.getAllConcreteSubTypes(sub.getEReferenceType).foreach {
             subsubType =>
-              if (subsubType != root) {
+              if (subsubType != root && !alreadyGenerated.contains(subsubType)) {
                 //avoid looping in case of self-containment
+                alreadyGenerated = alreadyGenerated ++ Set(subsubType)
                 subSerializer = subSerializer ++ generateSerializer(genDir, packageName, sub.getName, subsubType, rootXmiPackage)
               }
           }
