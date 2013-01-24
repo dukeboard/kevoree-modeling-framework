@@ -32,6 +32,23 @@
  * Fouquet Francois
  * Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 
 package org.kevoree.tools.ecore.kotlin.gencode.model
 
@@ -66,16 +83,13 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println()
     pr.print("class " + cls.getName + "Impl(")
     pr.println(") : " + cls.getName + " {")
-
     //test if generation of variable from Base Trait
     // if (cls.getESuperTypes.isEmpty) {
-    val formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container"
-
+    //val formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container"
     pr.println("override var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
     pr.println("override var internal_unsetCmd : (()->Unit)? = null")
     pr.println("override var internal_readOnlyElem : Boolean = false")
     //  }
-
     //generate init
     cls.getEAllAttributes.foreach {
       att => {
@@ -89,15 +103,16 @@ trait ClassGenerator extends ClonerGenerator {
           case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = false")
           case "java.lang.Object" | "Any" => pr.println("Any? = null")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-
-          case "float" |"Float"=> "Float = 0"
-          case "char" |"Char"=> "Char = 'a'"
+          case "float" | "Float" => "Float = 0"
+          case "char" | "Char" => "Char = 'a'"
           case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
-
           case _@className => {
-
-            println("--->" + className)
-            pr.println(className)
+            if (att.getEAttributeType.isInstanceOf[EEnum]){
+              pr.println(className+"? = null")
+            } else {
+              println("--->" + className)
+              pr.println(className)
+            }
           }
         }
       }
@@ -111,7 +126,6 @@ trait ClassGenerator extends ClonerGenerator {
             ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
           }
           )
-
         if (ref.getUpperBound == -1) {
           // multiple values
           pr.println("override var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
@@ -138,16 +152,9 @@ trait ClassGenerator extends ClonerGenerator {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
     }
-
-
-
-
     pr.println("}")
-
     pr.flush()
     pr.close()
-
-
   }
 
   private def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String = {
@@ -405,8 +412,8 @@ trait ClassGenerator extends ClonerGenerator {
         pr.println("var subResult : String? = null")
         superTypes.foreach(superType => {
 
-          val ePackageName = ProcessorHelper.fqn(ctx,superType.getEPackage)
-          pr.println("subResult = super<"+ePackageName+"." + superType.getName + ">.internalGetQuery(selfKey)")
+          val ePackageName = ProcessorHelper.fqn(ctx, superType.getEPackage)
+          pr.println("subResult = super<" + ePackageName + "." + superType.getName + ">.internalGetQuery(selfKey)")
           pr.println("if(subResult!=null){")
           pr.println("  return subResult")
           pr.println("}")
@@ -432,7 +439,14 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.lang.Boolean" => pr.println("Boolean")
           case "java.lang.Object" | "Any" => pr.println("Any?")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case _@className => pr.println(className)
+          case _@className => {
+            if (att.getEAttributeType.isInstanceOf[EEnum]){
+              pr.println(className+"?")
+            } else {
+              println("--->" + className)
+              pr.println(className)
+            }
+          }
         }
     }
 
@@ -481,7 +495,7 @@ trait ClassGenerator extends ClonerGenerator {
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
-        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any"){
+        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
           pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "? {\n")
         } else {
           pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
@@ -712,7 +726,7 @@ trait ClassGenerator extends ClonerGenerator {
             if (oppositRef.isRequired) {
               // 0,1 -- 1
               if (!ref.isContainment) {
-                res += "if(" + protectReservedWords("_"+ref.getName) + "!=null){" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null) }\n"
+                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){" + protectReservedWords("_" + ref.getName) + ".noOpposite_set" + formatedOpositName + "(null) }\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!=null){" + protectReservedWords(ref.getName) + ".noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
@@ -836,7 +850,7 @@ trait ClassGenerator extends ClonerGenerator {
         res += "}\n"
       } else {
         // Single Ref  0,1
-        res += "if(" + protectReservedWords("_"+ref.getName) + "!=null){ " + protectReservedWords("_"+ref.getName) + "!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){ " + protectReservedWords("_" + ref.getName) + "!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
       }
       res += "}\n"
     }
