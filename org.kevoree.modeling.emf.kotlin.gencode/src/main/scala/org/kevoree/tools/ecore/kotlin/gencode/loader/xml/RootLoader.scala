@@ -36,6 +36,7 @@ import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}
 class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPackage) {
 
   def generateLoader(elementType: EClass, elementNameInParent: String) {
+
     ProcessorHelper.checkOrCreateFolder(genDir)
     val localFile = new File(genDir + "/ModelLoader.kt")
     ctx.loaderPrintWriter = new PrintWriter(localFile,"utf-8")
@@ -222,7 +223,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     }
 
 
-    pr.println("else -> System.out.println(\"Tag unrecognized: \" + context.xmiReader.getLocalName() + \" in \" + this.javaClass.getSimpleName())")
+    pr.println("else -> System.out.println(\"Tag unrecognized: \" + context.xmiReader.getLocalName() + \" in "+elementType.getName+"\")")
     pr.println("}") // Match
     pr.println("}") // Case START_ELEMENT
     pr.println("XMLStreamConstants.END_ELEMENT -> {")

@@ -50,15 +50,13 @@ trait EnumGenerator {
     pr.println(ProcessorHelper.generateHeader(packElement))
 
     //Class core
-    pr.println("trait " + formattedEnumName + " { fun name(): String\n fun value(): Int\n }")
+    pr.println("enum class " + formattedEnumName + " {")
     import scala.collection.JavaConversions._
     en.getELiterals.foreach {
       enumLit =>
-        pr.println("object " + enumLit.getName.toUpperCase + " : " + formattedEnumName + " {\n override fun name() : String {return \"" + enumLit.getName + "\"}\n override fun value() : Int {return " + enumLit.getValue + "}\n }")
+        pr.println(enumLit.getName.toUpperCase)
     }
-    pr.println("class Unknown" + formattedEnumName + "(val _name: String, val _value: Int) : " + formattedEnumName+" {")
-    pr.println("override fun name() : String {return _name}")
-    pr.println("override fun value() : Int {return _value}")
+
     pr.println("}")
 
     pr.flush()

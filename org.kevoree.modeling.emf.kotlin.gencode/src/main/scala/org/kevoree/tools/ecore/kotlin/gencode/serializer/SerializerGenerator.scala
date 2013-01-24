@@ -20,7 +20,7 @@ package org.kevoree.tools.ecore.kotlin.gencode.serializer
 
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
-import org.eclipse.emf.ecore.{EReference, EPackage, EClass}
+import org.eclipse.emf.ecore.{EEnum, EReference, EPackage, EClass}
 import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelper}
 
 /**
@@ -280,9 +280,15 @@ class SerializerGenerator(ctx: GenerationContext) {
             case 1 => {
               att.getLowerBound match {
                 case _ => {
-                  buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
-                  buffer.println("ostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()+\"\\\"\"))")
-                  buffer.println("}")
+                  if (att.getEAttributeType.isInstanceOf[EEnum]){
+                    buffer.println("if(selfObject." + getGetter(att.getName) + "() != null){")
+                    buffer.println("ostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()!!.name()+\"\\\"\"))")
+                    buffer.println("}")
+                  } else {
+                    buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
+                    buffer.println("ostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()+\"\\\"\"))")
+                    buffer.println("}")
+                  }
                 }
               }
             }

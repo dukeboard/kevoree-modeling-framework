@@ -38,7 +38,7 @@ package org.kevoree.tools.ecore.kotlin.gencode.model
 
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.{EPackage, EClass}
+import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
 import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelper}
 import org.kevoree.tools.ecore.kotlin.gencode.ProcessorHelper._
@@ -153,7 +153,7 @@ trait ClonerGenerator {
     cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
       att => {
 
-        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any"){
+        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]){
           buffer.println("val subsubRef_"+att.getName+" = this."+getGetter(att.getName)+"()")
           buffer.println("if( subsubRef_"+att.getName+"!=null){selfObjectClone." + getSetter(att.getName) + "(subsubRef_"+att.getName+")}")
         } else {
