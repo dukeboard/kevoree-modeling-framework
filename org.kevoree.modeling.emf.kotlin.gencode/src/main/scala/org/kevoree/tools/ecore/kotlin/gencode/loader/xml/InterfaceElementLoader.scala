@@ -37,13 +37,14 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
 
     //Creation of the generation dir
     ProcessorHelper.checkOrCreateFolder(genDir)
-    val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
+   // val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
 
     if (!ctx.generatedLoaderFiles.contains(genPackage + "." + elementType.getName)) {
       ctx.generatedLoaderFiles.add(genPackage + "." + elementType.getName)
       //System.out.println("Generation of loader for " + elementType.getName)
-      val subLoaders = generateSubs()
-
+      generateSubs()
+      generateLoadingMethod(ctx.loaderPrintWriter)
+      /*
       val pr = new PrintWriter(file,"utf-8")
       //System.out.println("Classifier class:" + cls.getClass)
 
@@ -66,14 +67,14 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
 
       pr.println("")
 
-      generateLoadingMethod(pr)
+
       pr.println("")
       pr.println("}")
 
       pr.flush()
       pr.close()
 
-
+      */
     }
   }
 
@@ -99,7 +100,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
   }
 
   private def generateLoadingMethod(pr: PrintWriter) {
-    pr.println("protected fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
+    pr.println("private fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
 
     pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1 as Int)){")
     pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")

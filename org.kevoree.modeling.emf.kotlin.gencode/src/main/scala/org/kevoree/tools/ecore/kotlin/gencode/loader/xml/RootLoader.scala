@@ -38,10 +38,10 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
   def generateLoader(elementType: EClass, elementNameInParent: String) {
     ProcessorHelper.checkOrCreateFolder(genDir)
     val localFile = new File(genDir + "/ModelLoader.kt")
-    val pr = new PrintWriter(localFile,"utf-8")
+    ctx.loaderPrintWriter = new PrintWriter(localFile,"utf-8")
+    val pr = ctx.loaderPrintWriter
 
     generateContext(elementType)
-    val subLoaders = generateSubs(elementType)
     val modelPackage = ProcessorHelper.fqn(ctx, modelingPackage)
     val genPackage =  modelPackage + ".loader"
 
@@ -61,13 +61,13 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     pr.print("class ModelLoader ")
 
-    if (subLoaders.size > 0) {
-      var stringListSubLoaders = List[String]()
-      subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
-      pr.println(stringListSubLoaders.mkString(": ", ", ", " {"))
-    } else {
+   // if (subLoaders.size > 0) {
+   //   var stringListSubLoaders = List[String]()
+   //   subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
+   //   pr.println(stringListSubLoaders.mkString(": ", ", ", " {"))
+   // } else {
       pr.println("{")
-    }
+    // }
 
     pr.println("")
 
@@ -79,6 +79,9 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     generateDeserialize(pr, context, rootContainerName, elementType)
     pr.println("")
     generateLoadElementsMethod(pr, context, rootContainerName, elementType)
+
+    pr.println("")
+    generateSubs(elementType)
 
     pr.println("")
     pr.println("}")

@@ -35,16 +35,19 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
 
   def generateLoader() {
     //Creation of the generation dir
-    ProcessorHelper.checkOrCreateFolder(genDir)
-    val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
+    //ProcessorHelper.checkOrCreateFolder(genDir)
+    //val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
 
 
 
     if (!ctx.generatedLoaderFiles.contains(genPackage + "." + elementType.getName)) {
       ctx.generatedLoaderFiles.add(genPackage + "." + elementType.getName)
       //Does not override existing file. Should have been removed before if required.
-      val subLoaders = generateSubs(elementType)
-      val pr = new PrintWriter(file,"utf-8")
+      generateSubs(elementType)
+      generateElementLoadingMethod(ctx.loaderPrintWriter)
+    }
+
+      /*
       pr.println("package " + genPackage + ";" )
       pr.println()
       pr.println("import " + modelPackage + ".*")
@@ -62,14 +65,14 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
       } else {
         pr.println("{")
       }
-
       pr.println()
-      generateElementLoadingMethod(pr)
+
       pr.println("")
       pr.println("}")
       pr.flush()
       pr.close()
     }
+      */
   }
 
   private def generateSubs(currentType: EClass): List[EClass] = {
@@ -98,7 +101,7 @@ class BasicElementLoader(ctx : GenerationContext, genDir: String, genPackage: St
 
 
   private def generateElementLoadingMethod(pr: PrintWriter) {
-    pr.println("protected fun load" + elementType.getName + "Element(elementId: String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
+    pr.println("private fun load" + elementType.getName + "Element(elementId: String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
     pr.println("")
 
     val ePackageName = elementType.getEPackage.getName

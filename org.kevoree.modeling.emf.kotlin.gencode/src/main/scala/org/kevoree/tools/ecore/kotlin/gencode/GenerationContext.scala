@@ -34,7 +34,7 @@
  */
 package org.kevoree.tools.ecore.kotlin.gencode
 
-import java.io.File
+import java.io.{PrintWriter, File}
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.util.EcoreUtil
@@ -147,5 +147,6 @@ class GenerationContext {
 
 
   var generatedLoaderFiles = new util.ArrayList[String]()
+  var loaderPrintWriter : PrintWriter = null
 
 }
