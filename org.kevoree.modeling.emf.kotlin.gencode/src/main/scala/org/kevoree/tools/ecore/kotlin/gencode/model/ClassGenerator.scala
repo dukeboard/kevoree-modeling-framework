@@ -405,7 +405,7 @@ trait ClassGenerator extends ClonerGenerator {
         pr.println("var subResult : String? = null")
         superTypes.foreach(superType => {
 
-          val ePackageName = ProcessorHelper.fqn(superType.getEPackage)
+          val ePackageName = ProcessorHelper.fqn(ctx,superType.getEPackage)
           pr.println("subResult = super<"+ePackageName+"." + superType.getName + ">.internalGetQuery(selfKey)")
           pr.println("if(subResult!=null){")
           pr.println("  return subResult")
