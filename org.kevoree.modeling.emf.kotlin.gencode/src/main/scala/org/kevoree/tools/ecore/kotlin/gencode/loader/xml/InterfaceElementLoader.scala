@@ -109,7 +109,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     pr.println("val loadedElement = when(context.xmiReader.getAttributeValue(i)) {")
 
 
-    val fqnPack = ProcessorHelper.fqn(ctx,elementType.getEPackage).replace(".","_")
+    val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
 
     ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
