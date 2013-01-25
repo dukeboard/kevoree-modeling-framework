@@ -107,13 +107,17 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
     pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
     pr.println("val loadedElement = when(context.xmiReader.getAttributeValue(i)) {")
+
+
+    val fqnPack = ProcessorHelper.fqn(ctx,elementType.getEPackage).replace(".","_")
+
     ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
-        pr.println("\"" + modelingPackage.getName + ":" + concreteType.getName + "\" -> {")
+        pr.println("\"" + fqnPack + ":" + concreteType.getName + "\" -> {")
         pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
         pr.println("}")
     }
-    pr.println("else -> {throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName);}")
+    pr.println("else -> {throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader.getAttributeValue(i));}")
     pr.println("}")
     pr.println("return loadedElement")
     pr.println("}")

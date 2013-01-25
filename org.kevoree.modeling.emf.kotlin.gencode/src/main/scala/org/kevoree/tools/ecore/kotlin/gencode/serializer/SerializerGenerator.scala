@@ -292,7 +292,7 @@ class SerializerGenerator(ctx: GenerationContext) {
                 }
               }
             }
-            case -1 => println("WTF!")
+            case -1 => println("WTF! "+att.getName)
           }
       }
 
