@@ -1044,10 +1044,9 @@ trait ClassGenerator extends ClonerGenerator {
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
 
 
+      val getterCall= "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()"
       if (hasID(ref.getEReferenceType)) {
-        //TODO CALL GETTER
-
-        res += "for(elm in " + protectReservedWords("_" + ref.getName + "_java_cache") + "!!){\n"
+        res += "for(elm in " + getterCall + "!!){\n"
         res += "val el = elm\n"
       } else {
         res += "val temp_els = java.util.Collections.unmodifiableList(" + protectReservedWords("_" + ref.getName) + ")\n"
