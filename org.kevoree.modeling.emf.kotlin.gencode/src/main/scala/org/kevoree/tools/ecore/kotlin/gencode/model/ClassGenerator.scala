@@ -597,9 +597,9 @@ trait ClassGenerator extends ClonerGenerator {
       res += protectReservedWords("_" + ref.getName) + "_java_cache as List<" + typeRefName + ">\n"
       res += "} else {\n"
       if (hasID(ref.getEReferenceType)) {
-        res += "val tempL = java.util.Collections.unmodifiableList(" + protectReservedWords("_" + ref.getName) + ".values().toList()) \n"
+        res += "val tempL = java.util.Collections.unmodifiableList(java.util.ArrayList<"+typeRefName+">(" + protectReservedWords("_" + ref.getName) + ".values().toList())) \n"
       } else {
-        res += "val tempL = java.util.Collections.unmodifiableList(" + protectReservedWords("_" + ref.getName) + ") \n"
+        res += "val tempL = java.util.Collections.unmodifiableList(java.util.ArrayList<"+typeRefName+">(" + protectReservedWords("_" + ref.getName) + ")) \n"
       }
 
       res += protectReservedWords("_" + ref.getName) + "_java_cache = tempL\n"
