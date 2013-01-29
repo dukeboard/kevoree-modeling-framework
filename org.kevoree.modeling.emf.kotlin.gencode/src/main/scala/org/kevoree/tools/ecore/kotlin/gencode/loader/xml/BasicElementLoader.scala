@@ -127,8 +127,9 @@ class BasicElementLoader(ctx: GenerationContext, genDir: String, genPackage: Str
 
     pr.println("val elementTagName = context.xmiReader.getLocalName()")
     pr.println("val modelElem = " + factory + ".create" + elementType.getName + "()")
+
     pr.println("context.map.put(elementId, modelElem)")
-    //pr.println("System.out.println(\"Stored:\" + elementId +\"->\"+ modelElem.class.getSimpleName)")
+   // pr.println("System.out.println(\"Stored:\" + elementId)")
     pr.println("")
 
 
@@ -194,7 +195,8 @@ class BasicElementLoader(ctx: GenerationContext, genDir: String, genPackage: Str
           pr.println("\"" + ref.getName + "\" -> {")
 
           pr.println("for(xmiRef in valueAtt.split(\" \")) {")
-          pr.println("val ref = context.map.get(xmiRef)")
+          pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
+          pr.println("val ref = context.map.get(adjustedRef)")
           pr.println("if( ref != null) {")
           // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           //    pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
@@ -208,7 +210,7 @@ class BasicElementLoader(ctx: GenerationContext, genDir: String, genPackage: Str
           // }
           pr.println("} else {")
           pr.println("context.resolvers.add({()->")
-          pr.println("val " + ref.getName + "Ref = context.map.get(xmiRef)")
+          pr.println("val " + ref.getName + "Ref = context.map.get(adjustedRef)")
           pr.println("if(" + ref.getName + "Ref != null) {")
           //if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
 
@@ -218,7 +220,7 @@ class BasicElementLoader(ctx: GenerationContext, genDir: String, genPackage: Str
           //} else {
           //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
           //}
-          pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + xmiRef)}")
+          pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
           pr.println("})") //Closure
           pr.println("}") // Else
           pr.println("}") // For

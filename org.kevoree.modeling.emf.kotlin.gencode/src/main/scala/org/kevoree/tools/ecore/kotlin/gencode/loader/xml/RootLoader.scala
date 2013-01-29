@@ -129,7 +129,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
   private def generateLoadMethod(pr: PrintWriter, elementType: EClass) {
 
-    pr.println("fun loadModelFromString(str: String) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
+    pr.println("fun loadModelFromString(str: String) : List<" + ProcessorHelper.fqn(ctx,elementType) + ">? {")
     pr.println("val stringReader = StringReader(str)")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory?.createXMLStreamReader(stringReader)")
@@ -143,12 +143,12 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("}")
     pr.println("}")
 
-    pr.println("fun loadModelFromPath(file: File) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
+    pr.println("fun loadModelFromPath(file: File) : List<" + ProcessorHelper.fqn(ctx,elementType) + ">? {")
     pr.println("return loadModelFromStream(FileInputStream(file))")
     pr.println("}")
 
 
-    pr.println("fun loadModelFromStream(inputStream: InputStream) : " + ProcessorHelper.fqn(ctx,elementType) + "? {")
+    pr.println("fun loadModelFromStream(inputStream: InputStream) : List<" + ProcessorHelper.fqn(ctx,elementType) + ">? {")
     pr.println("val isReader = java.io.BufferedReader(InputStreamReader(inputStream))")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory?.createXMLStreamReader(isReader)")
@@ -168,21 +168,34 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
   private def generateDeserialize(pr: PrintWriter, context: String, rootContainerName: String, elementType: EClass) {
 
-    pr.println("private fun deserialize(reader : XMLStreamReader): "+ProcessorHelper.fqn(ctx,elementType)+"? {")
-    pr.println("val context = " + context + "(reader)")
-    //pr.println("context.xmiReader = reader")
-    pr.println("do {")
-    pr.println("while(reader.hasNext() && reader.nextTag() != XMLStreamConstants.START_ELEMENT){}")
-    pr.println("val localName = reader.getLocalName()")
-    pr.println("if(localName != null && localName.equalsIgnoreCase(\""+rootContainerName+"\")) {")
-    pr.println("load"+ elementType.getName +"(context)")
-    pr.println("for(res in context.resolvers) {res()}")
-    pr.println("}")
-    pr.println("}while(context." + rootContainerName + " == null && reader.hasNext())")
-    pr.println("")
-    pr.println("return context." + rootContainerName)
+    pr.println("private fun deserialize(reader : XMLStreamReader): List<"+ProcessorHelper.fqn(ctx,elementType)+"> {")
 
+    pr.println("val context = " + context + "(reader)")
+    pr.println("while(reader.hasNext()) {")
+	pr.println("val nextTag = reader.next()")
+	pr.println("when(nextTag) {")
+	pr.println("XMLStreamConstants.START_ELEMENT -> {")
+	pr.println("val localName = reader.getLocalName()")
+	pr.println("if(localName != null && localName.contains(\""+rootContainerName.substring(0, 1).toUpperCase + rootContainerName.substring(1)+"\")) {")
+    pr.println("load"+ elementType.getName +"(context)")
+    pr.println("if(context."+ rootContainerName +" != null) {")
+    pr.println("context.loaded_" + rootContainerName + ".add(context." + rootContainerName + "!!)")
     pr.println("}")
+	
+	pr.println("}")
+	pr.println("}") // START_ELEMENT
+	pr.println("XMLStreamConstants.END_ELEMENT -> {break}")
+    pr.println("XMLStreamConstants.END_DOCUMENT -> {break}")
+	pr.println("else ->{println(\"Default case :\" + nextTag.toString())}")
+	
+	pr.println("}")//When
+	pr.println("}")//while
+    
+	pr.println("for(res in context.resolvers) {res()}")
+   
+    pr.println("return context.loaded_" + rootContainerName)
+	
+	pr.println("}")
   }
 
 
@@ -194,11 +207,12 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("private fun load" + elementType.getName + "(context : " + context + ") {")
     pr.println("")
     pr.println("val elementTagName = context.xmiReader.getLocalName()")
+    pr.println("val loaded"+rootContainerName+"Size = context.loaded_"+rootContainerName+".size()")
     pr.println("context." + rootContainerName + " = " + factory + ".create" + elementType.getName + "()")
-    pr.println("context.map.put(\"/\", context."+rootContainerName+" as Any)")
+    pr.println("context.map.put(\"/\" + loaded"+rootContainerName+"Size, context."+rootContainerName+" as Any)")
     pr.println("")
     pr.println("var done = false")
-    pr.println("while(!done && (context.xmiReader.hasNext() as Boolean)) {")
+    pr.println("while(!done && (context.xmiReader.hasNext())) {")
     pr.println("val nextTag = context.xmiReader.nextTag()")
     pr.println("when(nextTag){")
     pr.println("XMLStreamConstants.START_ELEMENT -> {")
@@ -206,8 +220,8 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     elementType.getEAllContainments.foreach {refa =>
       pr.println("\""+refa.getName+"\" -> {")
-      pr.println("val i = context.elementsCount.get(\"//@"+refa.getName+"\") ?: 0")
-      pr.println("val currentElementId = \"//@"+refa.getName+".\" + i")
+      pr.println("val i = context.elementsCount.get(\"/\"+ loaded"+rootContainerName+"Size + \"/@"+refa.getName+"\") ?: 0")
+      pr.println("val currentElementId = \"/\" + loaded"+rootContainerName+"Size + \"/@"+refa.getName+".\" + i")
       val formattedReferenceName = refa.getName.substring(0, 1).toUpperCase + refa.getName.substring(1)
       if(!refa.isMany) {
         if (!refa.isRequired) {
@@ -218,7 +232,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
       } else {
         pr.println("context." + rootContainerName + "?.add" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(currentElementId, context))")
       }
-      pr.println("context.elementsCount.put(\"//@"+refa.getName+"\",i+1)")
+      pr.println("context.elementsCount.put(\"/\"+ loaded"+rootContainerName+"Size+\"/@"+refa.getName+"\",i+1)")
       pr.println("}") //case
     }
 

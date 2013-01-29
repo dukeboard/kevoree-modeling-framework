@@ -50,6 +50,8 @@ class ContextGenerator(ctx:GenerationContext, genDir: String, genPackage: String
     pr.println()
     pr.println("\t\tvar "+elementType.getName.substring(0,1).toLowerCase + elementType.getName.substring(1)+" : "+ ProcessorHelper.fqn(ctx,elementType)+"? = null")
     pr.println()
+    pr.println("\t\tvar loaded_"+elementType.getName.substring(0,1).toLowerCase + elementType.getName.substring(1)+" : MutableList<"+ ProcessorHelper.fqn(ctx,elementType)+"> = java.util.ArrayList<"+ProcessorHelper.fqn(ctx,elementType)+">()")
+    pr.println()
     pr.println("\t\tval map : java.util.HashMap<String, Any> = java.util.HashMap<String, Any>()")
     pr.println()
     pr.println("\t\tval elementsCount : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()")
