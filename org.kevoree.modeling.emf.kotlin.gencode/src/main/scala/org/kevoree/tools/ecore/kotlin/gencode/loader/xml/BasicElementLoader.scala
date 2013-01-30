@@ -126,7 +126,7 @@ class BasicElementLoader(ctx: GenerationContext, genDir: String, genPackage: Str
     val factory = ProcessorHelper.fqn(ctx, elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
 
     pr.println("val elementTagName = context.xmiReader.getLocalName()")
-    pr.println("val modelElem = " + factory + ".create" + elementType.getName + "()")
+    pr.println("val modelElem = context.factory.create" + elementType.getName + "()")
 
     pr.println("context.map.put(elementId, modelElem)")
    // pr.println("System.out.println(\"Stored:\" + elementId)")

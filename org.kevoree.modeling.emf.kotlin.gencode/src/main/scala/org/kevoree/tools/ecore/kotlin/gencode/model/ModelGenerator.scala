@@ -52,6 +52,7 @@ with EnumGenerator {
     if(currentPackage.getEClassifiers.size() != 0) {
       ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
       generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
+      generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
     }
 
 

@@ -34,6 +34,7 @@ import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelpe
 trait PackageFactoryGenerator {
 
 
+
   def generatePackageFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
@@ -44,21 +45,24 @@ trait PackageFactoryGenerator {
 
     val packageName = ProcessorHelper.fqn(ctx, packElement)
 
+    ctx.factoryPackage = packageName
+    ctx.factoryName = formatedFactoryName
+
     pr.println("package " + packageName + ";")
     pr.println()
     pr.println("import " + packageName + ".impl.*;")
     pr.println()
     pr.println(ProcessorHelper.generateHeader(packElement))
     //case class name
-    pr.println("object " + formatedFactoryName + " {")
+    pr.println("trait " + formatedFactoryName + " {")
     pr.println()
-    pr.println("\t fun eINSTANCE() = " + formatedFactoryName)
-    pr.println("\t fun getVersion() = \""+ modelVersion+"\"")
+    //pr.println("\t fun eINSTANCE() = " + formatedFactoryName)
+    pr.println("\t fun getVersion() : String")// = \""+ modelVersion+"\"")
     pr.println()
     packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach {
       cls =>
         val methodName = "create" + cls.getName
-        pr.println("\t fun " + methodName + "() : " + cls.getName + " { return " + cls.getName + "Impl() }")
+        pr.println("\t fun " + methodName + "() : " + cls.getName )//+ " { return " + cls.getName + "Impl() }")
     }
     pr.println()
     pr.println("}")
@@ -68,5 +72,41 @@ trait PackageFactoryGenerator {
 
   }
 
+  def generatePackageFactoryDefaultImpl(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
+    var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
+    formatedFactoryName += packElement.getName.substring(1)
+    formatedFactoryName += "Factory"
+
+    val localFile = new File(packageGenDir + "/impl/Default" + formatedFactoryName + ".kt")
+    val pr = new PrintWriter(localFile,"utf-8")
+
+    val packageName = ProcessorHelper.fqn(ctx, packElement)
+
+    pr.println("package " + packageName + ".impl;")
+    pr.println()
+    pr.println("import " + packageName + "." + formatedFactoryName + ";")
+    packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach { cls=>
+      pr.println("import " + packageName + "." + cls.getName + ";")
+    }
+    pr.println()
+    pr.println(ProcessorHelper.generateHeader(packElement))
+    //case class name
+    pr.println("open class Default" + formatedFactoryName + " : "+formatedFactoryName+" {")
+    pr.println()
+   // pr.println("\t fun eINSTANCE() = " + formatedFactoryName)
+    pr.println("\t override fun getVersion() = \""+ modelVersion+"\"")
+    pr.println()
+    packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach {
+      cls =>
+        val methodName = "create" + cls.getName
+        pr.println("\t override fun " + methodName + "() : " + cls.getName + " { return " + cls.getName + "Impl() }")
+    }
+    pr.println()
+    pr.println("}")
+
+    pr.flush()
+    pr.close()
+
+  }
 
 }

@@ -149,4 +149,8 @@ class GenerationContext {
   var generatedLoaderFiles = new util.ArrayList[String]()
   var loaderPrintWriter : PrintWriter = null
 
+
+  var factoryPackage : String = ""
+  var factoryName : String = ""
+
 }

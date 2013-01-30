@@ -75,6 +75,10 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     val context = elementType.getName + "LoadContext"
     val rootContainerName = elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1)
 
+
+    generateFactorySetter(pr)
+    pr.println("")
+
     generateLoadMethod(pr, elementType)
     pr.println("")
     generateDeserialize(pr, context, rootContainerName, elementType)
@@ -127,6 +131,12 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     listContainedElementsTypes
   }
 
+
+  private def generateFactorySetter(pr: PrintWriter) {
+    pr.println("private var factory : " + ctx.factoryPackage + "." + ctx.factoryName + " = " + ctx.factoryPackage + ".impl.Default" + ctx.factoryName + "()")
+    pr.println("fun setFactory(fct : " + ctx.factoryPackage + "." + ctx.factoryName + ") { factory = fct}")
+  }
+
   private def generateLoadMethod(pr: PrintWriter, elementType: EClass) {
 
     pr.println("fun loadModelFromString(str: String) : List<" + ProcessorHelper.fqn(ctx,elementType) + ">? {")
@@ -171,6 +181,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("private fun deserialize(reader : XMLStreamReader): List<"+ProcessorHelper.fqn(ctx,elementType)+"> {")
 
     pr.println("val context = " + context + "(reader)")
+    pr.println("context.factory = this.factory")
     pr.println("while(reader.hasNext()) {")
 	pr.println("val nextTag = reader.next()")
 	pr.println("when(nextTag) {")
@@ -208,7 +219,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("")
     pr.println("val elementTagName = context.xmiReader.getLocalName()")
     pr.println("val loaded"+rootContainerName+"Size = context.loaded_"+rootContainerName+".size()")
-    pr.println("context." + rootContainerName + " = " + factory + ".create" + elementType.getName + "()")
+    pr.println("context." + rootContainerName + " = context.factory.create" + elementType.getName + "()")
     pr.println("context.map.put(\"/\" + loaded"+rootContainerName+"Size, context."+rootContainerName+" as Any)")
     pr.println("")
     pr.println("var done = false")
