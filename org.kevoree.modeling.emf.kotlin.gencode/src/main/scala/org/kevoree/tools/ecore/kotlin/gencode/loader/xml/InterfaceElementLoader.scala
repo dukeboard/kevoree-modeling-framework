@@ -30,17 +30,17 @@ import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelpe
  * Time: 17:53
  */
 
-class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage: String, elementType: EClass, context: String, modelingPackage: EPackage, modelPackage : String) {
+class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass, context: String, modelingPackage: EPackage, modelPackage : String) {
 
 
   def generateLoader() {
 
     //Creation of the generation dir
-    ProcessorHelper.checkOrCreateFolder(genDir)
+    //ProcessorHelper.checkOrCreateFolder(genDir)
    // val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
 
-    if (!ctx.generatedLoaderFiles.contains(genPackage + "." + elementType.getName)) {
-      ctx.generatedLoaderFiles.add(genPackage + "." + elementType.getName)
+    if (!ctx.generatedLoaderFiles.contains(elementType.getName)) {
+      ctx.generatedLoaderFiles.add(elementType.getName)
       //System.out.println("Generation of loader for " + elementType.getName)
       generateSubs()
       generateLoadingMethod(ctx.loaderPrintWriter)
@@ -85,11 +85,11 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
     ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
         if (!concreteType.isInterface && !concreteType.isAbstract) {
-          val el = new BasicElementLoader(ctx, genDir, genPackage, concreteType, context, modelingPackage,modelPackage)
+          val el = new BasicElementLoader(ctx, concreteType, context, modelingPackage,modelPackage)
           el.generateLoader()
         } else {
 
-          val el = new InterfaceElementLoader(ctx, genDir, genPackage, concreteType, context, modelingPackage,modelPackage)
+          val el = new InterfaceElementLoader(ctx, concreteType, context, modelingPackage,modelPackage)
           el.generateLoader()
         }
         if (!listContainedElementsTypes.contains(concreteType)) {
@@ -102,7 +102,7 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
   private def generateLoadingMethod(pr: PrintWriter) {
     pr.println("private fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
 
-    pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1 as Int)){")
+    pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1)){")
     pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
     pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
     pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
@@ -115,17 +115,17 @@ class InterfaceElementLoader(ctx : GenerationContext, genDir: String, genPackage
       concreteType =>
         pr.println("\"" + fqnPack + ":" + concreteType.getName + "\" -> {")
         pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
-        pr.println("}")
+        pr.println("}") // END WHEN CASE
     }
-    pr.println("else -> {throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader.getAttributeValue(i));}")
-    pr.println("}")
+    pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader.getAttributeValue(i)  + \" elementId:\" + currentElementId);}")
+    pr.println("}") // END WHEN
     pr.println("return loadedElement")
-    pr.println("}")
-    pr.println("}")
+    pr.println("}") //END IF
+    pr.println("}") // END FOR
 
-    pr.println("throw UnsupportedOperationException(\"Processor for TypeDefinitions has no mapping for type: id\" + currentElementId);")
+    pr.println("throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type: id\" + currentElementId);")
 
-    pr.println("}")
+    pr.println("}") // END METHOD
   }
 
 }
