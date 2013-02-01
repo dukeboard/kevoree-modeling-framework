@@ -62,20 +62,6 @@ public class LoadingTest {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
-
-    @Test
-    public void loadingLightFollower() {
-
-        try {
-
-            ModelLoader loader = new ModelLoader();
-            loader.setDebug(true);
-            loader.loadModelFromPath(new File(getClass().getClassLoader().getResource("LightFollower.xmi").toURI()));
-
-        } catch (URISyntaxException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
     
     @Test
     public void loadingLightFollower() {
@@ -91,20 +77,6 @@ public class LoadingTest {
         }
     }
     
-    @Test
-    public void loadingBCMS() {
-
-        try {
-
-            ModelLoader loader = new ModelLoader();
-            loader.loadModelFromPath(new File(getClass().getClassLoader().getResource("bCMS.xmi").toURI()));
-
-
-        } catch (URISyntaxException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }    
-
     @Test
     public void loadingbCMS() {
 
