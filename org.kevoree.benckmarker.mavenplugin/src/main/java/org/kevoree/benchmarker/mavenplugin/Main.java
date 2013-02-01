@@ -76,31 +76,29 @@ public class Main extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException {
 
-            deleteDirectory(output);
-
+        deleteDirectory(output);
 
         if(metamodels.length != rootContainers.length) {
             throw new MojoExecutionException("The number of rootContainers and Metamodels must be equal. You have to specify the RootContainer, for each Metamodel, in the same order.");
         }
 
+
         for(int i = 0 ; i < metamodels.length ; i++) {
 
-            File genmodel = new File(metamodels[i].getAbsolutePath().substring(0, metamodels[i].getAbsolutePath().lastIndexOf(".")) + ".genmodel");
-            if( !genmodel.exists()) {
-                throw new MojoExecutionException("Cannot generate EMF code without Genmodel file. Not found: " + genmodel.getAbsolutePath());
-            }
-            generateKmf(metamodels[i], rootContainers[i], "test"+i+".kmf");
-            generateEmf(metamodels[i], genmodel, "test"+i+".emf");
+            GenerationContext ctx = generateKmf(metamodels[i], rootContainers[i], "test"+i+".kmf");
+            generateEmf(metamodels[i],"test"+i+".emf");
+            TestsGenerator.generateTests(metamodels[i], ctx.factoryPackage(), "test"+i, project.getBasedir());
         }
 
         this.project.addCompileSourceRoot(output.getAbsolutePath());
+        this.project.addTestCompileSourceRoot(project.getBasedir().getPath() + File.separator + "target" + File.separator + "generated-tests");
     }
 
 
-    private void generateKmf(File metamodel, String containerRoot, String localPackagePrefix) {
+    private GenerationContext generateKmf(File metamodel, String containerRoot, String localPackagePrefix) {
         GenerationContext ctx = new GenerationContext();
         ctx.setPackagePrefix(scala.Option.apply(localPackagePrefix));
-        ctx.setRootGenerationDirectory(output);
+        ctx.setRootGenerationDirectory(new File(output.getAbsolutePath() + "/" + localPackagePrefix.replace(".","/")));
         ctx.setRootContainerClassName(scala.Option.apply(containerRoot));
 
 
@@ -108,12 +106,13 @@ public class Main extends AbstractMojo {
         gen.generateModel(metamodel, project.getVersion());
         gen.generateLoader(metamodel);
         gen.generateSerializer(metamodel);
+        return ctx;
 
     }
 
 
-    private void generateEmf(File metamodel, File genModel, String localPackagePrefix) {
-        Util.createGenModel(metamodel, genModel, new File(output.getAbsolutePath() + "/" + localPackagePrefix.replace(".","/")), getLog(), false, localPackagePrefix);
+    private void generateEmf(File metamodel, String localPackagePrefix) {
+        Util.createGenModel(metamodel, null, new File(output.getAbsolutePath() + "/" + localPackagePrefix.replace(".","/")), getLog(), false, localPackagePrefix);
         project.addCompileSourceRoot(output.getAbsolutePath());
     }
 
