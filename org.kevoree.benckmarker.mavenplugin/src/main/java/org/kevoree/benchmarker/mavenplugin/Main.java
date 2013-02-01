@@ -43,6 +43,13 @@ public class Main extends AbstractMojo {
     private File output;
 
     /**
+     * Tests base directory
+     *
+     * @parameter default-value="${project.build.directory}/generated-test-sources/"
+     */
+    private File testsOutput;
+
+    /**
      * Root XMI Container
      *
      * @parameter
@@ -87,11 +94,11 @@ public class Main extends AbstractMojo {
 
             GenerationContext ctx = generateKmf(metamodels[i], rootContainers[i], "test"+i+".kmf");
             generateEmf(metamodels[i],"test"+i+".emf");
-            TestsGenerator.generateTests(metamodels[i], ctx.factoryPackage(), "test"+i, project.getBasedir());
+            TestsGenerator.generateTests(metamodels[i], ctx.factoryPackage(), "test"+i, testsOutput, project.getBasedir());
         }
 
         this.project.addCompileSourceRoot(output.getAbsolutePath());
-        this.project.addTestCompileSourceRoot(project.getBasedir().getPath() + File.separator + "target" + File.separator + "generated-tests");
+        this.project.addTestCompileSourceRoot(testsOutput.getAbsolutePath());
     }
 
 

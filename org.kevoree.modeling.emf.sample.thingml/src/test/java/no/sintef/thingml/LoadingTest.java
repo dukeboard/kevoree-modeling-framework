@@ -76,7 +76,7 @@ public class LoadingTest {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
-    
+
     @Test
     public void loadingbCMS() {
 

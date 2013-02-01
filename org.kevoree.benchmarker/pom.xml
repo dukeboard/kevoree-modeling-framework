@@ -27,12 +27,6 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
-            <artifactId>scala-library</artifactId>
-            <groupId>org.scala-lang</groupId>
-            <version>${scala.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>1.3.9</version>
@@ -79,7 +73,7 @@
         <dependency>
             <groupId>com.google.code.java-allocation-instrumenter</groupId>
             <artifactId>java-allocation-instrumenter</artifactId>
-            <version>2.0</version>
+            <version>2.1</version>
         </dependency>
     </dependencies>
 
@@ -124,32 +118,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>scala-test-compile</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvmArgs>
-                        <jvmArg>-Xms64m</jvmArg>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                    </jvmArgs>
-                    <args>
-                        <arg>-optimize</arg>
-                        <arg>-Yinline</arg>
-                        <arg>-Ydead-code</arg>
-                        <arg>-Yclosure-elim</arg>
-                    </args>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

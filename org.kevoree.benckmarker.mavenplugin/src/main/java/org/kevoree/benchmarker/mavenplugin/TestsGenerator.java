@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 public class TestsGenerator {
 
 
-    public static void generateTests(File ecoreModel, String basePackage, String packagePrefix, File projectRoot) throws MojoExecutionException {
+    public static void generateTests(File ecoreModel, String basePackage, String packagePrefix, File testsOutput, File projectRoot) throws MojoExecutionException {
 
         try {
 
@@ -24,7 +24,7 @@ public class TestsGenerator {
             metamodelName = metamodelName.substring(0,1).toUpperCase() + metamodelName.substring(1);
 
 
-            File generationFolder = new File(projectRoot.getAbsolutePath() + File.separator + "target" + File.separator + "generated-tests" + File.separator + "kmf" + File.separator + "org" + File.separator + "kevoree" + File.separator + "benchmarker");
+            File generationFolder = new File(testsOutput.getAbsolutePath() + File.separator + "kmf" + File.separator + "org" + File.separator + "kevoree" + File.separator + "benchmarker");
             if(!generationFolder.exists()) {
                 generationFolder.mkdirs();
             }
@@ -42,7 +42,21 @@ public class TestsGenerator {
             pr.println("import com.google.caliper.SimpleBenchmark;");
             pr.println("import java.io.File;");
             pr.println("import java.net.URISyntaxException;");
+            pr.println("import java.io.IOException;");
+
+            pr.println("import org.eclipse.emf.ecore.EObject;");
+
+            pr.println("import org.eclipse.emf.common.util.TreeIterator;");
+            pr.println("import org.eclipse.emf.common.util.URI;");
+            pr.println("import org.eclipse.emf.ecore.resource.Resource;");
+            pr.println("import org.eclipse.emf.ecore.resource.ResourceSet;");
+            pr.println("import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;");
+            pr.println("import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;");
+            pr.println("import org.eclipse.emf.ecore.util.EcoreUtil;");
+
             pr.println("import org.junit.Test;");
+            pr.println("import static org.junit.Assert.assertTrue;");
+            pr.println("");
             pr.println("");
             pr.println("public class "+ metamodelName + "CaliperTest extends SimpleBenchmark {");
             pr.println("");
@@ -68,8 +82,9 @@ public class TestsGenerator {
                     }
                     modelName = modelName.substring(0,1).toUpperCase() + modelName.substring(1);
 
+                    // KMF
                     pr.println("");
-                    pr.println("public void time"+modelName+"(int reps) {");
+                    pr.println("public void timeKMFLoad"+modelName+"(int reps) {");
                     pr.println("try {");
                     pr.println("File localModel = new File(getClass().getResource(\"/" + metamodelName.toLowerCase() + "/" + model.getName()+"\").toURI());");
                     pr.println("for(int i = 0 ; i < reps ; i++) {");
@@ -78,6 +93,32 @@ public class TestsGenerator {
                     pr.println("}catch (URISyntaxException e) {e.printStackTrace();}");
                     pr.println("}");
                     pr.println("");
+
+                    // EMF
+
+                    pr.println("");
+                    pr.println("public void timeEMFLoad"+modelName+"(int reps) {");
+                    pr.println("try {");
+                    pr.println("File localModel = new File(getClass().getResource(\"/" + metamodelName.toLowerCase() + "/" + model.getName()+"\").toURI());");
+                    pr.println("URI fileURI = URI.createFileURI(localModel.getAbsolutePath());");
+                    //pr.println("System.err.println(\"Model URI:\" + fileURI.toString());");
+                    pr.println("ResourceSet resourceSet = new ResourceSetImpl();");
+                    pr.println("resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());");
+                    String packageName = basePackage.substring(basePackage.lastIndexOf(".")+1);
+                    packageName = packageName.substring(0,1).toUpperCase() + packageName.substring(1).toLowerCase();
+                    pr.println(basePackage.replaceFirst("kmf","emf") + "."+packageName+"Package pack = " + basePackage.replaceFirst("kmf","emf") + "."+packageName+"Package.eINSTANCE;");
+                    pr.println("for(int i = 0 ; i < reps ; i++) {");
+                    pr.println("Resource resource2 = resourceSet.createResource(fileURI);");
+                    pr.println("assertTrue(\"Resource is null. Model URI:\" + fileURI.toString(), resource2 != null);");
+                    pr.println("resource2.load(null);");
+                    pr.println("EcoreUtil.resolveAll(resource2);");
+                    pr.println("assertTrue(\"Contents is null or void \" + resource2.getContents().toString(), resource2.getContents() != null && resource2.getContents().size()!=0);");
+
+                    pr.println("}");//END FOR
+                    pr.println("}catch (URISyntaxException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}");
+                    pr.println("}");
+                    pr.println("");
+
                 }
             }
 
@@ -85,7 +126,7 @@ public class TestsGenerator {
             pr.println("@Test");
             pr.println("public void launcherTest() {");
             pr.println("Runner runner = new Runner();");
-            pr.println("runner.run("+metamodelName+"CaliperTest.class.getName());");//--timeUnit","ms","-Dsize","5,10,50,100,200,500","--printScore");");
+            pr.println("runner.run("+metamodelName+"CaliperTest.class.getName(), \"--measurementType\", \"MEMORY\", \"--timeUnit\",\"ms\", \"-Jmemory=-Xmx8192m\", \"--saveResults\", \"./benchmarkResults/\");");//"--timeUnit","ms","-Dsize","5,10,50,100,200,500","--printScore");");
             //pr.println("Runner.main(" + metamodelName + "CaliperTest.class, new String[0]);");
             pr.println("}");
             pr.println("");

@@ -34,7 +34,7 @@ public class TestRunner {
         System.out.println("Loader !!!");
 
         ModelLoader loader = new ModelLoader();
-        System.out.println(loader.loadModelFromPath(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/org.kevoree.modeling.emf.sample.kermeta/src/main/resources/class2rdbms_beforeCheckingforScopeMERGED.km")));
+        System.out.println(loader.loadModelFromPath(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/org.kevoree.modeling.emf.sample.kermeta/src/main/resources/HelloWorld_beforeCheckingforScopeMERGED.km")));
 
     }
 

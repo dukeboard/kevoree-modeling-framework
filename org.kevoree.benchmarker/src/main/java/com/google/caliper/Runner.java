@@ -289,6 +289,10 @@ public final class Runner {
       while ((o = reader.read()) != null) {
         if (o instanceof String) {
           eventLog.append(o);
+          if(eventLog.length() > 4000) {
+              System.out.println(eventLog.toString());
+              eventLog = new StringBuilder();
+          }
         } else if (measurementSet == null) {
           JsonObject jsonObject = (JsonObject) o;
           measurementSet = Json.measurementSetFromJson(jsonObject);
@@ -324,7 +328,11 @@ public final class Runner {
     ImmutableList.Builder<String> vmArgs = ImmutableList.builder();
     vmArgs.addAll(ARGUMENT_SPLITTER.split(scenario.getVariables().get(Scenario.VM_KEY)));
     if (type == MeasurementType.INSTANCE || type == MeasurementType.MEMORY) {
-      String allocationJarFile = System.getenv("ALLOCATION_JAR");
+        int indexInit = classPath.indexOf("java-allocation-instrumenter");
+        int startIndex = classPath.substring(0,indexInit).lastIndexOf(":");
+        int endIndex = classPath.substring(indexInit).indexOf(":") + indexInit;
+      //String allocationJarFile = System.getenv("ALLOCATION_JAR");
+        String allocationJarFile = classPath.substring(startIndex + 1, endIndex);
       vmArgs.add("-javaagent:" + allocationJarFile);
     }
     vmArgs.addAll(vm.getVmSpecificOptions(type, arguments));
