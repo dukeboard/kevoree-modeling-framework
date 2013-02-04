@@ -282,11 +282,11 @@ class SerializerGenerator(ctx: GenerationContext) {
                 case _ => {
                   if (att.getEAttributeType.isInstanceOf[EEnum]){
                     buffer.println("if(selfObject." + getGetter(att.getName) + "() != null){")
-                    buffer.println("ostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()!!.name()+\"\\\"\"))")
+                    buffer.println("ostream.print(\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()!!.name()+\"\\\"\")")
                     buffer.println("}")
                   } else {
                     buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
-                    buffer.println("ostream.print((\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()+\"\\\"\"))")
+                    buffer.println("ostream.print(\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()+\"\\\"\")")
                     buffer.println("}")
                   }
                 }
@@ -301,12 +301,11 @@ class SerializerGenerator(ctx: GenerationContext) {
 
         buffer.println("val subsub"+ref.getName+" = selfObject."+getGetter(ref.getName)+"()")
         buffer.println("if(subsub"+ref.getName+" != null){")
-
         buffer.println("val subsubsub"+ref.getName+" = addrs.get(subsub"+ref.getName+")")
         buffer.println("if(subsubsub"+ref.getName+" != null){")
-        buffer.println("ostream.print((\" " + ref.getName + "=\\\"\"+subsubsub"+ref.getName+"+\"\\\"\"))")
+        buffer.println("ostream.print(\" " + ref.getName + "=\\\"\"+subsubsub"+ref.getName+"+\"\\\"\")")
         buffer.println("} else {")
-        buffer.println("throw Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \")")
+        buffer.println("throw Exception(\"KMF "+cls.getName+" Serialization error : No address found for reference "+ref.getName+"(id:\"+subsub"+ref.getName+"+\" container:\"+subsub"+ref.getName+".eContainer()+\")\")")
         buffer.println("}")
 
         buffer.println("}")
