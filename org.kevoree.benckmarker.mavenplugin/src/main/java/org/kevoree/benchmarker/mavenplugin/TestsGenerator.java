@@ -112,6 +112,16 @@ public class TestsGenerator {
                     //pr.println("Runner.main(" + metamodelName + "CaliperTest.class, new String[0]);");
                     pr.println("}");
                     pr.println("");
+
+                    pr.println("");
+                    pr.println("@Test");
+                    pr.println("public static void main(String[] args) {");
+                    pr.println("Runner runner = new Runner();");
+                    pr.println("runner.run("+ metamodelName + modelName + "CaliperTest.class.getName(), \"--measureMemory\", \"--printScore\", \"--timeUnit\",\"ns\", \"-Jmemory=-Xmx1024m\", \"--saveResults\", \"./benchmarkResults/\");");//"--timeUnit","ms","-Dsize","5,10,50,100,200,500","--printScore");");
+                    //pr.println("Runner.main(" + metamodelName + "CaliperTest.class, new String[0]);");
+                    pr.println("}");
+                    pr.println("");
+
                     pr.println("}"); // END CLASS
 
 
