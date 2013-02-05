@@ -233,11 +233,17 @@ public final class Runner {
     MeasurementSet memoryMeasurements = null;
     String memoryEventLog = null;
     if (arguments.getMeasureMemory()) {
+        System.out.println("[caliper][Runner.runScenario] Measuring Instances");
       MeasurementResult allocationsMeasurementResult =
           measure(scenario, MeasurementType.INSTANCE);
+        System.out.println("[caliper][Runner.runScenario] Measurement result: " + allocationsMeasurementResult);
       allocationMeasurements = allocationsMeasurementResult.getMeasurements();
+        System.out.println("[caliper][Runner.runScenario] Measurements: " + allocationMeasurements);
       allocationEventLog = allocationsMeasurementResult.getEventLog();
-      MeasurementResult memoryMeasurementResult =
+        System.out.println("[caliper][Runner.runScenario] Measurements EventLog: " + allocationEventLog.toString());
+
+        System.out.println("[caliper][Runner.runScenario] Measuring Memory");
+        MeasurementResult memoryMeasurementResult =
           measure(scenario, MeasurementType.MEMORY);
       memoryMeasurements = memoryMeasurementResult.getMeasurements();
       memoryEventLog = memoryMeasurementResult.getEventLog();

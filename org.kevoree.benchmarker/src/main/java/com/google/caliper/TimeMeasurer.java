@@ -169,11 +169,11 @@ class TimeMeasurer extends Measurer {
    */
   private long measureReps(ConfiguredBenchmark benchmark, int reps) throws Exception {
     prepareForTest();
-    log(LogConstants.MEASURED_SECTION_STARTING);
+    log("Time "+LogConstants.MEASURED_SECTION_STARTING);
     long startNanos = System.nanoTime();
     benchmark.run(reps);
     long endNanos = System.nanoTime();
-    log(LogConstants.MEASURED_SECTION_DONE);
+    log("Time "+LogConstants.MEASURED_SECTION_DONE);
     benchmark.close();
     return endNanos - startNanos;
   }

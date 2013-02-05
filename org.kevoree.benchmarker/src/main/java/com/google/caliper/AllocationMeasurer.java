@@ -35,6 +35,7 @@ public abstract class AllocationMeasurer extends Measurer {
   protected String type;
 
   protected AllocationMeasurer() {
+      System.out.println("Creating allocation measurer...");
     log = false;
     allocationsToIgnore = 0;
     numberOfAllocations = 0;
@@ -48,6 +49,7 @@ public abstract class AllocationMeasurer extends Measurer {
       // if this was not an array, {@code count} is -1. If it was array, {@code count} is the
       // size of the array.
       @Override public void sampleAllocation(int count, String desc, Object newObj, long size) {
+          System.out.println("Record allocations: " + recordAllocations);
         if (recordAllocations) {
           if (Thread.currentThread().equals(allocatingThread)) {
             if (log) {
@@ -81,7 +83,7 @@ public abstract class AllocationMeasurer extends Measurer {
   }
 
   @Override public MeasurementSet run(Supplier<ConfiguredBenchmark> testSupplier) throws Exception {
-
+      log("Running Allocation Measures");
     // warm up, for some reason the very first time anything is measured, it will have a few more
     // allocations.
     measureAllocations(testSupplier.get(), 1, 0);
@@ -122,12 +124,12 @@ public abstract class AllocationMeasurer extends Measurer {
   private Measurement measureAllocations(ConfiguredBenchmark benchmark, int reps, long toIgnore)
       throws Exception {
     prepareForTest();
-    log(LogConstants.MEASURED_SECTION_STARTING);
+    log("Allocations " + LogConstants.MEASURED_SECTION_STARTING);
     resetAllocations();
     recordAllocations = true;
     benchmark.run(reps);
     recordAllocations = false;
-    log(LogConstants.MEASURED_SECTION_DONE);
+    log("Allocations " + LogConstants.MEASURED_SECTION_DONE);
     long allocations = (allocationCount - toIgnore) / reps;
     long outOfThreadAllocations = outOfThreadAllocationCount;
     log(allocations + " " + type + "(s) allocated per rep");

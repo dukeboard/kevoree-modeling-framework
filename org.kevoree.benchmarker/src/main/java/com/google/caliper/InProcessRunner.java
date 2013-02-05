@@ -84,7 +84,8 @@ final class InProcessRunner {
   }
 
   private Measurer getMeasurer(Arguments arguments) {
-    if (arguments.getMeasurementType() == MeasurementType.TIME) {
+      System.out.println("InProcessRunner :: Mesurer: " + arguments.getMeasurementType().name());
+      if (arguments.getMeasurementType() == MeasurementType.TIME) {
       return new TimeMeasurer(arguments.getWarmupMillis(), arguments.getRunMillis());
     } else if (arguments.getMeasurementType() == MeasurementType.INSTANCE) {
       return new InstancesAllocationMeasurer();
