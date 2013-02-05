@@ -263,7 +263,7 @@
 </mappings>
 </provided>
 </typeDefinitions>
-<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePort" synchrone="false">
+<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePortA" synchrone="false">
 </typeDefinitions>
 <typeDefinitions xsi:type="kevoree:ComponentType" name="FakeConsoleWithStdMessage" factoryBean="org.kevoree.library.FakeConsoleWithStdMessageFactory" bean="org.kevoree.library.FakeConsoleWithStdMessage" startMethod="start" stopMethod="stop" deployUnits="//@deployUnits.29">
 <required xsi:type="kevoree:PortTypeRef" name="textEntered" optional="true" noDependency="true" ref="//@typeDefinitions.19">
@@ -305,7 +305,7 @@
 <required xsi:type="kevoree:PortTypeRef" name="send" optional="true" noDependency="false" ref="//@typeDefinitions.25">
 </required>
 </typeDefinitions>
-<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePort" synchrone="false">
+<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePortB" synchrone="false">
 <dictionaryType>
 <attributes xsi:type="kevoree:DictionaryAttribute" name="percent" optional="true" state="false" datatype="java.lang.Integer" fragmentDependant="false">
 </attributes>
@@ -345,7 +345,7 @@
 <required xsi:type="kevoree:PortTypeRef" name="fileurl" optional="true" noDependency="true" ref="//@typeDefinitions.29">
 </required>
 </typeDefinitions>
-<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePort" synchrone="false">
+<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePortC" synchrone="false">
 <dictionaryType>
 <attributes xsi:type="kevoree:DictionaryAttribute" name="url" optional="true" state="false" datatype="java.lang.String" fragmentDependant="false">
 </attributes>
@@ -367,13 +367,13 @@
 </mappings>
 </provided>
 </typeDefinitions>
-<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePort" synchrone="false">
+<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePortD" synchrone="false">
 <dictionaryType>
 <attributes xsi:type="kevoree:DictionaryAttribute" name="image" optional="true" state="false" datatype="java.awt.image.BufferedImage" fragmentDependant="false">
 </attributes>
 </dictionaryType>
 </typeDefinitions>
-<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePort" synchrone="false">
+<typeDefinitions xsi:type="kevoree:MessagePortType" name="org.kevoree.framework.MessagePortE" synchrone="false">
 <dictionaryType>
 <attributes xsi:type="kevoree:DictionaryAttribute" name="bytes" optional="true" state="false" datatype="byte[]" fragmentDependant="false">
 </attributes>
