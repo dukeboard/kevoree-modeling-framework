@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ObjectArrays;
 import com.google.common.io.Closeables;
 import com.google.gson.JsonObject;
+import org.kevoree.tools.aether.framework.AetherUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,12 +44,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 /**
@@ -334,12 +331,20 @@ public final class Runner {
     ImmutableList.Builder<String> vmArgs = ImmutableList.builder();
     vmArgs.addAll(ARGUMENT_SPLITTER.split(scenario.getVariables().get(Scenario.VM_KEY)));
     if (type == MeasurementType.INSTANCE || type == MeasurementType.MEMORY) {
-        int indexInit = classPath.indexOf("java-allocation-instrumenter");
-        int startIndex = classPath.substring(0,indexInit).lastIndexOf(":");
-        int endIndex = classPath.substring(indexInit).indexOf(":") + indexInit;
-      //String allocationJarFile = System.getenv("ALLOCATION_JAR");
-        String allocationJarFile = classPath.substring(startIndex + 1, endIndex);
-      vmArgs.add("-javaagent:" + allocationJarFile);
+
+            File instrumenter = AetherUtil.$instance.resolveMavenArtifact("java-allocation-instrumenter","com.google.code.java-allocation-instrumenter","2.1", new ArrayList<String>());
+
+
+            //int indexInit = classPath.indexOf("java-allocation-instrumenter");
+            //int startIndex = classPath.substring(0,indexInit).lastIndexOf(":");
+            //int endIndex = classPath.substring(indexInit).indexOf(":") + indexInit;
+            //String allocationJarFile = classPath.substring(startIndex + 1, endIndex);
+            //String allocationJarFile = System.getenv("ALLOCATION_JAR");
+            String allocationJarFile = instrumenter.getAbsolutePath();
+            vmArgs.add("-Xbootclasspath/p:" + allocationJarFile);
+            vmArgs.add("-javaagent:" + allocationJarFile);
+            //vmArgs.add("-javaagent:./allocation.jar");
+
     }
     vmArgs.addAll(vm.getVmSpecificOptions(type, arguments));
 

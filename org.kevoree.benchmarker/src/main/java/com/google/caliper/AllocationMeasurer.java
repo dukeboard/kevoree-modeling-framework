@@ -35,7 +35,7 @@ public abstract class AllocationMeasurer extends Measurer {
   protected String type;
 
   protected AllocationMeasurer() {
-      System.out.println("Creating allocation measurer...");
+    //  System.out.println("Creating allocation measurer...");
     log = false;
     allocationsToIgnore = 0;
     numberOfAllocations = 0;
@@ -49,7 +49,7 @@ public abstract class AllocationMeasurer extends Measurer {
       // if this was not an array, {@code count} is -1. If it was array, {@code count} is the
       // size of the array.
       @Override public void sampleAllocation(int count, String desc, Object newObj, long size) {
-          System.out.println("Record allocations: " + recordAllocations);
+        //  System.out.println("Record allocations: " + recordAllocations);
         if (recordAllocations) {
           if (Thread.currentThread().equals(allocatingThread)) {
             if (log) {
@@ -124,7 +124,7 @@ public abstract class AllocationMeasurer extends Measurer {
   private Measurement measureAllocations(ConfiguredBenchmark benchmark, int reps, long toIgnore)
       throws Exception {
     prepareForTest();
-    log("Allocations " + LogConstants.MEASURED_SECTION_STARTING);
+    log("Allocations " + LogConstants.MEASURED_SECTION_STARTING + benchmark.getCurrentMethod());
     resetAllocations();
     recordAllocations = true;
     benchmark.run(reps);
@@ -143,7 +143,7 @@ public abstract class AllocationMeasurer extends Measurer {
   private long measureAllocationsTotal(ConfiguredBenchmark benchmark, int reps)
       throws Exception {
     prepareForTest();
-    log(LogConstants.MEASURED_SECTION_STARTING);
+    log(LogConstants.MEASURED_SECTION_STARTING + benchmark.getCurrentMethod());
     resetAllocations();
     recordAllocations = true;
     benchmark.run(reps);

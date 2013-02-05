@@ -102,7 +102,7 @@ final class InProcessRunner {
   public static void main(String... args) throws Exception {
     try {
       new InProcessRunner().run(args);
-      System.exit(0); // user code may have leave non-daemon threads behind!
+      //System.exit(0); // user code may have leave non-daemon threads behind!
     } catch (UserException e) {
       e.display(); // TODO: send this to the host process
       System.out.println(LogConstants.CALIPER_LOG_PREFIX + LogConstants.SCENARIOS_FINISHED);

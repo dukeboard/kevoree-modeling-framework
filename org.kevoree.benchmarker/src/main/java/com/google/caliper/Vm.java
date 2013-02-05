@@ -38,10 +38,13 @@ class Vm {
     result.directory(workingDirectory);
     List<String> command = result.command();
 
+    //  System.out.println("VM::ClassPath::" + classPath);
+
     command.addAll(vmArgs);
     addClassPath(command, classPath);
     command.add(className);
     command.addAll(applicationArgs);
+    //System.out.println("Internal JVM call command: " + command.toString());
     return result;
   }
 

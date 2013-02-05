@@ -16,6 +16,7 @@
 
 package com.google.caliper;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 public abstract class ConfiguredBenchmark {
@@ -36,6 +37,8 @@ public abstract class ConfiguredBenchmark {
   public abstract Object run(int reps) throws Exception;
 
   public abstract void close() throws Exception;
+
+  public abstract Method getCurrentMethod();
 
   public final Benchmark getBenchmark() {
     return underlyingBenchmark;

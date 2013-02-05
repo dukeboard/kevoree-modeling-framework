@@ -37,7 +37,7 @@ import java.util.Set;
  * static. They are not permitted to take parameters . . ..
  *
  * <h3>Parameters</h3>
- * See the {@link com.google.caliper.Param} documentation to learn about parameters.
+ * See the {@link Param} documentation to learn about parameters.
  */
 public abstract class SimpleBenchmark
     extends com.google.caliper.api.Benchmark // TEMPORARY for transition
@@ -134,6 +134,9 @@ public abstract class SimpleBenchmark
             }
           }
         }
+          @Override public Method getCurrentMethod() {
+              return method;
+          }
 
         @Override public void close() throws Exception {
           copyOfSelf.tearDown();
