@@ -1049,7 +1049,7 @@ trait ClassGenerator extends ClonerGenerator {
         res += "for(elm in " + getterCall + "!!){\n"
         res += "val el = elm\n"
       } else {
-        res += "val temp_els = java.util.Collections.unmodifiableList(" + protectReservedWords("_" + ref.getName) + ")\n"
+        res += "val temp_els = java.util.Collections.unmodifiableList(" + getterCall + ")\n"
         res += "for(el in temp_els){\n"
       }
 
