@@ -18,9 +18,9 @@
 package org.kevoree.modeling.emf.sample.fsm
 
 import org.fsmSample
+import fsmSample.impl.DefaultFsmSampleFactory
 import org.fsmSample.{FsmSampleFactory, FSM}
 import org.junit.{Test, BeforeClass}
-import scala.collection.JavaConversions._
 
 
 /**
@@ -37,20 +37,21 @@ class OppositTest {
 
 
   def createModel() {
-    localFsm = FsmSampleFactory.createFSM
+    val factory = new DefaultFsmSampleFactory()
+    localFsm = factory.createFSM
 
-    val initState = FsmSampleFactory.createState
+    val initState = factory.createState
     localFsm.addOwnedState(initState)
-    val middleState = FsmSampleFactory.createState
+    val middleState = factory.createState
     localFsm.addOwnedState(middleState)
-    val finalState = FsmSampleFactory.createState
+    val finalState = factory.createState
     localFsm.addOwnedState(finalState)
 
     localFsm.setInitialState(initState)
     localFsm.setCurrentState(middleState)
     val list = new java.util.ArrayList[fsmSample.State]
     list.add(finalState)
-    localFsm.setFinalState(list.toList)
+    localFsm.setFinalState(list)
 
   }
 
@@ -60,9 +61,10 @@ class OppositTest {
 
     createModel()
 
+    val factory = new DefaultFsmSampleFactory()
 
-    val t1 = FsmSampleFactory.createTransition
-    val t2 = FsmSampleFactory.createTransition
+    val t1 = factory.createTransition
+    val t2 = factory.createTransition
 
     localFsm.getInitialState.addOutgoingTransition(t1)
     localFsm.getCurrentState.addIncomingTransition(t1)

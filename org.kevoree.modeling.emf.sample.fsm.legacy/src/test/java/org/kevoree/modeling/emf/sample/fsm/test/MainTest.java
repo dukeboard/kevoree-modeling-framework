@@ -17,22 +17,24 @@
  */
 package org.kevoree.modeling.emf.sample.fsm.test;
 
-import com.sun.tools.internal.xjc.ModelLoader;
 import org.fsmSample.FSM;
 import org.fsmSample.FsmSampleFactory;
 import org.fsmSample.State;
 import org.fsmSample.Transition;
-import org.fsmSample.loader.FSMLoader;
+import org.fsmSample.cloner.ModelCloner;
+import org.fsmSample.impl.DefaultFsmSampleFactory;
+import org.fsmSample.loader.ModelLoader;
 import org.fsmSample.serializer.ModelSerializer;
-
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.ArrayList;
 import java.util.List;
 
+public class MainTest {
 
-public class MainWOOppositeTest {
+    FsmSampleFactory factory = new DefaultFsmSampleFactory();
+
 
     //@Test
     public void flatFsmTest(PrintWriter statPr, int STATES) throws IOException {
@@ -42,10 +44,11 @@ public class MainWOOppositeTest {
 
         long creationStart = System.nanoTime();
 
-        FSM root = FsmSampleFactory.createFSM();
-        State initial = FsmSampleFactory.createState();
+
+        FSM root = factory.createFSM();
+        State initial = factory.createState();
         initial.setName("s0");
-        initial.setOwningFSM(root);
+        //initial.setOwningFSM(root);
         root.setCurrentState(initial);
         root.setInitialState(initial);
         root.addOwnedState(initial);
@@ -54,17 +57,14 @@ public class MainWOOppositeTest {
 
         for (int i = 1; i < STATES; i++) {
 
-            State s1 = FsmSampleFactory.createState();
+            State s1 = factory.createState();
             s1.setName("s" + i);
             root.addOwnedState(s1);
-            s1.setOwningFSM(root);
-            Transition t = FsmSampleFactory.createTransition();
-            t.setSource(s0);
-            t.setTarget(s1);
+            Transition t = factory.createTransition();
+            t.setSource(s0); //Uses the set for one side
+            s1.addIncomingTransition(t); //Uses the add for the other side
             t.setInput("ti" + i);
             t.setOutput("to" + i);
-            s0.addOutgoingTransition(t);
-            s1.addIncomingTransition(t);
             s0 = s1;
         }
 
@@ -88,6 +88,19 @@ public class MainWOOppositeTest {
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
         statPr.print(ct.replace(".", ",") + ";");
+
+
+        long cloneStart = 0, cloneEnd = 0;
+
+        ModelCloner cloner = new ModelCloner();
+        cloneStart = System.nanoTime();
+        cloner.clone(root);
+        cloneEnd = System.nanoTime();
+
+        String clonet = (cloneEnd - cloneStart) / Math.pow(10, 6) + "";
+        System.out.println("Cloning time: " + clonet + " ms");
+
+
         ModelSerializer sav = new ModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
@@ -96,8 +109,9 @@ public class MainWOOppositeTest {
         long marshalingStart = 0, marshalingEnd = 0;
 
         try {
-
             FileOutputStream os = new FileOutputStream(tempFile);
+            //ByteArrayOutputStream os = new ByteArrayOutputStream();
+
             //PrintWriter pr = new PrintWriter(os);
 
             marshalingStart = System.nanoTime();
@@ -106,7 +120,7 @@ public class MainWOOppositeTest {
             marshalingEnd = System.nanoTime();
             //pr.flush();
             //pr.close();
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -117,7 +131,7 @@ public class MainWOOppositeTest {
         statPr.print(mt.replace(".", ",") + ";");
 
         long beforeLoad = System.nanoTime();
-        FSM loaded = FSMLoader.loadModel(tempFile).get();
+        FSM loaded = new ModelLoader().loadModelFromPath(tempFile).get(0);
         double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
         String lt = "" + loadTime / Math.pow(10, 6);
         System.out.println("Load time: " + lt + " ms");
@@ -145,10 +159,10 @@ public class MainWOOppositeTest {
         List<State> previousLevel = new ArrayList<State>();
 
         long creationStart = System.nanoTime();
-        FSM root = FsmSampleFactory.createFSM();
-        State initial = FsmSampleFactory.createState();
+
+        FSM root = factory.createFSM();
+        State initial = factory.createState();
         initial.setName("s0");
-        initial.setOwningFSM(root);
         root.setCurrentState(initial);
         root.setInitialState(initial);
         root.addOwnedState(initial);
@@ -159,28 +173,22 @@ public class MainWOOppositeTest {
             List<State> thisLevel = new ArrayList<State>();
 
             for (State s : previousLevel) {
-                State leftState = FsmSampleFactory.createState();
-                State rightState = FsmSampleFactory.createState();
+                State leftState = factory.createState();
+                State rightState = factory.createState();
                 leftState.setName("s" + n++);
                 rightState.setName("s" + n++);
-                root.addOwnedState(leftState);
-                root.addOwnedState(rightState);
-                leftState.setOwningFSM(root);
-                rightState.setOwningFSM(root);
-                Transition leftTrans = FsmSampleFactory.createTransition();
-                Transition rightTrans = FsmSampleFactory.createTransition();
+                root.addOwnedState(leftState); //using add for one side
+                rightState.setOwningFSM(root); //using add for the other side
+                Transition leftTrans = factory.createTransition();
+                Transition rightTrans = factory.createTransition();
                 leftTrans.setSource(s);
-                rightTrans.setSource(s);
                 leftTrans.setTarget(leftState);
-                rightTrans.setTarget(rightState);
+                s.addOutgoingTransition(rightTrans);
+                rightState.addIncomingTransition(rightTrans);
                 leftTrans.setInput("ti" + n);
                 leftTrans.setOutput("to" + n);
                 rightTrans.setInput("ti" + n);
                 rightTrans.setOutput("to" + n);
-                s.addOutgoingTransition(rightTrans);
-                rightState.addIncomingTransition(rightTrans);
-                s.addOutgoingTransition(leftTrans);
-                rightState.addIncomingTransition(leftTrans);
                 thisLevel.add(rightState);
                 thisLevel.add(leftState);
             }
@@ -237,7 +245,7 @@ public class MainWOOppositeTest {
         statPr.print(mt.replace(".", ",") + ";");
 
         long beforeLoad = System.nanoTime();
-        FSM loaded = FSMLoader.loadModel(tempFile).get();
+        FSM loaded = new ModelLoader().loadModelFromPath(tempFile).get(0);
         double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
         String lt = "" + loadTime / Math.pow(10, 6);
         System.out.println("Load time: " + lt + " ms");
@@ -255,7 +263,7 @@ public class MainWOOppositeTest {
 
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        MainWOOppositeTest m = new MainWOOppositeTest();
+        MainTest m = new MainTest();
 
 
         //=====  Flat FSM test //
@@ -263,32 +271,27 @@ public class MainWOOppositeTest {
         File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
-        m.flatFsmTest(pr, 25000);
-        m.flatFsmTest(pr, 750000);
-        pr.flush();
-        pr.close();
-        /*
-        int step = 25000;
-        for(int i = 1 ; i*step <= 750000;i++) {
-            m.flatFsmTest(pr, i*step);
+        int step = 50000;
+        for (int i = 1; i * step <= 100000; i++) {
+            m.flatFsmTest(pr, i * step);
         }
         pr.flush();
         pr.close();
 
         System.out.println("results in " + f.getAbsolutePath());
 
-       //=====  BinaryTreeLike FSM test //
+        //=====  BinaryTreeLike FSM test //
 
-        File f2 = File.createTempFile("KMF_BINARY_FSM_No_Opposite_TEST-" + System.currentTimeMillis(),".csv");
+        File f2 = File.createTempFile("KMF_BINARY_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr2 = new PrintWriter(f2);
         pr2.println("Deep;Memory;States;Creation;Marshaling;Loading");
-        for(int i = 1 ; Math.pow(2,i)<750000;i++) {
-            m.binaryFsmTest(pr2,i);
+        for (int i = 1; Math.pow(2, i) < 750000; i++) {
+            m.binaryFsmTest(pr2, i);
         }
         pr2.flush();
         pr2.close();
 
         System.out.println("results in " + f.getAbsolutePath());
-*/
+
     }
 }

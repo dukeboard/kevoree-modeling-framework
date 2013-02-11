@@ -69,6 +69,10 @@ import scala.Some
 
 trait ClassGenerator extends ClonerGenerator {
 
+  def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String)
+
+  def generateSelectorMethods(pr: PrintWriter, cls: EClass)
+
   def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.kt")
     val userFile = new File(srcCurrentDir + "/impl/" + cls.getName + "Impl.kt")
@@ -86,14 +90,14 @@ trait ClassGenerator extends ClonerGenerator {
     //test if generation of variable from Base Trait
     // if (cls.getESuperTypes.isEmpty) {
     //val formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container"
-    pr.println("override var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
-    pr.println("override var internal_unsetCmd : (()->Unit)? = null")
-    pr.println("override var internal_readOnlyElem : Boolean = false")
+    pr.println("override internal var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
+    pr.println("override internal var internal_unsetCmd : (()->Unit)? = null")
+    pr.println("override internal var internal_readOnlyElem : Boolean = false")
     //  }
     //generate init
     cls.getEAllAttributes.foreach {
       att => {
-        pr.print("override public var " + protectReservedWords("_" + att.getName) + " : ")
+        pr.print("override internal var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("String = \"\"")
           case "String" => pr.println("String = \"\"")
@@ -128,25 +132,25 @@ trait ClassGenerator extends ClonerGenerator {
           )
         if (ref.getUpperBound == -1) {
           // multiple values
-          pr.println("override var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
+          pr.println("override internal var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("override val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
+            pr.println("override internal val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
           } else {
-            pr.println("override val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
+            pr.println("override internal val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
           }
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
-          pr.println("override var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
+          pr.println("override internal var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
           // mandatory single ref
-          pr.println("override var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
+          pr.println("override internal var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
         } else if (ref.getLowerBound > 1) {
           // else
-          pr.println("override var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
+          pr.println("override internal var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("override val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
+            pr.println("override internal val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
           } else {
-            pr.println("override val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
+            pr.println("override internal val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
           }
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
@@ -218,6 +222,12 @@ trait ClassGenerator extends ClonerGenerator {
     generateCloneMethods(ctx, cls, pr, packElement)
     generateKMFQLMethods(pr, cls, ctx, pack)
 
+    if(ctx.genSelector){
+      generateSelectorMethods(pr, cls)
+    }
+
+
+
     pr.println("}")
     pr.flush()
     pr.close()
@@ -225,214 +235,11 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
 
-  private def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
-    if (hasID(cls)) {
-      if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
-        pr.print("override ")
-      }
-      pr.println("fun internalGetKey() : String {")
-      var first = true
-      cls.getEAllAttributes.filter(att => att.isID).foreach {
-        att =>
-          if (!first) {
-            pr.print("+\"/\"+")
-          }
-          pr.print("return get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "()")
-          first = false
-      }
-      pr.println("}")
-
-      if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
-        pr.print("override ")
-      }
-      pr.println("fun buildQuery() : String? {")
-      pr.println("return eContainer()?.internalGetQuery(internalGetKey())")
-      pr.println("}")
-    }
-
-
-    //GENERATE findByID methods
-    var generateReflexifMapper = false
-    cls.getEReferences.foreach(ref => {
-      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-        generateReflexifMapper = true
-        pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
-        pr.println("return " + protectReservedWords("_" + ref.getName) + ".get(key)")
-        pr.println("}")
-      }
-    })
-    if (generateReflexifMapper) {
-      pr.println("override fun internalGetQuery(selfKey : String) : String? {")
-      pr.println("var res : Any? = null")
-
-      cls.getEAllReferences.foreach(ref => {
-        if (hasID(ref.getEReferenceType)) {
-          if (ref.getUpperBound == 1) {
-            if (ref.getLowerBound == 0) {
-              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "()?.internalGetKey() == selfKey){")
-              if (hasID(cls)) {
-                pr.println("return eContainer()?.internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
-              } else {
-                pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
-              }
-              pr.println("}")
-            } else {
-              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "()?.internalGetKey() == selfKey){")
-              if (hasID(cls)) {
-                pr.println("return eContainer()?.internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
-              } else {
-                pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
-              }
-              pr.println("}")
-            }
-          } else {
-            //MANY
-            pr.println("res = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(selfKey)")
-            pr.println("if(res != null){")
-            if (hasID(cls)) {
-              pr.println("return eContainer()?.internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
-            } else {
-              pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
-            }
-            pr.println("}")
-          }
-        }
-      })
-      pr.println("return null")
-      pr.println("}")
-
-      if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
-        pr.print("override fun ")
-      } else {
-        pr.print("fun ")
-      }
-      pr.println("findByQuery<A>(query : String, clazz : Class<A>) : A? {")
-      pr.println("try {")
-      pr.println("val res= findByQuery(query)")
-      pr.println("if(res != null){return (res as A)} else {return (null)}")
-      pr.println("}catch(e:Exception){")
-      pr.println("return (null)")
-      pr.println("}")
-      pr.println("}")
-
-      if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
-        pr.print("override fun ")
-      } else {
-        pr.print("fun ")
-      }
-      pr.println("findByQuery(query : String) : Any? {")
-      pr.println("val firstSepIndex = query.indexOf('[')")
-      pr.println("var queryID = \"\"")
-      pr.println("var extraReadChar = 2")
-
-      val optionalRelationShipNameGen = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) /*&& (ref.getUpperBound == -1 || ref.getLowerBound > 1)*/).size == 1
-      if (optionalRelationShipNameGen) {
-        //Optional relationship definition
-        val relationShipOptionalName = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)).get(0).getName
-        pr.println("val relationName = \"" + relationShipOptionalName + "\"")
-        pr.println("val optionalDetected = ( firstSepIndex != " + relationShipOptionalName.size + " )")
-        pr.println("if(optionalDetected){ extraReadChar = extraReadChar - 2 }")
-      } else {
-        pr.println("val relationName = query.substring(0,query.indexOf('['))")
-      }
-
-      if (optionalRelationShipNameGen) {
-        pr.println("if(query.indexOf('{') == 0){")
-      } else {
-        pr.println("if(query.indexOf('{') == firstSepIndex +1){")
-      }
-
-      pr.println("queryID = query.substring(query.indexOf('{')+1,query.indexOf('}'))")
-      pr.println("extraReadChar = extraReadChar + 2")
-      pr.println("} else {") //Normal case
-
-      if (optionalRelationShipNameGen) {
-        pr.println("if(optionalDetected){")
-
-        pr.println("if(query.indexOf('/') != - 1){")
-        pr.println("queryID = query.substring(0,query.indexOf('/'))")
-        pr.println("} else {")
-        pr.println("queryID = query.substring(0,query.size)")
-        //pr.println("extraReadChar = extraReadChar - 1")
-        pr.println("}")
-
-        pr.println("} else {")
-        pr.println("queryID = query.substring(query.indexOf('[')+1,query.indexOf(']'))")
-        pr.println("}")
-      } else {
-        pr.println("queryID = query.substring(query.indexOf('[')+1,query.indexOf(']'))")
-      }
-
-      pr.println("}")
-
-      if (optionalRelationShipNameGen) {
-        pr.println("var subquery = query.substring((if(optionalDetected){0} else {relationName.size})+queryID.size+extraReadChar,query.size)")
-      } else {
-        pr.println("var subquery = query.substring(relationName.size+queryID.size+extraReadChar,query.size)")
-      }
-      pr.println("if (subquery.indexOf('/') != -1){")
-      pr.println("subquery = subquery.substring(subquery.indexOf('/')+1,subquery.size)")
-      pr.println("}")
-      pr.println("return when(relationName) {")
-      cls.getEAllReferences.foreach(ref => {
-        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-          pr.println("\"" + ref.getName + "\" -> {")
-          pr.println("val objFound = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(queryID)")
-          pr.println("if(subquery != \"\" && objFound != null){")
-          if (hasFindByIDMethod(ref.getEReferenceType)) {
-            pr.println("objFound.findByQuery(subquery)")
-          } else {
-            pr.println("throw Exception(\"KMFQL : rejected sucessor\")")
-          }
-          pr.println("} else {objFound}")
-          pr.println("}")
-
-        }
-        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
-          pr.println("\"" + ref.getName + "\" -> {")
-          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
-          pr.println("}")
-        }
-        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
-          pr.println("\"" + ref.getName + "\" -> {")
-          pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
-          pr.println("}")
-        }
-      })
-      pr.println("else -> {}")
-      pr.println("}")
-      pr.println("}")
-    } else {
-
-
-      val superTypes = cls.getESuperTypes.toSet
-      if (superTypes.size > 0) {
-        pr.println()
-        pr.println("override fun internalGetQuery(selfKey : String) : String? {")
-        pr.println("var subResult : String? = null")
-        superTypes.foreach(superType => {
-
-          val ePackageName = ProcessorHelper.fqn(ctx, superType.getEPackage)
-          pr.println("subResult = super<" + ePackageName + "." + superType.getName + ">.internalGetQuery(selfKey)")
-          pr.println("if(subResult!=null){")
-          pr.println("  return subResult")
-          pr.println("}")
-        })
-        pr.println("return null")
-        pr.println("}")
-        pr.println("")
-      }
-
-
-    }
-  }
-
-
   private def generateAtts(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
 
     cls.getEAttributes.foreach {
       att =>
-        pr.print("var " + protectReservedWords("_" + att.getName) + " : ")
+        pr.print("internal var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("String")
           case "java.lang.Integer" => pr.println("Int")
@@ -462,25 +269,25 @@ trait ClassGenerator extends ClonerGenerator {
 
         if (ref.getUpperBound == -1) {
           // multiple values
-          pr.println("var " + protectReservedWords("_" + ref.getName) + "_java_cache : List<" + typeRefName + ">?")
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + "_java_cache : List<" + typeRefName + ">?")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
           } else {
-            pr.println("val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + ">")
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + ">")
           }
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
-          pr.println("var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "?")
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "?")
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
           // mandatory single ref
-          pr.println("var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "?")
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "?")
         } else if (ref.getLowerBound > 1) {
           // else
-          pr.println("var " + protectReservedWords("_" + ref.getName) + "_java_cache : List<" + typeRefName + ">?")
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + "_java_cache : List<" + typeRefName + ">?")
           if (hasID(ref.getEReferenceType)) {
-            pr.println("val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + ">")
           } else {
-            pr.println("val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + ">")
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + ">")
           }
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")

@@ -94,6 +94,15 @@ public class GenModelPlugin extends AbstractMojo {
 
 
     /**
+     * Generate also selector
+     *
+     * @parameter
+     */
+    private Boolean selector = false;
+
+
+
+    /**
      * The maven project.
      *
      * @parameter expression="${project}"
@@ -127,9 +136,10 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setRootGenerationDirectory(output);
         ctx.setRootUserDirectory(inputScala);
         ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
-
+        ctx.genSelector_$eq(selector);
 
         Generator gen = new Generator(ctx);//, getLog());
+
         gen.generateModel(ecore, project.getVersion());
         if (!modelOnly) {
             gen.generateLoader(ecore);

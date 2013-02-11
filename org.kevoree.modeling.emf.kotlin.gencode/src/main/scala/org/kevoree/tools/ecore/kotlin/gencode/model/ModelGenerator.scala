@@ -33,7 +33,9 @@ class ModelGenerator(ctx:GenerationContext) extends TraitGenerator
 with PackageFactoryGenerator
 with ClassGenerator
 with ClonerGenerator
-with EnumGenerator {
+with EnumGenerator
+with KMFQLFinder
+with KMFQLSelectorGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.

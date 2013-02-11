@@ -56,6 +56,11 @@ import java.util
 
 class GenerationContext {
 
+
+  var genSelector : Boolean = false
+
+
+
   /**
    * Package to be added before the RootPackage of the model
    */

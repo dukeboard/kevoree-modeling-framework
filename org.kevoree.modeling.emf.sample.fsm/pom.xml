@@ -15,31 +15,6 @@
     <properties>
         <metamodel.ecore>metamodel/fsm.ecore</metamodel.ecore>
     </properties>
-    
-    <profiles>
-        <profile>
-            <id>org.kevoree.modeling.emf.sample.fsm.mac</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
-            <properties>
-                <java.lib.location>&lt;java.home&gt;/../Classes/classes.jar</java.lib.location>
-            </properties>
-        </profile>
-        <profile>
-            <id>org.kevoree.platform.osgi.android.other</id>
-            <activation>
-                <os>
-                    <family>!mac</family>
-                </os>
-            </activation>
-            <properties>
-                <java.lib.location>${java.home}/lib/rt.jar</java.lib.location>
-            </properties>
-        </profile>
-    </profiles>
 
 
     <build>

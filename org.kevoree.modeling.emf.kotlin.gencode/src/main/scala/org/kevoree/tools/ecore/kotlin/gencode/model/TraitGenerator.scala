@@ -53,19 +53,19 @@ trait TraitGenerator {
     //case class name
     pr.println("trait " + formatedFactoryName + " {")
     pr.println()
-    pr.println(" var internal_eContainer : " + formatedFactoryName+"?")
-    pr.println(" var internal_unsetCmd : (()->Unit)?")
+    pr.println("internal open var internal_eContainer : " + formatedFactoryName+"?")
+    pr.println("internal open var internal_unsetCmd : (()->Unit)?")
 
     //generate getter
     pr.println("fun eContainer() : "+formatedFactoryName+"? { return internal_eContainer }")
 
-    pr.println("var internal_readOnlyElem : Boolean")
+    pr.println("internal open var internal_readOnlyElem : Boolean")
     pr.println("fun setInternalReadOnly(){")
-    pr.println("this.internal_readOnlyElem = true")
+    pr.println("internal_readOnlyElem = true")
     pr.println("}")
 
     pr.println("fun isReadOnly() : Boolean {")
-    pr.println("return this.internal_readOnlyElem")
+    pr.println("return internal_readOnlyElem")
     pr.println("}")
 
     //generate setter
@@ -78,7 +78,7 @@ trait TraitGenerator {
     pr.println("tempUnsetCmd()")
     pr.println("}")
 
-    pr.println("this.internal_eContainer = container\n")
+    pr.println("internal_eContainer = container\n")
     pr.println("internal_unsetCmd = unsetCmd")
     pr.println("}")
 
