@@ -30,11 +30,6 @@ Finding a model element (like the components Logger in the node 42) from the gen
     	}	
     }
 
- 
-
-
-
-
 Looping on relations between models has serious drowbacks on performance and in code complexity. Moreover is this translation to Java code there is no insurance of the unikness property defined in the ecore file.
 In many case study their is a serious need to find a model element with an unikness notion like in relationnal databases.
 This motivation is the basic of the path langage presented here. 
@@ -53,6 +48,31 @@ and because there are no ambiguity on relations name (only one are present per m
 
 
 ### Syntax
+
+KMFQL syntax follow the metamodels relationships.
+Each relationship can be cross over with the following `word`.
+
+	relationName[ID]
+
+Define as follow :
+
+
+ RelationName | ID
+:----------- | :-----------:
+Name of the relation to cross over (ex : nodes) | Value of the attribute to identify one element in the relationship
+ 
+If an `ID` contains a `/` character (such as a sub-path), the entire `ID`  must be protected by a **{** and a **}**
+
+In our simple example we can expressed the our selection of the node 42 by the following expression :
+
+	nodes[node42]
+	
+This expression assume that the starting point is the root of the model.
+
+
+Finally `word` of selection can be then chained by a `/` char which allow deep path contruction
+
+
 
 
 
