@@ -9,7 +9,21 @@ Rather than EMF, KMF is dedicated to offer a efficient solution for **Runtime** 
 Model are structures and must then offer at runtime efficient solution for explore, load, save and clone datas.
 KMF has been published in our [paper@Model'2012 conference](https://www.google.lu/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&ved=0CFcQFjAD&url=http%3A%2F%2Fhal.archives-ouvertes.fr%2Fdocs%2F00%2F71%2F45%2F58%2FPDF%2Femfatruntime.pdf&ei=s8AYUfPlIZCDhQfx54DoCw&usg=AFQjCNFlfrm1NFVs6iIddxVjorbJeOajWA&sig2=nUrWedVJnv8ndOQViy2ZtA&bvm=bv.42080656,d.ZG4)
 
-Finding a model element from the generated API point of view need 
+A sample example is way better a long discour, so we take a minimal component model like Kevoree as a metamodel sample.
+ 
+![Mini Kevoree Model](https://raw.github.com/dukeboard/kevoree-modeling-framework/master/doc/fig/minikev.png)
+
+NamedElement define an attribute `name` wich has the `ID` attribute marked to true.
+In short a root contains nodes which contains themself components, and every elements are identified by an ID which is the `name` attribute.
+ 
+Finding a model element (like the components Logger in the node 42) from the generated API point of view need to iterate on each model element to find it. In Java code this can done like it :
+
+	ComponentModelRoot root = ...
+    Components f 
+
+ 
+
+
 
 
 Looping on relations between models has serious drowbacks on performance.
