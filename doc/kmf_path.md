@@ -107,6 +107,12 @@ In this case, two methods are automatically generated : find**relationshipName**
 
 The starting point for the resolution of a query (Chained Path) is the element on which the method is called. Thus, if you want to retrieve the node 420 from a ComponentModelRool element the chained path is `nodes[42]/nodes[420]`. But if you look for this same element from node42, the query path is reduced like `node[420]`. The resolution process of KMFQL is recursive.
 
+Each element identify by an `ID` embed also a generated method to produce a unique path to found them.
+
+	public String buildQuery();
+	
+The method buildQuery return then a path following the containements hierarchie.
+
 [top](#top)
 <a id="pathSelector/perf"></a>
 ####Performance and scalability
@@ -116,6 +122,9 @@ Moreover KMFQL reduce the number of temporary object creation resulting in a bet
 
 KMFQL used HashMap has back-end, the scalability of this solution is then dependent of this implementation.
 Scalaility if pretty good until ~100 000 elements, after this soft limit HashMap implementation is tunable to adapt the hash function to the number of model elements in the relationship.
+
+##### Micro benchmark
+
 
 
 <a id="querySelector"></a>
@@ -163,7 +172,7 @@ And finally in the same manner the following expression select every master whic
 
 	nodes[{ &(nodes.size > 3)(name = Center1_* ) }]
 	
-Finally with the syntaxique sugar and or operator selecting nodes of Center1 and Center2 can be expressed by the following expression :
+Finally with the syntaxique sugar and or operator selecting nodes of Center1 or Center2 can be expressed by the following expression :
 
 	{ PIPE(name = Center1_*)(name = Center2_* ) }
 
