@@ -111,7 +111,8 @@ The starting point for the resolution of a query (Chained Path) is the element o
 <a id="pathSelector/perf"></a>
 ####Performance and scalability
 
-KMFQL is design for performance at runtime, then at runtime the evaluation of the query is down with a minimal overhead and using hashfuntion. The resolution (or non resolution) of a path introduce far less overhead rather than iterate on expression.
+KMFQL is design for performance at runtime, then at runtime the evaluation of the query is down with a minimal overhead and using hashfuntions. The resolution (or non resolution) of a path introduce far less overhead rather than iterate on expression.
+Moreover KMFQL reduce the number of temporary object creation resulting in a better scalability on limited environnement like Android virtual machine.
 
 KMFQL used HashMap has back-end, the scalability of this solution is then dependent of this implementation.
 Scalaility if pretty good until ~100 000 elements, after this soft limit HashMap implementation is tunable to adapt the hash function to the number of model elements in the relationship.
@@ -119,4 +120,55 @@ Scalaility if pretty good until ~100 000 elements, after this soft limit HashMap
 
 <a id="querySelector"></a>
 ## Query Selector
+
+The path selection allows developper to find a unique model element identify by a path composed by `ID` and `/`.
+Query selector reuse path semantic but allow to deeply collect model element following relationship.
+As the opposite of an SQL langage it apply filter recursivly and aggregate result of crossed paths.
+In short it is a multiple path aggregation.
+
+KMFQL query is non limited to element identify by id by can use any attribute for the filtering expression.
+
+### Syntax
+
+The syntax is based on the same construction of path selection.
+
+	relationName[{filterExp}]/relationName[{filterExp}]
+
+The filterExp reuse LDAP filter expression and KMFQL use a sub project for the execution named JFilter.
+Filter expression syntax is then well [documented by this project](https://github.com/rouvoy/jfilter)
+
+Relation name is optional and selection without it will be apply on any relationship.
+
+	{filterExp}/relationName[{filterExp}]
+
+### API and usage
+
+Like path find methods, selectors method are generated if the option `selector` is set to true in the maven plugin of KMF.
+
+	selectByQuery(String query);
+	
+If we take the previous example of tiny component model prevously described, selected every node which name began 42 can be expressed as :
+
+	nodes[{ name = 42* }]
+	
+Path and selector can be mixed together, then selecting every nodes containing a component with ID is expressed as follow :
+
+	nodes[{ name = 42* }] / components[logger]
+
+Another example is the selection of every child (hosted by another node) wich has **also** a number of component >10
+
+	nodes[{ name = * }] / nodes[{ components.size > 10 }]
+
+And finally in the same manner the following expression select every master which host more than 3 sub nodes and which name began by Center1_ :
+
+	nodes[{ &(nodes.size > 3)(name = Center1_* ) }]
+	
+Finally with the syntaxique sugar and or operator selecting nodes of Center1 and Center2 can be expressed by the following expression :
+
+	{ PIPE(name = Center1_*)(name = Center2_* ) }
+
+### Performance 
+
+KMF Selector has a slower resolution than path selection, but is still far better rather iterate on relationship collections.
+Last but not least, JFilter and KMFQL are design to be able to run on sall environement like Android Dalvik.
 
