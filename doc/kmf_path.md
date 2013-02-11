@@ -19,7 +19,7 @@ KMF takes advantage of its generation abilities to now propose two new tools to 
 <a id="pathSelector"></a>
 ## Path Selector
 
-The [**Path Selector**](#pathSelector) gives the ability to reach a specific element in the model in a logarithmic time, as soon as the model element has an *ID*. Indeed, IDs are mandatory to uniquely identify model elements among their fellows. Let see how it works.
+The **Path Selector** gives the ability to reach a specific element in the model in a logarithmic time, as soon as the model element has an *ID*. Indeed, IDs are mandatory to uniquely identify model elements among their fellows. Let see how it works.
 
 For the sake of clarity, we illustrate the use of Path Selectors(PS) with an example extracted from [Kevoree](http://www.kevoree.org). Let consider a very simple excerpt of the Kevoree metamodel.
 
@@ -81,7 +81,7 @@ If an `ID` contains a `/` character (such as a sub-path), the entire `ID`  must 
 
 In our simple example we can expressed the our selection of the node 42, on a model root by the following expression :
 
-	nodes[node42]
+	nodes[{node42}]
 	
 If the starting point (model element) of our path contains only one relationship, the name of the relationship began optional.
 Then the following expression is suffisent : node42
@@ -101,7 +101,7 @@ In our example if we want to get the component named logger host by the node420 
 
 	nodes[42]/nodes[420]/components[logger]
 
-#### Performance
+####Performance and scalability
 
 KMFQL is design for performance at runtime, then at runtime the evaluation of the query is down with a minimal overhead and using hashfuntion. The resolution (or non resolution) of a path introduce far less overhead rather than iterate on expression.
 
