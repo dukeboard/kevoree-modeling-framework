@@ -19,17 +19,38 @@ In short a root contains nodes which contains themself components, and every ele
 Finding a model element (like the components Logger in the node 42) from the generated API point of view need to iterate on each model element to find it. In Java code this can done like it :
 
 	ComponentModelRoot root = ...
-    Components f 
+    Component foundedComponent = …
+    for(Node loopingNode : root.getNodes()){
+    	if(loopingNode.getName().equals("node42")){
+    		for(Component loopingComponent : loopingNode.getComponents()){
+    			if(loopingComponent.equals("logger")){
+    				foundedComponent = loopingComponent.equals;
+    			}
+    		}
+    	}	
+    }
 
  
 
 
 
 
-Looping on relations between models has serious drowbacks on performance.
+Looping on relations between models has serious drowbacks on performance and in code complexity. Moreover is this translation to Java code there is no insurance of the unikness property defined in the ecore file.
 In many case study their is a serious need to find a model element with an unikness notion like in relationnal databases.
 This motivation is the basic of the path langage presented here. 
 In a nuthsell it is way to find a model element following model relationships and *id* attribute expressed in metamodel.   
+
+In Java code the generated API look like to :
+
+	ComponentModelRoot root = ...
+	Component foundedComponent = root.findByQuery("nodes[42]/components[logger]");
+	
+and because there are no ambiguity on relations name (only one are present per model entity), we can also express this path with the following expression :
+
+	ComponentModelRoot root = ...
+	Component foundedComponent = root.findByQuery("42/logger");
+
+
 
 ### Syntax
 
