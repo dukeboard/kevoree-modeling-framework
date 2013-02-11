@@ -81,10 +81,10 @@ If an `ID` contains a `/` character (such as a sub-path), the entire `ID`  must 
 
 In our simple example we can expressed the our selection of the node 42, on a model root by the following expression :
 
-	nodes[{node42}]
+	nodes[{42}]
 	
 If the starting point (model element) of our path contains only one relationship, the name of the relationship began optional.
-Then the following expression is suffisent : node42
+Then the following expression is suffisent : 42
 
 
 ####Chained paths
