@@ -107,11 +107,11 @@ In this case, two methods are automatically generated : find**relationshipName**
 
 The starting point for the resolution of a query (Chained Path) is the element on which the method is called. Thus, if you want to retrieve the node 420 from a ComponentModelRool element the chained path is `nodes[42]/nodes[420]`. But if you look for this same element from node42, the query path is reduced like `node[420]`. The resolution process of KMFQL is recursive.
 
-Each element identify by an `ID` embed also a generated method to produce a unique path to found them.
+Each element identified by an `ID` also embbed a generated method to produce the unique path to find them.
 
 	public String buildQuery();
 	
-The method buildQuery return then a path following the containements hierarchie.
+The method buildQuery returns a path that follows the containement hierarchie.
 
 [top](#top)
 <a id="pathSelector/perf"></a>
