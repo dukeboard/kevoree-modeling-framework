@@ -27,7 +27,7 @@ For the sake of clarity, we illustrate the use of Path Selectors(PS) with an exa
 ![Mini Kevoree Model](https://raw.github.com/dukeboard/kevoree-modeling-framework/master/doc/fig/minikev.png)
 
 
-NamedElement define an attribute `name` wich has the `ID` attribute marked to true.
+In Kevoree, a NamedElement has an attribute `name`(^_^). This attribute is marked as the `ID` of NemedElement's elements (i.e.: the property `id` of this attribute is set to `true`).
 In short a root contains nodes which contains themself components, and every elements are identified by an ID which is the `name` attribute.
  
 Finding a model element (like the components Logger in the node 42) from the generated API point of view need to iterate on each model element to find it. In Java code this can done like it :
