@@ -1,17 +1,31 @@
-# Kevoree Modeling Framework : Path query langage
+# Kevoree Modeling Framework - Query Langage (KMFQL)
 
 ![Kevoree icon](http://kevoree.org/img/kevoree-logo.png)
 
 ## Overview
 
-**Kevoree Modeling Framework**, offer a drop-in remplacement of EMF *generator* (model to code generator).
-Rather than EMF, KMF is dedicated to offer a efficient solution for **Runtime** usage of model.
-Model are structures and must then offer at runtime efficient solution for explore, load, save and clone datas.
-KMF has been published in our [paper@Model'2012 conference](https://www.google.lu/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&ved=0CFcQFjAD&url=http%3A%2F%2Fhal.archives-ouvertes.fr%2Fdocs%2F00%2F71%2F45%2F58%2FPDF%2Femfatruntime.pdf&ei=s8AYUfPlIZCDhQfx54DoCw&usg=AFQjCNFlfrm1NFVs6iIddxVjorbJeOajWA&sig2=nUrWedVJnv8ndOQViy2ZtA&bvm=bv.42080656,d.ZG4)
+The Eclipse Modeling Framework(EMF) has been developed for design time manipulations of models and provides tools for this purpose, though not developed to be light, embeddable and effective at **run time**. 
+The **Kevoree Modeling Framework(KMF)**[^1] is developed specifically to address these drawbacks and provides a drop-in replacement of the EMF *generator* (i.e.: model to code generator). Indeed, models are structured data and must offer efficient solutions for their exploration, loading, saving and cloning.
 
-A sample example is way better a long discour, so we take a minimal component model like Kevoree as a metamodel sample.
- 
+KMF takes advantage of its generation abilities to now propose two new tools to efficiently select and/or reach any model element.
+
+* The [**Query Selector**](#querySelector) offers a simple language to collect, in depth, all the elements from the model that satisfy a query
+* The [**Path Selector**](#pathSelector) gives the ability to efficiently reach a specific element in the model, as soon as the model element has an *ID*.
+
+
+[^1]:[Models'12 Conference](https://www.google.lu/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&ved=0CFcQFjAD&url=http%3A%2F%2Fhal.archives-ouvertes.fr%2Fdocs%2F00%2F71%2F45%2F58%2FPDF%2Femfatruntime.pdf&ei=s8AYUfPlIZCDhQfx54DoCw&usg=AFQjCNFlfrm1NFVs6iIddxVjorbJeOajWA&sig2=nUrWedVJnv8ndOQViy2ZtA&bvm=bv.42080656,d.ZG4)
+
+
+<a id="pathSelector"></a>
+## Path Selector
+
+The [**Path Selector**](#pathSelector) gives the ability to reach a specific element in the model in a logarithmic time, as soon as the model element has an *ID*. Indeed, IDs are mandatory to uniquely identify model elements among their fellows. Let see how it works.
+
+For the sake of clarity, we illustrate the use of Path Selectors(PS) with an example extracted from [Kevoree](http://www.kevoree.org). Let consider a very simple excerpt of the Kevoree metamodel.
+
+
 ![Mini Kevoree Model](https://raw.github.com/dukeboard/kevoree-modeling-framework/master/doc/fig/minikev.png)
+
 
 NamedElement define an attribute `name` wich has the `ID` attribute marked to true.
 In short a root contains nodes which contains themself components, and every elements are identified by an ID which is the `name` attribute.
@@ -160,9 +174,9 @@ atx-style:
 
 Footnotes work mostly like reference-style links. A footnote is made of two things: a marker in the text that will become a superscript number; a footnote definition that will be placed in a list of footnotes at the end of the document. A footnote looks like this:
 
-That's some text with a footnote.[^1]
+That's some text with a footnote.[^2]
 
-[^1]: And that's the footnote.
+[^2]: And that's the footnote.
 
 
 #### Strikethrough
