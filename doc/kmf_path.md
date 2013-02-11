@@ -164,7 +164,7 @@ API Version | Time to select (in microseconds)
 EMF         | 954
 KMF         | 37 
 
-To summarize, selection by path is ~26 faster rather than iteration on relationships collection.
+To summarize, selection by path compared with the naive version reduce the execution time by a factor of **25,9**.
 
 <a id="querySelector"></a>
 ## Query Selector
