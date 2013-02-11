@@ -10,8 +10,8 @@ The **Kevoree Modeling Framework(KMF)**[^1] is developed specifically to address
 
 KMF takes advantage of its generation abilities to now propose two new tools to efficiently select and/or reach any model element.
 
-* The [**Query Selector**](#querySelector) offers a simple language to collect, in depth, all the elements from the model that satisfy a query
-* The [**Path Selector**](#pathSelector) gives the ability to efficiently reach a specific element in the model, as soon as the model element has an *ID*.
+* The [**Path Selector(KMFQL-PS)**](#pathSelector) gives the ability to efficiently reach a specific element in the model, as soon as the model element has an *ID*.
+* The [**Query Selector(KMFQL-QS)**](#querySelector) offers a simple language to collect, in depth, all the elements from the model that satisfy a query
 
 
 [^1]:[Models'12 Conference](https://www.google.lu/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&ved=0CFcQFjAD&url=http%3A%2F%2Fhal.archives-ouvertes.fr%2Fdocs%2F00%2F71%2F45%2F58%2FPDF%2Femfatruntime.pdf&ei=s8AYUfPlIZCDhQfx54DoCw&usg=AFQjCNFlfrm1NFVs6iIddxVjorbJeOajWA&sig2=nUrWedVJnv8ndOQViy2ZtA&bvm=bv.42080656,d.ZG4)
@@ -164,36 +164,37 @@ KMFQL-PS        | 37 | 0,037
 
 To summarize, KMFQL-PS, compared with the naive version, reduces the execution time by a factor of **25,9**.
 
+[top](#top)
 <a id="querySelector"></a>
 ## Query Selector
 
-The path selection allows developper to find a unique model element identify by a path composed by `ID` and `/`.
-Query selector reuse path semantic but allow to deeply collect model element following relationship.
-As the opposite of an SQL langage it apply filter recursivly and aggregate result of crossed paths.
-In short it is a multiple path aggregation.
+When working with models, the selection of elements among a collection is one of the most common operation. This selection is often made of a filter on the values of some elements' attributes. This filtered sub-collection can then be applied another filter going deeper in the containment relation and/or a treatment can be applied.
 
-KMFQL query is non limited to element identify by id by can use any attribute for the filtering expression.
+The KMFQL-QS has been created to allow for efficient deep filtering of model elements. Just as for the Path Selector, queries can be composed of chained filters. The filtering is performed a prefix recursion basis. The first filter returning no element ends the execution of the query and returns null. Otherwise, the query returns the last set of elements that passed the last filter.
+
+The difference with an SQL query for instance, is that the first part of the query is executed, then the second part is executed on each element the sub-set issues from the first query. The results of the second query are aggregated and used as input for the third query; and the algorithm goes until there is no more query part to apply.
+
+KMFQL-QS relies on [JFilter](https://github.com/rouvoy/jfilter) for the definition of filters and execution of the query.
 
 ### Syntax
 
-The syntax is based on the same construction of path selection.
+The syntax is based on the same construction as KMFQL-PS. The filterExp format is documented on [JFilter](https://github.com/rouvoy/jfilter).
 
 	relationName[{filterExp}]/relationName[{filterExp}]
 
-The filterExp reuse LDAP filter expression and KMFQL use a sub project for the execution named JFilter.
-Filter expression syntax is then well [documented by this project](https://github.com/rouvoy/jfilter)
-
-Relation name is optional and selection without it will be apply on any relationship.
+The relation name is optional. In this case,  the query is executed on **ALL** relations of the element on which it is called.<br/>
+**BE AWARE** that this behavior can lead to a combinatorial explosion if not used with caution.
 
 	{filterExp}/relationName[{filterExp}]
 
+[top](#top)
 ### API and usage
 
-Like path find methods, selectors method are generated if the option `selector` is set to true in the maven plugin of KMF.
+As for KMFQL-PS, selector methods are generated directly in the classes of the model elements, if the `selector` option is set to true in the KMF maven plugin.
 
 	selectByQuery(String query);
 	
-If we take the previous example of tiny component model prevously described, selected every node which name began 42 can be expressed as :
+If we take the previous example of tiny component model previously described, selected every node which name began 42 can be expressed as :
 
 	nodes[{ name = 42* }]
 	
@@ -201,7 +202,7 @@ Path and selector can be mixed together, then selecting every nodes containing a
 
 	nodes[{ name = 42* }] / components[logger]
 
-Another example is the selection of every child (hosted by another node) wich has **also** a number of component >10
+Another example is the selection of every child (hosted by another node) witch has **also** a number of component >10
 
 	nodes[{ name = * }] / nodes[{ components.size > 10 }]
 
@@ -209,12 +210,13 @@ And finally in the same manner the following expression select every master whic
 
 	nodes[{ &(nodes.size > 3)(name = Center1_* ) }]
 	
-Finally with the syntaxique sugar and or operator selecting nodes of Center1 or Center2 can be expressed by the following expression :
+Finally with the syntactique sugar and or operator selecting nodes of Center1 or Center2 can be expressed by the following expression :
 
-	{ PIPE(name = Center1_*)(name = Center2_* ) }
+	{ |(name = Center1_*)(name = Center2_* ) }
 
 ### Performance 
 
 KMF Selector has a slower resolution than path selection, but is still far better rather iterate on relationship collections.
-Last but not least, JFilter and KMFQL are design to be able to run on sall environement like Android Dalvik.
+Last but not least, JFilter and KMFQL are design to be able to run on small environment like Android Dalvik.
 
+[top](#top)
