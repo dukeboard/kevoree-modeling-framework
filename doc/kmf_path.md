@@ -125,7 +125,46 @@ Scalaility if pretty good until ~100 000 elements, after this soft limit HashMap
 
 ##### Micro benchmark
 
+The following graphical representation illustrate a hierarchie of node and component.
 
+![BenchModel](https://raw.github.com/dukeboard/kevoree-modeling-framework/master/doc/fig/deepModel.png)
+
+The following code represente the legacy code with EMF API to found the component FakeConsole :
+
+        for (ContainerNode node : model.getNodes()) {
+            if (node.getName().equals("node6")) {
+                for (ContainerNode node2 : node.getHosts()) {
+                    if (node2.getName().equals("node7")) {
+                        for (ContainerNode node3 : node2.getHosts()) {
+                            if (node3.getName().equals("node8")) {
+                                for (ContainerNode node4 : node3.getHosts()) {
+                                    if (node4.getName().equals("node4")) {
+                                        for (ComponentInstance i : node4.getComponents()) {
+                                            if (i.getName().equals("FakeConso380")) {
+                                                fConsole = i;break;
+                                            }
+                                        }break;
+                                    }
+                                }break;
+                            }
+                        }break;
+                    }
+                }break;
+            }
+        }
+        
+And the following code represent the new version with KMFQL :
+
+        ComponentInstance fConsole2 = model.findByQuery("nodes[node6]/hosts[node7]/hosts[node8]/hosts[node4]/components[FakeConso380]", ComponentInstance.class);
+
+Executed on an i7 2.6 Ghz processor this very simple selection give the following times :
+
+API Version | Time to select (in microseconds)
+:----------- | :-----------:
+EMF         | 954
+KMF         | 37 
+
+To summarize, selection by path is ~26 faster rather than iteration on relationships collection.
 
 <a id="querySelector"></a>
 ## Query Selector
