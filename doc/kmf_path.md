@@ -202,7 +202,7 @@ Path and selector can be mixed together, then selecting every nodes containing a
 
 	nodes[{ name = 42* }] / components[logger]
 
-Another example is the selection of every child (hosted by another node) witch has **also** a number of component >10
+Another example is the selection of every child (hosted by another node) which has **also** a number of component >10
 
 	nodes[{ name = * }] / nodes[{ components.size > 10 }]
 
