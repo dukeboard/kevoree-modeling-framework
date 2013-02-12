@@ -129,8 +129,9 @@ class SerializerGenerator(ctx: GenerationContext) {
                 subSerializer = subSerializer ++ generateSerializer(genDir, packageName, sub.getName, subsubType, rootXmiPackage)
               }
           }
-          if (sub.getEReferenceType != root) {
+          if (sub.getEReferenceType != root  && !alreadyGenerated.contains(sub.getEReferenceType)) {
             //avoid looping in case of self-containment
+            alreadyGenerated = alreadyGenerated ++ Set(sub.getEReferenceType)
             subSerializer = subSerializer ++ generateSerializer(genDir, packageName, sub.getName, sub.getEReferenceType, rootXmiPackage)
           }
         //}
