@@ -57,19 +57,20 @@ with KMFQLSelectorGenerator {
       generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
     }
 
-
-    if(ctx.getKevoreeContainer.isEmpty) {
-      generateContainerTrait(ctx, currentPackageDir, currentPackage)
+    if(isRoot) {
+      ctx.getRootContainerInPackage(currentPackage) match {
+        case Some(rootContainerClass) =>{
+          generateContainerTrait(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
+          generateCloner(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage),  rootContainerClass.getEPackage)
+        }
+        case _ => print("No container root found in package : " + currentPackage.getName)
+      }
     }
+
 
     //generateMutableTrait(dir, thisPack, pack)
     currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c,currentUserPackageDir))
     currentPackage.getESubpackages.foreach(subPack => process(subPack, modelVersion))
-
-
-    if(isRoot){
-      generateCloner(ctx, currentPackageDir, currentPackage)
-    }
 
   }
 

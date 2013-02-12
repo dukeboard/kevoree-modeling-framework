@@ -38,6 +38,8 @@ trait TraitGenerator {
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Container"
 
+    ProcessorHelper.checkOrCreateFolder(packageGenDir)
+
     val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt")
 
     val pr = new PrintWriter(localFile,"utf-8")

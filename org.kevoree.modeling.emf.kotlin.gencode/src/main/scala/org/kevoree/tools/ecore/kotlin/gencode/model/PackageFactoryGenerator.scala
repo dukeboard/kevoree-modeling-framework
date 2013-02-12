@@ -45,8 +45,7 @@ trait PackageFactoryGenerator {
 
     val packageName = ProcessorHelper.fqn(ctx, packElement)
 
-    ctx.factoryPackage = packageName
-    ctx.factoryName = formatedFactoryName
+    ctx.packageFactoryMap.put(packageName, packageName + "." + formatedFactoryName)
 
     pr.println("package " + packageName + ";")
     pr.println()

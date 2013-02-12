@@ -114,11 +114,15 @@
                         <configuration>
                             <metamodels>
                                 <metamModel>src/main/resources/kevoree.ecore</metamModel>
+                                <metamModel>src/main/resources/kermeta.ecore</metamModel>
                                 <metamModel>src/main/resources/thingml.ecore</metamModel>
+
                             </metamodels>
                             <rootContainers>
                                 <rootContainer>ContainerRoot</rootContainer>
+                                <rootContainer>Metamodel</rootContainer>
                                 <rootContainer>ThingMLModel</rootContainer>
+
                             </rootContainers>
                         </configuration>
                     </execution>

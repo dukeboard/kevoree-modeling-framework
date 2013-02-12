@@ -94,7 +94,7 @@ public class Main extends AbstractMojo {
 
             GenerationContext ctx = generateKmf(metamodels[i], rootContainers[i], "test"+i+".kmf");
             generateEmf(metamodels[i],"test"+i+".emf");
-            TestsGenerator.generateTests(metamodels[i], ctx.factoryPackage(), "test"+i, testsOutput, project.getBasedir());
+            TestsGenerator.generateTests(metamodels[i], ctx.getKevoreeContainer().get().substring(0, ctx.getKevoreeContainer().get().lastIndexOf(".")), "test"+i, testsOutput, project.getBasedir());
         }
 
         this.project.addCompileSourceRoot(output.getAbsolutePath());

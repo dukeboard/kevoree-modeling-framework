@@ -62,15 +62,16 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     pr.print("class ModelLoader ")
 
-   // if (subLoaders.size > 0) {
-   //   var stringListSubLoaders = List[String]()
-   //   subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
-   //   pr.println(stringListSubLoaders.mkString(": ", ", ", " {"))
-   // } else {
-      pr.println("{")
+    // if (subLoaders.size > 0) {
+    //   var stringListSubLoaders = List[String]()
+    //   subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
+    //   pr.println(stringListSubLoaders.mkString(": ", ", ", " {"))
+    // } else {
+    pr.println("{")
     // }
 
     pr.println("")
+    //TODO: REMOVE NEXT LiNE AFTER DEBUG
     pr.println("var debug : Boolean = false")
     pr.println("")
     pr.println("")
@@ -136,8 +137,14 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
 
   private def generateFactorySetter(pr: PrintWriter) {
-    pr.println("private var factory : " + ctx.factoryPackage + "." + ctx.factoryName + " = " + ctx.factoryPackage + ".impl.Default" + ctx.factoryName + "()")
-    pr.println("fun setFactory(fct : " + ctx.factoryPackage + "." + ctx.factoryName + ") { factory = fct}")
+
+    ctx.packageFactoryMap.values().foreach{factoryFqn =>
+      val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
+      val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
+      pr.println("private var "+factoryFqn.replace(".","_")+" : " + factoryFqn + " = " + factoryPackage + ".impl.Default" + factoryName + "()")
+      pr.println("fun setFactory(fct : " + factoryFqn + ") { "+factoryFqn.replace(".","_")+" = fct}")
+    }
+
   }
 
   private def generateLoadMethod(pr: PrintWriter, elementType: EClass) {
@@ -184,32 +191,32 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("private fun deserialize(reader : XMLStreamReader): List<"+ProcessorHelper.fqn(ctx,elementType)+"> {")
 
     pr.println("val context = " + context + "(reader)")
-    pr.println("context.factory = this.factory")
+    //pr.println("context.factory = this.factory")
     pr.println("while(reader.hasNext()) {")
-	pr.println("val nextTag = reader.next()")
-	pr.println("when(nextTag) {")
-	pr.println("XMLStreamConstants.START_ELEMENT -> {")
-	pr.println("val localName = reader.getLocalName()")
-	pr.println("if(localName != null && localName.contains(\""+rootContainerName.substring(0, 1).toUpperCase + rootContainerName.substring(1)+"\")) {")
+    pr.println("val nextTag = reader.next()")
+    pr.println("when(nextTag) {")
+    pr.println("XMLStreamConstants.START_ELEMENT -> {")
+    pr.println("val localName = reader.getLocalName()")
+    pr.println("if(localName != null && localName.contains(\""+rootContainerName.substring(0, 1).toUpperCase + rootContainerName.substring(1)+"\")) {")
     pr.println("load"+ elementType.getName +"(context)")
     pr.println("if(context."+ rootContainerName +" != null) {")
     pr.println("context.loaded_" + rootContainerName + ".add(context." + rootContainerName + "!!)")
     pr.println("}")
-	
-	pr.println("}")
-	pr.println("}") // START_ELEMENT
-	pr.println("XMLStreamConstants.END_ELEMENT -> {break}")
+
+    pr.println("}")
+    pr.println("}") // START_ELEMENT
+    pr.println("XMLStreamConstants.END_ELEMENT -> {break}")
     pr.println("XMLStreamConstants.END_DOCUMENT -> {break}")
-	pr.println("else ->{println(\"Default case :\" + nextTag.toString())}")
-	
-	pr.println("}")//When
-	pr.println("}")//while
-    
-	pr.println("for(res in context.resolvers) {res()}")
-   
+    pr.println("else ->{println(\"Default case :\" + nextTag.toString())}")
+
+    pr.println("}")//When
+    pr.println("}")//while
+
+    pr.println("for(res in context.resolvers) {res()}")
+
     pr.println("return context.loaded_" + rootContainerName)
-	
-	pr.println("}")
+
+    pr.println("}")
   }
 
 
@@ -222,7 +229,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("")
     pr.println("val elementTagName = context.xmiReader.getLocalName()")
     pr.println("val loaded"+rootContainerName+"Size = context.loaded_"+rootContainerName+".size()")
-    pr.println("context." + rootContainerName + " = context.factory.create" + elementType.getName + "()")
+    pr.println("context." + rootContainerName + " = "+factory.replace(".","_")+".create" + elementType.getName + "()")
     pr.println("context.map.put(\"/\" + loaded"+rootContainerName+"Size, context."+rootContainerName+"!!)")
     pr.println("")
     pr.println("var done = false")

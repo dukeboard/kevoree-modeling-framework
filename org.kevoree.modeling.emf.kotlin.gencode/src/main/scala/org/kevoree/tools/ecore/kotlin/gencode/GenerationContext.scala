@@ -155,7 +155,7 @@ class GenerationContext {
   var loaderPrintWriter : PrintWriter = null
 
 
-  var factoryPackage : String = ""
-  var factoryName : String = ""
+  var packageFactoryMap : util.HashMap[String, String] = new util.HashMap[String, String]()
+  var classFactoryMap : util.HashMap[String, String] = new util.HashMap[String, String]()
 
 }

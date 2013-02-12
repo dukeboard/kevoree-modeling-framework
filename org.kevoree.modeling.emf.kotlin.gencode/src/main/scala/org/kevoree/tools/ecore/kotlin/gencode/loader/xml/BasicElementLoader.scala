@@ -160,9 +160,10 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: S
       pr.println("val elementTagName = context.xmiReader.getLocalName()")
     }
 
-    pr.println("val modelElem = context.factory.create" + elementType.getName + "()")
+    pr.println("val modelElem = "+factory.replace(".","_")+".create" + elementType.getName + "()")
 
     pr.println("context.map.put(elementId, modelElem)")
+    //TODO: REMOVE NEXT LiNE AFTER DEBUG
     pr.println("if(debug){System.out.println(\"Stored:\" + elementId)}")
     pr.println("")
 

@@ -70,6 +70,15 @@ trait ClonerGenerator {
 
   }
 
+  private def generateFactorySetter(ctx: GenerationContext, pr : PrintWriter) {
+    ctx.packageFactoryMap.values().foreach{factoryFqn =>
+      val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
+      val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
+      pr.println("private var "+factoryFqn+" : " + factoryFqn + " = " + factoryPackage + ".impl.Default" + factoryName + "()")
+      pr.println("fun setFactory(fct : " + factoryFqn + ") { factory = fct}")
+    }
+  }
+
   def generateDefaultCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
     ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/cloner")
     val pr = new PrintWriter(new File(currentPackageDir + "/cloner/ModelCloner.kt"), "utf-8")
@@ -78,8 +87,8 @@ trait ClonerGenerator {
 
     pr.println("package " + packageName + ".cloner")
     pr.println("class ModelCloner {")
-    pr.println("protected var _factory : " + ctx.factoryPackage +"." + ctx.factoryName + " = " + ctx.factoryPackage + ".impl.Default" + ctx.factoryName + "()")
-    pr.println("fun setFactory( fct : " + ctx.factoryPackage +"." + ctx.factoryName + " ) {_factory = fct}")
+
+    //generateFactorySetter(ctx, pr)
 
     pr.println("\tfun clone<A>(o : A) : A? {")
     pr.println("\t return clone(o,false)")
@@ -90,7 +99,7 @@ trait ClonerGenerator {
     pr.println("\t\treturn when(o) {")
     pr.println("\t\t\tis " + ProcessorHelper.fqn(ctx, containerRoot) + " -> {")
     pr.println("\t\t\t\tval context = java.util.IdentityHashMap<Any,Any>()")
-    pr.println("\t\t\t\to.getClonelazy(context, _factory)")
+    pr.println("\t\t\t\to.getClonelazy(context)")
     pr.println("\t\t\t\to.resolve(context,readOnly) as A")
     pr.println("\t\t\t}")
     pr.println("\t\t\telse -> null")
@@ -144,11 +153,11 @@ trait ClonerGenerator {
     if (cls.getESuperTypes.size() > 0) {
       buffer.print("\toverride ")
     }
-    buffer.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, factory : "+ctx.factoryPackage+"."+ctx.factoryName+") {")
+    buffer.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>) {")
 
     var formatedName: String = cls.getName.substring(0, 1).toUpperCase
     formatedName += cls.getName.substring(1)
-    buffer.println("\t\tval selfObjectClone = factory.create" + formatedName + "()")
+    buffer.println("\t\tval selfObjectClone = this.javaClass.newInstance()")
     cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
       att => {
 
@@ -167,22 +176,22 @@ trait ClonerGenerator {
         if (contained.getUpperBound == -1) {
           // multiple values
           buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")
-          buffer.println("sub.getClonelazy(subResult, factory)")
+          buffer.println("sub.getClonelazy(subResult)")
           buffer.println("}")
         } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/) {
           // optional single ref
 
           buffer.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
           buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
-          buffer.println("subsubsubsub" + contained.getName + ".getClonelazy(subResult, factory)")
+          buffer.println("subsubsubsub" + contained.getName + ".getClonelazy(subResult)")
           buffer.println("}")
-       /* } else if (contained.getUpperBound == 1 && contained.getLowerBound == 1) {
-          // mandatory single ref
-          buffer.println("\t\tthis." + getGetter(contained.getName) + "().getClonelazy(subResult)")
-        */} else if (contained.getLowerBound > 1) {
+          /* } else if (contained.getUpperBound == 1 && contained.getLowerBound == 1) {
+             // mandatory single ref
+             buffer.println("\t\tthis." + getGetter(contained.getName) + "().getClonelazy(subResult)")
+           */} else if (contained.getLowerBound > 1) {
           // else
           buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")
-          buffer.println("\t\t\tsub.getClonelazy(subResult, factory)")
+          buffer.println("\t\t\tsub.getClonelazy(subResult)")
           buffer.println("\t\t}")
         } else {
           throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
@@ -262,10 +271,10 @@ trait ClonerGenerator {
         contained.getUpperBound match {
           case 1 => {
             //if (contained.getLowerBound == 0) {
-              buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
-              buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
-              buffer.println("subsubsub" + contained.getName + ".resolve(addrs,readOnly)")
-              buffer.println("}")
+            buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
+            buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
+            buffer.println("subsubsub" + contained.getName + ".resolve(addrs,readOnly)")
+            buffer.println("}")
             //} else {
             //  buffer.println("\t\tthis." + getGetter(contained.getName) + "().resolve(addrs,readOnly)")
             //}

@@ -23,6 +23,7 @@ package org.kevoree.tools.ecore.kotlin.gencode.loader.xml
 
 import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelper}
+import scala.collection.JavaConversions._
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,16 +34,39 @@ import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelpe
 
 class LoaderGenerator(ctx : GenerationContext) {
 
+  private def registerFactory(pack : EPackage) {
+    var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
+    formatedFactoryName += pack.getName.substring(1)
+    formatedFactoryName += "Factory"
+    val packageName = ProcessorHelper.fqn(ctx, pack)
+    ctx.packageFactoryMap.put(packageName, packageName + "." + formatedFactoryName)
+    pack.getEClassifiers.foreach{ cls =>
+      ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
+    }
+  }
+
   def generateLoader(pack : EPackage) {
 
-    val loaderGenBaseDir = ProcessorHelper.getPackageGenDir(ctx, pack) + "/loader/"
-    ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
+    //Fills the map of factory mappings
+    if(ctx.packageFactoryMap.size()==0) {
+      if(pack.getEClassifiers.size() != 0) {
+        registerFactory(pack)
+      }
+      pack.getESubpackages.foreach{subPack =>
+        if(subPack.getEClassifiers.size() != 0) {
+          registerFactory(subPack)
+        }
+      }
+    }
 
-    val el = new RootLoader(ctx, loaderGenBaseDir, pack)
 
     ctx.getRootContainerInPackage(pack) match {
       case Some(cls : EClass) => {
-        el.generateLoader(cls, pack.getName+ ":" + cls.getName)
+        val loaderGenBaseDir = ProcessorHelper.getPackageGenDir(ctx, cls.getEPackage) + "/loader/"
+        ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
+
+        val el = new RootLoader(ctx, loaderGenBaseDir, cls.getEPackage)
+        el.generateLoader(cls, cls.getEPackage.getName+ ":" + cls.getName)
       }
       case None => throw new UnsupportedOperationException("Root container not found. Returned None.")
     }

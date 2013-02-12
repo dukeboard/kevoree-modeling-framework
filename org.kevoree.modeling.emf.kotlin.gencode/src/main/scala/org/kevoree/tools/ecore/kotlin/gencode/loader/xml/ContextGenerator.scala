@@ -60,8 +60,8 @@ class ContextGenerator(ctx:GenerationContext, genDir: String, genPackage: String
     pr.println()
     pr.println("\t\tval stats : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()")
     pr.println()
-    pr.println("\t\tvar factory : " + ctx.factoryPackage + "." + ctx.factoryName + " = " + ctx.factoryPackage + ".impl.Default" + ctx.factoryName + "()")
-    pr.println()
+    //pr.println("\t\tvar factory : " + ctx.factoryPackage + "." + ctx.factoryName + " = " + ctx.factoryPackage + ".impl.Default" + ctx.factoryName + "()")
+    //pr.println()
 
     pr.println("}")
 

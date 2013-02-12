@@ -77,8 +77,9 @@ trait ClassGenerator extends ClonerGenerator {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.kt")
     val userFile = new File(srcCurrentDir + "/impl/" + cls.getName + "Impl.kt")
     if (userFile.exists()) {
-      return;
+      return
     }
+
     val pr = new PrintWriter(localFile, "utf-8")
     val pack = ProcessorHelper.fqn(ctx, packElement)
     pr.println("package " + pack + ".impl")
@@ -206,6 +207,9 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println()
     pr.println(generateHeader(packElement))
     //case class name
+
+    ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
+
     pr.print("trait " + cls.getName)
     pr.println((generateSuperTypes(ctx, cls, packElement) match {
       case None => "{"
