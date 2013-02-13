@@ -62,6 +62,9 @@ trait TraitGenerator {
     pr.println("fun eContainer() : "+formatedFactoryName+"? { return internal_eContainer }")
 
     pr.println("internal open var internal_readOnlyElem : Boolean")
+
+    pr.println("open fun setRecursiveReadOnly()")
+
     pr.println("fun setInternalReadOnly(){")
     pr.println("internal_readOnlyElem = true")
     pr.println("}")

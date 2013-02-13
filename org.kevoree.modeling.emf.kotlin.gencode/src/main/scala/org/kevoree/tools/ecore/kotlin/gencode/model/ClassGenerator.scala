@@ -94,6 +94,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("override internal var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
     pr.println("override internal var internal_unsetCmd : (()->Unit)? = null")
     pr.println("override internal var internal_readOnlyElem : Boolean = false")
+
     //  }
     //generate init
     cls.getEAllAttributes.foreach {
@@ -199,6 +200,10 @@ trait ClassGenerator extends ClonerGenerator {
     })
   }
 
+  private def getGetter(name: String): String = {
+    "get" + name.charAt(0).toUpper + name.substring(1)
+  }
+
   def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
@@ -216,6 +221,34 @@ trait ClassGenerator extends ClonerGenerator {
       case Some(s) => s + " {"
     }))
 
+    //Generate RecursiveReadOnly
+    pr.println("override fun setRecursiveReadOnly(){")
+    cls.getEAllContainments.foreach {
+      contained =>
+        if (contained.getUpperBound == -1) {
+          // multiple values
+          pr.println("for(sub in this." + getGetter(contained.getName) + "()){")
+          pr.println("sub.setRecursiveReadOnly()")
+          pr.println("}")
+        } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
+          // optional single ref
+          pr.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
+          pr.println("if(subsubsubsub" + contained.getName + "!= null){ ")
+          pr.println("subsubsubsub" + contained.getName + ".setRecursiveReadOnly()")
+          pr.println("}")
+        } else if (contained.getLowerBound > 1) {
+          // else
+          pr.println("for(sub in this." + getGetter(contained.getName) + "()){")
+          pr.println("\t\t\tsub.setRecursiveReadOnly()")
+          pr.println("\t\t}")
+        } else {
+          throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
+        }
+        pr.println()
+    }
+    pr.println("setInternalReadOnly()")
+
+    pr.println("}")
 
     generateAtts(pr, cls, ctx, pack)
 
