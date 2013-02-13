@@ -267,7 +267,8 @@ object ProcessorHelper {
                 //System.out.println("\t\tReference::[name:" + reference.getName + ", type:" + reference.getEReferenceType.getName + ", isContainement:" + reference.isContainment + ", isContainer:" + reference.isContainer + "]")
               }
             }
-            case _@e => throw new UnsupportedOperationException(e.getClass.getName + " did not match anything while looking for containerRoot element.")
+            //case cls: EDataType => // Ignore
+            case _@e => //Ignore throw new UnsupportedOperationException(e.getClass.getName + " did not match anything while looking for containerRoot element.")
           }
         }
 
