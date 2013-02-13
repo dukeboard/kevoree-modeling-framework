@@ -142,7 +142,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
       val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
       val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
       pr.println("private var "+factoryFqn.replace(".","_")+" : " + factoryFqn + " = " + factoryPackage + ".impl.Default" + factoryName + "()")
-      pr.println("fun setFactory(fct : " + factoryFqn + ") { "+factoryFqn.replace(".","_")+" = fct}")
+      pr.println("fun set"+factoryName+"(fct : " + factoryFqn + ") { "+factoryFqn.replace(".","_")+" = fct}")
     }
 
   }

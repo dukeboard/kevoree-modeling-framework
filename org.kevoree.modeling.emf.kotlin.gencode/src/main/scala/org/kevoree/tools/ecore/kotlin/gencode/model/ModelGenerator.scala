@@ -48,7 +48,18 @@ with KMFQLSelectorGenerator {
     val currentPackageDir = ProcessorHelper.getPackageGenDir(ctx, currentPackage)
     val currentUserPackageDir = ProcessorHelper.getPackageUserDir(ctx, currentPackage)
 
+    if(isRoot) {
 
+      ctx.registerFactory(currentPackage)
+
+      ctx.getRootContainerInPackage(currentPackage) match {
+        case Some(rootContainerClass) =>{
+          generateContainerTrait(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
+          generateCloner(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage),  rootContainerClass.getEPackage, rootContainerClass)
+        }
+        case _ => print("No container root found in package : " + currentPackage.getName)
+      }
+    }
 
     ProcessorHelper.checkOrCreateFolder(currentPackageDir)
     if(currentPackage.getEClassifiers.size() != 0) {
@@ -56,17 +67,6 @@ with KMFQLSelectorGenerator {
       generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
       generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
     }
-
-    if(isRoot) {
-      ctx.getRootContainerInPackage(currentPackage) match {
-        case Some(rootContainerClass) =>{
-          generateContainerTrait(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
-          generateCloner(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage),  rootContainerClass.getEPackage)
-        }
-        case _ => print("No container root found in package : " + currentPackage.getName)
-      }
-    }
-
 
     //generateMutableTrait(dir, thisPack, pack)
     currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c,currentUserPackageDir))

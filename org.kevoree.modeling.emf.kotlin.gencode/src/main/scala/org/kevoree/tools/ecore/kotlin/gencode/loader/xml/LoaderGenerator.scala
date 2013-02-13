@@ -34,27 +34,16 @@ import scala.collection.JavaConversions._
 
 class LoaderGenerator(ctx : GenerationContext) {
 
-  private def registerFactory(pack : EPackage) {
-    var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
-    formatedFactoryName += pack.getName.substring(1)
-    formatedFactoryName += "Factory"
-    val packageName = ProcessorHelper.fqn(ctx, pack)
-    ctx.packageFactoryMap.put(packageName, packageName + "." + formatedFactoryName)
-    pack.getEClassifiers.foreach{ cls =>
-      ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
-    }
-  }
-
   def generateLoader(pack : EPackage) {
 
     //Fills the map of factory mappings
     if(ctx.packageFactoryMap.size()==0) {
       if(pack.getEClassifiers.size() != 0) {
-        registerFactory(pack)
+        ctx.registerFactory(pack)
       }
       pack.getESubpackages.foreach{subPack =>
         if(subPack.getEClassifiers.size() != 0) {
-          registerFactory(subPack)
+          ctx.registerFactory(subPack)
         }
       }
     }
