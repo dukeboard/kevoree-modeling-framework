@@ -15,6 +15,23 @@
  * 	Fouquet Francois
  * 	Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 package org.kevoree.tools.ecore.kotlin.gencode.model
 
 import java.io.PrintWriter
@@ -55,12 +72,17 @@ trait KMFQLFinder {
       pr.println("}")
 
       pr.println("override fun path() : String? {")
-      pr.println("return (eContainer() as "+ctx.getKevoreeContainerImplFQN+").internalGetQuery(internalGetKey())")
+      pr.println("return (eContainer() as " + ctx.getKevoreeContainerImplFQN + ").internalGetQuery(internalGetKey())")
       pr.println("}")
     } else {
-      pr.println("override fun path() : String? {")
-      pr.println("return null")
-      pr.println("}")
+
+      if (!cls.getEAllSuperTypes.exists(st => hasID(st))) {
+        pr.println("override fun path() : String? {")
+        pr.println("return null")
+        pr.println("}")
+      }
+
+
     }
 
 
@@ -82,20 +104,20 @@ trait KMFQLFinder {
       cls.getEAllReferences.foreach(ref => {
         if (hasID(ref.getEReferenceType)) {
           if (ref.getUpperBound == 1) {
-            val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage)+".impl." + ref.getEReferenceType.getName + "Internal"
+            val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
             if (ref.getLowerBound == 0) {
 
-              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && (get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() as "+refInternalClassFqn+").internalGetKey() == selfKey){")
+              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && (get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() as " + refInternalClassFqn + ").internalGetKey() == selfKey){")
               if (hasID(cls)) {
-                pr.println("return (eContainer() as "+ctx.getKevoreeContainerImplFQN+").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
+                pr.println("return (eContainer() as " + ctx.getKevoreeContainerImplFQN + ").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
               } else {
                 pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
               }
               pr.println("}")
             } else {
-              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && (get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() as "+refInternalClassFqn+").internalGetKey() == selfKey){")
+              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && (get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() as " + refInternalClassFqn + ").internalGetKey() == selfKey){")
               if (hasID(cls)) {
-                pr.println("return (eContainer() as "+ctx.getKevoreeContainerImplFQN+").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
+                pr.println("return (eContainer() as " + ctx.getKevoreeContainerImplFQN + ").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
               } else {
                 pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
               }
@@ -106,7 +128,7 @@ trait KMFQLFinder {
             pr.println("res = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(selfKey)")
             pr.println("if(res != null){")
             if (hasID(cls)) {
-              pr.println("return (eContainer() as "+ctx.getKevoreeContainerImplFQN+").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
+              pr.println("return (eContainer() as " + ctx.getKevoreeContainerImplFQN + ").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
             } else {
               pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
             }
@@ -221,7 +243,7 @@ trait KMFQLFinder {
         superTypes.foreach(superType => {
 
           val ePackageName = ProcessorHelper.fqn(ctx, superType.getEPackage)
-          pr.println("subResult = super<" + ctx.getKevoreeContainerImplFQN + ">.internalGetQuery(selfKey)")
+          pr.println("subResult = super<" + ePackageName+".impl."+superType.getName + "Internal>.internalGetQuery(selfKey)")
           pr.println("if(subResult!=null){")
           pr.println("  return subResult")
           pr.println("}")
@@ -231,8 +253,12 @@ trait KMFQLFinder {
         pr.println("")
       }
 
-      pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
-      pr.println("override fun findByPath(query : String) : Any? {return null}")
+
+      if (!cls.getEAllSuperTypes.exists(st => hasID(st))) {
+        pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
+        pr.println("override fun findByPath(query : String) : Any? {return null}")
+      }
+
 
     }
   }

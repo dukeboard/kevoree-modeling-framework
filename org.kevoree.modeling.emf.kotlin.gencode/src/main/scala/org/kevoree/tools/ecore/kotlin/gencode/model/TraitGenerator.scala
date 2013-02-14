@@ -84,8 +84,9 @@ trait TraitGenerator {
     pr.println("fun eContainer() : " + formatedFactoryName + "?")
     pr.println("fun isReadOnly() : Boolean")
     pr.println("fun setInternalReadOnly()")
-
-    pr.println("fun selectByQuery(query : String) : List<Any>")
+    if(ctx.genSelector){
+      pr.println("fun selectByQuery(query : String) : List<Any>")
+    }
 
     pr.println("fun findByPath<A>(query : String, clazz : Class<A>) : A?")
     pr.println("fun findByPath(query : String) : Any?")
