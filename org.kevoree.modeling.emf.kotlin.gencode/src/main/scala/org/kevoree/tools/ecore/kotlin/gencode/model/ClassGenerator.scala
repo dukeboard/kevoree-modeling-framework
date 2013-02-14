@@ -87,7 +87,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("import " + pack + ".*")
     pr.println()
     pr.print("class " + cls.getName + "Impl(")
-    pr.println(") : " + cls.getName + " {")
+    pr.println(") : " + cls.getName + "Internal {")
     //test if generation of variable from Base Trait
     // if (cls.getESuperTypes.isEmpty) {
     //val formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Container"

@@ -84,6 +84,8 @@ trait APIGenerator extends ClassGenerator {
         pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") \n")
     }
 
+
+
     cls.getEReferences.foreach {
       ref =>
         val typeRefName = (
@@ -115,7 +117,14 @@ trait APIGenerator extends ClassGenerator {
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not a standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
+
+        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
+          pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
+        }
+
     }
+
+
   }
 
   private def generateGetter(ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {

@@ -98,7 +98,7 @@ with APIGenerator {
     cls match {
       case cl: EClass => {
         generateClass(ctx, currentPackageDir, packElement, cl)
-    //    generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
         generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
         generateContainerAPI(ctx, currentPackageDir, packElement)
       }

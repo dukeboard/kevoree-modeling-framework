@@ -89,7 +89,7 @@ trait KMFQLSelectorGenerator {
 
   def generateSelectorMethods(pr: PrintWriter, cls: EClass,ctx:GenerationContext) {
 
-    if (hasFindByIDMethod(cls)) {
+  //  if (hasFindByIDMethod(cls)) {
         pr.print("override fun ")
       pr.println("selectByQuery(query : String) : List<Any> {")
       pr.println("val collected = java.util.ArrayList<Any>()")
@@ -209,7 +209,7 @@ trait KMFQLSelectorGenerator {
       pr.println("return collected }")
 
       pr.println("}")
-    }
+   // }
 
 
   }

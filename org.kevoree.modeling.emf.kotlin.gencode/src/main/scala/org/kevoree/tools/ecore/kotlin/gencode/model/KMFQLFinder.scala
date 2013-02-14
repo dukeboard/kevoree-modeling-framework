@@ -54,11 +54,12 @@ trait KMFQLFinder {
       }
       pr.println("}")
 
-      if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
-        pr.print("override ")
-      }
-      pr.println("fun buildQuery() : String? {")
+      pr.println("override fun path() : String? {")
       pr.println("return (eContainer() as "+ctx.getKevoreeContainerImplFQN+").internalGetQuery(internalGetKey())")
+      pr.println("}")
+    } else {
+      pr.println("override fun path() : String? {")
+      pr.println("return null")
       pr.println("}")
     }
 
@@ -68,7 +69,7 @@ trait KMFQLFinder {
     cls.getEReferences.foreach(ref => {
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
         generateReflexifMapper = true
-        pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
+        pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
         pr.println("return " + protectReservedWords("_" + ref.getName) + ".get(key)")
         pr.println("}")
       }
@@ -230,6 +231,8 @@ trait KMFQLFinder {
         pr.println("")
       }
 
+      pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
+      pr.println("override fun findByPath(query : String) : Any? {return null}")
 
     }
   }

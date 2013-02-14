@@ -89,7 +89,7 @@ trait TraitGenerator {
 
     pr.println("fun findByPath<A>(query : String, clazz : Class<A>) : A?")
     pr.println("fun findByPath(query : String) : Any?")
-
+    pr.println("fun path() : String?")
 
 
 
