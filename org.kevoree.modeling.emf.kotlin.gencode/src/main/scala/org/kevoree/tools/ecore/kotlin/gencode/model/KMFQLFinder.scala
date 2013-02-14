@@ -118,7 +118,7 @@ trait KMFQLFinder {
       } else {
         pr.print("fun ")
       }
-      pr.println("findByQuery<A>(query : String, clazz : Class<A>) : A? {")
+      pr.println("findByPath<A>(query : String, clazz : Class<A>) : A? {")
       pr.println("try {")
       pr.println("val res= findByQuery(query)")
       pr.println("if(res != null){return (res as A)} else {return (null)}")
@@ -132,7 +132,7 @@ trait KMFQLFinder {
       } else {
         pr.print("fun ")
       }
-      pr.println("findByQuery(query : String) : Any? {")
+      pr.println("findByPath(query : String) : Any? {")
       pr.println("val firstSepIndex = query.indexOf('[')")
       pr.println("var queryID = \"\"")
       pr.println("var extraReadChar = 2")
@@ -225,7 +225,7 @@ trait KMFQLFinder {
         superTypes.foreach(superType => {
 
           val ePackageName = ProcessorHelper.fqn(ctx, superType.getEPackage)
-          pr.println("subResult = super<" + ePackageName + "." + superType.getName + ">.internalGetQuery(selfKey)")
+          pr.println("subResult = super<" + ePackageName + ".impl." + superType.getName + ">.internalGetQuery(selfKey)")
           pr.println("if(subResult!=null){")
           pr.println("  return subResult")
           pr.println("}")

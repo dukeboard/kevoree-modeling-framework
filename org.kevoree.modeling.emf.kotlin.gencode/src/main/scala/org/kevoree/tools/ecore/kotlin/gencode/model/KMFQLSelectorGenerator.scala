@@ -70,6 +70,7 @@ package org.kevoree.tools.ecore.kotlin.gencode.model
 
 import java.io.PrintWriter
 import org.eclipse.emf.ecore.EClass
+import org.kevoree.tools.ecore.kotlin.gencode.{GenerationContext, ProcessorHelper}
 import org.kevoree.tools.ecore.kotlin.gencode.ProcessorHelper._
 import scala.collection.JavaConversions._
 
@@ -86,7 +87,7 @@ trait KMFQLSelectorGenerator {
   def hasID(cls: EClass): Boolean
 
 
-  def generateSelectorMethods(pr: PrintWriter, cls: EClass) {
+  def generateSelectorMethods(pr: PrintWriter, cls: EClass,ctx:GenerationContext) {
 
     if (hasFindByIDMethod(cls)) {
       if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
@@ -169,7 +170,7 @@ trait KMFQLSelectorGenerator {
             pr.println("val internalFilter = fr.inria.jfilter.FilterParser.instance.parse(queryID)")
             pr.println("val subResult = internalFilter!!.filter(" + protectReservedWords("_" + ref.getName) + ".values())!!")
             pr.println("for(subObj in subResult){")
-            pr.println("collected.addAll( (subObj as "+protectReservedWords(ref.getEReferenceType.getName)+").selectByQuery(subquery))")
+            pr.println("collected.addAll( (subObj as "+ProcessorHelper.fqn(ctx,ref.getEReferenceType)+").selectByQuery(subquery))")
             pr.println("}")
             pr.println("} else {")
             pr.println("val internalFilter = fr.inria.jfilter.FilterParser.instance.parse(queryID)")

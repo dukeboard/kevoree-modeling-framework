@@ -150,6 +150,13 @@ class GenerationContext {
     kevoreeContainer = ct
   }
 
+  private var kevoreeContainerImplFQN: String = ""
+
+  def getKevoreeContainerImplFQN = kevoreeContainerImplFQN
+
+  def setKevoreeContainerImplFQN(s : String){
+    kevoreeContainerImplFQN = s
+  }
 
   var generatedLoaderFiles = new util.ArrayList[String]()
   var loaderPrintWriter : PrintWriter = null
