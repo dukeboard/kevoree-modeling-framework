@@ -120,7 +120,7 @@ object ProcessorHelper {
 
   def generateSuperTypesPlusSuperAPI(ctx: GenerationContext, cls: EClass, packElement: EPackage): Option[String] = {
     var superTypeList: Option[String] = None
-    superTypeList = Some(" : " + ProcessorHelper.fqn(ctx, packElement) + "." + cls.getName)
+    superTypeList = Some(" : " + ctx.getKevoreeContainerImplFQN + ", " + ProcessorHelper.fqn(ctx, packElement) + "." + cls.getName)
     cls.getESuperTypes.foreach {
       superType =>
         val superName = ProcessorHelper.fqn(ctx, superType.getEPackage)+".impl."+superType.getName+"Internal"

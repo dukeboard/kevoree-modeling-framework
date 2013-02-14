@@ -90,11 +90,7 @@ trait KMFQLSelectorGenerator {
   def generateSelectorMethods(pr: PrintWriter, cls: EClass,ctx:GenerationContext) {
 
     if (hasFindByIDMethod(cls)) {
-      if (cls.getEAllSuperTypes.exists(st => hasFindByIDMethod(st))) {
         pr.print("override fun ")
-      } else {
-        pr.print("fun ")
-      }
       pr.println("selectByQuery(query : String) : List<Any> {")
       pr.println("val collected = java.util.ArrayList<Any>()")
       pr.println("try {")

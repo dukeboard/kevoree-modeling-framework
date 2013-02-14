@@ -104,6 +104,7 @@ public class MainTest {
         ModelSerializer sav = new ModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
+        System.out.println("Serialized in : " + tempFile.getAbsolutePath());
         //  tempFile.deleteOnExit();
 
         long marshalingStart = 0, marshalingEnd = 0;

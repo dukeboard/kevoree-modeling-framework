@@ -131,8 +131,8 @@ trait ClonerGenerator {
     pr.println("\t\treturn when(o) {")
     pr.println("\t\t\tis " + ProcessorHelper.fqn(ctx, containerRoot) + " -> {")
     pr.println("\t\t\t\tval context = java.util.IdentityHashMap<Any,Any>()")
-    pr.println("\t\t\t\to.getClonelazy(context, this)")
-    pr.println("\t\t\t\to.resolve(context,readOnly) as A")
+    pr.println("\t\t\t\t(o as "+ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName+"Internal).getClonelazy(context, this)")
+    pr.println("\t\t\t\t(o as "+ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName+"Internal) .resolve(context,readOnly) as A")
     pr.println("\t\t\t}")
     pr.println("\t\t\telse -> null")
     pr.println("\t\t}") //END MATCH
@@ -284,7 +284,7 @@ trait ClonerGenerator {
     buffer.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean) : Any {")
 
     //GET CLONED OBJECT
-    buffer.println("\t\tval clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls) + "")
+    buffer.println("\t\tval clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl."+cls.getName+"Internal")
     //SET ALL REFERENCE
     cls.getEAllReferences.foreach {
       ref =>
