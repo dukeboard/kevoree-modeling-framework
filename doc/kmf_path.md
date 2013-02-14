@@ -53,7 +53,7 @@ Now, imagine that you want to get the `logger`component that you know to be host
 Using the KMFQL-PS the same research looks like:
 
 	ComponentModelRoot root = mySystem.getRoot();
-	Component foundedComponent = root.findByQuery("nodes[42]/components[logger]");
+	Component foundedComponent = root.findByPath("nodes[42]/components[logger]");
 	
 
 [top](#top)
@@ -81,7 +81,7 @@ Also, in our example the following paths are equivalent :
 	
 In some particular cases, a model element can contain one and only one relation  to another element. In this particular case, it can be convenient to omit the specification of the relation to navigate. In our example, ComponentModelRoot has only one containment relation (nodes), which enables the path to a specific node: 
 
-	Component foundedComponent = root.findByQuery("42");
+	Component foundedComponent = root.findByPath("42");
 
 [top](#top)
 <a id="pathSelector/chainedPaths"></a>
@@ -99,19 +99,19 @@ In our example, the retrieval of the logger of the node 420, hosted on node 42 c
 ####Generated Java API
 
 The API for PS is automatically included in generated classes for each model element that declares an `ID` attribute.
-In this case, two methods are automatically generated : find**relationshipName**ByID and findByQuery method.
+In this case, two methods are automatically generated : find**relationshipName**ByID and findByPath method.
 
 	public Node findNodeByID(String nodeID); //Returns the node model element with the specific nodeID; null otherwise.
 	
-	public Object findByQuery(String query); //Returns the object selected by a chained path; null otherwise.
+	public Object findByPath(String query); //Returns the object selected by a chained path; null otherwise.
 
 The starting point for the resolution of a query (Chained Path) is the element on which the method is called. Thus, if you want to retrieve the node 420 from a ComponentModelRool element the chained path is `nodes[42]/nodes[420]`. But if you look for this same element from node42, the query path is reduced like `node[420]`. The resolution process of KMFQL is recursive.
 
 Each element identified by an `ID` also embbed a generated method to produce the unique path to find them.
 
-	public String buildQuery();
+	public String path();
 	
-The method buildQuery returns a path that follows the containement hierarchie.
+The method path returns a path that follows the containement hierarchie.
 
 [top](#top)
 <a id="pathSelector/perf"></a>
@@ -153,7 +153,7 @@ Now, imagine you want to get the FakeConsole component instance that is hosted d
         
 ò_ó Disappointing. Look at the same function, in KMFQL-PS :
 
-        ComponentInstance fConsole2 = model.findByQuery("nodes[node6]/hosts[node7]/hosts[node8]/hosts[node4]/components[FakeConso380]", ComponentInstance.class);
+        ComponentInstance fConsole2 = model.findByPath("nodes[node6]/hosts[node7]/hosts[node8]/hosts[node4]/components[FakeConso380]", ComponentInstance.class);
 
 On a i7 2.6 Ghz processor this selection gives the following execution times :
 
