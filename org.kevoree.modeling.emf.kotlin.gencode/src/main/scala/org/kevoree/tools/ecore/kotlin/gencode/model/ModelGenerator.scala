@@ -69,7 +69,6 @@ with APIGenerator {
     if (isRoot) {
 
       ctx.registerFactory(currentPackage)
-
       ctx.getRootContainerInPackage(currentPackage) match {
         case Some(rootContainerClass) => {
           generateContainerTrait(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)

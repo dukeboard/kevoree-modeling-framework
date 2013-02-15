@@ -125,13 +125,7 @@ trait ClassGenerator extends ClonerGenerator {
     }
     cls.getEAllReferences.foreach {
       ref =>
-        val typeRefName = (
-          if (ref.getEReferenceType.getName == null) {
-            resolveCrossRefTypeDef(cls, ref, pack)
-          } else {
-            ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
-          }
-          )
+        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.getUpperBound == -1) {
           // multiple values
           pr.println("override internal var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
@@ -162,7 +156,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.flush()
     pr.close()
   }
-
+    /*
   def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String = {
     val uri = ref.getEReferenceType.asInstanceOf[InternalEObject].eProxyURI()
     val uriString = uri.toString
@@ -171,7 +165,7 @@ trait ClassGenerator extends ClonerGenerator {
     val packa = resource.getAllContents.next().asInstanceOf[EPackage]
     val typName = uriString.substring(uriString.lastIndexOf("#//") + 3)
     pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
-  }
+  } */
 
   def hasID(cls: EClass): Boolean = {
     cls.getEAllAttributes.exists {
@@ -295,13 +289,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEReferences.foreach {
       ref =>
-        val typeRefName = (
-          if (ref.getEReferenceType.getName == null) {
-            resolveCrossRefTypeDef(cls, ref, pack)
-          } else {
-            ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
-          }
-          )
+        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
 
         if (ref.getUpperBound == -1) {
           // multiple values
@@ -356,13 +344,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEReferences.foreach {
       ref =>
-        val typeRefName = (
-          if (ref.getEReferenceType.getName == null) {
-            resolveCrossRefTypeDef(cls, ref, pack)
-          } else {
-            ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
-          }
-          )
+        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.getUpperBound == -1) {
           // multiple values
           pr.println(generateGetter(ref, typeRefName, false, false))
