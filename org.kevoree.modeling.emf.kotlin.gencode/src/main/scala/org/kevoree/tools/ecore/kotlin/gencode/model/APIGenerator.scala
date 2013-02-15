@@ -48,6 +48,8 @@ import scala.collection.JavaConversions._
  */
 trait APIGenerator extends ClassGenerator {
 
+
+
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
@@ -88,13 +90,7 @@ trait APIGenerator extends ClassGenerator {
 
     cls.getEReferences.foreach {
       ref =>
-        val typeRefName = (
-          if (ref.getEReferenceType.getName == null) {
-            resolveCrossRefTypeDef(cls, ref, pack)
-          } else {
-            ProcessorHelper.fqn(ctx, ref.getEReferenceType) //.getName
-          }
-          )
+        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.getUpperBound == -1) {
           // multiple values
           pr.println(generateGetter(ref, typeRefName, false, false))
