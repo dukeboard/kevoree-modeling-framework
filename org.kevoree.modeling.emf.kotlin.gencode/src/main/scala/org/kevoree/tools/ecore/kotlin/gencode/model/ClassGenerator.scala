@@ -449,7 +449,6 @@ trait ClassGenerator extends ClonerGenerator {
   private def generateSetterOp(ctx: GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean, noOpposite: Boolean): String = {
     //generate setter
     var res = ""
-
     val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage)+".impl." + ref.getEReferenceType.getName + "Internal"
 
@@ -458,9 +457,7 @@ trait ClassGenerator extends ClonerGenerator {
     } else {
       res += "\noverride fun set" + formatedLocalRefName
     }
-
     res += "(" + protectReservedWords(ref.getName) + " : "
-
     res += {
       if (!isSingleRef) {
         "List<"
@@ -674,10 +671,8 @@ trait ClassGenerator extends ClonerGenerator {
       }
       res += "}\n"
     }
-
     res += "\n}" //END Method
     res
-
   }
 
 
