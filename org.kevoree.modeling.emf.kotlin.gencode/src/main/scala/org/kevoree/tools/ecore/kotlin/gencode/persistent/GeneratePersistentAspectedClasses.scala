@@ -15,58 +15,6 @@
  * 	Fouquet Francois
  * 	Nain Gregory
  */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
 package org.kevoree.tools.ecore.kotlin.gencode.persistent
 
 import org.eclipse.emf.ecore._
@@ -249,7 +197,18 @@ if (getIdAtt(cls).isEmpty) {
                     pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx))
                   }
                 }
+                if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
+                  pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
+                  pr.println("throw UnsupportedOperationException()")
+                  pr.println("}")
+                }
             }
+
+            //TODO: SHOULD NOT EXIST IN THE END
+            generateMissingMethodsForCompilation(ctx, cls, pr)
+
+
+
           }
           pr.println("}")
           pr.flush()
@@ -373,7 +332,8 @@ if (getIdAtt(cls).isEmpty) {
                 pr.println("}")
                 pr.println("return res!!.getTreeMap(id)!!")
                 pr.println("}")
-            }
+
+             }
           }
           case _@e => println("ignored=" + e) //TODO ENUM EDATATYPE
         }
@@ -438,7 +398,6 @@ if (getIdAtt(cls).isEmpty) {
     res
   }
 
-
   private def generateRemoveAllMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean, ctx: GenerationContext): String = {
     var res = ""
     if (noOpposite) {
@@ -476,7 +435,6 @@ if (getIdAtt(cls).isEmpty) {
     res += "}"
     res
   }
-
 
   private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     generateAddMethodOp(cls, ref, typeRefName, false, ctx) + generateAddAllMethodOp(cls, ref, typeRefName, false, ctx) +
@@ -533,7 +491,6 @@ if (getIdAtt(cls).isEmpty) {
     res
   }
 
-
   private def generateAddMethodOp(cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean, ctx: GenerationContext): String = {
     //generate add
     var res = ""
@@ -577,8 +534,13 @@ if (getIdAtt(cls).isEmpty) {
     pr.print("List<")
     pr.print(typeRefName)
     pr.println("> {")
-    pr.println("val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())")
-    pr.println("return " + protectReservedWords(ref.getName) + "Map.keySet()")
+    pr.println("val " + protectReservedWords(ref.getName + "Map") + " = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())")
+    pr.println("val " + protectReservedWords(ref.getName + "List") + " = java.util.ArrayList<"+typeRefName+">()")
+    pr.println("for("+protectReservedWords(ref.getName)+" in "+protectReservedWords(ref.getName + "Map.keySet()")+"){")
+    //TODO:Call the factory
+    pr.println("//TODO:Call the factory")
+    pr.println("}")
+    pr.println("return " + protectReservedWords(ref.getName + "List"))
     pr.println("}")
   }
 
@@ -595,6 +557,9 @@ if (getIdAtt(cls).isEmpty) {
     //generate setter
     val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+    val refTypeImpl = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
+
+
     if (noOpposite) {
       pr.print("fun noOpposite_set" + formatedLocalRefName)
     } else {
@@ -614,7 +579,7 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n")
     pr.println(protectReservedWords(ref.getName) + "Map.clear()")
     pr.println("for(el in " + protectReservedWords(ref.getName) + "){")
-    pr.println(protectReservedWords("_" + ref.getName) + ".put(el.getGenerated_KMF_ID(),el.path())")
+    pr.println(protectReservedWords(ref.getName) + "Map.put((el as "+refTypeImpl+").getGenerated_KMF_ID(),el.path()!!)")
     pr.println("}")
 
     if (ref.isContainment) {
@@ -643,5 +608,35 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("}") //END Method
   }
 
+
+  //TODO: SHOULD NOT EXIST IN THE END
+  private def generateMissingMethodsForCompilation(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
+    pr.println("override fun setRecursiveReadOnly() {")
+    pr.println("  throw UnsupportedOperationException()")
+    pr.println("}")
+    pr.println("override fun eContainer(): "+ctx.getKevoreeContainer.get+"? {")
+    pr.println("  throw UnsupportedOperationException()")
+    pr.println("}")
+    pr.println("override fun isReadOnly(): Boolean {")
+    pr.println("  throw UnsupportedOperationException()")
+    pr.println("}")
+    pr.println("override fun setInternalReadOnly() {")
+    pr.println("  throw UnsupportedOperationException()")
+    pr.println("}")
+    pr.println("override fun selectByQuery(query: String): List<Any> {")
+    pr.println("  throw UnsupportedOperationException()")
+    pr.println("}")
+    pr.println("override fun <A> findByPath(query: String, clazz: Class<A>): A? {")
+    pr.println(" throw UnsupportedOperationException()")
+    pr.println(" }")
+    pr.println(" override fun findByPath(query: String): Any? {")
+    pr.println(" throw UnsupportedOperationException()")
+    pr.println(" }")
+    pr.println(" override fun path(): String? {")
+    pr.println(" throw UnsupportedOperationException()")
+    pr.println(" }")
+
+
+  }
 
 }
