@@ -163,19 +163,19 @@ trait KMFQLSelectorGenerator {
           //Not found by id search by lookung every solution
           if (hasFindByIDMethod(ref.getEReferenceType)) {
             pr.println("if(subquery != \"\"){")
-            pr.println("val internalFilter = fr.inria.jfilter.Parser.instance.parse(queryID)")
+            pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
             pr.println("val subResult = internalFilter!!.filter(" + protectReservedWords("_" + ref.getName) + ".values())!!")
             pr.println("for(subObj in subResult){")
             pr.println("collected.addAll( (subObj as "+ProcessorHelper.fqn(ctx,ref.getEReferenceType)+").selectByQuery(subquery))")
             pr.println("}")
             pr.println("} else {")
-            pr.println("val internalFilter = fr.inria.jfilter.Parser.instance.parse(queryID)")
+            pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
             pr.println("val subResult = internalFilter!!.filter(" + protectReservedWords("_" + ref.getName) + ".values())!!")
             pr.println("collected.addAll(subResult)")
             pr.println("}")
             pr.println("return collected")
           } else {
-            pr.println("val internalFilter = fr.inria.jfilter.Parser.instance.parse(queryID)")
+            pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
             pr.println("val subResult = internalFilter!!.filter(" + protectReservedWords("_" + ref.getName) + ".values())!!")
             pr.println("collected.addAll(subResult)")
             pr.println("return collected")
@@ -187,7 +187,7 @@ trait KMFQLSelectorGenerator {
         }
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
           pr.println("\"" + ref.getName + "\" -> {")
-          pr.println("val internalFilter = fr.inria.jfilter.Parser.instance.parse(queryID)")
+          pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
           pr.println("val subResult = internalFilter!!.filter(java.util.Collections.singleton(get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()))!!")
           pr.println("collected.add(subResult)")
           pr.println("return collected")
@@ -195,7 +195,7 @@ trait KMFQLSelectorGenerator {
         }
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
           pr.println("\"" + ref.getName + "\" -> {")
-          pr.println("val internalFilter = fr.inria.jfilter.Parser.instance.parse(queryID)")
+          pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
           pr.println("val subResult = internalFilter!!.filter(java.util.Collections.singleton(get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()))!!")
           pr.println("collected.add(subResult)")
           pr.println("return collected")
