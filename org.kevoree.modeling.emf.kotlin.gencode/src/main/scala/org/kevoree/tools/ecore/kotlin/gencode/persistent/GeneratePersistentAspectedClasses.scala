@@ -54,7 +54,56 @@ if (getIdAtt(cls).isEmpty) {
 "get" + getIdAtt(cls).get.getName.substring(0, 1).toUpperCase + getIdAtt(cls).get.getName.substring(1)
 }  */
 
+  def generateContainerTrait(packageGenDir: String, packElement: EPackage) {
+    var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
+    formatedFactoryName += packElement.getName.substring(1)
+    formatedFactoryName += "Container"
 
+    ProcessorHelper.checkOrCreateFolder(packageGenDir)
+    val localFile = new File(packageGenDir + File.separator + formatedFactoryName + "Internal.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+
+    pr.println("package " + ProcessorHelper.fqn(ctx, packElement) + ".persistency.mdb;")
+    pr.println()
+    pr.println(ProcessorHelper.generateHeader(packElement))
+    //case class name
+    pr.println("trait " + formatedFactoryName + "Internal {")
+    pr.println()
+    pr.println("internal open var internal_eContainer : String?")
+    pr.println("internal open var internal_unsetCmd : (()->Unit)?")
+
+    //generate getter
+    pr.println("fun eContainer() : String? { return internal_eContainer }")
+    //pr.println("open fun setRecursiveReadOnly()")
+
+
+    //generate setter
+    pr.print("\nfun setEContainer( container : String?, unsetCmd : (()->Unit)?) {\n")
+    pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
+    pr.println("if(internal_unsetCmd != null){")
+    pr.println("internal_unsetCmd!!()")
+    pr.println("}")
+
+    pr.println("internal_eContainer = container\n")
+    pr.println("internal_unsetCmd = unsetCmd")
+    pr.println("}")
+
+    pr.println("internal open var internal_readOnlyElem : Boolean")
+    pr.println("fun setInternalReadOnly(){")
+    pr.println("internal_readOnlyElem = true")
+    pr.println("}")
+
+    pr.println("fun isReadOnly() : Boolean {")
+    pr.println("return internal_readOnlyElem")
+    pr.println("}")
+
+    //pr.println("fun internalGetQuery(selfKey : String) : String? { return null }")
+
+    pr.println("}")
+
+    pr.flush()
+    pr.close()
+  }
   def generateHeader(packElement: EPackage): String = {
     var header = ""
     val formateur = new SimpleDateFormat("'Date:' dd MMM yy 'Time:' HH:mm")
@@ -65,6 +114,40 @@ if (getIdAtt(cls).isEmpty) {
     header += " * Meta-Model:NS_URI=" + packElement.getNsURI + "\n"
     header += " */"
     header
+  }
+
+  def generateReadOnlyMethods(pr: PrintWriter) {
+    pr.println("")
+    pr.println("internal var internal_readOnlyElem : Boolean = false")
+    pr.println("")
+    pr.println("override fun setInternalReadOnly(){")
+    pr.println("internal_readOnlyElem = true")
+    pr.println("}")
+    pr.println("")
+    pr.println("override fun isReadOnly() : Boolean {")
+    pr.println("return internal_readOnlyElem")
+    pr.println("}")
+    pr.println("")
+  }
+
+  def generateKMF_IdMethods(cls : EClass, pr : PrintWriter) {
+    pr.println("")
+    pr.println("var _generated_KMF_ID : String? = null")
+    pr.println("")
+    pr.println("fun getGenerated_KMF_ID() : String {")
+
+    if (cls.getEAllAttributes.find(att => att.isID).isEmpty) {
+      pr.println("if(_generated_KMF_ID == null){")
+      pr.println("_generated_KMF_ID = java.util.UUID.randomUUID().toString()")
+      pr.println("}")
+    }
+    pr.println("return _generated_KMF_ID!!")
+    pr.println("}")
+    pr.println("")
+    pr.println("fun setGenerated_KMF_ID(id : String) {")
+    pr.println("_generated_KMF_ID = id")
+    pr.println("}")
+    pr.println("")
   }
 
   def generatePLayer(ecoreFile: File, modelVersion: String) {
@@ -79,8 +162,11 @@ if (getIdAtt(cls).isEmpty) {
                 var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
                 formatedFactoryName += pack.getName.substring(1)
                 formatedFactoryName += "Container"
+                val FQNPack = ProcessorHelper.fqn(ctx, pack) + ".persistency.mdb"
+                generateContainerTrait(ctx.getRootGenerationDirectory + File.separator + FQNPack.replace(".", File.separator), pack)
                 ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, pack) + "." + formatedFactoryName))
-                ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, pack) + ".impl." + formatedFactoryName + "Internal")
+                ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, pack) + ".persistency.mdb." + formatedFactoryName + "Internal")
+
               }
               case _ => print("No container root found in package : " + pack.getName)
             }
@@ -124,34 +210,35 @@ if (getIdAtt(cls).isEmpty) {
           pr.println()
           pr.println(generateHeader(eClass.getEPackage))
           pr.print("class " + className)
-          pr.println("(val mapGetter : " + getterMapName + ") : " + FQNPackBase + eClass.getName + ", java.io.Serializable { ")
+          pr.println("(val mapGetter : " + getterMapName + ") : " + FQNPackBase + eClass.getName + ", "+ctx.getKevoreeContainerImplFQN+", java.io.Serializable { ")
 
 
           if (eClass.isInstanceOf[EClass]) {
             val cls = eClass.asInstanceOf[EClass]
 
-            pr.println("var generated_KMF_ID : String? = null")
-
-            pr.println("fun getGenerated_KMF_ID() : String {")
-
-            if (cls.getEAllAttributes.find(att => att.isID).isEmpty) {
-              pr.println("if(generated_KMF_ID == null){")
-              pr.println("generated_KMF_ID = java.util.UUID.randomUUID().toString()")
-              pr.println("}")
-            }
-            pr.println("return generated_KMF_ID!!")
-            pr.println("}")
-
+            pr.println("override var internal_readOnlyElem: Boolean = false")
+            pr.println("override var internal_eContainer: String? = null")
+            pr.println("override var internal_unsetCmd : (()->Unit)? = null")
 
             pr.println("private var entityDB : MutableMap<String,Any>? = null")
             pr.println("private fun getEntityMap() : MutableMap<String,Any>{")
             pr.println("if(entityDB == null){")
-            pr.println("if(generated_KMF_ID == null){throw Exception(\"Set ID before any use of entity " + eClass.getName + "\")}")
-            pr.println("entityDB=mapGetter.get" + eClass.getName + "Entity(generated_KMF_ID!!)")
+            if(hasID(cls)) {
+              pr.println("if(_generated_KMF_ID == null){throw Exception(\"Set ID before any use of entity " + eClass.getName + "\")}")
+              pr.println("entityDB=mapGetter.get" + eClass.getName + "Entity(_generated_KMF_ID!!)")
+            } else {
+              pr.println("entityDB=mapGetter.get" + eClass.getName + "Entity(getGenerated_KMF_ID())")
+            }
+
             pr.println("}")
-            pr.println("return entityDB!!}")
-
-
+            pr.println("return entityDB!!")
+            pr.println("}")
+            pr.println("")
+            pr.println("fun getAPIClass() : java.lang.Class<"+ProcessorHelper.fqn(ctx,eClass)+"> { return javaClass<" + ProcessorHelper.fqn(ctx,eClass) + ">()}")
+            pr.println("")
+            pr.println("")
+            pr.println("")
+            pr.println("")
 
             //GENERATE CALL GET&SET
             cls.getEAllAttributes.foreach {
@@ -169,7 +256,7 @@ if (getIdAtt(cls).isEmpty) {
                 pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
                 pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
                 if (att.isID) {
-                  pr.println("generated_KMF_ID = " + protectReservedWords(att.getName))
+                  pr.println("_generated_KMF_ID = " + protectReservedWords(att.getName))
                 }
                 pr.println("getEntityMap().put(\"" + att.getName + "\"," + protectReservedWords(att.getName) + ")")
                 pr.println("}")
@@ -204,9 +291,14 @@ if (getIdAtt(cls).isEmpty) {
                 }
             }
 
+            //OK methods
+            //generateReadOnlyMethods(pr)
+            generateKMF_IdMethods(cls, pr)
+
+
+
             //TODO: SHOULD NOT EXIST IN THE END
             generateMissingMethodsForCompilation(ctx, cls, pr)
-
 
 
           }
@@ -333,7 +425,7 @@ if (getIdAtt(cls).isEmpty) {
                 pr.println("return res!!.getTreeMap(id)!!")
                 pr.println("}")
 
-             }
+            }
           }
           case _@e => println("ignored=" + e) //TODO ENUM EDATATYPE
         }
@@ -473,7 +565,7 @@ if (getIdAtt(cls).isEmpty) {
       res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
       if (ref.isContainment) {
 
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
@@ -506,7 +598,7 @@ if (getIdAtt(cls).isEmpty) {
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
 
     if (ref.isContainment) {
-      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
+      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
     }
 
     res += "val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n"
@@ -585,14 +677,14 @@ if (getIdAtt(cls).isEmpty) {
     if (ref.isContainment) {
       if (oppositRef != null) {
         pr.println("for(elem in " + protectReservedWords(ref.getName) + "){")
-        pr.println("(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})")
+        pr.println("(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})")
         val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
         if (oppositRef.isMany) {
           pr.println("(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)")
         }
         pr.println("}")
       } else {
-        pr.println("for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})}")
+        pr.println("for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})}")
       }
     } else {
       if (oppositRef != null) {
@@ -614,15 +706,7 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("override fun setRecursiveReadOnly() {")
     pr.println("  throw UnsupportedOperationException()")
     pr.println("}")
-    pr.println("override fun eContainer(): "+ctx.getKevoreeContainer.get+"? {")
-    pr.println("  throw UnsupportedOperationException()")
-    pr.println("}")
-    pr.println("override fun isReadOnly(): Boolean {")
-    pr.println("  throw UnsupportedOperationException()")
-    pr.println("}")
-    pr.println("override fun setInternalReadOnly() {")
-    pr.println("  throw UnsupportedOperationException()")
-    pr.println("}")
+
     pr.println("override fun selectByQuery(query: String): List<Any> {")
     pr.println("  throw UnsupportedOperationException()")
     pr.println("}")
@@ -635,7 +719,6 @@ if (getIdAtt(cls).isEmpty) {
     pr.println(" override fun path(): String? {")
     pr.println(" throw UnsupportedOperationException()")
     pr.println(" }")
-
 
   }
 
