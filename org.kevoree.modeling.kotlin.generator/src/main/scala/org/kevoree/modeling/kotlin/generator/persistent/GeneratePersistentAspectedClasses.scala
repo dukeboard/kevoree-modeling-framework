@@ -271,7 +271,12 @@ if (getIdAtt(cls).isEmpty) {
                     pr.print("\n override fun set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
                     pr.print("(" + protectReservedWords(ref.getName) + " : " + typeRefName + "?) {\n")
                     pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
-                    pr.println("getEntityMap().put(\"" + ref.getName + "\"," + protectReservedWords(ref.getName) + "!!.path()!!)")
+                    val refTypeImpl = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
+                    pr.println("if("+ protectReservedWords(ref.getName)+" != null){")
+                    pr.println("getEntityMap().put(\"" + ref.getName + "\",(" + protectReservedWords(ref.getName) + " as "+refTypeImpl+").getAPIClass().getName())")
+                    pr.println("} else {")
+                    pr.println("getEntityMap().remove(\""+ ref.getName +"\")")
+                    pr.println("}")
                     pr.println("}")
                     //generate getter
                     pr.print("override fun get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() : " + typeRefName + "? {\n")
@@ -393,6 +398,16 @@ if (getIdAtt(cls).isEmpty) {
         val methodName = "create" + cls.getName
         val className = cls.getName + "Persistent"
         pr.println("\t override fun " + methodName + "() : " + cls.getName + " { return " + className + "(this) }")
+        pr.println("\t fun " + methodName + "( id : String) : " + cls.getName + " { ")
+        pr.println("val v =  " + className + "(this)")
+        if(hasID(cls.asInstanceOf[EClass])) {
+          val att = getIdAtt(cls.asInstanceOf[EClass]).get
+          pr.println("v.set" + att.getName.substring(0,1).toUpperCase + att.getName.substring(1) + "(id)")
+        } else {
+          pr.println("v.setGenerated_KMF_ID(id)" )
+        }
+        pr.println("return v")
+        pr.println("}")
     }
     pr.println()
 
@@ -556,7 +571,7 @@ if (getIdAtt(cls).isEmpty) {
     res += "val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n"
 
     res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
-    res += protectReservedWords(ref.getName) + "Map.put((el as " + refTypeImpl + ").getGenerated_KMF_ID(), el.path()!!)\n"
+    res += protectReservedWords(ref.getName) + "Map.put((el as " + refTypeImpl + ").getGenerated_KMF_ID(), (el as "+refTypeImpl+").getAPIClass().getName())\n"
     res += "}\n"
 
 
@@ -602,7 +617,7 @@ if (getIdAtt(cls).isEmpty) {
     }
 
     res += "val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n"
-    res += protectReservedWords(ref.getName) + "Map.put((" + protectReservedWords(ref.getName) + " as " + refTypeImpl + ").getGenerated_KMF_ID(), " + protectReservedWords(ref.getName) + ".path()!!)\n"
+    res += protectReservedWords(ref.getName) + "Map.put((" + protectReservedWords(ref.getName) + " as " + refTypeImpl + ").getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as "+refTypeImpl+").getAPIClass().getName())\n"
 
     if (ref.getEOpposite != null && !noOpposite) {
       val opposite = ref.getEOpposite
@@ -630,7 +645,11 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("val " + protectReservedWords(ref.getName + "List") + " = java.util.ArrayList<"+typeRefName+">()")
     pr.println("for("+protectReservedWords(ref.getName)+" in "+protectReservedWords(ref.getName + "Map.keySet()")+"){")
     //TODO:Call the factory
+    var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
+    formatedFactoryName += cls.getEPackage.getName.substring(1)
+    formatedFactoryName += "Factory"
     pr.println("//TODO:Call the factory")
+    pr.println(protectReservedWords(ref.getName + "List") + ".add((mapGetter as "+formatedFactoryName+").create" +ref.getEReferenceType.getName.substring(0, 1).toUpperCase + ref.getEReferenceType.getName.substring(1) + "("+protectReservedWords(ref.getName)+"))")
     pr.println("}")
     pr.println("return " + protectReservedWords(ref.getName + "List"))
     pr.println("}")
@@ -671,7 +690,7 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n")
     pr.println(protectReservedWords(ref.getName) + "Map.clear()")
     pr.println("for(el in " + protectReservedWords(ref.getName) + "){")
-    pr.println(protectReservedWords(ref.getName) + "Map.put((el as "+refTypeImpl+").getGenerated_KMF_ID(),el.path()!!)")
+    pr.println(protectReservedWords(ref.getName) + "Map.put((el as "+refTypeImpl+").getGenerated_KMF_ID(), (el as "+refTypeImpl+").getAPIClass().getName())")
     pr.println("}")
 
     if (ref.isContainment) {
@@ -707,7 +726,7 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("  throw UnsupportedOperationException()")
     pr.println("}")
 
-    pr.println("override fun selectByQuery(query: String): List<Any> {")
+    pr.println("fun selectByQuery(query: String): List<Any> {")
     pr.println("  throw UnsupportedOperationException()")
     pr.println("}")
     pr.println("override fun <A> findByPath(query: String, clazz: Class<A>): A? {")
