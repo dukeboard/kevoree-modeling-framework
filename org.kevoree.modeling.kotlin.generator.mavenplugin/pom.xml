@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.kevoree.modeling</groupId>
-    <artifactId>org.kevoree.modeling.kotlin.genenerator.mavenplugin</artifactId>
+    <artifactId>org.kevoree.modeling.kotlin.generator.mavenplugin</artifactId>
     <packaging>maven-plugin</packaging>
 
     <name>Kevoree :: Modeling :: Kotlin :: Generator :: MavenPlugin</name>
