@@ -41,9 +41,11 @@
                     <execution>
                         <id>ModelGen</id>
                         <goals>
+                            <goal>generate</goal>
                             <goal>generatePersistentLayer</goal>
                         </goals>
                         <configuration>
+                            <clearOutput>false</clearOutput>
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
                         </configuration>
