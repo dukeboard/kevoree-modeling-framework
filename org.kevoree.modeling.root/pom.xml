@@ -18,10 +18,10 @@
     </properties>
 
     <modules>
-        <module>../org.kevoree.modeling.emf.scala.gencode</module>
-        <module>../org.kevoree.modeling.emf.scala.gencode.mavenplugin</module>
-        <module>../org.kevoree.modeling.emf.kotlin.gencode</module>
-        <module>../org.kevoree.modeling.emf.kotlin.gencode.mavenplugin</module>
+        <module>../org.kevoree.modeling.scala.generator</module>
+        <module>../org.kevoree.modeling.scala.generator.mavenplugin</module>
+        <module>../org.kevoree.modeling.kotlin.generator</module>
+        <module>../org.kevoree.modeling.kotlin.generator.mavenplugin</module>
     </modules>
 
     <build>
