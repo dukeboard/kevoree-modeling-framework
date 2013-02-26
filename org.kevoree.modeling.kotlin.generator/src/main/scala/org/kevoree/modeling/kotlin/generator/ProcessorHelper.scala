@@ -196,7 +196,7 @@ object ProcessorHelper {
    */
   def fqn(pack: EPackage): String = {
     var locFqn = protectReservedWords(pack.getName)
-    var parentPackage = pack.getESuperPackage;
+    var parentPackage = pack.getESuperPackage
     while (parentPackage != null) {
       locFqn = parentPackage.getName + "." + locFqn
       parentPackage = parentPackage.getESuperPackage

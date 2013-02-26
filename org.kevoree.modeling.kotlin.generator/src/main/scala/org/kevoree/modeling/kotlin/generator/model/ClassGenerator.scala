@@ -460,25 +460,9 @@ trait ClassGenerator extends ClonerGenerator {
     res += "(" + protectReservedWords(ref.getName) + " : "
     res += {
       if (!isSingleRef) {
-        "List<"
+        "List<" + typeRefName + ">"
       } else {
-        if (isOptional) {
-          ""
-        } else {
-          ""
-        }
-      }
-    }
-    res += typeRefName
-    res += {
-      if (!isSingleRef) {
-        ">"
-      } else {
-        if (isOptional) {
-          "?"
-        } else {
-          "?"
-        }
+        typeRefName + "?"
       }
     }
 
