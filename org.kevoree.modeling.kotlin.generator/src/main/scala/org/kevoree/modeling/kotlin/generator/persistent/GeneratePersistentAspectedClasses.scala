@@ -97,6 +97,12 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("return internal_readOnlyElem")
     pr.println("}")
 
+    pr.println("open fun getGenerated_KMF_ID() : String ")
+    pr.println("open fun setGenerated_KMF_ID(id : String) ")
+
+    pr.println("open fun getAPIClass() : java.lang.Class<out "+ctx.getKevoreeContainer.get+">")
+
+
     //pr.println("fun internalGetQuery(selfKey : String) : String? { return null }")
 
     pr.println("}")
@@ -109,7 +115,7 @@ if (getIdAtt(cls).isEmpty) {
     val formateur = new SimpleDateFormat("'Date:' dd MMM yy 'Time:' HH:mm")
     header += "/**\n"
     header += " * Created by Kevoree Model Generator(KMF).\n"
-    header += " * @developers: Gregory Nain, Fouquet Francois\n"
+    header += " * @developers: Gregory Nain, Francois Fouquet\n"
     header += " * " + formateur.format(new Date) + "\n"
     header += " * Meta-Model:NS_URI=" + packElement.getNsURI + "\n"
     header += " */"
@@ -134,7 +140,7 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("")
     pr.println("var _generated_KMF_ID : String? = null")
     pr.println("")
-    pr.println("fun getGenerated_KMF_ID() : String {")
+    pr.println("override fun getGenerated_KMF_ID() : String {")
 
     if (cls.getEAllAttributes.find(att => att.isID).isEmpty) {
       pr.println("if(_generated_KMF_ID == null){")
@@ -144,10 +150,19 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("return _generated_KMF_ID!!")
     pr.println("}")
     pr.println("")
-    pr.println("fun setGenerated_KMF_ID(id : String) {")
+    pr.println("override fun setGenerated_KMF_ID(id : String) {")
     pr.println("_generated_KMF_ID = id")
     pr.println("}")
     pr.println("")
+
+    pr.println("fun equals(o : Any) : Boolean {")
+    pr.println("if(_generated_KMF_ID == null || o !is "+ProcessorHelper.fqn(ctx, cls.getEPackage)+".persistency.mdb." + cls.getName +"Persistent){return false}")
+    pr.println("return _generated_KMF_ID.equals((o as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb." + cls.getName + "Persistent)._generated_KMF_ID)")
+    pr.println("}")
+    pr.println("")
+
+
+
   }
 
   def generatePLayer(ecoreFile: File, modelVersion: String) {
@@ -163,9 +178,10 @@ if (getIdAtt(cls).isEmpty) {
                 formatedFactoryName += pack.getName.substring(1)
                 formatedFactoryName += "Container"
                 val FQNPack = ProcessorHelper.fqn(ctx, pack) + ".persistency.mdb"
-                generateContainerTrait(ctx.getRootGenerationDirectory + File.separator + FQNPack.replace(".", File.separator), pack)
                 ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, pack) + "." + formatedFactoryName))
                 ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, pack) + ".persistency.mdb." + formatedFactoryName + "Internal")
+
+                generateContainerTrait(ctx.getRootGenerationDirectory + File.separator + FQNPack.replace(".", File.separator), pack)
 
               }
               case _ => print("No container root found in package : " + pack.getName)
@@ -234,7 +250,7 @@ if (getIdAtt(cls).isEmpty) {
             pr.println("return entityDB!!")
             pr.println("}")
             pr.println("")
-            pr.println("fun getAPIClass() : java.lang.Class<"+ProcessorHelper.fqn(ctx,eClass)+"> { return javaClass<" + ProcessorHelper.fqn(ctx,eClass) + ">()}")
+            pr.println("override fun getAPIClass() : java.lang.Class<"+ProcessorHelper.fqn(ctx,eClass)+"> { return javaClass<" + ProcessorHelper.fqn(ctx,eClass) + ">()}")
             pr.println("")
             pr.println("")
             pr.println("")
@@ -265,28 +281,45 @@ if (getIdAtt(cls).isEmpty) {
             cls.getEAllReferences.foreach {
               ref =>
                 val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+
                 ref.isMany match {
                   case false => {
+
                     //generate setter
-                    pr.print("\n override fun set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
+                    /*pr.print("\n override fun set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1))
                     pr.print("(" + protectReservedWords(ref.getName) + " : " + typeRefName + "?) {\n")
                     pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
                     val refTypeImpl = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
                     pr.println("if("+ protectReservedWords(ref.getName)+" != null){")
-                    pr.println("getEntityMap().put(\"" + ref.getName + "\",(" + protectReservedWords(ref.getName) + " as "+refTypeImpl+").getAPIClass().getName())")
+                    pr.println("getEntityMap().put(\"" + ref.getName + "\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())")
                     pr.println("} else {")
                     pr.println("getEntityMap().remove(\""+ ref.getName +"\")")
                     pr.println("}")
-                    pr.println("}")
+                    pr.println("}")*/
+                    generateSetter(ctx, cls, ref, typeRefName, pr)
+
                     //generate getter
                     pr.print("override fun get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() : " + typeRefName + "? {\n")
-                    pr.println(" return getEntityMap().get(\"" + ref.getName + "\") as " + typeRefName + "\n}")
+                    var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
+                    formatedFactoryName += cls.getEPackage.getName.substring(1)
+                    formatedFactoryName += "Factory"
+
+                    pr.println("val ref = getEntityMap().get(\"" + ref.getName +"\") as? String")
+                    pr.println("if(ref != null) {")
+                    pr.println(" return (mapGetter as "+formatedFactoryName+").create"+ref.getEReferenceType.getName.substring(0, 1).toUpperCase + ref.getEReferenceType.getName.substring(1)+"(ref)")// as " + typeRefName + "\n}")
+                    pr.println("} else {")
+                    pr.println("return null")
+                    pr.println("}")
+                    pr.println("}")
                   }
                   case true => {
                     generateGetter(cls, ref, typeRefName, pr)
                     generateSetter(ctx, cls, ref, typeRefName, pr)
+
+                    //if(ref.isMany){
                     pr.println(generateAddMethod(cls, ref, typeRefName, ctx))
                     pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx))
+                    //}
                   }
                 }
                 if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
@@ -482,7 +515,7 @@ if (getIdAtt(cls).isEmpty) {
 
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     res += "mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())"
-    res += ".remove((" + protectReservedWords(ref.getName) + " as " + refTypeImpl + " ).getGenerated_KMF_ID())\n"
+    res += ".remove((" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).getGenerated_KMF_ID())\n"
 
     if (ref.isContainment) {
       //TODO
@@ -492,8 +525,7 @@ if (getIdAtt(cls).isEmpty) {
     val oppositRef = ref.getEOpposite
     if (!noOpposite && oppositRef != null) {
       val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
-
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
       if (oppositRef.isMany) {
         res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
       } else {
@@ -528,12 +560,12 @@ if (getIdAtt(cls).isEmpty) {
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
 
         if (!opposite.isMany) {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)"
+          res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
         } else {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)"
+          res += "(el as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
         }
       }
       res += "}\n"
@@ -571,7 +603,7 @@ if (getIdAtt(cls).isEmpty) {
     res += "val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n"
 
     res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
-    res += protectReservedWords(ref.getName) + "Map.put((el as " + refTypeImpl + ").getGenerated_KMF_ID(), (el as "+refTypeImpl+").getAPIClass().getName())\n"
+    res += protectReservedWords(ref.getName) + "Map.put((el as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (el as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())\n"
     res += "}\n"
 
 
@@ -585,7 +617,8 @@ if (getIdAtt(cls).isEmpty) {
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
+
         if (!opposite.isMany) {
           res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
         } else {
@@ -602,7 +635,6 @@ if (getIdAtt(cls).isEmpty) {
     //generate add
     var res = ""
     val formatedAddMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    val refTypeImpl = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
 
     if (noOpposite) {
       res += "\nfun noOpposite_add" + formatedAddMethodName
@@ -617,13 +649,13 @@ if (getIdAtt(cls).isEmpty) {
     }
 
     res += "val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n"
-    res += protectReservedWords(ref.getName) + "Map.put((" + protectReservedWords(ref.getName) + " as " + refTypeImpl + ").getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as "+refTypeImpl+").getAPIClass().getName())\n"
+    res += protectReservedWords(ref.getName) + "Map.put((" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())\n"
 
     if (ref.getEOpposite != null && !noOpposite) {
       val opposite = ref.getEOpposite
       val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
 
-      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
 
       if (!opposite.isMany) {
         res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
@@ -644,11 +676,9 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("val " + protectReservedWords(ref.getName + "Map") + " = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())")
     pr.println("val " + protectReservedWords(ref.getName + "List") + " = java.util.ArrayList<"+typeRefName+">()")
     pr.println("for("+protectReservedWords(ref.getName)+" in "+protectReservedWords(ref.getName + "Map.keySet()")+"){")
-    //TODO:Call the factory
     var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
     formatedFactoryName += cls.getEPackage.getName.substring(1)
     formatedFactoryName += "Factory"
-    pr.println("//TODO:Call the factory")
     pr.println(protectReservedWords(ref.getName + "List") + ".add((mapGetter as "+formatedFactoryName+").create" +ref.getEReferenceType.getName.substring(0, 1).toUpperCase + ref.getEReferenceType.getName.substring(1) + "("+protectReservedWords(ref.getName)+"))")
     pr.println("}")
     pr.println("return " + protectReservedWords(ref.getName + "List"))
@@ -667,8 +697,7 @@ if (getIdAtt(cls).isEmpty) {
   private def generateSetterOp(ctx: GenerationContext, cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean, pr: PrintWriter) {
     //generate setter
     val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
-    val refTypeImpl = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
+    val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
 
 
     if (noOpposite) {
@@ -677,7 +706,13 @@ if (getIdAtt(cls).isEmpty) {
       pr.print("override fun set" + formatedLocalRefName)
     }
     pr.print("(" + protectReservedWords(ref.getName) + " : ")
-    pr.print("List<" + typeRefName + ">")
+
+    if(ref.isMany) {
+      pr.print("List<" + typeRefName + ">")
+    } else {
+      pr.print(typeRefName + "?")
+    }
+
     pr.println(" ) {")
     //Read only protection
     pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
@@ -686,36 +721,51 @@ if (getIdAtt(cls).isEmpty) {
     }
     val oppositRef = ref.getEOpposite
     // -> Collection ref : * or +
-
-    pr.println("val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n")
-    pr.println(protectReservedWords(ref.getName) + "Map.clear()")
-    pr.println("for(el in " + protectReservedWords(ref.getName) + "){")
-    pr.println(protectReservedWords(ref.getName) + "Map.put((el as "+refTypeImpl+").getGenerated_KMF_ID(), (el as "+refTypeImpl+").getAPIClass().getName())")
-    pr.println("}")
-
-    if (ref.isContainment) {
-      if (oppositRef != null) {
-        pr.println("for(elem in " + protectReservedWords(ref.getName) + "){")
-        pr.println("(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})")
+    if(ref.isMany) {
+      pr.println("val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n")
+      pr.println(protectReservedWords(ref.getName) + "Map.clear()")
+      pr.println("for(el in " + protectReservedWords(ref.getName) + "){")
+      pr.println(protectReservedWords(ref.getName) + "Map.put((el as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID(), (el as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())")
+      if (!noOpposite && oppositRef != null) {
         val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
         if (oppositRef.isMany) {
-          pr.println("(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)")
-        }
-        pr.println("}")
-      } else {
-        pr.println("for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})}")
-      }
-    } else {
-      if (oppositRef != null) {
-        val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-        if (oppositRef.isMany) {
-          pr.println("for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}")
+          pr.println("(el as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)")
         } else {
-          val callParam = "this"
-          pr.println("for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(" + callParam + ")}")
+          pr.println("(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)")
         }
       }
+      if(ref.isContainment) {
+        pr.println("(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})")
+      }
+      pr.println("}")
+    } else {
+      pr.println("if("+ protectReservedWords(ref.getName)+" != null){")
+      pr.println("getEntityMap().put(\"" + ref.getName + "\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
+      if (!noOpposite && oppositRef != null) {
+        val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
+        if (oppositRef.isMany) {
+          pr.println("("+protectReservedWords(ref.getName)+" as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)")
+        } else {
+          pr.println("("+protectReservedWords(ref.getName)+" as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)")
+        }
+      }
+      if(ref.isContainment) {
+        pr.println("("+protectReservedWords(ref.getName)+" as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(null)})")
+      }
+      pr.println("} else {")
+      if (!noOpposite && oppositRef != null) {
+        val getMethName = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+        val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
+        if (oppositRef.isMany) {
+          pr.println("("+getMethName+"() as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)")
+        } else {
+          pr.println("("+getMethName+"() as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)")
+        }
+      }
+      pr.println("getEntityMap().remove(\""+ ref.getName +"\")")
+      pr.println("}")
     }
+
     pr.println("}") //END Method
   }
 
