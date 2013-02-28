@@ -444,6 +444,32 @@ if (getIdAtt(cls).isEmpty) {
     }
     pr.println()
 
+
+    pr.println()
+
+    pr.println("\t fun createEntity( _type : String, id : String) : Any? { ")
+    pr.println("when(_type) {")
+    packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass]).foreach {
+      cls =>
+        pr.println( "\"" + ProcessorHelper.fqn(ctx, cls) + "\" -> {")
+        val className = cls.getName + "Persistent"
+        pr.println("val v =  " + className + "(this)")
+        if(hasID(cls.asInstanceOf[EClass])) {
+          val att = getIdAtt(cls.asInstanceOf[EClass]).get
+
+          pr.println("v.set" + att.getName.substring(0,1).toUpperCase + att.getName.substring(1) + "(id)")
+        } else {
+          pr.println("v.setGenerated_KMF_ID(id)" )
+        }
+        pr.println("return v")
+        pr.println("}")
+    }
+    pr.println("else -> {System.out.println(\"No constructor found for type:\" + _type);return null}")
+    pr.println("}")
+    pr.println("}")
+
+    pr.println()
+
     pr.println("private val dbs = java.util.HashMap<String,DB>()")
 
     //Generate DB Method
@@ -675,11 +701,11 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("> {")
     pr.println("val " + protectReservedWords(ref.getName + "Map") + " = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())")
     pr.println("val " + protectReservedWords(ref.getName + "List") + " = java.util.ArrayList<"+typeRefName+">()")
-    pr.println("for("+protectReservedWords(ref.getName)+" in "+protectReservedWords(ref.getName + "Map.keySet()")+"){")
+    pr.println("for("+protectReservedWords(ref.getName)+" in "+protectReservedWords(ref.getName + "Map.entrySet()")+"){")
     var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
     formatedFactoryName += cls.getEPackage.getName.substring(1)
     formatedFactoryName += "Factory"
-    pr.println(protectReservedWords(ref.getName + "List") + ".add((mapGetter as "+formatedFactoryName+").create" +ref.getEReferenceType.getName.substring(0, 1).toUpperCase + ref.getEReferenceType.getName.substring(1) + "("+protectReservedWords(ref.getName)+"))")
+    pr.println(protectReservedWords(ref.getName + "List") + ".add((mapGetter as "+formatedFactoryName+").createEntity(" + protectReservedWords(ref.getName) + ".getValue()," + protectReservedWords(ref.getName) + ".getKey()) as "+typeRefName+")")
     pr.println("}")
     pr.println("return " + protectReservedWords(ref.getName + "List"))
     pr.println("}")

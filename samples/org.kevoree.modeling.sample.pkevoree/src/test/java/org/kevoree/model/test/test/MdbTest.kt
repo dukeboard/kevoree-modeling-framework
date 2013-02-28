@@ -84,8 +84,9 @@ class MdbTest() {
             assertTrue(m.getRepositories().size == root.getRepositories().size)
             assertTrue(m.getTypeDefinitions().size == root.getTypeDefinitions().size)
 
-            val javaSENode = root.getTypeDefinitions().find { td -> td.getName().equals("JavaSENode")}
-            assertTrue(javaSENode != null && javaSENode is NodeType)
+            val javaSENode = root.getTypeDefinitions().find { td -> print(td.getFactoryBean());td.getName().equals("JavaSENode")}
+            assertTrue(javaSENode != null, "JavaSENode not found")
+            assertTrue(javaSENode is NodeType, "JavaSENode not a NodeType")
 
             val statefulJavaSENode = root.getTypeDefinitions().find { td -> td.getName().equals("StatefulJavaSENode")}
             assertTrue(statefulJavaSENode != null && statefulJavaSENode is NodeType)
