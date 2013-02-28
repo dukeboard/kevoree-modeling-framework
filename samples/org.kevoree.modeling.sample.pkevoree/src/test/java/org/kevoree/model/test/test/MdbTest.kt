@@ -6,7 +6,9 @@ import org.kevoree.loader.ModelLoader
 import java.net.URISyntaxException
 import kotlin.test.*
 import org.junit.Test as test
-
+import org.kevoree.NodeType
+import org.kevoree.GroupType
+import org.kevoree.ChannelType
 
 
 /*
@@ -31,14 +33,14 @@ class MdbTest() {
         val modelRoot = factory.createContainerRoot()
 
         for(i in 0..9) {
-            System.out.println("Creation of DeployUnit N°" + i)
+            System.out.println("Creation of DeployUnit #" + i)
             val du = factory.createDeployUnit()
             System.out.println("SetID")
             du.setName("du"+ i)
             System.out.println("addToRoot")
             modelRoot.addDeployUnits(du)
 
-            System.out.println("Creation of TypeDefinition N°" + i)
+            System.out.println("Creation of TypeDefinition #" + i)
             val td = factory.createTypeDefinition()
             System.out.println("SetID")
             td.setName("td"+ i)
@@ -82,6 +84,17 @@ class MdbTest() {
             assertTrue(m.getRepositories().size == root.getRepositories().size)
             assertTrue(m.getTypeDefinitions().size == root.getTypeDefinitions().size)
 
+            val javaSENode = root.getTypeDefinitions().find { td -> td.getName().equals("JavaSENode")}
+            assertTrue(javaSENode != null && javaSENode is NodeType)
+
+            val statefulJavaSENode = root.getTypeDefinitions().find { td -> td.getName().equals("StatefulJavaSENode")}
+            assertTrue(statefulJavaSENode != null && statefulJavaSENode is NodeType)
+
+            val nanoRestGroup = root.getTypeDefinitions().find { td -> td.getName().equals("NanoRestGroup")}
+            assertTrue(nanoRestGroup != null && nanoRestGroup is GroupType)
+
+            val basicGossiperChannel = root.getTypeDefinitions().find { td -> td.getName().equals("BasicGossiperChannel")}
+            assertTrue(basicGossiperChannel != null && basicGossiperChannel is ChannelType)
 
         } catch ( e : URISyntaxException) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
