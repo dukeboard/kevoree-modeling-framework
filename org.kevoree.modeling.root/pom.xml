@@ -14,7 +14,7 @@
         <bundle.vendor>IRISA/INRIA</bundle.vendor>
         <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
-        <kotlin.version>0.5.1</kotlin.version>
+        <kotlin.version>0.5.162</kotlin.version>
     </properties>
 
     <modules>
