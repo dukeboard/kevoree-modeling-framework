@@ -24,6 +24,7 @@ import org.fsmSample.Transition;
 import org.fsmSample.cloner.ModelCloner;
 import org.fsmSample.impl.DefaultFsmSampleFactory;
 import org.fsmSample.loader.ModelLoader;
+import org.fsmSample.persistency.mdb.PersistentFsmSampleFactory;
 import org.fsmSample.serializer.ModelSerializer;
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -33,7 +34,7 @@ import java.util.List;
 
 public class MainTest {
 
-    FsmSampleFactory factory = new DefaultFsmSampleFactory();
+    FsmSampleFactory factory = new PersistentFsmSampleFactory(new File("/tmp/fsmTestDb" + System.currentTimeMillis()));
 
 
     //@Test
@@ -93,6 +94,7 @@ public class MainTest {
         long cloneStart = 0, cloneEnd = 0;
 
         ModelCloner cloner = new ModelCloner();
+        cloner.setFsmSampleFactory(factory);
         cloneStart = System.nanoTime();
         cloner.clone(root);
         cloneEnd = System.nanoTime();
@@ -271,8 +273,8 @@ public class MainTest {
         File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
-        int step = 50000;
-        for (int i = 1; i * step <= 100000; i++) {
+        int step = 250000;
+        for (int i = 1; i * step <= 250000; i++) {
             m.flatFsmTest(pr, i * step);
         }
         pr.flush();
