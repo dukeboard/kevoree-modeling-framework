@@ -83,6 +83,8 @@ trait TraitGenerator {
     pr.println("fun setRecursiveReadOnly() : Unit")
     pr.println("fun eContainer() : " + formatedFactoryName + "?")
     pr.println("fun isReadOnly() : Boolean")
+    pr.println("fun isRecursiveReadOnly() : Boolean")
+
     pr.println("fun setInternalReadOnly()")
     if(ctx.genSelector){
       pr.println("fun selectByQuery(query : String) : List<Any>")
@@ -135,10 +137,19 @@ trait TraitGenerator {
     pr.println("fun isReadOnly() : Boolean {")
     pr.println("return internal_readOnlyElem")
     pr.println("}")
+    pr.println("fun isRecursiveReadOnly() : Boolean {")
+    pr.println("return internal_recursive_readOnlyElem")
+    pr.println("}")
 
     //generate setter
     pr.print("\nfun setEContainer( container : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "?, unsetCmd : (()->Unit)? ) {\n")
-    pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
+
+    /* BLOC FOR SMART CLONE */
+    //pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
+    pr.println("if(internal_readOnlyElem){/*silent exception for performance*/return}")
+
+    /* End Smart CLone */
+
     pr.println("val tempUnsetCmd = internal_unsetCmd")
     pr.println("internal_unsetCmd = null")
 

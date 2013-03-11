@@ -219,6 +219,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("override fun setRecursiveReadOnly(){")
 
     pr.println("if(internal_recursive_readOnlyElem == true){return}")
+    pr.println("internal_recursive_readOnlyElem = true")
 
     cls.getEAllReferences.foreach {
       contained =>
@@ -243,7 +244,6 @@ trait ClassGenerator extends ClonerGenerator {
         }
         pr.println()
     }
-    pr.println("internal_recursive_readOnlyElem = true")
     pr.println("setInternalReadOnly()")
 
     pr.println("}")

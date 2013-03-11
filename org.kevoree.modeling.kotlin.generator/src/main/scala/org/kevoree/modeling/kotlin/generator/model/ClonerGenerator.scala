@@ -49,6 +49,57 @@
  * Fouquet Francois
  * Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 package org.kevoree.modeling.kotlin.generator.model
 
 /**
@@ -126,13 +177,20 @@ trait ClonerGenerator {
     pr.println("\t return clone(o,false)")
     pr.println("\t}") //END serialize method
 
-
     pr.println("\tfun clone<A>(o : A,readOnly : Boolean) : A? {")
+    pr.println("\t return clone(o,readOnly,false)")
+    pr.println("\t}") //END serialize method
+
+    pr.println("\tfun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {")
+    pr.println("\t return clone(o,readOnly,true)")
+    pr.println("\t}") //END serialize method
+
+    pr.println("\tprivate fun clone<A>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {")
     pr.println("\t\treturn when(o) {")
     pr.println("\t\t\tis " + ProcessorHelper.fqn(ctx, containerRoot) + " -> {")
     pr.println("\t\t\t\tval context = java.util.IdentityHashMap<Any,Any>()")
-    pr.println("\t\t\t\t(o as "+ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName+"Internal).getClonelazy(context, this)")
-    pr.println("\t\t\t\t(o as "+ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName+"Internal) .resolve(context,readOnly) as A")
+    pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal).getClonelazy(context, this,mutableOnly)")
+    pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal) .resolve(context,readOnly,mutableOnly) as A")
     pr.println("\t\t\t}")
     pr.println("\t\t\telse -> null")
     pr.println("\t\t}") //END MATCH
@@ -223,7 +281,9 @@ trait ClonerGenerator {
     if (cls.getESuperTypes.size() > 0) {
       buffer.print("\toverride ")
     }
-    buffer.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories) {")
+    buffer.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
+
+    buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")
 
     var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
     formatedFactoryName += pack.getName.substring(1)
@@ -253,18 +313,18 @@ trait ClonerGenerator {
         if (contained.getUpperBound == -1) {
           // multiple values
           buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")
-          buffer.println("(sub as " + fqnName + ").getClonelazy(subResult, _factories)")
+          buffer.println("(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
           buffer.println("}")
         } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
           // optional single ref
 
           buffer.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
           buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
-          buffer.println("(subsubsubsub" + contained.getName + " as " + fqnName + " ).getClonelazy(subResult, _factories)")
+          buffer.println("(subsubsubsub" + contained.getName + " as " + fqnName + " ).getClonelazy(subResult, _factories,mutableOnly)")
           buffer.println("}")
         } else if (contained.getLowerBound > 1) {
           buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")
-          buffer.println("\t\t\t(sub as " + fqnName + ").getClonelazy(subResult, _factories)")
+          buffer.println("\t\t\t(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
           buffer.println("\t\t}")
         } else {
           throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
@@ -281,47 +341,51 @@ trait ClonerGenerator {
     if (cls.getESuperTypes.size() > 0) {
       buffer.print("\toverride ")
     }
-    buffer.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean) : Any {")
+    buffer.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
+
 
     //GET CLONED OBJECT
-    buffer.println("\t\tval clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl."+cls.getName+"Internal")
+    buffer.println("if(mutableOnly && isRecursiveReadOnly()){")
+    buffer.println("return this")
+    buffer.println("}")
+
+    buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Internal")
+
+
     //SET ALL REFERENCE
     cls.getEAllReferences.foreach {
       ref =>
-
         if (ref.getEReferenceType == null) {
           throw new Exception("Null EType for " + ref.getName + " in " + cls.getName)
         }
-
         if (ref.getEReferenceType.getName != null) {
-
           var noOpPrefix = ""
           if (ref.getEOpposite != null) {
             noOpPrefix = "noOpposite_"
           }
-
           ref.getUpperBound match {
             case 1 => {
-              /*ref.getLowerBound match {
-                case 0 => {
-                  // 0 to 1 relationship . Test Optional result
-                  buffer.println("if(this." + getGetter(ref.getName) + "()!=null){")
-                  buffer.println("this."+getGetter(ref.getName)+"().clonedSelfObject."+noOpPrefix + getSetter(ref.getName) + "(Some(addrs.get(sub) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "))")
-                  buffer.println("}")
-                }
-                case 1 => {
-                  // 1 to 1 relationship  */
               buffer.println("if(this." + getGetter(ref.getName) + "()!=null){")
+
+              buffer.println("if(mutableOnly && this." + getGetter(ref.getName) + "()!!.isRecursiveReadOnly()){")
+              buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(this." + getGetter(ref.getName) + "()!!)")
+              buffer.println("} else {")
               buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + "()) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               buffer.println("}")
-              // }
-              //}
+
+              buffer.println("}")
             }
             case _ => {
               buffer.println("for(sub in this." + getGetter(ref.getName) + "()){")
               var formatedName: String = ref.getName.substring(0, 1).toUpperCase
               formatedName += ref.getName.substring(1)
-              buffer.println("\t\t\tclonedSelfObject." + noOpPrefix + "add" + formatedName + "(addrs.get(sub) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+
+              buffer.println("if(mutableOnly && sub.isRecursiveReadOnly()){")
+              buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(sub)")
+              buffer.println("} else {")
+              buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(addrs.get(sub) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              buffer.println("}")
+
               buffer.println("\t\t}")
             }
           }
@@ -333,17 +397,17 @@ trait ClonerGenerator {
     //RECUSIVE CALL ON ECONTAINEMENT
     cls.getEAllContainments.foreach {
       contained =>
-        val fqnName = ProcessorHelper.fqn(ctx,contained.getEReferenceType.getEPackage)+".impl."+contained.getEReferenceType.getName+"Internal"
+        val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + "Internal"
         contained.getUpperBound match {
           case 1 => {
             buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
             buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
-            buffer.println("(subsubsub" + contained.getName + " as "+fqnName+").resolve(addrs,readOnly)")
+            buffer.println("(subsubsub" + contained.getName + " as " + fqnName + ").resolve(addrs,readOnly,mutableOnly)")
             buffer.println("}")
           }
           case -1 => {
             buffer.println("for(sub in this." + getGetter(contained.getName) + "()){")
-            buffer.println("\t\t\t(sub as "+fqnName+" ).resolve(addrs,readOnly)")
+            buffer.println("\t\t\t(sub as " + fqnName + " ).resolve(addrs,readOnly,mutableOnly)")
             buffer.println("\t\t}")
           }
         }
