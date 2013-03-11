@@ -237,7 +237,7 @@ if (getIdAtt(cls).isEmpty) {
             pr.println("override var internal_unsetCmd : (()->Unit)? = null")
 
             pr.println("private var entityDB : MutableMap<String,Any>? = null")
-            pr.println("private fun getEntityMap() : MutableMap<String,Any>{")
+            /*pr.println("private fun getEntityMap() : MutableMap<String,Any>{")
             pr.println("if(entityDB == null){")
             if(hasID(cls)) {
               pr.println("if(_generated_KMF_ID == null){throw Exception(\"Set ID before any use of entity " + eClass.getName + "\")}")
@@ -249,6 +249,7 @@ if (getIdAtt(cls).isEmpty) {
             pr.println("}")
             pr.println("return entityDB!!")
             pr.println("}")
+            */
             pr.println("")
             pr.println("override fun getAPIClass() : java.lang.Class<"+ProcessorHelper.fqn(ctx,eClass)+"> { return javaClass<" + ProcessorHelper.fqn(ctx,eClass) + ">()}")
             pr.println("")
@@ -265,8 +266,12 @@ if (getIdAtt(cls).isEmpty) {
                 } else {
                   pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
                 }
-                pr.println(" return getEntityMap().get(\"" + att.getName + "\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
-
+                //pr.println(" return getEntityMap().get(\"" + att.getName + "\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
+                if(hasID(cls)) {
+                  pr.println(" return mapGetter.get" + eClass.getName + "Entity().get(_generated_KMF_ID!! + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
+                } else {
+                  pr.println(" return mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
+                }
                 //generate setter
                 pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
                 pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
@@ -274,7 +279,15 @@ if (getIdAtt(cls).isEmpty) {
                 if (att.isID) {
                   pr.println("_generated_KMF_ID = " + protectReservedWords(att.getName))
                 }
-                pr.println("getEntityMap().put(\"" + att.getName + "\"," + protectReservedWords(att.getName) + ")")
+
+
+                if(hasID(cls)) {
+                  pr.println("mapGetter.get" + eClass.getName + "Entity().put(_generated_KMF_ID!! + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\","+ protectReservedWords(att.getName) + ")")
+                } else {
+                  pr.println("mapGetter.get" + eClass.getName + "Entity().put(getGenerated_KMF_ID() + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\","+ protectReservedWords(att.getName) + ")")
+                }
+
+                //pr.println("getEntityMap().put(\"" + att.getName + "\"," + protectReservedWords(att.getName) + ")")
                 pr.println("}")
             }
 
@@ -304,7 +317,15 @@ if (getIdAtt(cls).isEmpty) {
                     formatedFactoryName += cls.getEPackage.getName.substring(1)
                     formatedFactoryName += "Factory"
 
-                    pr.println("val ref = getEntityMap().get(\"" + ref.getName +"\") as? String")
+
+                    //pr.println("getEntityMap().get(\"" + ref.getName +"\") as? String")
+                    if(hasID(cls)) {
+                      pr.println("val ref = mapGetter.get" + eClass.getName + "Entity().get(_generated_KMF_ID!! + \"_"+ref.getName+"\") as? String")
+                    } else {
+                      pr.println("val ref = mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_"+ref.getName+"\") as? String")
+                    }
+
+
                     pr.println("if(ref != null) {")
                     pr.println(" return (mapGetter as "+formatedFactoryName+").create"+ref.getEReferenceType.getName.substring(0, 1).toUpperCase + ref.getEReferenceType.getName.substring(1)+"(ref)")// as " + typeRefName + "\n}")
                     pr.println("} else {")
@@ -364,7 +385,8 @@ if (getIdAtt(cls).isEmpty) {
       cls =>
         cls match {
           case eclass: EClass => {
-            pr.println("fun get" + eclass.getName + "Entity(id : String) : MutableMap<String,Any>")
+            //pr.println("fun get" + eclass.getName + "Entity(id : String) : MutableMap<String,Any>")
+            pr.println("fun get" + eclass.getName + "Entity() : MutableMap<String,Any>")
             eclass.getEAllReferences.foreach {
               eRef =>
                 pr.println("fun get" + eclass.getName + "_" + eRef.getName + "Relation(id : String) : MutableMap<String,Any>")
@@ -479,13 +501,14 @@ if (getIdAtt(cls).isEmpty) {
           case eclass: EClass => {
 
             pr.println("private final val dbkey_" + eclass.getName + " : String = \"" + eclass.getName + "\"")
-            pr.println("override fun get" + eclass.getName + "Entity(id : String) : MutableMap<String,Any> {")
+            //pr.println("override fun get" + eclass.getName + "Entity(id : String) : MutableMap<String,Any> {")
+            pr.println("override fun get" + eclass.getName + "Entity() : MutableMap<String,Any> {")
             pr.println("var res = dbs.get(dbkey_" + eclass.getName + ")")
             pr.println("if(res == null){")
             pr.println("res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+\"" + ProcessorHelper.fqn(ctx, eclass) + "_entity\"))!!.closeOnJvmShutdown()!!.make()")
             pr.println("dbs.put(dbkey_" + eclass.getName + ",res!!)")
             pr.println("}")
-            pr.println("return res!!.getTreeMap(id)!!")
+            pr.println("return res!!.getTreeMap(\"default\")!!")
             pr.println("}")
             eclass.getEAllReferences.foreach {
               eRef =>
@@ -766,7 +789,14 @@ if (getIdAtt(cls).isEmpty) {
       pr.println("}")
     } else {
       pr.println("if("+ protectReservedWords(ref.getName)+" != null){")
-      pr.println("getEntityMap().put(\"" + ref.getName + "\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
+
+      //pr.println("getEntityMap().put(\"" + ref.getName + "\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
+      if(hasID(cls)) {
+        pr.println("mapGetter.get" + cls.getName + "Entity().put(_generated_KMF_ID!! + \"_"+ref.getName+"\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
+      } else {
+        pr.println("mapGetter.get" + cls.getName + "Entity().put(getGenerated_KMF_ID() + \"_"+ref.getName+"\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
+      }
+
       if (!noOpposite && oppositRef != null) {
         val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
         if (oppositRef.isMany) {
@@ -788,7 +818,15 @@ if (getIdAtt(cls).isEmpty) {
           pr.println("("+getMethName+"() as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)")
         }
       }
-      pr.println("getEntityMap().remove(\""+ ref.getName +"\")")
+
+      // pr.println("getEntityMap().remove(\""+ ref.getName +"\")")
+      if(hasID(cls)) {
+        pr.println("mapGetter.get" + cls.getName + "Entity().remove(_generated_KMF_ID!! + \"_"+ref.getName+"\")")
+      } else {
+        pr.println("mapGetter.get" + cls.getName + "Entity().remove(getGenerated_KMF_ID() + \"_"+ref.getName+"\")")
+      }
+
+
       pr.println("}")
     }
 
