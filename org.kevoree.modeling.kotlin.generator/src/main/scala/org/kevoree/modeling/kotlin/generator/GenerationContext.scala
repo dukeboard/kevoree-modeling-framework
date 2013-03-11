@@ -158,6 +158,15 @@ class GenerationContext {
     kevoreeContainerImplFQN = s
   }
 
+  private var kevoreeCacheResolver : String = ""
+  def getkevoreeCacheResolver = kevoreeCacheResolver
+
+  def setkevoreeCacheResolver(s : String){
+    kevoreeCacheResolver = s
+  }
+
+
+
   var generatedLoaderFiles = new util.ArrayList[String]()
   var loaderPrintWriter : PrintWriter = null
 

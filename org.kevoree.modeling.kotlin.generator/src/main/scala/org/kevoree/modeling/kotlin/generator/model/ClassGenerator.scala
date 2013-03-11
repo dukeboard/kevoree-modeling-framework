@@ -94,6 +94,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("override internal var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
     pr.println("override internal var internal_unsetCmd : (()->Unit)? = null")
     pr.println("override internal var internal_readOnlyElem : Boolean = false")
+    pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false");
 
     //  }
     //generate init
@@ -216,7 +217,10 @@ trait ClassGenerator extends ClonerGenerator {
 
     //Generate RecursiveReadOnly
     pr.println("override fun setRecursiveReadOnly(){")
-    cls.getEAllContainments.foreach {
+
+    pr.println("if(internal_recursive_readOnlyElem == true){return}")
+
+    cls.getEAllReferences.foreach {
       contained =>
         if (contained.getUpperBound == -1) {
           // multiple values
@@ -239,6 +243,7 @@ trait ClassGenerator extends ClonerGenerator {
         }
         pr.println()
     }
+    pr.println("internal_recursive_readOnlyElem = true")
     pr.println("setInternalReadOnly()")
 
     pr.println("}")
@@ -670,11 +675,8 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
   private def generateAddAllMethodOp(cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean,ctx:GenerationContext): String = {
-
     var res = ""
     res += "\n"
-
-
     if (noOpposite) {
       res += "\nfun noOpposite_addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     } else {
@@ -684,17 +686,13 @@ trait ClassGenerator extends ClonerGenerator {
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     //Clear cache
     res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
-
     if (hasID(ref.getEReferenceType)) {
-
       res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
       res += protectReservedWords("_" + ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
       res += "}\n"
-
     } else {
       res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
     }
-
 
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
       res += "for(el in " + protectReservedWords(ref.getName) + "){\n"

@@ -53,9 +53,6 @@ class Generator(ctx:GenerationContext) {
     val model = ctx.getEcoreModel(ecoreFile)
 
     checkModel(model)
-
-
-
     val modelGen = new ModelGenerator(ctx)
 
     System.out.println("Launching model generation")

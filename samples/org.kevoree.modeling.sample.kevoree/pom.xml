@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.sample.kevoree</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: Scala :: Sample :: Kevoree</name>
+    <name>Kevoree :: Modeling :: Sample :: Kevoree</name>
 
     <parent>
         <artifactId>org.kevoree.modeling.sample.root</artifactId>
@@ -39,6 +39,12 @@
         </plugins>
     </build>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

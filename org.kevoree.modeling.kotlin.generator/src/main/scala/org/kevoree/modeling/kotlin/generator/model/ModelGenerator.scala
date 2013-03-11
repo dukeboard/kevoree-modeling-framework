@@ -32,6 +32,23 @@
  * Fouquet Francois
  * Nain Gregory
  */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
 package org.kevoree.modeling.kotlin.generator.model
 
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
@@ -71,6 +88,11 @@ with APIGenerator {
       ctx.registerFactory(currentPackage)
       ctx.getRootContainerInPackage(currentPackage) match {
         case Some(rootContainerClass) => {
+
+          if (ctx.genSelector) {
+            generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
+          }
+
           generateContainerTrait(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
           generateCloner(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage, rootContainerClass)
         }
@@ -88,6 +110,7 @@ with APIGenerator {
     //generateMutableTrait(dir, thisPack, pack)
     currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c, currentUserPackageDir))
     currentPackage.getESubpackages.foreach(subPack => process(subPack, modelVersion))
+
 
   }
 

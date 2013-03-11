@@ -124,6 +124,7 @@ trait TraitGenerator {
     pr.println("fun eContainer() : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "? { return internal_eContainer }")
 
     pr.println("internal open var internal_readOnlyElem : Boolean")
+    pr.println("internal open var internal_recursive_readOnlyElem : Boolean")
 
     pr.println("open fun setRecursiveReadOnly()")
 
