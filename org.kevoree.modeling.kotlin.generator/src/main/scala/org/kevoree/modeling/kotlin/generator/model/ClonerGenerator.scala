@@ -189,8 +189,13 @@ trait ClonerGenerator {
     pr.println("\t\treturn when(o) {")
     pr.println("\t\t\tis " + ProcessorHelper.fqn(ctx, containerRoot) + " -> {")
     pr.println("\t\t\t\tval context = java.util.IdentityHashMap<Any,Any>()")
-    pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal).getClonelazy(context, this,mutableOnly)")
-    pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal) .resolve(context,readOnly,mutableOnly) as A")
+
+    pr.println("\t\t\t\t(o as " + ctx.getKevoreeContainer.get + ").getClonelazy(context, this,mutableOnly)")
+    pr.println("\t\t\t\t(o as " + ctx.getKevoreeContainer.get + ").resolve(context,readOnly,mutableOnly) as A")
+
+    //pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal).getClonelazy(context, this,mutableOnly)")
+    //pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal).resolve(context,readOnly,mutableOnly) as A")
+
     pr.println("\t\t\t}")
     pr.println("\t\t\telse -> null")
     pr.println("\t\t}") //END MATCH
@@ -278,10 +283,7 @@ trait ClonerGenerator {
 
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
 
-    if (cls.getESuperTypes.size() > 0) {
-      buffer.print("\toverride ")
-    }
-    buffer.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
+    buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
 
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")
 
@@ -338,10 +340,7 @@ trait ClonerGenerator {
     //GENERATE CLONE METHOD
 
     //CALL SUB TYPE OR PROCESS OBJECT
-    if (cls.getESuperTypes.size() > 0) {
-      buffer.print("\toverride ")
-    }
-    buffer.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
+    buffer.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
 
 
     //GET CLONED OBJECT

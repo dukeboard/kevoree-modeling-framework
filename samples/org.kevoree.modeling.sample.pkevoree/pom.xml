@@ -48,6 +48,7 @@
                             <clearOutput>false</clearOutput>
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
+                            <!--selector>true</selector-->
                         </configuration>
                     </execution>
                 </executions>

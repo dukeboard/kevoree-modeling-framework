@@ -93,6 +93,8 @@ trait TraitGenerator {
     pr.println("fun findByPath<A>(query : String, clazz : Class<A>) : A?")
     pr.println("fun findByPath(query : String) : Any?")
     pr.println("fun path() : String?")
+    pr.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : "+ctx.clonerPackage+".ClonerFactories, mutableOnly: Boolean)")
+    pr.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any ")
 
 
 

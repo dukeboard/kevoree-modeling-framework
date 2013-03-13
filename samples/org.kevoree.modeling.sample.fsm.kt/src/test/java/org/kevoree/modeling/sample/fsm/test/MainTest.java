@@ -67,6 +67,11 @@ public class MainTest {
             t.setInput("ti" + i);
             t.setOutput("to" + i);
             s0 = s1;
+
+            if(i%100000 == 0) {
+                System.out.println("" +i);
+            }
+
         }
 
         long creationEnd = System.nanoTime();
@@ -273,9 +278,10 @@ public class MainTest {
         File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
-        int step = 250000;
-        for (int i = 1; i * step <= 250000; i++) {
+        int step = 5000000;
+        for (int i = 1; i * step <= 5000000; i++) {
             m.flatFsmTest(pr, i * step);
+
         }
         pr.flush();
         pr.close();

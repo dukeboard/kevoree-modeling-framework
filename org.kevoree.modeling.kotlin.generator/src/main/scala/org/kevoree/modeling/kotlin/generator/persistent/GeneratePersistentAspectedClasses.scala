@@ -170,6 +170,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
                 formatedFactoryName += pack.getName.substring(1)
                 formatedFactoryName += "Container"
                 val FQNPack = ProcessorHelper.fqn(ctx, pack) + ".persistency.mdb"
+                ctx.clonerPackage = ProcessorHelper.fqn(ctx, pack) + ".cloner"
                 ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, pack) + "." + formatedFactoryName))
                 ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, pack) + ".persistency.mdb." + formatedFactoryName + "Internal")
 
@@ -643,7 +644,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
     res += "(" + protectReservedWords(ref.getName) + " :List<" + typeRefName + ">) {\n"
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
 
-    res += "val " + protectReservedWords(ref.getName) + "Set = mapGetter.getState_outgoingTransitionRelation()\n"
+    res += "val " + protectReservedWords(ref.getName) + "Set = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation()\n"
     res += "val " + protectReservedWords(ref.getName) + "SubSet = " + protectReservedWords(ref.getName) + "Set.subSet(org.mapdb.Fun.t3(getGenerated_KMF_ID(), null, null)!!, org.mapdb.Fun.t3(getGenerated_KMF_ID(), org.mapdb.Fun.HI, org.mapdb.Fun.HI)!!)\n"
     res += "val new" + protectReservedWords(ref.getName) + " = java.util.HashSet<org.mapdb.Fun.Tuple3<Any, Any, Any>>()\n"
     res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
@@ -870,6 +871,13 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
     pr.println(" override fun path(): String? {")
     pr.println(" throw UnsupportedOperationException()")
     pr.println(" }")
+    pr.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : "+ctx.clonerPackage+".ClonerFactories, mutableOnly: Boolean) {")
+    pr.println(" throw UnsupportedOperationException()")
+    pr.println(" }")
+    pr.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any  {")
+    pr.println(" throw UnsupportedOperationException()")
+    pr.println(" }")
+
 
   }
 
