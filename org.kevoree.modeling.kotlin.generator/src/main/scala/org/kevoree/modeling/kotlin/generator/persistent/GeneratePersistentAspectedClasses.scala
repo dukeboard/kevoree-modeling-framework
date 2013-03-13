@@ -46,14 +46,6 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
     }
   }
 
-  /*
-def generateGetIDAtt(cls: EClass) = {
-if (getIdAtt(cls).isEmpty) {
-  println(cls.getName)
-}
-"get" + getIdAtt(cls).get.getName.substring(0, 1).toUpperCase + getIdAtt(cls).get.getName.substring(1)
-}  */
-
   def generateContainerTrait(packageGenDir: String, packElement: EPackage) {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
@@ -389,7 +381,7 @@ if (getIdAtt(cls).isEmpty) {
             pr.println("fun get" + eclass.getName + "Entity() : MutableMap<String,Any>")
             eclass.getEAllReferences.foreach {
               eRef =>
-                pr.println("fun get" + eclass.getName + "_" + eRef.getName + "Relation(id : String) : MutableMap<String,Any>")
+                pr.println("fun get" + eclass.getName + "_" + eRef.getName + "Relation() : java.util.NavigableSet<org.mapdb.Fun.Tuple3<Any, Any, Any>>")
             }
           }
           case _@e => println("ignored=" + e) //TODO ENUM EDATATYPE
@@ -513,13 +505,13 @@ if (getIdAtt(cls).isEmpty) {
             eclass.getEAllReferences.foreach {
               eRef =>
                 pr.println("private final val dbkey_" + eclass.getName + "_" + eRef.getName + "Relation : String = \"" + eclass.getName + "_" + eRef.getName + "\"")
-                pr.println("override fun get" + eclass.getName + "_" + eRef.getName + "Relation(id : String) : MutableMap<String,Any> {")
+                pr.println("override fun get" + eclass.getName + "_" + eRef.getName + "Relation() : java.util.NavigableSet<org.mapdb.Fun.Tuple3<Any, Any, Any>> {")
                 pr.println("var res = dbs.get(dbkey_" + eclass.getName + "_" + eRef.getName + "Relation)")
                 pr.println("if(res == null){")
                 pr.println("res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+\"" + ProcessorHelper.fqn(ctx, eclass) + "_" + eRef.getName + "\"))!!.closeOnJvmShutdown()!!.make()")
                 pr.println("dbs.put(dbkey_" + eclass.getName + "_" + eRef.getName + "Relation,res!!)")
                 pr.println("}")
-                pr.println("return res!!.getTreeMap(id)!!")
+                pr.println("return res!!.getTreeSet(\"default\")!!")
                 pr.println("}")
 
             }
@@ -563,8 +555,8 @@ if (getIdAtt(cls).isEmpty) {
     res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ") {\n"
 
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
-    res += "mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())"
-    res += ".remove((" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).getGenerated_KMF_ID())\n"
+    res += "val "+protectReservedWords(ref.getName)+"Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation()\n"
+    res += protectReservedWords(ref.getName) + "Map.remove(org.mapdb.Fun.t3(getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getAPIClass().getName())!!)\n"
 
     if (ref.isContainment) {
       //TODO
@@ -594,11 +586,12 @@ if (getIdAtt(cls).isEmpty) {
       res += "\noverride fun removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() {\n"
     }
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
+    res += "val "+protectReservedWords(ref.getName)+"Set = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation()\n"
+    res += "val old"+protectReservedWords(ref.getName)+" = java.util.HashSet<org.mapdb.Fun.Tuple3<Any, Any, Any>>()\n"
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
       val getterCall = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()"
       if (hasID(ref.getEReferenceType)) {
-        res += "for(elm in " + getterCall + "!!){\n"
-        res += "val el = elm\n"
+        res += "for(el in " + getterCall + "!!){\n"
       } else {
         res += "val temp_els = java.util.Collections.unmodifiableList(" + getterCall + ")\n"
         res += "for(el in temp_els){\n"
@@ -606,11 +599,12 @@ if (getIdAtt(cls).isEmpty) {
       if (ref.isContainment) {
         res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
       }
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
+     // res += protectReservedWords(ref.getName)+"Map.remove(getGenerated_KMF_ID() + \"_\" + (el as "+refInternalClassFqn+").getGenerated_KMF_ID())\n"
+      res += "old" + protectReservedWords(ref.getName) + ".add(org.mapdb.Fun.t3(getGenerated_KMF_ID(), (el as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (el as " + ctx.getKevoreeContainerImplFQN + ").getAPIClass().getName())!!)\n"
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
-
         if (!opposite.isMany) {
           res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
         } else {
@@ -619,8 +613,8 @@ if (getIdAtt(cls).isEmpty) {
       }
       res += "}\n"
     }
-    res += "mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID()).clear()\n"
-    res += "}"
+    res += protectReservedWords(ref.getName)+"Set.removeAll(old" + protectReservedWords(ref.getName) + ")\n"
+     res += "}"
     res
   }
 
@@ -649,33 +643,32 @@ if (getIdAtt(cls).isEmpty) {
     res += "(" + protectReservedWords(ref.getName) + " :List<" + typeRefName + ">) {\n"
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
 
-    res += "val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n"
-
+    res += "val " + protectReservedWords(ref.getName) + "Set = mapGetter.getState_outgoingTransitionRelation()\n"
+    res += "val " + protectReservedWords(ref.getName) + "SubSet = " + protectReservedWords(ref.getName) + "Set.subSet(org.mapdb.Fun.t3(getGenerated_KMF_ID(), null, null)!!, org.mapdb.Fun.t3(getGenerated_KMF_ID(), org.mapdb.Fun.HI, org.mapdb.Fun.HI)!!)\n"
+    res += "val new" + protectReservedWords(ref.getName) + " = java.util.HashSet<org.mapdb.Fun.Tuple3<Any, Any, Any>>()\n"
     res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
-    res += protectReservedWords(ref.getName) + "Map.put((el as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (el as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())\n"
-    res += "}\n"
+    res += "val " + protectReservedWords(ref.getName) + "SubSubSet = " + protectReservedWords(ref.getName) + "SubSet.subSet(org.mapdb.Fun.t3(getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), null)!!, org.mapdb.Fun.t3(getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), org.mapdb.Fun.HI)!!)\n"
+    res += "if(" + protectReservedWords(ref.getName) + "SubSubSet.size == 0) {\n"
+    res += "new" + protectReservedWords(ref.getName) + ".add(org.mapdb.Fun.t3(getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getAPIClass().getName())!!)\n"
 
+    if (ref.getEOpposite != null && !noOpposite) {
+      val opposite = ref.getEOpposite
+      val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
 
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
 
-    if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
-      res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
-      if (ref.isContainment) {
-
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})\n"
+      if (!opposite.isMany) {
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
+      } else {
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
       }
-      if (ref.getEOpposite != null && !noOpposite) {
-        val opposite = ref.getEOpposite
-        val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
-
-        if (!opposite.isMany) {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
-        } else {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
-        }
-      }
-      res += "}\n"
     }
+
+    res += "}\n"
+    res += "}\n"
+    res +=  protectReservedWords(ref.getName) + "Set.addAll(new" + protectReservedWords(ref.getName) + ")"
+
+
     res += "}\n"
     res
   }
@@ -697,8 +690,11 @@ if (getIdAtt(cls).isEmpty) {
       res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
     }
 
-    res += "val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n"
-    res += protectReservedWords(ref.getName) + "Map.put((" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())\n"
+    res += "val " + protectReservedWords(ref.getName) + "Set = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation()\n"
+
+    res += "val " + protectReservedWords(ref.getName) + "SubSet = " + protectReservedWords(ref.getName) + "Set.subSet(org.mapdb.Fun.t3(getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), null)!!, org.mapdb.Fun.t3(getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), org.mapdb.Fun.HI)!!)\n"
+    res += "if(" + protectReservedWords(ref.getName) + "SubSet.size == 0) {\n"
+    res +=  protectReservedWords(ref.getName) + "Set.add(org.mapdb.Fun.t3(getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").getAPIClass().getName())!!)\n"
 
     if (ref.getEOpposite != null && !noOpposite) {
       val opposite = ref.getEOpposite
@@ -707,12 +703,13 @@ if (getIdAtt(cls).isEmpty) {
       val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
 
       if (!opposite.isMany) {
-        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
       } else {
-        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
       }
     }
-    res += "}"
+    res += "}\n" //ENFIF
+    res += "}" // END METHOD
     res
   }
 
@@ -722,13 +719,26 @@ if (getIdAtt(cls).isEmpty) {
     pr.print("List<")
     pr.print(typeRefName)
     pr.println("> {")
-    pr.println("val " + protectReservedWords(ref.getName + "Map") + " = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())")
+
+    /*
+    val outgoingTransitionMap = mapGetter.getState_outgoingTransitionRelation()
+        val transitions = outgoingTransitionMap.getOrElse(getGenerated_KMF_ID(),{""}).split(";")
+        val outgoingTransitionList = java.util.ArrayList<org.fsmSample.Transition>()
+        for(outgoingTransition in transitions){
+            val tType = outgoingTransitionMap.get(getGenerated_KMF_ID() + "_" + outgoingTransition)!!
+            outgoingTransitionList.add((mapGetter as org.fsmSample.persistency.mdb.PersistentFsmSampleFactory).createEntity(tType,outgoingTransition) as org.fsmSample.Transition)
+        }
+     */
+
+
+    pr.println("val " + protectReservedWords(ref.getName + "Set") + " = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation()")
+    pr.println("val my" + protectReservedWords(ref.getName ) + " = " + protectReservedWords(ref.getName + "Set") + ".subSet(org.mapdb.Fun.t3(getGenerated_KMF_ID(), null, null)!!, org.mapdb.Fun.t3(getGenerated_KMF_ID(), org.mapdb.Fun.HI, org.mapdb.Fun.HI)!!)")
     pr.println("val " + protectReservedWords(ref.getName + "List") + " = java.util.ArrayList<"+typeRefName+">()")
-    pr.println("for("+protectReservedWords(ref.getName)+" in "+protectReservedWords(ref.getName + "Map.entrySet()")+"){")
+    pr.println("for("+protectReservedWords(ref.getName)+" in my"+protectReservedWords(ref.getName)+"){")
     var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
     formatedFactoryName += cls.getEPackage.getName.substring(1)
     formatedFactoryName += "Factory"
-    pr.println(protectReservedWords(ref.getName + "List") + ".add((mapGetter as "+formatedFactoryName+").createEntity(" + protectReservedWords(ref.getName) + ".getValue()," + protectReservedWords(ref.getName) + ".getKey()) as "+typeRefName+")")
+    pr.println(protectReservedWords(ref.getName + "List") + ".add((mapGetter as "+formatedFactoryName+").createEntity(" + protectReservedWords(ref.getName) + ".c," + protectReservedWords(ref.getName) + ".b) as "+typeRefName+")")
     pr.println("}")
     pr.println("return " + protectReservedWords(ref.getName + "List"))
     pr.println("}")
@@ -771,10 +781,14 @@ if (getIdAtt(cls).isEmpty) {
     val oppositRef = ref.getEOpposite
     // -> Collection ref : * or +
     if(ref.isMany) {
-      pr.println("val " + protectReservedWords(ref.getName) + "Map = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation(getGenerated_KMF_ID())\n")
-      pr.println(protectReservedWords(ref.getName) + "Map.clear()")
+      pr.println("val " + protectReservedWords(ref.getName) + "Set = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation()\n")
+      //pr.println(protectReservedWords(ref.getName) + "Map.clear()")
+      //pr.println("removeAll" + formatedLocalRefName + "()")
+      pr.println(protectReservedWords(ref.getName) + "Set.removeAll(" + protectReservedWords(ref.getName) + "Set.subSet(org.mapdb.Fun.t3(getGenerated_KMF_ID(), null, null)!!, org.mapdb.Fun.t3(getGenerated_KMF_ID(), org.mapdb.Fun.HI, org.mapdb.Fun.HI)!!))")
+      pr.println("val new" + protectReservedWords(ref.getName) + " = java.util.HashSet<org.mapdb.Fun.Tuple3<Any, Any, Any>>()")
       pr.println("for(el in " + protectReservedWords(ref.getName) + "){")
-      pr.println(protectReservedWords(ref.getName) + "Map.put((el as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID(), (el as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())")
+      pr.println("new" + protectReservedWords(ref.getName) + ".add(org.mapdb.Fun.t3(getGenerated_KMF_ID(),(el as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID(), (el as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())!!)")
+      //pr.println(protectReservedWords(ref.getName) + "Map.put(getGenerated_KMF_ID() + \"_\" + (el as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID(), (el as "+ctx.getKevoreeContainerImplFQN+").getAPIClass().getName())")
       if (!noOpposite && oppositRef != null) {
         val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
         if (oppositRef.isMany) {
@@ -787,6 +801,8 @@ if (getIdAtt(cls).isEmpty) {
         pr.println("(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})")
       }
       pr.println("}")
+      //pr.println(protectReservedWords(ref.getName) + "Map.put(getGenerated_KMF_ID(),"+protectReservedWords(ref.getName)+".map{e -> (e as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID()}.makeString(\";\"))")
+      pr.println(protectReservedWords(ref.getName) + "Set.addAll(new"+protectReservedWords(ref.getName)+")")
     } else {
       pr.println("if("+ protectReservedWords(ref.getName)+" != null){")
 
@@ -839,7 +855,9 @@ if (getIdAtt(cls).isEmpty) {
     pr.println("override fun setRecursiveReadOnly() {")
     pr.println("  throw UnsupportedOperationException()")
     pr.println("}")
-
+    pr.println("override fun isRecursiveReadOnly() : Boolean{")
+    pr.println("  throw UnsupportedOperationException()")
+    pr.println("}")
     pr.println("fun selectByQuery(query: String): List<Any> {")
     pr.println("  throw UnsupportedOperationException()")
     pr.println("}")
