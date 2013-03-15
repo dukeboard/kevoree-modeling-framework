@@ -18,6 +18,7 @@
 package org.kevoree.modeling.kotlin.generator.persistent
 
 import org.eclipse.emf.ecore._
+import org.kevoree.modeling.kotlin.generator.model.KMFQLFinder
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
@@ -32,12 +33,18 @@ import scala.Some
  * Date: 15/02/13
  * Time: 10:31
  */
-class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
+class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFinder {
 
   def hasID(cls: EClass): Boolean = {
     cls.getEAllAttributes.exists {
       att => att.isID
     }
+  }
+
+  def hasFindByIDMethod(cls: EClass): Boolean = {
+    cls.getEReferences.exists(ref => {
+      hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)
+    })
   }
 
   def getIdAtt(cls: EClass) = {
@@ -59,33 +66,26 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
     pr.println()
     pr.println(ProcessorHelper.generateHeader(packElement))
     //case class name
-    pr.println("trait " + formatedFactoryName + "Internal {")
+    pr.println("trait " + formatedFactoryName + "Internal : "+ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName +"{")
     pr.println()
     pr.println("internal open var internal_eContainer : String?")
     pr.println("internal open var internal_unsetCmd : (()->Unit)?")
 
     //generate getter
-    pr.println("fun eContainer() : String? { return internal_eContainer }")
-    //pr.println("open fun setRecursiveReadOnly()")
+    pr.println("override fun eContainer() : "+ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName+"?")
+    pr.println("internal open var internal_containmentRefName : String?")
+    pr.println("override fun setContainmentRefName(name : String?)")
 
 
     //generate setter
-    pr.print("\nfun setEContainer( container : String?, unsetCmd : (()->Unit)?) {\n")
-    pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
-    pr.println("if(internal_unsetCmd != null){")
-    pr.println("internal_unsetCmd!!()")
-    pr.println("}")
-
-    pr.println("internal_eContainer = container\n")
-    pr.println("internal_unsetCmd = unsetCmd")
-    pr.println("}")
+    pr.print("\nfun setEContainer( container : String?, unsetCmd : (()->Unit)?)")
 
     pr.println("internal open var internal_readOnlyElem : Boolean")
-    pr.println("fun setInternalReadOnly(){")
+    pr.println("override fun setInternalReadOnly(){")
     pr.println("internal_readOnlyElem = true")
     pr.println("}")
 
-    pr.println("fun isReadOnly() : Boolean {")
+    pr.println("override fun isReadOnly() : Boolean {")
     pr.println("return internal_readOnlyElem")
     pr.println("}")
 
@@ -134,7 +134,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
     pr.println("")
     pr.println("override fun getGenerated_KMF_ID() : String {")
 
-    if (cls.getEAllAttributes.find(att => att.isID).isEmpty) {
+    if (cls.getEAllAttributes.filter{att => !att.getName.equals("generated_KMF_ID")}.find(att => att.isID).isEmpty) {
       pr.println("if(_generated_KMF_ID == null){")
       pr.println("_generated_KMF_ID = java.util.UUID.randomUUID().toString()")
       pr.println("}")
@@ -189,6 +189,17 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
         generatePackageFactoryPersistentImpl(ctx, pack.asInstanceOf[EPackage], modelVersion)
     }
 
+    val classList = model.getAllContents.filter{elem => elem.isInstanceOf[EClass]}
+    classList.foreach{ elem =>
+      var generatedKmfIdAttribute : EAttribute = null
+      if(!hasID(elem.asInstanceOf[EClass])) {
+        generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
+        generatedKmfIdAttribute.setID(true)
+        generatedKmfIdAttribute.setName("generated_KMF_ID")
+        generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
+        elem.asInstanceOf[EClass].getEStructuralFeatures.add(generatedKmfIdAttribute)
+      }
+    }
 
 
     model.getAllContents.foreach {
@@ -227,31 +238,62 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
 
             pr.println("override var internal_readOnlyElem: Boolean = false")
             pr.println("override var internal_eContainer: String? = null")
+            pr.println("override var internal_containmentRefName : String? = null")
             pr.println("override var internal_unsetCmd : (()->Unit)? = null")
 
             pr.println("private var entityDB : MutableMap<String,Any>? = null")
-            /*pr.println("private fun getEntityMap() : MutableMap<String,Any>{")
-            pr.println("if(entityDB == null){")
-            if(hasID(cls)) {
-              pr.println("if(_generated_KMF_ID == null){throw Exception(\"Set ID before any use of entity " + eClass.getName + "\")}")
-              pr.println("entityDB=mapGetter.get" + eClass.getName + "Entity(_generated_KMF_ID!!)")
-            } else {
-              pr.println("entityDB=mapGetter.get" + eClass.getName + "Entity(getGenerated_KMF_ID())")
-            }
 
+            var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
+            formatedFactoryName += cls.getEPackage.getName.substring(1)
+            formatedFactoryName += "Factory"
+
+            pr.println("override fun eContainer() : "+ctx.getKevoreeContainer.get+"? {")
+            pr.println("if(internal_eContainer == null) {")
+            pr.println("val eContainer = mapGetter.getComponentInstanceEntity().get(getGenerated_KMF_ID() + \"_eContainer\")")
+              pr.println("val containmentRefName = mapGetter.getComponentInstanceEntity().get(getGenerated_KMF_ID() + \"_containmentRefName\")")
+              pr.println("if(eContainer == null) {")
+              pr.println("return null")
+              pr.println("} else {")
+              pr.println("internal_eContainer = eContainer as String")
+              pr.println("internal_containmentRefName = containmentRefName as String")
+              pr.println("}")
+              pr.println("}")
+              pr.println("val bracketIndex = internal_eContainer!!.indexOf(\"[\")")
+            pr.println("return (mapGetter as "+formatedFactoryName+").createEntity(internal_eContainer!!.substring(0,bracketIndex), internal_eContainer!!.substring(bracketIndex+1, internal_eContainer!!.length-1)) as "+ctx.getKevoreeContainer.get)
             pr.println("}")
-            pr.println("return entityDB!!")
+            pr.println("")
+            pr.println("override fun setEContainer( container : String?, unsetCmd : (()->Unit)?) {")
+            pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
+            pr.println("if(internal_unsetCmd != null){")
+            pr.println("internal_unsetCmd!!()")
             pr.println("}")
-            */
+            pr.println("internal_eContainer = container\n")
+            pr.println("if(container != null){")
+            pr.println("mapGetter.getComponentInstanceEntity().put(getGenerated_KMF_ID() + \"_eContainer\", container!!)")
+            pr.println("} else {")
+            pr.println("mapGetter.getComponentInstanceEntity().remove(getGenerated_KMF_ID() + \"_eContainer\")")
+            pr.println("}")
+            pr.println("internal_unsetCmd = unsetCmd")
+            pr.println("}")
+            pr.println("")
+            pr.println("override fun setContainmentRefName(name : String?){")
+            //pr.println("println(\"setting containmentRef:\"+name+\" for instance \" + this.toString())")
+            pr.println("if(name != null){")
+            pr.println("mapGetter.getComponentInstanceEntity().put(getGenerated_KMF_ID() + \"_containmentRefName\", name!!)")
+            pr.println("} else {")
+            pr.println("mapGetter.getComponentInstanceEntity().remove(getGenerated_KMF_ID() + \"_containmentRefName\")")
+            pr.println("}")
+            pr.println("internal_containmentRefName = name")
+            pr.println("}")
             pr.println("")
             pr.println("override fun getAPIClass() : java.lang.Class<"+ProcessorHelper.fqn(ctx,eClass)+"> { return javaClass<" + ProcessorHelper.fqn(ctx,eClass) + ">()}")
             pr.println("")
-            pr.println("")
+
             pr.println("")
             pr.println("")
 
             //GENERATE CALL GET&SET
-            cls.getEAllAttributes.foreach {
+            cls.getEAllAttributes.filter{att => !att.getName.equals("generated_KMF_ID")}.foreach {
               att =>
               //Generate getter
                 if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -260,11 +302,12 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
                   pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
                 }
                 //pr.println(" return getEntityMap().get(\"" + att.getName + "\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
-                if(hasID(cls)) {
+                /*if(hasID(cls)) {
                   pr.println(" return mapGetter.get" + eClass.getName + "Entity().get(_generated_KMF_ID!! + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
                 } else {
+                */
                   pr.println(" return mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
-                }
+                //}
                 //generate setter
                 pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
                 pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
@@ -274,11 +317,11 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
                 }
 
 
-                if(hasID(cls)) {
-                  pr.println("mapGetter.get" + eClass.getName + "Entity().put(_generated_KMF_ID!! + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\","+ protectReservedWords(att.getName) + ")")
-                } else {
+                //if(hasID(cls)) {
+                //  pr.println("mapGetter.get" + eClass.getName + "Entity().put(_generated_KMF_ID!! + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\","+ protectReservedWords(att.getName) + ")")
+               // } else {
                   pr.println("mapGetter.get" + eClass.getName + "Entity().put(getGenerated_KMF_ID() + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\","+ protectReservedWords(att.getName) + ")")
-                }
+                //}
 
                 //pr.println("getEntityMap().put(\"" + att.getName + "\"," + protectReservedWords(att.getName) + ")")
                 pr.println("}")
@@ -287,6 +330,10 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
             cls.getEAllReferences.foreach {
               ref =>
                 val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+
+                var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
+                formatedFactoryName += cls.getEPackage.getName.substring(1)
+                formatedFactoryName += "Factory"
 
                 ref.isMany match {
                   case false => {
@@ -306,17 +353,15 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
 
                     //generate getter
                     pr.print("override fun get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() : " + typeRefName + "? {\n")
-                    var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
-                    formatedFactoryName += cls.getEPackage.getName.substring(1)
-                    formatedFactoryName += "Factory"
+
 
 
                     //pr.println("getEntityMap().get(\"" + ref.getName +"\") as? String")
-                    if(hasID(cls)) {
-                      pr.println("val ref = mapGetter.get" + eClass.getName + "Entity().get(_generated_KMF_ID!! + \"_"+ref.getName+"\") as? String")
-                    } else {
+                    //if(hasID(cls)) {
+                    //  pr.println("val ref = mapGetter.get" + eClass.getName + "Entity().get(_generated_KMF_ID!! + \"_"+ref.getName+"\") as? String")
+                    //} else {
                       pr.println("val ref = mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_"+ref.getName+"\") as? String")
-                    }
+                    //}
 
 
                     pr.println("if(ref != null) {")
@@ -333,25 +378,30 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
                     //if(ref.isMany){
                     pr.println(generateAddMethod(cls, ref, typeRefName, ctx))
                     pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx))
+
+                    if(ref.getEReferenceType.getEIDAttribute.getName.equals("generated_KMF_ID")) {
+                      pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
+                    } else {
+                      pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
+                    }
+                    pr.println(" return (mapGetter as "+formatedFactoryName+").create"+ref.getEReferenceType.getName.substring(0, 1).toUpperCase + ref.getEReferenceType.getName.substring(1)+"(key)")
+                    pr.println("}")
+
+
                     //}
                   }
                 }
-                if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-                  pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
-                  pr.println("throw UnsupportedOperationException()")
-                  pr.println("}")
-                }
+
             }
 
             //OK methods
-            //generateReadOnlyMethods(pr)
+
             generateKMF_IdMethods(cls, pr)
-
-
+            generateFindByPathMethods(ctx, cls, pr)
+            generatePathMethod(ctx, cls, pr)
 
             //TODO: SHOULD NOT EXIST IN THE END
             generateMissingMethodsForCompilation(ctx, cls, pr)
-
 
           }
           pr.println("}")
@@ -457,12 +507,10 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
         pr.println("return v")
         pr.println("}")
     }
-    pr.println()
-
 
     pr.println()
 
-    pr.println("\t fun createEntity( _type : String, id : String) : Any? { ")
+    pr.println("fun createEntity( _type : String, id : String) : Any? { ")
     pr.println("when(_type) {")
     packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass]).foreach {
       cls =>
@@ -521,7 +569,6 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
         }
     }
 
-
     pr.println("}")
 
     pr.flush()
@@ -562,6 +609,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
     if (ref.isContainment) {
       //TODO
       res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
+      res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
     }
 
     val oppositRef = ref.getEOpposite
@@ -599,9 +647,10 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
       }
       if (ref.isContainment) {
         res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
       }
       val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".persistency.mdb." + ref.getEReferenceType.getName + "Persistent"
-     // res += protectReservedWords(ref.getName)+"Map.remove(getGenerated_KMF_ID() + \"_\" + (el as "+refInternalClassFqn+").getGenerated_KMF_ID())\n"
+      // res += protectReservedWords(ref.getName)+"Map.remove(getGenerated_KMF_ID() + \"_\" + (el as "+refInternalClassFqn+").getGenerated_KMF_ID())\n"
       res += "old" + protectReservedWords(ref.getName) + ".add(org.mapdb.Fun.t3(getGenerated_KMF_ID(), (el as " + ctx.getKevoreeContainerImplFQN + ").getGenerated_KMF_ID(), (el as " + ctx.getKevoreeContainerImplFQN + ").getAPIClass().getName())!!)\n"
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
@@ -615,7 +664,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
       res += "}\n"
     }
     res += protectReservedWords(ref.getName)+"Set.removeAll(old" + protectReservedWords(ref.getName) + ")\n"
-     res += "}"
+    res += "}"
     res
   }
 
@@ -689,6 +738,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
 
     if (ref.isContainment) {
       res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
+      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
     }
 
     res += "val " + protectReservedWords(ref.getName) + "Set = mapGetter.get" + cls.getName + "_" + ref.getName + "Relation()\n"
@@ -800,6 +850,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
       }
       if(ref.isContainment) {
         pr.println("(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})")
+        pr.println("(el as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")")
       }
       pr.println("}")
       //pr.println(protectReservedWords(ref.getName) + "Map.put(getGenerated_KMF_ID(),"+protectReservedWords(ref.getName)+".map{e -> (e as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID()}.makeString(\";\"))")
@@ -808,11 +859,11 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
       pr.println("if("+ protectReservedWords(ref.getName)+" != null){")
 
       //pr.println("getEntityMap().put(\"" + ref.getName + "\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
-      if(hasID(cls)) {
-        pr.println("mapGetter.get" + cls.getName + "Entity().put(_generated_KMF_ID!! + \"_"+ref.getName+"\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
-      } else {
+      //if(hasID(cls)) {
+      //  pr.println("mapGetter.get" + cls.getName + "Entity().put(_generated_KMF_ID!! + \"_"+ref.getName+"\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
+      //} else {
         pr.println("mapGetter.get" + cls.getName + "Entity().put(getGenerated_KMF_ID() + \"_"+ref.getName+"\",(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").getGenerated_KMF_ID())")
-      }
+      //}
 
       if (!noOpposite && oppositRef != null) {
         val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
@@ -824,6 +875,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
       }
       if(ref.isContainment) {
         pr.println("("+protectReservedWords(ref.getName)+" as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(getAPIClass().getName() + \"[\" + getGenerated_KMF_ID() + \"]\",{()->this.set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(null)})")
+        pr.println("("+protectReservedWords(ref.getName)+" as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")")
       }
       pr.println("} else {")
       if (!noOpposite && oppositRef != null) {
@@ -837,11 +889,11 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
       }
 
       // pr.println("getEntityMap().remove(\""+ ref.getName +"\")")
-      if(hasID(cls)) {
-        pr.println("mapGetter.get" + cls.getName + "Entity().remove(_generated_KMF_ID!! + \"_"+ref.getName+"\")")
-      } else {
+     // if(hasID(cls)) {
+     //   pr.println("mapGetter.get" + cls.getName + "Entity().remove(_generated_KMF_ID!! + \"_"+ref.getName+"\")")
+      //} else {
         pr.println("mapGetter.get" + cls.getName + "Entity().remove(getGenerated_KMF_ID() + \"_"+ref.getName+"\")")
-      }
+      //}
 
 
       pr.println("}")
@@ -849,6 +901,22 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
 
     pr.println("}") //END Method
   }
+
+
+  private def generatePathMethod(ctx:GenerationContext, cls : EClass, pr : PrintWriter) {
+    pr.println(" override fun path(): String? {")
+    pr.println("val container = eContainer()")
+    pr.println("if(container != null) {")
+    pr.println("val parentPath = container!!.path()")
+      pr.println("return  if(parentPath == null){\"\"}else{parentPath + \"/\"} + internal_containmentRefName + \"[\"+getGenerated_KMF_ID()+\"]\"")
+    //pr.println("return container!!.path() + \"/\" + internal_containmentRefName + \"[\"+getGenerated_KMF_ID()+\"]\"")
+    pr.println("} else {")
+    pr.println("return null")
+    pr.println("}")
+    pr.println("}")
+  }
+
+
 
 
   //TODO: SHOULD NOT EXIST IN THE END
@@ -862,15 +930,6 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
     pr.println("fun selectByQuery(query: String): List<Any> {")
     pr.println("  throw UnsupportedOperationException()")
     pr.println("}")
-    pr.println("override fun <A> findByPath(query: String, clazz: Class<A>): A? {")
-    pr.println(" throw UnsupportedOperationException()")
-    pr.println(" }")
-    pr.println(" override fun findByPath(query: String): Any? {")
-    pr.println(" throw UnsupportedOperationException()")
-    pr.println(" }")
-    pr.println(" override fun path(): String? {")
-    pr.println(" throw UnsupportedOperationException()")
-    pr.println(" }")
     pr.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : "+ctx.clonerPackage+".ClonerFactories, mutableOnly: Boolean) {")
     pr.println(" throw UnsupportedOperationException()")
     pr.println(" }")
@@ -880,5 +939,8 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) {
 
 
   }
+
+
+
 
 }

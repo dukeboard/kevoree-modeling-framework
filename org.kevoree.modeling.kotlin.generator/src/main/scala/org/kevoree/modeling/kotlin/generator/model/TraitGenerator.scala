@@ -55,7 +55,7 @@ package org.kevoree.modeling.kotlin.generator.model
 
 import org.eclipse.emf.ecore.EPackage
 import java.io.{File, FileOutputStream, PrintWriter}
-import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 
 /**
  * Created by IntelliJ IDEA.
@@ -82,6 +82,7 @@ trait TraitGenerator {
 
     pr.println("fun setRecursiveReadOnly() : Unit")
     pr.println("fun eContainer() : " + formatedFactoryName + "?")
+    pr.println("fun setContainmentRefName(name : String?)")
     pr.println("fun isReadOnly() : Boolean")
     pr.println("fun isRecursiveReadOnly() : Boolean")
 
@@ -95,7 +96,6 @@ trait TraitGenerator {
     pr.println("fun path() : String?")
     pr.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : "+ctx.clonerPackage+".ClonerFactories, mutableOnly: Boolean)")
     pr.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any ")
-
 
 
     pr.println("}")
@@ -119,27 +119,31 @@ trait TraitGenerator {
     pr.println()
     pr.println(ProcessorHelper.generateHeader(packElement))
     //case class name
-    pr.println("trait " + formatedFactoryName + "Internal {")
+    pr.println("trait " + formatedFactoryName + "Internal : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName +" {")
     pr.println()
     pr.println("internal open var internal_eContainer : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "?")
     pr.println("internal open var internal_unsetCmd : (()->Unit)?")
 
     //generate getter
-    pr.println("fun eContainer() : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "? { return internal_eContainer }")
+    pr.println("override fun eContainer() : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "? { return internal_eContainer }")
+    pr.println("internal open var internal_containmentRefName : String?")
+    pr.println("override fun setContainmentRefName(name : String?){ internal_containmentRefName = name }")
+
 
     pr.println("internal open var internal_readOnlyElem : Boolean")
     pr.println("internal open var internal_recursive_readOnlyElem : Boolean")
 
-    pr.println("open fun setRecursiveReadOnly()")
+    //pr.println("open fun setRecursiveReadOnly()")
+    pr.println("override fun setRecursiveReadOnly()")
 
-    pr.println("fun setInternalReadOnly(){")
+    pr.println("override fun setInternalReadOnly(){")
     pr.println("internal_readOnlyElem = true")
     pr.println("}")
 
-    pr.println("fun isReadOnly() : Boolean {")
+    pr.println("override fun isReadOnly() : Boolean {")
     pr.println("return internal_readOnlyElem")
     pr.println("}")
-    pr.println("fun isRecursiveReadOnly() : Boolean {")
+    pr.println("override fun isRecursiveReadOnly() : Boolean {")
     pr.println("return internal_recursive_readOnlyElem")
     pr.println("}")
 
@@ -163,7 +167,7 @@ trait TraitGenerator {
     pr.println("internal_unsetCmd = unsetCmd")
     pr.println("}")
 
-    pr.println("fun internalGetQuery(selfKey : String) : String? { return null }")
+    //pr.println("fun internalGetQuery(selfKey : String) : String? { return null }")
 
     pr.println("}")
 
