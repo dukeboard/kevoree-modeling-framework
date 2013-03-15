@@ -3,7 +3,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,8 +12,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -158,6 +158,17 @@ trait KMFQLSelectorGenerator {
     pr.println("}")
 
 
+    pr.println("public fun filter(queryID : String,input : Collection<Any>) : Collection<Any> {")
+    pr.println("if(queryID == \"\" || queryID == \"*\"){")
+    pr.println("return input")
+    pr.println("} else {")
+    //TODO inject cache
+    pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
+    pr.println("return internalFilter!!.filter(input,getCache())!!")
+    pr.println("}")
+    pr.println("}")
+
+
     pr.println("}")
 
     pr.flush()
@@ -166,6 +177,7 @@ trait KMFQLSelectorGenerator {
     ctx.setkevoreeCacheResolver(formatedCacheName)
 
   }
+
 
   def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
 
@@ -247,20 +259,19 @@ trait KMFQLSelectorGenerator {
         //Not found by id search by lookung every solution
         if (hasFindByIDMethod(ref.getEReferenceType)) {
           pr.println("if(subquery != \"\"){")
-          pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
-          pr.println("val subResult = internalFilter!!.filter(" + protectReservedWords("_" + ref.getName) + ".values(),"+ctx.getkevoreeCacheResolver+".getCache())!!")
+
+          pr.println("val subResult = " + ctx.getkevoreeCacheResolver + ".filter(queryID," + "_" + ref.getName + ".values())")
           pr.println("for(subObj in subResult){")
           pr.println("collected.addAll( (subObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ").selectByQuery(subquery))")
           pr.println("}")
           pr.println("} else {")
-          pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
-          pr.println("val subResult = internalFilter!!.filter(" + protectReservedWords("_" + ref.getName) + ".values(),"+ctx.getkevoreeCacheResolver+".getCache())!!")
+
+          pr.println("val subResult = " + ctx.getkevoreeCacheResolver + ".filter(queryID," + "_" + ref.getName + ".values())")
           pr.println("collected.addAll(subResult)")
           pr.println("}")
           pr.println("return collected")
         } else {
-          pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
-          pr.println("val subResult = internalFilter!!.filter(" + protectReservedWords("_" + ref.getName) + ".values(),"+ctx.getkevoreeCacheResolver+".getCache())!!")
+          pr.println("val subResult = " + ctx.getkevoreeCacheResolver + ".filter(queryID," + "_" + ref.getName + ".values())")
           pr.println("collected.addAll(subResult)")
           pr.println("return collected")
         }
@@ -271,16 +282,15 @@ trait KMFQLSelectorGenerator {
       }
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
         pr.println("\"" + ref.getName + "\" -> {")
-        pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
-        pr.println("val subResult = internalFilter!!.filter(java.util.Collections.singleton(get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()),"+ctx.getkevoreeCacheResolver+".getCache())!!")
+
+        pr.println("val subResult = " + ctx.getkevoreeCacheResolver + ".filter(queryID,java.util.Collections.singleton(get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()))")
         pr.println("collected.add(subResult)")
         pr.println("return collected")
         pr.println("}")
       }
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
         pr.println("\"" + ref.getName + "\" -> {")
-        pr.println("val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)")
-        pr.println("val subResult = internalFilter!!.filter(java.util.Collections.singleton(get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()),"+ctx.getkevoreeCacheResolver+".getCache())!!")
+        pr.println("val subResult = " + ctx.getkevoreeCacheResolver + ".filter(queryID,java.util.Collections.singleton(get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()))")
         pr.println("collected.add(subResult)")
         pr.println("return collected")
         pr.println("}")
