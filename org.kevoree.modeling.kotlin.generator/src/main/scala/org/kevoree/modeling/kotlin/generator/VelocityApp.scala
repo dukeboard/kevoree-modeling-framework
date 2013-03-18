@@ -51,10 +51,14 @@ object VelocityApp extends App {
   ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
   ve.init()
 
-  val template = ve.getTemplate( "ContainerTrait.vm" );
+  val template = ve.getTemplate( "Tester.vm" );
   val ctx = new VelocityContext()
   ctx.put("formatedFactoryName","MyFactoryName")
   ctx.put("packElem","MyContainerPackage")
+
+  val names = java.util.Arrays.asList("L1","L2","L3","L4","L5","L6","L7")
+  ctx.put("customerList",names)
+
 
   val writer = new StringWriter()
   template.merge(ctx,writer)
