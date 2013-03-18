@@ -10,6 +10,9 @@ trait ${formatedFactoryName}Internal {
 
     fun eContainer() : ${packElem}.${formatedFactoryName}? { return internal_eContainer }
 
+    internal open var internal_containmentRefName : String?
+    fun setContainmentRefName(name : String?){ internal_containmentRefName = name }
+
     internal open var internal_readOnlyElem : Boolean
 
     internal open var internal_recursive_readOnlyElem : Boolean

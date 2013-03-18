@@ -94,53 +94,18 @@ trait TraitGenerator {
     ProcessorHelper.checkOrCreateFolder(packageGenDir)
     val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
-
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-
     val template = ve.getTemplate( "ContainerAPI.vm" );
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
     ctxV.put("ctx",ctx)
-
     template.merge(ctxV,pr)
-
-      /*
-    pr.println("package " + ProcessorHelper.fqn(ctx, packElement) + ";")
-    pr.println()
-    pr.println(ProcessorHelper.generateHeader(packElement))
-    //case class name
-    pr.println("trait " + formatedFactoryName + " {")
-
-    pr.println("fun setRecursiveReadOnly() : Unit")
-    pr.println("fun eContainer() : " + formatedFactoryName + "?")
-    pr.println("fun setContainmentRefName(name : String?)")
-    pr.println("fun isReadOnly() : Boolean")
-    pr.println("fun isRecursiveReadOnly() : Boolean")
-
-    pr.println("fun setInternalReadOnly()")
-    if(ctx.genSelector){
-      pr.println("fun selectByQuery(query : String) : List<Any>")
-    }
-
-    pr.println("fun findByPath<A>(query : String, clazz : Class<A>) : A?")
-    pr.println("fun findByPath(query : String) : Any?")
-    pr.println("fun path() : String?")
-    pr.println("fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : "+ctx.clonerPackage+".ClonerFactories, mutableOnly: Boolean)")
-    pr.println("fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any ")
-
-
-    pr.println("}")
-    */
-
     pr.flush()
     pr.close()
-
-
   }
-
 
   def generateContainerTrait(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
@@ -153,66 +118,12 @@ trait TraitGenerator {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-
-    val template = ve.getTemplate( "ContainerTrait.vm" );
+    val template = ve.getTemplate( "ContainerTrait.vm" )
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
     ctxV.put("ctx",ctx)
     template.merge(ctxV,pr)
-
-     /*
-    pr.println("package " + ProcessorHelper.fqn(ctx, packElement) + ".impl;")
-    pr.println()
-    pr.println(ProcessorHelper.generateHeader(packElement))
-    //case class name
-    pr.println("trait " + formatedFactoryName + "Internal : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName +" {")
-    pr.println()
-    pr.println("internal open var internal_eContainer : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "?")
-    pr.println("internal open var internal_unsetCmd : (()->Unit)?")
-
-    //generate getter
-    pr.println("override fun eContainer() : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "? { return internal_eContainer }")
-    pr.println("internal open var internal_containmentRefName : String?")
-    pr.println("override fun setContainmentRefName(name : String?){ internal_containmentRefName = name }")
-
-
-    pr.println("internal open var internal_readOnlyElem : Boolean")
-    pr.println("internal open var internal_recursive_readOnlyElem : Boolean")
-
-    //pr.println("open fun setRecursiveReadOnly()")
-    pr.println("override fun setRecursiveReadOnly()")
-
-    pr.println("override fun setInternalReadOnly(){")
-    pr.println("internal_readOnlyElem = true")
-    pr.println("}")
-
-    pr.println("override fun isReadOnly() : Boolean {")
-    pr.println("return internal_readOnlyElem")
-    pr.println("}")
-    pr.println("override fun isRecursiveReadOnly() : Boolean {")
-    pr.println("return internal_recursive_readOnlyElem")
-    pr.println("}")
-
-    //generate setter
-    pr.print("\nfun setEContainer( container : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "?, unsetCmd : (()->Unit)? ) {\n")
-
-    //pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
-    pr.println("if(internal_readOnlyElem){/*silent exception for performance*/return}")
-
-    pr.println("val tempUnsetCmd = internal_unsetCmd")
-    pr.println("internal_unsetCmd = null")
-
-    pr.println("if(tempUnsetCmd != null){")
-    pr.println("tempUnsetCmd()")
-    pr.println("}")
-
-    pr.println("internal_eContainer = container\n")
-    pr.println("internal_unsetCmd = unsetCmd")
-    pr.println("}")
-    pr.println("}")
-    */
-
     pr.flush()
     pr.close()
 
