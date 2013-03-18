@@ -3,6 +3,23 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ * Fouquet Francois
+ * Nain Gregory
+ */
+/**
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  * 	http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -53,6 +70,9 @@
 
 package org.kevoree.modeling.kotlin.generator.model
 
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.EPackage
 import java.io.{File, FileOutputStream, PrintWriter}
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
@@ -74,6 +94,20 @@ trait TraitGenerator {
     ProcessorHelper.checkOrCreateFolder(packageGenDir)
     val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
+
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+
+    val template = ve.getTemplate( "ContainerAPI.vm" );
+    val ctxV = new VelocityContext()
+    ctxV.put("formatedFactoryName",formatedFactoryName)
+    ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("ctx",ctx)
+
+    template.merge(ctxV,pr)
+
+      /*
     pr.println("package " + ProcessorHelper.fqn(ctx, packElement) + ";")
     pr.println()
     pr.println(ProcessorHelper.generateHeader(packElement))
@@ -99,6 +133,7 @@ trait TraitGenerator {
 
 
     pr.println("}")
+    */
 
     pr.flush()
     pr.close()
@@ -115,6 +150,18 @@ trait TraitGenerator {
     val localFile = new File(packageGenDir + "/impl/" + formatedFactoryName + "Internal.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+
+    val template = ve.getTemplate( "ContainerTrait.vm" );
+    val ctxV = new VelocityContext()
+    ctxV.put("formatedFactoryName",formatedFactoryName)
+    ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("ctx",ctx)
+    template.merge(ctxV,pr)
+
+     /*
     pr.println("package " + ProcessorHelper.fqn(ctx, packElement) + ".impl;")
     pr.println()
     pr.println(ProcessorHelper.generateHeader(packElement))
@@ -150,11 +197,8 @@ trait TraitGenerator {
     //generate setter
     pr.print("\nfun setEContainer( container : " + ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName + "?, unsetCmd : (()->Unit)? ) {\n")
 
-    /* BLOC FOR SMART CLONE */
     //pr.println("if(internal_readOnlyElem){throw Exception(\"ReadOnly Element are not modifiable\")}")
     pr.println("if(internal_readOnlyElem){/*silent exception for performance*/return}")
-
-    /* End Smart CLone */
 
     pr.println("val tempUnsetCmd = internal_unsetCmd")
     pr.println("internal_unsetCmd = null")
@@ -166,10 +210,8 @@ trait TraitGenerator {
     pr.println("internal_eContainer = container\n")
     pr.println("internal_unsetCmd = unsetCmd")
     pr.println("}")
-
-    //pr.println("fun internalGetQuery(selfKey : String) : String? { return null }")
-
     pr.println("}")
+    */
 
     pr.flush()
     pr.close()
