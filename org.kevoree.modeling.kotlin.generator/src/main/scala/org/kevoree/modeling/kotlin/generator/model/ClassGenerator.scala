@@ -267,6 +267,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("}")
 
     generateAtts(pr, cls, ctx, pack)
+    generateDeleteMethod(pr, cls, ctx, pack)
 
     // Getters and Setters Generation
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
@@ -285,6 +286,40 @@ trait ClassGenerator extends ClonerGenerator {
     pr.flush()
     pr.close()
 
+  }
+
+
+  private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String){
+     pr.println("override fun delete(){")
+     cls.getEAllContainments.foreach{ c =>
+        if(c.isMany()){
+          pr.println("for(el in "+"_" + c.getName+"){")
+          if(c.getEReferenceType.getEIDAttribute != null){
+            pr.println("el.value.delete()")
+          } else {
+            pr.println("el.delete()")
+          }
+          pr.println("}")
+        } else {
+          pr.println(protectReservedWords("_" + c.getName) + "?.delete()")
+        }
+     }
+     //Clean locally
+    cls.getEAttributes.foreach {
+      att =>
+        //pr.println(protectReservedWords("_" + att.getName) + " = null")
+    }
+    cls.getEReferences.foreach {
+      ref =>
+        if(ref.isMany){
+          pr.println(protectReservedWords("_" + ref.getName) + "?.clear()")
+          pr.println(protectReservedWords("_" + ref.getName) + "_java_cache = null")
+          //pr.println(protectReservedWords("_" + ref.getName) + " = null")
+        } else {
+          pr.println(protectReservedWords("_" + ref.getName) + " = null")
+        }
+    }
+    pr.println("}")
   }
 
 

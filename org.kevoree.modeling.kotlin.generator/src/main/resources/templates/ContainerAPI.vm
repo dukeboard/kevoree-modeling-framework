@@ -12,6 +12,7 @@ fun eContainer() : ${formatedFactoryName}?
 fun isReadOnly() : Boolean
 fun isRecursiveReadOnly() : Boolean
 fun setInternalReadOnly()
+fun delete()
 
 #if(${ctx.genSelector})
     fun selectByQuery(query : String) : List<Any>
