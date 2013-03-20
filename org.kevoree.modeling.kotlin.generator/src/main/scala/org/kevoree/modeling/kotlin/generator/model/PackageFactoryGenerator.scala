@@ -37,8 +37,11 @@
 package org.kevoree.modeling.kotlin.generator.model
 
 import java.io.{File, FileOutputStream, PrintWriter}
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import scala.collection.JavaConversions._
-import org.eclipse.emf.ecore.{EClass, EPackage}
+import org.eclipse.emf.ecore.{EClassifier, EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 
 /**
@@ -61,9 +64,8 @@ trait PackageFactoryGenerator {
     val pr = new PrintWriter(localFile,"utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, packElement)
-
+       /*
     ctx.packageFactoryMap.put(packageName, packageName + "." + formatedFactoryName)
-
     pr.println("package " + packageName + ";")
     pr.println()
     pr.println("import " + packageName + ".impl.*;")
@@ -72,16 +74,30 @@ trait PackageFactoryGenerator {
     //case class name
     pr.println("trait " + formatedFactoryName + " {")
     pr.println()
-    //pr.println("\t fun eINSTANCE() = " + formatedFactoryName)
-    pr.println("\t fun getVersion() : String")// = \""+ modelVersion+"\"")
+    pr.println("\t fun getVersion() : String")
     pr.println()
     packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach {
       cls =>
         val methodName = "create" + cls.getName
-        pr.println("\t fun " + methodName + "() : " + cls.getName )//+ " { return " + cls.getName + "Impl() }")
+        pr.println("\t fun " + methodName + "() : " + cls.getName )
     }
     pr.println()
     pr.println("}")
+    */
+
+    /* */
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate( "FactoryAPI.vm" );
+    val ctxV = new VelocityContext()
+    ctxV.put("packageName",packageName)
+    import scala.collection.JavaConversions._
+    ctxV.put("formatedFactoryName",formatedFactoryName)
+    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
+    ctxV.put("classes",classes)
+    template.merge(ctxV,pr)
+
 
     pr.flush()
     pr.close()
