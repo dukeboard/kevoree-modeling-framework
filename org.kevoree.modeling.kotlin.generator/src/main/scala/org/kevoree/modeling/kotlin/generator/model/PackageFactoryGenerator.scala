@@ -36,7 +36,7 @@
 
 package org.kevoree.modeling.kotlin.generator.model
 
-import java.io.{File, FileOutputStream, PrintWriter}
+import java.io.{File, PrintWriter}
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
@@ -53,39 +53,13 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
 
 trait PackageFactoryGenerator {
 
-
-
   def generatePackageFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
-
     val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile,"utf-8")
-
     val packageName = ProcessorHelper.fqn(ctx, packElement)
-       /*
-    ctx.packageFactoryMap.put(packageName, packageName + "." + formatedFactoryName)
-    pr.println("package " + packageName + ";")
-    pr.println()
-    pr.println("import " + packageName + ".impl.*;")
-    pr.println()
-    pr.println(ProcessorHelper.generateHeader(packElement))
-    //case class name
-    pr.println("trait " + formatedFactoryName + " {")
-    pr.println()
-    pr.println("\t fun getVersion() : String")
-    pr.println()
-    packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach {
-      cls =>
-        val methodName = "create" + cls.getName
-        pr.println("\t fun " + methodName + "() : " + cls.getName )
-    }
-    pr.println()
-    pr.println("}")
-    */
-
-    /* */
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
@@ -97,8 +71,6 @@ trait PackageFactoryGenerator {
     val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
     ctxV.put("classes",classes)
     template.merge(ctxV,pr)
-
-
     pr.flush()
     pr.close()
 
@@ -108,37 +80,23 @@ trait PackageFactoryGenerator {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
-
     val localFile = new File(packageGenDir + "/impl/Default" + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile,"utf-8")
-
     val packageName = ProcessorHelper.fqn(ctx, packElement)
-
-    pr.println("package " + packageName + ".impl;")
-    pr.println()
-    pr.println("import " + packageName + "." + formatedFactoryName + ";")
-    packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach { cls=>
-      pr.println("import " + packageName + "." + cls.getName + ";")
-    }
-    pr.println()
-    pr.println(ProcessorHelper.generateHeader(packElement))
-    //case class name
-    pr.println("open class Default" + formatedFactoryName + " : "+formatedFactoryName+" {")
-    pr.println()
-   // pr.println("\t fun eINSTANCE() = " + formatedFactoryName)
-    pr.println("\t override fun getVersion() = \""+ modelVersion+"\"")
-    pr.println()
-    packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach {
-      cls =>
-        val methodName = "create" + cls.getName
-        pr.println("\t override fun " + methodName + "() : " + cls.getName + " { return " + cls.getName + "Impl() }")
-    }
-    pr.println()
-    pr.println("}")
-
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate( "DefaultFactory.vm" );
+    val ctxV = new VelocityContext()
+    ctxV.put("packageName",packageName)
+    import scala.collection.JavaConversions._
+    ctxV.put("formatedFactoryName",formatedFactoryName)
+    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
+    ctxV.put("classes",classes)
+    ctxV.put("modelVersion",modelVersion)
+    template.merge(ctxV,pr)
     pr.flush()
     pr.close()
-
   }
 
 }

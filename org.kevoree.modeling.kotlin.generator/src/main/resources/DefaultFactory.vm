@@ -1,0 +1,21 @@
+#* @vtlvariable name="packageName" type="java.lang.String" *#
+#* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
+#* @vtlvariable name="modelVersion" type="java.lang.String" *#
+#* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
+
+package ${packageName}.impl;
+
+import ${packageName}.${formatedFactoryName};
+#foreach( $class in $classes )
+import ${packageName}.${class.getName()};
+#end
+
+open class Default${formatedFactoryName} : ${formatedFactoryName} {
+
+override fun getVersion() : String { return "${modelVersion}" }
+
+#foreach( $class in $classes )
+override fun create${class.getName()}() : ${class.getName()} { return ${class.getName()}Impl() }
+#end
+
+}
