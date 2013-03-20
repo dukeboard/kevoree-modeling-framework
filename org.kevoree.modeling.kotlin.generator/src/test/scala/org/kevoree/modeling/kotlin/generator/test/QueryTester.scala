@@ -49,7 +49,7 @@
  * Fouquet Francois
  * Nain Gregory
  */
-package org.kevoree.modeling.kotlin.generator
+package org.kevoree.modeling.kotlin.generator.test
 
 /**
  * Created with IntelliJ IDEA.
