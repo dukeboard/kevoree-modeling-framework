@@ -97,7 +97,7 @@ trait TraitGenerator {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate( "ContainerAPI.vm" );
+    val template = ve.getTemplate("templates/ContainerAPI.vm");
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
@@ -118,7 +118,7 @@ trait TraitGenerator {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate( "ContainerTrait.vm" )
+    val template = ve.getTemplate("templates/ContainerTrait.vm")
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))

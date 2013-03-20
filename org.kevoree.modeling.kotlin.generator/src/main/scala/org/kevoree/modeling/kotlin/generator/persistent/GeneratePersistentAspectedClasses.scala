@@ -34,10 +34,13 @@
  */
 package org.kevoree.modeling.kotlin.generator.persistent
 
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.model.KMFQLFinder
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelperClass, ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
 import java.text.SimpleDateFormat
@@ -470,128 +473,39 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
 
     generateMapGetter(ctx, packElement, modelVersion)
 
+
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
-
-    val FQNPackBaseImpl = ProcessorHelper.fqn(ctx, packElement) + ".persistency.mdb"
-    val packPath = ctx.getRootGenerationDirectory + File.separator + FQNPackBaseImpl.replace(".", File.separator)
-    ProcessorHelper.checkOrCreateFolder(packPath)
 
     var getterMapName: String = packElement.getName.substring(0, 1).toUpperCase
     getterMapName += packElement.getName.substring(1)
     getterMapName += "MapGetter"
 
 
-    val localFile = new File(packPath + "/Persistent" + formatedFactoryName + ".kt")
+    val packPath = ctx.getRootGenerationDirectory + File.separator + (ProcessorHelper.fqn(ctx, packElement) +".persistency.mdb").replace(".", File.separator)
+    ProcessorHelper.checkOrCreateFolder(packPath)
+
+    val localFile = new File(packPath + File.separator + "Persistent"+ formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
-    val packageName = ProcessorHelper.fqn(ctx, packElement)
 
-    pr.println("package " + FQNPackBaseImpl + ";")
-    pr.println()
-    pr.println("import " + packageName + "." + formatedFactoryName + ";")
-    packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass]).foreach {
-      cls =>
-        pr.println("import " + packageName + "." + cls.getName + ";")
-    }
-    pr.println("import org.mapdb.*;")
-    pr.println()
-    pr.println(ProcessorHelper.generateHeader(packElement))
-    //case class name
-    pr.println("open class Persistent" + formatedFactoryName + "(val basedir : java.io.File) : " + formatedFactoryName + ", " + getterMapName + " {")
 
-    pr.println()
-    pr.println("{")
 
-    pr.println("if(!basedir.exists()){basedir.mkdirs()}")
-    pr.println("if(!basedir.isDirectory()){")
-    pr.println("throw java.lang.UnsupportedOperationException(\"Basedir param must be a directory\")")
-    pr.println("}")
-    pr.println("}")
-
-    // pr.println("\t fun eINSTANCE() = " + formatedFactoryName)
-    pr.println("\t override fun getVersion() = \"" + modelVersion + "\"")
-    pr.println()
-    packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass]).foreach {
-      cls =>
-        val methodName = "create" + cls.getName
-        val className = cls.getName + "Persistent"
-        pr.println("\t override fun " + methodName + "() : " + cls.getName + " { return " + className + "(this) }")
-        pr.println("\t fun " + methodName + "( id : String) : " + cls.getName + " { ")
-        pr.println("val v =  " + className + "(this)")
-        if(hasID(cls.asInstanceOf[EClass])) {
-          val att = getIdAtt(cls.asInstanceOf[EClass]).get
-          pr.println("v.set" + att.getName.substring(0,1).toUpperCase + att.getName.substring(1) + "(id)")
-        } else {
-          pr.println("v.setGenerated_KMF_ID(id)" )
-        }
-        pr.println("return v")
-        pr.println("}")
-    }
-
-    pr.println()
-
-    pr.println("fun createEntity( _type : String, id : String) : Any? { ")
-    pr.println("when(_type) {")
-    packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass]).foreach {
-      cls =>
-        pr.println( "\"" + ProcessorHelper.fqn(ctx, cls) + "\" -> {")
-        val className = cls.getName + "Persistent"
-        pr.println("val v =  " + className + "(this)")
-        if(hasID(cls.asInstanceOf[EClass])) {
-          val att = getIdAtt(cls.asInstanceOf[EClass]).get
-
-          pr.println("v.set" + att.getName.substring(0,1).toUpperCase + att.getName.substring(1) + "(id)")
-        } else {
-          pr.println("v.setGenerated_KMF_ID(id)" )
-        }
-        pr.println("return v")
-        pr.println("}")
-    }
-    pr.println("else -> {System.out.println(\"No constructor found for type:\" + _type);return null}")
-    pr.println("}")
-    pr.println("}")
-
-    pr.println()
-
-    pr.println("private val dbs = java.util.HashMap<String,DB>()")
-
-    //Generate DB Method
-    packElement.getEClassifiers.foreach {
-      cls =>
-        cls match {
-          case eclass: EClass => {
-
-            pr.println("private final val dbkey_" + eclass.getName + " : String = \"" + eclass.getName + "\"")
-            //pr.println("override fun get" + eclass.getName + "Entity(id : String) : MutableMap<String,Any> {")
-            pr.println("override fun get" + eclass.getName + "Entity() : MutableMap<String,Any> {")
-            pr.println("var res = dbs.get(dbkey_" + eclass.getName + ")")
-            pr.println("if(res == null){")
-            pr.println("res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+\"" + ProcessorHelper.fqn(ctx, eclass) + "_entity\"))!!.closeOnJvmShutdown()!!.make()")
-            pr.println("dbs.put(dbkey_" + eclass.getName + ",res!!)")
-            pr.println("}")
-            pr.println("return res!!.getTreeMap(\"default\")!!")
-            pr.println("}")
-            eclass.getEAllReferences.foreach {
-              eRef =>
-                pr.println("private final val dbkey_" + eclass.getName + "_" + eRef.getName + "Relation : String = \"" + eclass.getName + "_" + eRef.getName + "\"")
-                pr.println("override fun get" + eclass.getName + "_" + eRef.getName + "Relation() : java.util.NavigableSet<org.mapdb.Fun.Tuple3<Any, Any, Any>> {")
-                pr.println("var res = dbs.get(dbkey_" + eclass.getName + "_" + eRef.getName + "Relation)")
-                pr.println("if(res == null){")
-                pr.println("res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+\"" + ProcessorHelper.fqn(ctx, eclass) + "_" + eRef.getName + "\"))!!.closeOnJvmShutdown()!!.make()")
-                pr.println("dbs.put(dbkey_" + eclass.getName + "_" + eRef.getName + "Relation,res!!)")
-                pr.println("}")
-                pr.println("return res!!.getTreeSet(\"default\")!!")
-                pr.println("}")
-
-            }
-          }
-          case _@e => println("ignored=" + e) //TODO ENUM EDATATYPE
-        }
-    }
-
-    pr.println("}")
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
+    ve.init()
+    val template = ve.getTemplate("templates/PersistentFactory.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("formatedFactoryName",formatedFactoryName)
+    ctxV.put("getterMapName",getterMapName)
+    ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("ePackage",packElement)
+    ctxV.put("modelVersion",modelVersion)
+    ctxV.put("ProcessorHelper", new ProcessorHelperClass)
+    ctxV.put("FQNPackBaseImpl",ProcessorHelper.fqn(ctx, packElement) +".persistency.mdb")
+    ctxV.put("ctx",ctx)
+    template.merge(ctxV,pr)
 
     pr.flush()
     pr.close()
