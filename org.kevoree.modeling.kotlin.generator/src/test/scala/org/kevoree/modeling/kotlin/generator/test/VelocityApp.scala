@@ -32,7 +32,7 @@
  * 	Fouquet Francois
  * 	Nain Gregory
  */
-package org.kevoree.modeling.kotlin.generator
+package org.kevoree.modeling.kotlin.generator.test
 
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
