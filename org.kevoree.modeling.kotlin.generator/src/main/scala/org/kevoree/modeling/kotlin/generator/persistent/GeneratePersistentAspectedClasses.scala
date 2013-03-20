@@ -91,7 +91,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
     //generate getter
     pr.println("override fun eContainer() : "+ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName+"?")
     pr.println("internal open var internal_containmentRefName : String?")
-    pr.println("override fun setContainmentRefName(name : String?)")
+    pr.println("fun setContainmentRefName(name : String?)")
 
 
     //generate setter
@@ -164,8 +164,13 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
     pr.println("}")
     pr.println("")
 
+    var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
+    formatedFactoryName += cls.getEPackage.getName.substring(1)
+    formatedFactoryName += "Factory"
+
     pr.println("fun equals(o : Any) : Boolean {")
     pr.println("if(_generated_KMF_ID == null || o !is "+ProcessorHelper.fqn(ctx, cls.getEPackage)+".persistency.mdb." + cls.getName +"Persistent){return false}")
+    pr.println("if(!(mapGetter as "+formatedFactoryName+").basedir.equals((o as "+formatedFactoryName+").basedir)){return false}")
     pr.println("return _generated_KMF_ID.equals((o as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb." + cls.getName + "Persistent)._generated_KMF_ID)")
     pr.println("}")
     pr.println("")
