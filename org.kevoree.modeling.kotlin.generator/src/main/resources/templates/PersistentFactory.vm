@@ -66,25 +66,44 @@ open class Persistent${formatedFactoryName} (val basedir : java.io.File) : ${for
 
     //Generate DB Method
 #foreach( $cls in ${ProcessorHelper.getEClassInEPackage($ePackage)} )
+
     private final val dbkey_${cls.getName()} : String = "${cls.getName()}"
-    override fun get${cls.getName()}Entity() : MutableMap<String,Any> {
+    private fun get${cls.getName()}db() : org.mapdb.DB {
         var res = dbs.get(dbkey_${cls.getName()})
         if(res == null){
-            res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+ "${ProcessorHelper.fqn($ctx, $cls)}_entity"))!!.closeOnJvmShutdown()!!.make()
+            res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+ "${ProcessorHelper.fqn($ctx, $cls)}_entity"))!!.journalDisable()!!.cacheLRUEnable()!!.cacheSize(5000)!!.closeOnJvmShutdown()!!.make()
             dbs.put(dbkey_${cls.getName()},res!!)
         }
-        return res!!.getTreeMap("default")!!
+        return res!!
+    }
+
+    override fun get${cls.getName()}Entity() : MutableMap<String,Any> {
+        return get${cls.getName()}db().getTreeMap("default")!!
+    }
+
+    fun incrementAndGet${cls.getName()}Index() : Long {
+        val keyinc = Atomic.getLong(get${cls.getName()}db(), "${cls.getName()}_id");
+        return keyinc!!.incrementAndGet();
     }
 
 #foreach($ref in $cls.getEAllReferences())
     private final val dbkey_${cls.getName()}_${ref.getName()}Relation : String = "${cls.getName()}_${ref.getName()}"
-    override fun get${cls.getName()}_${ref.getName()}Relation() : java.util.NavigableSet<org.mapdb.Fun.Tuple3<Any, Any, Any>> {
+    private fun get${cls.getName()}_${ref.getName()}db() : org.mapdb.DB {
         var res = dbs.get(dbkey_${cls.getName()}_${ref.getName()}Relation)
         if(res == null){
-            res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+"${ProcessorHelper.fqn($ctx, $cls)}_${ref.getName()}"))!!.closeOnJvmShutdown()!!.make()
+            res = DBMaker.newFileDB(java.io.File(basedir.getAbsolutePath()+java.io.File.separator+"${ProcessorHelper.fqn($ctx, $cls)}_${ref.getName()}"))!!.journalDisable()!!.cacheLRUEnable()!!.cacheSize(5000)!!.closeOnJvmShutdown()!!.make()
             dbs.put(dbkey_${cls.getName()}_${ref.getName()}Relation,res!!)
         }
-        return res!!.getTreeSet("default")!!
+        return res!!
+    }
+
+    override fun get${cls.getName()}_${ref.getName()}Relation() : java.util.NavigableSet<org.mapdb.Fun.Tuple3<Any, Any, Any>> {
+       return get${cls.getName()}_${ref.getName()}db().getTreeSet("default")!!
+    }
+
+    fun incrementAndGet${cls.getName()}_${ref.getName()}Index() : Long {
+        val keyinc = Atomic.getLong(get${cls.getName()}_${ref.getName()}db(), "${cls.getName()}_${ref.getName()}_id");
+        return keyinc!!.incrementAndGet();
     }
 #end
 #end

@@ -149,27 +149,31 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
   }
 
   def generateKMF_IdMethods(cls : EClass, pr : PrintWriter) {
+
+
+    var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
+    formatedFactoryName += cls.getEPackage.getName.substring(1)
+    formatedFactoryName += "Factory"
+
     pr.println("")
-    pr.println("var _generated_KMF_ID : String? = null")
+    pr.println("var _generated_KMF_ID : Long? = null")
     pr.println("")
     pr.println("override fun getGenerated_KMF_ID() : String {")
 
     if (cls.getEAllAttributes.filter{att => !att.getName.equals("generated_KMF_ID")}.find(att => att.isID).isEmpty) {
       pr.println("if(_generated_KMF_ID == null){")
-      pr.println("_generated_KMF_ID = java.util.UUID.randomUUID().toString()")
+      //pr.println("_generated_KMF_ID = java.util.UUID.randomUUID().toString()")
+      pr.println("_generated_KMF_ID = (mapGetter as "+formatedFactoryName+").incrementAndGet"+cls.getName+"Index()")
       pr.println("}")
     }
-    pr.println("return _generated_KMF_ID!!")
+    pr.println("return _generated_KMF_ID!!.toString()")
     pr.println("}")
     pr.println("")
     pr.println("override fun setGenerated_KMF_ID(id : String) {")
-    pr.println("_generated_KMF_ID = id")
+    pr.println("_generated_KMF_ID = id.toLong()")
     pr.println("}")
     pr.println("")
 
-    var formatedFactoryName: String = ProcessorHelper.fqn(ctx, cls.getEPackage) + ".persistency.mdb.Persistent" + cls.getEPackage.getName.substring(0, 1).toUpperCase
-    formatedFactoryName += cls.getEPackage.getName.substring(1)
-    formatedFactoryName += "Factory"
 
     pr.println("fun equals(o : Any) : Boolean {")
     pr.println("if(_generated_KMF_ID == null || o !is "+ProcessorHelper.fqn(ctx, cls.getEPackage)+".persistency.mdb." + cls.getName +"Persistent){return false}")
@@ -843,7 +847,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
     pr.println(" override fun path(): String? {")
     pr.println("val container = eContainer()")
     pr.println("if(container != null) {")
-    pr.println("val parentPath = container!!.path()")
+    pr.println("val parentPath = container.path()")
       pr.println("return  if(parentPath == null){\"\"}else{parentPath + \"/\"} + internal_containmentRefName + \"[\"+getGenerated_KMF_ID()+\"]\"")
     //pr.println("return container!!.path() + \"/\" + internal_containmentRefName + \"[\"+getGenerated_KMF_ID()+\"]\"")
     pr.println("} else {")
@@ -872,8 +876,9 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
     pr.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any  {")
     pr.println(" throw UnsupportedOperationException()")
     pr.println(" }")
-
-
+    pr.println("override fun delete() {")
+    pr.println(" throw UnsupportedOperationException()")
+    pr.println(" }")
   }
 
 
