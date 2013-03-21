@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -74,7 +74,7 @@ import java.util
 class GenerationContext {
 
 
-  var genSelector : Boolean = false
+  var genSelector: Boolean = false
 
   def getGenSelector = genSelector
 
@@ -114,7 +114,6 @@ class GenerationContext {
   def getRootUserDirectory = rootUserDirectory
 
 
-
   /**
    * Specifies the RootContainer class name.
    */
@@ -134,7 +133,7 @@ class GenerationContext {
     System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
     val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
     val rs = new ResourceSetImpl()
-    Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION,new XMIResourceFactoryImpl())
+    Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl())
     val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
     resource.load(null)
     EcoreUtil.resolveAll(resource)
@@ -172,50 +171,64 @@ class GenerationContext {
 
   def getKevoreeContainerImplFQN = kevoreeContainerImplFQN
 
-  def setKevoreeContainerImplFQN(s : String){
+  def setKevoreeContainerImplFQN(s: String) {
     kevoreeContainerImplFQN = s
   }
 
-  private var kevoreeCacheResolver : String = ""
+  private var kevoreeCacheResolver: String = ""
+
   def getkevoreeCacheResolver = kevoreeCacheResolver
 
-  def setkevoreeCacheResolver(s : String){
+  def setkevoreeCacheResolver(s: String) {
     kevoreeCacheResolver = s
   }
 
 
-
   var generatedLoaderFiles = new util.ArrayList[String]()
-  var loaderPrintWriter : PrintWriter = null
+  var loaderPrintWriter: PrintWriter = null
 
 
   //hosts the package name of the Cloner (eg. org.kevoree.cloner)
-  var clonerPackage : String = ""
+  var clonerPackage: String = ""
 
   def getClonerPackage = clonerPackage
 
   //Maps a package with its factory (eg. org.kevoree => org.kevoree.KevoreeFactory)
-  var packageFactoryMap : util.HashMap[String, String] = new util.HashMap[String, String]()
+  var packageFactoryMap: util.HashMap[String, String] = new util.HashMap[String, String]()
   //Maps a class with its factory (eg. org.kevoree.ContainerRoot => org.kevoree.KevoreeFactory)
-  var classFactoryMap : util.HashMap[String, String] = new util.HashMap[String, String]()
+  var classFactoryMap: util.HashMap[String, String] = new util.HashMap[String, String]()
 
   /**
    * Recursively registers the factories in the maps, though the subpackages relation
    * @param pack : The package where to start the registration
    */
-  def registerFactory(pack : EPackage) {
+  def registerFactory(pack: EPackage) {
     import scala.collection.JavaConversions._
-    if(pack.getEClassifiers.size()>0) {
+    if (pack.getEClassifiers.size() > 0) {
       var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
       formatedFactoryName += pack.getName.substring(1)
       formatedFactoryName += "Factory"
       val packageName = ProcessorHelper.fqn(this, pack)
       packageFactoryMap.put(packageName, packageName + "." + formatedFactoryName)
-      pack.getEClassifiers.foreach{ cls =>
-        classFactoryMap.put(pack + "." + cls.getName, packageFactoryMap.get(pack))
+      pack.getEClassifiers.foreach {
+        cls =>
+          classFactoryMap.put(pack + "." + cls.getName, packageFactoryMap.get(pack))
       }
     }
-    pack.getESubpackages.foreach{subPackage => registerFactory(subPackage)}
+    pack.getESubpackages.foreach {
+      subPackage => registerFactory(subPackage)
+    }
+  }
+
+
+  var js = true
+
+  def getJS(): Boolean = {
+    return js
+  }
+
+  def setJS(isJS: Boolean) {
+    js = isJS
   }
 
 }

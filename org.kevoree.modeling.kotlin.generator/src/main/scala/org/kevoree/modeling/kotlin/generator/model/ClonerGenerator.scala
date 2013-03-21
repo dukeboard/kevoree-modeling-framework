@@ -139,6 +139,9 @@ package org.kevoree.modeling.kotlin.generator.model
 
 
 import java.io.{File, PrintWriter}
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
@@ -151,28 +154,14 @@ import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
  * User: Francois Fouquet
  * Date: 02/10/11
  * Time: 20:55
- * To change this template use File | Settings | File Templates.
  */
 
 trait ClonerGenerator {
 
 
   def generateCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, cls: EClass) {
-    //try {
-
-    //Fills the map of factory mappings if necessary
-
-    //ctx.getRootContainerInPackage(pack) match {
-    // case Some(cls: EClass) => {
     generateClonerFactories(ctx, currentPackageDir, pack, cls)
     generateDefaultCloner(ctx, currentPackageDir, pack, cls)
-    /* }
-     case None => throw new UnsupportedOperationException("Root container not found. Returned None")
-   }
- } catch {
-   case _@e => println("Warn cloner not generated")
- }
-*/
   }
 
   def generateDefaultCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
@@ -180,44 +169,19 @@ trait ClonerGenerator {
     val pr = new PrintWriter(new File(currentPackageDir + "/cloner/ModelCloner.kt"), "utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, pack)
-
-    pr.println("package " + packageName + ".cloner")
-
     ctx.clonerPackage = packageName + ".cloner"
 
-    pr.println("class ModelCloner : ClonerFactories {")
-    pr.println("")
-    generateFactorySetter(ctx, pr)
-
-
-    pr.println("\tfun clone<A>(o : A) : A? {")
-    pr.println("\t return clone(o,false)")
-    pr.println("\t}") //END serialize method
-
-    pr.println("\tfun clone<A>(o : A,readOnly : Boolean) : A? {")
-    pr.println("\t return clone(o,readOnly,false)")
-    pr.println("\t}") //END serialize method
-
-    pr.println("\tfun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {")
-    pr.println("\t return clone(o,readOnly,true)")
-    pr.println("\t}") //END serialize method
-
-    pr.println("\tprivate fun clone<A>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {")
-    pr.println("\t\treturn when(o) {")
-    pr.println("\t\t\tis " + ProcessorHelper.fqn(ctx, containerRoot) + " -> {")
-    pr.println("\t\t\t\tval context = java.util.IdentityHashMap<Any,Any>()")
-
-    pr.println("\t\t\t\t(o as " + ctx.getKevoreeContainer.get + ").getClonelazy(context, this,mutableOnly)")
-    pr.println("\t\t\t\t(o as " + ctx.getKevoreeContainer.get + ").resolve(context,readOnly,mutableOnly) as A")
-
-    //pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal).getClonelazy(context, this,mutableOnly)")
-    //pr.println("\t\t\t\t(o as " + ProcessorHelper.fqn(ctx, containerRoot.getEPackage) + ".impl." + containerRoot.getName + "Internal).resolve(context,readOnly,mutableOnly) as A")
-
-    pr.println("\t\t\t}")
-    pr.println("\t\t\telse -> null")
-    pr.println("\t\t}") //END MATCH
-    pr.println("\t}") //END serialize method
-    pr.println("}") //END TRAIT
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/ModelCloner.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("packageName",packageName)
+    ctxV.put("containerRootName",ProcessorHelper.fqn(ctx, containerRoot))
+    ctxV.put("ctx",ctx)
+    ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("packages",ctx.packageFactoryMap.values())
+    template.merge(ctxV,pr)
     pr.flush()
     pr.close()
   }
@@ -237,6 +201,7 @@ trait ClonerGenerator {
         val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
         pr.println("internal var " + factoryFqn.replace(".", "_") + " : " + factoryFqn)
         pr.println("fun get" + factoryName + "() : " + factoryFqn + " { return " + factoryFqn.replace(".", "_") + "}")
+        pr.println("fun set" + factoryName + "(fct : " + factoryFqn + ") { " + factoryFqn.replace(".", "_") + " = fct}")
     }
 
 
@@ -244,37 +209,6 @@ trait ClonerGenerator {
     pr.flush()
     pr.close()
   }
-
-
-  /*
-  def generateCloner(genDir: String, packageName: String, refNameInParent: String, containerRoot: EClass, pack: EPackage, isRoot: Boolean = false): Unit = {
-    ProcessorHelper.checkOrCreateFolder(genDir + "/cloner")
-    //PROCESS SELF
-    val pr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + containerRoot.getName + "Cloner.scala")))
-    pr.println("package " + packageName + ".cloner")
-    generateToHashMethod(packageName, containerRoot, pr, pack, isRoot)
-    pr.flush()
-    pr.close()
-
-    //PROCESS SUB
-    containerRoot.getEAllContainments.foreach {
-      sub =>
-        val subpr = new PrintWriter(new FileOutputStream(new File(genDir + "/cloner/" + sub.getEReferenceType.getName + "Cloner.scala")))
-        subpr.println("package " + packageName + ".cloner")
-        generateToHashMethod(packageName, sub.getEReferenceType, subpr, pack)
-        subpr.flush()
-        subpr.close()
-
-        //¨PROCESS ALL SUB TYPE
-        ProcessorHelper.getConcreteSubTypes(sub.getEReferenceType).foreach {
-          subsubType =>
-            generateCloner(genDir, packageName, sub.getName, subsubType, pack)
-        }
-        generateCloner(genDir, packageName, sub.getName, sub.getEReferenceType, pack)
-
-    }
-  }*/
-
 
   private def getGetter(name: String): String = {
     "get" + name.charAt(0).toUpper + name.substring(1)
@@ -285,22 +219,22 @@ trait ClonerGenerator {
   }
 
   private def generateFactorySetter(ctx: GenerationContext, pr: PrintWriter) {
-
     ctx.packageFactoryMap.values().foreach {
       factoryFqn =>
         val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
         val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
-
         pr.println("override var " + factoryFqn.replace(".", "_") + " : " + factoryFqn + " = " + factoryPackage + ".impl.Default" + factoryName + "()")
-        pr.println("fun set" + factoryName + "(fct : " + factoryFqn + ") { " + factoryFqn.replace(".", "_") + " = fct}")
-        pr.println("")
     }
 
   }
 
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
 
-    buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
+    if (ctx.getJS()){
+      buffer.println("override fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
+    } else {
+      buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
+    }
 
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")
 
@@ -357,7 +291,13 @@ trait ClonerGenerator {
     //GENERATE CLONE METHOD
 
     //CALL SUB TYPE OR PROCESS OBJECT
-    buffer.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
+    if(ctx.getJS()){
+      buffer.println("override fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
+    } else {
+      buffer.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
+
+    }
+
 
 
     //GET CLONED OBJECT

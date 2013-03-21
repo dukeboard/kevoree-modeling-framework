@@ -72,6 +72,10 @@ import io.Source
 
 class ProcessorHelperClass {
 
+  def getLastName(name : String) : String = {
+    return name.substring(name.lastIndexOf(".") + 1)
+  }
+
 
   def getEClassInEPackage(ePackage : EPackage) : java.util.List[EClass] = {
     val list = ePackage.getEClassifiers.filter{cls => cls.isInstanceOf[EClass]}.map{cls=>cls.asInstanceOf[EClass]}

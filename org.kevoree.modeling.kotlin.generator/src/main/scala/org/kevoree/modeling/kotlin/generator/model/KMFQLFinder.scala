@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -124,7 +124,9 @@ trait KMFQLFinder {
       generateFindByPathMethods(ctx, cls, pr)
     } else {
       if (!cls.getEAllSuperTypes.exists(st => hasID(st))) {
-        pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
+        if (!ctx.getJS()) {
+          pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
+        }
         pr.println("override fun findByPath(query : String) : Any? {return null}")
       }
 
@@ -205,16 +207,21 @@ trait KMFQLFinder {
     */
   }
 
-  def generateFindByPathMethods(ctx:GenerationContext, cls : EClass, pr: PrintWriter) {
-    pr.print("override fun ")
-    pr.println("findByPath<A>(query : String, clazz : Class<A>) : A? {")
-    pr.println("try {")
-    pr.println("val res= findByPath(query)")
-    pr.println("if(res != null){return (res as A)} else {return (null)}")
-    pr.println("}catch(e:Exception){")
-    pr.println("return (null)")
-    pr.println("}")
-    pr.println("}")
+  def generateFindByPathMethods(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
+
+    if (!ctx.getJS()) {
+      pr.print("override fun ")
+      pr.println("findByPath<A>(query : String, clazz : Class<A>) : A? {")
+      pr.println("try {")
+      pr.println("val res= findByPath(query)")
+      pr.println("if(res != null){return (res as A)} else {return (null)}")
+      pr.println("}catch(e:Exception){")
+      pr.println("return (null)")
+      pr.println("}")
+      pr.println("}")
+    }
+
+
 
     pr.print("override fun ")
     pr.println("findByPath(query : String) : Any? {")

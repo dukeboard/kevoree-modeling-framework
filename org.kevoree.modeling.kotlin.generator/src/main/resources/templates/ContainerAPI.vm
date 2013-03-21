@@ -18,10 +18,19 @@ fun delete()
     fun selectByQuery(query : String) : List<Any>
 #end
 
-fun findByPath<A>(query : String, clazz : Class<A>) : A?
+#if(!${ctx.jS})
+    fun findByPath<A>(query : String, clazz : Class<A>) : A?
+#end
+
 fun findByPath(query : String) : Any?
 fun path() : String?
-fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : ${ctx.clonerPackage}.ClonerFactories, mutableOnly: Boolean)
-fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
+
+#if(${ctx.jS})
+    fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : ${ctx.clonerPackage}.ClonerFactories, mutableOnly: Boolean)
+    fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
+#else
+    fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : ${ctx.clonerPackage}.ClonerFactories, mutableOnly: Boolean)
+    fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
+#end
 
 }

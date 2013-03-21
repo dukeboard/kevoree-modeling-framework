@@ -118,6 +118,14 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean selector = false;
 
 
+    /**
+     * Generate JS version
+     *
+     * @parameter
+     */
+    private Boolean js = false;
+
+
 
     /**
      * The maven project.
@@ -154,6 +162,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setRootUserDirectory(inputScala);
         ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
         ctx.genSelector_$eq(selector);
+        ctx.setJS(js);
 
         Generator gen = new Generator(ctx);//, getLog());
 

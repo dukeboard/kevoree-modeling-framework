@@ -35,6 +35,7 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
                             <modelOnly>true</modelOnly>
+                            <js>true</js>
                         </configuration>
                     </execution>
                 </executions>

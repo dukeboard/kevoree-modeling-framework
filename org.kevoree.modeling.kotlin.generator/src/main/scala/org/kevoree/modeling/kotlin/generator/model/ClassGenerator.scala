@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -88,7 +88,7 @@ trait ClassGenerator extends ClonerGenerator {
 
   def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String)
 
-  def generateSelectorMethods(pr: PrintWriter, cls: EClass,ctx:GenerationContext)
+  def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
   def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.kt")
@@ -132,8 +132,8 @@ trait ClassGenerator extends ClonerGenerator {
           case "char" | "Char" => "Char = 'a'"
           case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
           case _@className => {
-            if (att.getEAttributeType.isInstanceOf[EEnum]){
-              pr.println(className+"? = null")
+            if (att.getEAttributeType.isInstanceOf[EEnum]) {
+              pr.println(className + "? = null")
             } else {
               println("--->" + className)
               pr.println(className)
@@ -175,16 +175,17 @@ trait ClassGenerator extends ClonerGenerator {
     pr.flush()
     pr.close()
   }
-    /*
-  def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String = {
-    val uri = ref.getEReferenceType.asInstanceOf[InternalEObject].eProxyURI()
-    val uriString = uri.toString
-    val resource = new XMIResourceImpl(uri)
-    resource.load(null)
-    val packa = resource.getAllContents.next().asInstanceOf[EPackage]
-    val typName = uriString.substring(uriString.lastIndexOf("#//") + 3)
-    pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
-  } */
+
+  /*
+def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String = {
+  val uri = ref.getEReferenceType.asInstanceOf[InternalEObject].eProxyURI()
+  val uriString = uri.toString
+  val resource = new XMIResourceImpl(uri)
+  resource.load(null)
+  val packa = resource.getAllContents.next().asInstanceOf[EPackage]
+  val typName = uriString.substring(uriString.lastIndexOf("#//") + 3)
+  pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
+} */
 
   def hasID(cls: EClass): Boolean = {
     cls.getEAllAttributes.exists {
@@ -227,7 +228,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
 
-    pr.print("trait " + cls.getName+"Internal")
+    pr.print("trait " + cls.getName + "Internal")
     pr.println((generateSuperTypesPlusSuperAPI(ctx, cls, packElement) match {
       case None => "{"
       case Some(s) => s + " {"
@@ -276,8 +277,8 @@ trait ClassGenerator extends ClonerGenerator {
     generateCloneMethods(ctx, cls, pr, packElement)
     generateKMFQLMethods(pr, cls, ctx, pack)
 
-    if(ctx.genSelector){
-      generateSelectorMethods(pr, cls,ctx)
+    if (ctx.genSelector) {
+      generateSelectorMethods(pr, cls, ctx)
     }
 
 
@@ -289,12 +290,13 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
 
-  private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String){
-     pr.println("override fun delete(){")
-     cls.getEAllContainments.foreach{ c =>
-        if(c.isMany()){
-          pr.println("for(el in "+"_" + c.getName+"){")
-          if(c.getEReferenceType.getEIDAttribute != null){
+  private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
+    pr.println("override fun delete(){")
+    cls.getEAllContainments.foreach {
+      c =>
+        if (c.isMany()) {
+          pr.println("for(el in " + "_" + c.getName + "){")
+          if (c.getEReferenceType.getEIDAttribute != null) {
             pr.println("el.value.delete()")
           } else {
             pr.println("el.delete()")
@@ -303,15 +305,15 @@ trait ClassGenerator extends ClonerGenerator {
         } else {
           pr.println(protectReservedWords("_" + c.getName) + "?.delete()")
         }
-     }
-     //Clean locally
+    }
+    //Clean locally
     cls.getEAttributes.foreach {
       att =>
-        //pr.println(protectReservedWords("_" + att.getName) + " = null")
+      //pr.println(protectReservedWords("_" + att.getName) + " = null")
     }
     cls.getEReferences.foreach {
       ref =>
-        if(ref.isMany){
+        if (ref.isMany) {
           pr.println(protectReservedWords("_" + ref.getName) + "?.clear()")
           pr.println(protectReservedWords("_" + ref.getName) + "_java_cache = null")
           //pr.println(protectReservedWords("_" + ref.getName) + " = null")
@@ -335,8 +337,8 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.lang.Object" | "Any" => pr.println("Any?")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
           case _@className => {
-            if (att.getEAttributeType.isInstanceOf[EEnum]){
-              pr.println(className+"?")
+            if (att.getEAttributeType.isInstanceOf[EEnum]) {
+              pr.println(className + "?")
             } else {
               println("--->" + className)
               pr.println(className)
@@ -405,30 +407,30 @@ trait ClassGenerator extends ClonerGenerator {
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.getUpperBound == -1) {
           // multiple values
-          pr.println(generateGetter(ref, typeRefName, false, false))
+          pr.println(generateGetter(ctx,ref, typeRefName, false, false))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
-          pr.println(generateAddMethod(cls, ref, typeRefName,ctx))
-          pr.println(generateRemoveMethod(cls, ref, typeRefName, true,ctx))
+          pr.println(generateAddMethod(cls, ref, typeRefName, ctx))
+          pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx))
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
-          pr.println(generateGetter(ref, typeRefName, true, true))
+          pr.println(generateGetter(ctx,ref, typeRefName, true, true))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, true, true))
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
           // mandatory single ref
-          pr.println(generateGetter(ref, typeRefName, false, true))
+          pr.println(generateGetter(ctx,ref, typeRefName, false, true))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, true))
         } else if (ref.getLowerBound > 1) {
-          pr.println(generateGetter(ref, typeRefName, false, false))
+          pr.println(generateGetter(ctx,ref, typeRefName, false, false))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
-          pr.println(generateAddMethod(cls, ref, typeRefName,ctx))
-          pr.println(generateRemoveMethod(cls, ref, typeRefName, false,ctx))
+          pr.println(generateAddMethod(cls, ref, typeRefName, ctx))
+          pr.println(generateRemoveMethod(cls, ref, typeRefName, false, ctx))
         } else {
           throw new UnsupportedOperationException("GenDefConsRef::Not a standard arity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
     }
   }
 
-  private def generateGetter(ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
+  private def generateGetter(ctx:GenerationContext,ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
     //Generate getter
     val methName = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     var res = ""
@@ -479,10 +481,16 @@ trait ClassGenerator extends ClonerGenerator {
       res += "return if(" + protectReservedWords("_" + ref.getName) + "_java_cache != null){\n"
       res += protectReservedWords("_" + ref.getName) + "_java_cache as List<" + typeRefName + ">\n"
       res += "} else {\n"
+
+      var collectionHelper = "java.util.Collections.unmodifiableList"
+      if(ctx.getJS()){
+        collectionHelper = ""
+      }
+
       if (hasID(ref.getEReferenceType)) {
-        res += "val tempL = java.util.Collections.unmodifiableList(java.util.ArrayList<"+typeRefName+">(" + protectReservedWords("_" + ref.getName) + ".values().toList())) \n"
+        res += "val tempL = "+collectionHelper+"(java.util.ArrayList<" + typeRefName + ">(" + protectReservedWords("_" + ref.getName) + ".values().toList())) \n"
       } else {
-        res += "val tempL = java.util.Collections.unmodifiableList(java.util.ArrayList<"+typeRefName+">(" + protectReservedWords("_" + ref.getName) + ")) \n"
+        res += "val tempL = "+collectionHelper+"(java.util.ArrayList<" + typeRefName + ">(" + protectReservedWords("_" + ref.getName) + ")) \n"
       }
 
       res += protectReservedWords("_" + ref.getName) + "_java_cache = tempL\n"
@@ -508,7 +516,7 @@ trait ClassGenerator extends ClonerGenerator {
     //generate setter
     var res = ""
     val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage)+".impl." + ref.getEReferenceType.getName + "Internal"
+    val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
 
     if (noOpposite) {
       res += "\nfun noOpposite_set" + formatedLocalRefName
@@ -551,15 +559,15 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.isRequired) {
             // Single Ref  1
             res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
-            res += "(" +protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+")!!.noOpposite_remove" + formatedOpositName + "(this)\n"
+            res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this)\n"
             res += "}\n"
             res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-            res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_add" + formatedOpositName + "(this)\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
             res += "}\n"
           } else {
             // Single Ref  0,1
-            res += "if(" + protectReservedWords("_" + ref.getName) + " != null) { (" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+")!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
-            res += "if(" + protectReservedWords(ref.getName) + "!=null) {(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_add" + formatedOpositName + "(this)}\n"
+            res += "if(" + protectReservedWords("_" + ref.getName) + " != null) { (" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
+            res += "if(" + protectReservedWords(ref.getName) + "!=null) {(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}\n"
           }
 
         } else {
@@ -569,21 +577,21 @@ trait ClassGenerator extends ClonerGenerator {
             // 1 -- 0,1 or 1
 
             res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
-            res += "(" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(null)\n"
+            res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
 
             if (ref.isContainment) {
-              res += "(" + protectReservedWords("_" + ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setEContainer(null,null)\n"
-              res += "(" + protectReservedWords("_" + ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(null)\n"
+              res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
+              res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
             }
             res += "}\n"
 
             res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
 
-            res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
 
             if (ref.isContainment) {
-              res += "("+protectReservedWords(ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this,null)\n"
-              res += "("+protectReservedWords(ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+              res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null)\n"
+              res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
             }
 
             res += "}\n"
@@ -593,35 +601,35 @@ trait ClassGenerator extends ClonerGenerator {
             if (oppositRef.isRequired) {
               // 0,1 -- 1
               if (!ref.isContainment) {
-                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){(" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(null) }\n"
-                res += "if(" + protectReservedWords(ref.getName) + "!=null){(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)}\n"
+                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null) }\n"
+                res += "if(" + protectReservedWords(ref.getName) + "!=null){(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
-                res += "(" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(null)\n"
-                res += "("+protectReservedWords("_" + ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setEContainer(null,null)\n"
-                res += "("+protectReservedWords("_" + ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(null)\n"
+                res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
+                res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
+                res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
                 res += "}\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
-                res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)\n"
-                res += "("+protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this,null)\n"
-                res += "("+protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+                res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
+                res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null)\n"
+                res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
                 res += "}\n"
               }
             } else {
               // 0,1 -- 0,1
               if (!ref.isContainment) {
-                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {(" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(null) }\n"
-                res += "if(" + protectReservedWords(ref.getName) + "!=null) {(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)}\n"
+                res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null) }\n"
+                res += "if(" + protectReservedWords(ref.getName) + "!=null) {(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
-                res += "(" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(null)\n"
+                res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
                 res += protectReservedWords("_" + ref.getName) + ".setEContainer(null,null)\n"
                 res += protectReservedWords("_" + ref.getName) + ".setContainmentRefName(null)\n"
                 res += "}\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
-                res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)\n"
-                res += "("+protectReservedWords(ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this,null)\n"
-                res += "("+protectReservedWords(ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+                res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
+                res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null)\n"
+                res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
                 res += "}\n"
               }
 
@@ -635,37 +643,37 @@ trait ClassGenerator extends ClonerGenerator {
         // containment relation in noOpposite Method
         if (!ref.isRequired) {
           res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){\n"
-          res +="(" + protectReservedWords("_" + ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+" ).setEContainer(null,null)\n"
-          res +="(" + protectReservedWords("_" + ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+" ).setContainmentRefName(null)\n"
+          res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null,null)\n"
+          res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setContainmentRefName(null)\n"
           res += "}\n"
           res += "if(" + protectReservedWords(ref.getName) + "!=null) {\n"
-          res += "(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+" ).setEContainer(this,null)\n"
-          res += "(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+" ).setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(this,null)\n"
+          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
           res += "}\n"
         } else {
           res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
-          res += "("+protectReservedWords("_" + ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+" ).setEContainer(null, null)\n"
-          res += "("+protectReservedWords("_" + ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+" ).setContainmentRefName(null)\n"
+          res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null, null)\n"
+          res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setContainmentRefName(null)\n"
           res += "}\n"
           res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-          res += "("+protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + " )\n"
-          res += "("+protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + " )\n"
+          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
           res += "}\n"
         }
       } else {
         // containment with no opposite relation
         if (ref.isContainment && (ref.getEOpposite == null)) {
           if (ref.isMany) {
-            res += "("+protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this, {() -> this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")} )\n"
-            res += "("+protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")} )\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
           } else {
             res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){\n"
-            res += "(" + protectReservedWords("_" + ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setEContainer(null, null)\n"
-            res += "(" + protectReservedWords("_" + ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(null)\n"
+            res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null, null)\n"
+            res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
             res += "}\n"
             res += "if(" + protectReservedWords(ref.getName) + "!=null){\n"
-            res += "(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= null})\n"
-            res += "(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= null})\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
             res += "}\n"
           }
         }
@@ -689,20 +697,20 @@ trait ClassGenerator extends ClonerGenerator {
       if (ref.isContainment) {
         if (oppositRef != null) {
           res += "for(elem in " + protectReservedWords(ref.getName) + "){\n"
-          res += "(elem as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})\n"
-          res += "(elem as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
 
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
-            res += "(elem as "+refInternalClassFqn+").noOpposite_add" + formatedOpositName + "(this)\n"
+            res += "(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
           } else {
-            res += "(elem as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)\n"
+            res += "(elem as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
           }
           res += "}\n"
         } else {
           res += "for(elem in " + protectReservedWords(ref.getName) + "){\n"
-          res += "(elem as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})\n"
-          res += "(elem as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
           res += "}\n"
 
         }
@@ -715,7 +723,7 @@ trait ClassGenerator extends ClonerGenerator {
 
             val callParam = "this"
 
-            res += "for(elem in " + protectReservedWords(ref.getName) + "){(elem as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(" + callParam + ")}\n"
+            res += "for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(" + callParam + ")}\n"
           }
         }
       }
@@ -731,11 +739,11 @@ trait ClassGenerator extends ClonerGenerator {
       if (ref.isRequired) {
         // Single Ref  1
         res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
-        res += "(" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+")!!.noOpposite_remove" + formatedOpositName + "(this)\n"
+        res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this)\n"
         res += "}\n"
       } else {
         // Single Ref  0,1
-        res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){ (" + protectReservedWords("_" + ref.getName) + " as "+refInternalClassFqn+")!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){ (" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
       }
       res += "}\n"
     }
@@ -744,16 +752,16 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
 
-  private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String,ctx:GenerationContext): String = {
-    generateAddMethodOp(cls, ref, typeRefName, false,ctx) + generateAddAllMethodOp(cls, ref, typeRefName, false,ctx) +
+  private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
+    generateAddMethodOp(cls, ref, typeRefName, false, ctx) + generateAddAllMethodOp(cls, ref, typeRefName, false, ctx) +
       (if (ref.getEOpposite != null) {
-        generateAddMethodOp(cls, ref, typeRefName, true,ctx) + generateAddAllMethodOp(cls, ref, typeRefName, true,ctx)
+        generateAddMethodOp(cls, ref, typeRefName, true, ctx) + generateAddAllMethodOp(cls, ref, typeRefName, true, ctx)
       } else {
         ""
       })
   }
 
-  private def generateAddAllMethodOp(cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean,ctx:GenerationContext): String = {
+  private def generateAddAllMethodOp(cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean, ctx: GenerationContext): String = {
     var res = ""
     res += "\n"
     if (noOpposite) {
@@ -777,17 +785,17 @@ trait ClassGenerator extends ClonerGenerator {
       res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
       if (ref.isContainment) {
 
-        res += "(el as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})\n"
-        res += "(el as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage)+".impl." + ref.getEReferenceType.getName + "Internal"
+        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
         if (!opposite.isMany) {
-          res += "(el as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)"
+          res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
         } else {
-          res += "(el as "+refInternalClassFqn+").noOpposite_add" + formatedOpositName + "(this)"
+          res += "(el as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
         }
       }
       res += "}\n"
@@ -797,7 +805,7 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
 
-  private def generateAddMethodOp(cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean,ctx:GenerationContext): String = {
+  private def generateAddMethodOp(cls: EClass, ref: EReference, typeRefName: String, noOpposite: Boolean, ctx: GenerationContext): String = {
     //generate add
     var res = ""
     val formatedAddMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
@@ -813,8 +821,8 @@ trait ClassGenerator extends ClonerGenerator {
     res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
 
     if (ref.isContainment) {
-      res += "(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
-      res += "(" + protectReservedWords(ref.getName) + " as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(\""+protectReservedWords(ref.getName)+"\")\n"
+      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
+      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
     }
 
     if (hasID(ref.getEReferenceType)) {
@@ -829,12 +837,12 @@ trait ClassGenerator extends ClonerGenerator {
       val opposite = ref.getEOpposite
       val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
 
-      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage)+".impl." + ref.getEReferenceType.getName + "Internal"
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
 
       if (!opposite.isMany) {
-        res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(this)"
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
       } else {
-        res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_add" + formatedOpositName + "(this)"
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
       }
     }
     res += "}"
@@ -842,16 +850,16 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
 
-  private def generateRemoveMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean,ctx:GenerationContext): String = {
-    generateRemoveMethodOp(cls, ref, typeRefName, isOptional, false,ctx) + generateRemoveAllMethod(cls, ref, typeRefName, isOptional, false,ctx) +
+  private def generateRemoveMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, ctx: GenerationContext): String = {
+    generateRemoveMethodOp(cls, ref, typeRefName, isOptional, false, ctx) + generateRemoveAllMethod(cls, ref, typeRefName, isOptional, false, ctx) +
       (if (ref.getEOpposite != null) {
-        generateRemoveMethodOp(cls, ref, typeRefName, isOptional, true,ctx) + generateRemoveAllMethod(cls, ref, typeRefName, isOptional, true,ctx)
+        generateRemoveMethodOp(cls, ref, typeRefName, isOptional, true, ctx) + generateRemoveAllMethod(cls, ref, typeRefName, isOptional, true, ctx)
       } else {
         ""
       })
   }
 
-  private def generateRemoveMethodOp(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean,ctx:GenerationContext): String = {
+  private def generateRemoveMethodOp(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean, ctx: GenerationContext): String = {
     //generate remove
     var res = ""
     val formatedMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
@@ -898,19 +906,19 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (ref.isContainment) {
       //TODO
-      res += "(" + protectReservedWords(ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setEContainer(null,null)\n"
-      res += "(" + protectReservedWords(ref.getName) + "!! as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(null)\n"
+      res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
+      res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
     }
 
     val oppositRef = ref.getEOpposite
     if (!noOpposite && oppositRef != null) {
       val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage)+".impl." + ref.getEReferenceType.getName + "Internal"
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
 
       if (oppositRef.isMany) {
-        res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_remove" + formatedOpositName + "(this)\n"
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
       } else {
-        res += "(" + protectReservedWords(ref.getName) + " as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(null)\n"
+        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
       }
     }
 
@@ -920,7 +928,7 @@ trait ClassGenerator extends ClonerGenerator {
     res
   }
 
-  private def generateRemoveAllMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean,ctx:GenerationContext): String = {
+  private def generateRemoveAllMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean, ctx: GenerationContext): String = {
     var res = ""
     if (noOpposite) {
       res += "\nfun noOpposite_removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() {\n"
@@ -932,28 +940,34 @@ trait ClassGenerator extends ClonerGenerator {
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
 
 
-      val getterCall= "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()"
+      val getterCall = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()"
       if (hasID(ref.getEReferenceType)) {
         res += "for(elm in " + getterCall + "!!){\n"
         res += "val el = elm\n"
       } else {
-        res += "val temp_els = java.util.Collections.unmodifiableList(" + getterCall + ")\n"
+
+        var collectionHelper = "java.util.Collections.unmodifiableList"
+        if(ctx.getJS()){
+          collectionHelper = ""
+        }
+
+        res += "val temp_els = "+collectionHelper+"(" + getterCall + ")\n"
         res += "for(el in temp_els){\n"
       }
 
       if (ref.isContainment) {
-        res += "(el as "+ctx.getKevoreeContainerImplFQN+").setEContainer(null,null)\n"
-        res += "(el as "+ctx.getKevoreeContainerImplFQN+").setContainmentRefName(null)\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage)+".impl." + ref.getEReferenceType.getName + "Internal"
+        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
 
         if (!opposite.isMany) {
-          res += "(el as "+refInternalClassFqn+").noOpposite_set" + formatedOpositName + "(null)"
+          res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)"
         } else {
-          res += "(el as "+refInternalClassFqn+").noOpposite_remove" + formatedOpositName + "(this)"
+          res += "(el as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)"
         }
       }
       res += "}\n"
