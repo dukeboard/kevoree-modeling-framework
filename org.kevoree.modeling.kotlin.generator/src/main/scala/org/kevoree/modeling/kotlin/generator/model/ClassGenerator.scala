@@ -482,18 +482,19 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
       res += protectReservedWords("_" + ref.getName) + "_java_cache as List<" + typeRefName + ">\n"
       res += "} else {\n"
 
-      var collectionHelper = "java.util.Collections.unmodifiableList"
-      if(ctx.getJS()){
-        collectionHelper = ""
-      }
-
+      res += "val tempL = java.util.ArrayList<" + typeRefName + ">()\n"
       if (hasID(ref.getEReferenceType)) {
-        res += "val tempL = "+collectionHelper+"(java.util.ArrayList<" + typeRefName + ">(" + protectReservedWords("_" + ref.getName) + ".values().toList())) \n"
+        res += "tempL.addAll(" + protectReservedWords("_" + ref.getName) + ".values().toList())\n"
       } else {
-        res += "val tempL = "+collectionHelper+"(java.util.ArrayList<" + typeRefName + ">(" + protectReservedWords("_" + ref.getName) + ")) \n"
+        res += "tempL.addAll(" + protectReservedWords("_" + ref.getName) + ")\n"
       }
 
-      res += protectReservedWords("_" + ref.getName) + "_java_cache = tempL\n"
+      if(ctx.getJS()){
+        res += protectReservedWords("_" + ref.getName) + "_java_cache = tempL\n"
+      } else {
+        res += protectReservedWords("_" + ref.getName) + "_java_cache = java.util.Collections.unmodifiableList(tempL)\n"
+      }
+
       res += "tempL\n"
       res += "}\n"
     }
