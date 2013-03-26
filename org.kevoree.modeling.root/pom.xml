@@ -14,15 +14,29 @@
         <bundle.vendor>IRISA/INRIA</bundle.vendor>
         <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
-        <kotlin.version>0.5.1</kotlin.version>
+        <kotlin.version>0.5.162</kotlin.version>
     </properties>
 
     <modules>
-        <module>../org.kevoree.modeling.emf.scala.gencode</module>
-        <module>../org.kevoree.modeling.emf.scala.gencode.mavenplugin</module>
-        <module>../org.kevoree.modeling.emf.kotlin.gencode</module>
-        <module>../org.kevoree.modeling.emf.kotlin.gencode.mavenplugin</module>
+        <module>../org.kevoree.modeling.scala.generator</module>
+        <module>../org.kevoree.modeling.scala.generator.mavenplugin</module>
+        <module>../org.kevoree.modeling.kotlin.generator</module>
+        <module>../org.kevoree.modeling.kotlin.generator.mavenplugin</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.9</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -63,6 +77,7 @@
                     <excludes>
                         <exclude>target/**</exclude>
                         <exclude>.idea/**</exclude>
+                        <exclude>**/*.vm</exclude>
                     </excludes>
                     <header>${basedir}/../LICENSE_HEADER</header>
                     <strictCheck>true</strictCheck>
@@ -174,19 +189,5 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.0</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
 </project>

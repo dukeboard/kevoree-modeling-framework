@@ -1,0 +1,23 @@
+#* @vtlvariable name="formatedCacheName" type="java.lang.String" *#
+#* @vtlvariable name="packElem" type="java.lang.String" *#
+
+package ${packElem}.impl;
+
+object ${formatedCacheName} {
+
+    private var cache : Map<String,Any> = java.util.HashMap<String,Any>()
+    public fun getCache() : Map<String,Any> { return cache }
+    public fun clear(){
+      cache = java.util.HashMap<String,Any>()
+    }
+
+    public fun filter(queryID : String,input : Collection<Any>) : Collection<Any> {
+        if(queryID == "" || queryID == "*"){
+            return input
+        } else {
+            val internalFilter = fr.inria.jfilter.FilterParser.filter.parse(queryID)
+            return internalFilter!!.filter(input,getCache())!!
+        }
+    }
+
+}

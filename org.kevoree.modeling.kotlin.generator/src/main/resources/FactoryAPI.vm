@@ -1,0 +1,15 @@
+#* @vtlvariable name="packageName" type="java.lang.String" *#
+#* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
+#* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
+
+package ${packageName};
+
+trait ${formatedFactoryName} {
+
+    fun getVersion() : String
+
+#foreach( $class in $classes )
+    fun create${class.getName()}() : ${class.getName()}
+#end
+
+}
