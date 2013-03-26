@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.kevoree.modeling.sample.kevoree</artifactId>
+    <artifactId>org.kevoree.modeling.sample.kevoree.js</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: Sample :: Kevoree</name>
+    <name>Kevoree :: Modeling :: Sample :: Kevoree :: JS</name>
 
     <parent>
         <artifactId>org.kevoree.modeling.sample.root</artifactId>
@@ -19,26 +19,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.kevoree.modeling</groupId>
-                <artifactId>org.kevoree.modeling.kotlin.generator.mavenplugin</artifactId>
-                <version>1.3.0-SNAPSHOT</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>ModelGen</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <ecore>${metamodel.ecore}</ecore>
-                            <packagePrefix>org</packagePrefix>
-                            <json>true</json>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
+ 
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -52,9 +33,9 @@
                 </dependencies>
                 <executions>
                     <execution>
-                        <id>compile</id>
+                        <id>js</id>
                         <goals>
-                            <goal>compile</goal>
+                            <goal>js</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -69,5 +50,20 @@
             <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
+
+
+    <repositories>
+        <repository>
+            <id>jetbrains-all</id>
+            <url>http://repository.jetbrains.com/all</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jetbrains-all</id>
+            <url>http://repository.jetbrains.com/all</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

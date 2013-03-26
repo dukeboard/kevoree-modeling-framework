@@ -126,6 +126,14 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean js = false;
 
 
+    /**
+     * Generate JSON
+     *
+     * @parameter
+     */
+    private Boolean json = false;
+
+
 
     /**
      * The maven project.
@@ -171,6 +179,11 @@ public class GenModelPlugin extends AbstractMojo {
             gen.generateLoader(ecore);
             gen.generateSerializer(ecore);
         }
+        if(json){
+            gen.generateJSONSerializer(ecore);
+        }
+
+
         this.project.addCompileSourceRoot(output.getAbsolutePath());
     }
 }
