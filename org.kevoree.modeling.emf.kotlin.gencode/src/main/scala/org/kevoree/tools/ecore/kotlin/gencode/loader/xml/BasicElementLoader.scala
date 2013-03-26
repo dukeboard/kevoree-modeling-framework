@@ -209,6 +209,9 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: S
               case "Boolean" | "Double" | "Int"  => {
                 pr.println("modelElem." + methName + "(valueAtt.to"+attTypeName+"())")
               }
+              case "Any" => {
+                pr.println("modelElem." + methName + "(valueAtt as " + attTypeName + ")")
+              }
               case _@_type => {
                 pr.println("modelElem." + methName + "(valueAtt.to" + _type + "() as " + attTypeName + ")")
               }
