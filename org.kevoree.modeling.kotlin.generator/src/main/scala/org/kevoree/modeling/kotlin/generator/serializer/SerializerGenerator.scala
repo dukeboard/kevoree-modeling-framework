@@ -124,13 +124,10 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("fun get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
-
     if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0) {
       buffer.println("var i = 0")
     }
-
     var firstUsed = true
-
     cls.getEAllContainments.foreach {
       subClass =>
         subClass.getUpperBound match {
@@ -156,7 +153,6 @@ class SerializerGenerator(ctx: GenerationContext) {
           }
         }
     }
-
     buffer.println()
     if (subTypes.size > 0) {
       buffer.println("when(selfObject) {")
@@ -169,14 +165,11 @@ class SerializerGenerator(ctx: GenerationContext) {
     }
     buffer.println("return subResult")
     buffer.println("}")
-
-
     if (isRoot) {
       buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
     } else {
       buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
     }
-
     buffer.println("when(selfObject) {")
     val subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
     subtypesList.foreach {
@@ -315,6 +308,4 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("}") //End MATCH CASE
     buffer.println("}") //END TO XMI
   }
-
-
 }

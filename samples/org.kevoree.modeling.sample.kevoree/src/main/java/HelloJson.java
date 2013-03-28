@@ -4,6 +4,8 @@ import org.kevoree.serializer.ModelJSONSerializer;
 import org.kevoree.serializer.ModelSerializer;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +15,7 @@ import java.io.File;
  */
 public class HelloJson {
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         System.out.println("HelloJSON");
 
         ModelLoader loader = new ModelLoader();
@@ -24,8 +26,16 @@ public class HelloJson {
        // ModelSerializer saver = new ModelSerializer();
        // saver.serialize(model,System.out);
 
+        File fp = File.createTempFile("jsonXMI","jsonXMI");
+        FileOutputStream fop = new FileOutputStream(fp);
+
         ModelJSONSerializer saver2 = new ModelJSONSerializer();
-        saver2.serialize(model,System.out);
+        saver2.serialize(model,fop);
+
+        fop.flush();
+        fop.close();
+
+        System.out.println(fp.getAbsolutePath());
 
 
     }
