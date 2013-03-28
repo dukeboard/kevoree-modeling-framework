@@ -56,16 +56,31 @@ import serializer.{SerializerJsonGenerator, SerializerGenerator}
 /**
  * Generator class. Proposes several methods for generation of Model, Loader, Serializer from a EMF-<i>ecore</i> model.
  * @param ctx the generation context
+ * @param ecoreFile the ecore model that implementation will be generated
  */
-class Generator(ctx: GenerationContext) {
+class Generator(ctx: GenerationContext, ecoreFile: File) {
+  preProcess()
+
+  private var preProcessPassed = false
+
+  def preProcess() {
+    val model = ctx.getEcoreModel(ecoreFile)
+
+    //registering factories
+    model.getContents.filter(e=>e.isInstanceOf[EPackage]).foreach {
+      elem => ctx.registerFactory(elem.asInstanceOf[EPackage])
+    }
+
+    ctx.setBaseLocationForUtilitiesGeneration(ecoreFile)
+
+  }
 
 
   /**
    * Triggers the generation of the given <i>ecore</i> file implementation.
-   * @param ecoreFile the ecore model that implementation will be generated
    * @param modelVersion the version of the model (will be included in headers of generated files).
    */
-  def generateModel(ecoreFile: File, modelVersion: String) {
+  def generateModel(modelVersion: String) {
 
     val model = ctx.getEcoreModel(ecoreFile)
 
@@ -109,7 +124,7 @@ class Generator(ctx: GenerationContext) {
   }
 
 
-  def generateLoader(ecoreFile: File) {
+  def generateLoader() {
 
     val model = ctx.getEcoreModel(ecoreFile)
 
@@ -124,7 +139,7 @@ class Generator(ctx: GenerationContext) {
     System.out.println("Done with loader generation")
   }
 
-  def generateSerializer(ecoreFile: File) {
+  def generateSerializer() {
 
     val model = ctx.getEcoreModel(ecoreFile)
 
@@ -139,7 +154,7 @@ class Generator(ctx: GenerationContext) {
     System.out.println("Done with serializer generation")
   }
 
-  def generateJSONSerializer(ecoreFile: File) {
+  def generateJSONSerializer() {
 
     val model = ctx.getEcoreModel(ecoreFile)
 

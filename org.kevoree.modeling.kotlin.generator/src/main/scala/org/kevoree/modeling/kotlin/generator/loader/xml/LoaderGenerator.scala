@@ -41,6 +41,7 @@ package org.kevoree.modeling.kotlin.generator.loader.xml
 import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 import scala.collection.JavaConversions._
+import java.io.File
 
 /**
  * Created by IntelliJ IDEA.
@@ -68,13 +69,13 @@ class LoaderGenerator(ctx : GenerationContext) {
 
     ctx.getRootContainerInPackage(pack) match {
       case Some(cls : EClass) => {
-        val loaderGenBaseDir = ProcessorHelper.getPackageGenDir(ctx, cls.getEPackage) + "/loader/"
+        val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
         val el = new RootLoader(ctx, loaderGenBaseDir, cls.getEPackage)
         el.generateLoader(cls, cls.getEPackage.getName+ ":" + cls.getName)
       }
-      case None => throw new UnsupportedOperationException("Root container not found. Returned None.")
+      case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Loader generation aborted.")
     }
   }
 

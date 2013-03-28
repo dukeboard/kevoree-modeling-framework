@@ -34,7 +34,7 @@
  */
 
 
-package org.kevoree.extra.ecore.kotlin.gencode;
+package org.kevoree.modeling.kotlin.generator.test;
 
 import org.junit.Test;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
@@ -65,8 +65,8 @@ public class OppositeTest {
         ctx.setRootGenerationDirectory(rootDir);
         ctx.setRootContainerClassName(scala.Option.apply("Course"));
 
-        Generator gen = new Generator(ctx);
-        gen.generateModel(ecoreFile,"1.4.0");
+        Generator gen = new Generator(ctx,ecoreFile);
+        gen.generateModel("1.4.0");
 
     }
 
@@ -83,8 +83,8 @@ public class OppositeTest {
         ctx.setRootContainerClassName(scala.Option.apply("Course"));
 
 
-        Generator gen = new Generator(ctx);
-        gen.generateLoader(ecoreFile);
+        Generator gen = new Generator(ctx,ecoreFile);
+        gen.generateLoader();
 
     }
 
@@ -99,8 +99,8 @@ public class OppositeTest {
         ctx.setRootGenerationDirectory(rootDir);
         ctx.setRootContainerClassName(scala.Option.apply("Course"));
 
-        Generator gen = new Generator(ctx);
-        gen.generateSerializer(ecoreFile);
+        Generator gen = new Generator(ctx,ecoreFile);
+        gen.generateSerializer();
 
     }
 /*

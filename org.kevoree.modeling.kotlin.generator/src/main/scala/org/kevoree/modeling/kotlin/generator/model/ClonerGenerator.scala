@@ -165,14 +165,14 @@ trait ClonerGenerator {
   }
 
   def generateDefaultCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
-    ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/cloner")
-    val pr = new PrintWriter(new File(currentPackageDir + "/cloner/ModelCloner.kt"), "utf-8")
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
+    val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator+"ModelCloner.kt"), "utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, pack)
     ctx.clonerPackage = packageName + ".cloner"
 
     val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
     ve.init()
     val template = ve.getTemplate("templates/ModelCloner.vm")
     val ctxV = new VelocityContext()

@@ -65,8 +65,8 @@ public class GenerateCodeTest {
         ctx.setRootGenerationDirectory(rootDir);
         ctx.setRootContainerClassName(scala.Option.apply((String)null));
 
-        Generator gen = new Generator(ctx);
-        gen.generateModel(ecoreFile,"1.4.0");
+        Generator gen = new Generator(ctx, ecoreFile);
+        gen.generateModel("1.4.0");
 
     }
 
@@ -84,8 +84,8 @@ public class GenerateCodeTest {
         ctx.setRootContainerClassName(scala.Option.apply((String)null));
 
 
-        Generator gen = new Generator(ctx);
-        gen.generateLoader(ecoreFile);
+        Generator gen = new Generator(ctx,ecoreFile);
+        gen.generateLoader();
 
     }
 
@@ -100,8 +100,8 @@ public class GenerateCodeTest {
         ctx.setRootGenerationDirectory(rootDir);
         ctx.setRootContainerClassName(scala.Option.apply((String)null));
 
-        Generator gen = new Generator(ctx);
-        gen.generateSerializer(ecoreFile);
+        Generator gen = new Generator(ctx, ecoreFile);
+        gen.generateSerializer();
 
     }
 /*

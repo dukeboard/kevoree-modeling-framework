@@ -172,15 +172,15 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
 
-        Generator gen = new Generator(ctx);//, getLog());
+        Generator gen = new Generator(ctx,ecore);//, getLog());
 
-        gen.generateModel(ecore, project.getVersion());
+        gen.generateModel(project.getVersion());
         if (!modelOnly) {
-            gen.generateLoader(ecore);
-            gen.generateSerializer(ecore);
+            gen.generateLoader();
+            gen.generateSerializer();
         }
         if(json){
-            gen.generateJSONSerializer(ecore);
+            gen.generateJSONSerializer();
         }
 
 

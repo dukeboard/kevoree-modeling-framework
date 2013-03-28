@@ -223,10 +223,9 @@ class GenerationContext {
   }
 
   var baseLocationForUtilitiesGeneration : File = null
-  def getBaseLocationForUtilitiesGeneration(metamodelFile : File) : File = {
-    if(baseLocationForUtilitiesGeneration != null) {
-      baseLocationForUtilitiesGeneration
-    } else {
+  def getBaseLocationForUtilitiesGeneration = baseLocationForUtilitiesGeneration
+
+  def setBaseLocationForUtilitiesGeneration(metamodelFile : File) {
       val metamodel = getEcoreModel(metamodelFile)
       if(metamodel.getContents.size() > 1) { // Many packages at the root.
         if(getPackagePrefix.isDefined) {
@@ -242,8 +241,6 @@ class GenerationContext {
           baseLocationForUtilitiesGeneration = checkBaseLocation(metamodel.getContents.get(0).asInstanceOf[EPackage])
         }
       }
-    }
-    baseLocationForUtilitiesGeneration
   }
 
   private def checkBaseLocation(rootElement : EPackage) : File = {

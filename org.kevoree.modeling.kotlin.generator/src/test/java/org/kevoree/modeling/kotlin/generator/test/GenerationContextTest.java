@@ -32,30 +32,33 @@ import static org.junit.Assert.assertTrue;
 
 public class GenerationContextTest {
 
-   @Test
+    @Test
     public void getBaseLocationForUtilitiesGenerationTest() {
 
         GenerationContext ctx = new GenerationContext();
         ctx.setRootGenerationDirectory(new File("/tmp/testGenDir"));
-       ctx.setPackagePrefix(Option.apply("org"));
-        String kevoreeUtilitiesGenDir = ctx.getBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree/kevoree-core/org.kevoree.model/metamodel/kevoree.ecore")).getAbsolutePath();
+        ctx.setPackagePrefix(Option.apply("org"));
+        ctx.setBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree/kevoree-core/org.kevoree.model/metamodel/kevoree.ecore"));
+        String kevoreeUtilitiesGenDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         assertTrue("KevoreeUtilitiesGenDir: " + kevoreeUtilitiesGenDir, kevoreeUtilitiesGenDir.equals("/tmp/testGenDir/org/kevoree"));
-        String kevoreeUtilitiesGenDir2 = ctx.getBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree/kevoree-core/org.kevoree.model/metamodel/kevoree.ecore")).getAbsolutePath();
+        String kevoreeUtilitiesGenDir2 = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         assertTrue("KevoreeUtilitiesGenDir2: " + kevoreeUtilitiesGenDir2, kevoreeUtilitiesGenDir.equals(kevoreeUtilitiesGenDir2));
 
         GenerationContext ctx2 = new GenerationContext();
         ctx2.setRootGenerationDirectory(new File("/tmp/testGenDir"));
-        String kermetaUtilitiesGenDir = ctx2.getBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kermeta/metamodel/kermeta.ecore")).getAbsolutePath();
+        ctx2.setBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kermeta/metamodel/kermeta.ecore"));
+        String kermetaUtilitiesGenDir = ctx2.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         assertTrue("KevoreeUtilitiesGenDir: " + kermetaUtilitiesGenDir, kermetaUtilitiesGenDir.equals("/tmp/testGenDir/org/kermeta/language"));
-        String kermetaUtilitiesGenDir2 = ctx2.getBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kermeta/metamodel/kermeta.ecore")).getAbsolutePath();
+        String kermetaUtilitiesGenDir2 = ctx2.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         assertTrue("KevoreeUtilitiesGenDir2: " + kermetaUtilitiesGenDir2, kermetaUtilitiesGenDir.equals(kermetaUtilitiesGenDir2));
 
         GenerationContext ctx3 = new GenerationContext();
         ctx3.setRootGenerationDirectory(new File("/tmp/testGenDir"));
-       ctx3.setPackagePrefix(Option.apply("org.kevoree.modeling.sample.grabats"));
-        String grabatsUtilitiesGenDir = ctx3.getBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.grabats/metamodel/jdtast.ecore")).getAbsolutePath();
+        ctx3.setPackagePrefix(Option.apply("org.kevoree.modeling.sample.grabats"));
+        ctx3.setBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.grabats/metamodel/jdtast.ecore"));
+        String grabatsUtilitiesGenDir = ctx3.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         assertTrue("KevoreeUtilitiesGenDir: " + grabatsUtilitiesGenDir, grabatsUtilitiesGenDir.equals("/tmp/testGenDir/org/kevoree/modeling/sample/grabats"));
-        String grabatsUtilitiesGenDir2 = ctx3.getBaseLocationForUtilitiesGeneration(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.grabats/metamodel/jdtast.ecore")).getAbsolutePath();
+        String grabatsUtilitiesGenDir2 = ctx3.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         assertTrue("KevoreeUtilitiesGenDir2: " + grabatsUtilitiesGenDir2, grabatsUtilitiesGenDir.equals(grabatsUtilitiesGenDir2));
 
 

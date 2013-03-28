@@ -52,12 +52,12 @@ class SerializerGenerator(ctx: GenerationContext) {
   def generateSerializer(pack: EPackage) {
     ctx.getRootContainerInPackage(pack) match {
       case Some(cls: EClass) => {
-        val serializerGenBaseDir = ProcessorHelper.getPackageGenDir(ctx, cls.getEPackage) + "/serializer/"
+        val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
         ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
         val modelPackage = ProcessorHelper.fqn(ctx, cls.getEPackage)
         generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage)
       }
-      case None => throw new UnsupportedOperationException("Root container not found. Returned one.")
+      case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Serializer generation aborted.")
     }
   }
 
