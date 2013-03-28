@@ -15,40 +15,6 @@
  * Fouquet Francois
  * Nain Gregory
  */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
 package org.kevoree.modeling.kotlin.generator
 
 import java.io.{PrintWriter, File}
@@ -58,8 +24,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.common.util.{URI => EmfUri}
 
-import java.net.URI
-import org.eclipse.emf.ecore.xmi.impl.{XMIResourceFactoryImpl, XMIResourceImpl}
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
 import org.eclipse.emf.ecore.{EPackage, EClass}
 import java.util
 
@@ -73,7 +38,9 @@ import java.util
 
 class GenerationContext {
 
-
+  /**
+   * True if selectByQuery methods have to be generated
+   */
   var genSelector: Boolean = false
 
   def getGenSelector = genSelector
@@ -81,6 +48,7 @@ class GenerationContext {
 
   /**
    * Package to be added before the RootPackage of the model
+   * eg: Root package in the model: 'kevoree'; value of packagePrefix: 'org' would generate code in org.kevoree
    */
   private var packagePrefix: Option[String] = None
 
@@ -92,6 +60,7 @@ class GenerationContext {
 
   /**
    * Base folder for the generation process
+   *  example: "${project.build.directory}/generated-sources/kmf"
    */
   private var rootGenerationDirectory: File = null
 
@@ -103,7 +72,8 @@ class GenerationContext {
 
 
   /**
-   * Base user src folder
+   * Folder containing sources created by users
+   * example "src/main/java"
    */
   private var rootUserDirectory: File = null
 
@@ -116,6 +86,7 @@ class GenerationContext {
 
   /**
    * Specifies the RootContainer class name.
+   * Example: "ContainerRoot"
    */
   private var rootXmiContainerClassName: Option[String] = None
 
@@ -126,14 +97,12 @@ class GenerationContext {
   def getRootContainerClassName = rootXmiContainerClassName
 
 
-  // private var modelFileMap: Map[String, XMIResource] = Map.empty[String, XMIResource]
-
   def getEcoreModel(ecorefile: File): XMIResource = {
 
     System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
     val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
     val rs = new ResourceSetImpl()
-    Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl())
+    Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl())
     val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
     resource.load(null)
     EcoreUtil.resolveAll(resource)
@@ -159,6 +128,9 @@ class GenerationContext {
     }
   }
 
+  /**
+   * Fully Qualified Name of the KMF Container Interface
+   */
   private var kevoreeContainer: Option[String] = None
 
   def getKevoreeContainer = kevoreeContainer
@@ -167,6 +139,9 @@ class GenerationContext {
     kevoreeContainer = ct
   }
 
+  /**
+   * Fully Qualified Name of the KMF Container Implementation
+   */
   private var kevoreeContainerImplFQN: String = ""
 
   def getKevoreeContainerImplFQN = kevoreeContainerImplFQN
@@ -175,6 +150,11 @@ class GenerationContext {
     kevoreeContainerImplFQN = s
   }
 
+
+  /**
+   * Name of the cache class used in SelectByQuery methods.
+   * Example: KevoreeResolverCacheInternal
+   */
   private var kevoreeCacheResolver: String = ""
 
   def getkevoreeCacheResolver = kevoreeCacheResolver
@@ -183,12 +163,21 @@ class GenerationContext {
     kevoreeCacheResolver = s
   }
 
-
+  /**
+   * Store of FQN of EClasses for which the loader method has already been generated
+   */
   var generatedLoaderFiles = new util.ArrayList[String]()
+
+  /**
+   * PrintWriter used for all the loader generation
+   */
   var loaderPrintWriter: PrintWriter = null
 
 
-  //hosts the package name of the Cloner (eg. org.kevoree.cloner)
+  /**
+   * hosts the package name of the Cloner
+   * example "org.kevoree.cloner"
+   */
   var clonerPackage: String = ""
 
   def getClonerPackage = clonerPackage
@@ -220,11 +209,13 @@ class GenerationContext {
     }
   }
 
+  /**
+   * Tells if the code must be JavaScript compliant
+   */
+  var js = false
 
-  var js = true
-
-  def getJS(): Boolean = {
-    return js
+  def getJS() : Boolean = {
+    js
   }
 
   def setJS(isJS: Boolean) {
