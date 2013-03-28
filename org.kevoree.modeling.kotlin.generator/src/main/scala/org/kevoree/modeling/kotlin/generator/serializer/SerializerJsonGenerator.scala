@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 
 package org.kevoree.modeling.kotlin.generator.serializer
@@ -50,30 +50,23 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
 class SerializerJsonGenerator(ctx: GenerationContext) {
 
   def generateJsonSerializer(pack: EPackage) {
-
     ctx.getRootContainerInPackage(pack) match {
       case Some(cls: EClass) => {
         val serializerGenBaseDir = ProcessorHelper.getPackageGenDir(ctx, cls.getEPackage) + "/serializer/"
         ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
-
         val modelPackage = ProcessorHelper.fqn(ctx, cls.getEPackage)
-        val subs = generateSerializer(serializerGenBaseDir, modelPackage, cls.getEPackage.getName + ":" + cls.getName, cls, pack, true)
-        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage, subs)
+        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage)
       }
       case None => throw new UnsupportedOperationException("Root container not found. Returned one.")
     }
   }
 
 
-  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage, sub: Set[String]) {
-
+  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage) {
     val genFile = new File(genDir + "ModelJSONSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + packageName + ".serializer")
-    pr.println("class ModelJSONSerializer ")
-    if (sub.size > 0) {
-      pr.print(sub.mkString(" : ", " , ", " "))
-    }
+    pr.println("class ModelJSONSerializer")
     pr.println("{")
     pr.println()
     pr.println("fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
@@ -89,49 +82,19 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println("else -> { }")
     pr.println("}") //END MATCH
     pr.println("}") //END serialize method
+    generateSerializer(genDir, packageName, root.getEPackage.getName + ":" + root.getName, root, root.getEPackage, true, pr: PrintWriter)
     pr.println("}") //END TRAIT
     pr.flush()
     pr.close()
-
-
   }
-  var alreadyGenerated = Set[EClass]()
 
-
-  private def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootJsonPackage: EPackage, isRoot: Boolean = false): Set[String] = {
-    var subSerializer = Set[String](root.getName + "JsonSerializer")
-    val file = new File(genDir + root.getName + "JsonSerializer.kt")
-    val pr = new PrintWriter(file, "utf-8")
-    pr.println("package " + packageName + ".serializer")
-    generateToJsonMethod(rootJsonPackage, root, pr, rootJsonPackage.getName + ":" + root.getName, isRoot)
-    pr.flush()
-    pr.close()
-    //PROCESS SUB
-    root.getEAllContainments.foreach {
-      sub =>
-        val subfile = new File(genDir + sub.getEReferenceType.getName + "JsonSerializer.kt")
-        //if (!subfile.exists()) {
-          val subpr = new PrintWriter(subfile, "utf-8")
-          subpr.println("package " + packageName + ".serializer")
-          generateToJsonMethod(rootJsonPackage, sub.getEReferenceType, subpr, sub.getName)
-          subpr.flush()
-          subpr.close()
-          //¨PROCESS ALL SUB TYPE
-          ProcessorHelper.getAllConcreteSubTypes(sub.getEReferenceType).foreach {
-            subsubType =>
-              if (subsubType != root && !alreadyGenerated.contains(subsubType)) {
-                //avoid looping in case of self-containment
-                alreadyGenerated = alreadyGenerated ++ Set(subsubType)
-                subSerializer = subSerializer ++ generateSerializer(genDir, packageName, sub.getName, subsubType, rootJsonPackage)
-              }
-          }
-          if (sub.getEReferenceType != root  && !alreadyGenerated.contains(sub.getEReferenceType)) {
-            //avoid looping in case of self-containment
-            alreadyGenerated = alreadyGenerated ++ Set(sub.getEReferenceType)
-            subSerializer = subSerializer ++ generateSerializer(genDir, packageName, sub.getName, sub.getEReferenceType, rootJsonPackage)
-          }
+  private def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false, pr: PrintWriter) {
+    rootXmiPackage.getEClassifiers.foreach {
+      eClass =>
+        if (eClass.isInstanceOf[EClass]) {
+          generateToJsonMethod(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass.getName, eClass == root)
+        }
     }
-    subSerializer
   }
 
 
@@ -141,15 +104,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
 
 
   private def generateToJsonMethod(pack: EPackage, cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
-    val packageOfModel = ProcessorHelper.fqn(ctx, pack)
-
-    buffer.println("import " + packageOfModel + ".*")
-    buffer.println()
-    buffer.println("trait " + cls.getName + "JsonSerializer ")
-
-
     var stringListSubSerializers = Set[Tuple2[String, String]]()
-
     if (cls.getEAllContainments.size > 0) {
       cls.getEAllContainments.foreach {
         contained =>
@@ -165,26 +120,12 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
           stringListSubSerializers = stringListSubSerializers ++ Set(Tuple2(ProcessorHelper.fqn(ctx, sub), sub.getName)) // + "Serializer")
       }
     }
-    buffer.println("{")
-    buffer.println()
-
-
-    stringListSubSerializers.foreach {
-      sub =>
-        buffer.println("open fun get" + sub._2 + "JsonAddr(o : " + sub._1 + ",previousAddr : String) : Map<Any,String>") //PRINT ABSTRACT USEFULL METHOD
-        buffer.println("open fun " + sub._2 + "toJson(o :" + sub._1 + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream)")
-    }
-    buffer.println()
-    buffer.println()
-    buffer.println()
-
-
     //GENERATE GET Json ADDR                                                                              0
     buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
 
-    if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0){
+    if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0) {
       buffer.println("var i = 0")
     }
 
@@ -194,14 +135,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
       subClass =>
         subClass.getUpperBound match {
           case 1 => {
-              buffer.println("val sub"+subClass.getName+" = selfObject."+getGetter(subClass.getName)+"()")
-              buffer.println("if(sub"+subClass.getName+"!= null){")
-              buffer.println("subResult.put(sub"+subClass.getName+",previousAddr+\"/@" + subClass.getName + "\" )")
-              buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub"+subClass.getName+",previousAddr+\"/@" + subClass.getName + "\"))")
-              buffer.println("}")
+            buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
+            buffer.println("if(sub" + subClass.getName + "!= null){")
+            buffer.println("subResult.put(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\" )")
+            buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\"))")
+            buffer.println("}")
           }
           case -1 => {
-            if (!firstUsed){
+            if (!firstUsed) {
               buffer.println("i=0")
             }
             firstUsed = false
@@ -222,7 +163,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
         subType =>
           buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> { subResult.putAll(get" + subType.getName + "JsonAddr(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",previousAddr)) }")
       }
-      buffer.println("else -> {}")//throw new InternalError(\""+ cls.getName +"Serializer did not match anything for selfObject class name: \" + selfObject.getClass.getName)")
+      buffer.println("else -> {}") //throw new InternalError(\""+ cls.getName +"Serializer did not match anything for selfObject class name: \" + selfObject.getClass.getName)")
       buffer.println("}")
     }
     buffer.println("return subResult")
@@ -240,7 +181,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     }
     buffer.println("else -> {")
     buffer.println("ostream.print('{')")
-    buffer.println("ostream.print(\" \\\"eClass\\\":\\\""+cls.getEPackage.getName+":"+cls.getName+"\\\" \")")
+    buffer.println("ostream.print(\" \\\"eClass\\\":\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\" \")")
     if (cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
       cls.getEAllAttributes.foreach {
         att =>
@@ -248,7 +189,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             case 1 => {
               att.getLowerBound match {
                 case _ => {
-                  if (att.getEAttributeType.isInstanceOf[EEnum]){
+                  if (att.getEAttributeType.isInstanceOf[EEnum]) {
                     buffer.println("if(selfObject." + getGetter(att.getName) + "() != null){")
                     buffer.println("ostream.println(',')")
                     buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\\\"\"+selfObject." + getGetter(att.getName) + "()!!.name()+\"\\\"\")")
@@ -262,20 +203,20 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
                 }
               }
             }
-            case -1 => println("WTF! "+att.getName)
+            case -1 => println("WTF! " + att.getName)
           }
       }
 
 
-      def generateRef(ref : EReference){
-        buffer.println("val subsub"+ref.getName+" = selfObject."+getGetter(ref.getName)+"()")
-        buffer.println("if(subsub"+ref.getName+" != null){")
-        buffer.println("val subsubsub"+ref.getName+" = addrs.get(subsub"+ref.getName+")")
-        buffer.println("if(subsubsub"+ref.getName+" != null){")
+      def generateRef(ref: EReference) {
+        buffer.println("val subsub" + ref.getName + " = selfObject." + getGetter(ref.getName) + "()")
+        buffer.println("if(subsub" + ref.getName + " != null){")
+        buffer.println("val subsubsub" + ref.getName + " = addrs.get(subsub" + ref.getName + ")")
+        buffer.println("if(subsubsub" + ref.getName + " != null){")
         buffer.println("ostream.println(',')")
-        buffer.println("ostream.print(\" \\\"" + ref.getName + "\\\":\\\"\"+subsubsub"+ref.getName+"+\"\\\"\")")
+        buffer.println("ostream.print(\" \\\"" + ref.getName + "\\\":\\\"\"+subsubsub" + ref.getName + "+\"\\\"\")")
         buffer.println("} else {")
-        buffer.println("throw Exception(\"KMF "+cls.getName+" Serialization error : No address found for reference "+ref.getName+"(id:\"+subsub"+ref.getName+"+\" container:\"+subsub"+ref.getName+".eContainer()+\")\")")
+        buffer.println("throw Exception(\"KMF " + cls.getName + " Serialization error : No address found for reference " + ref.getName + "(id:\"+subsub" + ref.getName + "+\" container:\"+subsub" + ref.getName + ".eContainer()+\")\")")
         buffer.println("}")
         buffer.println("}")
       }
@@ -313,7 +254,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
               buffer.println("if(subsub != null){")
               buffer.println("ostream.print(\"{ \\\"ref\\\" : \\\"\"+subsub+\"\\\"} \")")
               buffer.println("} else {")
-              buffer.println("throw Exception(\"KMF Serialization error : non contained reference "+cls.getName+"/"+ref.getName+" \")")
+              buffer.println("throw Exception(\"KMF Serialization error : non contained reference " + cls.getName + "/" + ref.getName + " \")")
               buffer.println("}")
               buffer.println("firstItLoop=false")
               buffer.println("}")
@@ -328,26 +269,26 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
         subClass.getUpperBound match {
           case 1 => {
             if (subClass.getLowerBound == 0) {
-              buffer.println("val sub"+subClass.getName+" = selfObject."+getGetter(subClass.getName)+"()")
-              buffer.println("if(sub"+subClass.getName+"!= null){")
+              buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
+              buffer.println("if(sub" + subClass.getName + "!= null){")
               buffer.println("ostream.println(',')")
-              buffer.println("ostream.print(\"\\\""+subClass.getName+"\\\":\")")
-              buffer.println("" + subClass.getEReferenceType.getName + "toJson(sub"+subClass.getName+",\"" + subClass.getName + "\",addrs,ostream)")
+              buffer.println("ostream.print(\"\\\"" + subClass.getName + "\\\":\")")
+              buffer.println("" + subClass.getEReferenceType.getName + "toJson(sub" + subClass.getName + ",\"" + subClass.getName + "\",addrs,ostream)")
               buffer.println("}")
             } else {
               buffer.println("ostream.println(',')")
-              buffer.println("ostream.println(\"\\\""+subClass.getName+"\\\":\")")
+              buffer.println("ostream.println(\"\\\"" + subClass.getName + "\\\":\")")
               buffer.println("" + subClass.getEReferenceType.getName + "toJson(selfObject." + getGetter(subClass.getName) + "()!!,\"" + subClass.getName + "\",addrs,ostream)")
             }
           }
           case -1 => {
             buffer.println("ostream.println(',')")
-            buffer.println("ostream.println(\"\\\""+subClass.getName+"\\\": [\")")
-            buffer.println("var iloop_first_"+subClass.getName+" = true")
+            buffer.println("ostream.println(\"\\\"" + subClass.getName + "\\\": [\")")
+            buffer.println("var iloop_first_" + subClass.getName + " = true")
             buffer.println("for(so in selfObject." + getGetter(subClass.getName) + "()){")
-            buffer.println("if(!iloop_first_"+subClass.getName+"){ostream.println(',')}")
+            buffer.println("if(!iloop_first_" + subClass.getName + "){ostream.println(',')}")
             buffer.println("" + subClass.getEReferenceType.getName + "toJson(so,\"" + subClass.getName + "\",addrs,ostream)")
-            buffer.println("iloop_first_"+subClass.getName+" = false")
+            buffer.println("iloop_first_" + subClass.getName + " = false")
             buffer.println("}")
             buffer.println("ostream.println(']')")
           }
@@ -358,7 +299,6 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     buffer.println("}")
     buffer.println("}") //End MATCH CASE
     buffer.println("}") //END TO Json
-    buffer.println("}") //END TRAIT
   }
 
 
