@@ -25,7 +25,7 @@ import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.common.util.{URI => EmfUri}
 
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
-import org.eclipse.emf.ecore.{EPackage, EClass}
+import org.eclipse.emf.ecore.{EEnum, EObject, EPackage, EClass}
 import java.util
 
 /**
@@ -220,6 +220,51 @@ class GenerationContext {
 
   def setJS(isJS: Boolean) {
     js = isJS
+  }
+
+  var baseLocationForUtilitiesGeneration : File = null
+  def getBaseLocationForUtilitiesGeneration(metamodelFile : File) : File = {
+    if(baseLocationForUtilitiesGeneration != null) {
+      baseLocationForUtilitiesGeneration
+    } else {
+      val metamodel = getEcoreModel(metamodelFile)
+      if(metamodel.getContents.size() > 1) { // Many packages at the root.
+        if(getPackagePrefix.isDefined) {
+          baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator))
+        } else {
+          baseLocationForUtilitiesGeneration = getRootGenerationDirectory
+        }
+
+      } else if(metamodel.getContents.size()==1) { // One package at the root.
+        if(metamodel.getContents.get(0).asInstanceOf[EPackage].getEClassifiers.size() > 0) { // Classifiers in this root package
+          baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, metamodel.getContents.get(0).asInstanceOf[EPackage]).replace(".",File.separator) + File.separator)
+        } else {
+          baseLocationForUtilitiesGeneration = checkBaseLocation(metamodel.getContents.get(0).asInstanceOf[EPackage])
+        }
+      }
+    }
+    baseLocationForUtilitiesGeneration
+  }
+
+  private def checkBaseLocation(rootElement : EPackage) : File = {
+    import scala.collection.JavaConversions._
+    val packageList = new util.LinkedList[EPackage]()
+    packageList.addLast(rootElement)
+    var f : File = null
+
+    while(f == null && packageList.size() > 0) {
+      val currentPackage = packageList.pollFirst()
+      currentPackage.getESubpackages.forall{ subPack =>
+        if(subPack.getEClassifiers.size() > 0) {
+          f =  new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, currentPackage).replace(".",File.separator) + File.separator)
+        }
+        f == null
+      }
+      if(f == null) {
+        packageList.appendAll(currentPackage.getESubpackages)
+      }
+    }
+    f
   }
 
 }
