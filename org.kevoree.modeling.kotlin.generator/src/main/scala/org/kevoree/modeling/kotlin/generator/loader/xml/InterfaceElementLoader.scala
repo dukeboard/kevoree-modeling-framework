@@ -52,46 +52,11 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass, conte
 
   def generateLoader() {
 
-    //Creation of the generation dir
-    //ProcessorHelper.checkOrCreateFolder(genDir)
-   // val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
-
-    if (!ctx.generatedLoaderFiles.contains(elementType.getName)) {
-      ctx.generatedLoaderFiles.add(elementType.getName)
+    if (!ctx.generatedLoaderFiles.contains(ProcessorHelper.fqn(ctx,elementType))) {
+      ctx.generatedLoaderFiles.add(ProcessorHelper.fqn(ctx,elementType))
       //System.out.println("Generation of loader for " + elementType.getName)
       generateSubs()
       generateLoadingMethod(ctx.loaderPrintWriter)
-      /*
-      val pr = new PrintWriter(file,"utf-8")
-      //System.out.println("Classifier class:" + cls.getClass)
-
-      pr.println("package " + genPackage + ";")
-      pr.println()
-      //Import parent package (org.kevoree.sub => org.kevoree._)
-      pr.println("import " + modelPackage + ".*")
-      pr.println("import " + genPackage.substring(0,genPackage.lastIndexOf(".")) + ".*")
-      pr.println()
-
-      //Generates the Trait
-      pr.print("trait " + elementType.getName + "Loader")
-      if (subLoaders.size > 0) {
-        var stringListSubLoaders = List[String]()
-        subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
-        pr.println(stringListSubLoaders.mkString(" : ", ", ", " {"))
-      } else {
-        pr.println("{")
-      }
-
-      pr.println("")
-
-
-      pr.println("")
-      pr.println("}")
-
-      pr.flush()
-      pr.close()
-
-      */
     }
   }
 

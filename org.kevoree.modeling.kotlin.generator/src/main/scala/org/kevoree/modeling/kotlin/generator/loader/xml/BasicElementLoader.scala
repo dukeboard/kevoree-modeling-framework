@@ -68,45 +68,13 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext
 class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: String, modelingPackage: EPackage, modelPackage: String) {
 
   def generateLoader() {
-    //Creation of the generation dir
-    //ProcessorHelper.checkOrCreateFolder(genDir)
-    //val file = new File(genDir + "/" + elementType.getName + "Loader.kt")
-
-
-
-    if (!ctx.generatedLoaderFiles.contains(elementType.getName)) {
-      ctx.generatedLoaderFiles.add(elementType.getName)
+    if (!ctx.generatedLoaderFiles.contains(ProcessorHelper.fqn(ctx,elementType))) {
+      ctx.generatedLoaderFiles.add(ProcessorHelper.fqn(ctx,elementType))
       //Does not override existing file. Should have been removed before if required.
       generateSubs(elementType)
       generateElementLoadingMethod(ctx.loaderPrintWriter)
     }
 
-    /*
-    pr.println("package " + genPackage + ";" )
-    pr.println()
-    pr.println("import " + modelPackage + ".*")
-    pr.println("import " + genPackage.substring(0, genPackage.lastIndexOf(".")) + ".*")
-    pr.println("import javax.xml.stream.XMLStreamConstants")
-
-    pr.println()
-
-    //Generates the Trait
-    pr.print("trait " + elementType.getName + "Loader")
-    if (subLoaders.size > 0) {
-      var stringListSubLoaders = List[String]()
-      subLoaders.foreach(sub => stringListSubLoaders = stringListSubLoaders ++ List(sub.getName + "Loader"))
-      pr.println(stringListSubLoaders.mkString(" : ", ", ", " {"))
-    } else {
-      pr.println("{")
-    }
-    pr.println()
-
-    pr.println("")
-    pr.println("}")
-    pr.flush()
-    pr.close()
-  }
-    */
   }
 
   private def generateSubs(currentType: EClass): List[EClass] = {
