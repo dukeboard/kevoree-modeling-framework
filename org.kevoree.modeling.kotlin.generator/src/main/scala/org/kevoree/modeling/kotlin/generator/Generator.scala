@@ -36,6 +36,7 @@
 
 package org.kevoree.modeling.kotlin.generator
 
+import factories.FactoryGenerator
 import java.io.File
 import loader.xml.LoaderGenerator
 import model.ModelGenerator
@@ -45,6 +46,7 @@ import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 
 import serializer.{SerializerJsonGenerator, SerializerGenerator}
+import com.sun.tools.internal.xjc.generator.bean.ObjectFactoryGenerator
 
 /**
  * Created by IntelliJ IDEA.
@@ -81,6 +83,10 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
    * @param modelVersion the version of the model (will be included in headers of generated files).
    */
   def generateModel(modelVersion: String) {
+
+    val factoryGenerator = new FactoryGenerator(ctx)
+    factoryGenerator.generateMainFactory()
+
 
     val model = ctx.getEcoreModel(ecoreFile)
 

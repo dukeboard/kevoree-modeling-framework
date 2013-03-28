@@ -187,8 +187,8 @@ trait ClonerGenerator {
   }
 
   def generateClonerFactories(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
-    ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/cloner")
-    val pr = new PrintWriter(new File(currentPackageDir + "/cloner/ClonerFactories.kt"), "utf-8")
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
+    val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator +"ClonerFactories.kt"), "utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, pack)
 

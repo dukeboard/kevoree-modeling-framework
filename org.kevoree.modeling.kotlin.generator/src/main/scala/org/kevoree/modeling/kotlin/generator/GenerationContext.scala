@@ -25,8 +25,9 @@ import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.common.util.{URI => EmfUri}
 
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
-import org.eclipse.emf.ecore.{EEnum, EObject, EPackage, EClass}
+import org.eclipse.emf.ecore._
 import java.util
+import scala.Some
 
 /**
  * Created by IntelliJ IDEA.
@@ -222,12 +223,18 @@ class GenerationContext {
     js = isJS
   }
 
+
+  var basePackageForUtilitiesGeneration : EPackage = null
+  def getBasePackageForUtilitiesGeneration = basePackageForUtilitiesGeneration
+
   var baseLocationForUtilitiesGeneration : File = null
   def getBaseLocationForUtilitiesGeneration = baseLocationForUtilitiesGeneration
 
   def setBaseLocationForUtilitiesGeneration(metamodelFile : File) {
       val metamodel = getEcoreModel(metamodelFile)
       if(metamodel.getContents.size() > 1) { // Many packages at the root.
+        basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage()
+        basePackageForUtilitiesGeneration.setName("")
         if(getPackagePrefix.isDefined) {
           baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator))
         } else {
@@ -236,6 +243,7 @@ class GenerationContext {
 
       } else if(metamodel.getContents.size()==1) { // One package at the root.
         if(metamodel.getContents.get(0).asInstanceOf[EPackage].getEClassifiers.size() > 0) { // Classifiers in this root package
+          basePackageForUtilitiesGeneration = metamodel.getContents.get(0).asInstanceOf[EPackage]
           baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, metamodel.getContents.get(0).asInstanceOf[EPackage]).replace(".",File.separator) + File.separator)
         } else {
           baseLocationForUtilitiesGeneration = checkBaseLocation(metamodel.getContents.get(0).asInstanceOf[EPackage])
@@ -253,6 +261,7 @@ class GenerationContext {
       val currentPackage = packageList.pollFirst()
       currentPackage.getESubpackages.forall{ subPack =>
         if(subPack.getEClassifiers.size() > 0) {
+          basePackageForUtilitiesGeneration = currentPackage
           f =  new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, currentPackage).replace(".",File.separator) + File.separator)
         }
         f == null
