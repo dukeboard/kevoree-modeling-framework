@@ -41,12 +41,10 @@ import java.io.File
 import loader.xml.LoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.EPackage
-import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 
 import serializer.{SerializerJsonGenerator, SerializerGenerator}
-import com.sun.tools.internal.xjc.generator.bean.ObjectFactoryGenerator
 
 /**
  * Created by IntelliJ IDEA.
