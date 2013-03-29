@@ -119,6 +119,21 @@ public class GenPersistentModelPlugin extends AbstractMojo {
 
 
     /**
+     * Generate JS version
+     *
+     * @parameter
+     */
+    private Boolean js = false;
+
+
+    /**
+     * Generate JSON
+     *
+     * @parameter
+     */
+    private Boolean json = false;
+
+    /**
      * The maven project.
      *
      * @parameter expression="${project}"
@@ -153,6 +168,7 @@ public class GenPersistentModelPlugin extends AbstractMojo {
         ctx.setRootUserDirectory(inputScala);
         ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
         ctx.genSelector_$eq(selector);
+        ctx.setJS(js);
 
 
         GeneratePersistentAspectedClasses gen = new GeneratePersistentAspectedClasses(ctx);

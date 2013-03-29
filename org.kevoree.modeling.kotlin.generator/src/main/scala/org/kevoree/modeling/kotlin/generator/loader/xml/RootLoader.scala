@@ -60,8 +60,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     val pr = ctx.loaderPrintWriter
 
     generateContext(elementType)
-    val modelPackage = ProcessorHelper.fqn(ctx, modelingPackage)
-    val genPackage =  modelPackage + ".loader"
+    val genPackage =  ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader"
 
     pr.println("package " + genPackage + ";")
     pr.println()
@@ -70,7 +69,6 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("import java.io.StringReader")
     pr.println("import java.io.InputStreamReader")
     pr.println("import java.io.InputStream")
-    pr.println("import " + modelPackage + ".*" )
     //pr.println("import " + genPackage + ".sub.*")
     pr.println("import javax.xml.stream.XMLStreamConstants")
     pr.println("import javax.xml.stream.XMLStreamReader")
@@ -93,7 +91,6 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("")
     pr.println("")
     pr.println("")
-    val context = elementType.getName + "LoadContext"
     val rootContainerName = elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1)
 
 
@@ -102,9 +99,9 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     generateLoadMethod(pr, elementType)
     pr.println("")
-    generateDeserialize(pr, context, rootContainerName, elementType)
+    generateDeserialize(pr, rootContainerName, elementType)
     pr.println("")
-    generateLoadElementsMethod(pr, context, rootContainerName, elementType)
+    generateLoadElementsMethod(pr, rootContainerName, elementType)
 
     pr.println("")
     generateSubs(elementType)
@@ -118,17 +115,15 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
   }
 
   private def generateContext(elementType: EClass) {
-    val packageOfModel = ProcessorHelper.fqn(ctx, modelingPackage)
-    val el = new ContextGenerator(ctx, genDir, packageOfModel + ".loader", elementType, packageOfModel)
+    val el = new ContextGenerator(ctx, elementType)
     el.generateContext()
   }
 
   private def generateSubs(currentType: EClass): List[EClass] = {
 
-    val packageOfModel = ProcessorHelper.fqn(ctx, modelingPackage)
-    val genPackage = packageOfModel + ".loader"
+    //val genPackage = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader"
 
-    val context = currentType.getName + "LoadContext"
+    //val context = "LoadContext"
     //modelingPackage.getEClassifiers.filter(cl => !cl.equals(elementType)).foreach{ ref =>
     var listContainedElementsTypes = List[EClass]()
     currentType.getEAllContainments.foreach {
@@ -137,11 +132,11 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
         if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
 
           if (!ref.getEReferenceType.isInterface && !ref.getEReferenceType.isAbstract) {
-            val el = new BasicElementLoader(ctx, ref.getEReferenceType, context, modelingPackage, packageOfModel)
+            val el = new BasicElementLoader(ctx, ref.getEReferenceType)
             el.generateLoader()
           } else {
             //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-            val el = new InterfaceElementLoader(ctx, ref.getEReferenceType, context, modelingPackage, packageOfModel)
+            val el = new InterfaceElementLoader(ctx, ref.getEReferenceType)
             el.generateLoader()
           }
           if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
@@ -154,12 +149,12 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
 
   private def generateFactorySetter(pr: PrintWriter) {
-
+    pr.println("private var mainFactory : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory = "+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory()")
     ctx.packageFactoryMap.values().foreach{factoryFqn =>
-      val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
+      //val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
       val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
-      pr.println("private var "+factoryFqn.replace(".","_")+" : " + factoryFqn + " = " + factoryPackage + ".impl.Default" + factoryName + "()")
-      pr.println("fun set"+factoryName+"(fct : " + factoryFqn + ") { "+factoryFqn.replace(".","_")+" = fct}")
+      pr.println("fun set"+factoryName+"(fct : " + factoryFqn + ") { mainFactory.set"+factoryName+ "(fct)}")
+      //pr.println("fun get"+factoryName+"() : "+factoryFqn+" { return mainFactory.get"+factoryName+ "()}")
     }
 
   }
@@ -203,11 +198,11 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
   }
 
 
-  private def generateDeserialize(pr: PrintWriter, context: String, rootContainerName: String, elementType: EClass) {
+  private def generateDeserialize(pr: PrintWriter, rootContainerName: String, elementType: EClass) {
 
     pr.println("private fun deserialize(reader : XMLStreamReader): List<"+ProcessorHelper.fqn(ctx,elementType)+"> {")
 
-    pr.println("val context = " + context + "(reader)")
+    pr.println("val context = LoadingContext(reader)")
     //pr.println("context.factory = this.factory")
     pr.println("while(reader.hasNext()) {")
     pr.println("val nextTag = reader.next()")
@@ -237,16 +232,16 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
   }
 
 
-  private def generateLoadElementsMethod(pr: PrintWriter, context : String, rootContainerName: String, elementType: EClass) {
+  private def generateLoadElementsMethod(pr: PrintWriter, rootContainerName: String, elementType: EClass) {
 
     val ePackageName = elementType.getEPackage.getName
-    val factory = ProcessorHelper.fqn(ctx,elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
+    //val factory = ProcessorHelper.fqn(ctx,elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
 
-    pr.println("private fun load" + elementType.getName + "(context : " + context + ") {")
+    pr.println("private fun load" + elementType.getName + "(context : LoadingContext) {")
     pr.println("")
     pr.println("val elementTagName = context.xmiReader.getLocalName()")
     pr.println("val loaded"+rootContainerName+"Size = context.loaded_"+rootContainerName+".size()")
-    pr.println("context." + rootContainerName + " = "+factory.replace(".","_")+".create" + elementType.getName + "()")
+    pr.println("context." + rootContainerName + " = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1)+"Factory().create" + elementType.getName + "()")
     pr.println("context.map.put(\"/\" + loaded"+rootContainerName+"Size, context."+rootContainerName+"!!)")
     pr.println("")
     pr.println("var done = false")

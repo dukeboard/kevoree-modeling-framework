@@ -160,7 +160,7 @@ trait ClonerGenerator {
 
 
   def generateCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, cls: EClass) {
-    generateClonerFactories(ctx, currentPackageDir, pack, cls)
+    //generateClonerFactories(ctx, currentPackageDir, pack, cls)
     generateDefaultCloner(ctx, currentPackageDir, pack, cls)
   }
 
@@ -186,6 +186,7 @@ trait ClonerGenerator {
     pr.close()
   }
 
+/*
   def generateClonerFactories(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
     val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator +"ClonerFactories.kt"), "utf-8")
@@ -195,21 +196,12 @@ trait ClonerGenerator {
     pr.println("package " + packageName + ".cloner")
     pr.println("trait ClonerFactories {")
 
-    ctx.packageFactoryMap.values().foreach {
-      factoryFqn =>
-        val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
-        val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
-        pr.println("internal var " + factoryFqn.replace(".", "_") + " : " + factoryFqn)
-        pr.println("fun get" + factoryName + "() : " + factoryFqn + " { return " + factoryFqn.replace(".", "_") + "}")
-        pr.println("fun set" + factoryName + "(fct : " + factoryFqn + ") { " + factoryFqn.replace(".", "_") + " = fct}")
-    }
-
 
     pr.println("}") //END TRAIT
     pr.flush()
     pr.close()
   }
-
+*/
   private def getGetter(name: String): String = {
     "get" + name.charAt(0).toUpper + name.substring(1)
   }
@@ -231,9 +223,9 @@ trait ClonerGenerator {
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
 
     if (ctx.getJS()){
-      buffer.println("override fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
+      buffer.println("override fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
     } else {
-      buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ctx.clonerPackage + ".ClonerFactories, mutableOnly: Boolean) {")
+      buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
     }
 
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")

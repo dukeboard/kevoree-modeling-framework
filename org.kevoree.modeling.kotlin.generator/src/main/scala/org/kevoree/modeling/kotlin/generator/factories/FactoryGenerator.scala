@@ -29,32 +29,33 @@ class FactoryGenerator(ctx:GenerationContext) {
 
   def generateMainFactory() {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory")
+    generatePackageEnum()
 
     val genFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "MainFactory.kt")
     val pr = new PrintWriter(genFile, "utf-8")
-    pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
+    pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
     pr.println("class MainFactory {")
     pr.println("")
-    pr.println("private var factories : java.util.HashMap<String, Any> = java.util.HashMap<String, Any>();")
+    pr.println("private var factories : Array<Any> = Array<Any>(Package.values().size, {i -> Any()});")
     pr.println("")
     pr.println("{")
     ctx.packageFactoryMap.entrySet().foreach { entry =>
-      pr.println("factories.put(\"" + entry.getKey + "\", " + entry.getKey + ".impl.Default" + entry.getValue.substring(entry.getValue.lastIndexOf(".")+1, entry.getValue.length) + "())")
+      pr.println("factories.set(Package." + entry.getKey.toUpperCase.replace(".","_") + ".ordinal(), " + entry.getKey + ".impl.Default" + entry.getValue.substring(entry.getValue.lastIndexOf(".")+1, entry.getValue.length) + "())")
     }
     pr.println("}")
 
 
-    pr.println("fun getFactoryForPackage( pack : String) : Any? {")
-    pr.println("return factories.get(pack)")
+    pr.println("fun getFactoryForPackage( pack : Package) : Any? {")
+    pr.println("return factories.get(pack.ordinal())")
     pr.println("}")
 
     ctx.packageFactoryMap.entrySet().foreach { entry =>
       pr.println("fun get" + entry.getValue.substring(entry.getValue.lastIndexOf(".")+1, entry.getValue.length) + "() : "+entry.getValue+" {")
-      pr.println("return factories.get(\"" + entry.getKey + "\")!! as " + entry.getValue)
+      pr.println("return factories.get(Package." + entry.getKey.toUpperCase.replace(".","_") + ".ordinal()) as " + entry.getValue)
       pr.println("}")
       pr.println("")
       pr.println("fun set" + entry.getValue.substring(entry.getValue.lastIndexOf(".")+1, entry.getValue.length) + "( fct : "+entry.getValue+") {")
-      pr.println("factories.put(\"" + entry.getKey + "\",fct)")
+      pr.println("factories.set(Package." + entry.getKey.toUpperCase.replace(".","_") + ".ordinal(),fct)")
       pr.println("}")
       pr.println("")
     }
@@ -64,5 +65,21 @@ class FactoryGenerator(ctx:GenerationContext) {
     pr.flush()
     pr.close()
   }
+
+
+
+  private def generatePackageEnum() {
+    val genFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "Package.kt")
+    val pr = new PrintWriter(genFile, "utf-8")
+    pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
+    pr.println("enum class Package {")
+    ctx.packageFactoryMap.keySet().foreach{key=>pr.println("" + key.toUpperCase.replace(".","_"))}
+    pr.println("}")
+    pr.flush()
+    pr.close()
+  }
+
+
+
 
 }

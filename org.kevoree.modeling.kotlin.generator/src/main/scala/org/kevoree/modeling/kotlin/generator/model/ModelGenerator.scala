@@ -110,7 +110,6 @@ with APIGenerator {
             generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
           }
 
-          generateContainerTrait(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
           generateCloner(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage, rootContainerClass)
         }
         case _ => print("No container root found in package : " + currentPackage.getName)
@@ -139,7 +138,6 @@ with APIGenerator {
         generateClass(ctx, currentPackageDir, packElement, cl)
         generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
         generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
-        generateContainerAPI(ctx, currentPackageDir, packElement)
       }
       case dt: EDataType => {
         dt match {

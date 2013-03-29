@@ -35,6 +35,7 @@
 
 package org.kevoree.modeling.kotlin.generator.serializer
 
+import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.{EEnum, EReference, EPackage, EClass}
@@ -49,25 +50,55 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
 
 class SerializerGenerator(ctx: GenerationContext) {
 
-  def generateSerializer(pack: EPackage) {
-    ctx.getRootContainerInPackage(pack) match {
-      case Some(cls: EClass) => {
-        val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
-        ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
-        val modelPackage = ProcessorHelper.fqn(ctx, cls.getEPackage)
-        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage)
+  def generateSerializer(model: XMIResource) {
+
+    val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
+    ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
+    val genFile = new File(serializerGenBaseDir + "ModelSerializer.kt")
+    val pr = new PrintWriter(genFile, "utf-8")
+    beginSerializer(pr)
+
+    var rootClass : EClass = null
+    model.getContents.foreach{ pack =>
+      if(pack.isInstanceOf[EPackage]) {
+        ctx.getRootContainerInPackage(pack.asInstanceOf[EPackage]) match {
+          case Some(cls: EClass) => {
+            rootClass = cls
+            generateDefaultSerializer(pr, rootClass)
+          }
+          case None => {}
+        }
+      } else {
+        println("Don't know what to do for serializing element " + pack.getClass + " at the root of the metamodel.")
       }
-      case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Serializer generation aborted.")
     }
+
+    model.getContents.foreach{ pack =>
+      if(pack.isInstanceOf[EPackage]) {
+        generateSerializer(rootClass, pack.asInstanceOf[EPackage], pr)
+      }
+    }
+
+    endSerializer(pr)
+    pr.flush()
+    pr.close()
   }
 
-  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootXmiPackage: EPackage) {
-    val genFile = new File(genDir + "ModelSerializer.kt")
-    val pr = new PrintWriter(genFile, "utf-8")
-    pr.println("package " + packageName + ".serializer")
+  private def beginSerializer(pr:PrintWriter) {
+
+    pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
     pr.println("class ModelSerializer")
     pr.println("{")
     pr.println()
+
+  }
+
+  private def endSerializer(pr:PrintWriter) {
+    pr.println("}") //END TRAIT
+  }
+
+  private def generateDefaultSerializer(pr : PrintWriter, root: EClass) {
+
     pr.println("fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
     pr.println("when(oMS) {")
@@ -81,19 +112,19 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("else -> { }")
     pr.println("}") //END MATCH
     pr.println("}") //END serialize method
-    generateSerializer(genDir, packageName, root.getEPackage.getName + ":" + root.getName, root, root.getEPackage, true, pr: PrintWriter)
-    pr.println("}") //END TRAIT
-    pr.flush()
-    pr.close()
+
   }
 
-  private def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false, pr: PrintWriter) {
+  private def generateSerializer(root: EClass, rootXmiPackage: EPackage, pr: PrintWriter) {
     rootXmiPackage.getEClassifiers.foreach {
       eClass =>
         if(eClass.isInstanceOf[EClass]){
-          generateToXmiMethod(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass.getName,eClass == root)
+          //generateSerializationMethods(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass.getName,eClass == root)
+          generateSerializationMethods(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass == root)
         }
-
+    }
+    rootXmiPackage.getESubpackages.foreach{subpackage =>
+      generateSerializer(root, subpackage, pr)
     }
   }
 
@@ -101,26 +132,19 @@ class SerializerGenerator(ctx: GenerationContext) {
     "get" + name.charAt(0).toUpper + name.substring(1)
   }
 
-  private def generateToXmiMethod(pack: EPackage, cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
-    var stringListSubSerializers = Set[Tuple2[String, String]]()
-    if (cls.getEAllContainments.size > 0) {
-      cls.getEAllContainments.foreach {
-        contained =>
-          if (contained.getEReferenceType != cls) {
-            stringListSubSerializers = stringListSubSerializers ++ Set(Tuple2(ProcessorHelper.fqn(ctx, contained.getEReferenceType), contained.getEReferenceType.getName)) // + "Serializer")
-          }
-      }
-    }
-    val subTypes = ProcessorHelper.getDirectConcreteSubTypes(cls)
-    if (subTypes.size > 0) {
-      subTypes.foreach {
-        sub =>
-          stringListSubSerializers = stringListSubSerializers ++ Set(Tuple2(ProcessorHelper.fqn(ctx, sub), sub.getName)) // + "Serializer")
-      }
-    }
+  private def generateRef(buffer:PrintWriter, cls:EClass, ref: EReference) {
+    buffer.println("val subsub" + ref.getName + " = selfObject." + getGetter(ref.getName) + "()")
+    buffer.println("if(subsub" + ref.getName + " != null){")
+    buffer.println("val subsubsub" + ref.getName + " = addrs.get(subsub" + ref.getName + ")")
+    buffer.println("if(subsubsub" + ref.getName + " != null){")
+    buffer.println("ostream.print(\" " + ref.getName + "=\\\"\"+subsubsub" + ref.getName + "+\"\\\"\")")
+    buffer.println("} else {")
+    buffer.println("throw Exception(\"KMF " + cls.getName + " Serialization error : No address found for reference " + ref.getName + "(id:\"+subsub" + ref.getName + "+\" container:\"+subsub" + ref.getName + ".eContainer()+\")\")")
+    buffer.println("}")
+    buffer.println("}")
+  }
 
-    //GENERATE GET XMI ADDR                                                                              0
-    //System.out.println("[DEBUG] SerializerGen::" + cls)
+  def generateGetXmiAddrMethod(buffer:PrintWriter, cls:EClass, subTypes : List[EClass]) {
     buffer.println("fun get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
@@ -165,6 +189,10 @@ class SerializerGenerator(ctx: GenerationContext) {
     }
     buffer.println("return subResult")
     buffer.println("}")
+  }
+
+
+  private def generateToXmiMethod(buffer:PrintWriter, cls:EClass, isRoot : Boolean = false) {
     if (isRoot) {
       buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
     } else {
@@ -184,7 +212,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     if (!isRoot) {
       buffer.println("ostream.print(refNameInParent)")
     } else {
-      buffer.println("ostream.print(\"" + refNameInParent + "\")")
+      buffer.println("ostream.print(\"" + cls.getName + "\")")
     }
     if (isRoot || cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
       if (isRoot) {
@@ -216,37 +244,24 @@ class SerializerGenerator(ctx: GenerationContext) {
           }
       }
 
-
-      def generateRef(ref: EReference) {
-        buffer.println("val subsub" + ref.getName + " = selfObject." + getGetter(ref.getName) + "()")
-        buffer.println("if(subsub" + ref.getName + " != null){")
-        buffer.println("val subsubsub" + ref.getName + " = addrs.get(subsub" + ref.getName + ")")
-        buffer.println("if(subsubsub" + ref.getName + " != null){")
-        buffer.println("ostream.print(\" " + ref.getName + "=\\\"\"+subsubsub" + ref.getName + "+\"\\\"\")")
-        buffer.println("} else {")
-        buffer.println("throw Exception(\"KMF " + cls.getName + " Serialization error : No address found for reference " + ref.getName + "(id:\"+subsub" + ref.getName + "+\" container:\"+subsub" + ref.getName + ".eContainer()+\")\")")
-        buffer.println("}")
-        buffer.println("}")
-      }
-
       cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).foreach {
         ref =>
           ref.getUpperBound match {
             case 1 => {
               ref.getLowerBound match {
                 case 0 => {
-                  generateRef(ref)
+                  generateRef(buffer, cls, ref)
                 }
                 case 1 => {
                   if (ref.getEOpposite != null) {
                     if (ref.getEOpposite.getUpperBound != -1) {
-                      generateRef(ref)
+                      generateRef(buffer, cls, ref)
                     } else {
                       //OPTIMISATION, WE DON'T SAVE BOTH REFERENCE
                       //WARNING ECLIPSE COMPAT VERIFICATION
                     }
                   } else {
-                    generateRef(ref)
+                    generateRef(buffer, cls, ref)
                   }
                 }
               }
@@ -299,7 +314,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     if (!isRoot) {
       buffer.println("ostream.print(refNameInParent)")
     } else {
-      buffer.println("ostream.print(\"" + refNameInParent + "\")")
+      buffer.println("ostream.print(\"" + cls.getName + "\")")
     }
     buffer.println("ostream.print('>')")
     buffer.println("ostream.println()")
@@ -307,5 +322,35 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("}")
     buffer.println("}") //End MATCH CASE
     buffer.println("}") //END TO XMI
+  }
+
+  private def generateSerializationMethods(pack: EPackage, cls: EClass, buffer: PrintWriter, isRoot: Boolean = false) = {
+    var stringListSubSerializers = Set[Tuple2[String, String]]()
+    if (cls.getEAllContainments.size > 0) {
+      cls.getEAllContainments.foreach {
+        contained =>
+          if (contained.getEReferenceType != cls) {
+            stringListSubSerializers = stringListSubSerializers ++ Set(Tuple2(ProcessorHelper.fqn(ctx, contained.getEReferenceType), contained.getEReferenceType.getName)) // + "Serializer")
+          }
+      }
+    }
+    val subTypes = ProcessorHelper.getDirectConcreteSubTypes(cls)
+    if (subTypes.size > 0) {
+      subTypes.foreach {
+        sub =>
+          stringListSubSerializers = stringListSubSerializers ++ Set(Tuple2(ProcessorHelper.fqn(ctx, sub), sub.getName)) // + "Serializer")
+      }
+    }
+
+    //GENERATE GET XMI ADDR
+    //System.out.println("[DEBUG] SerializerGen::" + cls)
+    generateGetXmiAddrMethod(buffer, cls, subTypes)
+
+    generateToXmiMethod(buffer, cls, isRoot)
+    if(isRoot) {
+      generateToXmiMethod(buffer, cls, false)
+    }
+
+
   }
 }

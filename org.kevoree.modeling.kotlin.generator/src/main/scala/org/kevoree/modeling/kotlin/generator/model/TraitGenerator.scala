@@ -87,12 +87,12 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext
 trait TraitGenerator {
 
 
-  def generateContainerAPI(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
-    var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
-    formatedFactoryName += packElement.getName.substring(1)
-    formatedFactoryName += "Container"
-    ProcessorHelper.checkOrCreateFolder(packageGenDir)
-    val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt")
+  def generateContainerAPI(ctx: GenerationContext) {
+    //var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
+    //formatedFactoryName += packElement.getName.substring(1)
+    val formatedFactoryName = "KMFContainer"
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
@@ -100,19 +100,18 @@ trait TraitGenerator {
     val template = ve.getTemplate("templates/ContainerAPI.vm");
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
-    ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("packElem",ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")
+    ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
     ctxV.put("ctx",ctx)
     template.merge(ctxV,pr)
     pr.flush()
     pr.close()
   }
 
-  def generateContainerTrait(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
-    var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
-    formatedFactoryName += packElement.getName.substring(1)
-    formatedFactoryName += "Container"
-    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/impl/")
-    val localFile = new File(packageGenDir + "/impl/" + formatedFactoryName + "Internal.kt")
+  def generateContainerTrait(ctx: GenerationContext) {
+    val formatedFactoryName = "KMFContainer"
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "Impl.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
@@ -121,14 +120,14 @@ trait TraitGenerator {
     val template = ve.getTemplate("templates/ContainerTrait.vm")
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
-    ctxV.put("packElem",ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("packElem",ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")
     ctxV.put("ctx",ctx)
     template.merge(ctxV,pr)
     pr.flush()
     pr.close()
 
-    ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, packElement) + "." + formatedFactoryName))
-    ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, packElement) + ".impl." + formatedFactoryName+"Internal")
+    ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName))
+    ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName+"Impl")
 
   }
 

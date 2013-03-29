@@ -36,8 +36,8 @@
 
 package org.kevoree.modeling.kotlin.generator.loader.xml
 
-import org.eclipse.emf.ecore.{EPackage, EClass}
-import java.io.{PrintWriter, File}
+import org.eclipse.emf.ecore.EClass
+import java.io.PrintWriter
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 
 /**
@@ -47,7 +47,7 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
  * Time: 17:53
  */
 
-class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass, context: String, modelingPackage: EPackage, modelPackage : String) {
+class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass) {
 
 
   def generateLoader() {
@@ -67,11 +67,11 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass, conte
     ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
         if (!concreteType.isInterface && !concreteType.isAbstract) {
-          val el = new BasicElementLoader(ctx, concreteType, context, modelingPackage,modelPackage)
+          val el = new BasicElementLoader(ctx, concreteType)
           el.generateLoader()
         } else {
 
-          val el = new InterfaceElementLoader(ctx, concreteType, context, modelingPackage,modelPackage)
+          val el = new InterfaceElementLoader(ctx, concreteType)
           el.generateLoader()
         }
         if (!listContainedElementsTypes.contains(concreteType)) {
@@ -82,7 +82,7 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass, conte
   }
 
   private def generateLoadingMethod(pr: PrintWriter) {
-    pr.println("private fun load" + elementType.getName + "Element(currentElementId : String, context : " + context + ") : " + ProcessorHelper.fqn(ctx,elementType) + " {")
+    pr.println("private fun load" + elementType.getName + "Element(currentElementId : String, context : LoadingContext) : " + ProcessorHelper.fqn(ctx,elementType) + " {")
 
     pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1)){")
     pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")

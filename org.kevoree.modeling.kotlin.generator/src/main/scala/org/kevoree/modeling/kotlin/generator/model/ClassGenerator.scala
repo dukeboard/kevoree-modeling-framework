@@ -133,9 +133,9 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
           case _@className => {
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
-              pr.println(className + "? = null")
+              pr.println(ProcessorHelper.fqn(ctx,att.getEAttributeType) + "? = null")
             } else {
-              println("--->" + className)
+             // println("--->" + className)
               pr.println(className)
             }
           }
@@ -338,9 +338,9 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
           case _@className => {
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
-              pr.println(className + "?")
+              pr.println(ProcessorHelper.fqn(ctx,att.getEAttributeType) + "?")
             } else {
-              println("--->" + className)
+              //println("--->" + className)
               pr.println(className)
             }
           }
@@ -386,17 +386,24 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
-        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
-          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "? {\n")
+        if(att.getEAttributeType.isInstanceOf[EEnum]){
+          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.fqn(ctx,att.getEAttributeType) + "? {\n")
+        } else if (ProcessorHelper.convertType(att.getEAttributeType) == "Any") {
+          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
         } else {
-          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+            pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+
         }
         pr.println(" return " + protectReservedWords("_" + att.getName) + "\n}")
 
 
         //generate setter
         pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
+        if(att.getEAttributeType.isInstanceOf[EEnum]){
+          pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
+        } else {
+          pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
+        }
         pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
         pr.println(protectReservedWords("_" + att.getName) + " = " + protectReservedWords(att.getName))
         pr.println("}")

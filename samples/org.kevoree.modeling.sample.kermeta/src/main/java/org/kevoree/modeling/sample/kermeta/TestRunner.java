@@ -34,8 +34,6 @@
  */
 package org.kevoree.modeling.sample.kermeta;
 
-import org.loader.ModelLoader;
-
 import java.io.File;
 
 /**
@@ -50,8 +48,8 @@ public class TestRunner {
 
         System.out.println("Loader !!!");
 
-        ModelLoader loader = new ModelLoader();
-        System.out.println(loader.loadModelFromPath(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/org.kevoree.modeling.sample.kermeta/src/main/resources/HelloWorld_beforeCheckingforScopeMERGED.km")));
+        org.kermeta.language.loader.ModelLoader loader = new org.kermeta.language.loader.ModelLoader();
+        System.out.println(loader.loadModelFromPath(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kermeta/src/main/resources/HelloWorld_beforeCheckingforScopeMERGED.km")));
 
     }
 

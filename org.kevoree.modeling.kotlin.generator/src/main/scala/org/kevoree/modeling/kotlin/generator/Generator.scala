@@ -63,8 +63,6 @@ import com.sun.tools.internal.xjc.generator.bean.ObjectFactoryGenerator
 class Generator(ctx: GenerationContext, ecoreFile: File) {
   preProcess()
 
-  private var preProcessPassed = false
-
   def preProcess() {
     val model = ctx.getEcoreModel(ecoreFile)
 
@@ -89,9 +87,11 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
 
     val model = ctx.getEcoreModel(ecoreFile)
-
     checkModel(model)
+
     val modelGen = new ModelGenerator(ctx)
+    modelGen.generateContainerAPI(ctx)
+    modelGen.generateContainerTrait(ctx)
 
     System.out.println("Launching model generation")
     model.getContents.foreach {
@@ -151,12 +151,14 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
     System.out.println("Launching serializer generation")
     val serializerGenerator = new SerializerGenerator(ctx)
+    serializerGenerator.generateSerializer(model)
+    /*
     model.getContents.foreach {
       elem => elem match {
         case pack: EPackage => serializerGenerator.generateSerializer(pack)
         case _ => println("No serializer generator for containerRoot element of class: " + elem.getClass)
       }
-    }
+    }*/
     System.out.println("Done with serializer generation")
   }
 

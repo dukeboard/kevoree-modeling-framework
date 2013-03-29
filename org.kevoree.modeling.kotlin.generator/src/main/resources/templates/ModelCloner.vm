@@ -9,7 +9,7 @@
 
 package ${packageName}.cloner
 
-class ModelCloner : ClonerFactories {
+class ModelCloner {
 
     fun clone<A>(o : A) : A? {
         return clone(o,false)
@@ -30,15 +30,20 @@ class ModelCloner : ClonerFactories {
              #else
              val context = java.util.IdentityHashMap<Any,Any>()
              #end
-            (o as ${ctx.getKevoreeContainer().get()}).getClonelazy(context, this,mutableOnly)
+            (o as ${ctx.getKevoreeContainer().get()}).getClonelazy(context, mainFactory,mutableOnly)
             return (o as ${ctx.getKevoreeContainer().get()}).resolve(context,readOnly,mutableOnly) as A
         } else {
             return null
         }
     }
+         var mainFactory : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
+     #foreach($factoryFqn in $packages)
+         #set($lastIndexOfPoint = $factoryFqn.lastIndexOf(".") + 1)
+         #set($factoryName = $factoryFqn.substring($lastIndexOfPoint))
+         fun set$factoryName(fct : $factoryFqn) { mainFactory.set$factoryName(fct)}
+         ##fun get$factoryName() : $factoryFqn { return mainFactory.get$factoryName()}
 
-     #foreach($pack in $packages)
-     override var ${pack.replace(".", "_")} : $pack = ${pack.substring(0, $pack.lastIndexOf("."))}.impl.Default${helper.getLastName($pack)}()
+     ##override var ${pack.replace(".", "_")} : $pack = ${pack.substring(0, $pack.lastIndexOf("."))}.impl.Default${helper.getLastName($pack)}()
      #end
 
 }

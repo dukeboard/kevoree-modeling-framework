@@ -47,20 +47,21 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
  * Time: 15:25
  */
 
-class ContextGenerator(ctx:GenerationContext, genDir: String, genPackage: String, elementType: EClass, modelPackage : String) {
+class ContextGenerator(ctx:GenerationContext, elementType: EClass) {
 
 
   def generateContext() {
-
-    val localFile = new File(genDir + "/" + elementType.getName + "LoadContext.kt")
+    val genLocation = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator
+    ProcessorHelper.checkOrCreateFolder(genLocation)
+    val localFile = new File(genLocation + "LoadingContext.kt")
      val pr = new PrintWriter(localFile,"utf-8")
 
-    pr.println("package " + genPackage)
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader")
     pr.println()
     pr.println("import javax.xml.stream.XMLStreamReader")
     pr.println()
 
-    pr.println("class " + elementType.getName + "LoadContext(reader : XMLStreamReader) {")
+    pr.println("class LoadingContext(reader : XMLStreamReader) {")
 
     pr.println()
     pr.println("\t\tvar xmiReader : XMLStreamReader = reader")

@@ -53,8 +53,8 @@
 
 package org.kevoree.modeling.kotlin.generator.loader.xml
 
-import org.eclipse.emf.ecore.{EReference, EEnum, EPackage, EClass}
-import java.io.{PrintWriter, File}
+import org.eclipse.emf.ecore.{EReference, EEnum, EClass}
+import java.io.PrintWriter
 import scala.collection.JavaConversions._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 
@@ -65,7 +65,7 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext
  * Time: 17:24
  */
 
-class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: String, modelingPackage: EPackage, modelPackage: String) {
+class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
   def generateLoader() {
     if (!ctx.generatedLoaderFiles.contains(ProcessorHelper.fqn(ctx,elementType))) {
@@ -88,11 +88,11 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: S
           //avoid looping in self-containment
           if (!_type.isInterface && !_type.isAbstract) {
             //Generates loaders for simple elements
-            val el = new BasicElementLoader(ctx, _type, context, modelingPackage, modelPackage)
+            val el = new BasicElementLoader(ctx, _type)
             el.generateLoader()
 
           } else {
-            val el = new InterfaceElementLoader(ctx, _type, context, modelingPackage, modelPackage)
+            val el = new InterfaceElementLoader(ctx, _type)
             el.generateLoader()
           }
           if (!listContainedElementsTypes.contains(_type)) {
@@ -106,11 +106,11 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: S
 
 
   private def generateElementLoadingMethod(pr: PrintWriter) {
-    pr.println("private fun load" + elementType.getName + "Element(elementId: String, context : " + context + ") : " + ProcessorHelper.fqn(ctx, elementType) + " {")
+    pr.println("private fun load" + elementType.getName + "Element(elementId: String, context : LoadingContext) : " + ProcessorHelper.fqn(ctx, elementType) + " {")
     pr.println("")
 
     val ePackageName = elementType.getEPackage.getName
-    val factory = ProcessorHelper.fqn(ctx, elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
+    //val factory = ProcessorHelper.fqn(ctx, elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
 
     val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
     val concreteSubTypes = ProcessorHelper.getAllConcreteSubTypes(elementType)
@@ -145,7 +145,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: S
       pr.println("val elementTagName = context.xmiReader.getLocalName()")
     }
 
-    pr.println("val modelElem = "+factory.replace(".","_")+".create" + elementType.getName + "()")
+    pr.println("val modelElem = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory()"+".create" + elementType.getName + "()")
 
     pr.println("context.map.put(elementId, modelElem)")
     //TODO: REMOVE NEXT LiNE AFTER DEBUG
@@ -181,7 +181,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: S
                   }
            */
 
-          val attTypeName = ProcessorHelper.convertType(att.getEAttributeType)
+          //val attTypeName = ProcessorHelper.convertType(att.getEAttributeType)
           if (att.getEAttributeType.isInstanceOf[EEnum]) {
             pr.println("modelElem." + methName + "(" + FQattTypeName + ".valueOf(valueAtt))")
           }
@@ -228,7 +228,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass, context: S
           // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           //    pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
 
-          val ePackageName = ProcessorHelper.fqn(ref.getEReferenceType.getEPackage)
+          //val ePackageName = ProcessorHelper.fqn(ref.getEReferenceType.getEPackage)
 
           //pr.println("modelElem." + methName + "(ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")          //} else {
           pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")

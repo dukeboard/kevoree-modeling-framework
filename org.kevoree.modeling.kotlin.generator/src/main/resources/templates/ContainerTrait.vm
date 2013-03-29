@@ -1,9 +1,9 @@
 #* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
 #* @vtlvariable name="packElem" type="java.lang.String" *#
 
-package ${packElem}.impl
+package ${packElem}
 
-trait ${formatedFactoryName}Internal {
+trait ${formatedFactoryName}Impl {
 
     internal open var internal_eContainer : ${packElem}.${formatedFactoryName}?
     internal open var internal_unsetCmd : (()->Unit)?
