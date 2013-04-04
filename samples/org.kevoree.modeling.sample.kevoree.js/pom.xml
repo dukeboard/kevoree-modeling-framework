@@ -14,11 +14,10 @@
 
     <properties>
         <metamodel.ecore>metamodel/kevoree.ecore</metamodel.ecore>
-        <kotlin.version>0.5.162</kotlin.version>
+        <kotlin.version>0.1-SNAPSHOT</kotlin.version>
     </properties>
 
     <build>
-        <sourceDirectory>target/generated-sources/kmf</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.kevoree.modeling</groupId>
