@@ -32,7 +32,7 @@ public class TestLoader  {
         AbstractXMLStreamReader readerStax = new MappedXMLStreamReader(new JSONObject(tokener));
 
         ModelLoader loader = new ModelLoader();
-        loader.deserialize(readerStax);
+        //loader.deserialize(readerStax);
 
 
 
