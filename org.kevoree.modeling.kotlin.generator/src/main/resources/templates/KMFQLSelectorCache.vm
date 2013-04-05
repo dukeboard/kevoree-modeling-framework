@@ -5,10 +5,10 @@ package ${packElem}.impl;
 
 object ${formatedCacheName} {
 
-    private var cache : Map<String,Any> = java.util.HashMap<String,Any>()
-    public fun getCache() : Map<String,Any> { return cache }
+    private var _cache : Map<String,Any> = java.util.HashMap<String,Any>()
+    public fun getCache() : Map<String,Any> { return _cache }
     public fun clear(){
-      cache = java.util.HashMap<String,Any>()
+      _cache = java.util.HashMap<String,Any>()
     }
 
     public fun filter(queryID : String,input : Collection<Any>) : Collection<Any> {
