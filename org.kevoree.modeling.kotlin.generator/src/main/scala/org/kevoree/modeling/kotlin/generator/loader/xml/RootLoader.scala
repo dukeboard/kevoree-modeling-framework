@@ -36,6 +36,9 @@
 
 package org.kevoree.modeling.kotlin.generator.loader.xml
 
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.{EPackage, EClass}
 import scala.collection.JavaConversions._
 import java.io._
@@ -96,7 +99,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     generateFactorySetter(pr)
     pr.println("")
-
+    generateUnescapeXmlMathod(pr)
     generateLoadMethod(pr, elementType)
     pr.println("")
     generateDeserialize(pr, rootContainerName, elementType)
@@ -118,6 +121,17 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     val el = new ContextGenerator(ctx, elementType)
     el.generateContext()
   }
+
+
+  private def generateUnescapeXmlMathod(pr : PrintWriter) {
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/LoaderUnescapeXML.vm")
+    val ctxV = new VelocityContext()
+    template.merge(ctxV,pr)
+  }
+
 
   private def generateSubs(currentType: EClass): List[EClass] = {
 

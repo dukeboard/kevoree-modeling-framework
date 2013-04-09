@@ -35,11 +35,16 @@
 
 package org.kevoree.modeling.kotlin.generator.serializer
 
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
-import org.eclipse.emf.ecore.{EEnum, EReference, EPackage, EClass}
+import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import scala.Some
+import scala.Tuple2
 
 /**
  * Created by IntelliJ IDEA.
@@ -49,6 +54,7 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
  */
 
 class SerializerGenerator(ctx: GenerationContext) {
+
 
   def generateSerializer(model: XMIResource) {
 
@@ -65,6 +71,7 @@ class SerializerGenerator(ctx: GenerationContext) {
           case Some(cls: EClass) => {
             rootClass = cls
             generateDefaultSerializer(pr, rootClass)
+            generateEscapeMethod(pr)
           }
           case None => {}
         }
@@ -114,6 +121,18 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("}") //END serialize method
 
   }
+
+
+  private def generateEscapeMethod(pr:PrintWriter) {
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/SerializerEscapeXML.vm")
+    val ctxV = new VelocityContext()
+    template.merge(ctxV,pr)
+  }
+
+
 
   private def generateSerializer(root: EClass, rootXmiPackage: EPackage, pr: PrintWriter) {
     rootXmiPackage.getEClassifiers.foreach {
@@ -237,7 +256,11 @@ class SerializerGenerator(ctx: GenerationContext) {
                   } else {
                     buffer.println("if(selfObject." + getGetter(att.getName) + "().toString().notEmpty()){")
                     buffer.println("ostream.print(\" " + att.getName + "=\\\"\")")
-                    buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
+                    if(ProcessorHelper.convertType(att.getEAttributeType) == "String") {
+                      buffer.println("escapeXml(ostream, selfObject." + getGetter(att.getName) + "())")
+                    } else {
+                      buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
+                    }
                     buffer.println("ostream.print('\"')")
                     buffer.println("}")
                   }

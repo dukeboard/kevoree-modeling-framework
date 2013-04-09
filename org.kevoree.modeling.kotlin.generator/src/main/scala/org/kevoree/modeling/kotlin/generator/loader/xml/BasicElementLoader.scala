@@ -167,21 +167,8 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
           val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
           pr.println("\"" + att.getName + "\" -> {")
-          //pr.println("val value = context.xmiReader?.getAttributeValue(i)")
-          // pr.println("modelElem." + methName + "(" + ProcessorHelper.convertType(att.getEAttributeType.getInstanceClassName) + ".valueOf(value))")
-
           val FQattTypeName = ProcessorHelper.fqn(ctx,att.getEAttributeType)
 
-
-          /*
-                  if(attTypeName.equals("String")) {
-                    pr.println("modelElem." + methName + "(valueAtt)")
-                  } else {
-                    pr.println("modelElem." + methName + "(valueAtt.to"+ attTypeName +"() as "+attTypeName+")")
-                  }
-           */
-
-          //val attTypeName = ProcessorHelper.convertType(att.getEAttributeType)
           if (att.getEAttributeType.isInstanceOf[EEnum]) {
             pr.println("modelElem." + methName + "(" + FQattTypeName + ".valueOf(valueAtt))")
           }
@@ -189,7 +176,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
             val attTypeName = ProcessorHelper.convertType(att.getEAttributeType)
              attTypeName match {
               case "String" => {
-                pr.println("modelElem." + methName + "(valueAtt)")
+                pr.println("modelElem." + methName + "(unescapeXml(valueAtt))")
               }
               case "Boolean" | "Double" | "Int"  => {
                 pr.println("modelElem." + methName + "(valueAtt.to"+attTypeName+"())")

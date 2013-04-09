@@ -1,0 +1,19 @@
+
+
+private fun escapeXml(ostream : java.io.PrintStream, chain : String) {
+for( c in chain.toCharArray()) {
+if(c == '"') {
+ostream.print("&quot;")
+} else if(c == '&') {
+ostream.print("&amp;")
+} else if(c == '\'') {
+ostream.print("&apos;")
+} else if(c == '<') {
+ostream.print("&lt;")
+} else if(c == '>') {
+ostream.print("&gt;")
+} else {
+ostream.print(c)
+}
+}
+}
