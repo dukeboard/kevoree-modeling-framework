@@ -230,11 +230,15 @@ class SerializerGenerator(ctx: GenerationContext) {
                 case _ => {
                   if (att.getEAttributeType.isInstanceOf[EEnum]) {
                     buffer.println("if(selfObject." + getGetter(att.getName) + "() != null){")
-                    buffer.println("ostream.print(\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()!!.name()+\"\\\"\")")
+                    buffer.println("ostream.print(\" " + att.getName + "=\\\"\")")
+                    buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "()!!.name())")
+                    buffer.println("ostream.print('\"')")
                     buffer.println("}")
                   } else {
-                    buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
-                    buffer.println("ostream.print(\" " + att.getName + "=\\\"\"+selfObject." + getGetter(att.getName) + "()+\"\\\"\")")
+                    buffer.println("if(selfObject." + getGetter(att.getName) + "().toString().notEmpty()){")
+                    buffer.println("ostream.print(\" " + att.getName + "=\\\"\")")
+                    buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
+                    buffer.println("ostream.print('\"')")
                     buffer.println("}")
                   }
                 }
