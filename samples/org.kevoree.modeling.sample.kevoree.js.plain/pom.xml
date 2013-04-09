@@ -4,17 +4,11 @@
     <artifactId>org.kevoree.modeling.sample.kevoree.js</artifactId>
     <packaging>jar</packaging>
     <name>Kevoree :: Modeling :: Sample :: Kevoree :: JS</name>
-
-    <parent>
-        <artifactId>org.kevoree.modeling.sample.root</artifactId>
-        <groupId>org.kevoree.modeling</groupId>
-        <version>1.0.0</version>
-        <relativePath>../org.kevoree.modeling.sample.root/pom.xml</relativePath>
-    </parent>
+    <groupId>org.kevoree.modeling</groupId>
+    <version>1.0.0</version>
 
     <properties>
-        <metamodel.ecore>metamodel/kevoree.ecore</metamodel.ecore>
-        <kotlin.version>0.5.162</kotlin.version>
+        <kotlin.version>0.5.429</kotlin.version>
     </properties>
 
     <build>
