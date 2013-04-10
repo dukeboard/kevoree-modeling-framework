@@ -128,16 +128,18 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("}") //END FOR
       pr.println("}") //END IF
       pr.println("")
-      pr.println("when(xsiType) {")
-      val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
+      pr.println("when {")
+      //val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
       concreteSubTypes.foreach {
         concreteType =>
-          pr.println("\"" + fqnPack + ":" + concreteType.getName + "\" -> {")
+          //pr.println("\"" + fqnPack + ":" + concreteType.getName + "\" -> {")
+          pr.println("(xsiType != null) && (xsiType.equals(\"" + ProcessorHelper.fqn(ctx, concreteType.getEPackage) + ":" + concreteType.getName + "\") || xsiType!!.endsWith(\""+concreteType.getEPackage.getName.toLowerCase+":"+concreteType.getName+"\")) -> {")
+
           pr.println("return load" + concreteType.getName + "Element(elementId,context)")
           pr.println("}") // END WHEN CASE
       }
 
-      pr.println("null, \"" + fqnPack + ":" + elementType.getName + "\" -> {")
+      pr.println("xsiType == null || xsiType.equals(\"" + ProcessorHelper.fqn(ctx, elementType.getEPackage) + ":" + elementType.getName + "\") || xsiType!!.endsWith(\""+elementType.getEPackage.getName.toLowerCase+":"+elementType.getName+"\")-> {")
     }
 
     // DEFAULT BEHAVIOR

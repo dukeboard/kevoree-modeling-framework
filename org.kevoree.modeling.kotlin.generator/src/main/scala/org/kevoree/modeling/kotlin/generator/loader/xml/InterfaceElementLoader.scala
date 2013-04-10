@@ -88,14 +88,15 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass) {
     pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
     pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
     pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
-    pr.println("val loadedElement = when(context.xmiReader.getAttributeValue(i)) {")
+    pr.println("val xsiTypeValue = context.xmiReader.getAttributeValue(i)")
+    pr.println("val loadedElement = when {")
 
 
-    val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
+    //val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
 
     ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
       concreteType =>
-        pr.println("\"" + fqnPack + ":" + concreteType.getName + "\" -> {")
+        pr.println("xsiTypeValue.equals(\"" + ProcessorHelper.fqn(ctx, concreteType.getEPackage) + ":" + concreteType.getName + "\") || xsiTypeValue!!.endsWith(\""+concreteType.getEPackage.getName.toLowerCase+":"+concreteType.getName+"\") -> {")
         pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
         pr.println("}") // END WHEN CASE
     }
