@@ -242,7 +242,7 @@ class SerializerGenerator(ctx: GenerationContext) {
         buffer.println("ostream.print(\" xmlns:xmi=\\\"http://www.omg.org/XMI\\\"\")")
       }
       if (!isRoot) {
-      buffer.println("ostream.print(\" xsi:type=\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\"\")")
+      buffer.println("ostream.print(\" xsi:type=\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage)/*cls.getEPackage.getName*/ + ":" + cls.getName + "\\\"\")")
       }
       cls.getEAllAttributes.foreach {
         att =>
