@@ -1,0 +1,12 @@
+
+private fun escapeJson(ostream : java.io.PrintStream, chain : String) {
+    for( c in chain.toCharArray()) {
+        if(c == '"') {
+            ostream.print("&quot;")
+        } else if(c == '\'') {
+            ostream.print("&apos;")
+        } else {
+            ostream.print(c)
+        }
+    }
+}

@@ -35,6 +35,9 @@
 
 package org.kevoree.modeling.kotlin.generator.serializer
 
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.{EEnum, EReference, EPackage, EClass}
@@ -61,6 +64,15 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     }
   }
 
+  private def generateEscapeMethod(pr: PrintWriter) {
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/SerializerEscapeJSON.vm")
+    val ctxV = new VelocityContext()
+    template.merge(ctxV, pr)
+  }
+
 
   private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage) {
     val genFile = new File(genDir + "ModelJSONSerializer.kt")
@@ -82,6 +94,8 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println("else -> { }")
     pr.println("}") //END MATCH
     pr.println("}") //END serialize method
+
+    generateEscapeMethod(pr)
     generateSerializer(genDir, packageName, root.getEPackage.getName + ":" + root.getName, root, root.getEPackage, true, pr: PrintWriter)
     pr.println("}") //END TRAIT
     pr.flush()
@@ -195,7 +209,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
                   } else {
                     buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
                     buffer.println("ostream.println(',')")
-                    buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\\\"\"+selfObject." + getGetter(att.getName) + "()+\"\\\"\")")
+
+                    buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\\\"\")")
+                    if (ProcessorHelper.convertType(att.getEAttributeType) == "String") {
+                      buffer.println("escapeJson(ostream, selfObject." + getGetter(att.getName) + "())")
+                    } else {
+                      buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
+                    }
+                    buffer.println("ostream.print('\"')")
                     buffer.println("}")
                   }
                 }

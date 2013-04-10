@@ -64,26 +64,28 @@ class SerializerGenerator(ctx: GenerationContext) {
     val pr = new PrintWriter(genFile, "utf-8")
     beginSerializer(pr)
 
-    var rootClass : EClass = null
-    model.getContents.foreach{ pack =>
-      if(pack.isInstanceOf[EPackage]) {
-        ctx.getRootContainerInPackage(pack.asInstanceOf[EPackage]) match {
-          case Some(cls: EClass) => {
-            rootClass = cls
-            generateDefaultSerializer(pr, rootClass)
-            generateEscapeMethod(pr)
+    var rootClass: EClass = null
+    model.getContents.foreach {
+      pack =>
+        if (pack.isInstanceOf[EPackage]) {
+          ctx.getRootContainerInPackage(pack.asInstanceOf[EPackage]) match {
+            case Some(cls: EClass) => {
+              rootClass = cls
+              generateDefaultSerializer(pr, rootClass)
+              generateEscapeMethod(pr)
+            }
+            case None => {}
           }
-          case None => {}
+        } else {
+          println("Don't know what to do for serializing element " + pack.getClass + " at the root of the metamodel.")
         }
-      } else {
-        println("Don't know what to do for serializing element " + pack.getClass + " at the root of the metamodel.")
-      }
     }
 
-    model.getContents.foreach{ pack =>
-      if(pack.isInstanceOf[EPackage]) {
-        generateSerializer(rootClass, pack.asInstanceOf[EPackage], pr)
-      }
+    model.getContents.foreach {
+      pack =>
+        if (pack.isInstanceOf[EPackage]) {
+          generateSerializer(rootClass, pack.asInstanceOf[EPackage], pr)
+        }
     }
 
     endSerializer(pr)
@@ -91,20 +93,20 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.close()
   }
 
-  private def beginSerializer(pr:PrintWriter) {
+  private def beginSerializer(pr: PrintWriter) {
 
-    pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
     pr.println("class ModelSerializer")
     pr.println("{")
     pr.println()
 
   }
 
-  private def endSerializer(pr:PrintWriter) {
+  private def endSerializer(pr: PrintWriter) {
     pr.println("}") //END TRAIT
   }
 
-  private def generateDefaultSerializer(pr : PrintWriter, root: EClass) {
+  private def generateDefaultSerializer(pr: PrintWriter, root: EClass) {
 
     pr.println("fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
@@ -123,27 +125,25 @@ class SerializerGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateEscapeMethod(pr:PrintWriter) {
+  private def generateEscapeMethod(pr: PrintWriter) {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
     val template = ve.getTemplate("templates/SerializerEscapeXML.vm")
     val ctxV = new VelocityContext()
-    template.merge(ctxV,pr)
+    template.merge(ctxV, pr)
   }
-
-
 
   private def generateSerializer(root: EClass, rootXmiPackage: EPackage, pr: PrintWriter) {
     rootXmiPackage.getEClassifiers.foreach {
       eClass =>
-        if(eClass.isInstanceOf[EClass]){
-          //generateSerializationMethods(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass.getName,eClass == root)
+        if (eClass.isInstanceOf[EClass]) {
           generateSerializationMethods(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass == root)
         }
     }
-    rootXmiPackage.getESubpackages.foreach{subpackage =>
-      generateSerializer(root, subpackage, pr)
+    rootXmiPackage.getESubpackages.foreach {
+      subpackage =>
+        generateSerializer(root, subpackage, pr)
     }
   }
 
@@ -151,7 +151,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     "get" + name.charAt(0).toUpper + name.substring(1)
   }
 
-  private def generateRef(buffer:PrintWriter, cls:EClass, ref: EReference) {
+  private def generateRef(buffer: PrintWriter, cls: EClass, ref: EReference) {
     buffer.println("val subsub" + ref.getName + " = selfObject." + getGetter(ref.getName) + "()")
     buffer.println("if(subsub" + ref.getName + " != null){")
     buffer.println("val subsubsub" + ref.getName + " = addrs.get(subsub" + ref.getName + ")")
@@ -163,7 +163,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("}")
   }
 
-  def generateGetXmiAddrMethod(buffer:PrintWriter, cls:EClass, subTypes : List[EClass]) {
+  def generateGetXmiAddrMethod(buffer: PrintWriter, cls: EClass, subTypes: List[EClass]) {
     buffer.println("fun get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
@@ -211,7 +211,7 @@ class SerializerGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateToXmiMethod(buffer:PrintWriter, cls:EClass, isRoot : Boolean = false) {
+  private def generateToXmiMethod(buffer: PrintWriter, cls: EClass, isRoot: Boolean = false) {
     if (isRoot) {
       buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
     } else {
@@ -256,7 +256,7 @@ class SerializerGenerator(ctx: GenerationContext) {
                   } else {
                     buffer.println("if(selfObject." + getGetter(att.getName) + "().toString().notEmpty()){")
                     buffer.println("ostream.print(\" " + att.getName + "=\\\"\")")
-                    if(ProcessorHelper.convertType(att.getEAttributeType) == "String") {
+                    if (ProcessorHelper.convertType(att.getEAttributeType) == "String") {
                       buffer.println("escapeXml(ostream, selfObject." + getGetter(att.getName) + "())")
                     } else {
                       buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
@@ -374,7 +374,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     generateGetXmiAddrMethod(buffer, cls, subTypes)
 
     generateToXmiMethod(buffer, cls, isRoot)
-    if(isRoot) {
+    if (isRoot) {
       generateToXmiMethod(buffer, cls, false)
     }
 
