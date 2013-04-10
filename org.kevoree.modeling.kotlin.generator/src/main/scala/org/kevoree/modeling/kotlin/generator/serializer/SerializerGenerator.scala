@@ -231,16 +231,19 @@ class SerializerGenerator(ctx: GenerationContext) {
     if (!isRoot) {
       buffer.println("ostream.print(refNameInParent)")
     } else {
-      buffer.println("ostream.print(\"" + cls.getName + "\")")
+      buffer.println("ostream.print(\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\")")
     }
     if (isRoot || cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
       if (isRoot) {
-        buffer.println("ostream.print(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
+        //buffer.println("ostream.print(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
+        buffer.println("ostream.print(\" xmlns:" + ProcessorHelper.fqn(ctx, cls.getEPackage) + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
         buffer.println("ostream.print(\" xmlns:xsi=\\\"http://wwww.w3.org/2001/XMLSchema-instance\\\"\")")
         buffer.println("ostream.print(\" xmi:version=\\\"2.0\\\"\")")
         buffer.println("ostream.print(\" xmlns:xmi=\\\"http://www.omg.org/XMI\\\"\")")
       }
+      if (!isRoot) {
       buffer.println("ostream.print(\" xsi:type=\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\"\")")
+      }
       cls.getEAllAttributes.foreach {
         att =>
           att.getUpperBound match {
@@ -341,7 +344,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     if (!isRoot) {
       buffer.println("ostream.print(refNameInParent)")
     } else {
-      buffer.println("ostream.print(\"" + cls.getName + "\")")
+      buffer.println("ostream.print(\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\")")
     }
     buffer.println("ostream.print('>')")
     buffer.println("ostream.println()")
