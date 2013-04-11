@@ -96,8 +96,8 @@ class JSONModelLoader {
                         val nextKey = reader.nextName()
                         if(nextKey.equals("eClass")) {
                             #if($elemToLoad == $rootElement)
-                            val i = context.elementsCount.get(elementId+ loadedcontainerRootSize + "/@$ref.getName()") ?: 0
-                            val $ref.getName()ElementId = elementId + loadedcontainerRootSize + "/@$ref.getName()." + i
+                            val i = context.elementsCount.get(elementId+ loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()") ?: 0
+                            val $ref.getName()ElementId = elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()." + i
                             #else
                             val i = context.elementsCount.get(elementId + "/@$ref.getName()") ?: 0
                             val $ref.getName()ElementId = elementId + "/@$ref.getName()." + i
@@ -119,7 +119,7 @@ class JSONModelLoader {
                             modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId))
                             #end
                             #if($elemToLoad == $rootElement)
-                            context.elementsCount.put(elementId + loadedcontainerRootSize + "/@$ref.getName()",i+1)
+                            context.elementsCount.put(elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()",i+1)
                             #else
                             context.elementsCount.put(elementId + "/@$ref.getName()",i+1)
                             #end
