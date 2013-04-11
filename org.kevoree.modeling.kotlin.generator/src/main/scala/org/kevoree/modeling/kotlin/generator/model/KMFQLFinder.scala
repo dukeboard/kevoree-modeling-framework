@@ -93,7 +93,7 @@ trait KMFQLFinder {
       pr.println("if(container != null) {")
         pr.println("val parentPath = container.path()")
         pr.println("if(parentPath== null){return null} else {")
-      pr.println("return  if(parentPath.isEmpty()){\"\"}else{parentPath + \"/\"} + internal_containmentRefName + \"[\"+internalGetKey()+\"]\"")
+      pr.println("return  if(parentPath == \"\"){\"\"}else{parentPath + \"/\"} + internal_containmentRefName + \"[\"+internalGetKey()+\"]\"")
       pr.println("}")
       pr.println("} else {")
       pr.println("return \"\"")
@@ -104,7 +104,7 @@ trait KMFQLFinder {
 
       if (!cls.getEAllSuperTypes.exists(st => hasID(st))) {
         pr.println("override fun path() : String? {")
-        pr.println("return null")
+        pr.println("if(eContainer() == null){return \"\"} else {return null}")
         pr.println("}")
       }
 
