@@ -151,7 +151,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
           case 1 => {
             buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
             buffer.println("if(sub" + subClass.getName + "!= null){")
+
+            buffer.println("val subPath_"+subClass.getName+"=sub"+subClass.getName+".path()")
+            buffer.println("if(subPath_"+subClass.getName+"!=null){")
+            buffer.println("subResult.put(sub" + subClass.getName + ",subPath_" + subClass.getName + ")")
+            buffer.println("} else {")
             buffer.println("subResult.put(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\" )")
+            buffer.println("}")
+
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\"))")
             buffer.println("}")
           }
@@ -161,7 +168,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             }
             firstUsed = false
             buffer.println("for(sub in selfObject." + getGetter(subClass.getName) + "()){")
+
+            buffer.println("val subPath_"+subClass.getName+"=sub.path()")
+            buffer.println("if(subPath_"+subClass.getName+"!=null){")
+            buffer.println("subResult.put(sub,subPath_" + subClass.getName + ")")
+            buffer.println("} else {")
             buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
+            buffer.println("}")
+
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i))")
             buffer.println("i=i+1")
             buffer.println("}")

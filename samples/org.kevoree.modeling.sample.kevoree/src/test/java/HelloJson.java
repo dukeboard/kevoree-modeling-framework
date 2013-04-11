@@ -19,7 +19,7 @@ public class HelloJson {
         System.out.println("HelloJSON");
 
         ModelLoader loader = new ModelLoader();
-        ContainerRoot model = loader.loadModelFromPath(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kevoree/src/resources/bootKloudNode1.kev")).get(0);
+        ContainerRoot model = loader.loadModelFromPath(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kevoree/src/test/resources/bootKloudNode1.kev")).get(0);
 
         System.out.println("ModelLoaded");
 
