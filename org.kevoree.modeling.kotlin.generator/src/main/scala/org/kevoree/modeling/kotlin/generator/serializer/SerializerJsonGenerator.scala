@@ -77,7 +77,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
   private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage) {
     val genFile = new File(genDir + "ModelJSONSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
-    pr.println("package " + packageName + ".serializer")
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
     pr.println("class ModelJSONSerializer")
     pr.println("{")
     pr.println()
