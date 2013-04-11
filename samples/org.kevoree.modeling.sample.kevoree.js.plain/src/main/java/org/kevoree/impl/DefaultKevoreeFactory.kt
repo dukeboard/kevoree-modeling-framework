@@ -46,7 +46,7 @@ import org.kevoree.GroupType;
 import org.kevoree.NodeType;
 import org.kevoree.AdaptationPrimitiveType;
 
-open class DefaultKevoreeFactory : KevoreeFactory {
+class DefaultKevoreeFactory : KevoreeFactory {
 
 override fun getVersion() : String { return "1.0.0" }
 

@@ -28,7 +28,7 @@
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
-                            <modelOnly>true</modelOnly>
+                             <modelOnly>true</modelOnly>
                             <js>true</js>
                         </configuration>
                     </execution>
