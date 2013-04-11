@@ -1,0 +1,204 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+#* @vtlvariable name="rootElement" type="org.eclipse.emf.ecore.EClass" *#
+#* @vtlvariable name="elemToLoad" type="org.eclipse.emf.ecore.EClass" *#
+package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader;
+
+import java.io.File
+import java.io.FileReader
+import java.io.FileInputStream
+import java.io.Reader
+import java.io.StringReader
+import java.io.InputStreamReader
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
+
+class JSONModelLoader {
+
+    val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
+
+    fun loadModelFromString(str: String) : List<${helper.fqn($ctx,$rootElement)}>? {
+        return deserialize(StringReader(str))
+    }
+
+    fun loadModelFromPath(file: File) : List<${helper.fqn($ctx,$rootElement)}>? {
+        return loadModelFromStream(FileInputStream(file))
+    }
+
+    fun loadModelFromStream(inputStream: FileInputStream) : List<${helper.fqn($ctx,$rootElement)}>? {
+        return deserialize(InputStreamReader(inputStream))
+    }
+
+    private fun deserialize(topreader : Reader): List<${helper.fqn($ctx,$rootElement)}> {
+        var reader : JsonReader = JsonReader(topreader)
+        val context = LoadingContext()
+        while(reader.hasNext() && (reader.peek() != JsonToken.END_DOCUMENT)) {
+            reader.beginObject()
+            val nextKey = reader.nextName()
+            if(nextKey.equals("eClass")) {
+                val eclassValue = reader.nextString()
+                if(eclassValue.equals("${helper.fqn($ctx,$rootElement.getEPackage())}:$rootElement.getName()")) {
+                    load$rootElement.getName()(reader, context, "/")
+                    if(context.$rootElement.getName().substring(0,1).toLowerCase()$rootElement.getName().substring(1) != null) {
+                        context.loaded_${rootElement.getName().substring(0,1).toLowerCase()}${rootElement.getName().substring(1)}.add(context.$rootElement.getName().substring(0,1).toLowerCase()$rootElement.getName().substring(1)!!)
+                    }
+                } else {
+                    System.err.println("Unknown root type '" + eclassValue + "'. Loading aborted.")
+                }
+            } else {
+                System.err.println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
+            }
+            reader.endObject()
+        }
+        for(res in context.resolvers) {res()}
+        return context.loaded_$rootElement.getName().substring(0,1).toLowerCase()$rootElement.getName().substring(1)
+    }
+
+#generateLoadMethod($rootElement)
+
+
+#macro( generateLoadMethod $elemToLoad )
+    private fun load$elemToLoad.getName()(reader : JsonReader, context : LoadingContext, elementId: String) : $helper.fqn($ctx, $elemToLoad) {
+
+        val modelElem = mainFactory.get${elemToLoad.getEPackage().getName().substring(0,1).toUpperCase()}${elemToLoad.getEPackage().getName().substring(1)}Factory().create$elemToLoad.getName()()
+        #if($elemToLoad == $rootElement)
+        val loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size = context.loaded_${elemToLoad.getName().substring(0,1).toLowerCase()}${elemToLoad.getName().substring(1)}.size()
+        context.$rootElement.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1) = modelElem
+        context.map.put("/" + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size, context.$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)!!)
+        #else
+        context.map.put(elementId, modelElem)
+        #end
+
+        while (reader.hasNext()) {
+            val nextName = reader.nextName()
+            when(nextName) {
+            #foreach($att in $elemToLoad.getEAllAttributes())
+                #set($methName = "set" + $att.getName().substring(0, 1).toUpperCase() + $att.getName().substring(1))
+                #if($helper.convertType($att.getEAttributeType()).equals("Int"))
+                "$att.getName()" -> {modelElem.$methName(reader.nextInt())}
+                #elseif($helper.convertType($att.getEAttributeType()).equals("Boolean"))
+                "$att.getName()" -> {modelElem.$methName(reader.nextBoolean())}
+                #elseif($helper.convertType($att.getEAttributeType()).equals("Double"))
+                "$att.getName()" -> {modelElem.$methName(reader.nextDouble())}
+                #elseif($helper.convertType($att.getEAttributeType()).equals("Long"))
+                "$att.getName()" -> {modelElem.$methName(reader.nextLong())}
+                #else
+                "$att.getName()" -> {modelElem.$methName(reader.nextString()!!)}
+                #end
+            #end
+            #foreach($ref in $elemToLoad.getEAllReferences())
+                #if($ref.isContainment())
+                #if($ref.isMany())
+                "$ref.getName()" -> { ##is containement and many
+                    reader.beginArray()
+                    while(reader.hasNext()) {
+                        reader.beginObject()
+                        val nextKey = reader.nextName()
+                        if(nextKey.equals("eClass")) {
+                            #if($elemToLoad == $rootElement)
+                            val i = context.elementsCount.get(elementId+ loadedcontainerRootSize + "/@$ref.getName()") ?: 0
+                            val $ref.getName()ElementId = elementId + loadedcontainerRootSize + "/@$ref.getName()." + i
+                            #else
+                            val i = context.elementsCount.get(elementId + "/@$ref.getName()") ?: 0
+                            val $ref.getName()ElementId = elementId + "/@$ref.getName()." + i
+                            #end
+                            #if($ref.getEReferenceType().isAbstract() || $ref.getEReferenceType().isInterface())
+                            val eclassValue = reader.nextString()
+                            when(eclassValue) {
+                                #foreach($concreteType in $helper.getAllConcreteSubTypes($ref.getEReferenceType()))
+                                "$helper.fqn($ctx, $concreteType.getEPackage()):$concreteType.getName()" -> {
+                                    modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(load$concreteType.getName()(reader, context, $ref.getName()ElementId))
+                                }
+                                #end
+                                else -> {
+                                    System.err.println("Unknown root type '" + eclassValue + "'. Loading aborted.")
+                                }
+                            }
+                            #else
+                            reader.nextString()
+                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId))
+                            #end
+                            #if($elemToLoad == $rootElement)
+                            context.elementsCount.put(elementId + loadedcontainerRootSize + "/@$ref.getName()",i+1)
+                            #else
+                            context.elementsCount.put(elementId + "/@$ref.getName()",i+1)
+                            #end
+                        } else {
+                            System.err.println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
+                        }
+                        reader.endObject()
+                    }
+                    reader.endArray()
+                }
+                #{else}
+                "$ref.getName()" -> {##is containement and single
+                    reader.beginObject()
+                    reader.nextName() // drop the eClass key
+                    reader.nextString() // drop the eClass value
+                    val $ref.getName()ElementId = elementId + "/@$ref.getName()"
+                    modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId))
+                    reader.endObject()
+                }
+                #end
+                #{else}
+                "$ref.getName()" -> {##is not containement
+                    #if($ref.isMany())
+                    reader.beginArray()
+                    while(reader.hasNext()) {
+                        reader.beginObject()
+                        reader.nextName() // drop the key, always 'ref'
+                    #end
+                        val xmiRef = reader.nextString()!!
+                        val adjustedRef = if(xmiRef.startsWith("//")){"/0" + xmiRef.substring(1)} else { xmiRef}
+                        val ref = context.map.get(adjustedRef)
+                        if( ref != null) {
+                            #if($ref.isMany())
+                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(ref as $helper.fqn($ctx, $ref.getEReferenceType()))
+                            #else
+                            modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(ref as $helper.fqn($ctx, $ref.getEReferenceType()))
+                            #end
+                        } else {
+                            context.resolvers.add({()->
+                            val $ref.getName()Ref = context.map.get(adjustedRef)
+                            if($ref.getName()Ref != null) {
+                                #if($ref.isMany())
+                                modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)($ref.getName()Ref as $helper.fqn($ctx, $ref.getEReferenceType()))
+                                #else
+                                modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)($ref.getName()Ref as $helper.fqn($ctx, $ref.getEReferenceType()))
+                                #end
+                            } else { throw Exception("KMF Load error : $ref.getEReferenceType().getName() not found in map ! xmiRef:" + adjustedRef)}
+                            })
+                        }
+                    #if($ref.isMany())
+                        reader.endObject()
+                    }
+                    reader.endArray()
+                    #end
+                }
+                #end
+            #end
+                else -> {System.out.println("Tag unrecognized: " + nextName + " in $elemToLoad.getName()")}
+            }
+        }
+        return modelElem
+    }
+
+    #foreach($e in $elemToLoad.getEAllContainments())
+        #if( ! $ctx.generatedLoaderFiles().contains(${helper.fqn($ctx,$e.getEReferenceType())}))
+            #set($res = ${ctx.generatedLoaderFiles().add(${helper.fqn($ctx,$e.getEReferenceType())})})
+            #generateLoadMethod($e.getEReferenceType())
+        #end
+    #end
+    #foreach($ref in $elemToLoad.getEAllContainments())
+        #if($ref.getEReferenceType().isAbstract() || $ref.getEReferenceType().isInterface())
+            #foreach($e in $helper.getAllConcreteSubTypes($ref.getEReferenceType()))
+                #if( ! $ctx.generatedLoaderFiles().contains(${helper.fqn($ctx,$e)}))
+                    #set($res = ${ctx.generatedLoaderFiles().add(${helper.fqn($ctx,$e)})})
+                    #generateLoadMethod($e)
+                #end
+            #end
+        #end
+    #end
+#end
+
+}

@@ -64,8 +64,9 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass) {
   private def generateSubs(): List[EClass] = {
 
     var listContainedElementsTypes = List[EClass]()
-    ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
-      concreteType =>
+    val it = ProcessorHelper.getAllConcreteSubTypes(elementType).iterator()
+    while(it.hasNext) {
+      val concreteType = it.next()
         if (!concreteType.isInterface && !concreteType.isAbstract) {
           val el = new BasicElementLoader(ctx, concreteType)
           el.generateLoader()
@@ -84,23 +85,24 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass) {
   private def generateLoadingMethod(pr: PrintWriter) {
     pr.println("private fun load" + elementType.getName + "Element(currentElementId : String, context : LoadingContext) : " + ProcessorHelper.fqn(ctx,elementType) + " {")
 
-    pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1)){")
-    pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
-    pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
+    pr.println("for(i in 0.rangeTo(context.xmiReader!!.getAttributeCount()-1)){")
+    pr.println("val localName = context.xmiReader!!.getAttributeLocalName(i)")
+    pr.println("val xsi = context.xmiReader!!.getAttributePrefix(i)")
     pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
-    pr.println("val xsiTypeValue = context.xmiReader.getAttributeValue(i)")
+    pr.println("val xsiTypeValue = context.xmiReader!!.getAttributeValue(i)")
     pr.println("val loadedElement = when {")
 
 
     //val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
 
-    ProcessorHelper.getAllConcreteSubTypes(elementType).foreach {
-      concreteType =>
+    val it = ProcessorHelper.getAllConcreteSubTypes(elementType).iterator()
+    while(it.hasNext) {
+      val concreteType = it.next()
         pr.println("xsiTypeValue.equals(\"" + ProcessorHelper.fqn(ctx, concreteType.getEPackage) + ":" + concreteType.getName + "\") || xsiTypeValue!!.endsWith(\""+concreteType.getEPackage.getName.toLowerCase+":"+concreteType.getName+"\") -> {")
         pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
         pr.println("}") // END WHEN CASE
     }
-    pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader.getAttributeValue(i)  + \" elementId:\" + currentElementId);}")
+    pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader!!.getAttributeValue(i)  + \" elementId:\" + currentElementId);}")
     pr.println("}") // END WHEN
     pr.println("return loadedElement")
     pr.println("}") //END IF

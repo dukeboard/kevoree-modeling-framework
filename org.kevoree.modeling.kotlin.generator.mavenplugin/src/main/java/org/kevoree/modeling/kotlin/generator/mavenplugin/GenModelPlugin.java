@@ -181,6 +181,7 @@ public class GenModelPlugin extends AbstractMojo {
         }
         if(json){
             gen.generateJSONSerializer();
+            gen.generateJsonLoader();
         }
 
 

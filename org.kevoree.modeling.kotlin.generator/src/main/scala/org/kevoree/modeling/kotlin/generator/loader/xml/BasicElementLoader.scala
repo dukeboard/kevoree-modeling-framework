@@ -15,40 +15,6 @@
  * Fouquet Francois
  * Nain Gregory
  */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
 
 
 package org.kevoree.modeling.kotlin.generator.loader.xml
@@ -110,29 +76,26 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
     pr.println("")
 
     val ePackageName = elementType.getEPackage.getName
-    //val factory = ProcessorHelper.fqn(ctx, elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
 
     val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
     val concreteSubTypes = ProcessorHelper.getAllConcreteSubTypes(elementType)
     if(concreteSubTypes.size > 0) {
 
       pr.println("var xsiType : String? = null")
-      pr.println("if(context.xmiReader.getAttributeCount() > " + (elementType.getEAllAttributes.size() + references.size) + ") { //loadSubType")
-      pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1)){")
-      pr.println("val localName = context.xmiReader.getAttributeLocalName(i)")
-      pr.println("val xsi = context.xmiReader.getAttributePrefix(i)")
+      pr.println("if(context.xmiReader!!.getAttributeCount() > " + (elementType.getEAllAttributes.size() + references.size) + ") { //loadSubType")
+      pr.println("for(i in 0.rangeTo(context.xmiReader!!.getAttributeCount()-1)){")
+      pr.println("val localName = context.xmiReader!!.getAttributeLocalName(i)")
+      pr.println("val xsi = context.xmiReader!!.getAttributePrefix(i)")
       pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
-      pr.println("xsiType = context.xmiReader.getAttributeValue(i)")
+      pr.println("xsiType = context.xmiReader!!.getAttributeValue(i)")
       pr.println("break")
       pr.println("}") //END IF
       pr.println("}") //END FOR
       pr.println("}") //END IF
       pr.println("")
       pr.println("when {")
-      //val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
       concreteSubTypes.foreach {
         concreteType =>
-          //pr.println("\"" + fqnPack + ":" + concreteType.getName + "\" -> {")
           pr.println("(xsiType != null) && (xsiType.equals(\"" + ProcessorHelper.fqn(ctx, concreteType.getEPackage) + ":" + concreteType.getName + "\") || xsiType!!.endsWith(\""+concreteType.getEPackage.getName.toLowerCase+":"+concreteType.getName+"\")) -> {")
 
           pr.println("return load" + concreteType.getName + "Element(elementId,context)")
@@ -144,7 +107,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
     // DEFAULT BEHAVIOR
     if (elementType.getEAllContainments.size() > 0) {
-      pr.println("val elementTagName = context.xmiReader.getLocalName()")
+      pr.println("val elementTagName = context.xmiReader!!.getLocalName()")
     }
 
     pr.println("val modelElem = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory()"+".create" + elementType.getName + "()")
@@ -156,11 +119,11 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
     if (elementType.getEAllAttributes.size() > 0 || references.size > 0) {
 
-      pr.println("for(i in 0.rangeTo(context.xmiReader.getAttributeCount()-1)) {")
-      pr.println("val prefix = context.xmiReader.getAttributePrefix(i)")
+      pr.println("for(i in 0.rangeTo(context.xmiReader!!.getAttributeCount()-1)) {")
+      pr.println("val prefix = context.xmiReader!!.getAttributePrefix(i)")
       pr.println("if(prefix==null || prefix.equals(\"\")) {")
-      pr.println("val attrName = context.xmiReader.getAttributeLocalName(i)")
-      pr.println("val valueAtt = context.xmiReader.getAttributeValue(i)")
+      pr.println("val attrName = context.xmiReader!!.getAttributeLocalName(i)")
+      pr.println("val valueAtt = context.xmiReader!!.getAttributeValue(i)")
       pr.println("if( valueAtt != null) {")
       pr.println("when(attrName){")
       pr.println("")
@@ -214,28 +177,12 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
           pr.println("val ref = context.map.get(adjustedRef)")
           pr.println("if( ref != null) {")
-          // if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
-          //    pr.println("case Some(s: " + ProcessorHelper.fqn(ctx,ref.getEReferenceType) + ") => modelElem." + methName + "(Some(s))")
-
-          //val ePackageName = ProcessorHelper.fqn(ref.getEReferenceType.getEPackage)
-
-          //pr.println("modelElem." + methName + "(ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")          //} else {
           pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-
-          //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
-          // }
           pr.println("} else {")
           pr.println("context.resolvers.add({()->")
           pr.println("val " + ref.getName + "Ref = context.map.get(adjustedRef)")
           pr.println("if(" + ref.getName + "Ref != null) {")
-          //if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
-
-
-          //pr.println("modelElem." + methName + "("+ref.getName+"Ref as "+ePackageName+"."+ref.getEReferenceType.getName+")")
           pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-          //} else {
-          //  pr.println("case Some(s: " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ") => modelElem." + methName + "(s)")
-          //}
           pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
           pr.println("})") //Closure
           pr.println("}") // Else
@@ -257,9 +204,9 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
     if (elementType.getEAllContainments.size() > 0) {
       pr.println("var done = false")
       pr.println("while(!done) {")
-      pr.println("when(context.xmiReader.nextTag()){")
+      pr.println("when(context.xmiReader!!.nextTag()){")
       pr.println("XMLStreamConstants.START_ELEMENT -> {")
-      pr.println("when(context.xmiReader.getLocalName()){")
+      pr.println("when(context.xmiReader!!.getLocalName()){")
       pr.println("")
 
       elementType.getEAllContainments.foreach {
@@ -268,13 +215,8 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
           val formattedReferenceName = refa.getName.substring(0, 1).toUpperCase + refa.getName.substring(1)
 
-          //pr.println("val " + refa.getName + " = ")
-
           if (!refa.isMany) {
             pr.println("val " + refa.getName + "ElementId = elementId + \"/@" + refa.getName + "\"")
-            //if (!refa.isRequired) {
-            //  pr.println("modelElem.set" + formattedReferenceName + "(Some(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context)))")
-            //} else {
             pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context))")
             //}
           } else {
@@ -291,7 +233,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("}") //Match
       pr.println("}") //Case Start
       pr.println("XMLStreamConstants.END_ELEMENT -> {")
-      pr.println("if(context.xmiReader.getLocalName().equals(elementTagName)){done = true}")
+      pr.println("if(context.xmiReader!!.getLocalName().equals(elementTagName)){done = true}")
       pr.println("}") //case END
       pr.println("else -> {}")
       pr.println("}") //Match
@@ -307,11 +249,6 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
       pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + xsiType+ \" elementId:\" + elementId);}")
       pr.println("}") // END WHEN
-      //pr.println("return loadedElement")
-      //pr.println("}") //END IF
-      //pr.println("}") // END FOR
-      //pr.println("throw UnsupportedOperationException(\"Processor for "+elementType.getName+" was unable to load element id: \" + elementId);")
-      //pr.println("} else { // This type")
     }
 
     pr.println("}") //END LOADING METHOD

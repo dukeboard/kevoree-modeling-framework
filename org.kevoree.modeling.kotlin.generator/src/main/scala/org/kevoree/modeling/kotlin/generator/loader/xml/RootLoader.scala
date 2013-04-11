@@ -216,7 +216,8 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     pr.println("private fun deserialize(reader : XMLStreamReader): List<"+ProcessorHelper.fqn(ctx,elementType)+"> {")
 
-    pr.println("val context = LoadingContext(reader)")
+    pr.println("val context = LoadingContext()")
+    pr.println("context.xmiReader = reader")
     //pr.println("context.factory = this.factory")
     pr.println("while(reader.hasNext()) {")
     pr.println("val nextTag = reader.next()")
@@ -253,17 +254,17 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     pr.println("private fun load" + elementType.getName + "(context : LoadingContext) {")
     pr.println("")
-    pr.println("val elementTagName = context.xmiReader.getLocalName()")
+    pr.println("val elementTagName = context.xmiReader!!.getLocalName()")
     pr.println("val loaded"+rootContainerName+"Size = context.loaded_"+rootContainerName+".size()")
     pr.println("context." + rootContainerName + " = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1)+"Factory().create" + elementType.getName + "()")
     pr.println("context.map.put(\"/\" + loaded"+rootContainerName+"Size, context."+rootContainerName+"!!)")
     pr.println("")
     pr.println("var done = false")
-    pr.println("while(!done && (context.xmiReader.hasNext())) {")
-    pr.println("val nextTag = context.xmiReader.nextTag()")
+    pr.println("while(!done && (context.xmiReader!!.hasNext())) {")
+    pr.println("val nextTag = context.xmiReader!!.nextTag()")
     pr.println("when(nextTag){")
     pr.println("XMLStreamConstants.START_ELEMENT -> {")
-    pr.println("when(context.xmiReader.getLocalName()) {")
+    pr.println("when(context.xmiReader!!.getLocalName()) {")
 
     elementType.getEAllContainments.foreach {refa =>
       pr.println("\""+refa.getName+"\" -> {")
@@ -284,11 +285,11 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     }
 
 
-    pr.println("else -> System.out.println(\"Tag unrecognized: \" + context.xmiReader.getLocalName() + \" in "+elementType.getName+"\")")
+    pr.println("else -> System.out.println(\"Tag unrecognized: \" + context.xmiReader!!.getLocalName() + \" in "+elementType.getName+"\")")
     pr.println("}") // Match
     pr.println("}") // Case START_ELEMENT
     pr.println("XMLStreamConstants.END_ELEMENT -> {")
-    pr.println("if(context.xmiReader.getLocalName()?.equals(elementTagName) as Boolean){done = true}")
+    pr.println("if(context.xmiReader!!.getLocalName()?.equals(elementTagName) as Boolean){done = true}")
     pr.println("}") //case END
     pr.println("else -> System.out.println(\"Ignored Value:\" + nextTag)")
     pr.println("}") // match

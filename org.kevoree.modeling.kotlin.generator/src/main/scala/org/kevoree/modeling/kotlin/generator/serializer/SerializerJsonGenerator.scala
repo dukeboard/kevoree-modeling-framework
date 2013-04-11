@@ -193,7 +193,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     }
     buffer.println("else -> {")
     buffer.println("ostream.print('{')")
-    buffer.println("ostream.print(\" \\\"eClass\\\":\\\"" + cls.getEPackage.getName + ":" + cls.getName + "\\\" \")")
+    buffer.println("ostream.print(\" \\\"eClass\\\":\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\\\" \")")
     if (cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
       cls.getEAllAttributes.foreach {
         att =>
@@ -210,13 +210,18 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
                     buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
                     buffer.println("ostream.println(',')")
 
-                    buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\\\"\")")
+                    buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\")")
+                    if(!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
+                      buffer.println("ostream.print(\"\\\"\")")
+                    }
                     if (ProcessorHelper.convertType(att.getEAttributeType) == "String") {
                       buffer.println("escapeJson(ostream, selfObject." + getGetter(att.getName) + "())")
                     } else {
                       buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
                     }
-                    buffer.println("ostream.print('\"')")
+                    if(!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
+                      buffer.println("ostream.print('\"')")
+                    }
                     buffer.println("}")
                   }
                 }

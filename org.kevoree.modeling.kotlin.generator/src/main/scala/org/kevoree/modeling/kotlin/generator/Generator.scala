@@ -42,6 +42,7 @@ import loader.xml.LoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.xmi.XMIResource
+import org.kevoree.modeling.kotlin.generator.loader.json.JsonLoaderGenerator
 import scala.collection.JavaConversions._
 
 import serializer.{SerializerJsonGenerator, SerializerGenerator}
@@ -142,6 +143,22 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     }
     System.out.println("Done with loader generation")
   }
+
+  def generateJsonLoader() {
+
+    val model = ctx.getEcoreModel(ecoreFile)
+
+    System.out.println("Launching JSON loader generation")
+    val loaderGenerator = new JsonLoaderGenerator(ctx)
+    model.getContents.foreach {
+      elem => elem match {
+        case pack: EPackage => loaderGenerator.generateLoader(pack)
+        case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
+      }
+    }
+    System.out.println("Done with JSON loader generation")
+  }
+
 
   def generateSerializer() {
 

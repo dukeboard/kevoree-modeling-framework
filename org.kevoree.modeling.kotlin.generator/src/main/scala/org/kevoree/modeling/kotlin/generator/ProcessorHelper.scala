@@ -111,7 +111,7 @@ object ProcessorHelper {
   }
 
 
-  def getAllConcreteSubTypes(iface: EClass): List[EClass] = {
+  def getAllConcreteSubTypes(iface: EClass): java.util.List[EClass] = {
     helper.getAllConcreteSubTypes(iface)
   }
 

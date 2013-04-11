@@ -61,10 +61,10 @@ class ContextGenerator(ctx:GenerationContext, elementType: EClass) {
     pr.println("import javax.xml.stream.XMLStreamReader")
     pr.println()
 
-    pr.println("class LoadingContext(reader : XMLStreamReader) {")
+    pr.println("class LoadingContext() {")
 
     pr.println()
-    pr.println("\t\tvar xmiReader : XMLStreamReader = reader")
+    pr.println("\t\tvar xmiReader : XMLStreamReader? = null")
     pr.println()
     pr.println("\t\tvar "+elementType.getName.substring(0,1).toLowerCase + elementType.getName.substring(1)+" : "+ ProcessorHelper.fqn(ctx,elementType)+"? = null")
     pr.println()

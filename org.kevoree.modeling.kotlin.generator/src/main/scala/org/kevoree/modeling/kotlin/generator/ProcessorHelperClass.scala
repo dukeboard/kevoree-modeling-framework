@@ -124,8 +124,8 @@ class ProcessorHelperClass {
   }
 
 
-  def getAllConcreteSubTypes(iface: EClass): List[EClass] = {
-    var res = List[EClass]()
+  def getAllConcreteSubTypes(iface: EClass): java.util.List[EClass] = {
+    var res = new java.util.LinkedList[EClass]()
     iface.getEPackage.getEClassifiers.filter(cl => cl.isInstanceOf[EClass]).foreach {
       cls =>
         if (!cls.asInstanceOf[EClass].isInterface
@@ -133,9 +133,9 @@ class ProcessorHelperClass {
           && cls.asInstanceOf[EClass].getEAllSuperTypes.contains(iface)) {
 
           if (!res.exists(previousC => cls.asInstanceOf[EClass].getEAllSuperTypes.contains(previousC))) {
-            res = List(cls.asInstanceOf[EClass]) ++ res
+            res.addFirst(cls.asInstanceOf[EClass])
           } else {
-            res = res ++ List(cls.asInstanceOf[EClass])
+            res.addLast(cls.asInstanceOf[EClass])
           }
         }
     }
