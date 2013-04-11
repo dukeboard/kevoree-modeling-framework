@@ -1,4 +1,4 @@
 package org.kevoree.factory
-enum class Package {
-ORG_KEVOREE
+object Package {
+ public val ORG_KEVOREE : Int = 0
 }
