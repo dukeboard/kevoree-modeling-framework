@@ -107,7 +107,8 @@ class JSONModelLoader {
                             when(eclassValue) {
                                 #foreach($concreteType in $helper.getAllConcreteSubTypes($ref.getEReferenceType()))
                                 "$helper.fqn($ctx, $concreteType.getEPackage()):$concreteType.getName()" -> {
-                                    modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(load$concreteType.getName()(reader, context, $ref.getName()ElementId))
+                                    val loadedElem = load$concreteType.getName()(reader, context, $ref.getName()ElementId)
+                                    modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                                 }
                                 #end
                                 else -> {
@@ -116,7 +117,8 @@ class JSONModelLoader {
                             }
                             #else
                             reader.nextString()
-                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId))
+                            val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
+                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                             #end
                             #if($elemToLoad == $rootElement)
                             context.elementsCount.put(elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()",i+1)
@@ -136,7 +138,8 @@ class JSONModelLoader {
                     reader.nextName() // drop the eClass key
                     reader.nextString() // drop the eClass value
                     val $ref.getName()ElementId = elementId + "/@$ref.getName()"
-                    modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId))
+                    val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
+                    modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                     reader.endObject()
                 }
                 #end
@@ -159,7 +162,11 @@ class JSONModelLoader {
                             #end
                         } else {
                             context.resolvers.add({()->
-                            val $ref.getName()Ref = context.map.get(adjustedRef)
+                            var $ref.getName()Ref = context.map.get(adjustedRef)
+                            if($ref.getName()Ref == null){
+                                $ref.getName()Ref = context.${rootElement.getName().substring(0,1).toLowerCase()}${rootElement.getName().substring(1)}!!.findByPath(adjustedRef)
+                            }
+
                             if($ref.getName()Ref != null) {
                                 #if($ref.isMany())
                                 modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)($ref.getName()Ref as $helper.fqn($ctx, $ref.getEReferenceType()))
