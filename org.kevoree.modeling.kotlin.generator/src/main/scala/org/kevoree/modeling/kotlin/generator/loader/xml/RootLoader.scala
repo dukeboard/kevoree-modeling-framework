@@ -39,7 +39,7 @@ package org.kevoree.modeling.kotlin.generator.loader.xml
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
-import org.eclipse.emf.ecore.{EPackage, EClass}
+import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
 import java.io._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
@@ -259,6 +259,94 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("context." + rootContainerName + " = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1)+"Factory().create" + elementType.getName + "()")
     pr.println("context.map.put(\"/\" + loaded"+rootContainerName+"Size, context."+rootContainerName+"!!)")
     pr.println("")
+
+    val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
+    if (elementType.getEAllAttributes.size() > 0 || references.size > 0) {
+
+      pr.println("val modelElem = context." + rootContainerName + "!!")
+      pr.println("for(i in 0.rangeTo(context.xmiReader!!.getAttributeCount()-1)) {")
+      pr.println("val prefix = context.xmiReader!!.getAttributePrefix(i)")
+      pr.println("if(prefix==null || prefix.equals(\"\")) {")
+      pr.println("val attrName = context.xmiReader!!.getAttributeLocalName(i)")
+      pr.println("val valueAtt = context.xmiReader!!.getAttributeValue(i)")
+      pr.println("if( valueAtt != null) {")
+      pr.println("when(attrName){")
+      pr.println("")
+      elementType.getEAllAttributes.foreach {
+        att =>
+
+          val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
+          pr.println("\"" + att.getName + "\" -> {")
+          val FQattTypeName = ProcessorHelper.fqn(ctx,att.getEAttributeType)
+
+          if (att.getEAttributeType.isInstanceOf[EEnum]) {
+            pr.println("modelElem." + methName + "(" + FQattTypeName + ".valueOf(valueAtt))")
+          }
+          else {
+            val attTypeName = ProcessorHelper.convertType(att.getEAttributeType)
+            attTypeName match {
+              case "String" => {
+                pr.println("modelElem." + methName + "(unescapeXml(valueAtt))")
+              }
+              case "Boolean" | "Double" | "Int"  => {
+                pr.println("modelElem." + methName + "(valueAtt.to"+attTypeName+"())")
+              }
+              case "Any" => {
+                pr.println("modelElem." + methName + "(valueAtt as " + attTypeName + ")")
+              }
+              case _@_type => {
+                pr.println("modelElem." + methName + "(valueAtt.to" + _type + "() as " + attTypeName + ")")
+              }
+            }
+          }
+
+
+          pr.println("}")
+          pr.println("")
+
+      }
+      references.foreach {
+        ref =>
+
+          var methName: String = ""
+          if (ref.getUpperBound == 1) {
+            methName = "set"
+          } else {
+            methName = "add"
+          }
+          methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+
+          pr.println("\"" + ref.getName + "\" -> {")
+
+          pr.println("for(xmiRef in valueAtt.split(\" \")) {")
+          pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
+          pr.println("val ref = context.map.get(adjustedRef)")
+          pr.println("if( ref != null) {")
+          pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+          pr.println("} else {")
+          pr.println("context.resolvers.add({()->")
+          pr.println("val " + ref.getName + "Ref = context.map.get(adjustedRef)")
+          pr.println("if(" + ref.getName + "Ref != null) {")
+          pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+          pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
+          pr.println("})") //Closure
+          pr.println("}") // Else
+          pr.println("}") // For
+          pr.println("}") // Case
+        // pr.println("}")
+      }
+      pr.println("else->{System.err.println(\"" + elementType.getName + ">>AttributeName not in cases:\" + attrName) }")
+      pr.println("}") // when
+      pr.println(" }") // if value att not null
+      pr.println(" }") // if prefix != null
+      pr.println(" }") // For
+
+
+      pr.println("")
+
+    }
+
+
     pr.println("var done = false")
     pr.println("while(!done && (context.xmiReader!!.hasNext())) {")
     pr.println("val nextTag = context.xmiReader!!.nextTag()")
