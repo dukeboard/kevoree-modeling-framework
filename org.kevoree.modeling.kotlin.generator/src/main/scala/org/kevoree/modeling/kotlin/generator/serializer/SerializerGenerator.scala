@@ -60,7 +60,7 @@ class SerializerGenerator(ctx: GenerationContext) {
 
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
     ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
-    val genFile = new File(serializerGenBaseDir + "ModelSerializer.kt")
+    val genFile = new File(serializerGenBaseDir + "XMIModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     beginSerializer(pr)
 
@@ -96,7 +96,7 @@ class SerializerGenerator(ctx: GenerationContext) {
   private def beginSerializer(pr: PrintWriter) {
 
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
-    pr.println("class ModelSerializer")
+    pr.println("class XMIModelSerializer : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer.ModelSerializer")
     pr.println("{")
     pr.println()
 
@@ -108,7 +108,7 @@ class SerializerGenerator(ctx: GenerationContext) {
 
   private def generateDefaultSerializer(pr: PrintWriter, root: EClass) {
 
-    pr.println("fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
+    pr.println("override fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
     pr.println("when(oMS) {")
     pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")

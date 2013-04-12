@@ -75,13 +75,13 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
 
 
   private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage) {
-    val genFile = new File(genDir + "ModelJSONSerializer.kt")
+    val genFile = new File(genDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
-    pr.println("class ModelJSONSerializer")
+    pr.println("class JSONModelSerializer : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer.ModelSerializer")
     pr.println("{")
     pr.println()
-    pr.println("fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
+    pr.println("override fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
     pr.println("when(oMS) {")
     pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")

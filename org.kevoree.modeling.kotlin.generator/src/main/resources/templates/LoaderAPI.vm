@@ -1,0 +1,17 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+#* @vtlvariable name="rootElement" type="org.eclipse.emf.ecore.EClass" *#
+package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
+
+import java.io.File
+import java.io.InputStream
+
+public trait ModelLoader {
+
+    fun loadModelFromString(str: String) : List<${helper.fqn($ctx, $rootElement)}>?
+
+    fun loadModelFromPath(file: File) : List<${helper.fqn($ctx, $rootElement)}>?
+
+    fun loadModelFromStream(inputStream: InputStream) : List<${helper.fqn($ctx, $rootElement)}>?
+
+}

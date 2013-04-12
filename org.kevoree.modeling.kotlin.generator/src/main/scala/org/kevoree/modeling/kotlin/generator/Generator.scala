@@ -43,9 +43,10 @@ import model.ModelGenerator
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.kevoree.modeling.kotlin.generator.loader.json.JsonLoaderGenerator
+import org.kevoree.modeling.kotlin.generator.loader.LoaderApiGenerator
 import scala.collection.JavaConversions._
 
-import serializer.{SerializerJsonGenerator, SerializerGenerator}
+import org.kevoree.modeling.kotlin.generator.serializer.{SerializerApiGenerator, SerializerJsonGenerator, SerializerGenerator}
 
 /**
  * Created by IntelliJ IDEA.
@@ -129,7 +130,20 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
   }
 
 
+  private def checkOrGenerateLoaderApi() {
+    val model = ctx.getEcoreModel(ecoreFile)
+    val apiGenerator = new LoaderApiGenerator(ctx)
+    model.getContents.foreach {
+      elem => elem match {
+        case pack: EPackage => apiGenerator.generateLoaderAPI(pack)
+        case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
+      }
+    }
+  }
+
   def generateLoader() {
+
+    checkOrGenerateLoaderApi()
 
     val model = ctx.getEcoreModel(ecoreFile)
 
@@ -146,6 +160,8 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
   def generateJsonLoader() {
 
+    checkOrGenerateLoaderApi()
+
     val model = ctx.getEcoreModel(ecoreFile)
 
     System.out.println("Launching JSON loader generation")
@@ -159,25 +175,34 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     System.out.println("Done with JSON loader generation")
   }
 
+  private def checkOrGenerateSerializerApi() {
+    val model = ctx.getEcoreModel(ecoreFile)
+    val apiGenerator = new SerializerApiGenerator(ctx)
+    model.getContents.foreach {
+      elem => elem match {
+        case pack: EPackage => apiGenerator.generateSerializerAPI(pack)
+        case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
+      }
+    }
+  }
+
 
   def generateSerializer() {
+
+    checkOrGenerateSerializerApi()
 
     val model = ctx.getEcoreModel(ecoreFile)
 
     System.out.println("Launching serializer generation")
     val serializerGenerator = new SerializerGenerator(ctx)
     serializerGenerator.generateSerializer(model)
-    /*
-    model.getContents.foreach {
-      elem => elem match {
-        case pack: EPackage => serializerGenerator.generateSerializer(pack)
-        case _ => println("No serializer generator for containerRoot element of class: " + elem.getClass)
-      }
-    }*/
+
     System.out.println("Done with serializer generation")
   }
 
   def generateJSONSerializer() {
+
+    checkOrGenerateSerializerApi()
 
     val model = ctx.getEcoreModel(ecoreFile)
 
