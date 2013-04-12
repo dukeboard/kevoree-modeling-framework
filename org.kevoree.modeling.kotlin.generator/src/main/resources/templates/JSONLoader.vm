@@ -148,8 +148,6 @@ class JSONModelLoader {
                     #if($ref.isMany())
                     reader.beginArray()
                     while(reader.hasNext()) {
-                        reader.beginObject()
-                        reader.nextName() // drop the key, always 'ref'
                     #end
                         val xmiRef = reader.nextString()!!
                         val adjustedRef = if(xmiRef.startsWith("//")){"/0" + xmiRef.substring(1)} else { xmiRef}
@@ -177,7 +175,6 @@ class JSONModelLoader {
                             })
                         }
                     #if($ref.isMany())
-                        reader.endObject()
                     }
                     reader.endArray()
                     #end
