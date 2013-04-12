@@ -43,6 +43,7 @@ package no.sintef.thingml;
 
 import org.junit.Test;
 import thingml.loader.ModelLoader;
+import thingml.loader.XMIModelLoader;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -55,7 +56,7 @@ public class LoadingTest {
 
         try {
 
-            ModelLoader loader = new ModelLoader();
+            ModelLoader loader = new XMIModelLoader();
             loader.loadModelFromPath(new File(getClass().getClassLoader().getResource("helloworld.xmi").toURI()));
 
         } catch (URISyntaxException e) {
@@ -68,7 +69,7 @@ public class LoadingTest {
 
         try {
 
-            ModelLoader loader = new ModelLoader();
+            ModelLoader loader = new XMIModelLoader();
             loader.loadModelFromPath(new File(getClass().getClassLoader().getResource("LightFollower.xmi").toURI()));
 
 
@@ -82,7 +83,7 @@ public class LoadingTest {
 
         try {
 
-            ModelLoader loader = new ModelLoader();
+            ModelLoader loader = new XMIModelLoader();
             loader.loadModelFromPath(new File(getClass().getClassLoader().getResource("bCMS.xmi").toURI()));
 
         } catch (URISyntaxException e) {

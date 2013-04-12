@@ -1,7 +1,8 @@
 
 import org.kevoree.ContainerRoot;
-import org.kevoree.loader.ModelLoader;
-import org.kevoree.serializer.ModelJSONSerializer;
+import org.kevoree.loader.XMIModelLoader;
+import org.kevoree.serializer.JSONModelSerializer;
+import org.kevoree.serializer.ModelSerializer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,7 +19,7 @@ public class HelloJson {
     public static void main(String[] args) throws IOException {
         System.out.println("HelloJSON");
 
-        ModelLoader loader = new ModelLoader();
+        XMIModelLoader loader = new XMIModelLoader();
         ContainerRoot model = loader.loadModelFromPath(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kevoree/src/test/resources/bootKloudNode1.kev")).get(0);
 
         System.out.println("ModelLoaded");
@@ -29,7 +30,7 @@ public class HelloJson {
         File fp = File.createTempFile("jsonXMI","jsonXMI");
         FileOutputStream fop = new FileOutputStream(fp);
 
-        ModelJSONSerializer saver2 = new ModelJSONSerializer();
+        ModelSerializer saver2 = new JSONModelSerializer();
         saver2.serialize(model,fop);
 
         fop.flush();

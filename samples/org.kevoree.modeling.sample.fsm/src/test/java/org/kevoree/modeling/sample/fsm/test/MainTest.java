@@ -24,6 +24,7 @@ import org.fsmSample.Transition;
 import org.fsmSample.cloner.ModelCloner;
 import org.fsmSample.loader.FSMLoader;
 import org.fsmSample.serializer.ModelSerializer;
+import org.fsmSample.serializer.XMIModelSerializer;
 import org.junit.Test;
 
 import java.io.*;
@@ -101,7 +102,7 @@ public class MainTest {
         System.out.println("Cloning time: " + clonet + " ms");
 
 
-        ModelSerializer sav = new ModelSerializer();
+        ModelSerializer sav = new XMIModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
         System.out.println("Serialized in : " + tempFile.getAbsolutePath());
@@ -217,7 +218,7 @@ public class MainTest {
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
         statPr.print(ct.replace(".", ",") + ";");
-        ModelSerializer sav = new ModelSerializer();
+        ModelSerializer sav = new XMIModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
         //tempFile.deleteOnExit();

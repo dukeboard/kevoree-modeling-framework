@@ -3,23 +3,13 @@ package org.kevoree.model.test
 import org.kevoree.persistency.mdb.PersistentKevoreeFactory
 import java.io.File
 import org.kevoree.loader.ModelLoader
+import org.kevoree.loader.XMIModelLoader
 import java.net.URISyntaxException
 import kotlin.test.*
 import org.junit.Test as test
 import org.kevoree.NodeType
 import org.kevoree.GroupType
 import org.kevoree.ChannelType
-
-
-/*
-* Author : Gregory Nain (developer.name@uni.lu)
-* Date : 26/02/13
-* (c) 2013 University of Luxembourg – Interdisciplinary Centre for Security Reliability and Trust (SnT)
-* All rights reserved
-*/
-
-
-
 
 class MdbTest() {
 
@@ -59,7 +49,7 @@ class MdbTest() {
     test public fun _10_loadTest() {
 
         try {
-            val loader = ModelLoader()
+            val loader = XMIModelLoader()
             val modelFile = File(this.javaClass.getResource("/unomas.kev")!!.toURI())
 
             //Usual load
@@ -105,7 +95,7 @@ class MdbTest() {
 
     test public fun _20_oppositeTest() {
 
-        val loader = ModelLoader()
+        val loader = XMIModelLoader()
         val modelFile = File(this.javaClass.getResource("/unomas.kev")!!.toURI())
 
         //Usual load

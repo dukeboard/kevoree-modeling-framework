@@ -24,8 +24,10 @@ import org.fsmSample.Transition;
 import org.fsmSample.cloner.ModelCloner;
 import org.fsmSample.impl.DefaultFsmSampleFactory;
 import org.fsmSample.loader.ModelLoader;
+import org.fsmSample.loader.XMIModelLoader;
 import org.fsmSample.persistency.mdb.PersistentFsmSampleFactory;
 import org.fsmSample.serializer.ModelSerializer;
+import org.fsmSample.serializer.XMIModelSerializer;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -108,7 +110,7 @@ public class MainTest {
         System.out.println("Cloning time: " + clonet + " ms");
 
 
-        ModelSerializer sav = new ModelSerializer();
+        ModelSerializer sav = new XMIModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
         //  tempFile.deleteOnExit();
@@ -138,7 +140,7 @@ public class MainTest {
         statPr.print(mt.replace(".", ",") + ";");
 
         long beforeLoad = System.nanoTime();
-        FSM loaded = new ModelLoader().loadModelFromPath(tempFile).get(0);
+        FSM loaded = new XMIModelLoader().loadModelFromPath(tempFile).get(0);
         double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
         String lt = "" + loadTime / Math.pow(10, 6);
         System.out.println("Load time: " + lt + " ms");
@@ -223,7 +225,7 @@ public class MainTest {
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
         statPr.print(ct.replace(".", ",") + ";");
-        ModelSerializer sav = new ModelSerializer();
+        ModelSerializer sav = new XMIModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
         //tempFile.deleteOnExit();
@@ -252,7 +254,7 @@ public class MainTest {
         statPr.print(mt.replace(".", ",") + ";");
 
         long beforeLoad = System.nanoTime();
-        FSM loaded = new ModelLoader().loadModelFromPath(tempFile).get(0);
+        FSM loaded = new XMIModelLoader().loadModelFromPath(tempFile).get(0);
         double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
         String lt = "" + loadTime / Math.pow(10, 6);
         System.out.println("Load time: " + lt + " ms");

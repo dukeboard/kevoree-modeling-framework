@@ -24,6 +24,7 @@ import org.fsmSample.State;
 import org.fsmSample.Transition;
 import org.fsmSample.loader.FSMLoader;
 import org.fsmSample.serializer.ModelSerializer;
+import org.fsmSample.serializer.XMIModelSerializer;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -88,7 +89,7 @@ public class MainWOOppositeTest {
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
         statPr.print(ct.replace(".", ",") + ";");
-        ModelSerializer sav = new ModelSerializer();
+        ModelSerializer sav = new XMIModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
         //  tempFile.deleteOnExit();
@@ -208,7 +209,7 @@ public class MainWOOppositeTest {
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
         statPr.print(ct.replace(".", ",") + ";");
-        ModelSerializer sav = new ModelSerializer();
+        ModelSerializer sav = new XMIModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
         //tempFile.deleteOnExit();
