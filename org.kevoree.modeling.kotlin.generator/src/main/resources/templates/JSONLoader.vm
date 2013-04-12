@@ -122,61 +122,71 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
             #end
             #foreach($ref in $elemToLoad.getEAllReferences())
                 #if($ref.isContainment())
-                #if($ref.isMany())
                 "$ref.getName()" -> { ##is containement and many
+                    #if($ref.isMany())
                     reader.beginArray()
-                    while(reader.hasNext()) {
+                    while(reader.hasNext()){
+                    #end
                         reader.beginObject()
-                        val nextKey = reader.nextName()
-                        if(nextKey.equals("eClass")) {
-                            #if($elemToLoad == $rootElement)
-                            val i = context.elementsCount.get(elementId+ loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()") ?: 0
-                            val $ref.getName()ElementId = elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()." + i
+                            #if($ref.isMany())
+                                    #if($elemToLoad == $rootElement)
+                                    val i = context.elementsCount.get(elementId+ loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()") ?: 0
+                                    val $ref.getName()ElementId = elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()." + i
+                                    #else
+                                    val i = context.elementsCount.get(elementId + "/@$ref.getName()") ?: 0
+                                    val $ref.getName()ElementId = elementId + "/@$ref.getName()." + i
+                                    #end
                             #else
-                            val i = context.elementsCount.get(elementId + "/@$ref.getName()") ?: 0
-                            val $ref.getName()ElementId = elementId + "/@$ref.getName()." + i
+                                val $ref.getName()ElementId = elementId + "/@$ref.getName()"
                             #end
-                            #if($ref.getEReferenceType().isAbstract() || $ref.getEReferenceType().isInterface())
+                            #set($concreteSubTypes=$helper.getAllConcreteSubTypes($ref.getEReferenceType()))
+                            #set($isConcret= (!$ref.getEReferenceType().isAbstract()) && (!$ref.getEReferenceType().isInterface()))
+                            #if(!( ($isConcret && $concreteSubTypes.size() == 0) || (!$isConcret && $concreteSubTypes.size() == 1) ))
+                            val nextKey = reader.nextName()
+                            if(nextKey.equals("eClass")) {
                             val eclassValue = reader.nextString()
-                            when(eclassValue) {
-                                #foreach($concreteType in $helper.getAllConcreteSubTypes($ref.getEReferenceType()))
-                                "$helper.fqn($ctx, $concreteType.getEPackage()):$concreteType.getName()" -> {
-                                    val loadedElem = load$concreteType.getName()(reader, context, $ref.getName()ElementId)
-                                    modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                when(eclassValue) {
+
+                                    #if($isConcret)
+                                    "$helper.fqn($ctx, $ref.getEReferenceType().getEPackage()):$ref.getEReferenceType().getName()" -> {
+                                        val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
+                                        modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                    }
+                                    #end
+                                    #foreach($concreteType in $concreteSubTypes)
+                                    "$helper.fqn($ctx, $concreteType.getEPackage()):$concreteType.getName()" -> {
+                                        val loadedElem = load$concreteType.getName()(reader, context, $ref.getName()ElementId)
+                                        modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                    }
+                                    #end
+                                    else -> {
+                                        System.err.println("Unknown root type '" + eclassValue + "'. Loading aborted.")
+                                    }
                                 }
-                                #end
-                                else -> {
-                                    System.err.println("Unknown root type '" + eclassValue + "'. Loading aborted.")
-                                }
+                            } else {
+                                System.err.println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
                             }
                             #else
-                            reader.nextString()
-                            val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
-                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                #if($concreteSubTypes.size() == 1)
+                                    val loadedElem = load$concreteSubTypes.get(0).getName()(reader, context, $ref.getName()ElementId)
+                                #else
+                                    val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
+                                #end
+                                modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                             #end
-                            #if($elemToLoad == $rootElement)
-                            context.elementsCount.put(elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()",i+1)
-                            #else
-                            context.elementsCount.put(elementId + "/@$ref.getName()",i+1)
+                            #if($ref.isMany())
+                                #if($elemToLoad == $rootElement)
+                                context.elementsCount.put(elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()",i+1)
+                                #else
+                                context.elementsCount.put(elementId + "/@$ref.getName()",i+1)
+                                #end
                             #end
-                        } else {
-                            System.err.println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
-                        }
                         reader.endObject()
+                    #if($ref.isMany())
                     }
                     reader.endArray()
+                    #end
                 }
-                #{else}
-                "$ref.getName()" -> {##is containement and single
-                    reader.beginObject()
-                    reader.nextName() // drop the eClass key
-                    reader.nextString() // drop the eClass value
-                    val $ref.getName()ElementId = elementId + "/@$ref.getName()"
-                    val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
-                    modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
-                    reader.endObject()
-                }
-                #end
                 #{else}
                 "$ref.getName()" -> {##is not containement
                     #if($ref.isMany())
@@ -215,6 +225,7 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                 }
                 #end
             #end
+                "eClass" -> { reader.nextString() }
                 else -> {System.out.println("Tag unrecognized: " + nextName + " in $elemToLoad.getName()")}
             }
         }

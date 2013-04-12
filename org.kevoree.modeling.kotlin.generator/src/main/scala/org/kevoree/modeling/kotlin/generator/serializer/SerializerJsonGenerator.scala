@@ -322,6 +322,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             }
           }
           case -1 => {
+            buffer.println("if(selfObject." + getGetter(subClass.getName) + "().size() > 0){")
             buffer.println("ostream.println(',')")
             buffer.println("ostream.println(\"\\\"" + subClass.getName + "\\\": [\")")
             buffer.println("var iloop_first_" + subClass.getName + " = true")
@@ -331,6 +332,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             buffer.println("iloop_first_" + subClass.getName + " = false")
             buffer.println("}")
             buffer.println("ostream.println(']')")
+            buffer.println("}")
           }
         }
     }
