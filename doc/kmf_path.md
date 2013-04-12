@@ -53,7 +53,7 @@ Now, imagine that you want to get the `logger`component that you know to be host
 Using the KMFQL-PS the same research looks like:
 
 	ComponentModelRoot root = mySystem.getRoot();
-	Component foundedComponent = root.findByPath("nodes[42]/components[logger]");
+	Component foundComponent = root.findByPath("nodes[42]/components[logger]");
 	
 
 [top](#top)
@@ -170,7 +170,7 @@ To summarize, KMFQL-PS, compared with the naive version, reduces the execution t
 
 When working with models, the selection of elements among a collection is one of the most common operation. This selection is often made of a filter on the values of some elements' attributes. This filtered sub-collection can then be applied another filter going deeper in the containment relation and/or a treatment can be applied.
 
-The KMFQL-QS has been created to allow for efficient deep filtering of model elements. Just as for the Path Selector, queries can be composed of chained filters. The filtering is performed a prefix recursion basis. The first filter returning no element ends the execution of the query and returns null. Otherwise, the query returns the last set of elements that passed the last filter.
+The KMFQL-QS has been created to enable the efficient, deep filtering of model elements. Just as for the Path Selector, queries can be composed of chained filters. The filtering is performed a prefix recursion basis. The first filter returning no element ends the execution of the query and returns null. Otherwise, the query returns the last set of elements that passed the last filter.
 
 The difference with an SQL query for instance, is that the first part of the query is executed, then the second part is executed on each element the sub-set issues from the first query. The results of the second query are aggregated and used as input for the third query; and the algorithm goes until there is no more query part to apply.
 
@@ -216,7 +216,7 @@ Finally with the syntactique sugar and or operator selecting nodes of Center1 or
 
 ### Performance 
 
-KMF Selector has a slower resolution than path selection, but is still far better rather iterate on relationship collections.
-Last but not least, JFilter and KMFQL are design to be able to run on small environment like Android Dalvik.
+KMF Selector has a slower resolution than path selection, but is still far better than iterating on relationship collections.
+Last but not least, JFilter and KMFQL are design to be able to run on small environments like Android Dalvik.
 
 [top](#top)
