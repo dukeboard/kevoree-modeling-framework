@@ -34,6 +34,9 @@
  */
 package org.kevoree.modeling.sample.kermeta;
 
+import org.kermeta.language.loader.ModelLoader;
+import org.kermeta.language.loader.XMIModelLoader;
+
 import java.io.File;
 
 /**
@@ -47,9 +50,13 @@ public class TestRunner {
     public static void main(String[] args){
 
         System.out.println("Loader !!!");
+        ModelLoader loader = new XMIModelLoader();
+        loader.loadModelFromStream(TestRunner.class.getClassLoader().getResourceAsStream("class2rdbms_beforeCheckingforScopeMERGED.km"));
 
-        org.kermeta.language.loader.ModelLoader loader = new org.kermeta.language.loader.ModelLoader();
-        System.out.println(loader.loadModelFromPath(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kermeta/src/main/resources/HelloWorld_beforeCheckingforScopeMERGED.km")));
+
+
+       // org.kermeta.language.loader.ModelLoader loader = new org.kermeta.language.loader.ModelLoader();
+       // System.out.println(loader.loadModelFromPath(new File("/Users/gregory.nain/Sources/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kermeta/src/main/resources/HelloWorld_beforeCheckingforScopeMERGED.km")));
 
     }
 
