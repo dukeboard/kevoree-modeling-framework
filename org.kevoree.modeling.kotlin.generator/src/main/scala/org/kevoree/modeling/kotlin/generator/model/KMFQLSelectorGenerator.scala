@@ -56,7 +56,7 @@ trait KMFQLSelectorGenerator {
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
-    ctx.setkevoreeCacheResolver(formatedCacheName)
+    ctx.setkevoreeCacheResolver(ProcessorHelper.fqn(ctx, packElement)+".impl."+formatedCacheName)
   }
 
   def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
@@ -75,6 +75,10 @@ trait KMFQLSelectorGenerator {
       ctxV.put("relationShipOptionalName", relationShipOptionalName)
     }
     ctxV.put("eRefs",cls.getEAllReferences)
+    ctxV.put("eSub",cls.getEAllContainments)
+
+    ctxV.put("formatedFactoryName",ctx.getKevoreeContainer.get)
+
     template.merge(ctxV, pr)
   }
 

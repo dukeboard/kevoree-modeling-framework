@@ -7,6 +7,7 @@ import org.kermeta.language.serializer.ModelSerializer;
 import org.kermeta.language.structure.Metamodel;
 
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,27 +17,40 @@ import java.util.List;
  */
 public class SimpleLoopApp {
 
-    public static final int nbModel = 10;
+    public int nbModel = 1000;
 
     public static void main(String[] args) {
-        System.out.println("Load and lost 3000 Kermeta Model");
-        ModelLoader loader = new XMIModelLoader();
-        long before = System.currentTimeMillis();
+        SimpleLoopApp app = new SimpleLoopApp();
+        app.test();
+    }
 
+    public void test() {
+        System.out.println("Load and lost "+nbModel+" Kermeta Model");
+        ModelLoader loader = new XMIModelLoader();
+        String content = buildTestRes();
+
+        long before = System.currentTimeMillis();
         for (int i = 0; i < nbModel; i++) {
-            List<Metamodel> models = loader.loadModelFromStream(SimpleLoopApp.class.getClassLoader().getResourceAsStream("test_hello_beforeCheckingforScopeRESOLVED.km"));
+            List<Metamodel> models = loader.loadModelFromString(content);
             if (i % 100 == 0) {
                 System.out.println("i=" + i);
             }
+            cleanupModel(models);
         }
 
         long after = System.currentTimeMillis();
+        System.out.println("Time spent : " + (after - before) + " ms ");
+        System.out.println("Time spent per model (avg) : " + ((after - before) / nbModel) + " ms ");
+        //ModelSerializer saver = new JSONModelSerializer();
+        //saver.serialize(loader.loadModelFromStream(SimpleLoopApp.class.getClassLoader().getResourceAsStream("test_hello_beforeCheckingforScopeRESOLVED.km")).get(0), System.out);
+    }
 
-        System.out.println("Time spend : " + (after - before) + " ms ");
-        System.out.println("Time spend per model (avg) : " + ((after - before) / nbModel) + " ms ");
+    public void cleanupModel(List<Metamodel> models) {
+        //NOOP
+    }
 
-        ModelSerializer saver = new JSONModelSerializer();
-        saver.serialize(loader.loadModelFromStream(SimpleLoopApp.class.getClassLoader().getResourceAsStream("test_hello_beforeCheckingforScopeRESOLVED.km")).get(0),System.out);
+    public String buildTestRes(){
+        return new Scanner(SimpleLoopApp.class.getClassLoader().getResourceAsStream("kompren_beforeCheckingforScopeRESOLVED.km"),"UTF-8").useDelimiter("\\A").next();
     }
 
 }

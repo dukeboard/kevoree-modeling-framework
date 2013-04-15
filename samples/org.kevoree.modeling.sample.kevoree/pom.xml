@@ -34,6 +34,7 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
                             <json>true</json>
+                            <selector>true</selector>
                         </configuration>
                     </execution>
                 </executions>
@@ -90,6 +91,11 @@
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.6.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.inria.jfilter</groupId>
+            <artifactId>jfilter-library</artifactId>
+            <version>1.3</version>
         </dependency>
     </dependencies>
 

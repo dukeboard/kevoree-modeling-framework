@@ -1,8 +1,10 @@
 #* @vtlvariable name="optionalRelationShipNameGen" type="java.lang.Boolean" *#
 #* @vtlvariable name="relationShipOptionalName" type="java.lang.String" *#
 #* @vtlvariable name="eRefs" type="org.eclipse.emf.common.util.EList<org.eclipse.emf.ecore.EReference>" *#
+#* @vtlvariable name="eSub" type="org.eclipse.emf.common.util.EList<org.eclipse.emf.ecore.EReference>" *#
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+#* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
 
 override fun selectByQuery(query : String) : List<Any> {
     val collected = java.util.ArrayList<Any>()
@@ -79,6 +81,27 @@ override fun selectByQuery(query : String) : List<Any> {
                     return collected
                 }
             #end
+                "contained" -> {
+                    var subResult : MutableCollection<Any> = java.util.ArrayList<Any>()
+                    #foreach( $subRef in $eSub )
+                        #if(!$subRef.isMany())
+                            if(get${subRef.getName().substring(0, 1).toUpperCase()}${subRef.getName().substring(1)}()!=null){
+                                subResult.addAll(${ctx.getkevoreeCacheResolver()}.filter(queryID,java.util.Collections.singleton(get${subRef.getName().substring(0, 1).toUpperCase()}${subRef.getName().substring(1)}()))!!)
+                            }
+                        #else
+                            subResult.addAll(${ctx.getkevoreeCacheResolver()}.filter(queryID,get${subRef.getName().substring(0, 1).toUpperCase()}${subRef.getName().substring(1)}())!!)
+                        #end
+
+                    #end
+                    if(subquery != ""){
+                        for(subObj in subResult!!){
+                            collected.addAll( (subObj as ${formatedFactoryName}).selectByQuery(subquery))
+                        }
+                    } else {
+                        collected.addAll(subResult!!)
+                    }
+                    return collected
+                }
             else -> {return collected}
         }
     } catch(e:Exception){
