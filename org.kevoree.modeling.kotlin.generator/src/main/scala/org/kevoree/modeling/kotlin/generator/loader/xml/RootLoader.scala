@@ -234,7 +234,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("}") // START_ELEMENT
     pr.println("XMLStreamConstants.END_ELEMENT -> {break}")
     pr.println("XMLStreamConstants.END_DOCUMENT -> {break}")
-    pr.println("else ->{println(\"Default case :\" + nextTag.toString())}")
+    pr.println("else ->{ /*println(\"Default case :\" + nextTag.toString())*/ }")
 
     pr.println("}")//When
     pr.println("}")//while

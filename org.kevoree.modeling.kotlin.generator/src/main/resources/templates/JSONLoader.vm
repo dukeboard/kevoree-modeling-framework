@@ -2,6 +2,8 @@
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 #* @vtlvariable name="rootElement" type="org.eclipse.emf.ecore.EClass" *#
 #* @vtlvariable name="elemToLoad" type="org.eclipse.emf.ecore.EClass" *#
+#* @vtlvariable name="allEClass" type="org.eclipse.emf.ecore.EClass" *#
+
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
 import java.io.File
@@ -88,8 +90,13 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
         }
     }
 
-#generateLoadMethod($rootElement)
+#foreach($eClazz in $allEClass)
+    #if( $eClazz.getEReferenceType().isAbstract() || $eClazz.getEReferenceType().isInterface())
 
+    #else
+        #generateLoadMethod($eClazz)
+    #end
+#end
 
 #macro( generateLoadMethod $elemToLoad )
     private fun load$elemToLoad.getName()(reader : JsonReader, context : LoadingContext, elementId: String) : $helper.fqn($ctx, $elemToLoad) {
@@ -116,6 +123,8 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                 "$att.getName()" -> {modelElem.$methName(reader.nextDouble())}
                 #elseif($helper.convertType($att.getEAttributeType()).equals("Long"))
                 "$att.getName()" -> {modelElem.$methName(reader.nextLong())}
+                #elseif($att.getEAttributeType().getClass().getName().toLowerCase().contains("eenum"))
+                "$att.getName()" -> {modelElem.$methName(${helper.fqn($ctx,$att.getEAttributeType())}.valueOf(reader.nextString()!!))}
                 #else
                 "$att.getName()" -> {modelElem.$methName(unescapeJSON(reader.nextString()!!))}
                 #end
@@ -232,22 +241,6 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
         return modelElem
     }
 
-    #foreach($e in $elemToLoad.getEAllContainments())
-        #if( ! $ctx.generatedLoaderFiles().contains(${helper.fqn($ctx,$e.getEReferenceType())}))
-            #set($res = ${ctx.generatedLoaderFiles().add(${helper.fqn($ctx,$e.getEReferenceType())})})
-            #generateLoadMethod($e.getEReferenceType())
-        #end
-    #end
-    #foreach($ref in $elemToLoad.getEAllContainments())
-        #if($ref.getEReferenceType().isAbstract() || $ref.getEReferenceType().isInterface())
-            #foreach($e in $helper.getAllConcreteSubTypes($ref.getEReferenceType()))
-                #if( ! $ctx.generatedLoaderFiles().contains(${helper.fqn($ctx,$e)}))
-                    #set($res = ${ctx.generatedLoaderFiles().add(${helper.fqn($ctx,$e)})})
-                    #generateLoadMethod($e)
-                #end
-            #end
-        #end
-    #end
 #end
 
 }

@@ -168,7 +168,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val loaderGenerator = new JsonLoaderGenerator(ctx)
     model.getContents.foreach {
       elem => elem match {
-        case pack: EPackage => loaderGenerator.generateLoader(pack)
+        case pack: EPackage => loaderGenerator.generateLoader(pack,model)
         case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
       }
     }
@@ -210,7 +210,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val serializerGenerator = new SerializerJsonGenerator(ctx)
     model.getContents.foreach {
       elem => elem match {
-        case pack: EPackage => serializerGenerator.generateJsonSerializer(pack)
+        case pack: EPackage => serializerGenerator.generateJsonSerializer(pack,model)
         case _ => println("No serializer generator for containerRoot element of class: " + elem.getClass)
       }
     }

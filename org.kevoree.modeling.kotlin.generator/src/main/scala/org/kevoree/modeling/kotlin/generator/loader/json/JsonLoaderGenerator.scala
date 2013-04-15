@@ -41,10 +41,12 @@ package org.kevoree.modeling.kotlin.generator.loader.json
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 import scala.collection.JavaConversions._
 import java.io.{PrintWriter, File}
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,7 +57,7 @@ import java.io.{PrintWriter, File}
 
 class JsonLoaderGenerator(ctx : GenerationContext) {
 
-  def generateLoader(pack : EPackage) {
+  def generateLoader(pack : EPackage, model : XMIResource) {
 
     //Fills the map of factory mappings
     if(ctx.packageFactoryMap.size()==0) {
@@ -87,6 +89,8 @@ class JsonLoaderGenerator(ctx : GenerationContext) {
         ctxV.put("rootElement",cls)
         ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
         ctxV.put("ctx",ctx)
+        ctxV.put("allEClass",getEAllEclass(model))
+
 
         template.merge(ctxV,ctx.loaderPrintWriter )
 
@@ -97,5 +101,28 @@ class JsonLoaderGenerator(ctx : GenerationContext) {
       case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Loader generation aborted.")
     }
   }
+
+  def getEAllEclass(pack : XMIResource) : java.util.List[EClass] = {
+    val result = new util.ArrayList[EClass]()
+    pack.getContents.foreach{ eclass =>
+      if(eclass.isInstanceOf[EPackage]){
+        getEAllPackage(eclass.asInstanceOf[EPackage],result)
+      }
+    }
+    return result
+  }
+
+  def getEAllPackage(pack : EPackage, fillList : util.ArrayList[EClass]){
+    pack.getEClassifiers.foreach { eClazz =>
+      if(eClazz.isInstanceOf[EClass]){
+        fillList.add(eClazz.asInstanceOf[EClass])
+      }
+    }
+    pack.getESubpackages.foreach { sub =>
+      getEAllPackage(sub,fillList)
+    }
+  }
+
+
 
 }

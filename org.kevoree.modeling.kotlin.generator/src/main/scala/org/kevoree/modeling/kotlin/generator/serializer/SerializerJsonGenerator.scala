@@ -38,10 +38,12 @@ package org.kevoree.modeling.kotlin.generator.serializer
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore.{EEnum, EReference, EPackage, EClass}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,13 +54,13 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
 
 class SerializerJsonGenerator(ctx: GenerationContext) {
 
-  def generateJsonSerializer(pack: EPackage) {
+  def generateJsonSerializer(pack: EPackage, model : XMIResource) {
     ctx.getRootContainerInPackage(pack) match {
       case Some(cls: EClass) => {
         val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
         ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
         val modelPackage = ProcessorHelper.fqn(ctx, cls.getEPackage)
-        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage)
+        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage,model)
       }
       case None => println("Root container not found in package: " + ProcessorHelper.fqn(ctx, pack) + ". JsonSerializer generation aborted.")
     }
@@ -74,7 +76,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage) {
+  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage, model : XMIResource) {
     val genFile = new File(genDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
@@ -96,18 +98,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println("}") //END serialize method
 
     generateEscapeMethod(pr)
-    generateSerializer(genDir, packageName, root.getEPackage.getName + ":" + root.getName, root, root.getEPackage, true, pr: PrintWriter)
+    generateSerializer(getEAllEclass(model), packageName, root.getEPackage.getName + ":" + root.getName, root, root.getEPackage, true, pr: PrintWriter)
     pr.println("}") //END TRAIT
     pr.flush()
     pr.close()
   }
 
-  private def generateSerializer(genDir: String, packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false, pr: PrintWriter) {
-    rootXmiPackage.getEClassifiers.foreach {
-      eClass =>
-        if (eClass.isInstanceOf[EClass]) {
-          generateToJsonMethod(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass.getName, eClass == root)
-        }
+  private def generateSerializer(eClazzs : java.util.List[EClass], packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false, pr: PrintWriter) {
+    eClazzs.foreach { eClass => generateToJsonMethod(rootXmiPackage, eClass, pr, eClass.getName, eClass == root)
     }
   }
 
@@ -118,6 +116,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
 
 
   private def generateToJsonMethod(pack: EPackage, cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
+
     var stringListSubSerializers = Set[Tuple2[String, String]]()
     if (cls.getEAllContainments.size > 0) {
       cls.getEAllContainments.foreach {
@@ -341,6 +340,27 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     buffer.println("}")
     buffer.println("}") //End MATCH CASE
     buffer.println("}") //END TO Json
+  }
+
+  def getEAllEclass(pack : XMIResource) : java.util.List[EClass] = {
+    val result = new util.ArrayList[EClass]()
+    pack.getContents.foreach{ eclass =>
+      if(eclass.isInstanceOf[EPackage]){
+        getEAllPackage(eclass.asInstanceOf[EPackage],result)
+      }
+    }
+    return result
+  }
+
+  def getEAllPackage(pack : EPackage, fillList : util.ArrayList[EClass]){
+    pack.getEClassifiers.foreach { eClazz =>
+      if(eClazz.isInstanceOf[EClass]){
+        fillList.add(eClazz.asInstanceOf[EClass])
+      }
+    }
+    pack.getESubpackages.foreach { sub =>
+      getEAllPackage(sub,fillList)
+    }
   }
 
 
