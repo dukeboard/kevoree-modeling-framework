@@ -2,8 +2,6 @@ package org.kevoree.modeling.GC4MDE;
 
 import org.kermeta.language.loader.ModelLoader;
 import org.kermeta.language.loader.XMIModelLoader;
-import org.kermeta.language.serializer.JSONModelSerializer;
-import org.kermeta.language.serializer.ModelSerializer;
 import org.kermeta.language.structure.Metamodel;
 
 import java.util.List;
