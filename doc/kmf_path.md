@@ -214,6 +214,30 @@ Finally with the syntactique sugar and or operator selecting nodes of Center1 or
 
 	{ |(name = Center1_*)(name = Center2_* ) }
 
+
+### Special keyword for contained elements
+
+In addition to standard relationship names which are available in the selector language, KMFQL have a dedicated keyword to select contained elements.
+
+Then it possible to select any child elements of a parent with the following expression : 
+
+	contained[*]
+	
+In the same manner, it is possible to select a subset of contained elements :
+
+	contained[name = subNode*]
+	
+This mecanism offer a low cost reflexivity mecansim which allows for instance to write a simple visitor :
+
+	private static  void print(KMFContainer elem, int indice){
+		for(int i=0;i<indice;i++){System.out.print('\t');}
+		System.out.println(elem);
+		List<Object> subElems = elem.selectByQuery("contained[*]");
+		for(Object subContainer : subElems){
+			print((KMFContainer)subContainer,indice+1);
+		}
+	}
+
 ### Performance 
 
 KMF Selector has a slower resolution than path selection, but is still far better than iterating on relationship collections.
