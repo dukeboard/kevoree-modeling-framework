@@ -217,17 +217,17 @@ Finally with the syntactique sugar and or operator selecting nodes of Center1 or
 
 ### Special keyword for contained elements
 
-In addition to standard relationship names which are available in the selector language, KMFQL have a dedicated keyword to select contained elements.
+In addition to standard relationship names available in the selector language, KMFQL offers a dedicated keyword to perform selections on any element contained by another.
 
-Then it possible to select any child elements of a parent with the following expression : 
+In details, if an element is container for some other, it is possible to select all his child(contained) elements, whatever their containment collection, by using the following expression :
 
 	contained[*]
 	
-In the same manner, it is possible to select a subset of contained elements :
+So as with classical relation, it is possible to select a subset of the contained elements (e.g.: any contained element which name starts with `subNode`):
 
 	contained[name = subNode*]
 	
-This mecanism offer a low cost reflexivity mecansim which allows for instance to write a simple visitor :
+This mecanism offers a lightweight tool to write things like this simple visitor :
 
 	private static  void print(KMFContainer elem, int indice){
 		for(int i=0;i<indice;i++){System.out.print('\t');}
