@@ -28,9 +28,9 @@
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
                             <rootXmiContainerClassName>Metamodel</rootXmiContainerClassName>
-                            <json>true</json>
+                           <!-- <json>true</json>-->
                             <selector>true</selector>
-							<flyweightFactory>true</flyweightFactory>
+							<!--<flyweightFactory>true</flyweightFactory> -->
                         </configuration>
                     </execution>
                 </executions>
