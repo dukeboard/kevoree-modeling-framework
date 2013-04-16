@@ -17,7 +17,7 @@ import java.util.Scanner;
  */
 public class SimpleLoopApp {
 
-    public int nbModel = 1000;
+    public int nbModel = 500;
 
     public static void main(String[] args) {
         SimpleLoopApp app = new SimpleLoopApp();

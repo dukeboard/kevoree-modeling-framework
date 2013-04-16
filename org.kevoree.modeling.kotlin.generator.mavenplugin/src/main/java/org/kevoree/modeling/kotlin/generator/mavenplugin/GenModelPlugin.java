@@ -125,6 +125,13 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private Boolean js = false;
 
+    /**
+     * Generate JS version
+     *
+     * @parameter
+     */
+    private Boolean flyweightFactory = false;
+
 
     /**
      * Generate JSON
@@ -171,6 +178,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
+        ctx.flyweightFactory_$eq(flyweightFactory);
 
         Generator gen = new Generator(ctx,ecore);//, getLog());
 

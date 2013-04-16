@@ -35,6 +35,7 @@
                             <packagePrefix>org</packagePrefix>
                             <json>true</json>
                             <selector>true</selector>
+							<flyweightFactory>true</flyweightFactory>
                         </configuration>
                     </execution>
                 </executions>

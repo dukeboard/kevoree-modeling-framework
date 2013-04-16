@@ -224,6 +224,10 @@ class GenerationContext {
   }
 
 
+  var flyweightFactory = false
+
+
+
   var basePackageForUtilitiesGeneration : EPackage = null
   def getBasePackageForUtilitiesGeneration = basePackageForUtilitiesGeneration
 

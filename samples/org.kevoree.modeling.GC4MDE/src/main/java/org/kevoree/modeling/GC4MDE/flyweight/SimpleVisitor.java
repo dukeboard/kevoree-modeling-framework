@@ -39,7 +39,4 @@ public class SimpleVisitor {
         }
     }
 
-
-
-
 }

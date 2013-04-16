@@ -85,7 +85,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val factoryGenerator = new FactoryGenerator(ctx)
     factoryGenerator.generateMainFactory()
 
-
     val model = ctx.getEcoreModel(ecoreFile)
     checkModel(model)
 

@@ -43,6 +43,7 @@ import org.apache.velocity.VelocityContext
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore.{EClassifier, EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -76,6 +77,31 @@ trait PackageFactoryGenerator {
 
   }
 
+  def generateFlyweightFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
+    var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
+    formatedFactoryName += packElement.getName.substring(1)
+    formatedFactoryName += "Factory"
+    val localFile = new File(packageGenDir + "/impl/Flyweight" + formatedFactoryName + ".kt")
+    val pr = new PrintWriter(localFile,"utf-8")
+    val packageName = ProcessorHelper.fqn(ctx, packElement)
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate( "templates/FlyWeightFactory.vm" );
+    val ctxV = new VelocityContext()
+    ctxV.put("packageName",packageName)
+    import scala.collection.JavaConversions._
+    ctxV.put("formatedFactoryName",formatedFactoryName)
+
+    val clzz : java.util.ArrayList[EClass] = new util.ArrayList[EClass]()
+    packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach{ec => clzz.add(ec.asInstanceOf[EClass]) }
+    ctxV.put("classes",clzz)
+    ctxV.put("modelVersion",modelVersion)
+    template.merge(ctxV,pr)
+    pr.flush()
+    pr.close()
+  }
+
   def generatePackageFactoryDefaultImpl(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
@@ -98,5 +124,8 @@ trait PackageFactoryGenerator {
     pr.flush()
     pr.close()
   }
+
+
+
 
 }

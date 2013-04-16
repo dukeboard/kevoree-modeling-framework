@@ -121,6 +121,11 @@ with APIGenerator {
       ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
       generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
       generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
+
+      if(ctx.flyweightFactory){
+        generateFlyweightFactory(ctx,currentPackageDir,currentPackage,modelVersion)
+      }
+
     }
 
     //generateMutableTrait(dir, thisPack, pack)
