@@ -18,6 +18,11 @@ fun myApp() {
         val node0 = factory.createContainerNode()
         node0.setName("node0")
         root.addNodes(node0)
-        element.appendChild(document.createTextNode("Some Dynamically Created Content!!!")!!)
+        element.appendChild(document.createTextNode("Some Dynamically Created Content!!! nodeName"+node0.getName()+"/")!!)
+
+
+        element.appendChild(document.createTextNode("getNode="+root.findNodesByID("node0"))!!)
+
+
     }
 }

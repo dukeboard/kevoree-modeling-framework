@@ -1,6 +1,7 @@
 #* @vtlvariable name="packageName" type="java.lang.String" *#
 #* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
 #* @vtlvariable name="modelVersion" type="java.lang.String" *#
+#* @vtlvariable name="js" type="java.lang.Boolean" *#
 #* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
 
 package ${packageName}.impl;
@@ -10,7 +11,7 @@ import ${packageName}.${formatedFactoryName};
 import ${packageName}.${class.getName()};
 #end
 
-open class Default${formatedFactoryName} : ${formatedFactoryName} {
+#if(!$js)open#end class Default${formatedFactoryName} : ${formatedFactoryName} {
 
 override fun getVersion() : String { return "${modelVersion}" }
 

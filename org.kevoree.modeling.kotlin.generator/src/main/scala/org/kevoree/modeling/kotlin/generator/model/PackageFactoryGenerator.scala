@@ -117,6 +117,7 @@ trait PackageFactoryGenerator {
     ctxV.put("packageName",packageName)
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName",formatedFactoryName)
+    ctxV.put("js",ctx.js)
     val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
     ctxV.put("classes",classes)
     ctxV.put("modelVersion",modelVersion)
