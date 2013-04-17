@@ -1,0 +1,11 @@
+package java.io
+
+class OutputStream {
+
+fun flush(){}
+
+fun close(){}
+
+var result : String = ""
+
+}

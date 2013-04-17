@@ -55,6 +55,10 @@ import java.util
 class SerializerJsonGenerator(ctx: GenerationContext) {
 
   def generateJsonSerializer(pack: EPackage, model : XMIResource) {
+
+    if(ctx.getJS()){
+      generateStaticJavaClass()
+    }
     ctx.getRootContainerInPackage(pack) match {
       case Some(cls: EClass) => {
         val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
@@ -64,6 +68,32 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
       }
       case None => println("Root container not found in package: " + ProcessorHelper.fqn(ctx, pack) + ". JsonSerializer generation aborted.")
     }
+  }
+
+
+  private def generateStaticJavaClass(){
+    val basePath = ctx.getRootGenerationDirectory + File.separator + "java"+File.separator +"io"
+    ProcessorHelper.checkOrCreateFolder(basePath)
+
+    val genOutputStreamFile = new File(basePath +File.separator+ "OutputStream.kt")
+    val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
+    val genPrintStreamFile = new File(basePath +File.separator+ "PrintStream.kt")
+    val PrintStream = new PrintWriter(genPrintStreamFile, "utf-8")
+
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template1 = ve.getTemplate("templates/java.io.OutputStream.vm")
+    val ctxV = new VelocityContext()
+    template1.merge(ctxV, OutputStream)
+    OutputStream.flush()
+    OutputStream.close()
+
+    val template2 = ve.getTemplate("templates/java.io.PrintStream.vm")
+    template2.merge(ctxV, PrintStream)
+    PrintStream.flush()
+    PrintStream.close()
+
   }
 
   private def generateEscapeMethod(pr: PrintWriter) {
