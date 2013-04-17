@@ -88,7 +88,13 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println("when(oMS) {")
     pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
     pr.println("val context = get" + root.getName + "JsonAddr(oMS,\"/\")")
-    pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
+
+    if(ctx.getJS()){
+      pr.println("val wt = java.io.PrintStream(ostream)")
+    } else {
+      pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
+    }
+
     pr.println("" + root.getName + "toJson(oMS,context,wt)")
     pr.println("wt.flush()")
     pr.println("wt.close()")

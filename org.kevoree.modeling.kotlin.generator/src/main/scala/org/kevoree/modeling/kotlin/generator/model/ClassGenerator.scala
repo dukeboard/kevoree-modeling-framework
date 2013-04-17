@@ -73,7 +73,6 @@ import java.io.{File, PrintWriter}
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
-import xmi.impl.XMIResourceImpl
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 import scala.Some
 
@@ -133,9 +132,9 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
           case _@className => {
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
-              pr.println(ProcessorHelper.fqn(ctx,att.getEAttributeType) + "? = null")
+              pr.println(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? = null")
             } else {
-             // println("--->" + className)
+              // println("--->" + className)
               pr.println(className)
             }
           }
@@ -338,7 +337,7 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
           case _@className => {
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
-              pr.println(ProcessorHelper.fqn(ctx,att.getEAttributeType) + "?")
+              pr.println(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "?")
             } else {
               //println("--->" + className)
               pr.println(className)
@@ -386,12 +385,12 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
-        if(att.getEAttributeType.isInstanceOf[EEnum]){
-          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.fqn(ctx,att.getEAttributeType) + "? {\n")
+        if (att.getEAttributeType.isInstanceOf[EEnum]) {
+          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? {\n")
         } else if (ProcessorHelper.convertType(att.getEAttributeType) == "Any") {
           pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
         } else {
-            pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
 
         }
         pr.println(" return " + protectReservedWords("_" + att.getName) + "\n}")
@@ -399,7 +398,7 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
 
         //generate setter
         pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        if(att.getEAttributeType.isInstanceOf[EEnum]){
+        if (att.getEAttributeType.isInstanceOf[EEnum]) {
           pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
         } else {
           pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
@@ -414,20 +413,20 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.getUpperBound == -1) {
           // multiple values
-          pr.println(generateGetter(ctx,ref, typeRefName, false, false))
+          pr.println(generateGetter(ctx, ref, typeRefName, false, false))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
           pr.println(generateAddMethod(cls, ref, typeRefName, ctx))
           pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx))
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
           // optional single ref
-          pr.println(generateGetter(ctx,ref, typeRefName, true, true))
+          pr.println(generateGetter(ctx, ref, typeRefName, true, true))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, true, true))
         } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
           // mandatory single ref
-          pr.println(generateGetter(ctx,ref, typeRefName, false, true))
+          pr.println(generateGetter(ctx, ref, typeRefName, false, true))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, true))
         } else if (ref.getLowerBound > 1) {
-          pr.println(generateGetter(ctx,ref, typeRefName, false, false))
+          pr.println(generateGetter(ctx, ref, typeRefName, false, false))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
           pr.println(generateAddMethod(cls, ref, typeRefName, ctx))
           pr.println(generateRemoveMethod(cls, ref, typeRefName, false, ctx))
@@ -437,12 +436,11 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
     }
   }
 
-  private def generateGetter(ctx:GenerationContext,ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
+  private def generateGetter(ctx: GenerationContext, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
     //Generate getter
     val methName = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     var res = ""
     res += "\noverride fun " + methName + "() : "
-
     //Set return type
     res += {
       if (isOptional) {
@@ -466,18 +464,6 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
         "?"
       }
     }
-    /*
-    res += {
-      if (isOptional) {
-        if (!isSingleRef) {
-          "?"
-        } else {
-          ""
-        }
-      } else {
-        ""
-      }
-    }*/
     res += " {\n"
     //Method core
     if (isSingleRef) {
@@ -485,25 +471,27 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
       res += protectReservedWords("_" + ref.getName)
       res += "\n"
     } else {
-      res += "return if(" + protectReservedWords("_" + ref.getName) + "_java_cache != null){\n"
-      res += protectReservedWords("_" + ref.getName) + "_java_cache as List<" + typeRefName + ">\n"
-      res += "} else {\n"
-
-      res += "val tempL = java.util.ArrayList<" + typeRefName + ">()\n"
-      if (hasID(ref.getEReferenceType)) {
-        res += "tempL.addAll(" + protectReservedWords("_" + ref.getName) + ".values().toList())\n"
+      if (ctx.getJS()) {
+        if (hasID(ref.getEReferenceType)) {
+          res += "return _" + ref.getName + ".values().toList()"
+        } else {
+          res += "return _" + ref.getName   //TODO protection for JS
+        }
       } else {
-        res += "tempL.addAll(" + protectReservedWords("_" + ref.getName) + ")\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + "_java_cache != null){\n"
+        res += "return _" + ref.getName + "_java_cache as List<" + typeRefName + ">\n"
+        res += "} else {\n"
+        if (hasID(ref.getEReferenceType)) {
+          res += protectReservedWords("_" + ref.getName) + "_java_cache = java.util.Collections.unmodifiableList(_" + ref.getName+".values().toList())\n"
+          res += "return _" + ref.getName + "_java_cache as List<" + typeRefName + ">\n"
+        } else {
+          res += "val tempL = java.util.ArrayList<" + typeRefName + ">()\n"
+          res += "tempL.addAll(" + protectReservedWords("_" + ref.getName) + ")\n"
+          res += protectReservedWords("_" + ref.getName) + "_java_cache = java.util.Collections.unmodifiableList(tempL)\n"
+          res += "return tempL\n"
+        }
+        res += "}\n"
       }
-
-      if(ctx.getJS()){
-        res += protectReservedWords("_" + ref.getName) + "_java_cache = tempL\n"
-      } else {
-        res += protectReservedWords("_" + ref.getName) + "_java_cache = java.util.Collections.unmodifiableList(tempL)\n"
-      }
-
-      res += "tempL\n"
-      res += "}\n"
     }
     res += "}"
     res
@@ -955,11 +943,11 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
       } else {
 
         var collectionHelper = "java.util.Collections.unmodifiableList"
-        if(ctx.getJS()){
+        if (ctx.getJS()) {
           collectionHelper = ""
         }
 
-        res += "val temp_els = "+collectionHelper+"(" + getterCall + ")\n"
+        res += "val temp_els = " + collectionHelper + "(" + getterCall + ")\n"
         res += "for(el in temp_els){\n"
       }
 

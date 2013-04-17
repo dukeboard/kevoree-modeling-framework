@@ -30,6 +30,7 @@
                             <packagePrefix>org</packagePrefix>
                              <modelOnly>true</modelOnly>
                             <js>true</js>
+                            <json>true</json>
                         </configuration>
                     </execution>
                 </executions>
