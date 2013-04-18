@@ -6,7 +6,7 @@
 ## Overview
 
 The Eclipse Modeling Framework(EMF) has been developed for design time manipulations of models and provides tools for this purpose, though not developed to be light, embeddable and effective at **run time**. 
-The [Kevoree Modeling Framework(KMF)] [1] is developed specifically to address these drawbacks and provides a drop-in replacement of the EMF *generator* (i.e.: model to code generator). Indeed, models are structured data and must offer efficient solutions for their exploration, loading, saving and cloning.
+The [Kevoree Modeling Framework][1], or KMF, is developed specifically to address these drawbacks and provides a drop-in replacement of the EMF *generator* (i.e.: model to code generator). Indeed, models are structured data and must offer efficient solutions for their exploration, loading, saving and cloning.
 
 KMF takes advantage of its generation abilities to now propose two new tools to efficiently select and/or reach any model element.
 
