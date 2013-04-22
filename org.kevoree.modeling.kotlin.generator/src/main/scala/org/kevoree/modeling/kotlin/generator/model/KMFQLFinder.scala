@@ -216,9 +216,9 @@ trait KMFQLFinder {
       pr.println("findByPath<A>(query : String, clazz : Class<A>) : A? {")
       pr.println("try {")
       pr.println("val res= findByPath(query)")
-      pr.println("if(res != null){return (res as A)} else {return (null)}")
+      pr.println("if(res != null){return res as A} else {return null}")
       pr.println("}catch(e:Exception){")
-      pr.println("return (null)")
+      pr.println("return null")
       pr.println("}")
       pr.println("}")
     }
@@ -305,7 +305,7 @@ trait KMFQLFinder {
         pr.println("}")
       }
     })
-    pr.println("else -> {}")
+    pr.println("else -> {null}")
     pr.println("}")
     pr.println("}")
   }
