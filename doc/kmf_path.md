@@ -180,9 +180,10 @@ The syntax is based on the same construction as KMFQL-PS. The filterExp format i
 	relationName[{filterExp}]/relationName[{filterExp}]
 
 The relation name is optional. In this case,  the query is executed on **ALL** relations of the element on which it is called.<br/>
-**BE AWARE** that this behavior can lead to a combinatorial explosion if not used with caution.
 
 	{filterExp}/relationName[{filterExp}]
+	
+> **BE AWARE** that this behavior can lead to a combinatorial explosion if not used with caution.
 
 [top](#top)
 ### API and usage
@@ -207,7 +208,7 @@ And finally in the same manner the following expression select every master whic
 
 	nodes[{ &(nodes.size > 3)(name = Center1_* ) }]
 	
-Finally with the syntactique sugar and or operator selecting nodes of Center1 or Center2 can be expressed by the following expression :
+Finally with the syntactic sugar and _or_ operator selecting nodes of Center1 or Center2 can be expressed by the following expression :
 
 	{ |(name = Center1_*)(name = Center2_* ) }
 
