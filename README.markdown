@@ -20,3 +20,19 @@ Authors : Fouquet Francois, Nain Gregory
 
 Developments supported by IRISA, INRIA-Rennes, Université de Luxembourg, Interdisciplinary Center for Security, Reliability and Trust (SnT).
 
+
+
+
+KMF implementation has been submitted to the Models'2012 conference : [KMF paper'2012](http://hal.archives-ouvertes.fr/docs/00/71/45/58/PDF/emfatruntime.pdf).
+
+KMF2 version include a lot of improvement since the presentation of this paper :
+
+| FSM 100 000 | KMF1 (Models paper) | KMF2 |
+|:-----------|------------:|:------------:|
+| Memory used       |        61 MB |     49.095536 MB     |
+| Creation time     |      313 ms |    89.038 ms    |
+| Cloning time       |        398 ms |     121.119 ms     |
+| Marshaling time         |          2630 ms |      1074.508 ms      |
+| Unmarshaling time       |       +3000 ms |    660.567 ms    |
+
+In addition to performance speedup we introduce the KMFQL langage, documentation can be found at the following address : [KMFQL documentation](https://github.com/dukeboard/kevoree-modeling-framework/blob/master/doc/kmf_path.md)

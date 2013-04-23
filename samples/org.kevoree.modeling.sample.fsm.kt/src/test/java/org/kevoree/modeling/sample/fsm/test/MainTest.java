@@ -17,17 +17,15 @@
  */
 package org.kevoree.modeling.sample.fsm.test;
 
-import org.fsmSample.FSM;
-import org.fsmSample.FsmSampleFactory;
-import org.fsmSample.State;
-import org.fsmSample.Transition;
-import org.fsmSample.cloner.ModelCloner;
-import org.fsmSample.impl.DefaultFsmSampleFactory;
-import org.fsmSample.loader.ModelLoader;
-import org.fsmSample.loader.XMIModelLoader;
-import org.fsmSample.persistency.mdb.PersistentFsmSampleFactory;
-import org.fsmSample.serializer.ModelSerializer;
-import org.fsmSample.serializer.XMIModelSerializer;
+import org.fsmsample.FSM;
+import org.fsmsample.FsmSampleFactory;
+import org.fsmsample.State;
+import org.fsmsample.Transition;
+import org.fsmsample.cloner.ModelCloner;
+import org.fsmsample.impl.DefaultFsmSampleFactory;
+import org.fsmsample.loader.XMIModelLoader;
+import org.fsmsample.serializer.ModelSerializer;
+import org.fsmsample.serializer.XMIModelSerializer;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -36,7 +34,7 @@ import java.util.List;
 
 public class MainTest {
 
-    FsmSampleFactory factory = new PersistentFsmSampleFactory(new File("/tmp/fsmTestDb" + System.currentTimeMillis()));
+    FsmSampleFactory factory = new DefaultFsmSampleFactory();// PersistentFsmSampleFactory(new File("/tmp/fsmTestDb" + System.currentTimeMillis()));
 
 
     //@Test
@@ -280,8 +278,8 @@ public class MainTest {
         File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr = new PrintWriter(f);
         pr.println("States;Memory;Creation;Marshaling;Loading");
-        int step = 5000000;
-        for (int i = 1; i * step <= 5000000; i++) {
+        int step = 50000;
+        for (int i = 1; i * step <= 100000; i++) {
             m.flatFsmTest(pr, i * step);
 
         }

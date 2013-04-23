@@ -17,15 +17,15 @@
  */
 package org.kevoree.modeling.sample.fsm.test;
 
-import org.fsmSample.FSM;
-import org.fsmSample.FsmSampleFactory;
-import org.fsmSample.State;
-import org.fsmSample.Transition;
-import org.fsmSample.impl.DefaultFsmSampleFactory;
-import org.fsmSample.loader.ModelLoader;
-import org.fsmSample.loader.XMIModelLoader;
-import org.fsmSample.serializer.ModelSerializer;
-import org.fsmSample.serializer.XMIModelSerializer;
+import org.fsmsample.FSM;
+import org.fsmsample.FsmSampleFactory;
+import org.fsmsample.State;
+import org.fsmsample.Transition;
+import org.fsmsample.impl.DefaultFsmSampleFactory;
+import org.fsmsample.loader.ModelLoader;
+import org.fsmsample.loader.XMIModelLoader;
+import org.fsmsample.serializer.ModelSerializer;
+import org.fsmsample.serializer.XMIModelSerializer;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;

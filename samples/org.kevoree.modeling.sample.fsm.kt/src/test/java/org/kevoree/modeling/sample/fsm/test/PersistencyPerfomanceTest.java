@@ -34,13 +34,12 @@
  */
 package org.kevoree.modeling.sample.fsm.test;
 
-import org.fsmSample.FSM;
-import org.fsmSample.FsmSampleFactory;
-import org.fsmSample.State;
-import org.fsmSample.Transition;
-import org.fsmSample.loader.ModelLoader;
-import org.fsmSample.persistency.mdb.PersistentFsmSampleFactory;
-import org.fsmSample.serializer.ModelSerializer;
+import org.fsmsample.FSM;
+import org.fsmsample.FsmSampleFactory;
+import org.fsmsample.State;
+import org.fsmsample.Transition;
+import org.fsmsample.loader.ModelLoader;
+import org.fsmsample.serializer.ModelSerializer;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -51,7 +50,7 @@ import java.util.List;
 public class PersistencyPerfomanceTest {
 
     File dbFolder = new File("/tmp/fsmTestDb" + System.currentTimeMillis());
-    FsmSampleFactory factory = new PersistentFsmSampleFactory(dbFolder);
+    FsmSampleFactory factory = null;// new PersistentFsmSampleFactory(dbFolder);
 
 
     //@Test
@@ -124,7 +123,7 @@ public class PersistencyPerfomanceTest {
 
 
 
-        FsmSampleFactory newFactory = new PersistentFsmSampleFactory(dbFolder);
+        FsmSampleFactory newFactory = null;// new PersistentFsmSampleFactory(dbFolder);
 
         FSM rootTyped = newFactory.createFSM();
 
