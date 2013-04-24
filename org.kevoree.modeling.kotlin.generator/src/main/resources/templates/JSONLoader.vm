@@ -1,6 +1,6 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
-#* @vtlvariable name="rootElement" type="org.eclipse.emf.ecore.EClass" *#
+#* @vtlvariable name="model" type="org.eclipse.emf.ecore.xmi.XMIResource" *#
 #* @vtlvariable name="elemToLoad" type="org.eclipse.emf.ecore.EClass" *#
 #* @vtlvariable name="allEClass" type="org.eclipse.emf.ecore.EClass" *#
 
@@ -20,19 +20,19 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
 
     val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
 
-    override fun loadModelFromString(str: String) : List<${helper.fqn($ctx,$rootElement)}>? {
+    override fun loadModelFromString(str: String) : List<Any>? {
         return deserialize(StringReader(str))
     }
 
-    override fun loadModelFromPath(file: File) : List<${helper.fqn($ctx,$rootElement)}>? {
+    override fun loadModelFromPath(file: File) : List<Any>? {
         return loadModelFromStream(FileInputStream(file))
     }
 
-    override fun loadModelFromStream(inputStream: InputStream) : List<${helper.fqn($ctx,$rootElement)}>? {
+    override fun loadModelFromStream(inputStream: InputStream) : List<Any>? {
         return deserialize(InputStreamReader(inputStream))
     }
 
-    private fun deserialize(topreader : Reader): List<${helper.fqn($ctx,$rootElement)}> {
+    private fun deserialize(topreader : Reader): List<Any> {
         var reader : JsonReader = JsonReader(topreader)
         val context = LoadingContext()
         while(reader.hasNext() && (reader.peek() != JsonToken.END_DOCUMENT)) {
@@ -40,13 +40,15 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
             val nextKey = reader.nextName()
             if(nextKey.equals("eClass")) {
                 val eclassValue = reader.nextString()
-                if(eclassValue.equals("${helper.fqn($ctx,$rootElement.getEPackage())}:$rootElement.getName()")) {
-                    load$rootElement.getName()(reader, context, "/")
-                    if(context.$rootElement.getName().substring(0,1).toLowerCase()$rootElement.getName().substring(1) != null) {
-                        context.loaded_${rootElement.getName().substring(0,1).toLowerCase()}${rootElement.getName().substring(1)}.add(context.$rootElement.getName().substring(0,1).toLowerCase()$rootElement.getName().substring(1)!!)
+                val loadedRootsSize = context.loadedRoots.size()
+
+                when {
+#foreach($rootElement in $helper.collectAllClassifiersInModel($model))
+                    eclassValue.equals("${helper.fqn($ctx,$rootElement.getEPackage())}:$rootElement.getName()") -> {
+                        context.loadedRoots.add(load$rootElement.getName()(reader, context, "/" + loadedRootsSize))
                     }
-                } else {
-                    System.err.println("Unknown root type '" + eclassValue + "'. Loading aborted.")
+#end
+                    else -> { System.err.println("Unknown root type '" + eclassValue + "'. Loading of this element aborted.")}
                 }
             } else {
                 System.err.println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
@@ -54,7 +56,7 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
             reader.endObject()
         }
         for(res in context.resolvers) {res()}
-        return context.loaded_$rootElement.getName().substring(0,1).toLowerCase()$rootElement.getName().substring(1)
+        return context.loadedRoots
     }
 
     private fun unescapeJSON(src : String) : String {
@@ -102,13 +104,7 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
     private fun load$elemToLoad.getName()(reader : JsonReader, context : LoadingContext, elementId: String) : $helper.fqn($ctx, $elemToLoad) {
 
         val modelElem = mainFactory.get${elemToLoad.getEPackage().getName().substring(0,1).toUpperCase()}${elemToLoad.getEPackage().getName().substring(1)}Factory().create$elemToLoad.getName()()
-        #if($elemToLoad == $rootElement)
-        val loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size = context.loaded_${elemToLoad.getName().substring(0,1).toLowerCase()}${elemToLoad.getName().substring(1)}.size()
-        context.$rootElement.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1) = modelElem
-        context.map.put("/" + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size, context.$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)!!)
-        #else
         context.map.put(elementId, modelElem)
-        #end
 
         while (reader.hasNext()) {
             val nextName = reader.nextName()
@@ -138,13 +134,8 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                     #end
                         reader.beginObject()
                             #if($ref.isMany())
-                                    #if($elemToLoad == $rootElement)
-                                    val i = context.elementsCount.get(elementId+ loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()") ?: 0
-                                    val $ref.getName()ElementId = elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()." + i
-                                    #else
                                     val i = context.elementsCount.get(elementId + "/@$ref.getName()") ?: 0
                                     val $ref.getName()ElementId = elementId + "/@$ref.getName()." + i
-                                    #end
                             #else
                                 val $ref.getName()ElementId = elementId + "/@$ref.getName()"
                             #end
@@ -184,11 +175,7 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                                 modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                             #end
                             #if($ref.isMany())
-                                #if($elemToLoad == $rootElement)
-                                context.elementsCount.put(elementId + loaded$elemToLoad.getName().substring(0,1).toLowerCase()$elemToLoad.getName().substring(1)Size + "/@$ref.getName()",i+1)
-                                #else
                                 context.elementsCount.put(elementId + "/@$ref.getName()",i+1)
-                                #end
                             #end
                         reader.endObject()
                     #if($ref.isMany())
@@ -214,8 +201,9 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                         } else {
                             context.resolvers.add({()->
                             var $ref.getName()Ref = context.map.get(adjustedRef)
-                            if($ref.getName()Ref == null){
-                                $ref.getName()Ref = context.${rootElement.getName().substring(0,1).toLowerCase()}${rootElement.getName().substring(1)}!!.findByPath(adjustedRef)
+                            var i = 0
+                            while($ref.getName()Ref == null && i < context.loadedRoots.size()) {
+                                $ref.getName()Ref = (context.loadedRoots.get(i++) as? $ctx.getKevoreeContainer().get())?.findByPath(adjustedRef)
                             }
 
                             if($ref.getName()Ref != null) {

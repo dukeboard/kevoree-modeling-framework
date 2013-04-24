@@ -17,14 +17,13 @@
  */
 package org.kevoree.modeling.kotlin.generator
 
-import java.io.{PrintWriter, File}
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import org.eclipse.emf.ecore._
-import io.Source
 
 
 /**
@@ -107,17 +106,17 @@ class ProcessorHelperClass {
     superTypeList = Some(" : " + ctx.getKevoreeContainer.get)
     // superTypeList = Some(superTypeList.get + "with " + packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Mutable")
     cls.getESuperTypes.foreach {
-      superType => superTypeList = Some(superTypeList.get + " , " + ProcessorHelper.fqn(ctx, superType))
+      superType => superTypeList = Some(superTypeList.get + " , " + fqn(ctx, superType))
     }
     superTypeList
   }
 
   def generateSuperTypesPlusSuperAPI(ctx: GenerationContext, cls: EClass, packElement: EPackage): Option[String] = {
     var superTypeList: Option[String] = None
-    superTypeList = Some(" : " + ctx.getKevoreeContainerImplFQN + ", " + ProcessorHelper.fqn(ctx, packElement) + "." + cls.getName)
+    superTypeList = Some(" : " + ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName)
     cls.getESuperTypes.foreach {
       superType =>
-        val superName = ProcessorHelper.fqn(ctx, superType.getEPackage)+".impl."+superType.getName+"Internal"
+        val superName = fqn(ctx, superType.getEPackage)+".impl."+superType.getName+"Internal"
         superTypeList = Some(superTypeList.get + " , " + superName)
     }
     superTypeList
@@ -349,6 +348,74 @@ class ProcessorHelperClass {
       }
     }
     possibleRoot
+  }
+
+
+
+
+  def collectAllClassifiersInModel(model : XMIResource) : java.util.ArrayList[EClassifier] = {
+    val allClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    for(content <- model.getContents) {
+      content match {
+        case cls : EClass => {
+           allClassifiers.add(cls)
+        }
+        case enm : EEnum => {
+          allClassifiers.add(enm)
+        }
+        case pack : EPackage => {
+          allClassifiers.addAll(collectAllClassifiersInPackage(pack))
+        }
+        case _@e => {
+          println("Got an element of type " + e.getClass + " while looking for PossibleElementAtRoot. Don't know what to do with that.")
+        }
+      }
+    }
+    allClassifiers
+  }
+
+
+  def collectAllClassifiersInPackage(pack : EPackage) : java.util.ArrayList[EClassifier] = {
+    val allClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    for(classifier <- pack.getEClassifiers) {
+      if(!classifier.isInstanceOf[EDataType]) {
+        allClassifiers.add(classifier)
+      }
+    }
+    for(subPackage <- pack.getESubpackages) {
+      allClassifiers.addAll(collectAllClassifiersInPackage(subPackage))
+    }
+    allClassifiers
+  }
+
+  /**
+   * Separates contained classifiers from not contained classifiers; from a collection of classifiers.
+   * @param allClassifiers The classifier collection to sort
+   * @return a 2-tuple with _1 > ContainedClassifiers and _2 > NotContainedClassifiers
+   */
+  def getPartClassifiersByContainement(allClassifiers : java.util.ArrayList[EClassifier]) : (java.util.ArrayList[EClassifier], java.util.ArrayList[EClassifier]) = {
+    val containedClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    val notContainedClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    for(classifier <- allClassifiers) {
+      classifier match {
+        case cls : EClass => {
+          for(containedRef <- cls.getEAllContainments) {
+            containedClassifiers.add(containedRef.getEReferenceType)
+          }
+        }
+        case enm : EEnum => {
+          containedClassifiers.add(enm)
+        }
+      }
+    }
+
+    for(classifier <- allClassifiers) {
+      if(!containedClassifiers.contains(classifier)) {
+        notContainedClassifiers.add(classifier)
+      }
+    }
+
+    (containedClassifiers,notContainedClassifiers)
   }
 
 }

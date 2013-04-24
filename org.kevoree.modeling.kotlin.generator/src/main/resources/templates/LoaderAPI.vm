@@ -8,10 +8,10 @@ import java.io.InputStream
 
 public trait ModelLoader {
 
-    fun loadModelFromString(str: String) : List<${helper.fqn($ctx, $rootElement)}>?
+    fun loadModelFromString(str: String) : List<Any>?
 
-    fun loadModelFromPath(file: File) : List<${helper.fqn($ctx, $rootElement)}>?
+    fun loadModelFromPath(file: File) : List<Any>?
 
-    fun loadModelFromStream(inputStream: InputStream) : List<${helper.fqn($ctx, $rootElement)}>?
+    fun loadModelFromStream(inputStream: InputStream) : List<Any>?
 
 }

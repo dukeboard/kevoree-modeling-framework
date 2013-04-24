@@ -59,18 +59,6 @@ class JsonLoaderGenerator(ctx : GenerationContext) {
 
   def generateLoader(pack : EPackage, model : XMIResource) {
 
-    //Fills the map of factory mappings
-    if(ctx.packageFactoryMap.size()==0) {
-      if(pack.getEClassifiers.size() != 0) {
-        ctx.registerFactory(pack)
-      }
-      pack.getESubpackages.foreach{subPack =>
-        if(subPack.getEClassifiers.size() != 0) {
-          ctx.registerFactory(subPack)
-        }
-      }
-    }
-
     ctx.getRootContainerInPackage(pack) match {
       case Some(cls : EClass) => {
         val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
@@ -86,7 +74,8 @@ class JsonLoaderGenerator(ctx : GenerationContext) {
         val template = ve.getTemplate("templates/JSONLoader.vm")
         val ctxV = new VelocityContext()
 
-        ctxV.put("rootElement",cls)
+        //ctxV.put("rootElement",cls)
+        ctxV.put("model",model)
         ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
         ctxV.put("ctx",ctx)
         ctxV.put("allEClass",getEAllEclass(model))

@@ -57,6 +57,7 @@ import java.io.{PrintWriter, File}
 import java.text.SimpleDateFormat
 import java.util.Date
 import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import org.eclipse.emf.ecore._
@@ -171,5 +172,14 @@ object ProcessorHelper {
     helper.lookForRootElement(rootXmiPackage, rootContainerClassName)
   }
 
+
+  def collectAllClassifiersInModel(model : XMIResource) : java.util.ArrayList[EClassifier] = {
+    helper.collectAllClassifiersInModel(model : XMIResource)
+  }
+
+
+  def collectAllClassifiersInPackage(pack : EPackage) : java.util.ArrayList[EClassifier] = {
+    helper.collectAllClassifiersInPackage(pack)
+  }
 
 }

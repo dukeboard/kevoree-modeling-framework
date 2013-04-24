@@ -39,6 +39,7 @@ package org.kevoree.modeling.kotlin.generator.loader.xml
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
 import java.io._
@@ -53,12 +54,12 @@ import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}
  */
 
 
-class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPackage) {
+class RootLoader(ctx : GenerationContext, model : XMIResource) {
 
   def generateLoader(elementType: EClass, elementNameInParent: String) {
 
-    ProcessorHelper.checkOrCreateFolder(genDir)
-    val localFile = new File(genDir + "/XMIModelLoader.kt")
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator + "XMIModelLoader.kt")
     ctx.loaderPrintWriter = new PrintWriter(localFile,"utf-8")
     val pr = ctx.loaderPrintWriter
 
@@ -133,32 +134,19 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
   }
 
 
-  private def generateSubs(currentType: EClass): List[EClass] = {
+  private def generateSubs(currentType: EClass) {
 
-    //val genPackage = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader"
-
-    //val context = "LoadContext"
-    //modelingPackage.getEClassifiers.filter(cl => !cl.equals(elementType)).foreach{ ref =>
-    var listContainedElementsTypes = List[EClass]()
-    currentType.getEAllContainments.foreach {
-      ref =>
-
-        if(ref.getEReferenceType != currentType) { //avoid looping in self-containment
-
-          if (!ref.getEReferenceType.isInterface && !ref.getEReferenceType.isAbstract) {
-            val el = new BasicElementLoader(ctx, ref.getEReferenceType)
+    ProcessorHelper.collectAllClassifiersInModel(model).foreach { cls =>
+        if(cls.isInstanceOf[EClass] && cls != currentType) {
+          if (!cls.asInstanceOf[EClass].isInterface && !cls.asInstanceOf[EClass].isAbstract) {
+            val el = new BasicElementLoader(ctx, cls.asInstanceOf[EClass])
             el.generateLoader()
           } else {
-            //System.out.println("ReferenceType of " + ref.getName + " is an interface. Not supported yet.")
-            val el = new InterfaceElementLoader(ctx, ref.getEReferenceType)
+            val el = new InterfaceElementLoader(ctx, cls.asInstanceOf[EClass])
             el.generateLoader()
-          }
-          if (!listContainedElementsTypes.contains(ref.getEReferenceType)) {
-            listContainedElementsTypes = listContainedElementsTypes ++ List(ref.getEReferenceType)
           }
         }
     }
-    listContainedElementsTypes
   }
 
 
@@ -175,7 +163,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
   private def generateLoadMethod(pr: PrintWriter, elementType: EClass) {
 
-    pr.println("override fun loadModelFromString(str: String) : List<" + ProcessorHelper.fqn(ctx,elementType) + ">? {")
+    pr.println("override fun loadModelFromString(str: String) : List<Any>? {")
     pr.println("val stringReader = StringReader(str)")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory?.createXMLStreamReader(stringReader)")
@@ -189,12 +177,12 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("}")
     pr.println("}")
 
-    pr.println("override fun loadModelFromPath(file: File) : List<" + ProcessorHelper.fqn(ctx,elementType) + ">? {")
+    pr.println("override fun loadModelFromPath(file: File) : List<Any>? {")
     pr.println("return loadModelFromStream(FileInputStream(file))")
     pr.println("}")
 
 
-    pr.println("override fun loadModelFromStream(inputStream: InputStream) : List<" + ProcessorHelper.fqn(ctx,elementType) + ">? {")
+    pr.println("override fun loadModelFromStream(inputStream: InputStream) : List<Any>? {")
     pr.println("val isReader = java.io.BufferedReader(InputStreamReader(inputStream))")
     pr.println("val factory = XMLInputFactory.newInstance()")
     pr.println("val reader = factory?.createXMLStreamReader(isReader)")
@@ -214,7 +202,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
   private def generateDeserialize(pr: PrintWriter, rootContainerName: String, elementType: EClass) {
 
-    pr.println("private fun deserialize(reader : XMLStreamReader): List<"+ProcessorHelper.fqn(ctx,elementType)+"> {")
+    pr.println("private fun deserialize(reader : XMLStreamReader): List<Any> {")
 
     pr.println("val context = LoadingContext()")
     pr.println("context.xmiReader = reader")
@@ -224,13 +212,26 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("when(nextTag) {")
     pr.println("XMLStreamConstants.START_ELEMENT -> {")
     pr.println("val localName = reader.getLocalName()")
-    pr.println("if(localName != null && localName.contains(\""+rootContainerName.substring(0, 1).toUpperCase + rootContainerName.substring(1)+"\")) {")
-    pr.println("load"+ elementType.getName +"(context)")
-    pr.println("if(context."+ rootContainerName +" != null) {")
-    pr.println("context.loaded_" + rootContainerName + ".add(context." + rootContainerName + "!!)")
+    pr.println("if(localName != null) {")
+    pr.println("val loadedRootsSize = context.loadedRoots.size()")
+
+    pr.println("when {")
+    val classes = ProcessorHelper.collectAllClassifiersInModel(model)
+    classes.foreach{classifier=>
+      if(classifier.isInstanceOf[EClass]) {
+        pr.println("localName.contains(\""+classifier.asInstanceOf[EClass].getName.substring(0, 1).toUpperCase + classifier.asInstanceOf[EClass].getName.substring(1)+"\") -> {")
+        pr.println("context.loadedRoots.add(load"+ classifier.asInstanceOf[EClass].getName +"Element(\"/\" + loadedRootsSize, context))")
+        pr.println("}")
+      }
+    }
+
+    pr.println(" else -> {System.out.println(\"Element \" + localName + \" has been found at the root of the model, but no loader is mapped for this element.\")}")
+    pr.println("}")
+    pr.println("} else {")
+    pr.println("System.out.println(\"Tried to read a tag with null tag_name.\")")
     pr.println("}")
 
-    pr.println("}")
+
     pr.println("}") // START_ELEMENT
     pr.println("XMLStreamConstants.END_ELEMENT -> {break}")
     pr.println("XMLStreamConstants.END_DOCUMENT -> {break}")
@@ -241,7 +242,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     pr.println("for(res in context.resolvers) {res()}")
 
-    pr.println("return context.loaded_" + rootContainerName)
+    pr.println("return context.loadedRoots")
 
     pr.println("}")
   }
@@ -252,18 +253,17 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     val ePackageName = elementType.getEPackage.getName
     //val factory = ProcessorHelper.fqn(ctx,elementType.getEPackage) + "." + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory"
 
-    pr.println("private fun load" + elementType.getName + "(context : LoadingContext) {")
+    pr.println("private fun load" + elementType.getName + "Element(elementId: String, context : LoadingContext) : "+ProcessorHelper.fqn(ctx, elementType)+" {")
     pr.println("")
     pr.println("val elementTagName = context.xmiReader!!.getLocalName()")
-    pr.println("val loaded"+rootContainerName+"Size = context.loaded_"+rootContainerName+".size()")
-    pr.println("context." + rootContainerName + " = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1)+"Factory().create" + elementType.getName + "()")
-    pr.println("context.map.put(\"/\" + loaded"+rootContainerName+"Size, context."+rootContainerName+"!!)")
+    pr.println("val modelElem = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1)+"Factory().create" + elementType.getName + "()")
+    pr.println("context.map.put(elementId, modelElem)")
     pr.println("")
 
     val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
     if (elementType.getEAllAttributes.size() > 0 || references.size > 0) {
 
-      pr.println("val modelElem = context." + rootContainerName + "!!")
+      //pr.println("val modelElem = context." + rootContainerName + "!!")
       pr.println("for(i in 0.rangeTo(context.xmiReader!!.getAttributeCount()-1)) {")
       pr.println("val prefix = context.xmiReader!!.getAttributePrefix(i)")
       pr.println("if(prefix==null || prefix.equals(\"\")) {")
@@ -356,19 +356,19 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
 
     elementType.getEAllContainments.foreach {refa =>
       pr.println("\""+refa.getName+"\" -> {")
-      pr.println("val i = context.elementsCount.get(\"/\"+ loaded"+rootContainerName+"Size + \"/@"+refa.getName+"\") ?: 0")
-      pr.println("val currentElementId = \"/\" + loaded"+rootContainerName+"Size + \"/@"+refa.getName+".\" + i")
+      pr.println("val i = context.elementsCount.get(elementId + \"/@"+refa.getName+"\") ?: 0")
+      pr.println("val currentElementId = elementId + \"/@"+refa.getName+".\" + i")
       val formattedReferenceName = refa.getName.substring(0, 1).toUpperCase + refa.getName.substring(1)
       if(!refa.isMany) {
         if (!refa.isRequired) {
-          pr.println("context." + rootContainerName + "?.set" + formattedReferenceName + "(Some(load" + refa.getEReferenceType.getName + "Element(currentElementId, context)))")
+          pr.println("modelElem.set" + formattedReferenceName + "(Some(load" + refa.getEReferenceType.getName + "Element(currentElementId, context)))")
         } else {
-          pr.println("context." + rootContainerName + "?.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(currentElementId, context))")
+          pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(currentElementId, context))")
         }
       } else {
-        pr.println("context." + rootContainerName + "?.add" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(currentElementId, context))")
+        pr.println("modelElem.add" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(currentElementId, context))")
       }
-      pr.println("context.elementsCount.put(\"/\"+ loaded"+rootContainerName+"Size+\"/@"+refa.getName+"\",i+1)")
+      pr.println("context.elementsCount.put(elementId+\"/@"+refa.getName+"\",i+1)")
       pr.println("}") //case
     }
 
@@ -382,6 +382,7 @@ class RootLoader(ctx : GenerationContext, genDir: String, modelingPackage: EPack
     pr.println("else -> System.out.println(\"Ignored Value:\" + nextTag)")
     pr.println("}") // match
     pr.println("}") // While
+    pr.println("return modelElem")
     pr.println("}") // Method
     pr.println("")
 

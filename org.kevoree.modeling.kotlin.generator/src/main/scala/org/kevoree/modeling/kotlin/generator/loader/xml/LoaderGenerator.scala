@@ -38,6 +38,7 @@ package org.kevoree.modeling.kotlin.generator.loader.xml
 
 //EClass, EClassifier,
 
+import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 import scala.collection.JavaConversions._
@@ -52,7 +53,7 @@ import java.io.File
 
 class LoaderGenerator(ctx : GenerationContext) {
 
-  def generateLoader(pack : EPackage) {
+  def generateLoader(pack : EPackage, model : XMIResource) {
 
     //Fills the map of factory mappings
     if(ctx.packageFactoryMap.size()==0) {
@@ -72,7 +73,7 @@ class LoaderGenerator(ctx : GenerationContext) {
         val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
-        val el = new RootLoader(ctx, loaderGenBaseDir, cls.getEPackage)
+        val el = new RootLoader(ctx, model)
         el.generateLoader(cls, cls.getEPackage.getName+ ":" + cls.getName)
       }
       case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Loader generation aborted.")
