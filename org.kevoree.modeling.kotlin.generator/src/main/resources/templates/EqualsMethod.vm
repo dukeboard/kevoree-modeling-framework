@@ -1,0 +1,48 @@
+#* @vtlvariable name="currentClass" type="org.eclipse.emf.ecore.EClass" *#
+#* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+
+#if(!${currentClass.getEAllSuperTypes().isEmpty()})
+override #end fun equals(similarObj : Any?) : Boolean {
+    if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)})){
+        return false
+    }
+    val similarObjCasted = similarObj as ${FQNHelper.fqn($ctx, $currentClass)}
+    #foreach( $att in $currentClass.eAllAttributes )
+       if(get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}() != similarObjCasted.get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()){
+            return false
+       }
+    #end
+    #foreach( $sub in $currentClass.getEAllContainments())
+        #if($sub.isMany())
+            if(get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}().size() != similarObjCasted.get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}().size()){
+                return false
+            }
+        #else
+            if(get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}() != similarObjCasted.get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){
+                return false
+            }
+        #end
+    #end
+    #foreach( $sub in $currentClass.getEAllContainments())
+        #if($sub.isMany())
+        for(subElement in get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){
+        #if($sub.getEReferenceType().getEIDAttribute())
+            val foundedElement = similarObjCasted.find${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}ByID(subElement.get${sub.getEReferenceType().getEIDAttribute().getName().substring(0, 1).toUpperCase()}${sub.getEReferenceType().getEIDAttribute().getName().substring(1)}())
+            if(foundedElement == null || foundedElement != subElement){ return false }
+        #else
+            //todo optimize with pre sort on collection
+            var lookEqualsSub = false
+            for(subElement2 in similarObjCasted.get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){
+                if(subElement == subElement2){
+                    lookEqualsSub = true
+                }
+            }
+            if(!lookEqualsSub){return false }
+        #end
+        }
+        #end
+    #end
+    return true
+}
+

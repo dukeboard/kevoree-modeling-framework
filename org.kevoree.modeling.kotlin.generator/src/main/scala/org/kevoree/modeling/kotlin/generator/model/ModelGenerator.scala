@@ -87,7 +87,8 @@ with ClonerGenerator
 with EnumGenerator
 with KMFQLFinder
 with KMFQLSelectorGenerator
-with APIGenerator {
+with APIGenerator
+with EqualsGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.

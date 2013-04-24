@@ -89,7 +89,9 @@ trait ClassGenerator extends ClonerGenerator {
 
   def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-  def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
+  def generateEqualsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
+
+    def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.kt")
     val userFile = new File(srcCurrentDir + "/impl/" + cls.getName + "Impl.kt")
     if (userFile.exists()) {
@@ -280,6 +282,8 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
       generateSelectorMethods(pr, cls, ctx)
     }
 
+
+    generateEqualsMethods(pr,cls,ctx)
 
 
     pr.println("}")
