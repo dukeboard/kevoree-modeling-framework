@@ -54,13 +54,10 @@ import java.io.{PrintWriter, File}
 
 class SerializerApiGenerator(ctx : GenerationContext) {
 
-  def generateSerializerAPI(pack : EPackage) {
+  def generateSerializerAPI() {
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer"
-    val localFile = new File(serializerGenBaseDir + "/ModelSerializer.kt")
+    val localFile = new File(serializerGenBaseDir + File.separator + "ModelSerializer.kt")
     if(!localFile.exists()) {
-      ctx.getRootContainerInPackage(pack) match {
-        case Some(cls : EClass) => {
-
           ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
 
           val pr = new PrintWriter(localFile,"utf-8")
@@ -71,7 +68,6 @@ class SerializerApiGenerator(ctx : GenerationContext) {
           val template = ve.getTemplate("templates/SerializerAPI.vm")
           val ctxV = new VelocityContext()
 
-          ctxV.put("rootElement",cls)
           ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
           ctxV.put("ctx",ctx)
 
@@ -79,10 +75,6 @@ class SerializerApiGenerator(ctx : GenerationContext) {
 
           pr.flush()
           pr.close()
-
-        }
-        case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". SerializerAPI generation aborted.")
-      }
     }
   }
 

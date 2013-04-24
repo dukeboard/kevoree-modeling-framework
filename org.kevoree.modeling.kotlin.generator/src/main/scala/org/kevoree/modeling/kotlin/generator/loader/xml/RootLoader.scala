@@ -40,7 +40,7 @@ import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.xmi.XMIResource
-import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
+import org.eclipse.emf.ecore.{EEnum,EClass}
 import scala.collection.JavaConversions._
 import java.io._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
@@ -54,16 +54,16 @@ import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}
  */
 
 
-class RootLoader(ctx : GenerationContext, model : XMIResource) {
+class RootLoader(ctx : GenerationContext) {
 
-  def generateLoader(elementType: EClass, elementNameInParent: String) {
+  def generateLoader(model : XMIResource) {
 
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader")
     val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator + "XMIModelLoader.kt")
     ctx.loaderPrintWriter = new PrintWriter(localFile,"utf-8")
     val pr = ctx.loaderPrintWriter
 
-    generateContext(elementType)
+    generateContext()
     val genPackage =  ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader"
 
     pr.println("package " + genPackage + ";")
@@ -95,20 +95,29 @@ class RootLoader(ctx : GenerationContext, model : XMIResource) {
     pr.println("")
     pr.println("")
     pr.println("")
-    val rootContainerName = elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1)
+    //val rootContainerName = elementType.getName.substring(0, 1).toLowerCase + elementType.getName.substring(1)
 
 
     generateFactorySetter(pr)
     pr.println("")
     generateUnescapeXmlMathod(pr)
-    generateLoadMethod(pr, elementType)
+    generateLoadMethod(pr)
     pr.println("")
-    generateDeserialize(pr, rootContainerName, elementType)
+    generateDeserialize(pr, model)
     pr.println("")
-    generateLoadElementsMethod(pr, rootContainerName, elementType)
+    //generateLoadElementsMethod(pr, rootContainerName, elementType)
 
-    pr.println("")
-    generateSubs(elementType)
+    ProcessorHelper.collectAllClassifiersInModel(model).foreach { cls =>
+      if(cls.isInstanceOf[EClass]) {
+        if (!cls.asInstanceOf[EClass].isInterface && !cls.asInstanceOf[EClass].isAbstract) {
+          val el = new BasicElementLoader(ctx, cls.asInstanceOf[EClass])
+          el.generateLoader()
+        } else {
+          val el = new InterfaceElementLoader(ctx, cls.asInstanceOf[EClass])
+          el.generateLoader()
+        }
+      }
+    }
 
     pr.println("")
     pr.println("}")
@@ -118,8 +127,8 @@ class RootLoader(ctx : GenerationContext, model : XMIResource) {
 
   }
 
-  private def generateContext(elementType: EClass) {
-    val el = new ContextGenerator(ctx, elementType)
+  private def generateContext() {
+    val el = new ContextGenerator(ctx)
     el.generateContext()
   }
 
@@ -134,20 +143,6 @@ class RootLoader(ctx : GenerationContext, model : XMIResource) {
   }
 
 
-  private def generateSubs(currentType: EClass) {
-
-    ProcessorHelper.collectAllClassifiersInModel(model).foreach { cls =>
-        if(cls.isInstanceOf[EClass] && cls != currentType) {
-          if (!cls.asInstanceOf[EClass].isInterface && !cls.asInstanceOf[EClass].isAbstract) {
-            val el = new BasicElementLoader(ctx, cls.asInstanceOf[EClass])
-            el.generateLoader()
-          } else {
-            val el = new InterfaceElementLoader(ctx, cls.asInstanceOf[EClass])
-            el.generateLoader()
-          }
-        }
-    }
-  }
 
 
   private def generateFactorySetter(pr: PrintWriter) {
@@ -161,7 +156,7 @@ class RootLoader(ctx : GenerationContext, model : XMIResource) {
 
   }
 
-  private def generateLoadMethod(pr: PrintWriter, elementType: EClass) {
+  private def generateLoadMethod(pr: PrintWriter) {
 
     pr.println("override fun loadModelFromString(str: String) : List<Any>? {")
     pr.println("val stringReader = StringReader(str)")
@@ -172,7 +167,7 @@ class RootLoader(ctx : GenerationContext, model : XMIResource) {
     pr.println("if(reader != null && reader.hasNext()) {")
     pr.println("return deserialize(reader)")
     pr.println("} else {")
-    pr.println("System.out.println(\"" + elementType.getName + "Loader::Noting in the file !\")")
+    pr.println("System.out.println(\"Loader::Noting in the String !\")")
     pr.println("return null")
     pr.println("}")
     pr.println("}")
@@ -191,7 +186,7 @@ class RootLoader(ctx : GenerationContext, model : XMIResource) {
     pr.println("if(reader != null && reader.hasNext()) {")
     pr.println("return deserialize(reader)")
     pr.println("} else {")
-    pr.println("System.out.println(\"" + elementType.getName + "Loader::Noting in the file !\")")
+    pr.println("System.out.println(\"Loader::Noting in the file !\")")
     pr.println("return null")
     pr.println("}")
     pr.println("}")
@@ -200,7 +195,7 @@ class RootLoader(ctx : GenerationContext, model : XMIResource) {
   }
 
 
-  private def generateDeserialize(pr: PrintWriter, rootContainerName: String, elementType: EClass) {
+  private def generateDeserialize(pr: PrintWriter, model : XMIResource) {
 
     pr.println("private fun deserialize(reader : XMLStreamReader): List<Any> {")
 

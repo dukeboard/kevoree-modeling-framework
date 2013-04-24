@@ -47,8 +47,7 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
  * Time: 15:25
  */
 
-class ContextGenerator(ctx:GenerationContext, elementType: EClass) {
-
+class ContextGenerator(ctx:GenerationContext) {
 
   def generateContext() {
     val genLocation = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator

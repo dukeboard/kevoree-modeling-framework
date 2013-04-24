@@ -130,14 +130,8 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
 
   private def checkOrGenerateLoaderApi() {
-    val model = ctx.getEcoreModel(ecoreFile)
     val apiGenerator = new LoaderApiGenerator(ctx)
-    model.getContents.foreach {
-      elem => elem match {
-        case pack: EPackage => apiGenerator.generateLoaderAPI(pack)
-        case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
-      }
-    }
+    apiGenerator.generateLoaderAPI()
   }
 
   def generateLoader() {
@@ -153,12 +147,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
     System.out.println("Launching loader generation")
     val loaderGenerator = new LoaderGenerator(ctx)
-    model.getContents.foreach {
-      elem => elem match {
-        case pack: EPackage => loaderGenerator.generateLoader(pack, model)
-        case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
-      }
-    }
+    loaderGenerator.generateLoader(model)
     System.out.println("Done with loader generation")
   }
 
@@ -174,24 +163,13 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
     System.out.println("Launching JSON loader generation")
     val loaderGenerator = new JsonLoaderGenerator(ctx)
-    model.getContents.foreach {
-      elem => elem match {
-        case pack: EPackage => loaderGenerator.generateLoader(pack,model)
-        case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
-      }
-    }
+    loaderGenerator.generateLoader(model)
     System.out.println("Done with JSON loader generation")
   }
 
   private def checkOrGenerateSerializerApi() {
-    val model = ctx.getEcoreModel(ecoreFile)
     val apiGenerator = new SerializerApiGenerator(ctx)
-    model.getContents.foreach {
-      elem => elem match {
-        case pack: EPackage => apiGenerator.generateSerializerAPI(pack)
-        case _ => println("No loader generator for containerRoot element of class: " + elem.getClass)
-      }
-    }
+    apiGenerator.generateSerializerAPI()
   }
 
 
@@ -204,7 +182,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     System.out.println("Launching serializer generation")
     val serializerGenerator = new SerializerGenerator(ctx)
     serializerGenerator.generateSerializer(model)
-
     System.out.println("Done with serializer generation")
   }
 

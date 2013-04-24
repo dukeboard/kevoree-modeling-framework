@@ -55,35 +55,27 @@ import java.io.{PrintWriter, File}
 
 class LoaderApiGenerator(ctx : GenerationContext) {
 
-  def generateLoaderAPI(pack : EPackage) {
+  def generateLoaderAPI() {
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
-    val localFile = new File(loaderGenBaseDir + "/ModelLoader.kt")
+    val localFile = new File(loaderGenBaseDir + File.separator + "ModelLoader.kt")
     if(!localFile.exists()) {
-      ctx.getRootContainerInPackage(pack) match {
-        case Some(cls : EClass) => {
+      ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
-          ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
+      val pr = new PrintWriter(localFile,"utf-8")
 
-          val pr = new PrintWriter(localFile,"utf-8")
+      val ve = new VelocityEngine()
+      ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
+      ve.init()
+      val template = ve.getTemplate("templates/LoaderAPI.vm")
+      val ctxV = new VelocityContext()
 
-          val ve = new VelocityEngine()
-          ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
-          ve.init()
-          val template = ve.getTemplate("templates/LoaderAPI.vm")
-          val ctxV = new VelocityContext()
+      ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+      ctxV.put("ctx",ctx)
 
-          ctxV.put("rootElement",cls)
-          ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-          ctxV.put("ctx",ctx)
+      template.merge(ctxV,pr)
 
-          template.merge(ctxV,pr)
-
-          pr.flush()
-          pr.close()
-
-        }
-        case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Loader generation aborted.")
-      }
+      pr.flush()
+      pr.close()
     }
   }
 

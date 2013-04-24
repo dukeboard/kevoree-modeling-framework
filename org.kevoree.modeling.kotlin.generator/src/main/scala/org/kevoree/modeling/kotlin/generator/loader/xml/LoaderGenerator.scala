@@ -53,31 +53,13 @@ import java.io.File
 
 class LoaderGenerator(ctx : GenerationContext) {
 
-  def generateLoader(pack : EPackage, model : XMIResource) {
+  def generateLoader(model : XMIResource) {
 
-    //Fills the map of factory mappings
-    if(ctx.packageFactoryMap.size()==0) {
-      if(pack.getEClassifiers.size() != 0) {
-        ctx.registerFactory(pack)
-      }
-      pack.getESubpackages.foreach{subPack =>
-        if(subPack.getEClassifiers.size() != 0) {
-          ctx.registerFactory(subPack)
-        }
-      }
-    }
-
-
-    ctx.getRootContainerInPackage(pack) match {
-      case Some(cls : EClass) => {
         val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
-        val el = new RootLoader(ctx, model)
-        el.generateLoader(cls, cls.getEPackage.getName+ ":" + cls.getName)
-      }
-      case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Loader generation aborted.")
-    }
+        val el = new RootLoader(ctx)
+        el.generateLoader(model)
   }
 
 

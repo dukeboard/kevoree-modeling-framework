@@ -1,6 +1,5 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
-#* @vtlvariable name="rootElement" type="org.eclipse.emf.ecore.EClass" *#
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.serializer
 
 public trait ModelSerializer {

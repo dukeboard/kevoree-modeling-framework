@@ -57,10 +57,8 @@ import java.util
 
 class JsonLoaderGenerator(ctx : GenerationContext) {
 
-  def generateLoader(pack : EPackage, model : XMIResource) {
+  def generateLoader(model : XMIResource) {
 
-    ctx.getRootContainerInPackage(pack) match {
-      case Some(cls : EClass) => {
         val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
@@ -85,10 +83,6 @@ class JsonLoaderGenerator(ctx : GenerationContext) {
 
         ctx.loaderPrintWriter .flush()
         ctx.loaderPrintWriter .close()
-
-      }
-      case None => println("Root container not found in package: "+ProcessorHelper.fqn(ctx,pack) +". Loader generation aborted.")
-    }
   }
 
   def getEAllEclass(pack : XMIResource) : java.util.List[EClass] = {
