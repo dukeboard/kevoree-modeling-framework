@@ -43,7 +43,7 @@ trait EqualsGenerator {
     ctxV.put("ctx", ctx)
     ctxV.put("currentClass", cls)
     ctxV.put("FQNHelper", new ProcessorHelperClass())
-    template.merge(ctxV, pr)
+    //template.merge(ctxV, pr)
   }
 
 }
