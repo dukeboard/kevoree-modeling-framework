@@ -17,8 +17,8 @@ class MyClazz : MyIt {
 }
 fun main(){
     val res = MyClazz()
-    if(res.nullableL != null){
-    }
+    //if(res.nullableL != null){
+    //}
 
     when(res){
         is MyIt -> {

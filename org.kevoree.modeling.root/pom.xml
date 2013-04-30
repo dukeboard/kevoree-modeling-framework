@@ -7,11 +7,55 @@
     <version>1.3.0-SNAPSHOT</version>
     <name>Kevoree :: Modeling :: Root</name>
     <url>https://github.com/dukeboard/kevoree-modeling-framework</url>
+    <description>Kevoree Modeling Framework</description>
+
+    <licenses>
+        <license>
+            <name>
+                GNU Library or Lesser General Public License (LGPL)
+            </name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com/dukeboard/kevoree.git</connection>
+        <developerConnection>scm:git:git@github.com/dukeboard/kevoree.git</developerConnection>
+        <url>git:git@github.com/dukeboard/kevoree.git</url>
+    </scm>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <developers>
+        <developer>
+            <name>Gregory Nain</name>
+            <id>gregory.nain</id>
+            <email>gregory.nain@uni.lu</email>
+            <roles>
+                <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <name>Francois Fouquet</name>
+            <id>francois.fouquet</id>
+            <email>fouquet.f@gmail.com</email>
+            <roles>
+                <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+    </developers>
 
     <properties>
         <emf.version>2.7.0</emf.version>
         <scala.version>2.9.3</scala.version>
-        <bundle.vendor>IRISA/INRIA</bundle.vendor>
         <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
     </properties>
@@ -98,12 +142,12 @@
 
     <distributionManagement>
         <repository>
-            <id>maven2.kevoree.release</id>
-            <url>http://maven.kevoree.org/archiva/repository/release/</url>
+            <id>kevoree.oss.release</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
-            <id>maven2.kevoree.snapshots</id>
-            <url>http://maven.kevoree.org/archiva/repository/snapshots/</url>
+            <id>kevoree.oss.snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -113,10 +157,6 @@
             <url>http://maven.kevoree.org/release</url>
         </repository>
         <repository>
-            <id>kevoree-snapshots</id>
-            <url>http://maven.kevoree.org/snapshots</url>
-        </repository>
-        <repository>
             <id>jetbrains-release</id>
             <url>http://repository.jetbrains.com/all</url>
             <releases>
@@ -124,30 +164,12 @@
             </releases>
             <snapshots>
                 <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jetbrains-snapshots</id>
-            <url>http://repository.jetbrains.com/all</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
-            <id>plugin.kevoree-github</id>
-            <url>http://maven.kevoree.org/release</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>plugin.kevoree-snapshots</id>
-            <url>http://maven.kevoree.org/snapshots</url>
-        </pluginRepository>
-        <pluginRepository>
             <id>jetbrains-release</id>
             <url>http://repository.jetbrains.com/all</url>
             <releases>
@@ -155,16 +177,6 @@
             </releases>
             <snapshots>
                 <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>jetbrains-snapshots</id>
-            <url>http://repository.jetbrains.com/all</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
