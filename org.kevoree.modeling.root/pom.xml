@@ -18,9 +18,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com/dukeboard/kevoree.git</connection>
-        <developerConnection>scm:git:git@github.com/dukeboard/kevoree.git</developerConnection>
-        <url>git:git@github.com/dukeboard/kevoree.git</url>
+        <connection>scm:git@github.com:dukeboard/kevoree-modeling-framework.git</connection>
+        <developerConnection>scm:git@github.com:dukeboard/kevoree-modeling-framework.git</developerConnection>
+        <url>git@github.com:dukeboard/kevoree-modeling-framework.git</url>
     </scm>
 
     <parent>
