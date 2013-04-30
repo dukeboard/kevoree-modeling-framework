@@ -60,8 +60,8 @@
     </properties>
 
     <modules>
-        <module>../org.kevoree.modeling.kotlin.generator</module>
-        <module>../org.kevoree.modeling.kotlin.generator.mavenplugin</module>
+        <module>org.kevoree.modeling.kotlin.generator</module>
+        <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
     </modules>
 
     <dependencies>
@@ -145,34 +145,34 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.9.0</version>
-                <configuration>
-                    <basedir>${basedir}</basedir>
-                    <excludes>
-                        <exclude>target/**</exclude>
-                        <exclude>.idea/**</exclude>
-                        <exclude>**/*.vm</exclude>
-                    </excludes>
-                    <header>${basedir}/../LICENSE_HEADER</header>
-                    <strictCheck>true</strictCheck>
-                    <properties>
-                        <owner>Francois Fouquet</owner>
-                        <year>${project.inceptionYear}</year>
-                        <email>fouquet.f@gmail.com</email>
-                    </properties>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+			        <groupId>org.codehaus.mojo</groupId>
+			        <artifactId>license-maven-plugin</artifactId>
+			        <version>1.4</version>
+			        <configuration>
+			          <verbose>false</verbose>
+			          <addSvnKeyWords>true</addSvnKeyWords>
+			        </configuration>
+			        <executions>
+			          <execution>
+			            <id>first</id>
+			            <goals>
+			              <goal>update-file-header</goal>
+			            </goals>
+			            <phase>process-sources</phase>
+			            <configuration>
+			              <licenseName>lgpl_v3</licenseName>
+						  <organizationName>org.kevoree</organizationName>
+						  <inceptionYear>2013</inceptionYear>
+			              <includes>
+			                <include>*.java</include>
+			                <include>*.kt</include>
+			                <include>*.scala</include>
+			              </includes>
+			            </configuration>
+			          </execution>
+			        </executions>
+			      </plugin>
         </plugins>
     </build>
 
