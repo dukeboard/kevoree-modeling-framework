@@ -54,9 +54,9 @@ import java.util
 
 class SerializerJsonGenerator(ctx: GenerationContext) {
 
-  def generateJsonSerializer(pack: EPackage, model : XMIResource) {
+  def generateJsonSerializer(pack: EPackage, model: XMIResource) {
 
-    if(ctx.getJS()){
+    if (ctx.getJS()) {
       generateStaticJavaClass()
     }
     ctx.getRootContainerInPackage(pack) match {
@@ -64,20 +64,20 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
         val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
         ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
         val modelPackage = ProcessorHelper.fqn(ctx, cls.getEPackage)
-        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage,model)
+        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage, model)
       }
       case None => println("Root container not found in package: " + ProcessorHelper.fqn(ctx, pack) + ". JsonSerializer generation aborted.")
     }
   }
 
 
-  private def generateStaticJavaClass(){
-    val basePath = ctx.getRootGenerationDirectory + File.separator + "java"+File.separator +"io"
+  private def generateStaticJavaClass() {
+    val basePath = ctx.getRootGenerationDirectory + File.separator + "java" + File.separator + "io"
     ProcessorHelper.checkOrCreateFolder(basePath)
 
-    val genOutputStreamFile = new File(basePath +File.separator+ "OutputStream.kt")
+    val genOutputStreamFile = new File(basePath + File.separator + "OutputStream.kt")
     val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
-    val genPrintStreamFile = new File(basePath +File.separator+ "PrintStream.kt")
+    val genPrintStreamFile = new File(basePath + File.separator + "PrintStream.kt")
     val PrintStream = new PrintWriter(genPrintStreamFile, "utf-8")
 
     val ve = new VelocityEngine()
@@ -106,7 +106,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage, model : XMIResource) {
+  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage, model: XMIResource) {
     val genFile = new File(genDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
@@ -116,10 +116,17 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println("override fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
     pr.println("when(oMS) {")
-    pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
-    pr.println("val context = get" + root.getName + "JsonAddr(oMS,\"/\")")
 
-    if(ctx.getJS()){
+    if (ctx.getJS()) {
+      //KotLin bug Workaround : http://youtrack.jetbrains.com/issue/KT-3519
+      pr.println("is " + ProcessorHelper.fqn(ctx, root) + ", is "+ProcessorHelper.fqn(ctx, root.getEPackage)+".impl."+root.getName+"Impl -> {")
+    } else {
+      pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
+    }
+
+    pr.println("val context = get" + root.getName + "JsonAddr(oMS as "+ProcessorHelper.fqn(ctx, root)+",\"/\")")
+
+    if (ctx.getJS()) {
       pr.println("val wt = java.io.PrintStream(ostream)")
     } else {
       pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
@@ -140,8 +147,9 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.close()
   }
 
-  private def generateSerializer(eClazzs : java.util.List[EClass], packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false, pr: PrintWriter) {
-    eClazzs.foreach { eClass => generateToJsonMethod(rootXmiPackage, eClass, pr, eClass.getName, eClass == root)
+  private def generateSerializer(eClazzs: java.util.List[EClass], packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false, pr: PrintWriter) {
+    eClazzs.foreach {
+      eClass => generateToJsonMethod(rootXmiPackage, eClass, pr, eClass.getName, eClass == root)
     }
   }
 
@@ -187,8 +195,8 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
             buffer.println("if(sub" + subClass.getName + "!= null){")
 
-            buffer.println("val subPath_"+subClass.getName+"=sub"+subClass.getName+".path()")
-            buffer.println("if(subPath_"+subClass.getName+"!=null){")
+            buffer.println("val subPath_" + subClass.getName + "=sub" + subClass.getName + ".path()")
+            buffer.println("if(subPath_" + subClass.getName + "!=null){")
             buffer.println("subResult.put(sub" + subClass.getName + ",subPath_" + subClass.getName + ")")
             buffer.println("} else {")
             buffer.println("subResult.put(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\" )")
@@ -204,8 +212,8 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             firstUsed = false
             buffer.println("for(sub in selfObject." + getGetter(subClass.getName) + "()){")
 
-            buffer.println("val subPath_"+subClass.getName+"=sub.path()")
-            buffer.println("if(subPath_"+subClass.getName+"!=null){")
+            buffer.println("val subPath_" + subClass.getName + "=sub.path()")
+            buffer.println("if(subPath_" + subClass.getName + "!=null){")
             buffer.println("subResult.put(sub,subPath_" + subClass.getName + ")")
             buffer.println("} else {")
             buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
@@ -223,8 +231,18 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     if (subTypes.size > 0) {
       buffer.println("when(selfObject) {")
       subTypes.foreach {
-        subType =>
-          buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> { subResult.putAll(get" + subType.getName + "JsonAddr(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",previousAddr)) }")
+        subType => {
+
+          if (ctx.getJS()) {
+            //KotLin bug workaround : http://youtrack.jetbrains.com/issue/KT-3519
+            buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + ", is "+ProcessorHelper.fqn(ctx, subType.getEPackage)+".impl."+subType.getName+"Impl -> {")
+          } else {
+            buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {")
+          }
+
+          buffer.println("subResult.putAll(get" + subType.getName + "JsonAddr(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",previousAddr))")
+          buffer.println("}")
+        }
       }
       buffer.println("else -> {}") //throw new InternalError(\""+ cls.getName +"Serializer did not match anything for selfObject class name: \" + selfObject.getClass.getName)")
       buffer.println("}")
@@ -260,7 +278,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
                     buffer.println("ostream.println(',')")
 
                     buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\")")
-                    if(!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
+                    if (!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
                       buffer.println("ostream.print(\"\\\"\")")
                     }
                     if (ProcessorHelper.convertType(att.getEAttributeType) == "String") {
@@ -268,7 +286,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
                     } else {
                       buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
                     }
-                    if(!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
+                    if (!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
                       buffer.println("ostream.print('\"')")
                     }
                     buffer.println("}")
@@ -378,24 +396,27 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     buffer.println("}") //END TO Json
   }
 
-  def getEAllEclass(pack : XMIResource) : java.util.List[EClass] = {
+  def getEAllEclass(pack: XMIResource): java.util.List[EClass] = {
     val result = new util.ArrayList[EClass]()
-    pack.getContents.foreach{ eclass =>
-      if(eclass.isInstanceOf[EPackage]){
-        getEAllPackage(eclass.asInstanceOf[EPackage],result)
-      }
+    pack.getContents.foreach {
+      eclass =>
+        if (eclass.isInstanceOf[EPackage]) {
+          getEAllPackage(eclass.asInstanceOf[EPackage], result)
+        }
     }
     return result
   }
 
-  def getEAllPackage(pack : EPackage, fillList : util.ArrayList[EClass]){
-    pack.getEClassifiers.foreach { eClazz =>
-      if(eClazz.isInstanceOf[EClass]){
-        fillList.add(eClazz.asInstanceOf[EClass])
-      }
+  def getEAllPackage(pack: EPackage, fillList: util.ArrayList[EClass]) {
+    pack.getEClassifiers.foreach {
+      eClazz =>
+        if (eClazz.isInstanceOf[EClass]) {
+          fillList.add(eClazz.asInstanceOf[EClass])
+        }
     }
-    pack.getESubpackages.foreach { sub =>
-      getEAllPackage(sub,fillList)
+    pack.getESubpackages.foreach {
+      sub =>
+        getEAllPackage(sub, fillList)
     }
   }
 
