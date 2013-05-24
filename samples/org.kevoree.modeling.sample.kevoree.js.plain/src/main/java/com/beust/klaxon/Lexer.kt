@@ -2,17 +2,15 @@ package com.beust.klaxon
 
 import java.io.InputStream
 
-public class Type {
-    class object {
-        public val VALUE            : Int = 0
-        public val LEFT_BRACE       : Int = 1
-        public val RIGHT_BRACE      : Int = 2
-        public val LEFT_BRACKET     : Int = 3
-        public val RIGHT_BRACKET    : Int = 4
-        public val COMMA            : Int = 5
-        public val COLON            : Int = 6
-        public val EOF              : Int = 42
-    }
+public object Type {
+    public val VALUE            : Int = 0
+    public val LEFT_BRACE       : Int = 1
+    public val RIGHT_BRACE      : Int = 2
+    public val LEFT_BRACKET     : Int = 3
+    public val RIGHT_BRACKET    : Int = 4
+    public val COMMA            : Int = 5
+    public val COLON            : Int = 6
+    public val EOF              : Int = 42
 }
 
 class Token(val tokenType: Int, val value: Any?) {
