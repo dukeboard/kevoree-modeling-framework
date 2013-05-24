@@ -37,7 +37,7 @@ public class HelloJson {
         System.out.println("HelloJSON");
 
         XMIModelLoader loader = new XMIModelLoader();
-        ContainerRoot model = loader.loadModelFromPath(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kevoree/src/test/resources/bootKloudNode1.kev")).get(0);
+        ContainerRoot model = (ContainerRoot) loader.loadModelFromPath(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/samples/org.kevoree.modeling.sample.kevoree/src/test/resources/bootKloudNode1.kev")).get(0);
 
         System.out.println("ModelLoaded");
 

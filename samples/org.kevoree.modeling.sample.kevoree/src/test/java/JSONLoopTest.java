@@ -39,7 +39,7 @@ public class JSONLoopTest {
     public void loopTest() throws IOException {
 
         ModelLoader loader = new XMIModelLoader();
-        ContainerRoot model = loader.loadModelFromPath(new File(getClass().getResource("/bootKloudNode1.kev").getPath())).get(0);
+        ContainerRoot model = (ContainerRoot) loader.loadModelFromPath(new File(getClass().getResource("/bootKloudNode1.kev").getPath())).get(0);
         System.out.println("ModelLoaded");
         File fp = File.createTempFile("jsonXMI",".jsonXMI");
         System.out.println(fp.getAbsolutePath());
@@ -49,7 +49,7 @@ public class JSONLoopTest {
         fop.flush();
         fop.close();
         ModelLoader jsonModelLoader = new JSONModelLoader();
-        ContainerRoot model2 = jsonModelLoader.loadModelFromPath(fp).get(0);
+        ContainerRoot model2 = (ContainerRoot) jsonModelLoader.loadModelFromPath(fp).get(0);
         assert(model2!=null);
 
         File fp2 = File.createTempFile("jsonXMI2",".jsonXMI");
@@ -60,7 +60,7 @@ public class JSONLoopTest {
         fop2.flush();
         fop2.close();
 
-        ContainerRoot model3 = jsonModelLoader.loadModelFromPath(fp2).get(0);
+        ContainerRoot model3 = (ContainerRoot) jsonModelLoader.loadModelFromPath(fp2).get(0);
         assert(model3!=null);
 
         File fp3 = File.createTempFile("jsonXMI3",".jsonXMI");

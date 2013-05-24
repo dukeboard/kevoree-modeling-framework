@@ -67,7 +67,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val model = ctx.getEcoreModel(ecoreFile)
 
     //registering factories
-    model.getContents.filter(e=>e.isInstanceOf[EPackage]).foreach {
+    model.getContents.filter(e => e.isInstanceOf[EPackage]).foreach {
       elem => ctx.registerFactory(elem.asInstanceOf[EPackage])
     }
 
@@ -136,7 +136,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
   def generateLoader() {
 
-    if(ctx.getJS()){
+    if (ctx.getJS()) {
       return
     }
 
@@ -152,15 +152,8 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
   }
 
   def generateJsonLoader() {
-
-    if(ctx.getJS()){
-      return
-    }
-
     checkOrGenerateLoaderApi()
-
     val model = ctx.getEcoreModel(ecoreFile)
-
     System.out.println("Launching JSON loader generation")
     val loaderGenerator = new JsonLoaderGenerator(ctx)
     loaderGenerator.generateLoader(model)
@@ -195,7 +188,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val serializerGenerator = new SerializerJsonGenerator(ctx)
     model.getContents.foreach {
       elem => elem match {
-        case pack: EPackage => serializerGenerator.generateJsonSerializer(pack,model)
+        case pack: EPackage => serializerGenerator.generateJsonSerializer(pack, model)
         case _ => println("No serializer generator for containerRoot element of class: " + elem.getClass)
       }
     }

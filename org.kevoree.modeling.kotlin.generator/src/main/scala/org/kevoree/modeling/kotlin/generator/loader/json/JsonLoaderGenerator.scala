@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 
 
@@ -55,57 +55,88 @@ import java.util
  * Time: 18:09
  */
 
-class JsonLoaderGenerator(ctx : GenerationContext) {
+class JsonLoaderGenerator(ctx: GenerationContext) {
 
-  def generateLoader(model : XMIResource) {
+  def generateLoader(model: XMIResource) {
 
-        val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
-        ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
+    generateStaticJSONClasses()
 
-        val localFile = new File(loaderGenBaseDir + "/JSONModelLoader.kt")
-        ctx.loaderPrintWriter = new PrintWriter(localFile,"utf-8")
-        ctx.generatedLoaderFiles.clear()
+    val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
+    ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
-        val ve = new VelocityEngine()
-        ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
-        ve.init()
-        val template = ve.getTemplate("templates/JSONLoader.vm")
-        val ctxV = new VelocityContext()
+    val localFile = new File(loaderGenBaseDir + "/JSONModelLoader.kt")
+    ctx.loaderPrintWriter = new PrintWriter(localFile, "utf-8")
+    ctx.generatedLoaderFiles.clear()
 
-        //ctxV.put("rootElement",cls)
-        ctxV.put("model",model)
-        ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-        ctxV.put("ctx",ctx)
-        ctxV.put("allEClass",getEAllEclass(model))
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
+    ve.init()
+    val template = ve.getTemplate("templates/json/JSONLoader.vm")
+    val ctxV = new VelocityContext()
+
+    //ctxV.put("rootElement",cls)
+    ctxV.put("model", model)
+    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("ctx", ctx)
+    ctxV.put("allEClass", getEAllEclass(model))
 
 
-        template.merge(ctxV,ctx.loaderPrintWriter )
+    template.merge(ctxV, ctx.loaderPrintWriter)
 
-        ctx.loaderPrintWriter .flush()
-        ctx.loaderPrintWriter .close()
+    ctx.loaderPrintWriter.flush()
+    ctx.loaderPrintWriter.close()
   }
 
-  def getEAllEclass(pack : XMIResource) : java.util.List[EClass] = {
+
+  private def generateStaticJSONClasses() {
+
+    val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
+    ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
+
+    val files = util.Arrays.asList("JsonReader", "JsonToken", "Lexer")
+    import scala.collection.JavaConversions._
+    files.foreach {
+      f =>
+        val genOutputStreamFile = new File(loaderGenBaseDir + File.separator + f + ".kt")
+        val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
+        val ve = new VelocityEngine()
+        ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+        ve.init()
+        val template1 = ve.getTemplate("templates" + File.separator + "json" + File.separator + f + ".vm")
+        val ctxV = new VelocityContext()
+        ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+        ctxV.put("ctx", ctx)
+
+        template1.merge(ctxV, OutputStream)
+        OutputStream.flush()
+        OutputStream.close()
+    }
+  }
+
+
+  def getEAllEclass(pack: XMIResource): java.util.List[EClass] = {
     val result = new util.ArrayList[EClass]()
-    pack.getContents.foreach{ eclass =>
-      if(eclass.isInstanceOf[EPackage]){
-        getEAllPackage(eclass.asInstanceOf[EPackage],result)
-      }
+    pack.getContents.foreach {
+      eclass =>
+        if (eclass.isInstanceOf[EPackage]) {
+          getEAllPackage(eclass.asInstanceOf[EPackage], result)
+        }
     }
     return result
   }
 
-  def getEAllPackage(pack : EPackage, fillList : util.ArrayList[EClass]){
-    pack.getEClassifiers.foreach { eClazz =>
-      if(eClazz.isInstanceOf[EClass]){
-        fillList.add(eClazz.asInstanceOf[EClass])
-      }
+  def getEAllPackage(pack: EPackage, fillList: util.ArrayList[EClass]) {
+    pack.getEClassifiers.foreach {
+      eClazz =>
+        if (eClazz.isInstanceOf[EClass]) {
+          fillList.add(eClazz.asInstanceOf[EClass])
+        }
     }
-    pack.getESubpackages.foreach { sub =>
-      getEAllPackage(sub,fillList)
+    pack.getESubpackages.foreach {
+      sub =>
+        getEAllPackage(sub, fillList)
     }
   }
-
 
 
 }

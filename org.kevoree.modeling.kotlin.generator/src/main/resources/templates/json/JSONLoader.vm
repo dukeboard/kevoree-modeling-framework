@@ -13,15 +13,14 @@ import java.io.InputStream
 import java.io.Reader
 import java.io.StringReader
 import java.io.InputStreamReader
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonToken
+import java.io.ByteArrayInputStream
 
 class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader.ModelLoader {
 
     val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
 
     override fun loadModelFromString(str: String) : List<Any>? {
-        return deserialize(StringReader(str))
+        return deserialize(ByteArrayInputStream(str.getBytes()))
     }
 
     override fun loadModelFromPath(file: File) : List<Any>? {
@@ -29,11 +28,11 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
     }
 
     override fun loadModelFromStream(inputStream: InputStream) : List<Any>? {
-        return deserialize(InputStreamReader(inputStream))
+        return deserialize(inputStream)
     }
 
-    private fun deserialize(topreader : Reader): List<Any> {
-        var reader : JsonReader = JsonReader(topreader)
+    private fun deserialize(instream : InputStream): List<Any> {
+        var reader : JsonReader = JsonReader(instream)
         val context = LoadingContext()
         while(reader.hasNext() && (reader.peek() != JsonToken.END_DOCUMENT)) {
             reader.beginObject()
