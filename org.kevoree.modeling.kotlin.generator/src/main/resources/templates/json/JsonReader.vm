@@ -49,7 +49,7 @@ class JsonReader(ins: InputStream) {
         return token
     }
 
-    fun peek(): JsonToken {
+    fun peek(): Int {
         if (token == null) doPeek()
         val t = token as Token
         when (t.tokenType) {
