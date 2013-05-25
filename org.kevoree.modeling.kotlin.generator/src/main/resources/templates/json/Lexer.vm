@@ -3,7 +3,6 @@
 
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
-import java.util.regex.Pattern
 import java.io.InputStream
 
 public object Type {
@@ -46,30 +45,59 @@ public class Lexer(val inputStream : InputStream) {
         return index >= bytes.size
     }
 
-    val BOOLEAN_LETTERS = hashSetOf('f', 'a', 'l', 's', 'e', 't', 'r', 'u')
+    var BOOLEAN_LETTERS : java.util.HashSet<Char>? = null
     private fun isBooleanLetter(c: Char) : Boolean {
-        return BOOLEAN_LETTERS.contains(Character.toLowerCase(c))
+        if(BOOLEAN_LETTERS == null){
+            BOOLEAN_LETTERS = java.util.HashSet<Char>()
+            BOOLEAN_LETTERS!!.add('f')
+            BOOLEAN_LETTERS!!.add('a')
+            BOOLEAN_LETTERS!!.add('l')
+            BOOLEAN_LETTERS!!.add('s')
+            BOOLEAN_LETTERS!!.add('e')
+            BOOLEAN_LETTERS!!.add('t')
+            BOOLEAN_LETTERS!!.add('r')
+            BOOLEAN_LETTERS!!.add('u')
+        }
+        #if($ctx.jS)
+            return BOOLEAN_LETTERS!!.contains(c)
+        #else
+            return BOOLEAN_LETTERS!!.contains(Character.toLowerCase(c))
+        #end
+    }
+
+    var DIGIT : java.util.HashSet<Char>? = null
+    private fun isDigit(c: Char) : Boolean {
+        if(DIGIT == null){
+                DIGIT = java.util.HashSet<Char>()
+                DIGIT!!.add('0')
+                DIGIT!!.add('1')
+                DIGIT!!.add('2')
+                DIGIT!!.add('3')
+                DIGIT!!.add('4')
+                DIGIT!!.add('5')
+                DIGIT!!.add('6')
+                DIGIT!!.add('7')
+                DIGIT!!.add('8')
+                DIGIT!!.add('9')
+        }
+        return DIGIT!!.contains(c)
     }
 
     fun isValueLetter(c: Char) : Boolean {
-        return c == '-' || c == '+' || c == '.' || c.isDigit() || isBooleanLetter(c)
+        return c == '-' || c == '+' || c == '.' || isDigit(c) || isBooleanLetter(c)
     }
 
     fun nextToken() : Token {
-
         if (isDone()) {
             return EOF
         }
-
         var tokenType = Type.EOF
         var c = nextChar()
-        var currentValue = StringBuilder()
+        var currentValue = java.lang.StringBuilder("")
         var jsonValue: Any? = null
-
         while (! isDone() && isSpace(c)) {
             c = nextChar()
         }
-
         if ('"' == c) {
             tokenType = Type.VALUE
             if (! isDone()) {

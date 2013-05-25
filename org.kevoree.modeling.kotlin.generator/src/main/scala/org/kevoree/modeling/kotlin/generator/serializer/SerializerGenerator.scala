@@ -57,7 +57,9 @@ class SerializerGenerator(ctx: GenerationContext) {
 
 
   def generateSerializer(model: XMIResource) {
-
+    if (ctx.getJS()) {
+      return
+    }
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
     ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
     val genFile = new File(serializerGenBaseDir + "XMIModelSerializer.kt")
@@ -242,7 +244,7 @@ class SerializerGenerator(ctx: GenerationContext) {
         buffer.println("ostream.print(\" xmlns:xmi=\\\"http://www.omg.org/XMI\\\"\")")
       }
       if (!isRoot) {
-      buffer.println("ostream.print(\" xsi:type=\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage)/*cls.getEPackage.getName*/ + ":" + cls.getName + "\\\"\")")
+        buffer.println("ostream.print(\" xsi:type=\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) /*cls.getEPackage.getName*/ + ":" + cls.getName + "\\\"\")")
       }
       cls.getEAllAttributes.foreach {
         att =>

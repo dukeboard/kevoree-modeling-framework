@@ -1,0 +1,7 @@
+package java.io;
+
+trait InputStream {
+
+    fun readBytes() : ByteArray
+
+}

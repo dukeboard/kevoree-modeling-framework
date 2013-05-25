@@ -28,7 +28,7 @@
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
-                       <!--     <js>true</js>  -->
+                            <js>true</js>
                             <json>true</json>
                         </configuration>
                     </execution>
@@ -45,21 +45,11 @@
                         <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>
-                <!--
                 <executions>
                     <execution>
                         <id>js</id>
                         <goals>
                             <goal>js</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                -->
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <goals>
-                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>

@@ -1,0 +1,9 @@
+package java.io;
+
+public class ByteArrayInputStream(val inputBytes : ByteArray) : InputStream {
+
+    override fun readBytes() : ByteArray {
+        return inputBytes;
+    }
+
+}

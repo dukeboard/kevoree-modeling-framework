@@ -57,9 +57,19 @@ import java.util
 
 class JsonLoaderGenerator(ctx: GenerationContext) {
 
+  private def generateContext() {
+    val el = new ContextGenerator(ctx)
+    el.generateContext()
+  }
+
+
   def generateLoader(model: XMIResource) {
 
     generateStaticJSONClasses()
+    if (ctx.getJS()) {
+      generateJSStaticJSONClasses()
+      generateContext()
+    }
 
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
@@ -88,11 +98,54 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateStaticJSONClasses() {
+  private def generateJSStaticJSONClasses() {
+    //static IO
+    var basePath = ctx.getRootGenerationDirectory + File.separator + "java" + File.separator + "io"
+    ProcessorHelper.checkOrCreateFolder(basePath)
+    var files = util.Arrays.asList("java.io.InputStream","java.io.ByteArrayInputStream")
+    import scala.collection.JavaConversions._
+    files.foreach {
+      f =>
+        val genOutputStreamFile = new File(basePath + File.separator + f.substring(f.lastIndexOf(".")+1) + ".kt")
+        val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
+        val ve = new VelocityEngine()
+        ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+        ve.init()
+        val template1 = ve.getTemplate("templates" + File.separator + "jsIO" + File.separator + f + ".vm")
+        val ctxV = new VelocityContext()
+        ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+        ctxV.put("ctx", ctx)
 
+        template1.merge(ctxV, OutputStream)
+        OutputStream.flush()
+        OutputStream.close()
+    }
+    //static lang
+    basePath = ctx.getRootGenerationDirectory + File.separator + "java" + File.separator + "lang"
+    ProcessorHelper.checkOrCreateFolder(basePath)
+    files = util.Arrays.asList("java.lang.StringBuilder")
+    import scala.collection.JavaConversions._
+    files.foreach {
+      f =>
+        val genOutputStreamFile = new File(basePath + File.separator + f.substring(f.lastIndexOf(".")+1) + ".kt")
+        val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
+        val ve = new VelocityEngine()
+        ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+        ve.init()
+        val template1 = ve.getTemplate("templates" + File.separator + "jsIO" + File.separator + f + ".vm")
+        val ctxV = new VelocityContext()
+        ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+        ctxV.put("ctx", ctx)
+        template1.merge(ctxV, OutputStream)
+        OutputStream.flush()
+        OutputStream.close()
+    }
+  }
+
+
+  private def generateStaticJSONClasses() {
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
-
     val files = util.Arrays.asList("JsonReader", "JsonToken", "Lexer")
     import scala.collection.JavaConversions._
     files.foreach {

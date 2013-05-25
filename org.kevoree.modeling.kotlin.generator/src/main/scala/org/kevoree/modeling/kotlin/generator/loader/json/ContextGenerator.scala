@@ -34,10 +34,9 @@
  */
 
 
-package org.kevoree.modeling.kotlin.generator.loader.xml
+package org.kevoree.modeling.kotlin.generator.loader.json
 
 import java.io.{File, PrintWriter}
-import org.eclipse.emf.ecore.EClass
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 
 /**
@@ -57,11 +56,7 @@ class ContextGenerator(ctx:GenerationContext) {
 
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader")
     pr.println()
-    pr.println("import javax.xml.stream.XMLStreamReader")
-    pr.println()
     pr.println("class LoadingContext() {")
-    pr.println()
-    pr.println("\t\tvar xmiReader : XMLStreamReader? = null")
     pr.println()
     pr.println("\t\tvar loadedRoots : java.util.ArrayList<Any> = java.util.ArrayList<Any>()")
     pr.println()
@@ -73,9 +68,6 @@ class ContextGenerator(ctx:GenerationContext) {
     pr.println()
     pr.println("\t\tval stats : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()")
     pr.println()
-    //pr.println("\t\tvar factory : " + ctx.factoryPackage + "." + ctx.factoryName + " = " + ctx.factoryPackage + ".impl.Default" + ctx.factoryName + "()")
-    //pr.println()
-
     pr.println("}")
 
     pr.flush()

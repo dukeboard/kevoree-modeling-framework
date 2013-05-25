@@ -1,0 +1,19 @@
+package java.lang;
+
+public class StringBuilder(val base : String) {
+
+    var content = base
+
+    fun append(sub : String){
+        content = content + sub
+    }
+
+    fun append(sub : Char){
+        content = content + sub
+    }
+
+    public fun toString():String{
+        return content
+    }
+
+}

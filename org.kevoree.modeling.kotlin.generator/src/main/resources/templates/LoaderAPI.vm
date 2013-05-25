@@ -2,15 +2,14 @@
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
-import java.io.File
-import java.io.InputStream
-
 public trait ModelLoader {
 
     fun loadModelFromString(str: String) : List<Any>?
 
-    fun loadModelFromPath(file: File) : List<Any>?
+    #if(!$ctx.jS)
+    fun loadModelFromPath(file: java.io.File) : List<Any>?
+    #end
 
-    fun loadModelFromStream(inputStream: InputStream) : List<Any>?
+    fun loadModelFromStream(inputStream: java.io.InputStream) : List<Any>?
 
 }

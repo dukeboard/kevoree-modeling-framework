@@ -6,26 +6,35 @@
 
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
-import java.io.File
-import java.io.FileReader
-import java.io.FileInputStream
 import java.io.InputStream
-import java.io.Reader
-import java.io.StringReader
-import java.io.InputStreamReader
 import java.io.ByteArrayInputStream
 
 class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader.ModelLoader {
 
     val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
 
-    override fun loadModelFromString(str: String) : List<Any>? {
-        return deserialize(ByteArrayInputStream(str.getBytes()))
-    }
 
-    override fun loadModelFromPath(file: File) : List<Any>? {
-        return loadModelFromStream(FileInputStream(file))
+#if($ctx.jS)
+    override fun loadModelFromString(str: String) : List<Any>? {
+        val bytes = ByteArray(str.length)
+        var i = 0
+        while(i < str.length){
+            bytes.set(i,str.get(i).toByte())
+            i = i +1
+        }
+        return deserialize(ByteArrayInputStream(bytes))
     }
+#else
+    override fun loadModelFromString(str: String) : List<Any>? {
+        return deserialize(ByteArrayInputStream(str.toByteArray()))
+    }
+#end
+
+#if(!$ctx.jS)
+override fun loadModelFromPath(file: java.io.File) : List<Any>? {
+        return loadModelFromStream(java.io.FileInputStream(file))
+    }
+#end
 
     override fun loadModelFromStream(inputStream: InputStream) : List<Any>? {
         return deserialize(inputStream)
@@ -47,10 +56,10 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                         context.loadedRoots.add(load$rootElement.getName()(reader, context, "/" + loadedRootsSize))
                     }
 #end
-                    else -> { System.err.println("Unknown root type '" + eclassValue + "'. Loading of this element aborted.")}
+                    else -> { println("Unknown root type '" + eclassValue + "'. Loading of this element aborted.")}
                 }
             } else {
-                System.err.println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
+                println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
             }
             reader.endObject()
         }
@@ -59,33 +68,32 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
     }
 
     private fun unescapeJSON(src : String) : String {
-        var builder : StringBuilder? = null
+        var builder : String? = null
         var i : Int = 0
         while (i < src.length) {
             val c = src[i]
             if(c == '&') {
                 if(builder == null) {
-                    builder = StringBuilder(src.substring(0,i))
+                    builder = src.substring(0,i)
                 }
                 if(src[i+1]=='a') {
-                    builder?.append("'")
+                    builder = builder!! + "'"
                     i = i+6
                 } else if(src[i+1]=='q') {
-                    builder?.append("\"")
+                    builder = builder!! + "\""
                     i = i+6
                 } else {
-                    System.err.println("Could not unescaped chain:" + src[i] + src[i+1])
+                    println("Could not unescaped chain:" + src[i] + src[i+1])
                 }
             } else {
                 if(builder != null) {
-                    builder?.append(c)
+                    builder = builder + c
                 }
                 i++
             }
         }
-
         if(builder != null) {
-            return builder.toString()
+            return builder!!
         } else {
             return src
         }
@@ -159,11 +167,11 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                                     }
                                     #end
                                     else -> {
-                                        System.err.println("Unknown root type '" + eclassValue + "'. Loading aborted.")
+                                        println("Unknown root type '" + eclassValue + "'. Loading aborted.")
                                     }
                                 }
                             } else {
-                                System.err.println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
+                                println("Ignored key '" + nextKey + "' while looking for the root element 'eClass'")
                             }
                             #else
                                 #if($concreteSubTypes.size() == 1)
@@ -222,7 +230,7 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
                 #end
             #end
                 "eClass" -> { reader.nextString() }
-                else -> {System.out.println("Tag unrecognized: " + nextName + " in $elemToLoad.getName()")}
+                else -> {println("Tag unrecognized: " + nextName + " in $elemToLoad.getName()")}
             }
         }
         return modelElem
