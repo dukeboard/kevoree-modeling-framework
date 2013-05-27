@@ -135,7 +135,14 @@ class JsonReader(ins: InputStream) {
         val t = token as Token
         var ret: Int = 42
         if (t.tokenType == Type.VALUE) {
+#if($ctx.jS)
+            val tret = java.lang.IntegerParser.parseInt(t.value as String)
+            if(tret != null){
+                ret = tret
+            }
+#else
             ret = Integer.parseInt(t.value as String)
+#end
             token = null
         } else {
             throw IllegalStateException("Expected VALUE(Int) but was " + peek());

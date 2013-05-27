@@ -36,7 +36,7 @@ class FactoryGenerator(ctx:GenerationContext) {
     pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
     pr.println("class MainFactory {")
     pr.println("")
-    pr.println("private var factories : Array<Any> = Array<Any>("+ctx.packageFactoryMap.entrySet().size()+", {i -> Any()});")
+    pr.println("private var factories : Array<Any?> = Array<Any?>("+ctx.packageFactoryMap.entrySet().size()+", {i -> null});")
     pr.println("")
     pr.println("{")
     ctx.packageFactoryMap.entrySet().foreach { entry =>

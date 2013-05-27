@@ -34,11 +34,11 @@ public class Lexer(val inputStream : InputStream) {
     }
 
     private fun nextChar() : Char {
-        return bytes[index++].toChar()
+        return bytes[index++]#if(!$ctx.jS).toChar()#else as Char#end
     }
 
     private fun peekChar() : Char {
-        return bytes[index].toChar()
+        return bytes[index]#if(!$ctx.jS).toChar()#else as Char#end
     }
 
     private fun isDone() : Boolean {

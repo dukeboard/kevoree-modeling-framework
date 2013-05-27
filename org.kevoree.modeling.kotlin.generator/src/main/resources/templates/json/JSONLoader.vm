@@ -19,7 +19,7 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
         val bytes = ByteArray(str.length)
         var i = 0
         while(i < str.length){
-            bytes.set(i,str.get(i).toByte())
+            bytes.set(i,str.get(i) as Byte)
             i = i +1
         }
         return deserialize(ByteArrayInputStream(bytes))

@@ -22,7 +22,7 @@
 
 </head>
 <body>
-<h1>KMF JS Sample</h1>
+<h1>KMF JS Sample 2</h1>
 
 <div id="foo">
 </div>
@@ -34,13 +34,9 @@
 <script type="text/javascript" src="target/js/org.kevoree.modeling.sample.kevoree.js.js"></script>
 
 <script  type="text/javascript">
-console.log(Kotlin.modules['org.kevoree.modeling.sample.kevoree.js']);
- $(document).ready(
-         Kotlin.modules['org.kevoree.modeling.sample.kevoree.js'].kmfjs.myApp
- )
 
-
-
+console.log(Kotlin.modules['org.kevoree.modeling.sample.kevoree.js'].kevoree);
+Kotlin.modules['org.kevoree.modeling.sample.kevoree.js'].kevoree.myApp()
 </script>
 
 </body>
