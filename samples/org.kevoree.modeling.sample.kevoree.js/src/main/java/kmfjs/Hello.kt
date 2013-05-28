@@ -6,14 +6,14 @@ import java.io.OutputStream
 import org.kevoree.serializer.JSONModelSerializer
 import org.kevoree.loader.JSONModelLoader
 import org.kevoree.ContainerRoot
+import java.io.ByteArrayInputStream
 
 /**
- * Created with IntelliJ IDEA.
- * User: duke
- * Date: 02/04/13
- * Time: 15:07
- */
-
+* Created with IntelliJ IDEA.
+* User: duke
+* Date: 02/04/13
+* Time: 15:07
+*/
 fun myApp() {
     val element = document.getElementById("foo")
     if (element != null) {

@@ -15,8 +15,6 @@
  * Fouquet Francois
  * Nain Gregory
  */
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.codehaus.jackson.JsonNode;
@@ -26,10 +24,10 @@ import org.kevoree.ContainerRoot;
 import org.kevoree.kompare.KevoreeKompareBean;
 import org.kevoree.loader.JSONModelLoader;
 import org.kevoree.loader.ModelLoader;
-import org.kevoreeadaptation.AdaptationModel;
 import org.kevoree.loader.XMIModelLoader;
 import org.kevoree.serializer.JSONModelSerializer;
 import org.kevoree.serializer.ModelSerializer;
+import org.kevoreeadaptation.AdaptationModel;
 
 import java.io.*;
 
@@ -69,9 +67,6 @@ public class JSONLoopTest {
         saver2.serialize(model3, fop3);
         fop3.flush();
         fop3.close();
-
-
-
 
         for(ContainerNode node : model.getNodes()){
             KevoreeKompareBean b = new KevoreeKompareBean();
