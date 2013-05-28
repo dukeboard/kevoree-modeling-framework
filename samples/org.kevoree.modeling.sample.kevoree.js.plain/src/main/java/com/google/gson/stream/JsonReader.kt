@@ -28,11 +28,7 @@ class JsonReader(ins: InputStream) {
     private fun doPeek() : Any? {
         token = lexer.nextToken()
         val t = token as Token
-
-        when (t.tokenType) {
-            Type.COLON, Type.COMMA -> doPeek()
-            else -> {/* do not peek another token */}
-        }
+        if (t.tokenType == Type.COLON || t.tokenType == Type.COMMA) doPeek()
         return token
     }
 
