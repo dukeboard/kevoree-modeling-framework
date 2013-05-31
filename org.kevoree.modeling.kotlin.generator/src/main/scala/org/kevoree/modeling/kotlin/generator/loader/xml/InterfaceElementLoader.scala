@@ -104,7 +104,7 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass) {
     }
     pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader!!.getAttributeValue(i)  + \" elementId:\" + currentElementId);}")
     pr.println("}") // END WHEN
-    pr.println("return loadedElement")
+    pr.println("return loadedElement as " + ProcessorHelper.fqn(ctx,elementType))
     pr.println("}") //END IF
     pr.println("}") // END FOR
 
