@@ -168,7 +168,7 @@ trait ClonerGenerator {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
     val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator+"ModelCloner.kt"), "utf-8")
 
-    val packageName = ProcessorHelper.fqn(ctx, pack)
+    val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
     ctx.clonerPackage = packageName + ".cloner"
 
     val ve = new VelocityEngine()
