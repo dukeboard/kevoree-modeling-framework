@@ -75,15 +75,14 @@ public class TestsGenerator {
                     //pr.println("import com.google.caliper.runner.CaliperMain;");
                     //pr.println("import com.google.caliper.Runner;");
                     //pr.println("import com.google.caliper.SimpleBenchmark;");
-                    pr.println("import java.io.File;");
-                    pr.println("import java.io.FileOutputStream;");
+                    pr.println("import java.io.*;");
                     pr.println("import java.net.URISyntaxException;");
-                    pr.println("import java.io.IOException;");
                     pr.println("import java.util.Collections;");
                     pr.println("import java.util.Map;");
                     pr.println("");
                     pr.println("import org.eclipse.emf.ecore.EObject;");
                     pr.println("import org.eclipse.emf.common.util.URI;");
+                    pr.println("import org.eclipse.emf.common.util.TreeIterator;");
                     pr.println("import org.eclipse.emf.ecore.resource.Resource;");
                     pr.println("import org.eclipse.emf.ecore.resource.ResourceSet;");
                     pr.println("import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;");

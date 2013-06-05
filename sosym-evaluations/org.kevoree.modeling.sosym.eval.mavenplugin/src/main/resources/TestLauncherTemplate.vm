@@ -39,7 +39,43 @@ test.timeKMFClone${modelName}(1);
 long cloneKmfStop = System.nanoTime();
 System.out.println("Done.");
 
-System.out.println("LOAD :: EMF=" + (loadEmfStop - loadEmfStart) + "ns  KMF=" + (loadKmfStop - loadKmfStart) + "ns");
-System.out.println("SAVE :: EMF=" + (saveEmfStop - saveEmfStart) + "ns  KMF=" + (saveKmfStop - saveKmfStart) + "ns");
-System.out.println("CLONE :: EMF=" + (cloneEmfStop - cloneEmfStart) + "ns  KMF=" + (cloneKmfStop - cloneKmfStart) + "ns");
+TreeIterator modelIterator = test.emfModel.eAllContents();
+int count = 0;
+while(modelIterator.hasNext()) {
+count++;
+modelIterator.next();
+}
+
+PrintWriter pr = null;
+try {
+
+File results = new File("SosymTestResults.csv");
+
+if(!results.exists()) {
+pr = new PrintWriter(results);
+pr.println("metamodel;model;nb model elements;EMF load time(ns);KMF load time(ns);EMF save time(ns);KMF save time(ns);EMF clone time(ns);KMF clone time(ns); model in memory");
+} else {
+pr = new PrintWriter(new BufferedWriter(new FileWriter(results, true)));
+}
+pr.print("${metamodelName};");
+pr.print("${modelName};");
+pr.print(count + ";");
+pr.print((loadEmfStop - loadEmfStart) + ";");
+pr.print((loadKmfStop - loadKmfStart) + ";");
+pr.print((saveEmfStop - saveEmfStart) + ";");
+pr.print((saveKmfStop - saveKmfStart) + ";");
+pr.print((cloneEmfStop - cloneEmfStart) + ";");
+pr.print((cloneKmfStop - cloneKmfStart) + ";");
+pr.print("model in memory");
+pr.println();
+
+} catch (IOException e) {
+e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+} finally {
+if(pr != null) {
+pr.flush();
+pr.close();
+}
+}
+
 }
