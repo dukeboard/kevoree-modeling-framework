@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -68,6 +68,7 @@
  */
 package org.kevoree.modeling.kotlin.generator.model
 
+import org.eclipse.emf.ecore.xmi.XMIResource
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import org.eclipse.emf.ecore._
 import scala.collection.JavaConversions._
@@ -92,48 +93,33 @@ with EqualsGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
-   * @param currentPackage the EPackage to be generated
+   * @param model the XMIResource to be generated
    * @param modelVersion the version of the model to be included in headers
-   * @param isRoot specifies if the method call is made on the containerRoot package
    */
-  def process(currentPackage: EPackage, modelVersion: String, isRoot: Boolean = false) {
+  def process(model: XMIResource, modelVersion: String) {
 
-    val currentPackageDir = ProcessorHelper.getPackageGenDir(ctx, currentPackage)
-    val currentUserPackageDir = ProcessorHelper.getPackageUserDir(ctx, currentPackage)
+    if (ctx.genSelector) {
+      generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+    }
+    generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
 
-    if (isRoot) {
+    ProcessorHelper.collectAllClassifiersInModel(model).foreach {
+      potentialRoot =>
+        val currentPackage = potentialRoot.getEPackage
+        val currentPackageDir = ProcessorHelper.getPackageGenDir(ctx, currentPackage)
+        val userPackageDir = ProcessorHelper.getPackageUserDir(ctx, currentPackage)
 
-      ctx.registerFactory(currentPackage)
-      ctx.getRootContainerInPackage(currentPackage) match {
-        case Some(rootContainerClass) => {
-
-          if (ctx.genSelector) {
-            generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage)
+        ProcessorHelper.checkOrCreateFolder(currentPackageDir)
+        if (currentPackage.getEClassifiers.size() != 0) {
+          ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
+          generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
+          generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
+          if (ctx.flyweightFactory) {
+            generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion)
           }
-
-          generateCloner(ctx, ProcessorHelper.getPackageGenDir(ctx, rootContainerClass.getEPackage), rootContainerClass.getEPackage, rootContainerClass)
         }
-        case _ => print("No container root found in package : " + currentPackage.getName)
-      }
+        process(currentPackageDir, currentPackage, potentialRoot, userPackageDir)
     }
-
-    ProcessorHelper.checkOrCreateFolder(currentPackageDir)
-    if (currentPackage.getEClassifiers.size() != 0) {
-      ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")
-      generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
-      generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
-
-      if(ctx.flyweightFactory){
-        generateFlyweightFactory(ctx,currentPackageDir,currentPackage,modelVersion)
-      }
-
-    }
-
-    //generateMutableTrait(dir, thisPack, pack)
-    currentPackage.getEClassifiers.foreach(c => process(currentPackageDir, currentPackage, c, currentUserPackageDir))
-    currentPackage.getESubpackages.foreach(subPack => process(subPack, modelVersion))
-
-
   }
 
 

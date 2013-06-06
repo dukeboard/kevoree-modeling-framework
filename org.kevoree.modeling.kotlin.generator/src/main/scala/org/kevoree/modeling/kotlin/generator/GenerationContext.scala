@@ -111,24 +111,6 @@ class GenerationContext {
     resource
   }
 
-
-  private var rootContainers: Map[EPackage, EClass] = Map.empty[EPackage, EClass]
-
-  def getRootContainerInPackage(pack: EPackage): Option[EClass] = {
-    rootContainers.get(pack) match {
-      case Some(cls) => Some(cls)
-      case None => {
-        ProcessorHelper.lookForRootElement(pack, rootXmiContainerClassName) match {
-          case Some(cls) => {
-            rootContainers = rootContainers + ((pack, cls))
-            Some(cls)
-          }
-          case None => None
-        }
-      }
-    }
-  }
-
   /**
    * Fully Qualified Name of the KMF Container Interface
    */

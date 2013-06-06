@@ -93,16 +93,8 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     modelGen.generateContainerTrait(ctx)
 
     System.out.println("Launching model generation")
-    model.getContents.foreach {
-      elem =>
-        elem match {
-          case pack: EPackage => {
+    modelGen.process(model, modelVersion)
 
-            modelGen.process(pack, modelVersion, true)
-          }
-          case _ => println("No model generator for containerRoot element of class: " + elem.getClass)
-        }
-    }
     System.out.println("Done with model generation")
   }
 

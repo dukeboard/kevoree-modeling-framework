@@ -59,15 +59,12 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     if (ctx.getJS()) {
       generateStaticJavaClass()
     }
-    ctx.getRootContainerInPackage(pack) match {
-      case Some(cls: EClass) => {
-        val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
-        ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
-        val modelPackage = ProcessorHelper.fqn(ctx, cls.getEPackage)
-        generateDefaultSerializer(serializerGenBaseDir, modelPackage, cls, cls.getEPackage, model)
-      }
-      case None => println("Root container not found in package: " + ProcessorHelper.fqn(ctx, pack) + ". JsonSerializer generation aborted.")
-    }
+
+    val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
+    ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
+    generateDefaultSerializer(serializerGenBaseDir, model)
+
+
   }
 
 
@@ -106,7 +103,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateDefaultSerializer(genDir: String, packageName: String, root: EClass, rootJsonPackage: EPackage, model: XMIResource) {
+  private def generateDefaultSerializer(genDir: String, model: XMIResource) {
     val genFile = new File(genDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
@@ -117,49 +114,46 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println()
     pr.println("when(oMS) {")
 
-    if (ctx.getJS()) {
-      //KotLin bug Workaround : http://youtrack.jetbrains.com/issue/KT-3519
-      pr.println("is " + ProcessorHelper.fqn(ctx, root) + ", is "+ProcessorHelper.fqn(ctx, root.getEPackage)+".impl."+root.getName+"Impl -> {")
-    } else {
-      pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
+    ProcessorHelper.collectAllClassifiersInModel(model).foreach {
+      root =>
+        if (ctx.getJS()) {
+          //KotLin bug Workaround : http://youtrack.jetbrains.com/issue/KT-3519
+          pr.println("is " + ProcessorHelper.fqn(ctx, root) + ", is " + ProcessorHelper.fqn(ctx, root.getEPackage) + ".impl." + root.getName + "Impl -> {")
+        } else {
+          pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
+        }
+
+        pr.println("val context = get" + root.getName + "JsonAddr(oMS as " + ProcessorHelper.fqn(ctx, root) + ",\"/\")")
+
+        if (ctx.getJS()) {
+          pr.println("val wt = java.io.PrintStream(ostream)")
+        } else {
+          pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
+        }
+
+        pr.println("" + root.getName + "toJson(oMS,context,wt)")
+        pr.println("wt.flush()")
+        pr.println("wt.close()")
+        pr.println("}")
     }
-
-    pr.println("val context = get" + root.getName + "JsonAddr(oMS as "+ProcessorHelper.fqn(ctx, root)+",\"/\")")
-
-    if (ctx.getJS()) {
-      pr.println("val wt = java.io.PrintStream(ostream)")
-    } else {
-      pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
-    }
-
-    pr.println("" + root.getName + "toJson(oMS,context,wt)")
-    pr.println("wt.flush()")
-    pr.println("wt.close()")
-    pr.println("}")
     pr.println("else -> { }")
     pr.println("}") //END MATCH
     pr.println("}") //END serialize method
-
     generateEscapeMethod(pr)
-    generateSerializer(getEAllEclass(model), packageName, root.getEPackage.getName + ":" + root.getName, root, root.getEPackage, true, pr: PrintWriter)
+    getEAllEclass(model).foreach {
+      eClass => generateToJsonMethod(eClass, pr)
+    }
     pr.println("}") //END TRAIT
     pr.flush()
     pr.close()
   }
-
-  private def generateSerializer(eClazzs: java.util.List[EClass], packageName: String, refNameInParent: String, root: EClass, rootXmiPackage: EPackage, isRoot: Boolean = false, pr: PrintWriter) {
-    eClazzs.foreach {
-      eClass => generateToJsonMethod(rootXmiPackage, eClass, pr, eClass.getName, eClass == root)
-    }
-  }
-
 
   private def getGetter(name: String): String = {
     "get" + name.charAt(0).toUpper + name.substring(1)
   }
 
 
-  private def generateToJsonMethod(pack: EPackage, cls: EClass, buffer: PrintWriter, refNameInParent: String, isRoot: Boolean = false) = {
+  private def generateToJsonMethod(cls: EClass, buffer: PrintWriter) {
 
     var stringListSubSerializers = Set[Tuple2[String, String]]()
     if (cls.getEAllContainments.size > 0) {
@@ -235,7 +229,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
 
           if (ctx.getJS()) {
             //KotLin bug workaround : http://youtrack.jetbrains.com/issue/KT-3519
-            buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + ", is "+ProcessorHelper.fqn(ctx, subType.getEPackage)+".impl."+subType.getName+"Impl -> {")
+            buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + ", is " + ProcessorHelper.fqn(ctx, subType.getEPackage) + ".impl." + subType.getName + "Impl -> {")
           } else {
             buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {")
           }

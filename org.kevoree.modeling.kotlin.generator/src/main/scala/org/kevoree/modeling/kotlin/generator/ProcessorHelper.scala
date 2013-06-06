@@ -168,11 +168,6 @@ object ProcessorHelper {
     helper.fqn(ctx, cls)
   }
 
-  def lookForRootElement(rootXmiPackage: EPackage, rootContainerClassName: Option[String] = None): Option[EClass] = {
-    helper.lookForRootElement(rootXmiPackage, rootContainerClassName)
-  }
-
-
   def collectAllClassifiersInModel(model : XMIResource) : java.util.ArrayList[EClassifier] = {
     helper.collectAllClassifiersInModel(model : XMIResource)
   }

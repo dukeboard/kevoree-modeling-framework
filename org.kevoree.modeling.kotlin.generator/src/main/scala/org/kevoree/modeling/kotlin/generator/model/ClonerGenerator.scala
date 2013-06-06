@@ -143,6 +143,7 @@ import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
@@ -159,12 +160,12 @@ import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 trait ClonerGenerator {
 
 
-  def generateCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, cls: EClass) {
+  def generateCloner(ctx: GenerationContext, pack: EPackage, model : XMIResource) {
     //generateClonerFactories(ctx, currentPackageDir, pack, cls)
-    generateDefaultCloner(ctx, currentPackageDir, pack, cls)
+    generateDefaultCloner(ctx, pack,model)
   }
 
-  def generateDefaultCloner(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
+  def generateDefaultCloner(ctx: GenerationContext, pack: EPackage, model : XMIResource) {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
     val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator+"ModelCloner.kt"), "utf-8")
 
@@ -177,7 +178,7 @@ trait ClonerGenerator {
     val template = ve.getTemplate("templates/ModelCloner.vm")
     val ctxV = new VelocityContext()
     ctxV.put("packageName",packageName)
-    ctxV.put("containerRootName",ProcessorHelper.fqn(ctx, containerRoot))
+    ctxV.put("potentialRoots",ProcessorHelper.collectAllClassifiersInModel(model))
     ctxV.put("ctx",ctx)
     ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
     ctxV.put("packages",ctx.packageFactoryMap.values())

@@ -193,6 +193,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
       elem =>
         elem match {
           case pack: EPackage => {
+            /*
             ctx.getRootContainerInPackage(pack) match {
               case Some(rootContainerClass) => {
                 var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
@@ -207,7 +208,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
 
               }
               case _ => print("No container root found in package : " + pack.getName)
-            }
+            } */
           }
           case _ => println("No model generator for containerRoot element of class: " + elem.getClass)
         }

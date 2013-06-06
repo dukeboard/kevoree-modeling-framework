@@ -43,8 +43,8 @@ import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
-import scala.Some
 import scala.Tuple2
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -65,28 +65,12 @@ class SerializerGenerator(ctx: GenerationContext) {
     val genFile = new File(serializerGenBaseDir + "XMIModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     beginSerializer(pr)
-
-    var rootClass: EClass = null
+    generateDefaultSerializer(pr, ProcessorHelper.collectAllClassifiersInModel(model))
+    generateEscapeMethod(pr)
     model.getContents.foreach {
       pack =>
         if (pack.isInstanceOf[EPackage]) {
-          ctx.getRootContainerInPackage(pack.asInstanceOf[EPackage]) match {
-            case Some(cls: EClass) => {
-              rootClass = cls
-              generateDefaultSerializer(pr, rootClass)
-              generateEscapeMethod(pr)
-            }
-            case None => {}
-          }
-        } else {
-          println("Don't know what to do for serializing element " + pack.getClass + " at the root of the metamodel.")
-        }
-    }
-
-    model.getContents.foreach {
-      pack =>
-        if (pack.isInstanceOf[EPackage]) {
-          generateSerializer(rootClass, pack.asInstanceOf[EPackage], pr)
+          generateSerializer(pack.asInstanceOf[EPackage], pr)
         }
     }
 
@@ -108,22 +92,23 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("}") //END TRAIT
   }
 
-  private def generateDefaultSerializer(pr: PrintWriter, root: EClass) {
-
+  private def generateDefaultSerializer(pr: PrintWriter, potentialRoots: util.ArrayList[EClassifier]) {
     pr.println("override fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
     pr.println("when(oMS) {")
-    pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
-    pr.println("val context = get" + root.getName + "XmiAddr(oMS,\"/\")")
-    pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
-    pr.println("" + root.getName + "toXmi(oMS,context,wt)")
-    pr.println("wt.flush()")
-    pr.println("wt.close()")
-    pr.println("}")
+    potentialRoots.foreach {
+      root =>
+        pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
+        pr.println("val context = get" + root.getName + "XmiAddr(oMS,\"/\")")
+        pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
+        pr.println("" + root.getName + "toXmi(oMS,\"\",context,wt,true)")
+        pr.println("wt.flush()")
+        pr.println("wt.close()")
+        pr.println("}")
+    }
     pr.println("else -> { }")
     pr.println("}") //END MATCH
     pr.println("}") //END serialize method
-
   }
 
 
@@ -136,16 +121,16 @@ class SerializerGenerator(ctx: GenerationContext) {
     template.merge(ctxV, pr)
   }
 
-  private def generateSerializer(root: EClass, rootXmiPackage: EPackage, pr: PrintWriter) {
+  private def generateSerializer(rootXmiPackage: EPackage, pr: PrintWriter) {
     rootXmiPackage.getEClassifiers.foreach {
       eClass =>
         if (eClass.isInstanceOf[EClass]) {
-          generateSerializationMethods(rootXmiPackage, eClass.asInstanceOf[EClass], pr, eClass == root)
+          generateSerializationMethods(rootXmiPackage, eClass.asInstanceOf[EClass], pr)
         }
     }
     rootXmiPackage.getESubpackages.foreach {
       subpackage =>
-        generateSerializer(root, subpackage, pr)
+        generateSerializer(subpackage, pr)
     }
   }
 
@@ -213,39 +198,34 @@ class SerializerGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateToXmiMethod(buffer: PrintWriter, cls: EClass, isRoot: Boolean = false) {
-    if (isRoot) {
-      buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ", addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
-    } else {
-      buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream) {")
-    }
+  private def generateToXmiMethod(buffer: PrintWriter, cls: EClass) {
+    buffer.println("fun " + cls.getName + "toXmi(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",refNameInParent : String, addrs : Map<Any,String>, ostream : java.io.PrintStream, isRoot : Boolean) {")
     buffer.println("when(selfObject) {")
     val subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
     subtypesList.foreach {
       subType =>
-        buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {" + subType.getName + "toXmi(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",refNameInParent,addrs,ostream) }")
+        buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {" + subType.getName + "toXmi(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",refNameInParent,addrs,ostream,isRoot) }")
     }
     buffer.println("else -> {")
-    if (isRoot) {
-      buffer.println("ostream.println(\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\")")
-    }
+    buffer.println("if (isRoot) {")
+    buffer.println("ostream.println(\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\")")
+    buffer.println("}")
     buffer.println("ostream.print('<')")
-    if (!isRoot) {
-      buffer.println("ostream.print(refNameInParent)")
-    } else {
-      buffer.println("ostream.print(\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\")")
-    }
-    if (isRoot || cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
-      if (isRoot) {
-        //buffer.println("ostream.print(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
-        buffer.println("ostream.print(\" xmlns:" + ProcessorHelper.fqn(ctx, cls.getEPackage) + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
-        buffer.println("ostream.print(\" xmlns:xsi=\\\"http://wwww.w3.org/2001/XMLSchema-instance\\\"\")")
-        buffer.println("ostream.print(\" xmi:version=\\\"2.0\\\"\")")
-        buffer.println("ostream.print(\" xmlns:xmi=\\\"http://www.omg.org/XMI\\\"\")")
-      }
-      if (!isRoot) {
-        buffer.println("ostream.print(\" xsi:type=\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) /*cls.getEPackage.getName*/ + ":" + cls.getName + "\\\"\")")
-      }
+    buffer.println("if (!isRoot) {")
+    buffer.println("ostream.print(refNameInParent)")
+    buffer.println("} else {")
+    buffer.println("ostream.print(\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\")")
+    buffer.println("}")
+    //if (cls.getEAllAttributes.size() > 0 || cls.getEAllReferences.filter(eref => !cls.getEAllContainments.contains(eref)).size > 0) {
+      buffer.println("if (isRoot) {")
+      //buffer.println("ostream.print(\" xmlns:" + cls.getEPackage.getNsPrefix + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
+      buffer.println("ostream.print(\" xmlns:" + ProcessorHelper.fqn(ctx, cls.getEPackage) + "=\\\"" + cls.getEPackage.getNsURI + "\\\"\")")
+      buffer.println("ostream.print(\" xmlns:xsi=\\\"http://wwww.w3.org/2001/XMLSchema-instance\\\"\")")
+      buffer.println("ostream.print(\" xmi:version=\\\"2.0\\\"\")")
+      buffer.println("ostream.print(\" xmlns:xmi=\\\"http://www.omg.org/XMI\\\"\")")
+      buffer.println("} else {")
+      buffer.println("ostream.print(\" xsi:type=\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) /*cls.getEPackage.getName*/ + ":" + cls.getName + "\\\"\")")
+      buffer.println("}")
       cls.getEAllAttributes.foreach {
         att =>
           att.getUpperBound match {
@@ -318,7 +298,7 @@ class SerializerGenerator(ctx: GenerationContext) {
             }
           }
       }
-    }
+    //}
     buffer.println("ostream.print('>')")
     buffer.println("ostream.println()")
     cls.getEAllContainments.foreach {
@@ -328,35 +308,34 @@ class SerializerGenerator(ctx: GenerationContext) {
             if (subClass.getLowerBound == 0) {
               buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
               buffer.println("if(sub" + subClass.getName + "!= null){")
-              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(sub" + subClass.getName + ",\"" + subClass.getName + "\",addrs,ostream)")
+              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(sub" + subClass.getName + ",\"" + subClass.getName + "\",addrs,ostream,false)")
               buffer.println("}")
             } else {
-              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + "()!!,\"" + subClass.getName + "\",addrs,ostream)")
+              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + "()!!,\"" + subClass.getName + "\",addrs,ostream,false)")
             }
           }
           case -1 => {
             buffer.println("for(so in selfObject." + getGetter(subClass.getName) + "()){")
-            buffer.println("" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream)")
+            buffer.println("" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream,false)")
             buffer.println("}")
           }
         }
     }
     //Close Tag
     buffer.println("ostream.print(\"</\")")
-    if (!isRoot) {
-      buffer.println("ostream.print(refNameInParent)")
-    } else {
-      buffer.println("ostream.print(\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\")")
-    }
+    buffer.println("if (!isRoot) {")
+    buffer.println("ostream.print(refNameInParent)")
+    buffer.println("} else {")
+    buffer.println("ostream.print(\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\")")
+    buffer.println("}")
     buffer.println("ostream.print('>')")
     buffer.println("ostream.println()")
-
     buffer.println("}")
     buffer.println("}") //End MATCH CASE
     buffer.println("}") //END TO XMI
   }
 
-  private def generateSerializationMethods(pack: EPackage, cls: EClass, buffer: PrintWriter, isRoot: Boolean = false) = {
+  private def generateSerializationMethods(pack: EPackage, cls: EClass, buffer: PrintWriter) {
     var stringListSubSerializers = Set[Tuple2[String, String]]()
     if (cls.getEAllContainments.size > 0) {
       cls.getEAllContainments.foreach {
@@ -377,12 +356,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     //GENERATE GET XMI ADDR
     //System.out.println("[DEBUG] SerializerGen::" + cls)
     generateGetXmiAddrMethod(buffer, cls, subTypes)
-
-    generateToXmiMethod(buffer, cls, isRoot)
-    if (isRoot) {
-      generateToXmiMethod(buffer, cls, false)
-    }
-
+    generateToXmiMethod(buffer, cls)
 
   }
 }

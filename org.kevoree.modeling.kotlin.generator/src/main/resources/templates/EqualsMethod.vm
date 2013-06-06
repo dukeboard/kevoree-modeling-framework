@@ -33,7 +33,7 @@ override fun modelEquals(similarObj : Any?) : Boolean {
             //todo optimize with pre sort on collection
             var lookEqualsSub = false
             for(subElement2 in similarObjCasted.get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){
-                if(subElement == subElement2){
+                if(subElement.modelEquals(subElement2)){
                     lookEqualsSub = true
                 }
             }
