@@ -7,7 +7,8 @@ public void timeKMFSave${modelName}(int reps) {
 try {
 ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.serializer.ModelSerializer serializer = new ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.serializer.XMIModelSerializer();
 for(int i = 0 ; i < reps ; i++) {
-File tempFile = File.createTempFile(""+System.currentTimeMillis(),".tmp");
+File tempFile = File.createTempFile("${metamodelName}_${modelName}_"+System.currentTimeMillis(),".tmp");
+//System.out.println(tempFile.getAbsolutePath());
 tempFile.deleteOnExit();
 FileOutputStream fos = new FileOutputStream(tempFile);
 serializer.serialize(kmfModel, fos);
@@ -24,7 +25,8 @@ Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
 Map<String, Object> m = reg.getExtensionToFactoryMap();
 m.put("xmi", new XMIResourceFactoryImpl());
 for(int i = 0 ; i < reps ; i++) {
-File tempFile = File.createTempFile(""+System.currentTimeMillis(),".xmi");
+File tempFile = File.createTempFile("${metamodelName}_${modelName}_"+System.currentTimeMillis(),".xmi");
+//System.out.println(tempFile.getAbsolutePath());
 tempFile.deleteOnExit();
 URI fileURI = URI.createFileURI(tempFile.getAbsolutePath());
 ResourceSet resourceSet = new ResourceSetImpl();

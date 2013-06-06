@@ -8,7 +8,7 @@ try {
 File localModel = new File(getClass().getResource("/${metamodelName.toLowerCase()}/${model.getName()}").toURI());
 ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader.ModelLoader loader = new  ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader.XMIModelLoader();
 for(int i = 0 ; i < reps ; i++) {
-kmfModel = loader.loadModelFromPath(localModel);
+kmfModel = loader.loadModelFromPath(localModel).get(0);
 }
 }catch (URISyntaxException e) {e.printStackTrace();}
 }

@@ -6,14 +6,14 @@
 public void timeKMFClone${modelName}(int reps) {
 for(int i = 0 ; i < reps ; i++) {
 ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.cloner.ModelCloner cloner = new ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.cloner.ModelCloner();
-cloner.clone(kmfModel);
+kmfModelClone = cloner.clone(kmfModel);
 }
 }
 
 
 public void timeEMFClone${modelName}(int reps) {
 for(int i = 0 ; i < reps ; i++) {
-EcoreUtil.copy(emfModel);
+emfModelClone = EcoreUtil.copy(emfModel);
 }
 }
 

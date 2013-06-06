@@ -79,6 +79,8 @@ public class TestsGenerator {
                     pr.println("import java.net.URISyntaxException;");
                     pr.println("import java.util.Collections;");
                     pr.println("import java.util.Map;");
+                    pr.println("import java.lang.management.ManagementFactory;");
+                    pr.println("import java.lang.management.MemoryMXBean;");
                     pr.println("");
                     pr.println("import org.eclipse.emf.ecore.EObject;");
                     pr.println("import org.eclipse.emf.common.util.URI;");
@@ -97,6 +99,8 @@ public class TestsGenerator {
                     pr.println("");
                     pr.println("private Object kmfModel = null;");
                     pr.println("private EObject emfModel = null;");
+                    pr.println("private Object kmfModelClone = null;");
+                    pr.println("private EObject emfModelClone = null;");
                     pr.println("");
                     pr.println("");
 
@@ -104,6 +108,7 @@ public class TestsGenerator {
                     generateLoadTest(pr, ctx, model, modelName, ecoreModel, metamodelName);
                     generateSaveTest(pr, ctx, model, modelName, ecoreModel, metamodelName);
                     generateCloneTest(pr, ctx, model, modelName, ecoreModel, metamodelName);
+                    generateLookupTest(pr, ctx, model, modelName, ecoreModel, metamodelName);
                     generateTestRunner(pr, ctx, modelName, metamodelName);
                     // load KMF
                     //generateKMFLoadTest(pr, ctx, model, modelName, ecoreModel, metamodelName);
@@ -217,6 +222,20 @@ public class TestsGenerator {
         ctxV.put("modelName", modelName);
     ctxV.put("ctx", ctx);
     template.merge(ctxV, pr);
+    }
+
+    private static void generateLookupTest(PrintWriter pr, GenerationContext ctx, File model, String modelName, File metamodel, String metamodelName) {
+        VelocityEngine ve = new VelocityEngine();
+        ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
+        ve.init();
+        Template template = ve.getTemplate("TestLookupTemplate.vm");
+        VelocityContext ctxV = new VelocityContext();
+        ctxV.put("ProcessorHelper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass());
+        ctxV.put("metamodelName", metamodelName);
+        ctxV.put("model", model);
+        ctxV.put("modelName", modelName);
+        ctxV.put("ctx", ctx);
+        template.merge(ctxV, pr);
     }
 
     private static void generateSaveTest(PrintWriter pr, GenerationContext ctx, File model, String modelName, File metamodel, String metamodelName) {

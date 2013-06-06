@@ -124,6 +124,7 @@ public class Main extends AbstractMojo {
         ctx.setPackagePrefix(scala.Option.apply(localPackagePrefix));
         ctx.setRootGenerationDirectory(new File(output.getAbsolutePath() + "/" + localPackagePrefix.replace(".","/")));
         ctx.setRootContainerClassName(scala.Option.apply(containerRoot));
+        ctx.genSelector_$eq(true);
 
 
         Generator gen = new Generator(ctx,metamodel);//, getLog());

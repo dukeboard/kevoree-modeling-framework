@@ -2,6 +2,137 @@
 #* @vtlvariable name="metamodelName" type="java.lang.String" *#
 #* @vtlvariable name="modelName" type="java.lang.String" *#
 #* @vtlvariable name="ProcessorHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+
+
+@Test
+public void launcherKMFChainTest() {
+
+${metamodelName}${modelName}Test test = new ${metamodelName}${modelName}Test();
+test.setUp();
+
+TreeIterator modelIterator = test.emfModel.eAllContents();
+int count = 0;
+while(modelIterator.hasNext()) {
+count++;
+modelIterator.next();
+}
+
+
+MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
+long memoryUsedBefore = beanMemory.getHeapMemoryUsage().getUsed();
+long kmfStart = System.nanoTime();
+
+test.timeKMFLoad${modelName}(1);
+test.timeKMFClone${modelName}(10);
+test.timeKMFLookup${modelName}(1);
+test.timeKMFSave${modelName}(1);
+
+
+long kmfStop = System.nanoTime();
+long memoryUsedAfter = beanMemory.getHeapMemoryUsage().getUsed();
+
+PrintWriter pr = null;
+try {
+
+File results = new File("SosymTestResults.csv");
+
+if(!results.exists()) {
+pr = new PrintWriter(results);
+pr.println("method;metamodel;model;nb model elements;duration(ns);memory used(MB)");
+} else {
+pr = new PrintWriter(new BufferedWriter(new FileWriter(results, true)));
+}
+pr.print("KMF;");
+pr.print("${metamodelName};");
+pr.print("${modelName};");
+pr.print(count + ";");
+pr.print((kmfStop - kmfStart) + ";");
+pr.print("" + ((memoryUsedAfter-memoryUsedBefore) / Math.pow(10,6)));
+pr.println();
+
+} catch (IOException e) {
+e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+} finally {
+if(pr != null) {
+pr.flush();
+pr.close();
+}
+}
+
+}
+
+
+
+
+
+@Test
+public void launcherEMFChainTest() {
+
+${metamodelName}${modelName}Test test = new ${metamodelName}${modelName}Test();
+test.setUp();
+
+TreeIterator modelIterator = test.emfModel.eAllContents();
+int count = 0;
+while(modelIterator.hasNext()) {
+count++;
+modelIterator.next();
+}
+
+MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
+long memoryUsedBefore = beanMemory.getHeapMemoryUsage().getUsed();
+long emfStart = System.nanoTime();
+
+
+test.timeEMFLoad${modelName}(1);
+test.timeEMFClone${modelName}(10);
+test.timeEMFLookup${modelName}(1);
+test.timeEMFSave${modelName}(1);
+
+
+long emfStop = System.nanoTime();
+long memoryUsedAfter = beanMemory.getHeapMemoryUsage().getUsed();
+
+PrintWriter pr = null;
+try {
+
+File results = new File("SosymTestResults.csv");
+
+if(!results.exists()) {
+pr = new PrintWriter(results);
+pr.println("method;metamodel;model;nb model elements;duration(ns);memory used(MB)");
+} else {
+pr = new PrintWriter(new BufferedWriter(new FileWriter(results, true)));
+}
+pr.print("EMF;");
+pr.print("${metamodelName};");
+pr.print("${modelName};");
+pr.print(count + ";");
+pr.print((emfStop - emfStart) + ";");
+pr.print("" + ((memoryUsedAfter-memoryUsedBefore) / Math.pow(10,6)));
+pr.println();
+
+} catch (IOException e) {
+e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+} finally {
+if(pr != null) {
+pr.flush();
+pr.close();
+}
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+/*
 @Test
 public void launcherOfTest() {
 ${metamodelName}${modelName}Test test = new ${metamodelName}${modelName}Test();
@@ -79,3 +210,5 @@ pr.close();
 }
 
 }
+
+*/
