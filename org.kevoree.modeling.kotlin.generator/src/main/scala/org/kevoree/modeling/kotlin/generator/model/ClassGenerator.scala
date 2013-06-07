@@ -91,6 +91,8 @@ trait ClassGenerator extends ClonerGenerator {
 
   def generateEqualsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
+  def generateContainedElementsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
+
     def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.kt")
     val userFile = new File(srcCurrentDir + "/impl/" + cls.getName + "Impl.kt")
@@ -114,6 +116,8 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("override internal var internal_unsetCmd : (()->Unit)? = null")
     pr.println("override internal var internal_readOnlyElem : Boolean = false")
     pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false")
+    pr.println("override internal var containedIterable : Iterable<"+ctx.getKevoreeContainer.get+">? = null")
+
 
     //  }
     //generate init
@@ -284,7 +288,7 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
 
 
     generateEqualsMethods(pr,cls,ctx)
-
+    generateContainedElementsMethods(pr,cls,ctx)
 
     pr.println("}")
     pr.flush()

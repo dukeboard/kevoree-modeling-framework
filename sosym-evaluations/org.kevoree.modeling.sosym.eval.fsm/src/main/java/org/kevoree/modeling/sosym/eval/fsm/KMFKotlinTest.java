@@ -1,10 +1,8 @@
 package org.kevoree.modeling.sosym.eval.fsm;
 
-import org.fsmsample.FSM;
-import org.fsmsample.FsmSampleFactory;
-import org.fsmsample.State;
-import org.fsmsample.Transition;
+import org.fsmsample.*;
 import org.fsmsample.cloner.ModelCloner;
+import org.fsmsample.container.KMFContainer;
 import org.fsmsample.impl.DefaultFsmSampleFactory;
 import org.fsmsample.loader.XMIModelLoader;
 import org.fsmsample.serializer.ModelSerializer;
@@ -17,6 +15,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -106,6 +105,11 @@ public class KMFKotlinTest {
             s1.setName("s" + i);
             root.addOwnedState(s1);
             Transition t = factory.createTransition();
+            /* */
+            Action action2 = factory.createAction();
+            action2.setName("action"+new Random().nextInt());
+            t.setAction(action2);
+            /* */
             t.setSource(s0); //Uses the set for one side
             s1.addIncomingTransition(t); //Uses the add for the other side
             t.setInput("ti" + i);
@@ -142,7 +146,9 @@ public class KMFKotlinTest {
                 root.addOwnedState(leftState); //using add for one side
                 rightState.setOwningFSM(root); //using add for the other side
                 Transition leftTrans = factory.createTransition();
+
                 Transition rightTrans = factory.createTransition();
+
                 leftTrans.setSource(s);
                 leftTrans.setTarget(leftState);
                 s.addOutgoingTransition(rightTrans);

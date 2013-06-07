@@ -33,8 +33,6 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelperClass, GenerationCo
 trait EqualsGenerator {
 
   def generateEqualsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
-
-
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()

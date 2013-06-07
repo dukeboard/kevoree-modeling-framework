@@ -1,0 +1,60 @@
+#* @vtlvariable name="packElem" type="java.lang.String" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+
+package ${packElem}.util;
+
+public class CompositeIterator(val subLists : Array<Any?>) : Iterator<${ctx.getKevoreeContainer().get()}> {
+
+
+    private var i = 0;
+    private var its : Iterator<${ctx.getKevoreeContainer().get()}>? = null;
+    private var currentObj : org.fsmsample.container.KMFContainer?  = null;
+
+    override fun hasNext() : Boolean {
+        /* case 1..1 dep */
+        if(currentObj != null){
+            return true;
+        }
+        if (its != null && its!!.hasNext()) {
+            return true;
+        }
+        if (i >= subLists.size) {
+            return false;
+        } else {
+            var currentIndice = subLists.get(i);
+            i = i +1;
+            if(currentIndice is Iterable<*>){
+                its = (currentIndice as Iterable<${ctx.getKevoreeContainer().get()}>).iterator();
+                currentObj = null;
+            }
+            if(currentIndice is ${ctx.getKevoreeContainer().get()}){
+                currentObj = currentIndice as ${ctx.getKevoreeContainer().get()} ;
+                its = null;
+            }
+            return hasNext();
+         }
+    }
+
+    override fun next() : ${ctx.getKevoreeContainer().get()} {
+        if(hasNext()){
+            if(currentObj != null){
+                var result : ${ctx.getKevoreeContainer().get()} = currentObj!!
+                currentObj = null;
+                return result;
+            } else {
+                if (its != null && its!!.hasNext()) {
+                    return its!!.next();
+                } else {
+                    throw Exception();
+                }
+            }
+        } else {
+            throw Exception();
+        }
+    }
+
+    public fun remove() {
+        throw java.lang.UnsupportedOperationException();
+    }
+
+}
