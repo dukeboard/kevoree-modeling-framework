@@ -98,13 +98,16 @@ class SerializerGenerator(ctx: GenerationContext) {
     pr.println("when(oMS) {")
     potentialRoots.foreach {
       root =>
-        pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
-        pr.println("val context = get" + root.getName + "XmiAddr(oMS,\"/\")")
-        pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
-        pr.println("" + root.getName + "toXmi(oMS,\"\",context,wt,true)")
-        pr.println("wt.flush()")
-        pr.println("wt.close()")
-        pr.println("}")
+        if(!root.isInstanceOf[EEnum]) {
+          pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
+          pr.println("val context = get" + root.getName + "XmiAddr(oMS,\"/\")")
+          pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
+          pr.println("" + root.getName + "toXmi(oMS,\"\",context,wt,true)")
+          pr.println("wt.flush()")
+          pr.println("wt.close()")
+          pr.println("}")
+        }
+
     }
     pr.println("else -> { }")
     pr.println("}") //END MATCH

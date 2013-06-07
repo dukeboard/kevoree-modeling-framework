@@ -358,9 +358,11 @@ class ProcessorHelperClass {
     for(content <- model.getContents) {
       content match {
         case cls : EClass => {
+          println("FOUND AN CLASS" + cls.getClass.toString)
            allClassifiers.add(cls)
         }
         case enm : EEnum => {
+          println("FOUND AN ENUM" + enm.getClass.toString)
           allClassifiers.add(enm)
         }
         case pack : EPackage => {
@@ -378,7 +380,7 @@ class ProcessorHelperClass {
   def collectAllClassifiersInPackage(pack : EPackage) : java.util.ArrayList[EClassifier] = {
     val allClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
     for(classifier <- pack.getEClassifiers) {
-      if(!classifier.isInstanceOf[EDataType]) {
+      if(!classifier.isInstanceOf[EDataType] || classifier.isInstanceOf[EEnum]) {
         allClassifiers.add(classifier)
       }
     }
