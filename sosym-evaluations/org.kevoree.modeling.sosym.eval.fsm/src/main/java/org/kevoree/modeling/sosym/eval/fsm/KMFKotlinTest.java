@@ -9,6 +9,7 @@ import org.fsmsample.impl.DefaultFsmSampleFactory;
 import org.fsmsample.loader.XMIModelLoader;
 import org.fsmsample.serializer.ModelSerializer;
 import org.fsmsample.serializer.XMIModelSerializer;
+
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -27,14 +28,10 @@ public class KMFKotlinTest {
 
 
     //@Test
-    public void flatFsmTest(PrintWriter statPr, int STATES) throws IOException {
+    public void flatFsmTest(int STATES) throws IOException {
         MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
-
         System.out.println("===== STATES : " + STATES + "=====");
-
         long creationStart = System.nanoTime();
-
-
         FSM root = factory.createFSM();
         State initial = factory.createState();
         initial.setName("s0");
@@ -57,8 +54,8 @@ public class KMFKotlinTest {
             t.setOutput("to" + i);
             s0 = s1;
 
-            if(i%100000 == 0) {
-                System.out.println("" +i);
+            if (i % 100000 == 0) {
+                System.out.println("" + i);
             }
 
         }
@@ -75,14 +72,14 @@ public class KMFKotlinTest {
         double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10, 6);
 
         System.out.println("FSM size: " + root.getOwnedState().size());
-        statPr.print(root.getOwnedState().size() + ";");
+       // statPr.print(root.getOwnedState().size() + ";");
 
         System.out.println("Memory used: " + mem + " MB");
-        statPr.print((mem + ";").replace(".", ","));
+       // statPr.print((mem + ";").replace(".", ","));
 
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
-        statPr.print(ct.replace(".", ",") + ";");
+      //  statPr.print(ct.replace(".", ",") + ";");
 
 
         long cloneStart = 0, cloneEnd = 0;
@@ -124,15 +121,15 @@ public class KMFKotlinTest {
         //end = System.currentTimeMillis();
         String mt = (marshalingEnd - marshalingStart) / Math.pow(10, 6) + "";
         System.out.println("Marshaling time: " + mt + " ms");
-        statPr.print(mt.replace(".", ",") + ";");
+        //statPr.print(mt.replace(".", ",") + ";");
 
         long beforeLoad = System.nanoTime();
         FSM loaded = (FSM) new XMIModelLoader().loadModelFromPath(tempFile).get(0);
         double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
         String lt = "" + loadTime / Math.pow(10, 6);
         System.out.println("Load time: " + lt + " ms");
-        statPr.println(lt.replace(".", ","));
-        statPr.flush();
+       // statPr.println(lt.replace(".", ","));
+       // statPr.flush();
         //System.out.println("Initial State: "+ loaded.getInitialState());
 
         //assertTrue("Loading time overpassed 1second for " + loaded.getOwnedState().size() + " elements", loadTime < 1000);
@@ -167,7 +164,6 @@ public class KMFKotlinTest {
         int n = 1;
         for (int d = 1; d < DEEP; d++) {
             List<State> thisLevel = new ArrayList<State>();
-
             for (State s : previousLevel) {
                 State leftState = factory.createState();
                 State rightState = factory.createState();
@@ -188,9 +184,7 @@ public class KMFKotlinTest {
                 thisLevel.add(rightState);
                 thisLevel.add(leftState);
             }
-
             previousLevel = thisLevel;
-
         }
 
         long creationEnd = System.nanoTime();
@@ -215,18 +209,14 @@ public class KMFKotlinTest {
         ModelSerializer sav = new XMIModelSerializer();
 
         File tempFile = File.createTempFile("tempKMFBench", "xmi");
-        //tempFile.deleteOnExit();
+        tempFile.deleteOnExit();
 
         long marshalingStart = 0, marshalingEnd = 0;
 
         try {
-
             FileOutputStream os = new FileOutputStream(tempFile);
-            //PrintWriter pr = new PrintWriter(os);
-
             marshalingStart = System.nanoTime();
             sav.serialize(root, os);
-            //pr.println(sav.serialize(root));
             marshalingEnd = System.nanoTime();
             //pr.flush();
             //pr.close();
@@ -247,11 +237,7 @@ public class KMFKotlinTest {
         System.out.println("Load time: " + lt + " ms");
         statPr.println(lt.replace(".", ","));
         statPr.flush();
-        //System.out.println("Initial State: "+ loaded.getInitialState());
-
-        //assertTrue("Loading time overpassed 1second for " + loaded.getOwnedState().size() + " elements", loadTime < 1000);
-
-        // tempFile.delete();
+        tempFile.delete();
 
         System.out.println("===== END DEEP :" + DEEP + "=====");
         System.out.println("");
@@ -260,24 +246,14 @@ public class KMFKotlinTest {
 
     public static void main(String[] args) throws InterruptedException, IOException {
         KMFKotlinTest m = new KMFKotlinTest();
-
         //=====  Flat FSM test //
-
-        File f = File.createTempFile("KMF_FLAT_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
-        PrintWriter pr = new PrintWriter(f);
-        pr.println("States;Memory;Creation;Marshaling;Loading");
         int step = 50000;
         for (int i = 1; i * step <= 100000; i++) {
-            m.flatFsmTest(pr, i * step);
-
+            m.flatFsmTest(/*pr,*/ i * step);
         }
-        pr.flush();
-        pr.close();
-
-        System.out.println("results in " + f.getAbsolutePath());
 
         //=====  BinaryTreeLike FSM test //
-
+        /*
         File f2 = File.createTempFile("KMF_BINARY_FSM_No_Opposite_TEST-" + System.currentTimeMillis(), ".csv");
         PrintWriter pr2 = new PrintWriter(f2);
         pr2.println("Deep;Memory;States;Creation;Marshaling;Loading");
@@ -286,11 +262,9 @@ public class KMFKotlinTest {
         }
         pr2.flush();
         pr2.close();
-
         System.out.println("results in " + f.getAbsolutePath());
-
+        */
     }
-
 
 
 }
