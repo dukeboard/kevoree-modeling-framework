@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.sample.thingml</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: Scala :: Sample :: ThingML</name>
+    <name>Kevoree :: Modeling :: Kotlin :: Sample :: ThingML</name>
 
     <parent>
         <artifactId>org.kevoree.modeling.sample.root</artifactId>
