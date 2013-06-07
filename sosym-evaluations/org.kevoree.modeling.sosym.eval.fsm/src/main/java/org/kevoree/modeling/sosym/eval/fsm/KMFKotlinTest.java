@@ -171,18 +171,19 @@ public class KMFKotlinTest {
 
     public static void main(String[] args) throws InterruptedException, IOException {
         KMFKotlinTest m = new KMFKotlinTest();
-        //m.doTest(100000, false); //warm up
-        //m.doTest(100000, false);
+        m.doTest(100000, false); //warm up
+        m.doTest(100000, false);
        // m.doTest(16, true);
        // m.doTest(17, true);
 
+        /*
         int nb = 0;
         for(KMFContainer elem : m.buildFlatFSM(20).containedAllElements()){
             System.out.println("elem:"+elem);
             nb++;
         }
         System.out.println(nb);
-
+         */
     }
 
 
