@@ -11,6 +11,8 @@
 	<modules>
 		<module>fsm/org.kevoree.modeling.sample.fsm.kt</module>
 		<module>fsm/org.kevoree.modeling.sample.fsm.emf</module>
+		<module>kevoree/org.kevoree.modeling.sample.kevoree.kt</module>
+		<module>kevoree/org.kevoree.modeling.sample.kevoree.emf</module>
 	</modules>
 
 </project>
