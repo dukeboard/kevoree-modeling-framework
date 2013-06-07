@@ -8,7 +8,7 @@ public class CompositeIterator(val subLists : Array<Any?>) : Iterator<${ctx.getK
 
     private var i = 0;
     private var its : Iterator<${ctx.getKevoreeContainer().get()}>? = null;
-    private var currentObj : org.fsmsample.container.KMFContainer?  = null;
+    private var currentObj : ${ctx.getKevoreeContainer().get()}?  = null;
 
     override fun hasNext() : Boolean {
         /* case 1..1 dep */
