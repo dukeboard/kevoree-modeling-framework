@@ -27,9 +27,16 @@ public class KevoreeCloudModelTest {
 
     private String model = "CloudModel2.kev";
 
+
     public void setUp() {
         try {
+
+            File localModel = GenerateHugeKevoreeCloudModel.createHugeTest();
+            model = localModel.getAbsolutePath();
+            /*
             File localModel = new File(getClass().getClassLoader().getResource(model).toURI());
+            */
+
             kmf.kevoree.loader.ModelLoader loader = new kmf.kevoree.loader.XMIModelLoader();
             kmfModel = loader.loadModelFromPath(localModel).get(0);
             URI fileURI = URI.createFileURI(localModel.getAbsolutePath());
@@ -43,9 +50,7 @@ public class KevoreeCloudModelTest {
             //EcoreUtil.resolveAll(resource2);
             assertTrue("Contents is null or void " + resource2.getContents().toString(), resource2.getContents() != null && resource2.getContents().size() != 0);
             emfModel = resource2.getContents().get(0);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -53,12 +58,12 @@ public class KevoreeCloudModelTest {
 
     public void timeKMFLoadCloudModel(int reps) {
         try {
-            File localModel = new File(getClass().getClassLoader().getResource(model).toURI());
+            File localModel = new File(model);
             kmf.kevoree.loader.ModelLoader loader = new kmf.kevoree.loader.XMIModelLoader();
             for (int i = 0; i < reps; i++) {
                 kmfModel = loader.loadModelFromPath(localModel).get(0);
             }
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -66,7 +71,7 @@ public class KevoreeCloudModelTest {
 
     public void timeEMFLoadCloudModel(int reps) {
         try {
-            File localModel = new File(getClass().getClassLoader().getResource(model).toURI());
+            File localModel = new File(model);
             URI fileURI = URI.createFileURI(localModel.getAbsolutePath());
             for (int i = 0; i < reps; i++) {
                 ResourceSet resourceSet = new ResourceSetImpl();
@@ -77,9 +82,7 @@ public class KevoreeCloudModelTest {
 //EcoreUtil.resolveAll(resource2);
                 assertTrue("Contents is null or void " + resource2.getContents().toString(), resource2.getContents() != null && resource2.getContents().size() != 0);
             }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -152,6 +155,7 @@ public class KevoreeCloudModelTest {
                     path++;
                     modelCloned.findByPath(elementPth);
                 } else {
+                    noPath++;
                     for (KMFContainer clonedElem : modelCloned.containedAllElements()) {
                         if (modelElem.modelEquals(clonedElem)) {
                             break;
@@ -164,12 +168,13 @@ public class KevoreeCloudModelTest {
     }
 
 
+    int epath = 0;
     public void timeEMFLookupCloudModel(int reps) {
         EcoreUtil.EqualityHelper helper = new EcoreUtil.EqualityHelper();
         for (int i = 0; i < reps; i++) {
-
             TreeIterator m1It = emfModel.eAllContents();
             while (m1It.hasNext()) {
+                epath++;
                 EObject modelElem1 = (EObject) m1It.next();
                 TreeIterator m2It = emfModelClone.eAllContents();
                 while (m2It.hasNext()) {
@@ -257,6 +262,9 @@ System.out.println("Done.");
             } else {
                 pr = new PrintWriter(new BufferedWriter(new FileWriter(results, true)));
             }
+
+            System.out.println("path="+test.path+"/"+test.noPath+"/"+test.epath);
+
             pr.print("Kevoree:CloudModel (EMF) " + countCloudModel + " elements, " + ((test.path * 100) / countCloudModel) + "% with path;");
             pr.print(Math.round((loadEmfStop - loadEmfStart) / Math.pow(10, 6)) + ";");
             pr.print(Math.round((cloneEmfStop - cloneEmfStart) / Math.pow(10, 6)) + ";");

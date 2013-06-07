@@ -1,12 +1,14 @@
 package kevoree;
 
 import kmf.kevoree.*;
+import kmf.kevoree.container.KMFContainer;
 import kmf.kevoree.impl.DefaultKevoreeFactory;
 import kmf.kevoree.loader.ModelLoader;
 import kmf.kevoree.loader.XMIModelLoader;
 import kmf.kevoree.serializer.XMIModelSerializer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -18,8 +20,7 @@ import java.io.IOException;
  */
 public class GenerateHugeKevoreeCloudModel {
 
-    public static void main(String[] args) throws IOException {
-
+    public static File createHugeTest() throws IOException {
 
         KevoreeFactory factory = new DefaultKevoreeFactory();
         ModelLoader loader = new XMIModelLoader();
@@ -36,44 +37,65 @@ public class GenerateHugeKevoreeCloudModel {
         }
 
         //Fill Customer LowPowerNode
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             ContainerNode node = factory.createContainerNode();
-            node.setName("ARMINode_" + i);
-            //node.setTypeDefinition(rootModel.findTypeDefinitionsByID("ARMInfraNode"));
+            node.setName("PNODE_" + i);
+            node.setTypeDefinition(rootModel.findTypeDefinitionsByID("ARMInfraNode"));
             rootModel.addNodes(node);
 
-            System.out.println(node.path());
-
-               /*
-            for (int i2 = 0; i2 < 100; i2++) {
+            for (int i2 = 0; i2 < 10; i2++) {
                 ContainerNode nodesub = factory.createContainerNode();
-                nodesub.setName("SubARMINode_" + i2);
+                nodesub.setName("SubARMINode_" + i2+"-"+i);
                 nodesub.setTypeDefinition(rootModel.findTypeDefinitionsByID("ARMInfraNode"));
                 node.addHosts(nodesub);
                 rootModel.addNodes(nodesub);
-            }   */
+            }
 
         }
 
         //Fill Customer FullPowerNode
-        /*
-        for (int i = 0; i < 10000; i++) {
+
+        for (int i = 0; i < 1000; i++) {
             ContainerNode node = factory.createContainerNode();
-            node.setName("XeonINode_" + i);
+            node.setName("PXeonINode_" + i);
             node.setTypeDefinition(rootModel.findTypeDefinitionsByID("XeonInfraNode"));
             rootModel.addNodes(node);
+
+            for (int i2 = 0; i2 < 10; i2++) {
+                ContainerNode nodesub = factory.createContainerNode();
+                nodesub.setName("SubARMINode2_" + i2+"-"+i);
+                nodesub.setTypeDefinition(rootModel.findTypeDefinitionsByID("ARMInfraNode"));
+                node.addHosts(nodesub);
+                rootModel.addNodes(nodesub);
+            }
         }
-          */
+
 
         XMIModelSerializer saver = new XMIModelSerializer();
         File out = File.createTempFile("99888888", "888888888");
         saver.serialize(rootModel, new FileOutputStream(out));
 
 
+        System.out.println("nodeSize="+rootModel.getNodes().size());
+        int i = 0;
+        for(KMFContainer c : rootModel.containedAllElements()){
+          i++;
+        }
+        System.out.println("l1_"+i);
+        i=0;
+        for(KMFContainer c2 : rootModel.containedAllElements()){
+            i++;
+        }
+        System.out.println("l2_"+i);
 
 
-        System.out.println(out.getAbsolutePath());
 
+        return out;
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        System.out.println(createHugeTest());
     }
 
 
