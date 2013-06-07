@@ -45,6 +45,7 @@ public class EclipseTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10, 6);
         System.out.println("FSM size: " + model.getOwnedState().size());
         System.out.println("Memory used: " + mem + " MB");
@@ -54,6 +55,7 @@ public class EclipseTest {
         URI fileURI = URI.createFileURI(tempFile.getAbsolutePath());
         doSave(cloned, fileURI);
         FSM reloaded = doLoad(fileURI);
+        tempFile.delete();
         System.out.println("===== END STATES : " + stateNB + "=====");
         System.out.println("");
     }
@@ -175,10 +177,10 @@ public class EclipseTest {
 
     public static void main(String[] args) throws InterruptedException, IOException {
         EclipseTest m = new EclipseTest();
-        m.doTest(50000, false);
+        m.doTest(100000, false); //warm up
         m.doTest(100000, false);
-        m.doTest(16, true);
-        m.doTest(17, true);
+        //m.doTest(16, true);
+        //m.doTest(17, true);
     }
 
 }
