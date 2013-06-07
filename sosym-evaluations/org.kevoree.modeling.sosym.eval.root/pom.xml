@@ -21,7 +21,8 @@
         <module>../org.kevoree.modeling.sosym.eval.kevoree.test</module>
         <module>../org.kevoree.modeling.sosym.eval.thingml.model</module>
         <module>../org.kevoree.modeling.sosym.eval.thingml.test</module>
-        <module>../org.kevoree.modeling.sosym.eval.eclipse.workbench.model</module>
+        <module>../org.kevoree.modeling.sosym.eval.kermeta.model</module>
+        <module>../org.kevoree.modeling.sosym.eval.kermeta.test</module>
     </modules>
 
 

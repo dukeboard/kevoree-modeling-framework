@@ -167,10 +167,12 @@ test.timeKMFClone${modelName}(1);
 long cloneKmfStop = System.nanoTime();
 System.out.println("Done.");
 
+/*
 System.out.println("Building KMFLists ...");
 test.buildKmfContainementList((${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer)test.kmfModel, false);
 test.buildKmfContainementList((${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer) test.kmfModelClone, true);
 System.out.println("Done.");
+*/
 
 System.out.println("Lookup in EMF...");
 long lookupEmfStart = System.nanoTime();

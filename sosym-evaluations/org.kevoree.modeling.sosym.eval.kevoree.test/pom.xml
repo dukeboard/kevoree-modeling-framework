@@ -17,6 +17,7 @@
             <groupId>org.kevoree.modeling.sosym.eval</groupId>
             <artifactId>org.kevoree.modeling.sosym.eval.kevoree.model</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
