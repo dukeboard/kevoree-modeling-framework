@@ -7,11 +7,13 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.emf.fsmSample.*;
+import org.emf.fsmSample.FSM;
+import org.emf.fsmSample.FsmSampleFactory;
+import org.emf.fsmSample.State;
+import org.emf.fsmSample.Transition;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.ArrayList;
@@ -26,39 +28,85 @@ import java.util.List;
  */
 public class EclipseTest {
 
-    public void doLoad(URI fileURI){
-        ResourceSet resourceSet = new ResourceSetImpl();
-        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
-        long beforeLoad = System.nanoTime();
-        Resource resource2 = resourceSet.getResource(fileURI, true);
-        EObject myModelObject = resource2.getContents().get(0);
-        double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
-        String lt = "" + loadTime / Math.pow(10, 6);
-        System.out.println("Load time: " + lt + " ms");
+    public void doTest(int stateNB, boolean flatBinary) throws IOException {
+        MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
+        System.out.println("===== STATES : " + stateNB + "=====");
+        FSM model;
+        if (flatBinary) {
+            model = buildBinaryFsm(stateNB);
+        } else {
+            model = buildFlatFSM(stateNB);
+        }
+
+        /* Cleanup memory, not very precise but give an idea of fixed memory */
+        System.gc();
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10, 6);
+        System.out.println("FSM size: " + model.getOwnedState().size());
+        System.out.println("Memory used: " + mem + " MB");
+
+        FSM cloned = doClone(model);
+        File tempFile = File.createTempFile("tempKMFBench", "xmi");
+        URI fileURI = URI.createFileURI(tempFile.getAbsolutePath());
+        doSave(cloned, fileURI);
+        FSM reloaded = doLoad(fileURI);
+        System.out.println("===== END STATES : " + stateNB + "=====");
+        System.out.println("");
     }
 
 
+    public FSM doLoad(URI fileURI) {
+        ResourceSet resourceSet = new ResourceSetImpl();
+        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+        long beforeLoad = System.nanoTime();
+        Resource resource = resourceSet.getResource(fileURI, true);
+        EObject myModelObject = resource.getContents().get(0);
+        double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
+        String lt = "" + loadTime / Math.pow(10, 6);
+        System.out.println("Load time: " + lt + " ms");
+        return (FSM) myModelObject;
+    }
 
-    //@Test
-    public void flatFsmTest(int STATES) throws IOException {
-        MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
+    public void doSave(EObject model, URI fileURI) {
+        Resource resource = new XMIResourceFactoryImpl().createResource(fileURI);
+        resource.getContents().add(model);
+        long marshalingStart;
+        long marshalingEnd;
+        marshalingStart = System.nanoTime();
+        try {
+            resource.save(Collections.EMPTY_MAP);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        marshalingEnd = System.nanoTime();
+        String mt = (marshalingEnd - marshalingStart) / Math.pow(10, 6) + "";
+        System.out.println("Marshaling time: " + mt + " ms");
+    }
 
-        System.out.println("===== STATES : " + STATES + "=====");
+    public FSM doClone(FSM model) {
+        long beforeClone = System.nanoTime();
+        EObject cloned = EcoreUtil.copy(model);
+        double cloneTime = (System.nanoTime() - beforeClone);
+        String ct2 = "" + cloneTime / Math.pow(10, 6);
+        System.out.println("Clone time: " + ct2 + " ms");
+        return (FSM) cloned;
+    }
 
+
+    public FSM buildFlatFSM(int STATES) throws IOException {
         long creationStart = System.nanoTime();
-
         FSM root = FsmSampleFactory.eINSTANCE.createFSM();
         State initial = FsmSampleFactory.eINSTANCE.createState();
         initial.setName("s0");
-        //initial.setOwningFSM(root);
         root.setCurrentState(initial);
         root.setInitialState(initial);
         root.getOwnedState().add(initial);
-
         State s0 = initial;
-
         for (int i = 1; i < STATES; i++) {
-
             State s1 = FsmSampleFactory.eINSTANCE.createState();
             s1.setName("s" + i);
             root.getOwnedState().add(s1);
@@ -72,92 +120,25 @@ public class EclipseTest {
             s1.getIncomingTransition().add(t);
             s0 = s1;
         }
-
         long creationEnd = System.nanoTime();
-
-        System.gc();
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10, 6);
-
-        System.out.println("FSM size: " + root.getOwnedState().size());
-
-        System.out.println("Memory used: " + mem + " MB");
-
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
-
-
-        File tempFile = File.createTempFile("tempKMFBench", "xmi");
-        tempFile.deleteOnExit();
-
-        URI fileURI = URI.createFileURI(tempFile.getAbsolutePath());
-        Resource resource = new XMIResourceFactoryImpl().createResource(fileURI);
-        resource.getContents().add(root);
-
-        long marshalingStart = 0, marshalingEnd = 0;
-
-        marshalingStart = System.nanoTime();
-        try {
-            resource.save(Collections.EMPTY_MAP);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        marshalingEnd = System.nanoTime();
-
-
-        //end = System.currentTimeMillis();
-        String mt = (marshalingEnd - marshalingStart) / Math.pow(10, 6) + "";
-        System.out.println("Marshaling time: " + mt + " ms");
-
-
-
-
-
-        tempFile.delete();
-
-
-        long beforeClone = System.nanoTime();
-        EcoreUtil.copy(myModelObject);
-        double cloneTime = (System.nanoTime() - beforeClone);// / Math.pow(10,6);
-        String ct2 = "" + cloneTime / Math.pow(10, 6);
-        System.out.println("Clone time: " + ct2 + " ms");
-
-
-        System.out.println("===== END STATES : " + STATES + "=====");
-        System.out.println("");
-
+        return root;
     }
 
-    //@Test
-    public void binaryFsmTest(PrintWriter statPr, int DEEP) throws IOException {
-        MemoryMXBean beanMemory = ManagementFactory.getMemoryMXBean();
-
-        System.out.println("===== DEEP : " + DEEP + "=====");
-        statPr.print(DEEP + ";");
-
-        //double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10,6)  ;
+    public FSM buildBinaryFsm(int DEEP) throws IOException {
         List<State> previousLevel = new ArrayList<State>();
-
         long creationStart = System.nanoTime();
-
         FSM root = FsmSampleFactory.eINSTANCE.createFSM();
         State initial = FsmSampleFactory.eINSTANCE.createState();
         initial.setName("s0");
-        //initial.setOwningFSM(root);
         root.setCurrentState(initial);
         root.setInitialState(initial);
         root.getOwnedState().add(initial);
-
         previousLevel.add(initial);
         int n = 1;
         for (int d = 1; d < DEEP; d++) {
             List<State> thisLevel = new ArrayList<State>();
-
             for (State s : previousLevel) {
                 State leftState = FsmSampleFactory.eINSTANCE.createState();
                 State rightState = FsmSampleFactory.eINSTANCE.createState();
@@ -183,111 +164,21 @@ public class EclipseTest {
                 thisLevel.add(rightState);
                 thisLevel.add(leftState);
             }
-
             previousLevel = thisLevel;
-
         }
-
         long creationEnd = System.nanoTime();
-
-        System.gc();
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        double mem = beanMemory.getHeapMemoryUsage().getUsed() / Math.pow(10, 6);
-        System.out.println("Memory used: " + mem + " MB");
-        statPr.print((mem + ";").replace(".", ","));
-
-        System.out.println("FSM size: " + root.getOwnedState().size());
-        statPr.print(root.getOwnedState().size() + ";");
-
         String ct = "" + (creationEnd - creationStart) / Math.pow(10, 6);
         System.out.println("Creation time: " + ct + " ms");
-        statPr.print(ct.replace(".", ",") + ";");
-
-        File tempFile = File.createTempFile("tempKMFBench", "xmi");
-        tempFile.deleteOnExit();
-
-        URI fileURI = URI.createFileURI(tempFile.getAbsolutePath());
-        Resource resource = new XMIResourceFactoryImpl().createResource(fileURI);
-        resource.getContents().add(root);
-
-
-        long marshalingStart = 0, marshalingEnd = 0;
-
-        marshalingStart = System.nanoTime();
-        try {
-            resource.save(Collections.EMPTY_MAP);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        marshalingEnd = System.nanoTime();
-
-
-        //end = System.currentTimeMillis();
-        String mt = (marshalingEnd - marshalingStart) / Math.pow(10, 6) + "";
-        System.out.println("Marshaling time: " + mt + " ms");
-        statPr.print(mt.replace(".", ",") + ";");
-
-
-        // Create a resource set.
-        ResourceSet resourceSet = new ResourceSetImpl();
-
-        // Register the default resource factory -- only needed for stand-alone!
-        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
-                Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
-
-        // Register the package -- only needed for stand-alone!
-        // You find the correct name of the package in the generated model code
-        FsmSamplePackage fsmPackage = FsmSamplePackage.eINSTANCE;
-
-
-        long beforeLoad = System.nanoTime();
-        // Demand load the resource for this file, here the actual loading is done.
-        Resource resource2 = resourceSet.getResource(fileURI, true);
-        EObject myModelObject = resource.getContents().get(0);
-        double loadTime = (System.nanoTime() - beforeLoad);// / Math.pow(10,6);
-        String lt = "" + loadTime / Math.pow(10, 6);
-        System.out.println("Load time: " + lt + " ms");
-        statPr.println(lt.replace(".", ","));
-        statPr.flush();
-        //System.out.println("Initial State: "+ loaded.getInitialState());
-
-        //assertTrue("Loading time overpassed 1second for " + loaded.getOwnedState().size() + " elements", loadTime < 1000);
-
-        tempFile.delete();
-
-        System.out.println("===== END DEEP :" + DEEP + "=====");
-        System.out.println("");
+        return root;
     }
 
 
     public static void main(String[] args) throws InterruptedException, IOException {
         EclipseTest m = new EclipseTest();
-
-        //=====  Flat FSM test //
-        int step = 50000;
-        for (int i = 1; i * step <= 100000; i++) {
-            m.flatFsmTest(/*pr,*/ i * step);
-        }
-
-        //=====  BinaryTreeLike FSM test //
-            /*
-        File f2 = File.createTempFile("EMF_BINARY_FSM_NO_OPPOSITE_TEST-" + System.currentTimeMillis(),".csv");
-        PrintWriter pr2 = new PrintWriter(f2);
-        pr2.println("Deep;Memory;States;Creation;Marshaling;Loading");
-        for(int i = 1 ; Math.pow(2,i)<500000;i++) {
-            m.binaryFsmTest(pr2,i);
-        }
-        pr2.flush();
-        pr2.close();
-
-        System.out.println("results in " + f2.getAbsolutePath());
-         */
+        m.doTest(50000, false);
+        m.doTest(100000, false);
+        m.doTest(16, true);
+        m.doTest(17, true);
     }
-
 
 }
