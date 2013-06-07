@@ -19,7 +19,7 @@ public void setUp() {
         Resource resource2 = resourceSet.createResource(fileURI);
         assertTrue("Resource is null. Model URI:" + fileURI.toString(), resource2 != null);
         resource2.load(null);
-        EcoreUtil.resolveAll(resource2);
+        //EcoreUtil.resolveAll(resource2);
         assertTrue("Contents is null or void " + resource2.getContents().toString(), resource2.getContents() != null && resource2.getContents().size()!=0);
         emfModel = resource2.getContents().get(0);
     }catch (URISyntaxException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}

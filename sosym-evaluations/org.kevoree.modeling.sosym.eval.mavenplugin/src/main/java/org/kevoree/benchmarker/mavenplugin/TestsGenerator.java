@@ -34,7 +34,7 @@ import java.io.*;
 public class TestsGenerator {
 
 
-    public static void generateTests(File ecoreModel, GenerationContext ctx, String packagePrefix, File testsOutput, File projectRoot) throws MojoExecutionException {
+    public static void generateTests(File ecoreModel, GenerationContext ctx, File testsOutput, File projectRoot) throws MojoExecutionException {
 
         try {
 

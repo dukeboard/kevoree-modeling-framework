@@ -3,7 +3,7 @@
 #* @vtlvariable name="modelName" type="java.lang.String" *#
 #* @vtlvariable name="ProcessorHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 
-
+#*
 @Test
 public void launcherKMFChainTest() {
 
@@ -122,6 +122,7 @@ pr.close();
 
 }
 
+*#
 
 
 
@@ -129,10 +130,6 @@ pr.close();
 
 
 
-
-
-
-/*
 @Test
 public void launcherOfTest() {
 ${metamodelName}${modelName}Test test = new ${metamodelName}${modelName}Test();
@@ -170,34 +167,64 @@ test.timeKMFClone${modelName}(1);
 long cloneKmfStop = System.nanoTime();
 System.out.println("Done.");
 
+System.out.println("Building KMFLists ...");
+test.buildKmfContainementList((${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer)test.kmfModel, false);
+test.buildKmfContainementList((${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer) test.kmfModelClone, true);
+System.out.println("Done.");
+
+System.out.println("Lookup in EMF...");
+long lookupEmfStart = System.nanoTime();
+test.timeEMFLookup${modelName}(1);
+long lookupEmfStop = System.nanoTime();
+System.out.println("Done.");
+System.out.println("Lookup in KMF...");
+long lookupKmfStart = System.nanoTime();
+test.timeKMFLookup${modelName}(1);
+long lookupKmfStop = System.nanoTime();
+//System.out.println("Path:"+ test.path + " NoPath:" + test.noPath + " Done.");
+
 TreeIterator modelIterator = test.emfModel.eAllContents();
-int count = 0;
+int count${modelName} = 0;
 while(modelIterator.hasNext()) {
-count++;
+count${modelName}++;
 modelIterator.next();
 }
 
 PrintWriter pr = null;
 try {
 
-File results = new File("SosymTestResults.csv");
+File results = new File("../org.kevoree.modeling.sosym.eval.root/SosymTestResults.csv");
+System.out.println("Printing results in:" + results.getAbsolutePath());
 
 if(!results.exists()) {
 pr = new PrintWriter(results);
-pr.println("metamodel;model;nb model elements;EMF load time(ns);KMF load time(ns);EMF save time(ns);KMF save time(ns);EMF clone time(ns);KMF clone time(ns); model in memory");
+pr.println("model;Loading(ms);Cloning(ms);Lookup(ms);Saving(ms);with path; without path");
 } else {
 pr = new PrintWriter(new BufferedWriter(new FileWriter(results, true)));
 }
-pr.print("${metamodelName};");
-pr.print("${modelName};");
-pr.print(count + ";");
-pr.print((loadEmfStop - loadEmfStart) + ";");
-pr.print((loadKmfStop - loadKmfStart) + ";");
-pr.print((saveEmfStop - saveEmfStart) + ";");
-pr.print((saveKmfStop - saveKmfStart) + ";");
-pr.print((cloneEmfStop - cloneEmfStart) + ";");
-pr.print((cloneKmfStop - cloneKmfStart) + ";");
-pr.print("model in memory");
+//pr.print("EMF;");
+pr.print("${metamodelName}:${modelName} (EMF) "+count${modelName}+" elements, "+((test.path*100)/count${modelName})+"% with path;");
+//pr.print("${modelName};");
+//pr.print(count + ";");
+pr.print(Math.round((loadEmfStop - loadEmfStart) / Math.pow(10,6)) + ";");
+pr.print(Math.round((cloneEmfStop - cloneEmfStart)/ Math.pow(10,6)) + ";");
+pr.print(Math.round((lookupEmfStop - lookupEmfStart)/ Math.pow(10,6)) + ";");
+pr.print(Math.round((saveEmfStop - saveEmfStart)/ Math.pow(10,6)) + ";");
+pr.print("NN;");
+pr.print("NN");
+pr.println();
+
+//pr.print("KMF;");
+//pr.print("${metamodelName};");
+pr.print("${metamodelName}:${modelName} (KMF) "+count${modelName}+" elements, "+((test.path*100)/count${modelName})+"% with path;");
+//pr.print("${modelName};");
+//pr.print(count + ";");
+pr.print(Math.round((loadKmfStop - loadKmfStart)/ Math.pow(10,6)) + ";");
+pr.print(Math.round((cloneKmfStop - cloneKmfStart)/ Math.pow(10,6)) + ";");
+pr.print(Math.round((lookupKmfStop - lookupKmfStart)/ Math.pow(10,6)) + ";");
+pr.print(Math.round((saveKmfStop - saveKmfStart)/ Math.pow(10,6)) + ";");
+pr.print(test.path+ ";");
+pr.print(test.noPath+"");
 pr.println();
 
 } catch (IOException e) {
@@ -210,5 +237,3 @@ pr.close();
 }
 
 }
-
-*/

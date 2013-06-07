@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.kevoree.extra</groupId>
             <artifactId>org.kevoree.extra.emf.genmodel.mavenplugin</artifactId>
-            <version>2.7.2-SNAPSHOT</version>
+            <version>2.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -55,5 +55,35 @@
             <version>1.7</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>kevoree-libs-release-local</id>
+            <url>http://maven.kevoree.org/release</url>
+        </repository>
+        <repository>
+            <id>kevoree-snapshots</id>
+            <url>http://maven.kevoree.org/snapshots</url>
+        </repository>
+        <repository>
+            <id>jetbrains-release</id>
+            <url>http://repository.jetbrains.com/all</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>plugin.kevoree-release</id>
+            <url>http://maven.kevoree.org/release</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>plugin.kevoree-snapshots</id>
+            <url>http://maven.kevoree.org/snapshots</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>jetbrains-release</id>
+            <url>http://repository.jetbrains.com/all</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

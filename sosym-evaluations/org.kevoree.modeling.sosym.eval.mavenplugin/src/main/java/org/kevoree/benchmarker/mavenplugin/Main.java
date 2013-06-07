@@ -19,8 +19,6 @@ package org.kevoree.benchmarker.mavenplugin;
 /*
 * Author : Gregory Nain (developer.name@uni.lu)
 * Date : 30/01/13
-* (c) 2013 University of Luxembourg – Interdisciplinary Centre for Security Reliability and Trust (SnT)
-* All rights reserved
 */
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -73,6 +71,26 @@ public class Main extends AbstractMojo {
      */
     private String[] rootContainers;
 
+    /**
+     * Generates the EMF model
+     *
+     * @parameter default-value="true"
+     */
+    private boolean generateEMFmodel;
+
+    /**
+     * Generates the KMF model
+     *
+     * @parameter default-value="true"
+     */
+    private boolean generateKMFmodel;
+
+    /**
+     * Generates the tests
+     *
+     * @parameter default-value="true"
+     */
+    private boolean generateTests;
 
     /**
      * The maven project.
@@ -106,39 +124,56 @@ public class Main extends AbstractMojo {
             throw new MojoExecutionException("The number of rootContainers and Metamodels must be equal. You have to specify the RootContainer, for each Metamodel, in the same order.");
         }
 
-
-        for(int i = 0 ; i < metamodels.length ; i++) {
-
-            GenerationContext ctx = generateKmf(metamodels[i], rootContainers[i], "test"+i+".kmf");
-            generateEmf(metamodels[i],"test"+i+".emf");
-            TestsGenerator.generateTests(metamodels[i], ctx, "test"+i, testsOutput, project.getBasedir());
-        }
-
         this.project.addCompileSourceRoot(output.getAbsolutePath());
         this.project.addTestCompileSourceRoot(testsOutput.getAbsolutePath());
+
+        for(int i = 0 ; i < metamodels.length ; i++) {
+            String kmfPrefix = "";
+            if(metamodels.length > 1) {
+                kmfPrefix = "test"+i+".kmf";
+            } else {
+                kmfPrefix = "kmf";
+            }
+
+            GenerationContext ctx = buildContext(rootContainers[i], kmfPrefix);
+            Generator gen = new Generator(ctx,metamodels[i]);
+
+            if(generateKMFmodel) {
+                generateKmf(ctx, metamodels[i]);
+            }
+            if(generateEMFmodel) {
+                generateEmf(metamodels[i],kmfPrefix.replace("kmf","emf"));
+            }
+            if(generateTests) {
+                TestsGenerator.generateTests(metamodels[i], ctx, testsOutput, project.getBasedir());
+            }
+        }
+
+
     }
 
-
-    private GenerationContext generateKmf(File metamodel, String containerRoot, String localPackagePrefix) {
+    private GenerationContext buildContext(String containerRoot, String localPackagePrefix) {
         GenerationContext ctx = new GenerationContext();
         ctx.setPackagePrefix(scala.Option.apply(localPackagePrefix));
         ctx.setRootGenerationDirectory(new File(output.getAbsolutePath() + "/" + localPackagePrefix.replace(".","/")));
         ctx.setRootContainerClassName(scala.Option.apply(containerRoot));
         ctx.genSelector_$eq(true);
+        return ctx;
+    }
 
 
+    private void generateKmf(GenerationContext ctx, File metamodel) {
         Generator gen = new Generator(ctx,metamodel);//, getLog());
         gen.generateModel(project.getVersion());
         gen.generateLoader();
         gen.generateSerializer();
-        return ctx;
 
     }
 
 
     private void generateEmf(File metamodel, String localPackagePrefix) {
         Util.createGenModel(metamodel, null, new File(output.getAbsolutePath() + "/" + localPackagePrefix.replace(".","/")), getLog(), false, localPackagePrefix);
-        project.addCompileSourceRoot(output.getAbsolutePath());
+       // project.addCompileSourceRoot(output.getAbsolutePath());
     }
 
 }

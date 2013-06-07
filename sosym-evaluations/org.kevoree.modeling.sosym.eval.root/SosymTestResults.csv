@@ -1,0 +1,15 @@
+model;Loading(ms);Cloning(ms);Lookup(ms);Saving(ms);with path; without path
+Kevoree:CloudModel (EMF) 33644 elements, 18% with path;257;370;76333;625;NN;NN
+Kevoree:CloudModel (KMF) 33644 elements, 18% with path;328;163;11049;382;6177;25198
+Kevoree:LibrariesModelAll (EMF) 876 elements, 27% with path;108;25;123;160;NN;NN
+Kevoree:LibrariesModelAll (KMF) 876 elements, 27% with path;47;16;32;115;239;194
+Thingml:BCMS (EMF) 1062 elements, 0% with path;84;24;232;167;NN;NN
+Thingml:BCMS (KMF) 1062 elements, 0% with path;47;23;110;114;0;1063
+Thingml:Helloworld (EMF) 111 elements, 0% with path;14;5;48;111;NN;NN
+Thingml:Helloworld (KMF) 111 elements, 0% with path;14;7;6;41;0;112
+Kermeta:Class2Rdbms (EMF) 6393 elements, 0% with path;271;90;6492;828;NN;NN
+Kermeta:Class2Rdbms (KMF) 6393 elements, 0% with path;192;94;1111;531;0;6394
+Kermeta:Kompren (EMF) 6393 elements, 0% with path;432;98;6438;699;NN;NN
+Kermeta:Kompren (KMF) 6393 elements, 0% with path;488;81;1095;930;0;6394
+Kermeta:TestHello (EMF) 6393 elements, 0% with path;282;92;6006;461;NN;NN
+Kermeta:TestHello (KMF) 6393 elements, 0% with path;182;88;1078;446;0;6394
