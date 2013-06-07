@@ -3,10 +3,11 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="packElem" type="java.lang.String" *#
 
-var containedIterable : Iterable<$ctx.getKevoreeContainer().get()>?
+override fun containedAllElements() : Iterable<$ctx.getKevoreeContainer().get()> {
+        return ${packElem}.DeepIterable(this)
+}
 
 override fun containedElements() : Iterable<$ctx.getKevoreeContainer().get()> {
-   //if(containedIterable == null){
         var containedIterables = Array<Any?>($currentClass.getEAllContainments().size(),{i ->
              when (i) {
                  #set($i=0)
@@ -23,8 +24,6 @@ override fun containedElements() : Iterable<$ctx.getKevoreeContainer().get()> {
                  else -> {}
              }
         })
-        containedIterable = ${packElem}.CompositeIterable(containedIterables)
-   //}
-   return containedIterable!!
+        return ${packElem}.CompositeIterable(containedIterables)
 }
 
