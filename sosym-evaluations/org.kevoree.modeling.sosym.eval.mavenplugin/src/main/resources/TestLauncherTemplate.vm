@@ -136,36 +136,78 @@ ${metamodelName}${modelName}Test test = new ${metamodelName}${modelName}Test();
 System.out.println("Setting up the test...");
 test.setUp();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 System.out.println("Loading in EMF...");
 long loadEmfStart = System.nanoTime();
 test.timeEMFLoad${modelName}(1);
 long loadEmfStop = System.nanoTime();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 System.out.println("Loading in KMF...");
 long loadKmfStart = System.nanoTime();
 test.timeKMFLoad${modelName}(1);
 long loadKmfStop = System.nanoTime();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 System.out.println("Saving in EMF...");
 long saveEmfStart = System.nanoTime();
 test.timeEMFSave${modelName}(1);
 long saveEmfStop = System.nanoTime();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 System.out.println("Saving in KMF...");
 long saveKmfStart = System.nanoTime();
 test.timeKMFSave${modelName}(1);
 long saveKmfStop = System.nanoTime();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 System.out.println("Cloning in EMF...");
 long cloneEmfStart = System.nanoTime();
 test.timeEMFClone${modelName}(1);
 long cloneEmfStop = System.nanoTime();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 System.out.println("Cloning in KMF...");
 long cloneKmfStart = System.nanoTime();
 test.timeKMFClone${modelName}(1);
 long cloneKmfStop = System.nanoTime();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 
 /*
 System.out.println("Building KMFLists ...");
@@ -179,6 +221,12 @@ long lookupEmfStart = System.nanoTime();
 test.timeEMFLookup${modelName}(1);
 long lookupEmfStop = System.nanoTime();
 System.out.println("Done.");
+
+System.gc();
+try {
+Thread.sleep(4000);
+} catch (InterruptedException e) {}
+
 System.out.println("Lookup in KMF...");
 long lookupKmfStart = System.nanoTime();
 test.timeKMFLookup${modelName}(1);
