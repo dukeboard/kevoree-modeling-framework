@@ -4,7 +4,7 @@
 #* @vtlvariable name="ProcessorHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 #* @vtlvariable name="modelName" type="java.lang.String" *#
 
-#*
+/*
 
 java.util.ArrayList<${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer> kmfAllContanedList = new java.util.ArrayList<${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer>();
     java.util.ArrayList<${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer> kmfCloneAllContanedList = new java.util.ArrayList<${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer>();
@@ -50,33 +50,31 @@ break;
 }
 }
 }
-*#
+*/
 
 
 int path = 0;
 int noPath = 0;
 public void timeKMFLookup${modelName}(int reps) {
-for(int i = 0 ; i < reps ; i++) {
-java.util.Iterator<${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer> m1It = ((${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer)kmfModel).containedAllElements().iterator();
-    while(m1It.hasNext()) {
-${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer modelElem1 = m1It.next();
-    String elementPth = modelElem1.path();
-    if(elementPth != null && elementPth != "") {
-    path++;
-    ((${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer)kmfModelClone).findByPath(elementPth);
-    } else {
-    java.util.Iterator<${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer> m2It = ((${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer)kmfModelClone).containedAllElements().iterator();
-        while(m2It.hasNext()) {
-${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer modelElem2 = m2It.next();
-        if(modelElem1.modelEquals(modelElem2)) {
-        break;
-        }
-        }
-        }
-
-        }
-        }
-        }
+for (int i = 0; i < reps; i++) {
+${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer model = (${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer) kmfModel;
+${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer modelCloned = (${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer) kmfModelClone;
+for (${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer modelElem : model.containedAllElements()) {
+String elementPth = modelElem.path();
+if (elementPth != null && elementPth != "") {
+path++;
+modelCloned.findByPath(elementPth);
+} else {
+noPath++;
+for (${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer clonedElem : modelCloned.containedAllElements()) {
+if (modelElem.modelEquals(clonedElem)) {
+break;
+}
+}
+}
+}
+}
+}
 
 
 public void timeEMFLookup${modelName}(int reps) {

@@ -26,6 +26,7 @@ resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(Resource
 Resource resource2 = resourceSet.createResource(fileURI);
 assertTrue("Resource is null. Model URI:" + fileURI.toString(), resource2 != null);
 resource2.load(null);
+emfModel = resource2.getContents().get(0);
 //EcoreUtil.resolveAll(resource2);
 assertTrue("Contents is null or void " + resource2.getContents().toString(), resource2.getContents() != null && resource2.getContents().size()!=0);
 }

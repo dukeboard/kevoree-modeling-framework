@@ -4,8 +4,9 @@
 #* @vtlvariable name="ProcessorHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 #* @vtlvariable name="modelName" type="java.lang.String" *#
 public void timeKMFClone${modelName}(int reps) {
-for(int i = 0 ; i < reps ; i++) {
+
 ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.cloner.ModelCloner cloner = new ${ProcessorHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.cloner.ModelCloner();
+for(int i = 0 ; i < reps ; i++) {
 kmfModelClone = cloner.clone(kmfModel);
 }
 }
