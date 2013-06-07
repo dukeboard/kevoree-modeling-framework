@@ -17,6 +17,7 @@ fun delete()
 
 fun modelEquals(similarObj : Any?) : Boolean
 fun containedElements() : Iterable<${packElem}.${formatedFactoryName}>
+fun containedAllElements() : Iterable<${packElem}.${formatedFactoryName}>
 
 #if(${ctx.genSelector})
     fun selectByQuery(query : String) : List<Any>

@@ -1,0 +1,12 @@
+#* @vtlvariable name="packElem" type="java.lang.String" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+
+package ${packElem}.util
+
+public class DeepIterable(val root : ${ctx.getKevoreeContainer().get()}) : Iterable<${ctx.getKevoreeContainer().get()}> {
+
+    public override fun iterator() : Iterator<${ctx.getKevoreeContainer().get()}> {
+        return DeepIterator(root);
+    }
+
+}

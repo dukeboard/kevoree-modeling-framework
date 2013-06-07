@@ -7,6 +7,7 @@ import org.fsmsample.impl.DefaultFsmSampleFactory;
 import org.fsmsample.loader.XMIModelLoader;
 import org.fsmsample.serializer.ModelSerializer;
 import org.fsmsample.serializer.XMIModelSerializer;
+import org.fsmsample.util.DeepIterable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -146,9 +147,7 @@ public class KMFKotlinTest {
                 root.addOwnedState(leftState); //using add for one side
                 rightState.setOwningFSM(root); //using add for the other side
                 Transition leftTrans = factory.createTransition();
-
                 Transition rightTrans = factory.createTransition();
-
                 leftTrans.setSource(s);
                 leftTrans.setTarget(leftState);
                 s.addOutgoingTransition(rightTrans);
@@ -172,10 +171,18 @@ public class KMFKotlinTest {
 
     public static void main(String[] args) throws InterruptedException, IOException {
         KMFKotlinTest m = new KMFKotlinTest();
-        m.doTest(100000, false); //warm up
-        m.doTest(100000, false);
+        //m.doTest(100000, false); //warm up
+        //m.doTest(100000, false);
        // m.doTest(16, true);
        // m.doTest(17, true);
+
+        int nb = 0;
+        for(KMFContainer elem : m.buildFlatFSM(20).containedAllElements()){
+            System.out.println("elem:"+elem);
+            nb++;
+        }
+        System.out.println(nb);
+
     }
 
 

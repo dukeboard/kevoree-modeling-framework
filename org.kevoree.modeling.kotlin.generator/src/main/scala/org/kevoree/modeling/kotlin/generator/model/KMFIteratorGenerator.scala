@@ -69,6 +69,38 @@ trait KMFIteratorGenerator {
     pr.close()
   }
 
+  def generateDeepIteratorFile(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
+    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/util/")
+    val localFile = new File(packageGenDir + "/util/DeepIterator.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("DeepIterator.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("packElem", ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("ctx", ctx)
+    template.merge(ctxV, pr)
+    pr.flush()
+    pr.close()
+  }
+
+  def generateDeepIterableFile(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
+    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/util/")
+    val localFile = new File(packageGenDir + "/util/DeepIterable.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("DeepIterable.vm");
+    val ctxV = new VelocityContext()
+    ctxV.put("packElem", ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("ctx", ctx)
+    template.merge(ctxV, pr)
+    pr.flush()
+    pr.close()
+  }
+
 
 
 }

@@ -1,0 +1,49 @@
+#* @vtlvariable name="packElem" type="java.lang.String" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+
+package ${packElem}.util;
+
+public class DeepIterator(val root : ${ctx.getKevoreeContainer().get()}) : Iterator<${ctx.getKevoreeContainer().get()}> {
+
+    private var currentObjSubIt : Iterator<${ctx.getKevoreeContainer().get()}>? = null;
+    private var currentObj : org.fsmsample.container.KMFContainer?  = null;
+    private var rootElems : Iterator<${ctx.getKevoreeContainer().get()}> = root.containedElements().iterator()
+
+    override fun hasNext() : Boolean {
+        /* case 1..1 dep */
+        if(currentObj != null){return true;}
+        if (currentObjSubIt != null && currentObjSubIt!!.hasNext()) {return true;}
+        //case next step root low level
+        if(rootElems.hasNext()){
+            currentObj = rootElems.next();
+            currentObjSubIt = null;
+        } else {
+            return false
+        }
+        return hasNext();
+    }
+
+    override fun next() : ${ctx.getKevoreeContainer().get()} {
+        if(hasNext()){
+            if(currentObj != null){
+                var result : ${ctx.getKevoreeContainer().get()} = currentObj!!
+                currentObj = null;
+                currentObjSubIt = DeepIterator(result) //go down
+                return result;
+            } else {
+                if (currentObjSubIt != null && currentObjSubIt!!.hasNext()) {
+                    return currentObjSubIt!!.next();
+                } else {
+                    throw Exception();
+                }
+            }
+        } else {
+            throw Exception();
+        }
+    }
+
+    public fun remove() {
+        throw java.lang.UnsupportedOperationException();
+    }
+
+}

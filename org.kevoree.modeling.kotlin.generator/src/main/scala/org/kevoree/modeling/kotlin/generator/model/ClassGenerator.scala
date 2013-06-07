@@ -116,7 +116,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("override internal var internal_unsetCmd : (()->Unit)? = null")
     pr.println("override internal var internal_readOnlyElem : Boolean = false")
     pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false")
-    pr.println("override internal var containedIterable : Iterable<"+ctx.getKevoreeContainer.get+">? = null")
+    //pr.println("override internal var containedIterable : Iterable<"+ctx.getKevoreeContainer.get+">? = null")
 
 
     //  }
