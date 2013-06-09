@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="diva"
+    nsURI="http://www.diva.org/diva" nsPrefix="diva">
+  <eClassifiers xsi:type="ecore:EClass" name="VariabilityModel" eSuperTypes="#//ModelContainer">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="context" upperBound="-1"
+        eType="#//Variable" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="property" upperBound="-1"
+        eType="#//Property" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="dimension" upperBound="-1"
+        eType="#//Dimension" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="rule" upperBound="-1" eType="#//Rule"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="constraint" upperBound="-1"
+        eType="#//Constraint" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="simulation" eType="#//SimulationModel"
+        containment="true" eOpposite="#//SimulationModel/model"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Invariant" eSuperTypes="#//Constraint">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="expression" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Variable" abstract="true" eSuperTypes="#//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Model" abstract="true" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uri" eType="#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BaseModel" eSuperTypes="#//Model">
+    <eOperations name="weave"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AspectModel" eSuperTypes="#//Model"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumVariable" eSuperTypes="#//Variable">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="literal" lowerBound="1"
+        upperBound="-1" eType="#//EnumLiteral" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BooleanVariable" eSuperTypes="#//Variable"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Term" abstract="true" eSuperTypes="#//DiVAModelElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AndTerm" eSuperTypes="#//NaryTerm"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OrTerm" eSuperTypes="#//NaryTerm"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NotTerm" eSuperTypes="#//Term">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="term" lowerBound="1" eType="#//Term"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NaryTerm" abstract="true" eSuperTypes="#//Term">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="term" lowerBound="1" upperBound="-1"
+        eType="#//Term" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="VariantTerm" eSuperTypes="#//Term">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variant" lowerBound="1"
+        eType="#//Variant"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="VariableTerm" abstract="true" eSuperTypes="#//Term">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variable" lowerBound="1"
+        eType="#//Variable"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumTerm" eSuperTypes="#//VariableTerm">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="value" lowerBound="1" eType="#//EnumLiteral"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BooleanTerm" eSuperTypes="#//VariableTerm"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Rule" abstract="true" eSuperTypes="#//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="String" instanceClassName="java.lang.String"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumLiteral" eSuperTypes="#//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NamedElement" abstract="true" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Constraint" abstract="true" eSuperTypes="#//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Variant" eSuperTypes="#//NamedElement #//ModelContainer">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1" eType="#//Dimension"
+        eOpposite="#//Dimension/variant"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="propertyValue" upperBound="-1"
+        eType="#//PropertyValue" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="dependency" eType="#//VariantExpression"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="available" eType="#//ContextExpression"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="required" eType="#//ContextExpression"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="weaveLevel" eType="#//Integer"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Dimension" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variant" upperBound="-1"
+        eType="#//Variant" containment="true" eOpposite="#//Variant/type"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="property" upperBound="-1"
+        eType="#//Property"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="upper" eType="#//Integer"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lower" eType="#//Integer"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="constraints" upperBound="-1"
+        eType="#//MultiplicityConstraint" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Expression" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="term" lowerBound="1" eType="#//Term"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ContextExpression" eSuperTypes="#//Expression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="VariantExpression" eSuperTypes="#//Expression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PriorityRule" eSuperTypes="#//Rule">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="context" lowerBound="1"
+        eType="#//ContextExpression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="priority" upperBound="-1"
+        eType="#//PropertyPriority" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Property" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="direction" eType="#//Integer"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="literal" upperBound="-1"
+        eType="#//PropertyLiteral" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PropertyLiteral" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="#//Integer"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PropertyValue" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="property" lowerBound="1"
+        eType="#//Property"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="#//Integer"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PropertyPriority" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="property" lowerBound="1"
+        eType="#//Property"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="priority" eType="#//Integer"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="Integer" instanceClassName="int"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MultiplicityConstraint" eSuperTypes="#//Constraint">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="available" lowerBound="1"
+        eType="#//ContextExpression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="upper" eType="#//Integer"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lower" eType="#//Integer"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Annotation">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" eType="#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DiVAModelElement" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="annotation" upperBound="-1"
+        eType="#//Annotation" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SimulationModel" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="scenario" upperBound="-1"
+        eType="#//Scenario" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="model" lowerBound="1" eType="#//VariabilityModel"
+        eOpposite="#//VariabilityModel/simulation"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Context" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variable" upperBound="-1"
+        eType="#//VariableValue" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="configuration" upperBound="-1"
+        eType="#//Configuration" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="oracle" eType="#//VariantExpression"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="verdict" eType="#//Verdict"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="priority" upperBound="-1"
+        eType="#//Priority" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Configuration" eSuperTypes="#//ScoredElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variant" upperBound="-1"
+        eType="#//ConfigVariant" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="verdict" eType="#//Verdict"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ConfigVariant" eSuperTypes="#//ScoredElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variant" lowerBound="1"
+        eType="#//Variant"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Scenario" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="context" upperBound="-1"
+        eType="#//Context" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScoredElement" abstract="true" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalScore" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="score" upperBound="-1"
+        eType="#//Score" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Score" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="score" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="property" lowerBound="1"
+        eType="#//Property"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Priority" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="property" lowerBound="1"
+        eType="#//Property"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="priority" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="VariableValue" abstract="true" eSuperTypes="#//DiVAModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variable" lowerBound="1"
+        eType="#//Variable"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BoolVariableValue" eSuperTypes="#//VariableValue">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="bool" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumVariableValue" eSuperTypes="#//VariableValue">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="literal" lowerBound="1"
+        eType="#//EnumLiteral"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="Verdict">
+    <eLiterals name="none"/>
+    <eLiterals name="pass" value="1"/>
+    <eLiterals name="fail" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ConfigurationModel">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="configurations" upperBound="-1"
+        eType="#//SuitableConfiguration" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SuitableConfiguration">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="score" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variant" upperBound="-1"
+        eType="#//ConfigVariant" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ContextModel">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="variable" upperBound="-1"
+        eType="#//VariableValue" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ModelContainer" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="model" lowerBound="1" eType="#//Model"
+        containment="true"/>
+  </eClassifiers>
+</ecore:EPackage>
