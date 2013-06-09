@@ -139,7 +139,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           }
           else {
             val attTypeName = ProcessorHelper.convertType(att.getEAttributeType)
-             attTypeName match {
+            attTypeName match {
               case "String" => {
                 pr.println("modelElem." + methName + "(unescapeXml(valueAtt))")
               }
@@ -162,31 +162,34 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       }
       references.foreach {
         ref =>
-
-          var methName: String = ""
-          if (ref.getUpperBound == 1) {
-            methName = "set"
-          } else {
-            methName = "add"
-          }
-          methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-
           pr.println("\"" + ref.getName + "\" -> {")
 
-          pr.println("for(xmiRef in valueAtt.split(\" \")) {")
-          pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
-          pr.println("val ref = context.map.get(adjustedRef)")
-          pr.println("if( ref != null) {")
-          pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-          pr.println("} else {")
-          pr.println("context.resolvers.add({()->")
-          pr.println("val " + ref.getName + "Ref = context.map.get(adjustedRef)")
-          pr.println("if(" + ref.getName + "Ref != null) {")
-          pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-          pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
-          pr.println("})") //Closure
-          pr.println("}") // Else
-          pr.println("}") // For
+          if(ref.getEOpposite == null) {
+            var methName: String = ""
+            if (ref.getUpperBound == 1) {
+              methName = "set"
+            } else {
+              methName = "add"
+            }
+            methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+
+
+
+            pr.println("for(xmiRef in valueAtt.split(\" \")) {")
+            pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
+            pr.println("val ref = context.map.get(adjustedRef)")
+            pr.println("if( ref != null) {")
+            pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+            pr.println("} else {")
+            pr.println("context.resolvers.add({()->")
+            pr.println("val " + ref.getName + "Ref = context.map.get(adjustedRef)")
+            pr.println("if(" + ref.getName + "Ref != null) {")
+            pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+            pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
+            pr.println("})") //Closure
+            pr.println("}") // Else
+            pr.println("}") // For
+          }
           pr.println("}") // Case
         // pr.println("}")
       }
