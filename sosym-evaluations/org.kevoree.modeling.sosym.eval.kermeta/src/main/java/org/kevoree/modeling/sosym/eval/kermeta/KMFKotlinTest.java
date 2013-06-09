@@ -1,7 +1,6 @@
 package org.kevoree.modeling.sosym.eval.kermeta;
 
 import kmf.org.kermeta.language.cloner.ModelCloner;
-import kmf.org.kermeta.language.factory.MainFactory;
 import kmf.org.kermeta.language.loader.XMIModelLoader;
 import kmf.org.kermeta.language.serializer.ModelSerializer;
 import kmf.org.kermeta.language.serializer.XMIModelSerializer;
@@ -27,9 +26,9 @@ public class KMFKotlinTest {
         FileHelper.copyFile(this.getClass().getClassLoader().getResourceAsStream("Kompren.km"), tempFile);
 
         Metamodel model = doLoad(tempFile);
-        Metamodel model2 = doClone(model);
+        //Metamodel model2 = doClone(model);
         File tempFile2 = File.createTempFile("tempKMFBenchSaved", "xmi");
-        doSave(model2, tempFile2);
+        doSave(model, tempFile2);
 
         System.out.println("Hello");
         Thread.sleep(20000);
