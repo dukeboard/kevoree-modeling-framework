@@ -268,16 +268,16 @@ class SerializerGenerator(ctx: GenerationContext) {
                   generateRef(buffer, cls, ref)
                 }
                 case 1 => {
-                  if (ref.getEOpposite != null) {
-                    if (ref.getEOpposite.getUpperBound != -1) {
+                  //if (ref.getEOpposite != null) {
+                    //if (ref.getEOpposite.getUpperBound != -1) {
                       generateRef(buffer, cls, ref)
-                    } else {
+                    //} else {
                       //OPTIMISATION, WE DON'T SAVE BOTH REFERENCE
                       //WARNING ECLIPSE COMPAT VERIFICATION
-                    }
-                  } else {
-                    generateRef(buffer, cls, ref)
-                  }
+                    //}
+                  //} else {
+                    //generateRef(buffer, cls, ref)
+                  //}
                 }
               }
             }

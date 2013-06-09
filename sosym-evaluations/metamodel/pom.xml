@@ -11,8 +11,13 @@
 	<modules>
 		<module>fsm/org.kevoree.modeling.sample.fsm.kt</module>
 		<module>fsm/org.kevoree.modeling.sample.fsm.emf</module>
+		
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.kt</module>
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.emf</module>
+		
+		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
+		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
+		
 	</modules>
 
 </project>
