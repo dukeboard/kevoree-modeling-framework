@@ -205,16 +205,16 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
               if(ref.isMany) { // ref n <--> _
               //Checks if the ref already exist, adds it otherwise
 
-                pr.println("if( !modelElem.get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "().contains(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")) {")
-                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+                pr.println("if( !modelElem.get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "().contains(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")) {")
+                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
                 pr.println("}")
               } else {
                 //sets the reference
-                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "("+ ref.getName +"Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               }
             }
           } else  {
-            pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+            pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
           }
           pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
           pr.println("})") //Closure
