@@ -1,18 +1,17 @@
-/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/bin/java -Didea.launcher.port=7537 "-Didea.launcher.bin.path=/Applications/IntelliJ IDEA 12.app/bin" -Dfile.encoding=UTF-8 -classpath "/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/lib/ant-javafx.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/lib/dt.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/lib/javafx-doclet.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/lib/javafx-mx.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/lib/jconsole.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/lib/sa-jdi.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/lib/tools.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/deploy.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/htmlconverter.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/javaws.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/jfxrt.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/JObjC.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/management-agent.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/plugin.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/ext/dnsns.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/ext/localedata.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/ext/sunec.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/ext/sunjce_provider.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/ext/sunpkcs11.jar:/Library/Java/JavaVirtualMachines/jdk1.7.0_13.jdk/Contents/Home/jre/lib/ext/zipfs.jar:/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/sosym-evaluations/org.kevoree.modeling.sosym.eval.kermeta/target/classes:/Users/duke/.m2/repository/org/kevoree/modeling/org.kevoree.modeling.sample.kermeta.emf/1.0.0-SNAPSHOT/org.kevoree.modeling.sample.kermeta.emf-1.0.0-SNAPSHOT.jar:/Users/duke/.m2/repository/org/kevoree/extra/org.kevoree.extra.emf.library/2.7.0/org.kevoree.extra.emf.library-2.7.0.jar:/Users/duke/.m2/repository/org/kevoree/modeling/org.kevoree.modeling.sample.kermeta.kt/1.0.0-SNAPSHOT/org.kevoree.modeling.sample.kermeta.kt-1.0.0-SNAPSHOT.jar:/Users/duke/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/0.5.742/kotlin-stdlib-0.5.742.jar:/Users/duke/.m2/repository/org/jetbrains/kotlin/kotlin-runtime/0.5.742/kotlin-runtime-0.5.742.jar:/Applications/IntelliJ IDEA 12.app/lib/idea_rt.jar" com.intellij.rt.execution.application.AppMain org.kevoree.modeling.sosym.eval.kermeta.KMFKotlinTest
 =====Kompren.km/nb:6393
-Load time : 22.3356,full=223.356
-Clone time : 3.8623499999999997,full=386.23499999999996
-Lookup time : 4038.331136
-Save time : 7.3978600000000005,full=73.97860000000001
+Load time : 114.50050000000002,full=1145.005
+Clone time : 3.963230000000002,full=396.3230000000002
+Lookup time : 4105.938944
+Save time : 70.9781,full=709.781
 =====TestHello.km/nb:6393
-Load time : 5.3095,full=53.095
-Clone time : 3.3915800000000003,full=339.158
-Lookup time : 3918.126848
-Save time : 5.51938,full=55.1938
+Load time : 26.396299999999997,full=263.96299999999997
+Clone time : 3.6453600000000006,full=364.53600000000006
+Lookup time : 3978.913024
+Save time : 47.699400000000004,full=476.994
 =====Class2Rdbms.km/nb:6393
-Load time : 7.666200000000001,full=76.662
-Clone time : 3.4090800000000003,full=340.908
-Lookup time : 3921.26592
-Save time : 2.73605,full=27.3605
+Load time : 38.327799999999996,full=383.27799999999996
+Clone time : 3.4520600000000004,full=345.206
+Lookup time : 3819.320064
+Save time : 27.074899999999996,full=270.74899999999997
 
 Process finished with exit code 0

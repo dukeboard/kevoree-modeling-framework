@@ -71,7 +71,7 @@ public class KMFKotlinTest {
         System.out.println("=====" + file + "/nb:" + nbElems);
 
         Double fullLoadTime = 0d;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             model2 = doLoad(tempFile);
             fullLoadTime = fullLoadTime + lastLoadTime;
         }
