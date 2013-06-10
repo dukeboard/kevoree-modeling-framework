@@ -105,6 +105,10 @@ object ProcessorHelper {
     helper.protectReservedWords(word)
   }
 
+  def protectReservedJWords(word: String): String = {
+    helper.protectReservedJWords(word)
+  }
+
   def generateHeader(packElement: EPackage): String = {
     helper.generateHeader(packElement)
   }

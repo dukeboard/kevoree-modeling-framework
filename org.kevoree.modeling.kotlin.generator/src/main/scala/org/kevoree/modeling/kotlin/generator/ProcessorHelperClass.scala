@@ -115,6 +115,20 @@ class ProcessorHelperClass {
     }
   }
 
+  def protectReservedJWords(word: String): String = {
+    word match {
+      case "type" => "_type_"
+      case "object" => "_object_"
+      case "requires" => "_requires_"
+      case "package" => "_package_"
+      case "default" => "_default_"
+      case "interface" => "_interface_"
+      case "enumeration" => "_enumeration_"
+      case "enum" => "_enum_"
+      case _ => word //throw new UnsupportedOperationException("ProcessorHelper::protectReservedWords::No matching found for word: " + word);null
+    }
+  }
+
   def generateHeader(packElement: EPackage): String = {
     var header = "";
     val formateur = new SimpleDateFormat("'Date:' dd MMM yy 'Time:' HH:mm")
