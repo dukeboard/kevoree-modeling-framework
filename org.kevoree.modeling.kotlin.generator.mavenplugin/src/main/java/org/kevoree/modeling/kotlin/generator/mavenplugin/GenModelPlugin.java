@@ -126,6 +126,14 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean js = false;
 
     /**
+     * Generate Flat inheritance version
+     *
+     * @parameter
+     */
+    private Boolean flatInheritance = false;
+
+
+    /**
      * Generate JS version
      *
      * @parameter
@@ -178,6 +186,9 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
+        if(flatInheritance){
+            ctx.setGenFlatInheritance();
+        }
         ctx.flyweightFactory_$eq(flyweightFactory);
 
         Generator gen = new Generator(ctx,ecore);//, getLog());

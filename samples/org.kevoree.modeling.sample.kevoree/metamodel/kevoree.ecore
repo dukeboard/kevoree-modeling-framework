@@ -114,7 +114,7 @@
     <eClassifiers xsi:type="ecore:EClass" name="ServicePortType" eSuperTypes="#//PortType">
         <eStructuralFeatures xsi:type="ecore:EReference" name="operations" upperBound="-1"
                              eType="#//Operation" containment="true"/>
-        <eStructuralFeatures xsi:type="ecore:EAttribute" name="interface"
+        <eStructuralFeatures xsi:type="ecore:EAttribute" name="interfaceService"
                              eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Operation" eSuperTypes="#//NamedElement">
