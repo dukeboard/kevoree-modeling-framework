@@ -39,6 +39,10 @@ public class EclipseTest {
         for (int i = 0; i < 1000; i++) {
             model2 = doClone(model);
         }
+        for (int i = 0; i < 10; i++) {
+            model2 = doClone(model);
+            doLookup(model, model2);
+        }
         for(int i=0;i<100;i++){
             File tempFile2 = File.createTempFile("tempKMFBenchSaved", "xmi");
             FileOutputStream outS = new FileOutputStream(tempFile2);
