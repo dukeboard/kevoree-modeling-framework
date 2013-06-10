@@ -91,7 +91,8 @@ with KMFQLSelectorGenerator
 with APIGenerator
 with EqualsGenerator
 with ContainedElementsGenerator
-with KMFIteratorGenerator {
+with KMFIteratorGenerator
+with JavaAPIGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
@@ -141,7 +142,12 @@ with KMFIteratorGenerator {
           generateClass(ctx, currentPackageDir, packElement, cl)
           generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
         }
-        generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        if(!ctx.getJS()){
+          generateJAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        } else {
+          generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        }
+
       }
       case dt: EDataType => {
         dt match {
