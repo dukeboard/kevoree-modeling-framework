@@ -298,6 +298,69 @@ trait ClassGenerator extends ClonerGenerator {
     pr.print("class " + cls.getName + "Impl")
     pr.println(" : "+ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName+" { ")
 
+    pr.println("override internal var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
+    pr.println("override internal var internal_containmentRefName : String? = null")
+    pr.println("override internal var internal_unsetCmd : (()->Unit)? = null")
+    pr.println("override internal var internal_readOnlyElem : Boolean = false")
+    pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false")
+
+    //generate init
+    cls.getEAllAttributes.foreach {
+      att => {
+        pr.print("internal var " + protectReservedWords("_" + att.getName) + " : ")
+        ProcessorHelper.convertType(att.getEAttributeType) match {
+          case "java.lang.String" => pr.println("String = \"\"")
+          case "String" => pr.println("String = \"\"")
+          case "Double" => pr.println("Double = 0.0")
+          case "java.lang.Integer" => pr.println("Int = 0")
+          case "Int" => pr.println("Int = 0")
+          case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = false")
+          case "java.lang.Object" | "Any" => pr.println("Any? = null")
+          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+          case "float" | "Float" => "Float = 0"
+          case "char" | "Char" => "Char = 'a'"
+          case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
+          case _@className => {
+            if (att.getEAttributeType.isInstanceOf[EEnum]) {
+              pr.println(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? = null")
+            } else {
+              // println("--->" + className)
+              pr.println(className)
+            }
+          }
+        }
+      }
+    }
+    cls.getEAllReferences.foreach {
+      ref =>
+        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+        if (ref.getUpperBound == -1) {
+          // multiple values
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
+          if (hasID(ref.getEReferenceType)) {
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
+          } else {
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
+          }
+        } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
+          // optional single ref
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
+        } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
+          // mandatory single ref
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + " : " + typeRefName + "? = null")
+        } else if (ref.getLowerBound > 1) {
+          // else
+          pr.println("internal var " + protectReservedWords("_" + ref.getName) + "_java_cache :List<" + typeRefName + ">? = null")
+          if (hasID(ref.getEReferenceType)) {
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " : java.util.HashMap<Any," + typeRefName + "> = java.util.HashMap<Any," + typeRefName + ">()")
+          } else {
+            pr.println("internal val " + protectReservedWords("_" + ref.getName) + " :MutableList<" + typeRefName + "> = java.util.ArrayList<" + typeRefName + ">()")
+          }
+        } else {
+          throw new UnsupportedOperationException("GenDefConsRef::Not standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
+        }
+    }
+
     //Generate RecursiveReadOnly
     pr.println("override fun setRecursiveReadOnly(){")
 
@@ -329,7 +392,6 @@ trait ClassGenerator extends ClonerGenerator {
     }
     pr.println("setInternalReadOnly()")
     pr.println("}")
-    generateAtts(pr, cls, ctx, pack)
     generateDeleteMethod(pr, cls, ctx, pack)
     // Getters and Setters Generation
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
@@ -383,8 +445,7 @@ trait ClassGenerator extends ClonerGenerator {
 
   private def generateAtts(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
 
-    val atts = if(ctx.getGenFlatInheritance){cls.getEAllAttributes}else{cls.getEAttributes}
-    atts.foreach {
+    cls.getEAttributes.foreach {
       att =>
         pr.print("internal var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
@@ -403,7 +464,6 @@ trait ClassGenerator extends ClonerGenerator {
           }
         }
     }
-
 
     cls.getEReferences.foreach {
       ref =>
@@ -464,7 +524,8 @@ trait ClassGenerator extends ClonerGenerator {
         pr.println("}")
     }
 
-    cls.getEReferences.foreach {
+    val refs = if(ctx.getGenFlatInheritance){cls.getEAllReferences}else{cls.getEReferences}
+    refs.foreach {
       ref =>
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.getUpperBound == -1) {

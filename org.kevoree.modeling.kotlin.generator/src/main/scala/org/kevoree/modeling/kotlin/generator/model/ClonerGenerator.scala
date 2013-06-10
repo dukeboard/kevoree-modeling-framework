@@ -254,7 +254,7 @@ trait ClonerGenerator {
     cls.getEAllContainments.foreach {
       contained =>
 
-        val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + "Internal"
+        val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + "Impl"
 
         if (contained.getUpperBound == -1) {
           // multiple values
@@ -298,7 +298,12 @@ trait ClonerGenerator {
     buffer.println("return this")
     buffer.println("}")
 
-    buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Internal")
+    if(ctx.getGenFlatInheritance){
+      buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Impl")
+    } else {
+      buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Impl")
+    }
+
 
 
     //SET ALL REFERENCE
@@ -346,7 +351,7 @@ trait ClonerGenerator {
     //RECUSIVE CALL ON ECONTAINEMENT
     cls.getEAllContainments.foreach {
       contained =>
-        val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + "Internal"
+        val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + "Impl"
         contained.getUpperBound match {
           case 1 => {
             buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")

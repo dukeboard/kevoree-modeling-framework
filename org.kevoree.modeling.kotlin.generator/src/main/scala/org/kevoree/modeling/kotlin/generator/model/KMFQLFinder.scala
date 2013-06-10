@@ -73,8 +73,10 @@ trait KMFQLFinder {
 
   def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     if (hasID(cls)) {
-      if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
-        pr.print("override ")
+      if(!ctx.getGenFlatInheritance){
+        if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
+          pr.print("override ")
+        }
       }
       pr.println("fun internalGetKey() : String {")
       var first = true
@@ -114,7 +116,9 @@ trait KMFQLFinder {
 
     //GENERATE findByID methods
     var generateReflexifMapper = false
-    cls.getEReferences.foreach(ref => {
+
+    val refs = if(ctx.getGenFlatInheritance){cls.getEAllReferences}else{cls.getEReferences}
+    refs.foreach(ref => {
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
         generateReflexifMapper = true
         pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
@@ -125,7 +129,7 @@ trait KMFQLFinder {
     if (generateReflexifMapper) {
       generateFindByPathMethods(ctx, cls, pr)
     } else {
-      if (!cls.getEAllSuperTypes.exists(st => hasID(st))) {
+      if (!cls.getEAllSuperTypes.exists(st => hasID(st)) || ctx.getGenFlatInheritance) {
         if (!ctx.getJS()) {
           pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
         }

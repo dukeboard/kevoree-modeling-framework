@@ -135,7 +135,6 @@ with KMFIteratorGenerator {
     //log.debug("Processing classifier:" + cls.getName)
     cls match {
       case cl: EClass => {
-
         if (ctx.getGenFlatInheritance) {
           generateFlatClass(ctx, currentPackageDir, packElement, cl)
         } else {
@@ -149,7 +148,6 @@ with KMFIteratorGenerator {
           case enum: EEnum => generateEnum(ctx, currentPackageDir, packElement, enum)
           case _ => System.out.println("Generic DataType " + cls.getName + " ignored for generation.")
         }
-
       }
       case _ => println("No processor found for classifier: " + cls)
     }
