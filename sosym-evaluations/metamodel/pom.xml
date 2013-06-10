@@ -18,6 +18,9 @@
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
 		
+		<module>thingml/org.kevoree.modeling.sample.thingml.kt</module>
+		<module>thingml/org.kevoree.modeling.sample.thingml.emf</module>
+		
 	</modules>
 
 </project>
