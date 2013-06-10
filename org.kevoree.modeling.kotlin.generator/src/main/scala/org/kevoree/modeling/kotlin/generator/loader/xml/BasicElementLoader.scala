@@ -162,7 +162,6 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       }
       references.foreach {
         ref =>
-          pr.println("\"" + ref.getName + "\" -> {")
 
           var methName: String = ""
           if (ref.getUpperBound == 1) {
@@ -171,51 +170,19 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
             methName = "add"
           }
           methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-          val fqnNameNoOpposite = ProcessorHelper.fqn(ctx, elementType.getEPackage) + ".impl." + elementType.getName + "Internal"
 
+          pr.println("\"" + ref.getName + "\" -> {")
 
           pr.println("for(xmiRef in valueAtt.split(\" \")) {")
           pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
           pr.println("val ref = context.map.get(adjustedRef)")
           pr.println("if( ref != null) {")
-          if(ref.getEOpposite != null) {
-            if(!ref.getEOpposite.isContainment) {//if so, the container makes teh job
-              if(ref.isMany) { // ref n <--> _
-              //Checks if the ref already exist, adds it otherwise
-                pr.println("if( !modelElem.get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "().contains(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")) {")
-                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-                pr.println("}")
-              } else {
-                //sets the reference
-                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-              }
-            }
-          } else  {
-            pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-          }
-
+          pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
           pr.println("} else {")
           pr.println("context.resolvers.add({()->")
           pr.println("val " + ref.getName + "Ref = context.map.get(adjustedRef)")
           pr.println("if(" + ref.getName + "Ref != null) {")
-          //pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-
-          if(ref.getEOpposite != null) {
-            if(!ref.getEOpposite.isContainment) {//if so, the container makes teh job
-              if(ref.isMany) { // ref n <--> _
-              //Checks if the ref already exist, adds it otherwise
-
-                pr.println("if( !modelElem.get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "().contains(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")) {")
-                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-                pr.println("}")
-              } else {
-                //sets the reference
-                pr.println("(modelElem as "+fqnNameNoOpposite+").noOpposite_" + methName + "("+ ref.getName +"Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-              }
-            }
-          } else  {
-            pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-          }
+          pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
           pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
           pr.println("})") //Closure
           pr.println("}") // Else
@@ -273,7 +240,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("}") //while
       pr.println("")
     }
-    pr.println("return modelElem")
+    pr.println("return (modelElem as " + ProcessorHelper.fqn(ctx, elementType) + ")")
 
 
 
