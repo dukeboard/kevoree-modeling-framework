@@ -60,6 +60,33 @@ class ProcessorHelperClass {
     }
   }
 
+  def convertJType(aType: EDataType): String = {
+    aType match {
+      case theType: EEnum => theType.getName
+      case _@theType => convertJType(theType.getInstanceClassName)
+      //case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + aType.getClass); null
+    }
+  }
+
+  def convertJType(theType: String): String = {
+    theType match {
+      case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"
+      case "EString" | "java.lang.String" | "String" => "String"
+      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" => "Integer"
+      case "float" | "java.lang.Float" => "Float"
+      case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "Double"
+      case "long" | "java.lang.Long" => "Long"
+      case "java.lang.Object" => "Any"
+      case "java.util.Date" => "java.util.Date"
+      //case "org.eclipse.emf.common.util.EList" => "java.util.List<Object>"
+      case "byte[]" => "byte[]"
+      case "char" | "Char" => "Char"
+      case "java.math.BigInteger" => "java.math.BigInteger"
+      case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
+    }
+  }
+
+
   def convertType(theType: String): String = {
     theType match {
       case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"

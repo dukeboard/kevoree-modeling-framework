@@ -85,9 +85,16 @@ object ProcessorHelper {
     helper.checkOrCreateFolder(path)
   }
 
+  def convertJType(aType: EDataType): String = {
+    helper.convertJType(aType)
+  }
 
   def convertType(aType: EDataType): String = {
    helper.convertType(aType)
+  }
+
+  def convertJType(theType: String): String = {
+    helper.convertJType(theType)
   }
 
   def convertType(theType: String): String = {

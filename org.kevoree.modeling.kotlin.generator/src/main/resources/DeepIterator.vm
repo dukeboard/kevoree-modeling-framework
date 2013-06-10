@@ -3,7 +3,7 @@
 
 package ${packElem}.util;
 
-public class DeepIterator(val root : ${ctx.getKevoreeContainer().get()}) : Iterator<${ctx.getKevoreeContainer().get()}> {
+public class DeepIterator(val root : ${ctx.getKevoreeContainer().get()}) : MutableIterator<${ctx.getKevoreeContainer().get()}> {
 
     private var currentObjSubIt : Iterator<${ctx.getKevoreeContainer().get()}>? = null;
     private var currentObj : ${ctx.getKevoreeContainer().get()}?  = null;
@@ -42,7 +42,7 @@ public class DeepIterator(val root : ${ctx.getKevoreeContainer().get()}) : Itera
         }
     }
 
-    public fun remove() {
+override public fun remove() {
         throw java.lang.UnsupportedOperationException();
     }
 

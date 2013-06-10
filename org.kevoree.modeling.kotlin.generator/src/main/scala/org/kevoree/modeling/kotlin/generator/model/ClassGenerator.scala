@@ -566,9 +566,12 @@ trait ClassGenerator extends ClonerGenerator {
         ""
       }
     }
+
+
+
     res += {
       if (!isSingleRef) {
-        "List<"
+        if(ctx.getJS()){"List<"}else{"MutableList<"}
       } else {
         ""
       }
@@ -596,11 +599,11 @@ trait ClassGenerator extends ClonerGenerator {
         }
       } else {
         res += "if(" + protectReservedWords("_" + ref.getName) + "_java_cache != null){\n"
-        res += "return _" + ref.getName + "_java_cache as List<" + typeRefName + ">\n"
+        res += "return _" + ref.getName + "_java_cache as MutableList<" + typeRefName + ">\n"
         res += "} else {\n"
         if (hasID(ref.getEReferenceType)) {
           res += protectReservedWords("_" + ref.getName) + "_java_cache = java.util.Collections.unmodifiableList(_" + ref.getName + ".values().toList())\n"
-          res += "return _" + ref.getName + "_java_cache as List<" + typeRefName + ">\n"
+          res += "return _" + ref.getName + "_java_cache as MutableList<" + typeRefName + ">\n"
         } else {
           res += "val tempL = java.util.ArrayList<" + typeRefName + ">()\n"
           res += "tempL.addAll(" + protectReservedWords("_" + ref.getName) + ")\n"

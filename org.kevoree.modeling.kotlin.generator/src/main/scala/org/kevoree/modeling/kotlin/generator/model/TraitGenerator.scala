@@ -92,12 +92,22 @@ trait TraitGenerator {
     //formatedFactoryName += packElement.getName.substring(1)
     val formatedFactoryName = "KMFContainer"
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + ".kt")
+
+    val extension = if(ctx.getJS()){".kt"} else { ".java"}
+
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + extension)
     val pr = new PrintWriter(localFile, "utf-8")
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/ContainerAPI.vm");
+
+    val tName = if(ctx.getJS()){
+       "templates/ContainerAPI.vm"
+    } else {
+       "templates/ContainerJAPI.vm"
+    }
+
+    val template = ve.getTemplate(tName);
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("packElem",ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")

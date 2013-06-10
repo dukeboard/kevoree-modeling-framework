@@ -73,7 +73,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     pr.println()
     pr.println(generateHeader(packElement))
     pr.println("import java.util.List;")
-    pr.print("interface " + cls.getName)
+    pr.print("public interface " + cls.getName)
     pr.println((generateSuperTypes(ctx, cls, packElement) match {
       case None => "{"
       case Some(s) => s.replace(":", "extends") + " {"
@@ -91,13 +91,15 @@ trait JavaAPIGenerator extends ClassGenerator {
       att =>
       //Generate getter
         if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
-          pr.print("public " + ProcessorHelper.convertType(att.getEAttributeType) + " get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "();" + "\n")
+          pr.println("@org.jetbrains.annotations.NotNull")
+          pr.print("public " + ProcessorHelper.convertJType(att.getEAttributeType) + " get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "();" + "\n")
         } else {
-          pr.print("public " + ProcessorHelper.convertType(att.getEAttributeType) + " get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "();\n")
+          pr.println("@org.jetbrains.annotations.NotNull")
+          pr.print("public " + ProcessorHelper.convertJType(att.getEAttributeType) + " get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "();\n")
         }
         //generate setter
         pr.print("\n public void set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        pr.print("("+att.getEAttributeType+" "+protectReservedWords(att.getName)+" ); \n")
+        pr.print("(@org.jetbrains.annotations.NotNull " + ProcessorHelper.convertJType(att.getEAttributeType) + " " + att.getName + " ); \n")
     }
 
     cls.getEReferences.foreach {
@@ -127,7 +129,7 @@ trait JavaAPIGenerator extends ClassGenerator {
         }
 
         if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-          pr.println("public " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + " find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(String key);")
+          pr.println("public " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + " find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(@org.jetbrains.annotations.NotNull String key);")
         }
 
     }
@@ -138,6 +140,11 @@ trait JavaAPIGenerator extends ClassGenerator {
     //Generate getter
     val methName = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     var res = ""
+
+    if (!isSingleRef) {
+      res += "@org.jetbrains.annotations.NotNull\n"
+    }
+
     res += "public "
 
     //Set return type
@@ -163,7 +170,7 @@ trait JavaAPIGenerator extends ClassGenerator {
         ""
       }
     }
-    res += " "+ methName + "();"
+    res += " " + methName + "();"
     return res
   }
 
@@ -172,25 +179,22 @@ trait JavaAPIGenerator extends ClassGenerator {
     var res = ""
     val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "\n public void set" + formatedLocalRefName
-    res += "( "
-    res += {
-      if (!isSingleRef) {
-        "List<"
-      } else {
-        if (isOptional) {
-          ""
-        } else {
-          ""
-        }
-      }
+
+    if (!isSingleRef) {
+      res += "(@org.jetbrains.annotations.NotNull "
+    } else {
+      res += "( "
     }
+
+    if (!isSingleRef) {
+      res += "List<"
+    }
+
     res += typeRefName
-    res += {
-      if (!isSingleRef) {
-        ">"
-      }
+    if (!isSingleRef) {
+      res += ">"
     }
-    res += " "+protectReservedWords(ref.getName)+ " );\n"
+    res += " " + ref.getName + " );\n"
     return res
   }
 
@@ -198,7 +202,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     var res = ""
     res += "\n"
     res += "\n public void addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    res += "(List<" + typeRefName + "> " + protectReservedWords(ref.getName) + ");\n"
+    res += "(@org.jetbrains.annotations.NotNull List<" + typeRefName + "> " + protectReservedWords(ref.getName) + ");\n"
     return res
   }
 
@@ -207,7 +211,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     var res = ""
     val formatedAddMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "\n public void add" + formatedAddMethodName
-    res += "("+ typeRefName+ " " + protectReservedWords(ref.getName) +");\n"
+    res += "(@org.jetbrains.annotations.NotNull " + typeRefName + " " + protectReservedWords(ref.getName) + ");\n"
     res += generateJAddAllMethod(cls, ref, typeRefName)
     return res
   }
@@ -217,7 +221,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     var res = ""
     val formatedMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "\npublic void remove" + formatedMethodName
-    res += "("+typeRefName+ " " + protectReservedWords(ref.getName) +  ");\n"
+    res += "(@org.jetbrains.annotations.NotNull " + typeRefName + " " + protectReservedWords(ref.getName) + ");\n"
     res += generateJRemoveAllMethod(cls, ref, typeRefName)
     return res
   }

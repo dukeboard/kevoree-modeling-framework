@@ -3,9 +3,9 @@
 
 package ${packElem}.util
 
-public class DeepIterable(val root : ${ctx.getKevoreeContainer().get()}) : Iterable<${ctx.getKevoreeContainer().get()}> {
+public class DeepIterable(val root : ${ctx.getKevoreeContainer().get()}) : MutableIterable<${ctx.getKevoreeContainer().get()}> {
 
-    public override fun iterator() : Iterator<${ctx.getKevoreeContainer().get()}> {
+    public override fun iterator() : MutableIterator<${ctx.getKevoreeContainer().get()}> {
         return DeepIterator(root);
     }
 

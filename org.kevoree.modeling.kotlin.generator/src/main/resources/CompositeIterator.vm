@@ -3,7 +3,7 @@
 
 package ${packElem}.util;
 
-public class CompositeIterator(val subLists : Array<Any?>) : Iterator<${ctx.getKevoreeContainer().get()}> {
+public class CompositeIterator(val subLists : Array<Any?>) : MutableIterator<${ctx.getKevoreeContainer().get()}> {
 
 
     private var i = 0;
@@ -53,7 +53,7 @@ public class CompositeIterator(val subLists : Array<Any?>) : Iterator<${ctx.getK
         }
     }
 
-    public fun remove() {
+override public fun remove() {
         throw java.lang.UnsupportedOperationException();
     }
 

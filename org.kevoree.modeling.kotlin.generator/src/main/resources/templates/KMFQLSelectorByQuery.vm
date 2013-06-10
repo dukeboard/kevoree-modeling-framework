@@ -6,7 +6,7 @@
 #* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
 #* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
 
-override fun selectByQuery(query : String) : List<Any> {
+override fun selectByQuery(query : String) : MutableList<Any> {
     val collected = java.util.ArrayList<Any>()
     try {
         val firstSepIndex = query.indexOf('[')

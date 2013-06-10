@@ -3,10 +3,10 @@
 
 package ${packElem}.util
 
-public class CompositeIterable(val subLists : Array<Any?>) : Iterable<${ctx.getKevoreeContainer().get()}> {
+public class CompositeIterable(val subLists : Array<Any?>) : MutableIterable<${ctx.getKevoreeContainer().get()}> {
 
 
-    public override fun iterator() : Iterator<${ctx.getKevoreeContainer().get()}> {
+    public override fun iterator() : MutableIterator<${ctx.getKevoreeContainer().get()}> {
         return CompositeIterator(subLists);
     }
 
