@@ -27,17 +27,24 @@ import org.eclipse.emf.common.util.{URI => EmfUri}
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
 import org.eclipse.emf.ecore._
 import java.util
-import scala.Some
 
 /**
  * Created by IntelliJ IDEA.
  * User: gregory.nain
  * Date: 21/03/12
  * Time: 13:43
- * To change this template use File | Settings | File Templates.
  */
 
 class GenerationContext {
+
+  var genFlatInheritance: Boolean = false
+
+  def getGenFlatInheritance = genFlatInheritance
+
+  def setGenFlatInheritance() {
+    genFlatInheritance = true
+  }
+
 
   /**
    * True if selectByQuery methods have to be generated
@@ -61,7 +68,7 @@ class GenerationContext {
 
   /**
    * Base folder for the generation process
-   *  example: "${project.build.directory}/generated-sources/kmf"
+   * example: "${project.build.directory}/generated-sources/kmf"
    */
   private var rootGenerationDirectory: File = null
 
@@ -197,62 +204,71 @@ class GenerationContext {
    */
   var js = false
 
-  def getJS() : Boolean = {
+  def getJS(): Boolean = {
     js
   }
 
   def setJS(isJS: Boolean) {
     js = isJS
+    if (isJS) {
+      /* Kotlin workaround */
+      genFlatInheritance = true
+    }
   }
 
 
   var flyweightFactory = false
 
 
+  var basePackageForUtilitiesGeneration: EPackage = null
 
-  var basePackageForUtilitiesGeneration : EPackage = null
   def getBasePackageForUtilitiesGeneration = basePackageForUtilitiesGeneration
 
-  var baseLocationForUtilitiesGeneration : File = null
+  var baseLocationForUtilitiesGeneration: File = null
+
   def getBaseLocationForUtilitiesGeneration = baseLocationForUtilitiesGeneration
 
-  def setBaseLocationForUtilitiesGeneration(metamodelFile : File) {
-      val metamodel = getEcoreModel(metamodelFile)
-      if(metamodel.getContents.size() > 1) { // Many packages at the root.
-        basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage()
-        basePackageForUtilitiesGeneration.setName("")
-        if(getPackagePrefix.isDefined) {
-          baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator))
-        } else {
-          baseLocationForUtilitiesGeneration = getRootGenerationDirectory
-        }
-
-      } else if(metamodel.getContents.size()==1) { // One package at the root.
-        if(metamodel.getContents.get(0).asInstanceOf[EPackage].getEClassifiers.size() > 0) { // Classifiers in this root package
-          basePackageForUtilitiesGeneration = metamodel.getContents.get(0).asInstanceOf[EPackage]
-          baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, metamodel.getContents.get(0).asInstanceOf[EPackage]).replace(".",File.separator) + File.separator)
-        } else {
-          baseLocationForUtilitiesGeneration = checkBaseLocation(metamodel.getContents.get(0).asInstanceOf[EPackage])
-        }
+  def setBaseLocationForUtilitiesGeneration(metamodelFile: File) {
+    val metamodel = getEcoreModel(metamodelFile)
+    if (metamodel.getContents.size() > 1) {
+      // Many packages at the root.
+      basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage()
+      basePackageForUtilitiesGeneration.setName("")
+      if (getPackagePrefix.isDefined) {
+        baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator))
+      } else {
+        baseLocationForUtilitiesGeneration = getRootGenerationDirectory
       }
+
+    } else if (metamodel.getContents.size() == 1) {
+      // One package at the root.
+      if (metamodel.getContents.get(0).asInstanceOf[EPackage].getEClassifiers.size() > 0) {
+        // Classifiers in this root package
+        basePackageForUtilitiesGeneration = metamodel.getContents.get(0).asInstanceOf[EPackage]
+        baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, metamodel.getContents.get(0).asInstanceOf[EPackage]).replace(".", File.separator) + File.separator)
+      } else {
+        baseLocationForUtilitiesGeneration = checkBaseLocation(metamodel.getContents.get(0).asInstanceOf[EPackage])
+      }
+    }
   }
 
-  private def checkBaseLocation(rootElement : EPackage) : File = {
+  private def checkBaseLocation(rootElement: EPackage): File = {
     import scala.collection.JavaConversions._
     val packageList = new util.LinkedList[EPackage]()
     packageList.addLast(rootElement)
-    var f : File = null
+    var f: File = null
 
-    while(f == null && packageList.size() > 0) {
+    while (f == null && packageList.size() > 0) {
       val currentPackage = packageList.pollFirst()
-      currentPackage.getESubpackages.forall{ subPack =>
-        if(subPack.getEClassifiers.size() > 0) {
-          basePackageForUtilitiesGeneration = currentPackage
-          f =  new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, currentPackage).replace(".",File.separator) + File.separator)
-        }
-        f == null
+      currentPackage.getESubpackages.forall {
+        subPack =>
+          if (subPack.getEClassifiers.size() > 0) {
+            basePackageForUtilitiesGeneration = currentPackage
+            f = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, currentPackage).replace(".", File.separator) + File.separator)
+          }
+          f == null
       }
-      if(f == null) {
+      if (f == null) {
         packageList.appendAll(currentPackage.getESubpackages)
       }
     }

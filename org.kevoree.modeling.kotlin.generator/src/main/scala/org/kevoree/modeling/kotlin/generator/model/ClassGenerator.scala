@@ -93,7 +93,7 @@ trait ClassGenerator extends ClonerGenerator {
 
   def generateContainedElementsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-    def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
+  def generateCompanion(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.kt")
     val userFile = new File(srcCurrentDir + "/impl/" + cls.getName + "Impl.kt")
     if (userFile.exists()) {
@@ -181,17 +181,6 @@ trait ClassGenerator extends ClonerGenerator {
     pr.close()
   }
 
-  /*
-def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String = {
-  val uri = ref.getEReferenceType.asInstanceOf[InternalEObject].eProxyURI()
-  val uriString = uri.toString
-  val resource = new XMIResourceImpl(uri)
-  resource.load(null)
-  val packa = resource.getAllContents.next().asInstanceOf[EPackage]
-  val typName = uriString.substring(uriString.lastIndexOf("#//") + 3)
-  pack.substring(0, pack.lastIndexOf(".")) + "." + packa.getName + "." + typName
-} */
-
   def hasID(cls: EClass): Boolean = {
     cls.getEAllAttributes.exists {
       att => att.isID
@@ -219,7 +208,7 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
   }
 
   private def getGetter(name: String): String = {
-     "get"+name.charAt(0).toUpper + name.substring(1) +"()"
+    "get" + name.charAt(0).toUpper + name.substring(1) + "()"
   }
 
   def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
@@ -286,9 +275,8 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
       generateSelectorMethods(pr, cls, ctx)
     }
 
-
-    generateEqualsMethods(pr,cls,ctx)
-    generateContainedElementsMethods(pr,cls,ctx)
+    generateEqualsMethods(pr, cls, ctx)
+    generateContainedElementsMethods(pr, cls, ctx)
 
     pr.println("}")
     pr.flush()
@@ -296,6 +284,67 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
 
   }
 
+
+  def generateFlatClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
+
+    val localFile = new File(currentPackageDir + "/impl/" + cls.getName + "Impl.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+    val pack = ProcessorHelper.fqn(ctx, packElement)
+    pr.println("package " + pack + ".impl")
+    pr.println()
+    pr.println(generateHeader(packElement))
+    //case class name
+    ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
+    pr.print("class " + cls.getName + "Impl")
+    pr.println(" : "+ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName+" { ")
+
+    //Generate RecursiveReadOnly
+    pr.println("override fun setRecursiveReadOnly(){")
+
+    pr.println("if(internal_recursive_readOnlyElem == true){return}")
+    pr.println("internal_recursive_readOnlyElem = true")
+
+    cls.getEAllReferences.foreach {
+      contained =>
+        if (contained.getUpperBound == -1) {
+          // multiple values
+          pr.println("for(sub in this." + getGetter(contained.getName) + "){")
+          pr.println("sub.setRecursiveReadOnly()")
+          pr.println("}")
+        } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
+          // optional single ref
+          pr.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
+          pr.println("if(subsubsubsub" + contained.getName + "!= null){ ")
+          pr.println("subsubsubsub" + contained.getName + ".setRecursiveReadOnly()")
+          pr.println("}")
+        } else if (contained.getLowerBound > 1) {
+          // else
+          pr.println("for(sub in this." + getGetter(contained.getName) + "){")
+          pr.println("\t\t\tsub.setRecursiveReadOnly()")
+          pr.println("\t\t}")
+        } else {
+          throw new UnsupportedOperationException("ClonerGenerator::Not standard arity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
+        }
+        pr.println()
+    }
+    pr.println("setInternalReadOnly()")
+    pr.println("}")
+    generateAtts(pr, cls, ctx, pack)
+    generateDeleteMethod(pr, cls, ctx, pack)
+    // Getters and Setters Generation
+    generateAllGetterSetterMethod(pr, cls, ctx, pack)
+    //GENERATE CLONE METHOD
+    generateCloneMethods(ctx, cls, pr, packElement)
+    generateKMFQLMethods(pr, cls, ctx, pack)
+    if (ctx.genSelector) {
+      generateSelectorMethods(pr, cls, ctx)
+    }
+    generateEqualsMethods(pr, cls, ctx)
+    generateContainedElementsMethods(pr, cls, ctx)
+    pr.println("}")
+    pr.flush()
+    pr.close()
+  }
 
   private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     pr.println("override fun delete(){")
@@ -334,7 +383,8 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
 
   private def generateAtts(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
 
-    cls.getEAttributes.foreach {
+    val atts = if(ctx.getGenFlatInheritance){cls.getEAllAttributes}else{cls.getEAttributes}
+    atts.foreach {
       att =>
         pr.print("internal var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
@@ -353,6 +403,7 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
           }
         }
     }
+
 
     cls.getEReferences.foreach {
       ref =>
@@ -389,8 +440,8 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
 
   private def generateAllGetterSetterMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
 
-
-    cls.getEAttributes.foreach {
+    val atts = if(ctx.getGenFlatInheritance){cls.getEAllAttributes}else{cls.getEAttributes}
+    atts.foreach {
       att =>
       //Generate getter
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -399,11 +450,8 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
           pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
         } else {
           pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
-
         }
         pr.println(" return " + protectReservedWords("_" + att.getName) + "\n}")
-
-
         //generate setter
         pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -483,14 +531,14 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
         if (hasID(ref.getEReferenceType)) {
           res += "return _" + ref.getName + ".values().toList()"
         } else {
-          res += "return _" + ref.getName   //TODO protection for JS
+          res += "return _" + ref.getName //TODO protection for JS
         }
       } else {
         res += "if(" + protectReservedWords("_" + ref.getName) + "_java_cache != null){\n"
         res += "return _" + ref.getName + "_java_cache as List<" + typeRefName + ">\n"
         res += "} else {\n"
         if (hasID(ref.getEReferenceType)) {
-          res += protectReservedWords("_" + ref.getName) + "_java_cache = java.util.Collections.unmodifiableList(_" + ref.getName+".values().toList())\n"
+          res += protectReservedWords("_" + ref.getName) + "_java_cache = java.util.Collections.unmodifiableList(_" + ref.getName + ".values().toList())\n"
           res += "return _" + ref.getName + "_java_cache as List<" + typeRefName + ">\n"
         } else {
           res += "val tempL = java.util.ArrayList<" + typeRefName + ">()\n"

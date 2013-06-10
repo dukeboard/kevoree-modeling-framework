@@ -1,9 +1,6 @@
 
 
 private fun escapeXml(ostream : java.io.PrintStream, chain : String) {
-
-if(true){ostream.print(chain);return}   //TODO remove , set as option
-
    var i = 0
    var max = chain.length
    while(i < max){

@@ -103,12 +103,12 @@ with KMFIteratorGenerator {
     if (ctx.genSelector) {
       generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
     }
-    if (!ctx.getJS()) {
-      generateIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-      generateIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-      generateDeepIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-      generateDeepIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-    }
+    // if (!ctx.getJS()) {
+    generateIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+    generateIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+    generateDeepIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+    generateDeepIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+    // }
     generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
 
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {
@@ -135,8 +135,13 @@ with KMFIteratorGenerator {
     //log.debug("Processing classifier:" + cls.getName)
     cls match {
       case cl: EClass => {
-        generateClass(ctx, currentPackageDir, packElement, cl)
-        generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
+
+        if (ctx.getGenFlatInheritance) {
+          generateFlatClass(ctx, currentPackageDir, packElement, cl)
+        } else {
+          generateClass(ctx, currentPackageDir, packElement, cl)
+          generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        }
         generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
       }
       case dt: EDataType => {
