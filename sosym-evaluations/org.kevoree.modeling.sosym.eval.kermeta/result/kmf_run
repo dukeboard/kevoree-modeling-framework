@@ -3,16 +3,16 @@
 Load time : 22.3356,full=223.356
 Clone time : 3.8623499999999997,full=386.23499999999996
 Lookup time : 4038.331136
-Save time : 7.3978600000000005,full=739.7860000000001
+Save time : 7.3978600000000005,full=73.97860000000001
 =====TestHello.km/nb:6393
 Load time : 5.3095,full=53.095
 Clone time : 3.3915800000000003,full=339.158
 Lookup time : 3918.126848
-Save time : 5.51938,full=551.938
+Save time : 5.51938,full=55.1938
 =====Class2Rdbms.km/nb:6393
 Load time : 7.666200000000001,full=76.662
 Clone time : 3.4090800000000003,full=340.908
 Lookup time : 3921.26592
-Save time : 2.73605,full=273.605
+Save time : 2.73605,full=27.3605
 
 Process finished with exit code 0

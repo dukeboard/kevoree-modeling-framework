@@ -95,7 +95,7 @@ public class KMFKotlinTest {
             doSave(model, outS);
             fullSaveTime = fullSaveTime + lastSaveTime;
         }
-        System.out.println("Save time : " + (fullSaveTime / 100)+",full="+fullSaveTime);
+        System.out.println("Save time : " + (fullSaveTime / 10)+",full="+fullSaveTime);
     }
 
     public Metamodel doClone(Metamodel model) {
