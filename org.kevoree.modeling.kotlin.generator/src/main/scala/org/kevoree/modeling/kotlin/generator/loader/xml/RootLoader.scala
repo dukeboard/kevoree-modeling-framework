@@ -220,7 +220,7 @@ class RootLoader(ctx : GenerationContext) {
       }
     }
 
-    pr.println(" else -> {System.out.println(\"Element \" + localName + \" has been found at the root of the model, but no loader is mapped for this element.\")}")
+    pr.println(" else -> {/*System.out.println(\"Element \" + localName + \" has been found at the root of the model, but no loader is mapped for this element.\")*/}")
     pr.println("}")
     pr.println("} else {")
     pr.println("System.out.println(\"Tried to read a tag with null tag_name.\")")

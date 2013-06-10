@@ -219,7 +219,7 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
   }
 
   private def getGetter(name: String): String = {
-    "get" + name.charAt(0).toUpper + name.substring(1)
+    "_"+name // + name.charAt(0).toUpper + name.substring(1)
   }
 
   def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
@@ -249,18 +249,18 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
       contained =>
         if (contained.getUpperBound == -1) {
           // multiple values
-          pr.println("for(sub in this." + getGetter(contained.getName) + "()){")
+          pr.println("for(sub in this." + getGetter(contained.getName) + "){")
           pr.println("sub.setRecursiveReadOnly()")
           pr.println("}")
         } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
           // optional single ref
-          pr.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "()")
+          pr.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
           pr.println("if(subsubsubsub" + contained.getName + "!= null){ ")
           pr.println("subsubsubsub" + contained.getName + ".setRecursiveReadOnly()")
           pr.println("}")
         } else if (contained.getLowerBound > 1) {
           // else
-          pr.println("for(sub in this." + getGetter(contained.getName) + "()){")
+          pr.println("for(sub in this." + getGetter(contained.getName) + "){")
           pr.println("\t\t\tsub.setRecursiveReadOnly()")
           pr.println("\t\t}")
         } else {
