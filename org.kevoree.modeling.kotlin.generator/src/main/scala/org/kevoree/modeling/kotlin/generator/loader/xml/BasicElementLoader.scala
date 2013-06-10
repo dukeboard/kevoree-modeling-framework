@@ -172,9 +172,13 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
 
           pr.println("\"" + ref.getName + "\" -> {")
-
           pr.println("for(xmiRef in valueAtt.split(\" \")) {")
           pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
+
+          if(ref.getEOpposite != null) {
+            pr.println("if(!context.isOppositeAlreadySet(elementId,adjustedRef)) {")
+            pr.println("context.storeOppositeRelation(elementId,adjustedRef)")
+          }
           pr.println("val ref = context.map.get(adjustedRef)")
           pr.println("if( ref != null) {")
           pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
@@ -186,6 +190,10 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
           pr.println("})") //Closure
           pr.println("}") // Else
+
+          if(ref.getEOpposite != null) {
+            pr.println("}")
+          }
           pr.println("}") // For
           pr.println("}") // Case
         // pr.println("}")
