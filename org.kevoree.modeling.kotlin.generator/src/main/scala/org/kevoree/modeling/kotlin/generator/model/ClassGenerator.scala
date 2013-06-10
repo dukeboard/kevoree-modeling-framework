@@ -219,7 +219,7 @@ def resolveCrossRefTypeDef(cls: EClass, ref: EReference, pack: String): String =
   }
 
   private def getGetter(name: String): String = {
-    "_"+name // + name.charAt(0).toUpper + name.substring(1)
+     "get"+name.charAt(0).toUpper + name.substring(1) +"()"
   }
 
   def generateClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {

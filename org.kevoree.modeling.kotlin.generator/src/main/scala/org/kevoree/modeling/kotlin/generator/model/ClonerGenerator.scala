@@ -204,7 +204,7 @@ trait ClonerGenerator {
   }
 */
   private def getGetter(name: String): String = {
-    "_"+name// + name.charAt(0).toUpper + name.substring(1)
+     "get"+name.charAt(0).toUpper + name.substring(1)+"()"
   }
 
   private def getSetter(name: String): String = {
