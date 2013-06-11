@@ -14,7 +14,7 @@ import java.io.ByteArrayInputStream
 * Date: 02/04/13
 * Time: 15:07
 */
-fun myApp() {
+fun myApp() : ContainerRoot? {
     val element = document.getElementById("foo")
     if (element != null) {
         val factory = DefaultKevoreeFactory()
@@ -51,5 +51,8 @@ fun myApp() {
         element.appendChild(document.createTextNode(oo2.result)!!)
         element.appendChild(document.createElement("br")!!)
 
+        return root;
+
     }
+    return null;
 }
