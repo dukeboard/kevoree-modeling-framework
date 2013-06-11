@@ -23,6 +23,12 @@ fun myApp() {
         node0.setName("node0")
         root.addNodes(node0)
 
+        var lookupNode = root.findNodesByID("node0")
+        element.appendChild(document.createElement("br")!!)
+        element.appendChild(document.createTextNode("lookupNode")!!)
+        element.appendChild(document.createTextNode(lookupNode!!.getName())!!)
+        element.appendChild(document.createElement("br")!!)
+
         val oo = OutputStream()
         val saver = JSONModelSerializer()
         saver.serialize(root,oo)

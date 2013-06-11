@@ -578,7 +578,10 @@ trait ClassGenerator extends ClonerGenerator {
     //generate setter
     var res = ""
     val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+
+
+    val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
+    val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + implExt
 
     if (noOpposite) {
       res += "\nfun noOpposite_set" + formatedLocalRefName
@@ -853,7 +856,9 @@ trait ClassGenerator extends ClonerGenerator {
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+
+        val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
+        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + implExt
         if (!opposite.isMany) {
           res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
         } else {
@@ -899,7 +904,8 @@ trait ClassGenerator extends ClonerGenerator {
       val opposite = ref.getEOpposite
       val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
 
-      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+      val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + implExt
 
       if (!opposite.isMany) {
         res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
@@ -975,7 +981,8 @@ trait ClassGenerator extends ClonerGenerator {
     val oppositRef = ref.getEOpposite
     if (!noOpposite && oppositRef != null) {
       val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
-      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
+      val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
+      val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + implExt
 
       if (oppositRef.isMany) {
         res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
@@ -1024,8 +1031,10 @@ trait ClassGenerator extends ClonerGenerator {
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
-        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
 
+
+        val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
+        val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + implExt
         if (!opposite.isMany) {
           res += "(el as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)"
         } else {
