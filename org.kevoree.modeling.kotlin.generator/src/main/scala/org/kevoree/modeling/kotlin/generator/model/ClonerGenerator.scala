@@ -228,9 +228,7 @@ trait ClonerGenerator {
     } else {
       buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
     }
-
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")
-
     var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
     formatedFactoryName += pack.getName.substring(1)
     formatedFactoryName += "Factory"
@@ -251,12 +249,17 @@ trait ClonerGenerator {
       }
     }
     buffer.println("\t\tsubResult.put(this,selfObjectClone)")
+
+
+    buffer.println("for(sub in containedElements()){")
+    buffer.println("(sub as "+ctx.getKevoreeContainer.get+").getClonelazy(subResult, _factories,mutableOnly)")
+    buffer.println("}")
+
+    /*
     cls.getEAllContainments.foreach {
       contained =>
-
         val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
         val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
-
         if (contained.getUpperBound == -1) {
           // multiple values
           buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
@@ -277,7 +280,7 @@ trait ClonerGenerator {
           throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
         }
         buffer.println()
-    }
+    }*/
 
     //buffer.println("subResult") //result
     buffer.println("\t}") //END METHOD
@@ -321,7 +324,6 @@ trait ClonerGenerator {
           ref.getUpperBound match {
             case 1 => {
               buffer.println("if(this." + getGetter(ref.getName) + "!=null){")
-
               buffer.println("if(mutableOnly && this." + getGetter(ref.getName) + "!!.isRecursiveReadOnly()){")
               buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(this." + getGetter(ref.getName) + "!!)")
               buffer.println("} else {")
@@ -350,9 +352,9 @@ trait ClonerGenerator {
         buffer.println()
     }
     //RECUSIVE CALL ON ECONTAINEMENT
+    /*
     cls.getEAllContainments.foreach {
       contained =>
-
         val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
         val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
         contained.getUpperBound match {
@@ -369,7 +371,11 @@ trait ClonerGenerator {
           }
         }
         buffer.println()
-    }
+    }*/
+    buffer.println("for(sub in containedElements()){")
+    buffer.println("(sub as "+ctx.getKevoreeContainer.get+").resolve(addrs,readOnly,mutableOnly)")
+    buffer.println("}")
+
     buffer.println("\t\tif(readOnly){clonedSelfObject.setInternalReadOnly()}")
     buffer.println("return clonedSelfObject") //RETURN CLONED OBJECT
     buffer.println("}") //END METHOD

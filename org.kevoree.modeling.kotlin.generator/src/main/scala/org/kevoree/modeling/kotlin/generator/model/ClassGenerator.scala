@@ -1,71 +1,4 @@
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * Fouquet Francois
- * Nain Gregory
- */
+
 
 package org.kevoree.modeling.kotlin.generator.model
 
@@ -410,6 +343,11 @@ trait ClassGenerator extends ClonerGenerator {
 
   private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     pr.println("override fun delete(){")
+    pr.println("for(sub in containedElements()){")
+    pr.println("sub.delete()")
+    pr.println("}")
+
+            /*
     cls.getEAllContainments.foreach {
       c =>
         if (c.isMany()) {
@@ -424,11 +362,15 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println(protectReservedWords("_" + c.getName) + "?.delete()")
         }
     }
+    */
+
     //Clean locally
     cls.getEAttributes.foreach {
       att =>
       //pr.println(protectReservedWords("_" + att.getName) + " = null")
     }
+
+
     cls.getEReferences.foreach {
       ref =>
         if (ref.isMany) {

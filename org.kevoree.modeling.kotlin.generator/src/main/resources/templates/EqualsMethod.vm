@@ -23,6 +23,7 @@ override fun modelEquals(similarObj : Any?) : Boolean {
             }
         #end
     #end
+
     #foreach( $sub in $currentClass.getEAllContainments())
         #if($sub.isMany())
         for(subElement in get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){

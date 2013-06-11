@@ -112,8 +112,12 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println()
     pr.println("override fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
+    if (ctx.getJS()) {
+      pr.println("val wt = java.io.PrintStream(ostream)")
+    } else {
+      pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
+    }
     pr.println("when(oMS) {")
-
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {
       root =>
         if (ctx.getJS()) {
@@ -122,22 +126,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
         } else {
           pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
         }
-
         pr.println("val context = get" + root.getName + "JsonAddr(oMS as " + ProcessorHelper.fqn(ctx, root) + ",\"/\")")
-
-        if (ctx.getJS()) {
-          pr.println("val wt = java.io.PrintStream(ostream)")
-        } else {
-          pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
-        }
-
         pr.println("" + root.getName + "toJson(oMS,context,wt)")
-        pr.println("wt.flush()")
-        pr.println("wt.close()")
         pr.println("}")
     }
     pr.println("else -> { }")
     pr.println("}") //END MATCH
+    pr.println("wt.flush()")
+    pr.println("wt.close()")
     pr.println("}") //END serialize method
     generateEscapeMethod(pr)
     getEAllEclass(model).foreach {
@@ -151,7 +147,6 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
   private def getGetter(name: String): String = {
     "get" + name.charAt(0).toUpper + name.substring(1)
   }
-
 
   private def generateToJsonMethod(cls: EClass, buffer: PrintWriter) {
 

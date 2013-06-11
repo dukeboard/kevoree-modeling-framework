@@ -89,7 +89,6 @@ trait KMFQLFinder {
           first = false
       }
       pr.println("}")
-
       pr.println("override fun path() : String? {")
       pr.println("val container = eContainer()")
       pr.println("if(container != null) {")

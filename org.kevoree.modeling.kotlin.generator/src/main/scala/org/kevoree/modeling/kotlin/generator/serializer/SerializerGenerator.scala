@@ -95,25 +95,24 @@ class SerializerGenerator(ctx: GenerationContext) {
   private def generateDefaultSerializer(pr: PrintWriter, potentialRoots: util.ArrayList[EClassifier]) {
     pr.println("override fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
+    pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
+
     pr.println("when(oMS) {")
     potentialRoots.foreach {
       root =>
         if(!root.isInstanceOf[EEnum]) {
           pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
           pr.println("val context = get" + root.getName + "XmiAddr(oMS,\"/\")")
-          pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
           pr.println("" + root.getName + "toXmi(oMS,\"\",context,wt,true)")
-          pr.println("wt.flush()")
-          pr.println("wt.close()")
           pr.println("}")
         }
-
     }
     pr.println("else -> { }")
     pr.println("}") //END MATCH
+    pr.println("wt.flush()")
+    pr.println("wt.close()")
     pr.println("}") //END serialize method
   }
-
 
   private def generateEscapeMethod(pr: PrintWriter) {
     val ve = new VelocityEngine()
@@ -157,6 +156,13 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("fun get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
+
+    /*
+    buffer.println("for(sub in containedElements()){")
+    buffer.println("subResult.put(sub,previousAddr+\"/@" + subClass.getName + "\" )")
+    buffer.println("}")
+     */
+
     if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0) {
       buffer.println("var i = 0")
     }
@@ -187,6 +193,8 @@ class SerializerGenerator(ctx: GenerationContext) {
         }
     }
     buffer.println()
+
+
     if (subTypes.size > 0) {
       buffer.println("when(selfObject) {")
       subTypes.foreach {
