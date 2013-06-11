@@ -3,11 +3,12 @@
 
 package ${packElem}.util
 
-public class CompositeIterable(val subLists : Array<Any?>) : MutableIterable<${ctx.getKevoreeContainer().get()}> {
+#set($mutableOrNot="Mutable")
 
+public class CompositeIterable(val subLists : Array<Any?>) : ${mutableOrNot}Iterable<${ctx.getKevoreeContainer().get()}> {
 
-    public override fun iterator() : MutableIterator<${ctx.getKevoreeContainer().get()}> {
+    public override fun iterator() : ${mutableOrNot}Iterator<${ctx.getKevoreeContainer().get()}> {
         return CompositeIterator(subLists);
     }
-
 }
+

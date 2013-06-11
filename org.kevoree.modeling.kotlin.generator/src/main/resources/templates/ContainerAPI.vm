@@ -16,8 +16,6 @@ fun setInternalReadOnly()
 fun delete()
 
 fun modelEquals(similarObj : Any?) : Boolean
-fun containedElements() : Iterable<${packElem}.${formatedFactoryName}>
-fun containedAllElements() : Iterable<${packElem}.${formatedFactoryName}>
 
 #if(${ctx.genSelector})
     fun selectByQuery(query : String) : List<Any>
@@ -34,6 +32,8 @@ fun path() : String?
     fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.factory.MainFactory, mutableOnly: Boolean)
     fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
 #else
+    fun containedElements() : Iterable<${packElem}.${formatedFactoryName}>
+    fun containedAllElements() : Iterable<${packElem}.${formatedFactoryName}>
     fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.factory.MainFactory, mutableOnly: Boolean)
     fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
 #end

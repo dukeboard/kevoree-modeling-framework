@@ -342,27 +342,31 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
   private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
-    pr.println("override fun delete(){")
-    pr.println("for(sub in containedElements()){")
-    pr.println("sub.delete()")
-    pr.println("}")
 
-            /*
-    cls.getEAllContainments.foreach {
-      c =>
-        if (c.isMany()) {
-          pr.println("for(el in " + "_" + c.getName + "){")
-          if (c.getEReferenceType.getEIDAttribute != null) {
-            pr.println("el.value.delete()")
+
+
+    if(!ctx.getJS()){
+      pr.println("override fun delete(){")
+      pr.println("for(sub in containedElements()){")
+      pr.println("sub.delete()")
+      pr.println("}")
+    } else {
+      pr.println("override fun delete(){")
+      cls.getEAllContainments.foreach {
+        c =>
+          if (c.isMany()) {
+            pr.println("for(el in " + "_" + c.getName + "){")
+            if (c.getEReferenceType.getEIDAttribute != null) {
+              pr.println("el.value.delete()")
+            } else {
+              pr.println("el.delete()")
+            }
+            pr.println("}")
           } else {
-            pr.println("el.delete()")
+            pr.println(protectReservedWords("_" + c.getName) + "?.delete()")
           }
-          pr.println("}")
-        } else {
-          pr.println(protectReservedWords("_" + c.getName) + "?.delete()")
-        }
+      }
     }
-    */
 
     //Clean locally
     cls.getEAttributes.foreach {

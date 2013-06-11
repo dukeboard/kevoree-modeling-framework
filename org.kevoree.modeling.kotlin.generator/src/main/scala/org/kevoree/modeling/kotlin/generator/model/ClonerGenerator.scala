@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -147,7 +147,6 @@ import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 
 
 /**
@@ -160,14 +159,14 @@ import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 trait ClonerGenerator {
 
 
-  def generateCloner(ctx: GenerationContext, pack: EPackage, model : XMIResource) {
+  def generateCloner(ctx: GenerationContext, pack: EPackage, model: XMIResource) {
     //generateClonerFactories(ctx, currentPackageDir, pack, cls)
-    generateDefaultCloner(ctx, pack,model)
+    generateDefaultCloner(ctx, pack, model)
   }
 
-  def generateDefaultCloner(ctx: GenerationContext, pack: EPackage, model : XMIResource) {
+  def generateDefaultCloner(ctx: GenerationContext, pack: EPackage, model: XMIResource) {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
-    val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator+"ModelCloner.kt"), "utf-8")
+    val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner" + File.separator + "ModelCloner.kt"), "utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
     ctx.clonerPackage = packageName + ".cloner"
@@ -177,34 +176,34 @@ trait ClonerGenerator {
     ve.init()
     val template = ve.getTemplate("templates/ModelCloner.vm")
     val ctxV = new VelocityContext()
-    ctxV.put("packageName",packageName)
-    ctxV.put("potentialRoots",ProcessorHelper.collectAllClassifiersInModel(model))
-    ctxV.put("ctx",ctx)
-    ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-    ctxV.put("packages",ctx.packageFactoryMap.values())
-    template.merge(ctxV,pr)
+    ctxV.put("packageName", packageName)
+    ctxV.put("potentialRoots", ProcessorHelper.collectAllClassifiersInModel(model))
+    ctxV.put("ctx", ctx)
+    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("packages", ctx.packageFactoryMap.values())
+    template.merge(ctxV, pr)
     pr.flush()
     pr.close()
   }
 
-/*
-  def generateClonerFactories(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
-    val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator +"ClonerFactories.kt"), "utf-8")
+  /*
+    def generateClonerFactories(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
+      ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
+      val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator +"ClonerFactories.kt"), "utf-8")
 
-    val packageName = ProcessorHelper.fqn(ctx, pack)
+      val packageName = ProcessorHelper.fqn(ctx, pack)
 
-    pr.println("package " + packageName + ".cloner")
-    pr.println("trait ClonerFactories {")
+      pr.println("package " + packageName + ".cloner")
+      pr.println("trait ClonerFactories {")
 
 
-    pr.println("}") //END TRAIT
-    pr.flush()
-    pr.close()
-  }
-*/
+      pr.println("}") //END TRAIT
+      pr.flush()
+      pr.close()
+    }
+  */
   private def getGetter(name: String): String = {
-     "get"+name.charAt(0).toUpper + name.substring(1)+"()"
+    "get" + name.charAt(0).toUpper + name.substring(1) + "()"
   }
 
   private def getSetter(name: String): String = {
@@ -223,7 +222,7 @@ trait ClonerGenerator {
 
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
 
-    if (ctx.getJS()){
+    if (ctx.getJS()) {
       buffer.println("override fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
     } else {
       buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
@@ -251,36 +250,45 @@ trait ClonerGenerator {
     buffer.println("\t\tsubResult.put(this,selfObjectClone)")
 
 
-    buffer.println("for(sub in containedElements()){")
-    buffer.println("(sub as "+ctx.getKevoreeContainer.get+").getClonelazy(subResult, _factories,mutableOnly)")
-    buffer.println("}")
+    if (ctx.getJS()) {
+      cls.getEAllContainments.foreach {
+        contained =>
+          val implExt = if (ctx.getGenFlatInheritance) {
+            "Impl"
+          } else {
+            "Internal"
+          }
+          val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
+          if (contained.getUpperBound == -1) {
+            // multiple values
+            buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
+            buffer.println("(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
+            buffer.println("}")
+          } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
+            // optional single ref
 
-    /*
-    cls.getEAllContainments.foreach {
-      contained =>
-        val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
-        val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
-        if (contained.getUpperBound == -1) {
-          // multiple values
-          buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
-          buffer.println("(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
-          buffer.println("}")
-        } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
-          // optional single ref
+            buffer.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
+            buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
+            buffer.println("(subsubsubsub" + contained.getName + " as " + fqnName + " ).getClonelazy(subResult, _factories,mutableOnly)")
+            buffer.println("}")
+          } else if (contained.getLowerBound > 1) {
+            buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
+            buffer.println("\t\t\t(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
+            buffer.println("\t\t}")
+          } else {
+            throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
+          }
+          buffer.println()
+      }
+    } else {
+      buffer.println("for(sub in containedElements()){")
+      buffer.println("(sub as " + ctx.getKevoreeContainer.get + ").getClonelazy(subResult, _factories,mutableOnly)")
+      buffer.println("}")
+    }
 
-          buffer.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
-          buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
-          buffer.println("(subsubsubsub" + contained.getName + " as " + fqnName + " ).getClonelazy(subResult, _factories,mutableOnly)")
-          buffer.println("}")
-        } else if (contained.getLowerBound > 1) {
-          buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
-          buffer.println("\t\t\t(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
-          buffer.println("\t\t}")
-        } else {
-          throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
-        }
-        buffer.println()
-    }*/
+
+
+
 
     //buffer.println("subResult") //result
     buffer.println("\t}") //END METHOD
@@ -288,7 +296,7 @@ trait ClonerGenerator {
     //GENERATE CLONE METHOD
 
     //CALL SUB TYPE OR PROCESS OBJECT
-    if(ctx.getJS()){
+    if (ctx.getJS()) {
       buffer.println("override fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
     } else {
       buffer.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
@@ -302,7 +310,7 @@ trait ClonerGenerator {
     buffer.println("return this")
     buffer.println("}")
 
-    if(ctx.getGenFlatInheritance){
+    if (ctx.getGenFlatInheritance) {
       buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Impl")
     } else {
       buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Internal")
@@ -352,29 +360,39 @@ trait ClonerGenerator {
         buffer.println()
     }
     //RECUSIVE CALL ON ECONTAINEMENT
-    /*
-    cls.getEAllContainments.foreach {
-      contained =>
-        val implExt = if(ctx.getGenFlatInheritance){"Impl"}else{"Internal"}
-        val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
-        contained.getUpperBound match {
-          case 1 => {
-            buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
-            buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
-            buffer.println("(subsubsub" + contained.getName + " as " + fqnName + ").resolve(addrs,readOnly,mutableOnly)")
-            buffer.println("}")
+
+    if (ctx.getJS()) {
+      cls.getEAllContainments.foreach {
+        contained =>
+          val implExt = if (ctx.getGenFlatInheritance) {
+            "Impl"
+          } else {
+            "Internal"
           }
-          case -1 => {
-            buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
-            buffer.println("\t\t\t(sub as " + fqnName + " ).resolve(addrs,readOnly,mutableOnly)")
-            buffer.println("\t\t}")
+          val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
+          contained.getUpperBound match {
+            case 1 => {
+              buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
+              buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
+              buffer.println("(subsubsub" + contained.getName + " as " + fqnName + ").resolve(addrs,readOnly,mutableOnly)")
+              buffer.println("}")
+            }
+            case -1 => {
+              buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
+              buffer.println("\t\t\t(sub as " + fqnName + " ).resolve(addrs,readOnly,mutableOnly)")
+              buffer.println("\t\t}")
+            }
           }
-        }
-        buffer.println()
-    }*/
-    buffer.println("for(sub in containedElements()){")
-    buffer.println("(sub as "+ctx.getKevoreeContainer.get+").resolve(addrs,readOnly,mutableOnly)")
-    buffer.println("}")
+          buffer.println()
+      }
+    } else {
+      buffer.println("for(sub in containedElements()){")
+      buffer.println("(sub as " + ctx.getKevoreeContainer.get + ").resolve(addrs,readOnly,mutableOnly)")
+      buffer.println("}")
+    }
+
+
+
 
     buffer.println("\t\tif(readOnly){clonedSelfObject.setInternalReadOnly()}")
     buffer.println("return clonedSelfObject") //RETURN CLONED OBJECT

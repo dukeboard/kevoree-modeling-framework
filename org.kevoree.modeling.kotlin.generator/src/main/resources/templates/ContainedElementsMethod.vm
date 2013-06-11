@@ -3,27 +3,36 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="packElem" type="java.lang.String" *#
 
-override fun containedAllElements() : MutableIterable<$ctx.getKevoreeContainer().get()> {
-        return ${packElem}.DeepIterable(this)
+#if($ctx.jS)
+    #set($mutableOrNot="")
+#else
+    #set($mutableOrNot="Mutable")
+
+override fun containedAllElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContainer().get()> {
+return ${packElem}.DeepIterable(this)
 }
 
-override fun containedElements() : MutableIterable<$ctx.getKevoreeContainer().get()> {
-        var containedIterables = Array<Any?>($currentClass.getEAllContainments().size(),{i ->
-             when (i) {
-                 #set($i=0)
-                 #foreach( $ref in $currentClass.getEAllContainments())
-                 $i -> {
-                     #if(${ref.getEReferenceType().getEIDAttribute()})
-                         _${ref.getName()}.values()
-                     #else
-                         _${ref.getName()}
-                     #end
-                 }
-                 #set($i=$i+1)
-                 #end
-                 else -> {}
-             }
-        })
-        return ${packElem}.CompositeIterable(containedIterables)
+override fun containedElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContainer().get()> {
+var containedIterables = Array<Any?>($currentClass.getEAllContainments().size(),{i ->
+when (i) {
+    #set($i=0)
+    #foreach( $ref in $currentClass.getEAllContainments())
+        $i -> {
+        #if(${ref.getEReferenceType().getEIDAttribute()})
+        _${ref.getName()}.values()
+        #else
+        _${ref.getName()}
+        #end
+    }
+        #set($i=$i+1)
+    #end
+else -> {}
 }
+})
+return ${packElem}.CompositeIterable(containedIterables)
+}
+
+#end
+
+
 

@@ -3,9 +3,11 @@
 
 package ${packElem}.util
 
-public class DeepIterable(val root : ${ctx.getKevoreeContainer().get()}) : MutableIterable<${ctx.getKevoreeContainer().get()}> {
+#set($mutableOrNot="Mutable")
 
-    public override fun iterator() : MutableIterator<${ctx.getKevoreeContainer().get()}> {
+public class DeepIterable(val root : ${ctx.getKevoreeContainer().get()}) : ${mutableOrNot}Iterable<${ctx.getKevoreeContainer().get()}> {
+
+    public override fun iterator() : ${mutableOrNot}Iterator<${ctx.getKevoreeContainer().get()}> {
         return DeepIterator(root);
     }
 
