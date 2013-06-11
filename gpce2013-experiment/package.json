@@ -1,0 +1,11 @@
+{
+  "name": "http-server",
+  "preferGlobal": true,
+  "version": "0.3.0",
+  "author": "Nodejitsu <support@nodejitsu.com>",
+  "description": "a simple zero-configuration command-line http server",
+  "dependencies" : {
+    "socket.io"   :  "*",
+	"express"   :  "*"
+  }
+}
