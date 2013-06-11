@@ -11,9 +11,7 @@
 	<script src="lib/kotlin-maps.js"></script>
 	
 	<script type="text/javascript" src="lib/org.kevoree.modeling.sample.kevoree.js.js"></script>
-	
-	<script src="/socket.io/socket.io.js"></script>
-	
+		
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link href="css/bootstrap-notify.css" rel="stylesheet">
@@ -43,24 +41,25 @@
 <script  type="text/javascript">
 $(function(){
 	var loader = new Kotlin.modules['org.kevoree.modeling.sample.kevoree.js'].org.kevoree.loader.JSONModelLoader();
-	var socket = io.connect("/model");
-	socket.on('broadcastModel', function (data) {
-		var rootModel = loader.loadModelFromString(data).get(0);
-		/* Type def */
-		var typeDefs = rootModel.getTypeDefinitions();
-		$('#typeDefs').empty();
-		for (var i=0;i<typeDefs.$size;i++){
-			$('#typeDefs').append($('<li>').append(typeDefs.get(i).getName().substring(0,30))); 
-		}
-		/* Nodes */
-		$('#modelNodes').empty();
-		var nodes = rootModel.getNodes();
-		for (var i=0;i<nodes.$size;i++){
-			$('#modelNodes').append($('<div>').append(nodes.get(i).getName().substring(0,30))); 
-		}
-		$('#lastDate').html( Date.now());
-	    $('.bottom-right').notify({message: { text: 'Kevoree Model updated' }}).show();
-	});
+	var host = window.document.location.host.replace(/:.*/, '');
+	var ws = new WebSocket('ws://' + host + ':8080');
+	ws.onmessage = function (event) {
+			var rootModel = loader.loadModelFromString(event.data).get(0);
+			/* Type def */
+			var typeDefs = rootModel.getTypeDefinitions();
+			$('#typeDefs').empty();
+			for (var i=0;i<typeDefs.$size;i++){
+				$('#typeDefs').append($('<li>').append(typeDefs.get(i).getName().substring(0,30))); 
+			}
+			/* Nodes */
+			$('#modelNodes').empty();
+			var nodes = rootModel.getNodes();
+			for (var i=0;i<nodes.$size;i++){
+				$('#modelNodes').append($('<div>').append(nodes.get(i).getName().substring(0,30))); 
+			}
+			$('#lastDate').html( Date.now());
+		    $('.bottom-right').notify({message: { text: 'Kevoree Model updated' }}).show();	
+	};
 })
 </script>
 

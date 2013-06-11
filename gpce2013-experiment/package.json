@@ -5,9 +5,8 @@
   "author": "Duke",
   "description": "simple WS server",
   "dependencies" : {
+	"ws"   :  "*",
 	"fs"   :  "*",
-    "socket.io"   :  "*",
-	"express"   :  "*",
-	"socket.io-client" : "*"
+	"express"   :  "~3.0.0",
   }
 }

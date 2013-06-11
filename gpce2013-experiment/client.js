@@ -1,21 +1,19 @@
-var io = require('socket.io-client');
 var fs = require('fs');
-
-var serverUrl = 'ws://localhost:8080/model';
-var conn = io.connect(serverUrl);
-conn.on('connect', function(){
+var WebSocket = require('ws');
+var ws = new WebSocket('ws://127.0.0.1:8080');
+var serverUrl = 'ws://127.0.0.1:8080';
+var conn = new WebSocket(serverUrl);
+conn.on('open', function(){
     console.log("WsClient");
-	conn.on('broadcastModel', function(p){
-	     console.log("rec Model :-)"); 
+	conn.on('message', function(data){
+	     console.log("rec Model :-)"+data); 
 	});
-	
 	fs.readFile('modelAll.json', 'utf8', function (err,data) {
 	  if (err) {
 	    return console.log(err);
 	  }
-	  conn.emit('model', data);
+	  conn.send(data);
 	});
-
 });
 
 
