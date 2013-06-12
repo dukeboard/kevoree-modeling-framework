@@ -16,7 +16,7 @@ then
     echo "File kevJavaEditor.jar exists."	
 else
 	echo "Download Kevoree"
-	curl http://maven.kevoree.org/archiva/repository/snapshots/org/kevoree/tools/org.kevoree.tools.ui.editor.standalone/2.0.0-SNAPSHOT/org.kevoree.tools.ui.editor.standalone-2.0.0-20130612.074614-325.jar > kevJavaEditor.jar
+	curl http://maven.kevoree.org/snapshots/org/kevoree/tools/org.kevoree.tools.ui.editor.standalone/2.0.0-SNAPSHOT/org.kevoree.tools.ui.editor.standalone-2.0.0-20130612.092237-327.jar > kevJavaEditor.jar
 fi	
 
 cd WebSocketServer
