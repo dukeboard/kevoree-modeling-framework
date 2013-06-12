@@ -245,7 +245,11 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     val subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
     subtypesList.foreach {
       subType =>
-        buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {" + subType.getName + "toJson(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",addrs,ostream) }")
+        if(ctx.getJS()){
+          buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + ", is " + ProcessorHelper.fqn(ctx, subType.getEPackage) + ".impl." + subType.getName + "Impl -> {" + subType.getName + "toJson(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",addrs,ostream) }")
+        } else {
+          buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {" + subType.getName + "toJson(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",addrs,ostream) }")
+        }
     }
     buffer.println("else -> {")
     buffer.println("ostream.print('{')")
