@@ -4,9 +4,9 @@ cd WebSocketServer
 
 if [ -n "which xdg-open" ];
 	then
-		xdg-open http://localhost:8080
-	else
 		open http://localhost:8080 
+	else
+		xdg-open http://localhost:8080
 fi
 
 if [ -n "which node" ];
