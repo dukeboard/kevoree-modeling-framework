@@ -55,7 +55,13 @@ $(function(){
 			$('#modelNodes').empty();
 			var nodes = rootModel.getNodes();
 			for (var i=0;i<nodes.$size;i++){
-				$('#modelNodes').append($('<div>').append(nodes.get(i).getName().substring(0,30))); 
+				$('#modelNodes').append($('<tr>').append($('<td>').append(nodes.get(i).getName().substring(0,30)))); 
+			}
+			/* Group */
+			$('#modelGroups').empty();
+			var groups = rootModel.getGroups();
+			for (var i=0;i<groups.$size;i++){
+				$('#modelGroups').append($('<tr>').append($('<td>').append(groups.get(i).getName().substring(0,30)))); 
 			}
 			$('#lastDate').html( Date.now());
 		    $('.bottom-right').notify({message: { text: 'Kevoree Model updated' }}).show();	
@@ -88,8 +94,35 @@ $(function(){
       </div><!--/.well -->
     </div><!--/span-->
     <div class="span9">
-		<h2>Nodes hierarchie</h2>
-      <div class="row-fluid" id="modelNodes">
+		
+		
+		<h2>Node instances</h2>
+      	<div class="row-fluid">
+		  <table class="table table-bordered">
+			  <thead>
+			      <tr>
+			        <th>node name</th>
+			      </tr>
+			    </thead>
+				<tbody id="modelNodes">
+				    
+				</tbody>
+		  </table>
+		  
+  		<h2>Groups instances</h2>
+        	<div class="row-fluid">
+  		  <table class="table table-bordered">
+  			  <thead>
+  			      <tr>
+  			        <th>group name</th>
+  			      </tr>
+  			    </thead>
+  				<tbody id="modelGroups">
+				    
+  				</tbody>
+  		  </table>
+		  
+		  
 		  
       </div><!--/row-->
     </div><!--/span-->

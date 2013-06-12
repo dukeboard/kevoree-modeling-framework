@@ -25,7 +25,9 @@ wss.on('connection', function(ws) {
   });
   ws.on('message',function(data, flags){
 	  for(var i=0;i<clients.length;i++){
-	  		clients[i].send(data);
+		  if(clients[i] != ws){
+  	  		clients[i].send(data);
+		  }
 	  }
   });
 });
