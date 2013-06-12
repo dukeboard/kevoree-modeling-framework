@@ -27,7 +27,7 @@ Run:
 
 	sh server.sh
 	
-A browser should open on the following adress
+A browser should open (if not, open it) at the following address
 
 	http://localhost:8080
 	
@@ -50,6 +50,10 @@ The simple WebPage and the Java editor reload their content with the new model.
 ### 6.Start a WebEditor
 
 	sh webeditor.sh
+	
+A browser should open (if not, open it) at the following address
+
+	http://localhost:3000
 	
 Go to File > Listen to : enter address localhost:8080 and click ok. Now the WebEditor is synchronized also with the server
 
