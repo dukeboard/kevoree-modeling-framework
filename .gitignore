@@ -30,3 +30,4 @@ keystore
 /kevoree-library/org.kevoree.library.restChannels/target/
 **.idea
 **/node_modules/**
+**/*.jar
