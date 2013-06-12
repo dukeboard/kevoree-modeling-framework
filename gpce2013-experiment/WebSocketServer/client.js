@@ -6,7 +6,7 @@ var conn = new WebSocket(serverUrl);
 conn.on('open', function(){
     console.log("WsClient");
 	conn.on('message', function(data){
-	     console.log("rec Model :-)"+data); 
+	     console.log("rec Model :-)"); 
 	});
 	fs.readFile('modelAll.json', 'utf8', function (err,data) {
 	  if (err) {

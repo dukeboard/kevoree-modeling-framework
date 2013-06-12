@@ -19,7 +19,15 @@ server.listen(8080);
 var clients = [];
 var wss = new WebSocketServer({server: server});
 wss.on('connection', function(ws) {
-  clients.push(ws);
+  	var alreadyFound = false
+	for(var i=0;i<clients.length;i++){
+		if(clients[i] == ws){
+		     alreadyFound = true;	
+		}
+	}
+	if(!alreadyFound){
+	  clients.push(ws);
+	}
   ws.on('close', function() {
 	  clients.splice(clients.indexOf(ws), 1);
   });

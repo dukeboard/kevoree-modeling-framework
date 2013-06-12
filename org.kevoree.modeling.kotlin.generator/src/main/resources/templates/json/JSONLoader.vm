@@ -87,7 +87,7 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
                 }
             } else {
                 if(builder != null) {
-                    builder = builder + c
+                    builder = builder!! + c
                 }
                 i++
             }
