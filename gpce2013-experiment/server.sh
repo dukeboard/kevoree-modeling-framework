@@ -1,7 +1,13 @@
 #!/bin/bash
 
 cd WebSocketServer
-open http://localhost:8080
+
+if [ -n "which xdg-open" ];
+	then
+		xdg-open http://localhost:8080
+	else
+		open http://localhost:8080 
+fi
 
 if [ -n "which node" ];
 	then
