@@ -5,7 +5,11 @@ You need to have nodeJS installed on your machine.
 Please check that the command `node` is available in a Terminal console.
 		nodeJS (node,npm)
 		
+If you are running a linux be shure that NodeJS and NPM is installed :
 
+	sudo add-apt-repository ppa:chris-lea/node.js
+	sudo apt-get update
+	sudo apt-get install nodejs npm
 
 ### 2.Download and Install
 
