@@ -1,15 +1,19 @@
 #Kevoree JS collaborative editor demo
 
 ### 1.Requirements
-You need to have (a recent version of) nodeJS installed on your machine.
-Please check that the command `node` is available in a Terminal console.
-		nodeJS (node,npm)
+You need to have nodeJS installed on your machine. Version 0.10.10 or higher is recommended.
+Please check that the command `node` is available in a Terminal console. 
+
+To check the version of Node on Linux, type:
+
+	nodejs --version
+
 		
 If you are running a linux, you can install Node as follows:
 
 	sudo add-apt-repository ppa:chris-lea/node.js
 	sudo apt-get update
-	sudo apt-get install nodejs npm
+	sudo apt-get install nodejs
 
 ### 2.Download and Install
 
