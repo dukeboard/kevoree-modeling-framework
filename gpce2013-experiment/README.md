@@ -9,7 +9,7 @@ Please check that the command `node` is available in a Terminal console.
 
 ### 2.Download and Install
 
-	git clone git@github.com:dukeboard/kevoree-modeling-framework.git
+	git clone https://github.com/dukeboard/kevoree-modeling-framework.git
 	cd gpce2013-experiment
 	sh install.sh
 	
