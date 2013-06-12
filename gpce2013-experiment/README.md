@@ -1,11 +1,11 @@
 #Kevoree JS collaborative editor demo
 
 ### 1.Requirements
-You need to have nodeJS installed on your machine.
+You need to have (a recent version of) nodeJS installed on your machine.
 Please check that the command `node` is available in a Terminal console.
 		nodeJS (node,npm)
 		
-If you are running a linux be shure that NodeJS and NPM is installed :
+If you are running a linux, you can install Node as follows:
 
 	sudo add-apt-repository ppa:chris-lea/node.js
 	sudo apt-get update
@@ -33,7 +33,7 @@ This simple Web representation is synchronized with the WS server.
 
 	sh javaeditor.sh
 	
-Sould open the plain java editor
+Should open the plain Java editor
 
 Click on the icon : (Top right, WSSync) , and leave the address as this. Now the editor is sychronized with the server.
 
@@ -57,7 +57,7 @@ Do a modification in Java editor (Add a node for instance)
 
 Click on the icon : WSPush
 
-The Kevoree Web Editor, Java Editor, and the simple WebPage is synchronized on the same model.
+The Kevoree Web Editor, Java Editor, and the simple WebPage are synchronized on the same model.
 
 Enjoy :-)
 Kevoree Team
