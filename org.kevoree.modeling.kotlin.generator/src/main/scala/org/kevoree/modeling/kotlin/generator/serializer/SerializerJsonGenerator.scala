@@ -41,9 +41,10 @@ import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
-import org.eclipse.emf.ecore.{EEnum, EReference, EPackage, EClass}
+import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 import java.util
+import scala.Tuple2
 
 /**
  * Created by IntelliJ IDEA.
@@ -118,7 +119,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
       pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
     }
     pr.println("when(oMS) {")
-    ProcessorHelper.collectAllClassifiersInModel(model).foreach {
+    ProcessorHelper.collectAllClassifiersInModel(model).filter(proot => !proot.isInstanceOf[EEnum]).foreach {
       root =>
         if (ctx.getJS()) {
           //KotLin bug Workaround : http://youtrack.jetbrains.com/issue/KT-3519
@@ -137,7 +138,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println("}") //END serialize method
     generateEscapeMethod(pr)
     getEAllEclass(model).foreach {
-      eClass => generateToJsonMethod(eClass, pr)
+    //ProcessorHelper.collectAllClassifiersInModel(model).foreach {
+      eClass => {
+       // if(eClass.isInstance(classOf[EEnum])){
+       //   generateEENUMToJsonMethod(eClass.asInstanceOf[EEnum], pr)
+       // } else {
+          generateToJsonMethod(eClass, pr)
+       // }
+      }
     }
     pr.println("}") //END TRAIT
     pr.flush()
@@ -148,8 +156,16 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     "get" + name.charAt(0).toUpper + name.substring(1)
   }
 
-  private def generateToJsonMethod(cls: EClass, buffer: PrintWriter) {
+  /*
+  private def generateEENUMToJsonMethod(cls: EEnum, buffer: PrintWriter) {
+    buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
+    buffer.println("ostream.print('{')")
+    buffer.println("ostream.print(\" \\\"eClass\\\":\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\\\" \")")
+    buffer.println("ostream.print('}')") // end JSON element
+    buffer.println("}")
+  } */
 
+  private def generateToJsonMethod(cls: EClass, buffer: PrintWriter) {
     var stringListSubSerializers = Set[Tuple2[String, String]]()
     if (cls.getEAllContainments.size > 0) {
       cls.getEAllContainments.foreach {
@@ -245,7 +261,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     val subtypesList = ProcessorHelper.getDirectConcreteSubTypes(cls)
     subtypesList.foreach {
       subType =>
-        if(ctx.getJS()){
+        if (ctx.getJS()) {
           buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + ", is " + ProcessorHelper.fqn(ctx, subType.getEPackage) + ".impl." + subType.getName + "Impl -> {" + subType.getName + "toJson(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",addrs,ostream) }")
         } else {
           buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {" + subType.getName + "toJson(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",addrs,ostream) }")

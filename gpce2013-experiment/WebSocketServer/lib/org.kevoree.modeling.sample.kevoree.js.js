@@ -1464,7 +1464,7 @@
           node0.setName('node0');
           root.addNodes(node0);
           var lookupNode = root.findNodesByID('node0');
-          var tmp$0, tmp$1, tmp$2, tmp$3, tmp$4, tmp$5, tmp$6, tmp$7, tmp$8, tmp$9, tmp$10, tmp$11, tmp$12, tmp$13, tmp$14, tmp$15, tmp$16, tmp$17;
+          var tmp$0, tmp$1, tmp$2, tmp$3, tmp$4, tmp$5, tmp$6, tmp$7, tmp$8, tmp$9, tmp$10, tmp$11, tmp$12, tmp$13, tmp$14, tmp$15, tmp$16, tmp$17, tmp$18, tmp$19, tmp$20, tmp$21, tmp$22;
           element.appendChild((tmp$0 = document.createElement('br')) !== null && tmp$0 !== undefined ? tmp$0 : Kotlin.throwNPE());
           element.appendChild((tmp$1 = document.createTextNode('lookupNode')) !== null && tmp$1 !== undefined ? tmp$1 : Kotlin.throwNPE());
           element.appendChild((tmp$3 = document.createTextNode(((tmp$2 = lookupNode) !== null && tmp$2 !== undefined ? tmp$2 : Kotlin.throwNPE()).getName())) !== null && tmp$3 !== undefined ? tmp$3 : Kotlin.throwNPE());
@@ -1488,6 +1488,14 @@
           element.appendChild((tmp$15 = document.createElement('br')) !== null && tmp$15 !== undefined ? tmp$15 : Kotlin.throwNPE());
           element.appendChild((tmp$16 = document.createTextNode(oo2.get_result())) !== null && tmp$16 !== undefined ? tmp$16 : Kotlin.throwNPE());
           element.appendChild((tmp$17 = document.createElement('br')) !== null && tmp$17 !== undefined ? tmp$17 : Kotlin.throwNPE());
+          var cloner = new _.org.kevoree.cloner.ModelCloner();
+          var clonedRoot = cloner.clone(root);
+          var oo3 = new _.java.io.OutputStream();
+          saver.serialize((tmp$18 = clonedRoot) !== null && tmp$18 !== undefined ? tmp$18 : Kotlin.throwNPE(), oo3);
+          element.appendChild((tmp$19 = document.createTextNode('After cloned in browser')) !== null && tmp$19 !== undefined ? tmp$19 : Kotlin.throwNPE());
+          element.appendChild((tmp$20 = document.createElement('br')) !== null && tmp$20 !== undefined ? tmp$20 : Kotlin.throwNPE());
+          element.appendChild((tmp$21 = document.createTextNode(oo3.get_result())) !== null && tmp$21 !== undefined ? tmp$21 : Kotlin.throwNPE());
+          element.appendChild((tmp$22 = document.createElement('br')) !== null && tmp$22 !== undefined ? tmp$22 : Kotlin.throwNPE());
           return root;
         }
         return null;
@@ -1660,202 +1668,202 @@
               return this.clone_1(o, readOnly, true);
             },
             clone_1: function (o, readOnly, mutableOnly) {
-              if (Kotlin.isType(o, _.org.kevoree.ComponentInstance)) {
+              if (Kotlin.isType(o, _.org.kevoree.ComponentInstance) || Kotlin.isType(o, _.org.kevoree.impl.ComponentInstanceImpl)) {
                 var context = new Kotlin.HashMap(0);
                 o.getClonelazy(context, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.ComponentType)) {
+              if (Kotlin.isType(o, _.org.kevoree.ComponentType) || Kotlin.isType(o, _.org.kevoree.impl.ComponentTypeImpl)) {
                 var context_0 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_0, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_0, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.ContainerNode)) {
+              if (Kotlin.isType(o, _.org.kevoree.ContainerNode) || Kotlin.isType(o, _.org.kevoree.impl.ContainerNodeImpl)) {
                 var context_1 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_1, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_1, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.ContainerRoot)) {
+              if (Kotlin.isType(o, _.org.kevoree.ContainerRoot) || Kotlin.isType(o, _.org.kevoree.impl.ContainerRootImpl)) {
                 var context_2 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_2, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_2, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.PortType)) {
+              if (Kotlin.isType(o, _.org.kevoree.PortType) || Kotlin.isType(o, _.org.kevoree.impl.PortTypeImpl)) {
                 var context_3 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_3, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_3, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Port)) {
+              if (Kotlin.isType(o, _.org.kevoree.Port) || Kotlin.isType(o, _.org.kevoree.impl.PortImpl)) {
                 var context_4 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_4, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_4, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Namespace)) {
+              if (Kotlin.isType(o, _.org.kevoree.Namespace) || Kotlin.isType(o, _.org.kevoree.impl.NamespaceImpl)) {
                 var context_5 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_5, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_5, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Dictionary)) {
+              if (Kotlin.isType(o, _.org.kevoree.Dictionary) || Kotlin.isType(o, _.org.kevoree.impl.DictionaryImpl)) {
                 var context_6 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_6, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_6, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.DictionaryType)) {
+              if (Kotlin.isType(o, _.org.kevoree.DictionaryType) || Kotlin.isType(o, _.org.kevoree.impl.DictionaryTypeImpl)) {
                 var context_7 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_7, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_7, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.DictionaryAttribute)) {
+              if (Kotlin.isType(o, _.org.kevoree.DictionaryAttribute) || Kotlin.isType(o, _.org.kevoree.impl.DictionaryAttributeImpl)) {
                 var context_8 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_8, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_8, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.DictionaryValue)) {
+              if (Kotlin.isType(o, _.org.kevoree.DictionaryValue) || Kotlin.isType(o, _.org.kevoree.impl.DictionaryValueImpl)) {
                 var context_9 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_9, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_9, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.CompositeType)) {
+              if (Kotlin.isType(o, _.org.kevoree.CompositeType) || Kotlin.isType(o, _.org.kevoree.impl.CompositeTypeImpl)) {
                 var context_10 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_10, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_10, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.PortTypeRef)) {
+              if (Kotlin.isType(o, _.org.kevoree.PortTypeRef) || Kotlin.isType(o, _.org.kevoree.impl.PortTypeRefImpl)) {
                 var context_11 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_11, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_11, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Wire)) {
+              if (Kotlin.isType(o, _.org.kevoree.Wire) || Kotlin.isType(o, _.org.kevoree.impl.WireImpl)) {
                 var context_12 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_12, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_12, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.ServicePortType)) {
+              if (Kotlin.isType(o, _.org.kevoree.ServicePortType) || Kotlin.isType(o, _.org.kevoree.impl.ServicePortTypeImpl)) {
                 var context_13 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_13, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_13, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Operation)) {
+              if (Kotlin.isType(o, _.org.kevoree.Operation) || Kotlin.isType(o, _.org.kevoree.impl.OperationImpl)) {
                 var context_14 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_14, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_14, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Parameter)) {
+              if (Kotlin.isType(o, _.org.kevoree.Parameter) || Kotlin.isType(o, _.org.kevoree.impl.ParameterImpl)) {
                 var context_15 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_15, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_15, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.TypedElement)) {
+              if (Kotlin.isType(o, _.org.kevoree.TypedElement) || Kotlin.isType(o, _.org.kevoree.impl.TypedElementImpl)) {
                 var context_16 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_16, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_16, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.MessagePortType)) {
+              if (Kotlin.isType(o, _.org.kevoree.MessagePortType) || Kotlin.isType(o, _.org.kevoree.impl.MessagePortTypeImpl)) {
                 var context_17 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_17, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_17, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Repository)) {
+              if (Kotlin.isType(o, _.org.kevoree.Repository) || Kotlin.isType(o, _.org.kevoree.impl.RepositoryImpl)) {
                 var context_18 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_18, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_18, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.DeployUnit)) {
+              if (Kotlin.isType(o, _.org.kevoree.DeployUnit) || Kotlin.isType(o, _.org.kevoree.impl.DeployUnitImpl)) {
                 var context_19 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_19, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_19, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.TypeLibrary)) {
+              if (Kotlin.isType(o, _.org.kevoree.TypeLibrary) || Kotlin.isType(o, _.org.kevoree.impl.TypeLibraryImpl)) {
                 var context_20 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_20, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_20, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.NamedElement)) {
+              if (Kotlin.isType(o, _.org.kevoree.NamedElement) || Kotlin.isType(o, _.org.kevoree.impl.NamedElementImpl)) {
                 var context_21 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_21, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_21, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.IntegrationPattern)) {
+              if (Kotlin.isType(o, _.org.kevoree.IntegrationPattern) || Kotlin.isType(o, _.org.kevoree.impl.IntegrationPatternImpl)) {
                 var context_22 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_22, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_22, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.ExtraFonctionalProperty)) {
+              if (Kotlin.isType(o, _.org.kevoree.ExtraFonctionalProperty) || Kotlin.isType(o, _.org.kevoree.impl.ExtraFonctionalPropertyImpl)) {
                 var context_23 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_23, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_23, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.PortTypeMapping)) {
+              if (Kotlin.isType(o, _.org.kevoree.PortTypeMapping) || Kotlin.isType(o, _.org.kevoree.impl.PortTypeMappingImpl)) {
                 var context_24 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_24, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_24, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Channel)) {
+              if (Kotlin.isType(o, _.org.kevoree.Channel) || Kotlin.isType(o, _.org.kevoree.impl.ChannelImpl)) {
                 var context_25 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_25, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_25, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.MBinding)) {
+              if (Kotlin.isType(o, _.org.kevoree.MBinding) || Kotlin.isType(o, _.org.kevoree.impl.MBindingImpl)) {
                 var context_26 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_26, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_26, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.NodeNetwork)) {
+              if (Kotlin.isType(o, _.org.kevoree.NodeNetwork) || Kotlin.isType(o, _.org.kevoree.impl.NodeNetworkImpl)) {
                 var context_27 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_27, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_27, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.NodeLink)) {
+              if (Kotlin.isType(o, _.org.kevoree.NodeLink) || Kotlin.isType(o, _.org.kevoree.impl.NodeLinkImpl)) {
                 var context_28 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_28, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_28, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.NetworkProperty)) {
+              if (Kotlin.isType(o, _.org.kevoree.NetworkProperty) || Kotlin.isType(o, _.org.kevoree.impl.NetworkPropertyImpl)) {
                 var context_29 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_29, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_29, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.ChannelType)) {
+              if (Kotlin.isType(o, _.org.kevoree.ChannelType) || Kotlin.isType(o, _.org.kevoree.impl.ChannelTypeImpl)) {
                 var context_30 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_30, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_30, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.TypeDefinition)) {
+              if (Kotlin.isType(o, _.org.kevoree.TypeDefinition) || Kotlin.isType(o, _.org.kevoree.impl.TypeDefinitionImpl)) {
                 var context_31 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_31, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_31, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Instance)) {
+              if (Kotlin.isType(o, _.org.kevoree.Instance) || Kotlin.isType(o, _.org.kevoree.impl.InstanceImpl)) {
                 var context_32 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_32, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_32, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.LifeCycleTypeDefinition)) {
+              if (Kotlin.isType(o, _.org.kevoree.LifeCycleTypeDefinition) || Kotlin.isType(o, _.org.kevoree.impl.LifeCycleTypeDefinitionImpl)) {
                 var context_33 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_33, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_33, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.Group)) {
+              if (Kotlin.isType(o, _.org.kevoree.Group) || Kotlin.isType(o, _.org.kevoree.impl.GroupImpl)) {
                 var context_34 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_34, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_34, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.GroupType)) {
+              if (Kotlin.isType(o, _.org.kevoree.GroupType) || Kotlin.isType(o, _.org.kevoree.impl.GroupTypeImpl)) {
                 var context_35 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_35, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_35, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.NodeType)) {
+              if (Kotlin.isType(o, _.org.kevoree.NodeType) || Kotlin.isType(o, _.org.kevoree.impl.NodeTypeImpl)) {
                 var context_36 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_36, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_36, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.AdaptationPrimitiveType)) {
+              if (Kotlin.isType(o, _.org.kevoree.AdaptationPrimitiveType) || Kotlin.isType(o, _.org.kevoree.impl.AdaptationPrimitiveTypeImpl)) {
                 var context_37 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_37, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_37, readOnly, mutableOnly);
               }
-              if (Kotlin.isType(o, _.org.kevoree.AdaptationPrimitiveTypeRef)) {
+              if (Kotlin.isType(o, _.org.kevoree.AdaptationPrimitiveTypeRef) || Kotlin.isType(o, _.org.kevoree.impl.AdaptationPrimitiveTypeRefImpl)) {
                 var context_38 = new Kotlin.HashMap(0);
                 o.getClonelazy(context_38, this.get_mainFactory(), mutableOnly);
                 return o.resolve(context_38, readOnly, mutableOnly);
@@ -2015,7 +2023,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.AdaptationPrimitiveType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.AdaptationPrimitiveType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.AdaptationPrimitiveTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -2151,7 +2159,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.AdaptationPrimitiveTypeRef)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.AdaptationPrimitiveTypeRef) || !Kotlin.isType(similarObj, _.org.kevoree.impl.AdaptationPrimitiveTypeRefImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -2503,7 +2511,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Channel)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Channel) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ChannelImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -3072,7 +3080,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ChannelType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ChannelType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ChannelTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -3616,7 +3624,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ComponentInstance)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ComponentInstance) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ComponentInstanceImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -4665,7 +4673,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ComponentType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ComponentType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ComponentTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -5955,7 +5963,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.CompositeType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.CompositeType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.CompositeTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -6668,7 +6676,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ContainerNode)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ContainerNode) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ContainerNodeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -8446,7 +8454,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ContainerRoot)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ContainerRoot) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ContainerRootImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -9057,7 +9065,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DeployUnit)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DeployUnit) || !Kotlin.isType(similarObj, _.org.kevoree.impl.DeployUnitImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -9409,7 +9417,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DictionaryAttribute)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DictionaryAttribute) || !Kotlin.isType(similarObj, _.org.kevoree.impl.DictionaryAttributeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -9637,7 +9645,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Dictionary)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Dictionary) || !Kotlin.isType(similarObj, _.org.kevoree.impl.DictionaryImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -10072,7 +10080,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DictionaryType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DictionaryType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.DictionaryTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -10273,7 +10281,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DictionaryValue)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.DictionaryValue) || !Kotlin.isType(similarObj, _.org.kevoree.impl.DictionaryValueImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -10508,7 +10516,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ExtraFonctionalProperty)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ExtraFonctionalProperty) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ExtraFonctionalPropertyImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -10859,7 +10867,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Group)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Group) || !Kotlin.isType(similarObj, _.org.kevoree.impl.GroupImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -11360,7 +11368,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.GroupType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.GroupType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.GroupTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -11603,7 +11611,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Instance)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Instance) || !Kotlin.isType(similarObj, _.org.kevoree.impl.InstanceImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -12007,7 +12015,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.IntegrationPattern)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.IntegrationPattern) || !Kotlin.isType(similarObj, _.org.kevoree.impl.IntegrationPatternImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -12524,7 +12532,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.LifeCycleTypeDefinition)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.LifeCycleTypeDefinition) || !Kotlin.isType(similarObj, _.org.kevoree.impl.LifeCycleTypeDefinitionImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -12733,7 +12741,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.MBinding)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.MBinding) || !Kotlin.isType(similarObj, _.org.kevoree.impl.MBindingImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -13276,7 +13284,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.MessagePortType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.MessagePortType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.MessagePortTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -13411,7 +13419,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NamedElement)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NamedElement) || !Kotlin.isType(similarObj, _.org.kevoree.impl.NamedElementImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -13751,7 +13759,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Namespace)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Namespace) || !Kotlin.isType(similarObj, _.org.kevoree.impl.NamespaceImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -13918,7 +13926,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NetworkProperty)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NetworkProperty) || !Kotlin.isType(similarObj, _.org.kevoree.impl.NetworkPropertyImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -14262,7 +14270,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NodeLink)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NodeLink) || !Kotlin.isType(similarObj, _.org.kevoree.impl.NodeLinkImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -14563,7 +14571,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NodeNetwork)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NodeNetwork) || !Kotlin.isType(similarObj, _.org.kevoree.impl.NodeNetworkImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -15291,7 +15299,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NodeType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.NodeType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.NodeTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -15674,7 +15682,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Operation)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Operation) || !Kotlin.isType(similarObj, _.org.kevoree.impl.OperationImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -15857,7 +15865,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Parameter)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Parameter) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ParameterImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -16112,7 +16120,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Port)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Port) || !Kotlin.isType(similarObj, _.org.kevoree.impl.PortImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -16570,7 +16578,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.PortType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.PortType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.PortTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -16722,7 +16730,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.PortTypeMapping)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.PortTypeMapping) || !Kotlin.isType(similarObj, _.org.kevoree.impl.PortTypeMappingImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -17045,7 +17053,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.PortTypeRef)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.PortTypeRef) || !Kotlin.isType(similarObj, _.org.kevoree.impl.PortTypeRefImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -17272,7 +17280,7 @@
               return null;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Repository)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Repository) || !Kotlin.isType(similarObj, _.org.kevoree.impl.RepositoryImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -17887,7 +17895,7 @@
               return tmp$2;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ServicePortType)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.ServicePortType) || !Kotlin.isType(similarObj, _.org.kevoree.impl.ServicePortTypeImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -18367,7 +18375,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.TypeDefinition)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.TypeDefinition) || !Kotlin.isType(similarObj, _.org.kevoree.impl.TypeDefinitionImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -18648,7 +18656,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.TypedElement)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.TypedElement) || !Kotlin.isType(similarObj, _.org.kevoree.impl.TypedElementImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -18917,7 +18925,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.TypeLibrary)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.TypeLibrary) || !Kotlin.isType(similarObj, _.org.kevoree.impl.TypeLibraryImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;
@@ -19155,7 +19163,7 @@
               return tmp$4;
             },
             modelEquals: function (similarObj) {
-              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Wire)) {
+              if (similarObj === null || similarObj === undefined || !Kotlin.isType(similarObj, _.org.kevoree.Wire) || !Kotlin.isType(similarObj, _.org.kevoree.impl.WireImpl)) {
                 return false;
               }
               var similarObjCasted = similarObj;

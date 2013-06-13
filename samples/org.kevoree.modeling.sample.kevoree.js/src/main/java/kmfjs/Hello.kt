@@ -7,6 +7,7 @@ import org.kevoree.serializer.JSONModelSerializer
 import org.kevoree.loader.JSONModelLoader
 import org.kevoree.ContainerRoot
 import java.io.ByteArrayInputStream
+import org.kevoree.cloner.ModelCloner
 
 /**
 * Created with IntelliJ IDEA.
@@ -49,6 +50,16 @@ fun myApp() : ContainerRoot? {
         element.appendChild(document.createTextNode("After reload in browser")!!)
         element.appendChild(document.createElement("br")!!)
         element.appendChild(document.createTextNode(oo2.result)!!)
+        element.appendChild(document.createElement("br")!!)
+
+
+        val cloner = ModelCloner();
+        val clonedRoot = cloner.clone(root);
+        val oo3 = OutputStream()
+        saver.serialize(clonedRoot!!,oo3)
+        element.appendChild(document.createTextNode("After cloned in browser")!!)
+        element.appendChild(document.createElement("br")!!)
+        element.appendChild(document.createTextNode(oo3.result)!!)
         element.appendChild(document.createElement("br")!!)
 
         return root;

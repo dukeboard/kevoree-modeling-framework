@@ -3,7 +3,13 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 
 override fun modelEquals(similarObj : Any?) : Boolean {
-    if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)})){
+
+#if($ctx.getJS())
+if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)}) || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass.getEPackage())}.impl.${currentClass.getName()}Impl) ){
+#else
+if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)})){
+#end
+
         return false
     }
     val similarObjCasted = similarObj as ${FQNHelper.fqn($ctx, $currentClass)}

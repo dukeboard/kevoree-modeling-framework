@@ -26,17 +26,21 @@ class ModelCloner {
     private fun clone<A>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {
 
         #foreach($potentialRoot in $potentialRoots)
-            if(o is ${helper.fqn($ctx,$potentialRoot)}) {
-            #if($ctx.jS)
+            #if(!$potentialRoot.getClass().getName().toLowerCase().contains("eenum"))
+
+                #if($ctx.getJS())
+                if(o is ${helper.fqn($ctx,$potentialRoot)} || o is ${helper.fqn($ctx,$potentialRoot.getEPackage())}.impl.${potentialRoot.getName()}Impl) {
                 val context = java.util.HashMap<Any,Any>()
             #else
+                if(o is ${helper.fqn($ctx,$potentialRoot)}) {
                 val context = java.util.IdentityHashMap<Any,Any>()
             #end
+
             (o as ${ctx.getKevoreeContainer().get()}).getClonelazy(context, mainFactory,mutableOnly)
             return (o as ${ctx.getKevoreeContainer().get()}).resolve(context,readOnly,mutableOnly) as A
             }
 
-
+           #end
         #end
         return null
     }

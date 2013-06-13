@@ -107,7 +107,7 @@ class RootLoader(ctx : GenerationContext) {
     pr.println("")
     //generateLoadElementsMethod(pr, rootContainerName, elementType)
 
-    ProcessorHelper.collectAllClassifiersInModel(model).foreach { cls =>
+    ProcessorHelper.collectAllClassifiersInModel(model).filter(proot => !proot.isInstanceOf[EEnum]).foreach { cls =>
       if(cls.isInstanceOf[EClass]) {
         if (!cls.asInstanceOf[EClass].isInterface && !cls.asInstanceOf[EClass].isAbstract) {
           val el = new BasicElementLoader(ctx, cls.asInstanceOf[EClass])

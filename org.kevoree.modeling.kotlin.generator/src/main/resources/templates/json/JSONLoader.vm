@@ -52,9 +52,12 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
 
                 when {
 #foreach($rootElement in $helper.collectAllClassifiersInModel($model))
-                    eclassValue.equals("${helper.fqn($ctx,$rootElement.getEPackage())}:$rootElement.getName()") -> {
-                        context.loadedRoots.add(load$rootElement.getName()(reader, context, "/" + loadedRootsSize))
-                    }
+    #if(!$rootElement.getClass().getName().toLowerCase().contains("eenum"))
+        eclassValue.equals("${helper.fqn($ctx,$rootElement.getEPackage())}:$rootElement.getName()") -> {
+            context.loadedRoots.add(load$rootElement.getName()(reader, context, "/" + loadedRootsSize))
+        }
+    #end
+
 #end
                     else -> { println("Unknown root type '" + eclassValue + "'. Loading of this element aborted.")}
                 }
