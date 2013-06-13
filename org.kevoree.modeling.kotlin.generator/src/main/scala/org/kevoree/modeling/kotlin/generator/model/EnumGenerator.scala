@@ -54,7 +54,13 @@ trait EnumGenerator {
     var formattedEnumName: String = en.getName.substring(0, 1).toUpperCase
     formattedEnumName += en.getName.substring(1)
 
-    val localFile = new File(currentPackageDir + "/" + formattedEnumName + ".kt")
+    var localFile : File = null;
+    if(ctx.getJS()){
+      localFile = new File(currentPackageDir + "/" + formattedEnumName + ".kt")
+    } else {
+      localFile = new File(currentPackageDir + "/" + formattedEnumName + ".java")
+    }
+
     val pr = new PrintWriter(localFile, "utf-8")
 
     val packageName = ProcessorHelper.fqn(ctx, packElement)
@@ -67,12 +73,30 @@ trait EnumGenerator {
     pr.println(ProcessorHelper.generateHeader(packElement))
 
     //Class core
-    pr.println("enum class " + formattedEnumName + " {")
+
+    if(ctx.getJS()){
+      pr.println("enum class " + formattedEnumName + " {")
+    } else {
+      pr.println("public enum " + formattedEnumName + " {")
+    }
+
+
     import scala.collection.JavaConversions._
+    var i = 0
     en.getELiterals.foreach {
       enumLit =>
+        if(i!=0){
+          if(!ctx.getJS()){
+             pr.println(",")
+          }
+        }
+
         pr.println(enumLit.getName.toUpperCase)
+        i = i + 1
     }
+
+
+
 
     pr.println("}")
 
