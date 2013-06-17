@@ -17,6 +17,8 @@ fun delete()
 
 fun modelEquals(similarObj : Any?) : Boolean
 
+fun getRefInParent() : String?
+
 #if(${ctx.genSelector})
     fun selectByQuery(query : String) : List<Any>
 #end

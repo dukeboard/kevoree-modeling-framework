@@ -42,6 +42,7 @@ public class KMFKotlinTest {
             model2 = doClone(model);
             doLookup(model, model2);
         }
+
         for (int i = 0; i < 100; i++) {
             File tempFile2 = File.createTempFile("tempKMFBenchSaved" + new Random().nextInt(), "xmi");
             FileOutputStream outS = new FileOutputStream(tempFile2);
@@ -150,7 +151,7 @@ public class KMFKotlinTest {
     public static void main(String[] args) throws InterruptedException, IOException {
         KMFKotlinTest m = new KMFKotlinTest();
 
-        List<String> files = Arrays.asList("bCMS.xmi", "dcrm.xmi", "flood.xmi","helloworld.xmi"/*,"LightFollower.xmi"*/);
+        List<String> files = Arrays.asList("bCMS.xmi", "dcrm.xmi", "flood.xmi","helloworld.xmi","LightFollower.xmi");
         for (String f : files) {
             m.doTest(f);
         }

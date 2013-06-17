@@ -17,9 +17,17 @@
 		
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
+		<module>kermeta/org.kevoree.modeling.sample.kermeta.js</module>
 		
 		<module>thingml/org.kevoree.modeling.sample.thingml.kt</module>
 		<module>thingml/org.kevoree.modeling.sample.thingml.emf</module>
+		
+		<module>cloudml/org.kevoree.modeling.sample.cloudml.kt</module>
+		<module>cloudml/org.kevoree.modeling.sample.cloudml.emf</module>
+		
+		<module>diva/org.kevoree.modeling.sample.diva.kt</module>
+		<module>diva/org.kevoree.modeling.sample.diva.emf</module>
+		
 		
 	</modules>
 

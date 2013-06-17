@@ -70,19 +70,16 @@ class ProcessorHelperClass {
 
   def convertJType(theType: String): String = {
     theType match {
-      case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"
+      case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "boolean"
       case "EString" | "java.lang.String" | "String" => "String"
-      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" => "Integer"
-      case "float" | "java.lang.Float" => "Float"
-      case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "Double"
-      case "long" | "java.lang.Long" => "Long"
+      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" => "int"
+      case "float" | "java.lang.Float" => "float"
+      case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "double"
+      case "long" | "java.lang.Long" => "long"
       case "java.lang.Object" => "Any"
-      case "java.util.Date" => "java.util.Date"
-      //case "org.eclipse.emf.common.util.EList" => "java.util.List<Object>"
-      case "byte[]" => "byte[]"
-      case "char" | "Char" => "Char"
-      case "java.math.BigInteger" => "java.math.BigInteger"
-      case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
+      case "char" | "Char" => "char"
+      case _ => theType
+      //case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
     }
   }
 

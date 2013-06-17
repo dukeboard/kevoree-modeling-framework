@@ -645,8 +645,7 @@ trait ClassGenerator extends ClonerGenerator {
             res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
 
             if (ref.isContainment) {
-              res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
-              res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
+              res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
             }
             res += "}\n"
 
@@ -655,8 +654,7 @@ trait ClassGenerator extends ClonerGenerator {
             res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
 
             if (ref.isContainment) {
-              res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null)\n"
-              res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+              res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
             }
 
             res += "}\n"
@@ -671,13 +669,11 @@ trait ClassGenerator extends ClonerGenerator {
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
                 res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
-                res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
-                res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
+                res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
                 res += "}\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
                 res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
-                res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null)\n"
-                res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+                res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
                 res += "}\n"
               }
             } else {
@@ -688,13 +684,11 @@ trait ClassGenerator extends ClonerGenerator {
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
                 res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
-                res += protectReservedWords("_" + ref.getName) + ".setEContainer(null,null)\n"
-                res += protectReservedWords("_" + ref.getName) + ".setContainmentRefName(null)\n"
+                res += protectReservedWords("_" + ref.getName) + ".setEContainer(null,null,null)\n"
                 res += "}\n"
                 res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
                 res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
-                res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null)\n"
-                res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+                res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
                 res += "}\n"
               }
 
@@ -708,37 +702,30 @@ trait ClassGenerator extends ClonerGenerator {
         // containment relation in noOpposite Method
         if (!ref.isRequired) {
           res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){\n"
-          res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null,null)\n"
-          res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setContainmentRefName(null)\n"
+          res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null,null,null)\n"
           res += "}\n"
           res += "if(" + protectReservedWords(ref.getName) + "!=null) {\n"
-          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(this,null)\n"
-          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
           res += "}\n"
         } else {
           res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
-          res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null, null)\n"
-          res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setContainmentRefName(null)\n"
+          res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n"
           res += "}\n"
           res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + " )\n"
-          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= _:" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "},\"" + protectReservedWords(ref.getName) + "\" )\n"
           res += "}\n"
         }
       } else {
         // containment with no opposite relation
         if (ref.isContainment && (ref.getEOpposite == null)) {
           if (ref.isMany) {
-            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")} )\n"
-            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")},\"" + protectReservedWords(ref.getName) + "\" )\n"
           } else {
             res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){\n"
-            res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null, null)\n"
-            res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
+            res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null, null,null)\n"
             res += "}\n"
             res += "if(" + protectReservedWords(ref.getName) + "!=null){\n"
-            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= null})\n"
-            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, {() -> " + protectReservedWords("_" + ref.getName) + "= null},\"" + protectReservedWords(ref.getName) + "\")\n"
             res += "}\n"
           }
         }
@@ -762,9 +749,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (ref.isContainment) {
         if (oppositRef != null) {
           res += "for(elem in " + protectReservedWords(ref.getName) + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
-
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)},\"" + protectReservedWords(ref.getName) + "\")\n"
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
             res += "(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
@@ -774,8 +759,7 @@ trait ClassGenerator extends ClonerGenerator {
           res += "}\n"
         } else {
           res += "for(elem in " + protectReservedWords(ref.getName) + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)})\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(elem)},\"" + protectReservedWords(ref.getName) + "\")\n"
           res += "}\n"
 
         }
@@ -850,8 +834,7 @@ trait ClassGenerator extends ClonerGenerator {
       res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
       if (ref.isContainment) {
 
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)})\n"
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(el)},\"" + protectReservedWords(ref.getName) + "\")\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
@@ -888,8 +871,7 @@ trait ClassGenerator extends ClonerGenerator {
     res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
 
     if (ref.isContainment) {
-      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")})\n"
-      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(\"" + protectReservedWords(ref.getName) + "\")\n"
+      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,{()->this.remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "(" + protectReservedWords(ref.getName) + ")},\"" + protectReservedWords(ref.getName) + "\")\n"
     }
 
     if (hasID(ref.getEReferenceType)) {
@@ -974,8 +956,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (ref.isContainment) {
       //TODO
-      res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
-      res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
+      res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
     }
 
     val oppositRef = ref.getEOpposite
@@ -1025,8 +1006,7 @@ trait ClassGenerator extends ClonerGenerator {
       }
 
       if (ref.isContainment) {
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null)\n"
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setContainmentRefName(null)\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
