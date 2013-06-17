@@ -65,6 +65,7 @@ trait ClassGenerator extends ClonerGenerator {
           case "Int" => pr.println("Int = 0")
           case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = false")
           case "java.lang.Object" | "Any" => pr.println("Any? = null")
+          case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println("Class<out jet.Any?>? = null")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
           case "float" | "Float" => "Float = 0"
           case "char" | "Char" => "Char = 'a'"
@@ -251,6 +252,7 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.lang.Object" | "Any" => pr.println("Any? = null")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
           case "float" | "Float" => "Float = 0"
+          case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println("Class<out jet.Any?>? = null")
           case "char" | "Char" => "Char = 'a'"
           case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
           case _@className => {
@@ -399,6 +401,8 @@ trait ClassGenerator extends ClonerGenerator {
           case "java.lang.Integer" => pr.println("Int")
           case "java.lang.Boolean" => pr.println("Boolean")
           case "java.lang.Object" | "Any" => pr.println("Any?")
+          case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println("Class<out jet.Any?>?")
+
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
           case _@className => {
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -455,7 +459,13 @@ trait ClassGenerator extends ClonerGenerator {
         } else if (ProcessorHelper.convertType(att.getEAttributeType) == "Any") {
           pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
         } else {
-          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+
+          if(ProcessorHelper.convertType(att.getEAttributeType).contains("Class")){
+            pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "? {\n")
+          } else {
+            pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+          }
+
         }
         pr.println(" return " + protectReservedWords("_" + att.getName) + "\n}")
         //generate setter

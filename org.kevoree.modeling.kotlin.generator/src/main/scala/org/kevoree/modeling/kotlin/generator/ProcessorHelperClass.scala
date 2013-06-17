@@ -76,8 +76,11 @@ class ProcessorHelperClass {
       case "float" | "java.lang.Float" => "float"
       case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "double"
       case "long" | "java.lang.Long" => "long"
-      case "java.lang.Object" => "Any"
+      case "java.lang.Object" => "Object"
       case "char" | "Char" => "char"
+      case "java.lang.Class" => "java.lang.Class"
+      case "org.eclipse.emf.common.util.Enumerator" => "Object"
+
       case _ => theType
       //case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
     }
@@ -94,10 +97,14 @@ class ProcessorHelperClass {
       case "long" | "java.lang.Long" => "Long"
       case "java.lang.Object" => "Any"
       case "java.util.Date" => "java.util.Date"
+
+      case "org.eclipse.emf.common.util.Enumerator" => "Any"
+
       //case "org.eclipse.emf.common.util.EList" => "java.util.List<Object>"
       case "byte[]" => "Array<Byte>"
       case "char" | "Char" => "Char"
       case "java.math.BigInteger" => "java.math.BigInteger"
+      case "java.lang.Class" => "Class<out jet.Any?>"
       case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
     }
   }
@@ -117,11 +124,15 @@ class ProcessorHelperClass {
       case "type" => "_type_"
       case "object" => "_object_"
       case "requires" => "_requires_"
+      case "transient" => "_transient_"
       case "package" => "_package_"
       case "default" => "_default_"
       case "interface" => "_interface_"
       case "enumeration" => "_enumeration_"
+      case "volatile" => "_volatile_"
+      case "abstract" => "_abstract_"
       case "enum" => "_enum_"
+      case "class" => "_class_"
       case _ => word //throw new UnsupportedOperationException("ProcessorHelper::protectReservedWords::No matching found for word: " + word);null
     }
   }

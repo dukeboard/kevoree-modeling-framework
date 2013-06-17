@@ -90,7 +90,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
-        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
+        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || ProcessorHelper.convertType(att.getEAttributeType).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
           //pr.println("@org.jetbrains.annotations.NotNull")
           pr.print("public " + ProcessorHelper.convertJType(att.getEAttributeType) + " get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "();" + "\n")
         } else {
@@ -190,7 +190,7 @@ trait JavaAPIGenerator extends ClassGenerator {
       res += "List<"
     }
 
-    res += protectReservedJWords(typeRefName)
+    res += ProcessorHelper.convertJType(typeRefName)
     if (!isSingleRef) {
       res += ">"
     }

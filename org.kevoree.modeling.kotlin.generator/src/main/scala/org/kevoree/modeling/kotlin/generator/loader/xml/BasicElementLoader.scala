@@ -34,8 +34,8 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext
 class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
   def generateLoader() {
-    if (!ctx.generatedLoaderFiles.contains(ProcessorHelper.fqn(ctx,elementType))) {
-      ctx.generatedLoaderFiles.add(ProcessorHelper.fqn(ctx,elementType))
+    if (!ctx.generatedLoaderFiles.contains(ProcessorHelper.fqn(ctx, elementType))) {
+      ctx.generatedLoaderFiles.add(ProcessorHelper.fqn(ctx, elementType))
       //Does not override existing file. Should have been removed before if required.
       generateSubs(elementType)
       generateElementLoadingMethod(ctx.loaderPrintWriter)
@@ -46,7 +46,9 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
   private def generateSubs(currentType: EClass): List[EClass] = {
     var listContainedElementsTypes = List[EClass]()
 
-    val subTypes = currentType.getEAllContainments.collect{ case ref:EReference => ref.getEReferenceType} ++ ProcessorHelper.getAllConcreteSubTypes(elementType)
+    val subTypes = currentType.getEAllContainments.collect {
+      case ref: EReference => ref.getEReferenceType
+    } ++ ProcessorHelper.getAllConcreteSubTypes(elementType)
 
     subTypes.foreach {
       _type =>
@@ -72,14 +74,14 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
 
   private def generateElementLoadingMethod(pr: PrintWriter) {
-    pr.println("private fun load" + elementType.getName + "Element(elementId: String, context : LoadingContext) : " + ProcessorHelper.fqn(ctx, elementType) + " {")
-    pr.println("")
+    pr.println("private fun load" + elementType.getName + "Element(elementId2: String, context : LoadingContext) : " + ProcessorHelper.fqn(ctx, elementType) + " {")
+    pr.println("var elementId: String = elementId2")
 
     val ePackageName = elementType.getEPackage.getName
 
     val references = elementType.getEAllReferences.filter(ref => !ref.isContainment)
     val concreteSubTypes = ProcessorHelper.getAllConcreteSubTypes(elementType)
-    if(concreteSubTypes.size > 0) {
+    if (concreteSubTypes.size > 0) {
 
       pr.println("var xsiType : String? = null")
       pr.println("if(context.xmiReader!!.getAttributeCount() > " + (elementType.getEAllAttributes.size() + references.size) + ") { //loadSubType")
@@ -96,13 +98,13 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("when {")
       concreteSubTypes.foreach {
         concreteType =>
-          pr.println("(xsiType != null) && (xsiType.equals(\"" + ProcessorHelper.fqn(ctx, concreteType.getEPackage) + ":" + concreteType.getName + "\") || xsiType!!.endsWith(\""+concreteType.getEPackage.getName.toLowerCase+":"+concreteType.getName+"\")) -> {")
+          pr.println("(xsiType != null) && (xsiType.equals(\"" + ProcessorHelper.fqn(ctx, concreteType.getEPackage) + ":" + concreteType.getName + "\") || xsiType!!.endsWith(\"" + concreteType.getEPackage.getName.toLowerCase + ":" + concreteType.getName + "\")) -> {")
 
           pr.println("return load" + concreteType.getName + "Element(elementId,context)")
           pr.println("}") // END WHEN CASE
       }
 
-      pr.println("xsiType == null || xsiType.equals(\"" + ProcessorHelper.fqn(ctx, elementType.getEPackage) + ":" + elementType.getName + "\") || xsiType!!.endsWith(\""+elementType.getEPackage.getName.toLowerCase+":"+elementType.getName+"\")-> {")
+      pr.println("xsiType == null || xsiType.equals(\"" + ProcessorHelper.fqn(ctx, elementType.getEPackage) + ":" + elementType.getName + "\") || xsiType!!.endsWith(\"" + elementType.getEPackage.getName.toLowerCase + ":" + elementType.getName + "\")-> {")
     }
 
     // DEFAULT BEHAVIOR
@@ -110,12 +112,40 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("val elementTagName = context.xmiReader!!.getLocalName()")
     }
 
-    pr.println("val modelElem = mainFactory.get"+ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory()"+".create" + elementType.getName + "()")
+    pr.println("val modelElem = mainFactory.get" + ePackageName.substring(0, 1).toUpperCase + ePackageName.substring(1) + "Factory()" + ".create" + elementType.getName + "()")
 
     pr.println("context.map.put(elementId, modelElem)")
     //TODO: REMOVE NEXT LiNE AFTER DEBUG
     pr.println("if(debug){System.out.println(\"Stored:\" + elementId)}")
+
+
     pr.println("")
+
+
+    def lookupWellFormedName(ec: EClass): Boolean = {
+      var namedElement = false
+      elementType.getEAnnotations.foreach {
+        eAnot =>
+          if (eAnot.getDetails.get("constraints").contains("WellFormedName")) {
+            namedElement = true
+          }
+      }
+      if (!namedElement) {
+        ec.getEAllSuperTypes.foreach {
+          sT =>
+            sT.getEAnnotations.foreach {
+              eAnot =>
+                if (eAnot.getDetails.get("constraints").contains("WellFormedName")) {
+                  namedElement = true
+                }
+            }
+        }
+      }
+      namedElement
+    }
+    val namedElement = lookupWellFormedName(elementType)
+
+
 
     if (elementType.getEAllAttributes.size() > 0 || references.size > 0) {
 
@@ -132,7 +162,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
           val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
           pr.println("\"" + att.getName + "\" -> {")
-          val FQattTypeName = ProcessorHelper.fqn(ctx,att.getEAttributeType)
+          val FQattTypeName = ProcessorHelper.fqn(ctx, att.getEAttributeType)
 
           if (att.getEAttributeType.isInstanceOf[EEnum]) {
             pr.println("modelElem." + methName + "(" + FQattTypeName + ".valueOf(valueAtt))")
@@ -143,12 +173,18 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
               case "String" => {
                 pr.println("modelElem." + methName + "(unescapeXml(valueAtt))")
               }
-              case "Boolean" | "Double" | "Int"  => {
-                pr.println("modelElem." + methName + "(valueAtt.to"+attTypeName+"())")
+              case "Boolean" | "Double" | "Int" => {
+                pr.println("modelElem." + methName + "(valueAtt.to" + attTypeName + "())")
               }
               case "Any" => {
                 pr.println("modelElem." + methName + "(valueAtt as " + attTypeName + ")")
               }
+              case "Class<out jet.Any?>" => {
+                //TODO do something :-) ObjectStream ?
+                //pr.println("modelElem." + methName + "(valueAtt as " + attTypeName + ")")
+              }
+
+
               case _@_type => {
                 pr.println("modelElem." + methName + "(valueAtt.to" + _type + "() as " + attTypeName + ")")
               }
@@ -173,9 +209,11 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
           pr.println("\"" + ref.getName + "\" -> {")
           pr.println("for(xmiRef in valueAtt.split(\" \")) {")
-          pr.println("val adjustedRef = if(xmiRef.startsWith(\"//\")){\"/0\" + xmiRef.substring(1)} else { xmiRef}")
 
-          if(ref.getEOpposite != null) {
+          pr.println("var adjustedRef = if(xmiRef.startsWith(\"#\")){xmiRef.substring(1)}else{xmiRef}")
+          pr.println("adjustedRef = if(adjustedRef.startsWith(\"//\")){\"/0\" + adjustedRef.substring(1)} else { adjustedRef}")
+
+          if (ref.getEOpposite != null) {
             pr.println("if(!context.isOppositeAlreadySet(elementId,adjustedRef)) {")
             pr.println("context.storeOppositeRelation(elementId,adjustedRef)")
           }
@@ -191,7 +229,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           pr.println("})") //Closure
           pr.println("}") // Else
 
-          if(ref.getEOpposite != null) {
+          if (ref.getEOpposite != null) {
             pr.println("}")
           }
           pr.println("}") // For
@@ -204,6 +242,17 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println(" }") // if prefix != null
       pr.println(" }") // For
 
+
+      //TODO check getName
+      if (namedElement) {
+        System.err.println("Warning NamedElement XMI compat !!! "+elementType.getName)
+        pr.println("var WellNamedID = elementId.substring(0,elementId.lastIndexOf(\"/\")+1) + modelElem.getName()")
+        pr.println("context.map.put(WellNamedID, modelElem)")
+        pr.println("if(debug){System.out.println(\"Stored:\" + WellNamedID)}")
+
+        pr.println("if(elementId != \"/0\"){elementId = WellNamedID}")
+
+      }
 
       pr.println("")
 
@@ -224,7 +273,9 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           val formattedReferenceName = refa.getName.substring(0, 1).toUpperCase + refa.getName.substring(1)
 
           if (!refa.isMany) {
+
             pr.println("val " + refa.getName + "ElementId = elementId + \"/@" + refa.getName + "\"")
+
             pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context))")
             //}
           } else {
@@ -252,10 +303,10 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
 
 
-    if(concreteSubTypes.size > 0) {
+    if (concreteSubTypes.size > 0) {
       pr.println("}") // END WHEN CASE
 
-      pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + xsiType+ \" elementId:\" + elementId);}")
+      pr.println("else -> {throw UnsupportedOperationException(\"Processor for " + elementType.getName + " has no mapping for type:\" + xsiType+ \" elementId:\" + elementId);}")
       pr.println("}") // END WHEN
     }
 
