@@ -3,14 +3,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.kevoree.modeling</groupId>
-    <artifactId>org.kevoree.modeling.sample.kermeta.js</artifactId>
+    <artifactId>org.kevoree.modeling.sample.kevoree.kt</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: Sample :: Kermeta :: JS</name>
+    <name>Kevoree :: Modeling :: Sample :: Kevoree :: Kotlin</name>
     <version>1.0.0-SNAPSHOT</version>
-
-    <properties>
-        <metamodel.ecore>metamodel/kermeta.ecore</metamodel.ecore>
-    </properties>
 
     <parent>
         <groupId>org.kevoree.modeling</groupId>
@@ -18,6 +14,10 @@
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+
+    <properties>
+        <metamodel.ecore>metamodel/kevoree.ecore</metamodel.ecore>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -49,8 +49,6 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>kmf</packagePrefix>
                             <clearOutput>false</clearOutput>
-                            <js>true</js>
-                            <json>true</json>
                         </configuration>
                     </execution>
                 </executions>
@@ -61,19 +59,13 @@
                 <version>${kotlin.version}</version>
                 <executions>
                     <execution>
-                        <id>js</id>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
                         <goals>
-                            <goal>js</goal>
+                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jetbrains.kotlin</groupId>
-                        <artifactId>kotlin-js-library</artifactId>
-                        <version>${kotlin.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>

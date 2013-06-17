@@ -3,13 +3,13 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.kevoree.modeling</groupId>
-    <artifactId>org.kevoree.modeling.sample.kermeta.js</artifactId>
+    <artifactId>org.kevoree.modeling.sample.kevoree.js</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: Sample :: Kermeta :: JS</name>
+    <name>Kevoree :: Modeling :: Sample :: Kevoree :: JS</name>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <metamodel.ecore>metamodel/kermeta.ecore</metamodel.ecore>
+        <metamodel.ecore>metamodel/kevoree.ecore</metamodel.ecore>
     </properties>
 
     <parent>
