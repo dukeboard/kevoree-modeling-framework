@@ -28,6 +28,8 @@ public void delete();
 
 @org.jetbrains.annotations.NotNull
 public boolean modelEquals(Object similarObj);
+@org.jetbrains.annotations.NotNull
+public boolean deepModelEquals(Object similarObj);
 
 @org.jetbrains.annotations.NotNull
 public Iterable<${packElem}.${formatedFactoryName}> containedElements();
