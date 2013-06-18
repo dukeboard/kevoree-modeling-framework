@@ -67,3 +67,45 @@ fun myApp() : ContainerRoot? {
     }
     return null;
 }
+
+    /*
+
+fun tesIt(){
+
+}
+
+class It : ListIterator<String> {
+    public override fun hasNext(): Boolean {
+        throw UnsupportedOperationException()
+    }
+    public override fun next(): String {
+        throw UnsupportedOperationException()
+    }
+    public override fun hasPrevious(): Boolean {
+        throw UnsupportedOperationException()
+    }
+    public override fun previous(): String {
+        throw UnsupportedOperationException()
+    }
+    public override fun nextIndex(): Int {
+        throw UnsupportedOperationException()
+    }
+    public override fun previousIndex(): Int {
+        throw UnsupportedOperationException()
+    }
+
+} */
+
+/*
+class Mut : MutableIterator<String> {
+    public override fun remove() {
+        throw UnsupportedOperationException()
+    }
+    public override fun next(): String {
+        throw UnsupportedOperationException()
+    }
+    public override fun hasNext(): Boolean {
+        throw UnsupportedOperationException()
+    }
+
+}   */

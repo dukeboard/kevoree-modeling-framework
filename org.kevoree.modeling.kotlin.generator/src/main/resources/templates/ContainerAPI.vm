@@ -16,6 +16,7 @@ fun setInternalReadOnly()
 fun delete()
 
 fun modelEquals(similarObj : Any?) : Boolean
+fun deepModelEquals(similarObj : Any?) : Boolean
 
 fun getRefInParent() : String?
 
