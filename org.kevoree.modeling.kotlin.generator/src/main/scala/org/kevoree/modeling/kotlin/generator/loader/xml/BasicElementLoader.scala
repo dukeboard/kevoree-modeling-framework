@@ -126,7 +126,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       var namedElement = false
       elementType.getEAnnotations.foreach {
         eAnot =>
-          if (eAnot.getDetails.get("constraints").contains("WellFormedName")) {
+          if (eAnot.getDetails.get("constraints") != null && eAnot.getDetails.get("constraints").contains("WellFormedName")) {
             namedElement = true
           }
       }
@@ -135,7 +135,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           sT =>
             sT.getEAnnotations.foreach {
               eAnot =>
-                if (eAnot.getDetails.get("constraints").contains("WellFormedName")) {
+                if (eAnot.getDetails.get("constraints") != null && eAnot.getDetails.get("constraints").contains("WellFormedName")) {
                   namedElement = true
                 }
             }
