@@ -17,6 +17,7 @@ trait ${formatedFactoryName}Impl {
     internal open var internal_recursive_readOnlyElem : Boolean
 
     open fun setRecursiveReadOnly()
+    open fun reflexiveSetters(method : String, value : Any?)
 
     fun setInternalReadOnly(){
         internal_readOnlyElem = true

@@ -1,0 +1,7 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
+
+public trait ResolveCommand {
+    open fun execute()
+}

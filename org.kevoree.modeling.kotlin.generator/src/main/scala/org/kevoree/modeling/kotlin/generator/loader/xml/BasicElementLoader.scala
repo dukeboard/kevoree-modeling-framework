@@ -221,12 +221,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           pr.println("if( ref != null) {")
           pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
           pr.println("} else {")
-          pr.println("context.resolvers.add({()->")
-          pr.println("val " + ref.getName + "Ref = context.map.get(adjustedRef)")
-          pr.println("if(" + ref.getName + "Ref != null) {")
-          pr.println("modelElem." + methName + "(" + ref.getName + "Ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
-          pr.println("} else { throw Exception(\"KMF Load error : " + ref.getEReferenceType.getName + " not found in map ! xmiRef:\" + adjustedRef)}")
-          pr.println("})") //Closure
+          pr.println("context.resolvers.add(XMIResolveCommand(context, modelElem, \""+methName+"\", adjustedRef))")
           pr.println("}") // Else
 
           if (ref.getEOpposite != null) {
@@ -298,6 +293,8 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("}") //Match
       pr.println("}") //while
       pr.println("")
+    } else {
+      pr.println("context.xmiReader!!.nextTag()")
     }
     pr.println("return (modelElem as " + ProcessorHelper.fqn(ctx, elementType) + ")")
 

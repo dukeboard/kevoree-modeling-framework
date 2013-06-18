@@ -66,7 +66,11 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
             }
             reader.endObject()
         }
-        for(res in context.resolvers) {res()}
+
+        for(res in context.resolvers) {
+            res.execute()
+        }
+
         return context.loadedRoots
     }
 
@@ -209,6 +213,13 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
                             modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(ref as $helper.fqn($ctx, $ref.getEReferenceType()))
                             #end
                         } else {
+                            #if($ref.isMany())
+                            context.resolvers.add(JSONResolveCommand(context, modelElem,"add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
+                             #else
+                             context.resolvers.add(JSONResolveCommand(context, modelElem,"set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
+                            #end
+
+                            #*
                             context.resolvers.add({()->
                             var $ref.getName()Ref = context.map.get(adjustedRef)
                             var i = 0
@@ -224,6 +235,7 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
                                 #end
                             } else { throw Exception("KMF Load error : $ref.getEReferenceType().getName() not found in map ! xmiRef:" + adjustedRef)}
                             })
+                            *#
                         }
                     #if($ref.isMany())
                     }

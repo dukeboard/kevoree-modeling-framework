@@ -59,6 +59,7 @@ class LoaderGenerator(ctx : GenerationContext) {
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
         val el = new RootLoader(ctx)
+        el.generateXMIResolveCommand()
         el.generateLoader(model)
   }
 

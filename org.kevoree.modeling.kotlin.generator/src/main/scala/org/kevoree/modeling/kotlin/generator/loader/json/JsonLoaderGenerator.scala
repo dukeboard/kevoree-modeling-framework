@@ -66,6 +66,7 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
   def generateLoader(model: XMIResource) {
 
     generateStaticJSONClasses()
+    generateJSONResolveCommand()
     if (ctx.getJS()) {
       generateJSStaticJSONClasses()
       generateContext()
@@ -97,6 +98,21 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
     ctx.loaderPrintWriter.close()
   }
 
+  def generateJSONResolveCommand() {
+    val genOutputStreamFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator + "JSONResolveCommand.kt")
+    val outputStream = new PrintWriter(genOutputStreamFile, "utf-8")
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template1 = ve.getTemplate("templates" + File.separator + "JSONResolveCommand.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("ctx", ctx)
+
+    template1.merge(ctxV, outputStream)
+    outputStream.flush()
+    outputStream.close()
+  }
 
   private def generateJSStaticJSONClasses() {
     //static IO
@@ -141,7 +157,6 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
         OutputStream.close()
     }
   }
-
 
   private def generateStaticJSONClasses() {
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"

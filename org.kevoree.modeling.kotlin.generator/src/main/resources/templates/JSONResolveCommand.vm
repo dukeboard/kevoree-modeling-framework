@@ -1,0 +1,17 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
+
+public class JSONResolveCommand(val context : LoadingContext, val target : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer, val method : String, val ref : String) : ResolveCommand {
+    override fun execute() {
+        var referencedElement = context.map.get(ref)
+        var i = 0
+        while(referencedElement == null && i < context.loadedRoots.size()) {
+            referencedElement = (context.loadedRoots.get(i++) as? ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer)?.findByPath(ref)
+        }
+
+        if(referencedElement != null) {
+            target.reflexiveSetters(method, referencedElement)
+        } else { throw Exception("KMF Load error : reference " + ref + " not found in map when trying to "+method+" on " + target.toString())}
+    }
+}

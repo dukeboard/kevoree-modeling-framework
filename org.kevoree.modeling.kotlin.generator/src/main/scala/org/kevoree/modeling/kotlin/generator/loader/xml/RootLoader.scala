@@ -132,6 +132,22 @@ class RootLoader(ctx : GenerationContext) {
     el.generateContext()
   }
 
+  def generateXMIResolveCommand() {
+    val genOutputStreamFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator + "XMIResolveCommand.kt")
+    val outputStream = new PrintWriter(genOutputStreamFile, "utf-8")
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template1 = ve.getTemplate("templates" + File.separator + "XMIResolveCommand.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("ctx", ctx)
+
+    template1.merge(ctxV, outputStream)
+    outputStream.flush()
+    outputStream.close()
+  }
+
 
   private def generateUnescapeXmlMathod(pr : PrintWriter) {
     val ve = new VelocityEngine()
@@ -148,7 +164,7 @@ class RootLoader(ctx : GenerationContext) {
   private def generateFactorySetter(pr: PrintWriter) {
     pr.println("private var mainFactory : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory = "+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory()")
     ctx.packageFactoryMap.values().foreach{factoryFqn =>
-      //val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
+    //val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
       val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
       pr.println("fun set"+factoryName+"(fct : " + factoryFqn + ") { mainFactory.set"+factoryName+ "(fct)}")
       //pr.println("fun get"+factoryName+"() : "+factoryFqn+" { return mainFactory.get"+factoryName+ "()}")
@@ -235,14 +251,18 @@ class RootLoader(ctx : GenerationContext) {
     pr.println("}")//When
     pr.println("}")//while
 
-    pr.println("for(res in context.resolvers) {res()}")
+    //pr.println("for(res in context.resolvers) {res()}")
+
+    pr.println("for(res in context.resolvers) {")
+    pr.println("  res.execute()")
+    pr.println("}")
 
     pr.println("return context.loadedRoots")
 
     pr.println("}")
   }
 
-
+/*
   private def generateLoadElementsMethod(pr: PrintWriter, rootContainerName: String, elementType: EClass) {
 
     val ePackageName = elementType.getEPackage.getName
@@ -381,6 +401,6 @@ class RootLoader(ctx : GenerationContext) {
     pr.println("}") // Method
     pr.println("")
 
-  }
+  }*/
 
 }

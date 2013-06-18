@@ -201,6 +201,10 @@ trait ClassGenerator extends ClonerGenerator {
     // Getters and Setters Generation
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
 
+    //if(cls.getEAllReferences.exists{ c => !c.isContainment }) {
+      generateFlatReflexiveSetters(ctx, cls, pr)
+   // }
+
     //GENERATE CLONE METHOD
     generateCloneMethods(ctx, cls, pr, packElement)
     generateKMFQLMethods(pr, cls, ctx, pack)
@@ -218,6 +222,24 @@ trait ClassGenerator extends ClonerGenerator {
 
   }
 
+  def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
+    pr.println("override fun reflexiveSetters(method : String, value : Any?) {")
+    if(!cls.getEAllReferences.exists{ c => !c.isContainment }) { pr.println("}"); return}
+    pr.println("  when(method) {")
+    cls.getEAllReferences.foreach { ref =>
+      if(!ref.isContainment) {
+        var methodName = if(ref.isMany) { "add" } else { "set" }
+        methodName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+        val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+        pr.println("   \""+methodName+"\" -> {")
+        pr.println("      this."+methodName+"(value as "+valueType+")")
+        pr.println("    }")
+      }
+    }
+    pr.println("    else -> {}")
+    pr.println("  }")
+    pr.println("}")
+  }
 
   def generateFlatClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
 
@@ -332,6 +354,7 @@ trait ClassGenerator extends ClonerGenerator {
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
     //GENERATE CLONE METHOD
     generateCloneMethods(ctx, cls, pr, packElement)
+    generateFlatReflexiveSetters(ctx, cls, pr)
     generateKMFQLMethods(pr, cls, ctx, pack)
     if (ctx.genSelector) {
       generateSelectorMethods(pr, cls, ctx)

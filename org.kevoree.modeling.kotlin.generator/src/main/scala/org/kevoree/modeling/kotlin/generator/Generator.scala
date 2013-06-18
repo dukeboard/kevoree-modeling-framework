@@ -124,6 +124,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
   private def checkOrGenerateLoaderApi() {
     val apiGenerator = new LoaderApiGenerator(ctx)
     apiGenerator.generateLoaderAPI()
+    apiGenerator.generateResolveCommand()
   }
 
   def generateLoader() {

@@ -69,7 +69,7 @@ class ContextGenerator(ctx:GenerationContext) {
     pr.println()
     pr.println("\t\tval elementsCount : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()")
     pr.println()
-    pr.println("\t\tval resolvers : MutableList<() -> Unit> = java.util.ArrayList<() -> Unit>()")
+    pr.println("\t\tval resolvers : java.util.ArrayList<ResolveCommand> = java.util.ArrayList<ResolveCommand>()")
     pr.println()
     pr.println("\t\tval stats : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()")
     pr.println()
