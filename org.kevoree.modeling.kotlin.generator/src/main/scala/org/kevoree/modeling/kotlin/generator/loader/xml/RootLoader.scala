@@ -138,7 +138,7 @@ class RootLoader(ctx : GenerationContext) {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template1 = ve.getTemplate("templates" + File.separator + "XMIResolveCommand.vm")
+    val template1 = ve.getTemplate("templates" + File.separator + "commands" + File.separator + "XMIResolveCommand.vm")
     val ctxV = new VelocityContext()
     ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
     ctxV.put("ctx", ctx)
