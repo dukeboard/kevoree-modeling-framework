@@ -6,7 +6,7 @@ package ${packElem}
 trait ${formatedFactoryName}Impl {
 
     internal open var internal_eContainer : ${packElem}.${formatedFactoryName}?
-    internal open var internal_unsetCmd : (()->Unit)?
+    internal open var internal_unsetCmd : RemoveFromContainerCommand?
 
     fun eContainer() : ${packElem}.${formatedFactoryName}? { return internal_eContainer }
 
@@ -27,7 +27,6 @@ trait ${formatedFactoryName}Impl {
         return internal_containmentRefName
     }
 
-
     fun isReadOnly() : Boolean {
         return internal_readOnlyElem
     }
@@ -36,14 +35,14 @@ trait ${formatedFactoryName}Impl {
         return internal_recursive_readOnlyElem
     }
 
-    fun setEContainer( container : ${packElem}.${formatedFactoryName}?, unsetCmd : (()->Unit)?, refNameInParent : String? ) {
+    fun setEContainer( container : ${packElem}.${formatedFactoryName}?, unsetCmd : RemoveFromContainerCommand?, refNameInParent : String? ) {
 
         if(internal_readOnlyElem){return}
 
         val tempUnsetCmd = internal_unsetCmd
         internal_unsetCmd = null
         if(tempUnsetCmd != null){
-            tempUnsetCmd()
+            tempUnsetCmd.run()
         }
         internal_eContainer = container
         internal_unsetCmd = unsetCmd

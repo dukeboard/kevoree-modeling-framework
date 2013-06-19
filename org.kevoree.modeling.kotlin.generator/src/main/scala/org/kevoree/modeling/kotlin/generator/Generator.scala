@@ -91,6 +91,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val modelGen = new ModelGenerator(ctx)
     modelGen.generateContainerAPI(ctx)
     modelGen.generateContainerTrait(ctx)
+    modelGen.generateRemoveFromContainerCommand(ctx)
 
     System.out.println("Launching model generation")
     modelGen.process(model, modelVersion)

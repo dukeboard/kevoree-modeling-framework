@@ -141,4 +141,21 @@ trait TraitGenerator {
 
   }
 
+  def generateRemoveFromContainerCommand(ctx: GenerationContext) {
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + "RemoveFromContainerCommand.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/commands/RemoveFromContainerCommand.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("ctx",ctx)
+    ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    template.merge(ctxV,pr)
+    pr.flush()
+    pr.close()
+  }
+
 }

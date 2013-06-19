@@ -90,7 +90,7 @@ class LoaderApiGenerator(ctx : GenerationContext) {
       val ve = new VelocityEngine()
       ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
       ve.init()
-      val template = ve.getTemplate("templates/ResolveCommand.vm")
+      val template = ve.getTemplate("templates/commands/ResolveCommand.vm")
       val ctxV = new VelocityContext()
 
       ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
