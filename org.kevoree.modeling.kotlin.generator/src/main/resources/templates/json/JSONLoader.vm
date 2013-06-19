@@ -68,7 +68,7 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
         }
 
         for(res in context.resolvers) {
-            res.execute()
+            res.run()
         }
 
         return context.loadedRoots

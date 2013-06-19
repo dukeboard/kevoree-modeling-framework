@@ -3,7 +3,7 @@
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
 public class XMIResolveCommand(val context : LoadingContext, val target : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer, val method : String, val ref : String) : ResolveCommand {
-    override fun execute() {
+    override fun run() {
         val referencedElement = context.map.get(ref)
         if(referencedElement != null) {
             target.reflexiveSetters(method, referencedElement)

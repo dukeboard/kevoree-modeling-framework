@@ -3,5 +3,5 @@
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
 public trait ResolveCommand {
-    open fun execute()
+    open fun run()
 }
