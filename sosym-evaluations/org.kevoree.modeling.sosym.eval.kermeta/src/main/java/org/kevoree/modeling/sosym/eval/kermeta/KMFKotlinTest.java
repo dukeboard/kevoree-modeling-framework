@@ -88,13 +88,15 @@ public class KMFKotlinTest {
         doLookup(model, model2);
         System.out.println("Lookup time : " + (lastLookupTime / 1));
 
+
         Double fullSaveTime = 0d;
+        /*
         for(int i=0;i<10;i++){
             File tempFile2 = File.createTempFile("tempKMFBenchSaved"+new Random().nextInt(), "xmi");
             FileOutputStream outS = new FileOutputStream(tempFile2);
             doSave(model, outS);
             fullSaveTime = fullSaveTime + lastSaveTime;
-        }
+        }  */
         System.out.println("Save time : " + (fullSaveTime / 10)+",full="+fullSaveTime);
     }
 

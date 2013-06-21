@@ -132,7 +132,7 @@ trait ClonerGenerator {
     buffer.println("\t\tsubResult.put(this,selfObjectClone)")
 
 
-    if (ctx.getJS()) {
+    if (/*ctx.getJS()*/true) {    //TODO evaluate if bad optimisation
       cls.getEAllContainments.foreach {
         contained =>
           val implExt = if (ctx.getGenFlatInheritance) {
@@ -243,7 +243,7 @@ trait ClonerGenerator {
     }
     //RECUSIVE CALL ON ECONTAINEMENT
 
-    if (ctx.getJS()) {
+    if (/*ctx.getJS()*/true) {
       cls.getEAllContainments.foreach {
         contained =>
           val implExt = if (ctx.getGenFlatInheritance) {
