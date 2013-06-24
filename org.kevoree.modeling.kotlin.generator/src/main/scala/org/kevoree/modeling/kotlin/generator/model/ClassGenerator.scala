@@ -52,22 +52,25 @@ trait ClassGenerator extends ClonerGenerator {
     //pr.println("override internal var containedIterable : Iterable<"+ctx.getKevoreeContainer.get+">? = null")
 
 
+
+
     //  }
     //generate init
     cls.getEAllAttributes.foreach {
       att => {
+        val defaultValue = att.getDefaultValueLiteral
         pr.print("override internal var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("String = \"\"")
           case "String" => pr.println("String = \"\"")
-          case "Double" => pr.println("Double = 0.0")
-          case "java.lang.Integer" => pr.println("Int = 0")
-          case "Int" => pr.println("Int = 0")
-          case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = false")
+          case "Double" => pr.println("Double = "+{if(defaultValue == null){"0.0"}else{defaultValue}})
+          case "java.lang.Integer" => pr.println("Int = "+{if(defaultValue == null){"0"}else{defaultValue}})
+          case "Int" => pr.println("Int = "++{if(defaultValue == null){"0"}else{defaultValue}})
+          case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = "+{if(defaultValue == null){"false"}else{defaultValue}} )
           case "java.lang.Object" | "Any" => pr.println("Any? = null")
           case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println("Class<out jet.Any?>? = null")
           case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case "float" | "Float" => "Float = 0"
+          case "float" | "Float" => "Float = "+{if(defaultValue == null){"0"}else{defaultValue}}
           case "char" | "Char" => "Char = 'a'"
           case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
           case _@className => {
@@ -266,18 +269,19 @@ trait ClassGenerator extends ClonerGenerator {
     //generate init
     cls.getEAllAttributes.foreach {
       att => {
-        pr.print("internal var " + protectReservedWords("_" + att.getName) + " : ")
+        val defaultValue = att.getDefaultValueLiteral
+        pr.print("override internal var " + protectReservedWords("_" + att.getName) + " : ")
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "java.lang.String" => pr.println("String = \"\"")
           case "String" => pr.println("String = \"\"")
-          case "Double" => pr.println("Double = 0.0")
-          case "java.lang.Integer" => pr.println("Int = 0")
-          case "Int" => pr.println("Int = 0")
-          case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = false")
+          case "Double" => pr.println("Double = "+{if(defaultValue == null){"0.0"}else{defaultValue}})
+          case "java.lang.Integer" => pr.println("Int = "+{if(defaultValue == null){"0"}else{defaultValue}})
+          case "Int" => pr.println("Int = "++{if(defaultValue == null){"0"}else{defaultValue}})
+          case "Boolean" | "java.lang.Boolean" => pr.println("Boolean = "+{if(defaultValue == null){"false"}else{defaultValue}} )
           case "java.lang.Object" | "Any" => pr.println("Any? = null")
-          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case "float" | "Float" => "Float = 0"
           case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println("Class<out jet.Any?>? = null")
+          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+          case "float" | "Float" => "Float = "+{if(defaultValue == null){"0"}else{defaultValue}}
           case "char" | "Char" => "Char = 'a'"
           case "java.math.BigInteger" => "java.math.BigInteger = java.math.BigInteger.ZERO"
           case _@className => {
