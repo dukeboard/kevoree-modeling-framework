@@ -10,7 +10,7 @@
 
     <properties>
     	<kotlin.version>0.5.748</kotlin.version>
-		<kmf.version>1.3.0-BETA4-SNAPSHOT</kmf.version>
+		<kmf.version>1.3.0-BETA5-SNAPSHOT</kmf.version>
         <emf.version>2.7.0</emf.version>
     </properties>
 
@@ -33,12 +33,8 @@
 
     <repositories>
           <repository>
-              <id>kevoree-libs-release-local</id>
-              <url>http://maven.kevoree.org/release</url>
-          </repository>
-          <repository>
               <id>kevoree-snapshots</id>
-              <url>http://maven.kevoree.org/snapshots</url>
+              <url>https://oss.sonatype.org/content/groups/public/</url>
           </repository>
           <repository>
               <id>jetbrains-release</id>
@@ -48,12 +44,8 @@
 
       <pluginRepositories>
           <pluginRepository>
-              <id>plugin.kevoree-github</id>
-              <url>http://maven.kevoree.org/release</url>
-          </pluginRepository>
-          <pluginRepository>
               <id>plugin.kevoree-snapshots</id>
-              <url>http://maven.kevoree.org/snapshots</url>
+              <url>https://oss.sonatype.org/content/groups/public/</url>
           </pluginRepository>
           <pluginRepository>
               <id>jetbrains-release</id>
