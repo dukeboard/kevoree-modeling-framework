@@ -291,7 +291,7 @@ trait KMFQLFinder {
         if (hasFindByIDMethod(ref.getEReferenceType)) {
           pr.println("objFound.findByPath(subquery)")
         } else {
-          pr.println("throw Exception(\"KMFQL : rejected sucessor\")")
+          pr.println("throw Exception(\"KMFQL : rejected sucessor\"+relationName+\" from "+cls.getName+"\")")
         }
         pr.println("} else {objFound}")
         pr.println("}")
