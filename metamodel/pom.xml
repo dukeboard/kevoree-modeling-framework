@@ -32,6 +32,10 @@
 	</modules>
 
     <repositories>
+        <repository>
+            <id>kevoree-release</id>
+            <url>http://maven.kevoree.org/release/</url>
+        </repository>
           <repository>
               <id>kevoree-snapshots</id>
               <url>https://oss.sonatype.org/content/groups/public/</url>
@@ -43,6 +47,10 @@
       </repositories>
 
       <pluginRepositories>
+          <pluginRepository>
+              <id>plugin.kevoree-release</id>
+              <url>http://maven.kevoree.org/release/</url>
+          </pluginRepository>
           <pluginRepository>
               <id>plugin.kevoree-snapshots</id>
               <url>https://oss.sonatype.org/content/groups/public/</url>
