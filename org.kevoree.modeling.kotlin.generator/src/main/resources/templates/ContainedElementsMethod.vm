@@ -18,10 +18,15 @@ when (i) {
     #set($i=0)
     #foreach( $ref in $currentClass.getEAllContainments())
         $i -> {
-        #if(${ref.getEReferenceType().getEIDAttribute()})
-        _${ref.getName()}.values()
-        #else
-        _${ref.getName()}
+
+        #if($ref.isMany())
+            #if(${ref.getEReferenceType().getEIDAttribute()})
+            _${ref.getName()}.values()
+            #else
+            _${ref.getName()}
+            #end
+         #else
+            _${ref.getName()}
         #end
     }
         #set($i=$i+1)
