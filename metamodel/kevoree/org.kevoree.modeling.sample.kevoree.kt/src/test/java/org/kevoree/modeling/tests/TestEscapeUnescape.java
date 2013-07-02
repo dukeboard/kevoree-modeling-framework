@@ -30,7 +30,7 @@ public class TestEscapeUnescape {
             KevoreeFactory factory = new DefaultKevoreeFactory();
             ContainerRoot root = factory.createContainerRoot();
             Group group = factory.createGroup();
-            String groupName = "aaa\n\r\tbbb";
+            String groupName = "aaa\\n\\r\\tbbb";
 
             group.setName(groupName);
             root.addGroups(group);
