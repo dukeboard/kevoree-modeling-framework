@@ -104,7 +104,15 @@ class JsonReader(ins: InputStream) {
         val t = token as Token
         var ret: Boolean = false
         if (t.tokenType == Type.VALUE) {
+#if($ctx.jS)
+            when (t.value) {
+                "true", true -> ret = true
+                "false", false -> ret = false
+                else -> ret = false
+            }
+#else
             ret = t.value as Boolean
+#end
             token = null
         } else {
             throw IllegalStateException("Expected VALUE(Boolean) but was " + peek());
