@@ -30,6 +30,11 @@
             <artifactId>annotations</artifactId>
             <version>117.157</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+        </dependency>
     </dependencies>
 
     <build>
