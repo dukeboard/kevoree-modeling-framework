@@ -54,8 +54,11 @@ package org.kevoree.modeling.kotlin.generator.model
 import org.eclipse.emf.ecore.{EReference, EEnum, EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
-import java.io.{PrintWriter, File}
+import java.io.{Writer, PrintWriter, File}
 import scala.collection.JavaConversions._
+import com.squareup.javawriter.JavaWriter
+import java.lang.reflect.Modifier
+import java.util
 
 /**
  * Created with IntelliJ IDEA.
@@ -66,37 +69,52 @@ import scala.collection.JavaConversions._
 trait JavaAPIGenerator extends ClassGenerator {
 
   def generateJAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
+
+
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".java")
     val pr = new PrintWriter(localFile, "utf-8")
-    val pack = ProcessorHelper.fqn(ctx, packElement)
-    pr.println("package " + pack + ";")
-    pr.println()
+    val jwriter = new JavaWriter(pr)
+
+    val packName = ProcessorHelper.fqn(ctx, packElement)
+    jwriter.emitPackage(packName)
+
     pr.println(generateHeader(packElement))
-    pr.println("import java.util.List;")
-    pr.print("public interface " + cls.getName)
-    pr.println((generateSuperTypes(ctx, cls, packElement) match {
-      case None => "{"
-      case Some(s) => s.replace(":", "extends") + " {"
-    }))
-    generateJAllGetterSetterMethod(pr, cls, ctx, pack)
-    pr.println("}")
+
+    jwriter.emitImports("java.util.List")
+
+    val superTypes = new Array[String](cls.getESuperTypes.size())
+    var i = 0
+    cls.getESuperTypes.foreach {
+      superType => superTypes(i) = fqn(ctx, superType)
+        i = i + 1
+    }
+    jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT,ctx.getKevoreeContainer.get,superTypes : _*)
+    generateJAllGetterSetterMethod(pr,jwriter, cls, ctx, packName)
+    jwriter.endType()
     pr.flush()
     pr.close()
 
 
   }
 
-  private def generateJAllGetterSetterMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
+  private def toCamelCase(name : String) : String = {
+    name.substring(0, 1).toUpperCase + name.substring(1)
+  }
+
+
+  private def generateJAllGetterSetterMethod(pr : PrintWriter,jwriter: JavaWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
+        val methodName = "get"+toCamelCase(att.getName)
         if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || ProcessorHelper.convertType(att.getEAttributeType).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
-          //pr.println("@org.jetbrains.annotations.NotNull")
-          pr.print("public " + ProcessorHelper.convertJType(att.getEAttributeType) + " get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "();" + "\n")
+          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType),methodName,Modifier.PUBLIC | Modifier.ABSTRACT)
         } else {
-          pr.println("@org.jetbrains.annotations.NotNull")
-          pr.print("public " + ProcessorHelper.convertJType(att.getEAttributeType) + " get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "();\n")
+          jwriter.emitAnnotation("org.jetbrains.annotations.NotNull")
+          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType),methodName,Modifier.PUBLIC | Modifier.ABSTRACT)
         }
+        jwriter.endMethod()
+
         //generate setter
         pr.print("\n public void set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
         pr.print("(@org.jetbrains.annotations.NotNull " + ProcessorHelper.convertJType(att.getEAttributeType) + " " + ProcessorHelper.protectReservedJWords(att.getName) + " ); \n")
