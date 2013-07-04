@@ -88,7 +88,12 @@ trait JavaAPIGenerator extends ClassGenerator {
       superType => superTypes(i) = fqn(ctx, superType)
         i = i + 1
     }
-    jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT,ctx.getKevoreeContainer.get,superTypes : _*)
+    if(superTypes.size == 0) {
+      jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT,ctx.getKevoreeContainer.get, superTypes:_*)
+    } else {
+      jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT,superTypes.mkString(", "), new Array[String](0):_*)
+    }
+
     generateJAllGetterSetterMethod(pr,jwriter, cls, ctx, packName)
     jwriter.endType()
     pr.flush()
