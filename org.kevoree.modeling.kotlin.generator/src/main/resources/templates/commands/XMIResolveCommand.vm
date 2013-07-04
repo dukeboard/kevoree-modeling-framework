@@ -4,9 +4,20 @@ package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
 public class XMIResolveCommand(val context : LoadingContext, val target : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer, val method : String, val ref : String) : ResolveCommand {
     override fun run() {
-        val referencedElement = context.map.get(ref)
+        var referencedElement = context.map.get(ref)
         if(referencedElement != null) {
             target.reflexiveSetters(method, referencedElement)
-        } else { throw Exception("KMF Load error : reference " + ref + " not found in map when trying to "+method+" on " + target.toString())}
+            return
+        }
+
+        if(ref.equals("/0/") || ref.equals("/")) {
+            referencedElement = context.map.get("/0")
+            if(referencedElement != null)   {
+                target.reflexiveSetters(method, referencedElement)
+                return
+            }
+        }
+
+        throw Exception("KMF Load error : reference " + ref + " not found in map when trying to "+method+" on " + target.toString())
     }
 }

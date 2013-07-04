@@ -185,7 +185,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     //GENERATE GET Json ADDR                                                                              0
     buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
-    buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
+    buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"//\") }\n")
 
     if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0) {
       buffer.println("var i = 0")

@@ -155,7 +155,7 @@ class SerializerGenerator(ctx: GenerationContext) {
   def generateGetXmiAddrMethod(buffer: PrintWriter, cls: EClass, subTypes: List[EClass]) {
     buffer.println("fun get" + cls.getName + "XmiAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
-    buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"/\") }\n")
+    buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"//\") }\n")
 
     /*
     buffer.println("for(sub in containedElements()){")

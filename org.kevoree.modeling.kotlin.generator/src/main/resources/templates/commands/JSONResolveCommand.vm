@@ -12,6 +12,17 @@ public class JSONResolveCommand(val context : LoadingContext, val target : ${hel
 
         if(referencedElement != null) {
             target.reflexiveSetters(method, referencedElement)
-        } else { throw Exception("KMF Load error : reference " + ref + " not found in map when trying to "+method+" on " + target.toString())}
+            return
+        }
+
+        if(ref.equals("/0/") || ref.equals("/")) {
+            referencedElement = context.map.get("/0")
+            if(referencedElement != null)   {
+                target.reflexiveSetters(method, referencedElement)
+                return
+            }
+        }
+
+        throw Exception("KMF Load error : reference " + ref + " not found in map when trying to "+method+" on " + target.toString())
     }
 }
