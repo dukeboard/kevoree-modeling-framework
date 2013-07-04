@@ -91,7 +91,7 @@ class RootLoader(ctx : GenerationContext) {
 
     pr.println("")
     //TODO: REMOVE NEXT LiNE AFTER DEBUG
-    pr.println("var debug : Boolean = false")
+    //pr.println("var debug : Boolean = false")
     pr.println("")
     pr.println("")
     pr.println("")

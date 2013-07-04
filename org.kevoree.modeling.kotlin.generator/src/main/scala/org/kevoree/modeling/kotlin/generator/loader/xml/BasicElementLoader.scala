@@ -116,7 +116,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
     pr.println("context.map.put(elementId, modelElem)")
     //TODO: REMOVE NEXT LiNE AFTER DEBUG
-    pr.println("if(debug){System.out.println(\"Stored:\" + elementId)}")
+   // pr.println("if(debug){System.out.println(\"Stored:\" + elementId)}")
 
 
     pr.println("")
