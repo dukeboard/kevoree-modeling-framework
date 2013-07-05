@@ -30,13 +30,14 @@ public class TestEscapeUnescape {
             KevoreeFactory factory = new DefaultKevoreeFactory();
             ContainerRoot root = factory.createContainerRoot();
             Group group = factory.createGroup();
-            String groupName = "aaa\\n\\r\\tbbb";
+            String groupName = "aaa\\r\\n\\tbbb";
 
             group.setName(groupName);
             root.addGroups(group);
 
             JSONModelSerializer serializer = new JSONModelSerializer();
-            File jsonModel = new File("/tmp/all.json");
+            File jsonModel = File.createTempFile("all", ".json");
+			jsonModel.deleteOnExit();
             serializer.serialize(root, new FileOutputStream(jsonModel));
 
             JSONModelLoader loader = new JSONModelLoader();
