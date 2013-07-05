@@ -1,5 +1,8 @@
 #* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
 #* @vtlvariable name="packElem" type="java.lang.String" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+
 
 package ${packElem}
 
@@ -18,6 +21,11 @@ trait ${formatedFactoryName}Impl {
 
     open fun setRecursiveReadOnly()
     open fun reflexiveSetters(method : String, value : Any?)
+#if($ctx.generateEvents())
+open fun containedElements() : Iterable<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainer>;
+open fun containedAllElements() : Iterable<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainer>;
+open fun path() : String?
+#end
 
     fun setInternalReadOnly(){
         internal_readOnlyElem = true
@@ -51,4 +59,47 @@ trait ${formatedFactoryName}Impl {
 
     }
 
+#if($ctx.generateEvents())
+    internal var internal_modelElementListeners : MutableList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener>?
+
+    protected fun fireModelEvent(evt:${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent) {
+        if(internal_modelElementListeners != null) {
+            for(i in 0..internal_modelElementListeners!!.size()-1 ) {
+                internal_modelElementListeners!!.get(i).elementChanged(evt)
+            }
+        }
+    }
+
+        fun addModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener){
+            if(internal_modelElementListeners == null) {
+                internal_modelElementListeners = java.util.ArrayList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener>()
+            }
+            internal_modelElementListeners!!.add(lst)
+        }
+
+        fun removeModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener){
+            if(internal_modelElementListeners != null) {
+                internal_modelElementListeners!!.remove(lst)
+                if(internal_modelElementListeners!!.isEmpty()) {
+                    internal_modelElementListeners = null
+                }
+            }
+
+        }
+
+        fun addModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener){
+            addModelElementListener(lst)
+            containedAllElements().forEach { contained -> (contained as ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainerImpl).addModelTreeListener(lst) }
+        }
+
+        fun removeModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener){
+            removeModelElementListener(lst)
+            containedAllElements().forEach { contained -> (contained as ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainerImpl).removeModelTreeListener(lst) }
+        }
+
+        fun addModelElementListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
+        fun removeModelElementListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
+        fun addModelTreeListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
+        fun removeModelTreeListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
+#end
 }

@@ -1,0 +1,43 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+
+package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events;
+
+public class ModelEvent {
+
+private String sourcePath;
+private EventType type;
+public enum EventType{set, add, remove};
+private ElementAttributeType elementAttributeType;
+public enum ElementAttributeType{Attribute, Reference, Containment};
+private Object value;
+private String elementAttributeName;
+
+public ModelEvent(String sourcePath, EventType type, ElementAttributeType elementAttributeType, String elementAttributeName, Object value) {
+this.sourcePath = sourcePath;
+this.type = type;
+this.elementAttributeType = elementAttributeType;
+this.elementAttributeName = elementAttributeName;
+this.value = value;
+}
+
+public String getSourcePath() {
+return sourcePath;
+}
+
+public EventType getType() {
+return type;
+}
+
+public ElementAttributeType getElementAttributeType() {
+return elementAttributeType;
+}
+
+public String getElementAttributeName() {
+return elementAttributeName;
+}
+
+public Object getValue() {
+return value;
+}
+}

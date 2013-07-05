@@ -49,6 +49,10 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("override internal var internal_unsetCmd : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand? = null")
     pr.println("override internal var internal_readOnlyElem : Boolean = false")
     pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false")
+    if(ctx.generateEvents) {
+      pr.println("override internal var internal_modelElementListeners : MutableList<"+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".events.ModelElementListener>? = null")
+    }
+
     //pr.println("override internal var containedIterable : Iterable<"+ctx.getKevoreeContainer.get+">? = null")
 
 
@@ -446,14 +450,13 @@ trait ClassGenerator extends ClonerGenerator {
 
   private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
 
-
+    pr.println("override fun delete(){")
     if (!ctx.getJS()) {
-      pr.println("override fun delete(){")
       pr.println("for(sub in containedElements()){")
       pr.println("sub.delete()")
       pr.println("}")
     } else {
-      pr.println("override fun delete(){")
+
       cls.getEAllContainments.foreach {
         c =>
           if (c.isMany()) {
@@ -1008,6 +1011,15 @@ trait ClassGenerator extends ClonerGenerator {
       res += protectReservedWords("_" + ref.getName) + ".put(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "()," + protectReservedWords(ref.getName) + ")\n"
     } else {
       res += protectReservedWords("_" + ref.getName) + ".add(" + protectReservedWords(ref.getName) + ")\n"
+    }
+
+    if(ctx.generateEvents) {
+      if(ref.isContainment) {
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+      } else {
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+      }
+
     }
 
 

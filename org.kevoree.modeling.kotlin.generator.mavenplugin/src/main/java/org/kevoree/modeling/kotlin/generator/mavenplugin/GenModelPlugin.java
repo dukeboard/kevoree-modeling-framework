@@ -149,6 +149,13 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean json = false;
 
 
+    /**
+     * Generate Events
+     *
+     * @parameter
+     */
+    private Boolean events = false;
+
 
     /**
      * The maven project.
@@ -186,6 +193,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
+        ctx.setGenerateEvents(events);
         if(flatInheritance){
             ctx.setGenFlatInheritance();
         }

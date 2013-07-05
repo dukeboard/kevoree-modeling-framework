@@ -42,6 +42,7 @@ import loader.xml.LoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.xmi.XMIResource
+import org.kevoree.modeling.kotlin.generator.events.EventsGenerator
 import org.kevoree.modeling.kotlin.generator.loader.json.JsonLoaderGenerator
 import org.kevoree.modeling.kotlin.generator.loader.LoaderApiGenerator
 import scala.collection.JavaConversions._
@@ -84,6 +85,11 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
     val factoryGenerator = new FactoryGenerator(ctx)
     factoryGenerator.generateMainFactory()
+
+    if(ctx.generateEvents) {
+      val eventsGenerator = new EventsGenerator(ctx)
+      eventsGenerator.generateEvents()
+    }
 
     val model = ctx.getEcoreModel(ecoreFile)
     checkModel(model)

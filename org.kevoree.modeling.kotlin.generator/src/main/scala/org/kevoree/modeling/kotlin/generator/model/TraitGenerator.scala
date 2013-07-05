@@ -131,6 +131,7 @@ trait TraitGenerator {
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("packElem",ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")
+    ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
     ctxV.put("ctx",ctx)
     template.merge(ctxV,pr)
     pr.flush()

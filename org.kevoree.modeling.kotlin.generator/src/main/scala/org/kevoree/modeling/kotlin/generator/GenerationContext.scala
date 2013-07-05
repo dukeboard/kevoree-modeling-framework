@@ -219,6 +219,11 @@ class GenerationContext {
 
   var flyweightFactory = false
 
+  var generateEvents = false
+  def setGenerateEvents(evt:Boolean) {
+    generateEvents = evt
+  }
+
 
   var basePackageForUtilitiesGeneration: EPackage = null
 
