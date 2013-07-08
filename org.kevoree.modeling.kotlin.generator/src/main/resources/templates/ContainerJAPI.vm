@@ -55,8 +55,10 @@ public Object resolve(@org.jetbrains.annotations.NotNull java.util.IdentityHashM
 #if(${ctx.generateEvents()})
     public void addModelElementListener(@org.jetbrains.annotations.NotNull ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener lst);
     public void removeModelElementListener(@org.jetbrains.annotations.NotNull ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener lst);
+    public void removeAllModelElementListeners();
     public void addModelTreeListener(@org.jetbrains.annotations.NotNull ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener lst);
     public void removeModelTreeListener(@org.jetbrains.annotations.NotNull ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener lst);
+    public void removeAllModelTreeListeners();
 #end
 
 }

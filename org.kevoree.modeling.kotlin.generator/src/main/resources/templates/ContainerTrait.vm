@@ -64,10 +64,11 @@ open fun path() : String?
 
     protected fun fireModelEvent(evt:${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent) {
         if(internal_modelElementListeners != null) {
-            for(i in 0..internal_modelElementListeners!!.size()-1 ) {
-                internal_modelElementListeners!!.get(i).elementChanged(evt)
+            for(lst in internal_modelElementListeners!!) {
+                lst.elementChanged(evt)
             }
         }
+        fireModelEventOnTree(evt)
     }
 
         fun addModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener){
@@ -84,17 +85,49 @@ open fun path() : String?
                     internal_modelElementListeners = null
                 }
             }
+        }
 
+        fun removeAllModelElementListeners() {
+            if(internal_modelElementListeners != null) {
+                internal_modelElementListeners!!.clear()
+                internal_modelElementListeners = null
+            }
+        }
+
+        internal var internal_modelTreeListeners : MutableList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener>?
+
+        private fun fireModelEventOnTree(evt:${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent) {
+            if(internal_modelTreeListeners != null) {
+                for(lst in internal_modelTreeListeners!!) {
+                    lst.elementChanged(evt)
+                }
+            }
+            if(eContainer() != null) {
+                (eContainer() as KMFContainerImpl).fireModelEventOnTree(evt)
+            }
         }
 
         fun addModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener){
-            addModelElementListener(lst)
-            containedAllElements().forEach { contained -> (contained as ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainerImpl).addModelTreeListener(lst) }
+            if(internal_modelTreeListeners == null) {
+                internal_modelTreeListeners = java.util.ArrayList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener>()
+            }
+            internal_modelTreeListeners!!.add(lst)
         }
 
-        fun removeModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener){
-            removeModelElementListener(lst)
-            containedAllElements().forEach { contained -> (contained as ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainerImpl).removeModelTreeListener(lst) }
+        fun removeModelTreeListener(lst : org.fsmsample.events.ModelTreeListener){
+            if(internal_modelTreeListeners != null) {
+                internal_modelTreeListeners!!.remove(lst)
+                if(internal_modelTreeListeners!!.isEmpty()) {
+                    internal_modelTreeListeners = null
+                }
+            }
+        }
+
+        fun removeAllModelTreeListeners() {
+            if(internal_modelTreeListeners != null) {
+                internal_modelTreeListeners!!.clear()
+                internal_modelElementListeners = null
+            }
         }
 
         fun addModelElementListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}

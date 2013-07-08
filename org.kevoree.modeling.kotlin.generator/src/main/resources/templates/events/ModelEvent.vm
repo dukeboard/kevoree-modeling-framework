@@ -40,4 +40,13 @@ return elementAttributeName;
 public Object getValue() {
 return value;
 }
+
+public String toString() {
+return "ModelEvent[src:" + getSourcePath()
++ ", type:" + getType().name()
++ ", elementAttributeType:" + getElementAttributeType().name()
++ ", elementAttributeName:" + getElementAttributeName()
++ ", value:" + getValue()
++ "]";
+}
 }
