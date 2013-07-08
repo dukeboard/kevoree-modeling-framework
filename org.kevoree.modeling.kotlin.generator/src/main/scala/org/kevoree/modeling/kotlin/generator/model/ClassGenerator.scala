@@ -1129,7 +1129,13 @@ trait ClassGenerator extends ClonerGenerator {
     if (hasID(ref.getEReferenceType)) {
       res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "())\n"
     } else {
-      res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + "))\n"
+      if (ctx.getJS()) {
+        // Kotlin JS fix: arrayList.remove(arrayList.indexOf(elem)) does not work in Javascript, but arrayList.remove(elem) does
+        res += protectReservedWords("_" + ref.getName) + ".remove("  + protectReservedWords(ref.getName) + ")\n"
+      } else {
+        // keep the O(1) complexity in Java
+        res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + "))\n"
+      }
     }
 
     if (ref.isContainment) {
