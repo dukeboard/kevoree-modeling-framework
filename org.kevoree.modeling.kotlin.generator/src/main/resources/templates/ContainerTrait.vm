@@ -21,11 +21,6 @@ trait ${formatedFactoryName}Impl {
 
     open fun setRecursiveReadOnly()
     open fun reflexiveSetters(method : String, value : Any?)
-#if($ctx.generateEvents())
-open fun containedElements() : Iterable<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainer>;
-open fun containedAllElements() : Iterable<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.container.KMFContainer>;
-open fun path() : String?
-#end
 
     fun setInternalReadOnly(){
         internal_readOnlyElem = true
