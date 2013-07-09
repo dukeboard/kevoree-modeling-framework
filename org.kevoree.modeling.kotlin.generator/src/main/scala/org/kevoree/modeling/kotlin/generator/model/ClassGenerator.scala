@@ -314,7 +314,10 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("override internal var internal_unsetCmd : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand? = null")
     pr.println("override internal var internal_readOnlyElem : Boolean = false")
     pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false")
-
+    if(ctx.generateEvents) {
+      pr.println("override internal var internal_modelElementListeners : MutableList<"+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".events.ModelElementListener>? = null")
+      pr.println("override internal var internal_modelTreeListeners : MutableList<"+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".events.ModelTreeListener>? = null")
+    }
     //generate init
     cls.getEAllAttributes.foreach {
       att => {
@@ -1090,8 +1093,13 @@ trait ClassGenerator extends ClonerGenerator {
     var res = ""
     val formatedMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
 
-    if(ctx.generateEvents && ref.isContainment && !noOpposite) {
-      res += "\nvar removeAll"+formatedMethodName+"CurrentlyProcessing : Boolean\n"
+    if(ctx.generateEvents && ref.isContainment && !noOpposite) { // only once in the class, only for contained references
+      if(!ctx.js) { // initialized in the Impl
+        res += "\nvar removeAll"+formatedMethodName+"CurrentlyProcessing : Boolean\n"
+      } else {
+        res += "\nvar removeAll"+formatedMethodName+"CurrentlyProcessing : Boolean = false\n"
+      }
+
     }
 
     if (noOpposite) {

@@ -6,7 +6,7 @@ package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.ev
 import ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent.EventType;
 import ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent.ElementAttributeType;
 
-public class ModelEvent(val sourcePath : String?, val etype : EventType , val elementAttributeType : ElementAttributeType, val elementAttributeName: String, val value : Any) {
+public class ModelEvent(val sourcePath : String?, val etype : EventType , val elementAttributeType : ElementAttributeType, val elementAttributeName: String, val value : Any?) {
 
 public enum class EventType {
     set
@@ -35,7 +35,7 @@ public fun getElementAttributeName() : String {
     return elementAttributeName;
 }
 
-public fun getValue() : Any {
+public fun getValue() : Any? {
 return value;
 }
 
