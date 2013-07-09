@@ -47,7 +47,7 @@
                         </goals>
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
-                            <packagePrefix>kmf</packagePrefix>
+                            <packagePrefix>org</packagePrefix>
                             <clearOutput>false</clearOutput>
                             <js>true</js>
                             <json>true</json>
