@@ -55,6 +55,7 @@
                             <packagePrefix>kmf</packagePrefix>
                             <clearOutput>false</clearOutput>
 							<json>true</json>
+							<events>true</events>
                         </configuration>
                     </execution>
                 </executions>
