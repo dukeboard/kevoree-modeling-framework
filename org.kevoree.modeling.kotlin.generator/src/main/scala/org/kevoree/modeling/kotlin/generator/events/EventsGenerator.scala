@@ -20,14 +20,16 @@ class EventsGenerator(ctx: GenerationContext) {
   }
 
   private def generateElementListener() {
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelElementListener.java")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelElementListener."+extension)
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/events/ModelElementListener.vm")
+    val template = if(ctx.getJS()){ve.getTemplate("templates/events/JSModelElementListener.vm")}else{ve.getTemplate("templates/events/ModelElementListener.vm")}
     val ctxV = new VelocityContext()
     ctxV.put("ctx",ctx)
     ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
@@ -37,14 +39,17 @@ class EventsGenerator(ctx: GenerationContext) {
   }
 
   private def generateTreeListener() {
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelTreeListener.java")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelTreeListener."+extension)
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/events/ModelTreeListener.vm")
+
+    val template = if(ctx.getJS()){ve.getTemplate("templates/events/JSModelTreeListener.vm")}else{ve.getTemplate("templates/events/ModelTreeListener.vm")}
     val ctxV = new VelocityContext()
     ctxV.put("ctx",ctx)
     ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
@@ -55,13 +60,17 @@ class EventsGenerator(ctx: GenerationContext) {
 
   private def generateModelEventClass() {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelEvent.java")
+
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelEvent."+extension)
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/events/ModelEvent.vm")
+
+    val template = if(ctx.getJS()){ve.getTemplate("templates/events/JSModelEvent.vm")}else{ve.getTemplate("templates/events/ModelEvent.vm")}
     val ctxV = new VelocityContext()
     ctxV.put("ctx",ctx)
     ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
