@@ -43,4 +43,14 @@ fun reflexiveSetters(method : String, value : Any?)
     fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
 #end
 
+
+#if(${ctx.generateEvents()})
+    fun addModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener)
+    fun removeModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener )
+    fun removeAllModelElementListeners()
+    fun addModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener)
+    fun removeModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener)
+    fun removeAllModelTreeListeners()
+#end
+
 }

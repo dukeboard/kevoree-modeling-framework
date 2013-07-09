@@ -114,7 +114,7 @@ open fun path() : String?
             internal_modelTreeListeners!!.add(lst)
         }
 
-        fun removeModelTreeListener(lst : org.fsmsample.events.ModelTreeListener){
+        fun removeModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener){
             if(internal_modelTreeListeners != null) {
                 internal_modelTreeListeners!!.remove(lst)
                 if(internal_modelTreeListeners!!.isEmpty()) {
@@ -130,9 +130,9 @@ open fun path() : String?
             }
         }
 
-        fun addModelElementListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
-        fun removeModelElementListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
-        fun addModelTreeListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
-        fun removeModelTreeListener(lst: (org.fsmsample.events.ModelEvent?) -> jet.Unit) {}
+        fun addModelElementListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
+        fun removeModelElementListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
+        fun addModelTreeListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
+        fun removeModelTreeListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
 #end
 }
