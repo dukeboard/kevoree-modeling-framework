@@ -27,7 +27,7 @@ class EventsGenerator(ctx: GenerationContext) {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/events/ModelElementListener.vm")
+    val template = if(ctx.getJS()){ve.getTemplate("templates/events/JSModelElementListener.vm")}else{ve.getTemplate("templates/events/ModelElementListener.vm")}
     val ctxV = new VelocityContext()
     ctxV.put("ctx",ctx)
     ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
@@ -44,7 +44,8 @@ class EventsGenerator(ctx: GenerationContext) {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/events/ModelTreeListener.vm")
+
+    val template = if(ctx.getJS()){ve.getTemplate("templates/events/JSModelTreeListener.vm")}else{ve.getTemplate("templates/events/ModelTreeListener.vm")}
     val ctxV = new VelocityContext()
     ctxV.put("ctx",ctx)
     ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
@@ -61,7 +62,8 @@ class EventsGenerator(ctx: GenerationContext) {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/events/ModelEvent.vm")
+
+    val template = if(ctx.getJS()){ve.getTemplate("templates/events/JSModelEvent.vm")}else{ve.getTemplate("templates/events/ModelEvent.vm")}
     val ctxV = new VelocityContext()
     ctxV.put("ctx",ctx)
     ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
