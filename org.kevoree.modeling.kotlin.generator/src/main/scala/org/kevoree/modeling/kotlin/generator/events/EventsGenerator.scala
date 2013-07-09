@@ -20,8 +20,10 @@ class EventsGenerator(ctx: GenerationContext) {
   }
 
   private def generateElementListener() {
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelElementListener.java")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelElementListener."+extension)
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
@@ -37,8 +39,10 @@ class EventsGenerator(ctx: GenerationContext) {
   }
 
   private def generateTreeListener() {
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelTreeListener.java")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelTreeListener."+extension)
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
@@ -56,7 +60,10 @@ class EventsGenerator(ctx: GenerationContext) {
 
   private def generateModelEventClass() {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelEvent.java")
+
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events" + File.separator + "ModelEvent."+extension)
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()

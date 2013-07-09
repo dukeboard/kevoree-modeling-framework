@@ -3,31 +3,28 @@
 
 package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events;
 
-public class ModelEvent {
+import ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent.EventType;
+import ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent.ElementAttributeType;
 
-public enum EventType{set, add, remove};
-public enum ElementAttributeType{Attribute, Reference, Containment};
+public class ModelEvent(val sourcePath : String?, val etype : EventType , val elementAttributeType : ElementAttributeType, val elementAttributeName: String, val value : Any) {
 
-private sourcePath : String;
-private type : EventType;
-private elementAttributeType : ElementAttributeType;
-private value : Any;
-private elementAttributeName : String;
-
-public ModelEvent(String sourcePath, EventType type, ElementAttributeType elementAttributeType, String elementAttributeName, Object value) {
-this.sourcePath = sourcePath;
-this.type = type;
-this.elementAttributeType = elementAttributeType;
-this.elementAttributeName = elementAttributeName;
-this.value = value;
+public enum class EventType {
+    set
+    add
+    remove
+}
+public enum class  ElementAttributeType{
+    Attribute
+    Reference
+    Containment
 }
 
-public fun getSourcePath() : String {
+public fun getSourcePath() : String? {
 return sourcePath;
 }
 
 public fun getType() : EventType {
-    return type;
+    return etype;
 }
 
 public fun getElementAttributeType() : ElementAttributeType {
@@ -38,16 +35,12 @@ public fun getElementAttributeName() : String {
     return elementAttributeName;
 }
 
-public getValue() : Any {
+public fun getValue() : Any {
 return value;
 }
 
 public fun toString() : String {
-return "ModelEvent[src:" + getSourcePath()
-+ ", type:" + getType().name()
-+ ", elementAttributeType:" + getElementAttributeType().name()
-+ ", elementAttributeName:" + getElementAttributeName()
-+ ", value:" + getValue()
-+ "]";
+return "ModelEvent[src:" + getSourcePath()+ ", type:" + getType().name()+ ", elementAttributeType:" + getElementAttributeType().name()+ ", elementAttributeName:" + getElementAttributeName()+ ", value:" + getValue()+ "]";
 }
+
 }
