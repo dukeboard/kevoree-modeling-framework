@@ -10,7 +10,7 @@
 
     <properties>
     	<kotlin.version>0.5.748</kotlin.version>
-		<kmf.version>1.3.2-SNAPSHOT</kmf.version>
+		<kmf.version>1.3.3-SNAPSHOT</kmf.version>
         <emf.version>2.7.0</emf.version>
     </properties>
 
@@ -24,7 +24,6 @@
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.emf</module>
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.event.js</module>
 		
-		
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.js</module>
@@ -34,6 +33,7 @@
 		<module>diva/org.kevoree.modeling.sample.diva.emf</module>
         <module>cloudml/org.kevoree.modeling.sample.cloudml.kt</module>
         <module>cloudml/org.kevoree.modeling.sample.cloudml.emf</module>
+		
 	</modules>
 
     <repositories>
