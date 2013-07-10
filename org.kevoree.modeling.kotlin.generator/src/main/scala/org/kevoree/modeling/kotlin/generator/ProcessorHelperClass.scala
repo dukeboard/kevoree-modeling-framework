@@ -121,6 +121,14 @@ class ProcessorHelperClass {
 
   def protectReservedJWords(word: String): String = {
     word match {
+      case "long" => "_long_"
+      case "int" => "_int_"
+      case "float" => "_float_"
+      case "double" => "_double_"
+      case "short" => "_short_"
+      case "char" => "_char_"
+      case "boolean" => "_boolean_"
+      case "byte" => "_byte_"
       case "type" => "_type_"
       case "object" => "_object_"
       case "requires" => "_requires_"
