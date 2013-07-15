@@ -585,14 +585,14 @@ trait ClassGenerator extends ClonerGenerator {
         //generate setter
         pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
-          pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
+          pr.print("(" + protectReservedWords(att.getName + "Param") + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
         } else {
-          pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
+          pr.print("(" + protectReservedWords(att.getName + "Param") + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
         }
         pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
-        pr.println(protectReservedWords("_" + att.getName) + " = " + protectReservedWords(att.getName))
+        pr.println(protectReservedWords("_" + att.getName) + " = " + protectReservedWords(att.getName + "Param"))
         if(ctx.generateEvents) {
-          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Attribute, \""+att.getName+"\", "+ protectReservedWords(att.getName)+"))")
+          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Attribute, \""+att.getName+"\", "+ protectReservedWords(att.getName + "Param")+"))")
         }
         pr.println("}")
     }
@@ -727,7 +727,7 @@ trait ClassGenerator extends ClonerGenerator {
     } else {
       res += "\noverride fun set" + formatedLocalRefName
     }
-    res += "(" + protectReservedWords(ref.getName) + " : "
+    res += "(" + protectReservedWords(ref.getName + "Param") + " : "
     res += {
       if (!isSingleRef) {
         "List<" + typeRefName + ">"
@@ -741,14 +741,14 @@ trait ClassGenerator extends ClonerGenerator {
     //Read only protection
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     if (ref.isMany) {
-      res += "if(" + protectReservedWords(ref.getName) + " == null){ throw IllegalArgumentException(\"The list in parameter of the setter cannot be null. Use removeAll to empty a collection.\") }\n"
+      res += "if(" + protectReservedWords(ref.getName + "Param") + " == null){ throw IllegalArgumentException(\"The list in parameter of the setter cannot be null. Use removeAll to empty a collection.\") }\n"
     }
     if (!isSingleRef) {
       //Clear cache
       res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
     }
 
-    res += "if(" + protectReservedWords("_" + ref.getName) + "!= " + protectReservedWords(ref.getName) + "){\n"
+    res += "if(" + protectReservedWords("_" + ref.getName) + "!= " + protectReservedWords(ref.getName + "Param") + "){\n"
     val oppositRef = ref.getEOpposite
 
     if (!ref.isMany) {
@@ -765,13 +765,13 @@ trait ClassGenerator extends ClonerGenerator {
             res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
             res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this)\n"
             res += "}\n"
-            res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-            res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
+            res += "if(" + protectReservedWords(ref.getName + "Param") + " != null){\n"
+            res += "(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
             res += "}\n"
           } else {
             // Single Ref  0,1
             res += "if(" + protectReservedWords("_" + ref.getName) + " != null) { (" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
-            res += "if(" + protectReservedWords(ref.getName) + "!=null) {(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}\n"
+            res += "if(" + protectReservedWords(ref.getName + "Param") + "!=null) {(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}\n"
           }
 
         } else {
@@ -788,12 +788,12 @@ trait ClassGenerator extends ClonerGenerator {
             }
             res += "}\n"
 
-            res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
+            res += "if(" + protectReservedWords(ref.getName + "Param") + " != null){\n"
 
-            res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
+            res += "(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
 
             if (ref.isContainment) {
-              res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
+              res += "(" + protectReservedWords(ref.getName + "Param") + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
             }
 
             res += "}\n"
@@ -804,30 +804,30 @@ trait ClassGenerator extends ClonerGenerator {
               // 0,1 -- 1
               if (!ref.isContainment) {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null) }\n"
-                res += "if(" + protectReservedWords(ref.getName) + "!=null){(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)}\n"
+                res += "if(" + protectReservedWords(ref.getName + "Param") + "!=null){(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
                 res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
                 res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
                 res += "}\n"
-                res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
-                res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
-                res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
+                res += "if(" + protectReservedWords(ref.getName + "Param") + "!= null) {\n"
+                res += "(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
+                res += "(" + protectReservedWords(ref.getName + "Param") + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
                 res += "}\n"
               }
             } else {
               // 0,1 -- 0,1
               if (!ref.isContainment) {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null) }\n"
-                res += "if(" + protectReservedWords(ref.getName) + "!=null) {(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)}\n"
+                res += "if(" + protectReservedWords(ref.getName + "Param") + "!=null) {(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)}\n"
               } else {
                 res += "if(" + protectReservedWords("_" + ref.getName) + "!=null) {\n"
                 res += "(" + protectReservedWords("_" + ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
                 res += protectReservedWords("_" + ref.getName) + ".setEContainer(null,null,null)\n"
                 res += "}\n"
-                res += "if(" + protectReservedWords(ref.getName) + "!= null) {\n"
-                res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
-                res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
+                res += "if(" + protectReservedWords(ref.getName + "Param") + "!= null) {\n"
+                res += "(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)\n"
+                res += "(" + protectReservedWords(ref.getName + "Param") + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
                 res += "}\n"
               }
 
@@ -843,39 +843,39 @@ trait ClassGenerator extends ClonerGenerator {
           res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){\n"
           res += "(" + protectReservedWords("_" + ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null,null,null)\n"
           res += "}\n"
-          res += "if(" + protectReservedWords(ref.getName) + "!=null) {\n"
-          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(this,null,\"" + protectReservedWords(ref.getName) + "\")\n"
+          res += "if(" + protectReservedWords(ref.getName + "Param") + "!=null) {\n"
+          res += "(" + protectReservedWords(ref.getName + "Param") + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(this,null,\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
           res += "}\n"
         } else {
           res += "if(" + protectReservedWords("_" + ref.getName) + " != null){\n"
           res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n"
           res += "}\n"
-          res += "if(" + protectReservedWords(ref.getName) + " != null){\n"
-          res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", Any),\"" + protectReservedWords(ref.getName) + "\" )\n"
+          res += "if(" + protectReservedWords(ref.getName + "Param") + " != null){\n"
+          res += "(" + protectReservedWords(ref.getName + "Param") + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", Any),\"" + protectReservedWords(ref.getName + "Param") + "\" )\n"
           res += "}\n"
         }
       } else {
         // containment with no opposite relation
         if (ref.isContainment && (ref.getEOpposite == null)) {
           if (ref.isMany) {
-            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", " + protectReservedWords(ref.getName) + "),\"" + protectReservedWords(ref.getName) + "\" )\n"
+            res += "(" + protectReservedWords(ref.getName + "Param") + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", " + protectReservedWords(ref.getName + "Param") + "),\"" + protectReservedWords(ref.getName + "Param") + "\" )\n"
           } else {
             res += "if(" + protectReservedWords("_" + ref.getName) + "!=null){\n"
             res += "(" + protectReservedWords("_" + ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null, null,null)\n"
             res += "}\n"
-            res += "if(" + protectReservedWords(ref.getName) + "!=null){\n"
-            res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,  " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", null),\"" + protectReservedWords(ref.getName) + "\")\n"
+            res += "if(" + protectReservedWords(ref.getName + "Param") + "!=null){\n"
+            res += "(" + protectReservedWords(ref.getName + "Param") + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,  " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", null),\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
             res += "}\n"
           }
         }
       }
       //Setting of local reference
-      res += protectReservedWords("_" + ref.getName) + " = (" + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + " = " + protectReservedWords(ref.getName + "Param") + "\n"
       if(ctx.generateEvents) {
         if(ref.isContainment) {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))\n"
         } else {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))\n"
         }
       }
 
@@ -884,17 +884,17 @@ trait ClassGenerator extends ClonerGenerator {
       res += protectReservedWords("_" + ref.getName) + ".clear()\n"
 
       if (hasID(ref.getEReferenceType)) {
-        res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
+        res += "for(el in " + protectReservedWords (ref.getName+ "Param") + "){\n"
         res += protectReservedWords("_" + ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
         res += "}\n"
       } else {
-        res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
+        res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords (ref.getName+ "Param") + ")\n"
       }
 
       if (ref.isContainment) {
         if (oppositRef != null) {
-          res += "for(elem in " + protectReservedWords(ref.getName) + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", elem),\"" + protectReservedWords(ref.getName) + "\")\n"
+          res += "for(elem in " + protectReservedWords(ref.getName + "Param") + "){\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", elem),\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
             res += "(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
@@ -903,8 +903,8 @@ trait ClassGenerator extends ClonerGenerator {
           }
           res += "}\n"
         } else {
-          res += "for(elem in " + protectReservedWords(ref.getName) + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", elem),\"" + protectReservedWords(ref.getName) + "\")\n"
+          res += "for(elem in " + protectReservedWords(ref.getName + "Param") + "){\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", elem),\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
           res += "}\n"
 
         }
@@ -912,20 +912,20 @@ trait ClassGenerator extends ClonerGenerator {
         if (oppositRef != null) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
-            res += "for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}\n"
+            res += "for(elem in " + protectReservedWords(ref.getName + "Param") + "){(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}\n"
           } else {
 
             val callParam = "this"
 
-            res += "for(elem in " + protectReservedWords(ref.getName) + "){(elem as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(" + callParam + ")}\n"
+            res += "for(elem in " + protectReservedWords(ref.getName + "Param") + "){(elem as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(" + callParam + ")}\n"
           }
         }
       }
       if(ctx.generateEvents) {
         if(ref.isContainment) {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))"
         } else {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))"
         }
 
       }
@@ -972,22 +972,22 @@ trait ClassGenerator extends ClonerGenerator {
     } else {
       res += "\noverride fun addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     }
-    res += "(" + protectReservedWords(ref.getName) + " :List<" + typeRefName + ">) {\n"
+    res += "(" + protectReservedWords(ref.getName + "Param") + " :List<" + typeRefName + ">) {\n"
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     //Clear cache
     res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
     if (hasID(ref.getEReferenceType)) {
-      res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
+      res += "for(el in " + protectReservedWords(ref.getName+ "Param") + "){\n"
       res += protectReservedWords("_" + ref.getName) + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
       res += "}\n"
     } else {
-      res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + ".addAll(" + protectReservedWords(ref.getName + "Param") + ")\n"
     }
 
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
-      res += "for(el in " + protectReservedWords(ref.getName) + "){\n"
+      res += "for(el in " + protectReservedWords(ref.getName + "Param") + "){\n"
       if (ref.isContainment) {
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", el),\"" + protectReservedWords(ref.getName) + "\")\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", el),\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
@@ -1009,9 +1009,9 @@ trait ClassGenerator extends ClonerGenerator {
     }
     if(ctx.generateEvents) {
       if(ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))\n"
       }
     }
 
@@ -1030,27 +1030,27 @@ trait ClassGenerator extends ClonerGenerator {
     } else {
       res += "\noverride fun add" + formatedAddMethodName
     }
-    res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ") {\n"
+    res += "(" + protectReservedWords(ref.getName + "Param") + " : " + typeRefName + ") {\n"
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
 
     //Clear cache
     res += (protectReservedWords("_" + ref.getName) + "_java_cache=null\n")
 
     if (ref.isContainment) {
-      res += "(" + protectReservedWords(ref.getName) + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", " + protectReservedWords(ref.getName) + "),\"" + protectReservedWords(ref.getName) + "\")\n"
+      res += "(" + protectReservedWords(ref.getName + "Param") + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "\", " + protectReservedWords(ref.getName + "Param") + "),\"" + protectReservedWords(ref.getName + "Param") + "\")\n"
     }
 
     if (hasID(ref.getEReferenceType)) {
-      res += protectReservedWords("_" + ref.getName) + ".put(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "()," + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + ".put(" + protectReservedWords(ref.getName + "Param") + "." + generateGetIDAtt(ref.getEReferenceType) + "()," + protectReservedWords(ref.getName + "Param") + ")\n"
     } else {
-      res += protectReservedWords("_" + ref.getName) + ".add(" + protectReservedWords(ref.getName) + ")\n"
+      res += protectReservedWords("_" + ref.getName) + ".add(" + protectReservedWords(ref.getName + "Param") + ")\n"
     }
 
     if(ctx.generateEvents) {
       if(ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName + "Param")+"))\n"
       }
 
     }
@@ -1069,9 +1069,9 @@ trait ClassGenerator extends ClonerGenerator {
       val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + implExt
 
       if (!opposite.isMany) {
-        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
+        res += "(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(this)"
       } else {
-        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
+        res += "(" + protectReservedWords(ref.getName + "Param") + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
       }
     }
     res += "}"
@@ -1109,7 +1109,7 @@ trait ClassGenerator extends ClonerGenerator {
     }
 
 
-    res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ") {\n"
+    res += "(" + protectReservedWords (ref.getName+ "Param") + " : " + typeRefName + ") {\n"
 
     res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
     //Clear cache
@@ -1119,47 +1119,47 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (isOptional) {
       if (hasID(ref.getEReferenceType)) {
-        res += "if(" + protectReservedWords("_" + ref.getName) + ".size() != 0 && " + protectReservedWords("_" + ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "())) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size() != 0 && " + protectReservedWords("_" + ref.getName) + ".containsKey(" + protectReservedWords (ref.getName+ "Param") + "." + generateGetIDAtt(ref.getEReferenceType) + "())) {\n"
       } else {
-        res += "if(" + protectReservedWords("_" + ref.getName) + ".size() != 0 && " + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size() != 0 && " + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords (ref.getName+ "Param") + ") != -1 ) {\n"
       }
 
     } else {
 
       if (hasID(ref.getEReferenceType)) {
-        res += "if(" + protectReservedWords("_" + ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_" + ref.getName) + ".containsKey(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "()) ) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_" + ref.getName) + ".containsKey(" + protectReservedWords (ref.getName+ "Param") + "." + generateGetIDAtt(ref.getEReferenceType) + "()) ) {\n"
       } else {
-        res += "if(" + protectReservedWords("_" + ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + ") != -1 ) {\n"
+        res += "if(" + protectReservedWords("_" + ref.getName) + ".size == " + ref.getLowerBound + "&& " + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords (ref.getName+ "Param") + ") != -1 ) {\n"
       }
 
-      res += "throw UnsupportedOperationException(\"The list of " + protectReservedWords(ref.getName) + " must contain at least " + ref.getLowerBound + " element. Can not remove sizeof(" + protectReservedWords(ref.getName) + ")=\"+" + protectReservedWords("_" + ref.getName) + ".size)\n"
+      res += "throw UnsupportedOperationException(\"The list of " + protectReservedWords (ref.getName+ "Param") + " must contain at least " + ref.getLowerBound + " element. Can not remove sizeof(" + protectReservedWords (ref.getName+ "Param") + ")=\"+" + protectReservedWords("_" + ref.getName) + ".size)\n"
       res += "} else {\n"
     }
 
     if (hasID(ref.getEReferenceType)) {
-      res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords(ref.getName) + "." + generateGetIDAtt(ref.getEReferenceType) + "())\n"
+      res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords (ref.getName+ "Param") + "." + generateGetIDAtt(ref.getEReferenceType) + "())\n"
     } else {
       if (ctx.getJS()) {
         // Kotlin JS fix: arrayList.remove(arrayList.indexOf(elem)) does not work in Javascript, but arrayList.remove(elem) does
-        res += protectReservedWords("_" + ref.getName) + ".remove("  + protectReservedWords(ref.getName) + ")\n"
+        res += protectReservedWords("_" + ref.getName) + ".remove("  + protectReservedWords (ref.getName+ "Param") + ")\n"
       } else {
         // keep the O(1) complexity in Java
-        res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords(ref.getName) + "))\n"
+        res += protectReservedWords("_" + ref.getName) + ".remove(" + protectReservedWords("_" + ref.getName) + ".indexOf(" + protectReservedWords (ref.getName+ "Param") + "))\n"
       }
     }
 
     if (ref.isContainment) {
       //TODO
-      res += "(" + protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
+      res += "(" + protectReservedWords (ref.getName+ "Param") + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
     }
 
     if(ctx.generateEvents) {
       if(ref.isContainment) {
         res += "if(!removeAll"+formatedMethodName+"CurrentlyProcessing) {\n"
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.remove, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.remove, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \""+ref.getName+"\", "+ protectReservedWords (ref.getName+ "Param")+"))\n"
         res += "}\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.remove, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords(ref.getName)+"))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.remove, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \""+ref.getName+"\", "+ protectReservedWords (ref.getName+ "Param")+"))\n"
       }
     }
 
@@ -1174,9 +1174,9 @@ trait ClassGenerator extends ClonerGenerator {
       val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + implExt
 
       if (oppositRef.isMany) {
-        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
+        res += "(" + protectReservedWords (ref.getName+ "Param") + " as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
       } else {
-        res += "(" + protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
+        res += "(" + protectReservedWords (ref.getName+ "Param") + " as " + refInternalClassFqn + ").noOpposite_set" + formatedOpositName + "(null)\n"
       }
     }
 

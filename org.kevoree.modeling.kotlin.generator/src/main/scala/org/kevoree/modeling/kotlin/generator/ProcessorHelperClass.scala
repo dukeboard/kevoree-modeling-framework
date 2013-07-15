@@ -114,6 +114,7 @@ class ProcessorHelperClass {
       case "type" => "`type`"
       case "object" => "`object`"
       case "requires" => "`requires`"
+      case "interfaces" => "`interfaces`"
       case "package" => "`package`"
       case _ => word //throw new UnsupportedOperationException("ProcessorHelper::protectReservedWords::No matching found for word: " + word);null
     }
