@@ -214,9 +214,9 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
                             #end
                         } else {
                             #if($ref.isMany())
-                            context.resolvers.add(JSONResolveCommand(context, modelElem,"add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
+                            context.resolvers.add(JSONResolveCommand(context, modelElem,"add", "$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
                              #else
-                             context.resolvers.add(JSONResolveCommand(context, modelElem,"set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
+                             context.resolvers.add(JSONResolveCommand(context, modelElem,"set", "$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
                             #end
 
                             #*

@@ -7,7 +7,7 @@ public class ModelEvent {
 
 private String sourcePath;
 private EventType type;
-public enum EventType{set, add, remove};
+public enum EventType{set, add, remove, addAll, removeAll};
 private ElementAttributeType elementAttributeType;
 public enum ElementAttributeType{Attribute, Reference, Containment};
 private Object value;

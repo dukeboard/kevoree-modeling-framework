@@ -198,14 +198,14 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       }
       references.foreach {
         ref =>
+          var mutatorType: String = ""
 
-          var methName: String = ""
           if (ref.getUpperBound == 1) {
-            methName = "set"
+            mutatorType = "set"
           } else {
-            methName = "add"
+            mutatorType = "add"
           }
-          methName += ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+          val methName : String =  mutatorType + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
 
           pr.println("\"" + ref.getName + "\" -> {")
           pr.println("for(xmiRef in valueAtt.split(\" \")) {")
@@ -221,7 +221,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           pr.println("if( ref != null) {")
           pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
           pr.println("} else {")
-          pr.println("context.resolvers.add(XMIResolveCommand(context, modelElem, \""+methName+"\", adjustedRef))")
+          pr.println("context.resolvers.add(XMIResolveCommand(context, modelElem, \""+mutatorType+"\", \""+ref.getName+"\", adjustedRef))")
           pr.println("}") // Else
 
           if (ref.getEOpposite != null) {
