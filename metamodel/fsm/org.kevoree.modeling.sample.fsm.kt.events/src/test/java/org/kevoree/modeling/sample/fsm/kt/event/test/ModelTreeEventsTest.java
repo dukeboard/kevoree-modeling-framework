@@ -21,18 +21,11 @@ import static org.junit.Assert.assertTrue;
 public class ModelTreeEventsTest {
 
     FsmSampleFactory factory = new DefaultFsmSampleFactory();
-    Semaphore setAttribute = new Semaphore(0);
-    Semaphore unsetAttribute = new Semaphore(0);
-    Semaphore setReference = new Semaphore(0);
-    Semaphore unsetReference = new Semaphore(0);
-    Semaphore addReference = new Semaphore(0);
-    Semaphore removeReference = new Semaphore(0);
-    Semaphore addContainment = new Semaphore(0);
-    Semaphore removeContainment = new Semaphore(0);
-    Semaphore addAllReference = new Semaphore(0);
-    Semaphore removeAllReference = new Semaphore(0);
-    Semaphore addAllContainment = new Semaphore(0);
-    Semaphore removeAllContainment = new Semaphore(0);
+    Semaphore setNameT0_Fsm = new Semaphore(0);
+    Semaphore setNameT0_S0 = new Semaphore(0);
+
+    Semaphore setNameT1_Fsm = new Semaphore(0);
+    Semaphore setNameT1_S0 = new Semaphore(1);
 
 
     private void assertEvent(ModelEvent evt, String expectedPath, String expectedElementAttributeName, ModelEvent.ElementAttributeType expectedElementAttributeType,ModelEvent.EventType expectedEventType, Object expectedValue ) {
@@ -60,33 +53,79 @@ public class ModelTreeEventsTest {
         final State s1 = factory.createState();
         s1.setName("s1");
         final Transition t0 = factory.createTransition();
-        t0.setName("t0");
         final Transition t1 = factory.createTransition();
-        t1.setName("t1");
-        final Action a0 = factory.createAction();
-        a0.setName("a0");
 
         fsm.addOwnedState(s0);
+        fsm.addOwnedState(s1);
+        s0.addOutgoingTransition(t0);
+        s1.addOutgoingTransition(t1);
 
         fsm.addModelTreeListener(new ModelTreeListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                System.out.println("FSM-Tree::" + evt.toString());
+                assertEvent(evt, t0.path(), "name", ModelEvent.ElementAttributeType.Attribute, ModelEvent.EventType.set, "t0");
+                setNameT0_Fsm.release();
             }
         });
 
         s0.addModelTreeListener(new ModelTreeListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                System.out.println("State0-Tree::" + evt.toString());
+
+                assertEvent(evt, t0.path(), "name", ModelEvent.ElementAttributeType.Attribute, ModelEvent.EventType.set, "t0");
+                setNameT0_S0.release();
             }
         });
 
-        s0.addOutgoingTransition(t0);
-        s1.setOwningFSM(fsm);
-        t1.setSource(s1);
-        t0.setAction(a0);
+        t0.setName("t0");
+        try {
+            assertTrue("Event never received on Fsm", setNameT0_Fsm.tryAcquire(500, TimeUnit.MILLISECONDS));
+            assertTrue("Event never received on S0.", setNameT0_S0.tryAcquire(500, TimeUnit.MILLISECONDS));
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+
+        fsm.removeAllModelTreeListeners();
+        s0.removeAllModelTreeListeners();
+
+
+        fsm.addModelTreeListener(new ModelTreeListener() {
+            @Override
+            public void elementChanged(ModelEvent evt) {
+                assertEvent(evt, t1.path(), "name", ModelEvent.ElementAttributeType.Attribute, ModelEvent.EventType.set, "t1");
+                setNameT1_Fsm.release();
+            }
+        });
+
+        s0.addModelTreeListener(new ModelTreeListener() {
+            @Override
+            public void elementChanged(ModelEvent evt) {
+
+                assertEvent(evt, t1.path(), "name", ModelEvent.ElementAttributeType.Attribute, ModelEvent.EventType.set, "t1");
+                try {
+                    setNameT1_S0.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        });
+
+
+        t1.setName("t1");
+        try {
+            assertTrue("Event never received on Fsm", setNameT1_Fsm.tryAcquire(500, TimeUnit.MILLISECONDS));
+            assertTrue("Event received on S0.", setNameT1_S0.tryAcquire(500, TimeUnit.MILLISECONDS));
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+
+
+
+
 
     }
+
 
 }
