@@ -103,6 +103,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     modelGen.process(model, modelVersion)
 
     System.out.println("Done with model generation")
+
   }
 
   def checkModel(model: XMIResource) {

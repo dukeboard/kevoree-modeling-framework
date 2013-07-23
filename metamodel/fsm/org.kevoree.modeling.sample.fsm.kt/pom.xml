@@ -25,11 +25,6 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>117.157</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -53,6 +48,9 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+            <!--
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -67,9 +65,11 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
+
+
         </plugins>
     </build>
-
 
 
 </project>

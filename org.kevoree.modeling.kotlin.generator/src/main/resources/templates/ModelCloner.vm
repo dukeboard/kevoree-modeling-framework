@@ -27,7 +27,6 @@ class ModelCloner {
 
         #foreach($potentialRoot in $potentialRoots)
             #if(!$potentialRoot.getClass().getName().toLowerCase().contains("eenum"))
-
                 #if($ctx.getJS())
                 if(o is ${helper.fqn($ctx,$potentialRoot)} || o is ${helper.fqn($ctx,$potentialRoot.getEPackage())}.impl.${potentialRoot.getName()}Impl) {
                 val context = java.util.HashMap<Any,Any>()
@@ -36,8 +35,8 @@ class ModelCloner {
                 val context = java.util.IdentityHashMap<Any,Any>()
             #end
 
-            (o as ${ctx.getKevoreeContainer().get()}).getClonelazy(context, mainFactory,mutableOnly)
-            return (o as ${ctx.getKevoreeContainer().get()}).resolve(context,readOnly,mutableOnly) as A
+            (o as ${ctx.getKevoreeContainerImplFQN()}).getClonelazy(context, mainFactory,mutableOnly)
+            return (o as ${ctx.getKevoreeContainerImplFQN()}).resolve(context,readOnly,mutableOnly) as A
             }
 
            #end

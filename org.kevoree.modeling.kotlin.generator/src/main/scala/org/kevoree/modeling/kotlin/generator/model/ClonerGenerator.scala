@@ -109,6 +109,7 @@ trait ClonerGenerator {
     } else {
       buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
     }
+
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")
     var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
     formatedFactoryName += pack.getName.substring(1)

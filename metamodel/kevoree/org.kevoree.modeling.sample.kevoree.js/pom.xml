@@ -25,11 +25,6 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>117.157</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -52,19 +47,6 @@
                             <js>true</js>
                             <json>true</json>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <executions>
-                    <execution>
-                        <id>js</id>
-                        <goals>
-                            <goal>js</goal>
-                        </goals>
                     </execution>
                 </executions>
                 <dependencies>

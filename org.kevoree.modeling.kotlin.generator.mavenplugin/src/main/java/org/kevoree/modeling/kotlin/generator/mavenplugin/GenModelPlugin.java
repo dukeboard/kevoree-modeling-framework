@@ -40,13 +40,35 @@
  */
 package org.kevoree.modeling.kotlin.generator.mavenplugin;
 
+import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
+import com.intellij.openapi.util.io.FileUtil;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.jetbrains.jet.cli.common.CLICompiler;
+import org.jetbrains.jet.cli.common.ExitCode;
+import org.jetbrains.jet.cli.js.K2JSCompiler;
+import org.jetbrains.jet.cli.js.K2JSCompilerArguments;
+import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
+import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
+import org.jetbrains.k2js.config.MetaInfServices;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
-import java.io.File;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
+import javax.tools.ToolProvider;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Generates files based on grammar files with Antlr tool.
@@ -71,6 +93,13 @@ public class GenModelPlugin extends AbstractMojo {
      * @parameter default-value="${project.build.directory}/generated-sources/kmf"
      */
     private File output;
+
+    /**
+     * Source base directory
+     *
+     * @parameter default-value="${project.build.directory}/generated-sources/kmf-util"
+     */
+    private File outputUtil;
 
     /**
      * Source user base directory
@@ -166,6 +195,31 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private MavenProject project;
 
+
+    /**
+     * @parameter default-value="${project.build.directory}/classes"
+     */
+    private File outputClasses;
+
+
+    /**
+     * The output JS file name
+     *
+     * @required
+     * @parameter default-value="${project.build.directory}/js/${project.artifactId}.js"
+     */
+    private String outputJS;
+
+
+    /**
+     * The output Kotlin JS file
+     *
+     * @required
+     * @parameter default-value="${project.build.directory}/js"
+     * @parameter expression="${outputKotlinJSFile}"
+     */
+    private File outputKotlinJSDir;
+
     private boolean deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
@@ -179,6 +233,24 @@ public class GenModelPlugin extends AbstractMojo {
         }
         return (path.delete());
     }
+
+    CLICompiler KotlinCompiler = new K2JVMCompiler();
+
+    CLICompiler KotlinCompilerJS = new K2JSCompiler();
+
+    public void collectJavaFiles(String directoryPath, List<File> sourceFileList) {
+        for (String contents : new File(directoryPath).list()) {
+            File current = new File(directoryPath + File.separator + contents);
+            if (contents.endsWith(".java")) {
+                sourceFileList.add(current);
+            } else {
+                if (current.isDirectory()) {
+                    collectJavaFiles(current.getAbsolutePath(), sourceFileList);
+                }
+            }
+        }
+    }
+
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -194,24 +266,185 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
-        if(flatInheritance){
+        if (flatInheritance) {
             ctx.setGenFlatInheritance();
         }
         ctx.flyweightFactory_$eq(flyweightFactory);
 
-        Generator gen = new Generator(ctx,ecore);//, getLog());
+        Generator gen = new Generator(ctx, ecore);//, getLog());
 
         gen.generateModel(project.getVersion());
         if (!modelOnly) {
             gen.generateLoader();
             gen.generateSerializer();
         }
-        if(json){
+        if (json) {
             gen.generateJSONSerializer();
             gen.generateJsonLoader();
         }
 
 
-        this.project.addCompileSourceRoot(output.getAbsolutePath());
+        //call Java compiler
+        if(!ctx.getJS()){
+            javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+
+            try {
+                outputClasses.mkdirs();
+                fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputClasses));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            List<File> sourceFileList = new ArrayList<File>();
+            collectJavaFiles(ctx.getRootGenerationDirectory().getAbsolutePath(), sourceFileList);
+
+            try {
+                File localFileDir = new File(outputUtil + File.separator + "org" + File.separator + "jetbrains" + File.separator + "annotations");
+                localFileDir.mkdirs();
+                File localFile = new File(localFileDir, "NotNull.java");
+                PrintWriter pr = new PrintWriter(localFile, "utf-8");
+                VelocityEngine ve = new VelocityEngine();
+                ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
+                ve.init();
+                Template template = ve.getTemplate("NotNull.vm");
+                VelocityContext ctxV = new VelocityContext();
+                template.merge(ctxV, pr);
+                pr.flush();
+                pr.close();
+                sourceFileList.add(localFile);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
+            javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, compilationUnits);
+            boolean result = task.call();
+
+
+
+            System.out.println("Java API compilation : "+result);
+
+            //TODO delete Jetbrains NotNull class file
+
+        }
+
+        outputClasses.mkdirs();
+
+        try {
+            StringBuffer cpath = new StringBuffer();
+            boolean firstBUF = true;
+            for (String path : project.getCompileClasspathElements()) {
+                if (!firstBUF) {
+                    cpath.append(File.pathSeparator);
+                }
+                cpath.append(path);
+                firstBUF = false;
+            }
+
+            ExitCode e = null;
+            if(ctx.getJS()){
+
+                K2JSCompilerArguments args = new K2JSCompilerArguments();
+                args.sourceFiles = Collections.singletonList(ctx.getRootGenerationDirectory().getAbsolutePath()).toArray(new String[1]);
+                args.outputFile = outputJS;
+                args.verbose = false;
+                e = KotlinCompilerJS.exec(new PrintStream(System.err){
+                    @Override
+                    public void println(String x) {
+                        if(x.startsWith("WARNING")){
+
+                        } else {
+                            super.println(x);
+                        }
+                    }
+                }, args);
+
+                copyJsLibraryFile(KOTLIN_JS_MAPS);
+                copyJsLibraryFile(KOTLIN_JS_LIB);
+                copyJsLibraryFile(KOTLIN_JS_LIB_ECMA3);
+                copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
+
+            } else {
+                K2JVMCompilerArguments args = new K2JVMCompilerArguments();
+                args.setClasspath(cpath.toString());
+                args.setSourceDirs(Collections.singletonList(ctx.getRootGenerationDirectory().getAbsolutePath()));
+                args.setOutputDir(outputClasses.getPath());
+                args.noJdkAnnotations = true;
+                args.noStdlib = true;
+                args.verbose = false;
+                e = KotlinCompiler.exec(new PrintStream(System.err){
+                    @Override
+                    public void println(String x) {
+                        if(x.startsWith("WARNING")){
+
+                        } else {
+                            super.println(x);
+                        }
+                    }
+                }, args);
+            }
+            if (e.ordinal() != 0) {
+                throw new MojoExecutionException("Embedded Kotlin compilation error !");
+            }
+        } catch (MojoExecutionException e) {
+            getLog().error(e);
+            throw e;
+        } catch (Exception e) {
+            getLog().error(e);
+        }
+
+
+        //this.project.addCompileSourceRoot(output.getAbsolutePath());
     }
+
+    protected void appendFile(String jsLib, StringBuilder builder) throws MojoExecutionException {
+        // lets copy the kotlin library into the output directory
+        try {
+            final InputStream inputStream = MetaInfServices.loadClasspathResource(jsLib);
+            if (inputStream == null) {
+                System.out.println("WARNING: Could not find " + jsLib + " on the classpath!");
+            } else {
+                InputSupplier<InputStream> inputSupplier = new InputSupplier<InputStream>() {
+                    @Override
+                    public InputStream getInput() throws IOException {
+                        return inputStream;
+                    }
+                };
+                String text = "\n" + FileUtil.loadTextAndClose(inputStream);
+                builder.append(text);
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    protected void copyJsLibraryFile(String jsLib) throws MojoExecutionException {
+        // lets copy the kotlin library into the output directory
+        try {
+            outputKotlinJSDir.mkdirs();
+            final InputStream inputStream = MetaInfServices.loadClasspathResource(jsLib);
+            if (inputStream == null) {
+                System.out.println("WARNING: Could not find " + jsLib + " on the classpath!");
+            } else {
+                InputSupplier<InputStream> inputSupplier = new InputSupplier<InputStream>() {
+                    @Override
+                    public InputStream getInput() throws IOException {
+                        return inputStream;
+                    }
+                };
+                Files.copy(inputSupplier, new File(outputKotlinJSDir, jsLib));
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    public static final String KOTLIN_JS_MAPS = "kotlin-maps.js";
+    public static final String KOTLIN_JS_LIB = "kotlin-lib.js";
+    public static final String KOTLIN_JS_LIB_ECMA3 = "kotlin-lib-ecma3.js";
+    public static final String KOTLIN_JS_LIB_ECMA5 = "kotlin-lib-ecma5.js";
+
+
 }

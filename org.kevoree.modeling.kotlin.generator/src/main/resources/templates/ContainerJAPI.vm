@@ -49,8 +49,6 @@ public <A> A findByPath(@org.jetbrains.annotations.NotNull String query, @org.je
 Object findByPath(@org.jetbrains.annotations.NotNull String query);
 public String path();
 
-public void getClonelazy(@org.jetbrains.annotations.NotNull java.util.IdentityHashMap<Object,Object> subResult,  @org.jetbrains.annotations.NotNull ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.factory.MainFactory _factories, @org.jetbrains.annotations.NotNull boolean mutableOnly);
-public Object resolve(@org.jetbrains.annotations.NotNull java.util.IdentityHashMap<Object,Object> addrs,@org.jetbrains.annotations.NotNull boolean readOnly, @org.jetbrains.annotations.NotNull boolean mutableOnly);
 
 #if(${ctx.generateEvents()})
     public void addModelElementListener(@org.jetbrains.annotations.NotNull ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener lst);
