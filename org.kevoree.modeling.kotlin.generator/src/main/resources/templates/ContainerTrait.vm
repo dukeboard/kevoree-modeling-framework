@@ -134,12 +134,5 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
 
-        fun addModelElementListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
-        fun removeModelElementListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
-        fun addModelTreeListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
-        fun removeModelTreeListener(lst: (${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent?) -> jet.Unit) {}
-
-
-
 #end
 }
