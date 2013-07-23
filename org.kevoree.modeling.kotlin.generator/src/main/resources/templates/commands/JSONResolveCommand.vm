@@ -2,7 +2,7 @@
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
-public class JSONResolveCommand(val context : LoadingContext, val target : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer, val method : String, val ref : String) : ResolveCommand {
+public class JSONResolveCommand(val context : LoadingContext, val target : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer, val mutatorType : String, val refName : String, val ref : String) : ResolveCommand {
     override fun run() {
         var referencedElement = context.map.get(ref)
         var i = 0
@@ -11,14 +11,14 @@ public class JSONResolveCommand(val context : LoadingContext, val target : ${hel
         }
 
         if(referencedElement != null) {
-            target.reflexiveSetters(method, referencedElement)
+            target.reflexiveMutator(mutatorType,refName, referencedElement)
             return
         }
 
         if(ref.equals("/0/") || ref.equals("/")) {
             referencedElement = context.map.get("/0")
             if(referencedElement != null)   {
-                target.reflexiveSetters(method, referencedElement)
+                target.reflexiveMutator(mutatorType,refName, referencedElement)
                 return
             }
         }
