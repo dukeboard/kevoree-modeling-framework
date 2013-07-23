@@ -9,7 +9,7 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-    	<kotlin.version>0.5.748</kotlin.version>
+    	<kotlin.version>0.5.998</kotlin.version>
 		<kmf.version>1.3.3-SNAPSHOT</kmf.version>
         <emf.version>2.7.0</emf.version>
     </properties>
@@ -45,10 +45,6 @@
               <id>kevoree-snapshots</id>
               <url>https://oss.sonatype.org/content/groups/public/</url>
           </repository>
-          <repository>
-              <id>jetbrains-release</id>
-              <url>http://repository.jetbrains.com/all</url>
-          </repository>
       </repositories>
 
       <pluginRepositories>
@@ -59,10 +55,6 @@
           <pluginRepository>
               <id>plugin.kevoree-snapshots</id>
               <url>https://oss.sonatype.org/content/groups/public/</url>
-          </pluginRepository>
-          <pluginRepository>
-              <id>jetbrains-release</id>
-              <url>http://repository.jetbrains.com/all</url>
           </pluginRepository>
       </pluginRepositories>
 

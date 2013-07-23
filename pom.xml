@@ -190,29 +190,6 @@
             <id>kevoree-libs-release-local</id>
             <url>http://maven.kevoree.org/release</url>
         </repository>
-        <repository>
-            <id>jetbrains-release</id>
-            <url>http://repository.jetbrains.com/all</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
     </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jetbrains-release</id>
-            <url>http://repository.jetbrains.com/all</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>
