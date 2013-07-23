@@ -18,6 +18,6 @@ public class XMIResolveCommand(val context : LoadingContext, val target : ${help
             }
         }
 
-        throw Exception("KMF Load error : reference " + ref + " not found in map when trying to "+method+" on " + target.toString())
+        throw Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " "+refName+"  on " + target.toString())
     }
 }

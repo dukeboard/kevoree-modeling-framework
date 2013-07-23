@@ -31,7 +31,7 @@ fun getRefInParent() : String?
 fun findByPath(query : String) : Any?
 fun path() : String?
 
-fun reflexiveSetters(method : String, value : Any?)
+fun reflexiveMutator(mutatorType : String,refName : String, value : Any?)
 
 #if(${ctx.jS})
 #else
