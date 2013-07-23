@@ -2,8 +2,8 @@
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container
 
-class RemoveFromContainerCommand(val target : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer, val method : String, val element : Any?) {
+class RemoveFromContainerCommand(val target : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.KMFContainer, val mutatorType : String, val refName : String, val element : Any?) {
     fun run() {
-        target.reflexiveSetters(method, element)
+        target.reflexiveMutator(mutatorType,refName, element)
     }
 }
