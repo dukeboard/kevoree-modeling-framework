@@ -80,14 +80,18 @@ trait KMFQLFinder {
       }
       pr.println("fun internalGetKey() : String {")
       var first = true
-      cls.getEAllAttributes.filter(att => att.isID).foreach {
+      pr.print("return ")
+      cls.getEAllAttributes.filter(att => att.isID)//gets all IDs
+        .sortWith{(att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase} //order alphabetically
+        .foreach {
         att =>
           if (!first) {
             pr.print("+\"/\"+")
           }
-          pr.print("return get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "()")
+          pr.print(" get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "()")
           first = false
       }
+      pr.println()
       pr.println("}")
       pr.println("override fun path() : String? {")
       pr.println("val container = eContainer()")
@@ -297,6 +301,8 @@ trait KMFQLFinder {
         pr.println("}")
 
       }
+
+      //TODO :: Check that !
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
         pr.println("\"" + ref.getName + "\" -> {")
         pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")

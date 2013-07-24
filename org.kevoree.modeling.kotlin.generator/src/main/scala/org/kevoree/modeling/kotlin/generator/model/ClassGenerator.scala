@@ -162,6 +162,7 @@ trait ClassGenerator extends ClonerGenerator {
     }
   }
 
+  /*
   def getIdAtt(cls: EClass) = {
     cls.getEAllAttributes.find {
       att => att.isID
@@ -174,6 +175,7 @@ trait ClassGenerator extends ClonerGenerator {
     }
     "get" + getIdAtt(cls).get.getName.substring(0, 1).toUpperCase + getIdAtt(cls).get.getName.substring(1)
   }
+  */
 
 
   def hasFindByIDMethod(cls: EClass): Boolean = {
@@ -297,7 +299,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("    }")
         }
     }
-    pr.println("    else -> { System.err.println(\"Can reflexively \"+mutationType+\" for \"+refName + \" on \"+ this) }")
+    pr.println("    else -> { throw Exception(\"Can reflexively \"+mutationType+\" for \"+refName + \" on \"+ this) }")
     pr.println("  }")
     pr.println("}")
   }
@@ -882,7 +884,12 @@ trait ClassGenerator extends ClonerGenerator {
 
       if (hasID(ref.getEReferenceType)) {
         res += "for(el in " + ref.getName + param_suf + "){\n"
-        res += "_" + ref.getName + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
+        if(ctx.getGenFlatInheritance) {
+          res += "_" + ref.getName + ".put((el as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey(),el)\n"
+        } else {
+          res += "_" + ref.getName + ".put((el as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey(),el)\n"
+        }
+
         res += "}\n"
       } else {
         res += "_" + ref.getName + ".addAll(" + ref.getName + param_suf + ")\n"
@@ -975,7 +982,11 @@ trait ClassGenerator extends ClonerGenerator {
     res += ("_" + ref.getName + "_java_cache=null\n")
     if (hasID(ref.getEReferenceType)) {
       res += "for(el in " + ref.getName + param_suf + "){\n"
-      res += "_" + ref.getName + ".put(el." + generateGetIDAtt(ref.getEReferenceType) + "(),el)\n"
+      if(ctx.getGenFlatInheritance) {
+        res += "_" + ref.getName + ".put((el as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey(),el)\n"
+      } else {
+        res += "_" + ref.getName + ".put((el as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey(),el)\n"
+      }
       res += "}\n"
     } else {
       res += "_" + ref.getName + ".addAll(" + ref.getName + param_suf + ")\n"
@@ -1038,7 +1049,11 @@ trait ClassGenerator extends ClonerGenerator {
     }
 
     if (hasID(ref.getEReferenceType)) {
-      res += "_" + ref.getName + ".put(" + ref.getName + param_suf + "." + generateGetIDAtt(ref.getEReferenceType) + "()," + ref.getName + param_suf + ")\n"
+      if(ctx.getGenFlatInheritance) {
+        res += "_" + ref.getName + ".put((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()," + ref.getName + param_suf + ")\n"
+      } else {
+        res += "_" + ref.getName + ".put((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey()," + ref.getName + param_suf + ")\n"
+      }
     } else {
       res += "_" + ref.getName + ".add(" + ref.getName + param_suf + ")\n"
     }
@@ -1118,7 +1133,11 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (isOptional) {
       if (hasID(ref.getEReferenceType)) {
-        res += "if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(" + ref.getName + param_suf + "." + generateGetIDAtt(ref.getEReferenceType) + "())) {\n"
+        if(ctx.getGenFlatInheritance) {
+          res += "if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey())) {\n"
+        } else {
+          res += "if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey())) {\n"
+        }
       } else {
         res += "if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".indexOf(" + ref.getName + param_suf + ") != -1 ) {\n"
       }
@@ -1126,7 +1145,11 @@ trait ClassGenerator extends ClonerGenerator {
     } else {
 
       if (hasID(ref.getEReferenceType)) {
-        res += "if(" + "_" + ref.getName + ".size == " + ref.getLowerBound + "&& " + "_" + ref.getName + ".containsKey(" + ref.getName + param_suf + "." + generateGetIDAtt(ref.getEReferenceType) + "()) ) {\n"
+        if(ctx.getGenFlatInheritance) {
+          res += "if(" + "_" + ref.getName + ".size == " + ref.getLowerBound + "&& " + "_" + ref.getName + ".containsKey((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()) ) {\n"
+        } else {
+          res += "if(" + "_" + ref.getName + ".size == " + ref.getLowerBound + "&& " + "_" + ref.getName + ".containsKey((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey()) ) {\n"
+        }
       } else {
         res += "if(" + "_" + ref.getName + ".size == " + ref.getLowerBound + "&& " + "_" + ref.getName + ".indexOf(" + ref.getName + param_suf + ") != -1 ) {\n"
       }
@@ -1136,7 +1159,11 @@ trait ClassGenerator extends ClonerGenerator {
     }
 
     if (hasID(ref.getEReferenceType)) {
-      res += "_" + ref.getName + ".remove(" + ref.getName + param_suf + "." + generateGetIDAtt(ref.getEReferenceType) + "())\n"
+      if(ctx.getGenFlatInheritance) {
+      res += "_" + ref.getName + ".remove((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey())\n"
+      } else {
+        res += "_" + ref.getName + ".remove((" + ref.getName + param_suf + " as "+ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey())\n"
+      }
     } else {
       if (ctx.getJS()) {
         // Kotlin JS fix: arrayList.remove(arrayList.indexOf(elem)) does not work in Javascript, but arrayList.remove(elem) does

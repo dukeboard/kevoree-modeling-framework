@@ -189,11 +189,15 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
   def generatePLayer(ecoreFile: File, modelVersion: String) {
 
     val model = ctx.getEcoreModel(ecoreFile)
+
+    ctx.setBaseLocationForUtilitiesGeneration(ecoreFile)
+    ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".container.KMFContainer"))
+    ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".container.KMFContainerImpl")
+            /*
     model.getContents.foreach {
       elem =>
         elem match {
           case pack: EPackage => {
-            /*
             ctx.getRootContainerInPackage(pack) match {
               case Some(rootContainerClass) => {
                 var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
@@ -208,11 +212,12 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
 
               }
               case _ => print("No container root found in package : " + pack.getName)
-            } */
+            }
           }
           case _ => println("No model generator for containerRoot element of class: " + elem.getClass)
         }
     }
+            */
 
     model.getAllContents.filter(el => el.isInstanceOf[EPackage] && el.asInstanceOf[EPackage].getEClassifiers.size() > 0).foreach {
       pack =>
@@ -277,7 +282,7 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
             formatedFactoryName += cls.getEPackage.getName.substring(1)
             formatedFactoryName += "Factory"
 
-            pr.println("override fun eContainer() : "+ctx.getKevoreeContainer.get+"? {")
+            pr.println("override fun eContainer() : "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".container.KMFContainer? {")
             pr.println("if(internal_eContainer == null) {")
             pr.println("val eContainer = mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_eContainer\")")
               pr.println("val containmentRefName = mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_containmentRefName\")")

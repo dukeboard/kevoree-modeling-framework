@@ -8,7 +8,7 @@ import ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.eve
 
 public class ModelEvent(val sourcePath : String?, val etype : EventType , val elementAttributeType : ElementAttributeType, val elementAttributeName: String, val value : Any?) {
 
-public class EventType {
+public enum class EventType {
     set
     add
     remove
