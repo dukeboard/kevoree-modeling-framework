@@ -39,6 +39,7 @@ public class ModelElementEventsTest {
 
 
     private void assertEvent(ModelEvent evt, String expectedPath, String expectedElementAttributeName, ModelEvent.ElementAttributeType expectedElementAttributeType,ModelEvent.EventType expectedEventType, Object expectedValue ) {
+
         assertTrue("Source is not correct. Expected:" + expectedPath + " Was:" + evt.getSourcePath() , evt.getSourcePath().equals(expectedPath));
         assertTrue("ElementAttributeName not correct. Expected: "+expectedElementAttributeName+" Was:" + evt.getElementAttributeName(), evt.getElementAttributeName().equals(expectedElementAttributeName));
         assertTrue("ElementAttributeType not correct. Expected: "+expectedElementAttributeType.name()+" Was:" + evt.getElementAttributeType().name(), evt.getElementAttributeType()==expectedElementAttributeType);
@@ -120,6 +121,7 @@ public class ModelElementEventsTest {
         final Transition t0 = factory.createTransition();
         final State s0 = factory.createState();
         s0.setName("s0");
+
         t0.setName("t0");
         t0.setSource(s0);
         t0.addModelElementListener(new ModelElementListener() {
@@ -143,6 +145,7 @@ public class ModelElementEventsTest {
         final Transition t0 = factory.createTransition();
         final Transition t1 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
         t1.setName("t1");
         final ArrayList<Transition> transitionsList = new ArrayList<Transition>();
@@ -151,7 +154,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "incomingTransition", ModelEvent.ElementAttributeType.Reference, ModelEvent.EventType.add, transitionsList);
+                assertEventWithList(evt, s0.path(), "incomingTransition", ModelEvent.ElementAttributeType.Reference, ModelEvent.EventType.addAll, transitionsList);
                 addAllReference.release();
             }
         });
@@ -169,6 +172,7 @@ public class ModelElementEventsTest {
         final Transition t0 = factory.createTransition();
         final Transition t1 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
         t1.setName("t1");
         final ArrayList<Transition> transitionsList = new ArrayList<Transition>();
@@ -178,7 +182,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "incomingTransition", ModelEvent.ElementAttributeType.Reference, ModelEvent.EventType.remove, transitionsList);
+                assertEventWithList(evt, s0.path(), "incomingTransition", ModelEvent.ElementAttributeType.Reference, ModelEvent.EventType.removeAll, transitionsList);
                 removeAllReference.release();
             }
         });
@@ -196,6 +200,7 @@ public class ModelElementEventsTest {
         final Transition t0 = factory.createTransition();
         final Transition t1 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
         t1.setName("t1");
         final ArrayList<Transition> transitionsList = new ArrayList<Transition>();
@@ -204,7 +209,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "outgoingTransition", ModelEvent.ElementAttributeType.Containment, ModelEvent.EventType.add, transitionsList);
+                assertEventWithList(evt, s0.path(), "outgoingTransition", ModelEvent.ElementAttributeType.Containment, ModelEvent.EventType.addAll, transitionsList);
                 addAllContainment.release();
             }
         });
@@ -222,6 +227,7 @@ public class ModelElementEventsTest {
         final Transition t0 = factory.createTransition();
         final Transition t1 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
         t1.setName("t1");
         final ArrayList<Transition> transitionsList = new ArrayList<Transition>();
@@ -231,7 +237,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "outgoingTransition", ModelEvent.ElementAttributeType.Containment, ModelEvent.EventType.remove, transitionsList);
+                assertEventWithList(evt, s0.path(), "outgoingTransition", ModelEvent.ElementAttributeType.Containment, ModelEvent.EventType.removeAll, transitionsList);
                 removeAllContainment.release();
             }
         });
@@ -249,6 +255,7 @@ public class ModelElementEventsTest {
         final State s0 = factory.createState();
         final Transition t0 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
         s0.addModelElementListener(new ModelElementListener() {
             @Override
@@ -270,6 +277,7 @@ public class ModelElementEventsTest {
         final State s0 = factory.createState();
         final Transition t0 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
         s0.addIncomingTransition(t0);
         s0.addModelElementListener(new ModelElementListener() {
@@ -292,6 +300,7 @@ public class ModelElementEventsTest {
         final State s0 = factory.createState();
         final Transition t0 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
 
         s0.addModelElementListener(new ModelElementListener() {
@@ -314,6 +323,7 @@ public class ModelElementEventsTest {
         final State s0 = factory.createState();
         final Transition t0 = factory.createTransition();
         s0.setName("s0");
+        s0.setVersion("v.1.0.2");
         t0.setName("t0");
         s0.addOutgoingTransition(t0);
         s0.addModelElementListener(new ModelElementListener() {

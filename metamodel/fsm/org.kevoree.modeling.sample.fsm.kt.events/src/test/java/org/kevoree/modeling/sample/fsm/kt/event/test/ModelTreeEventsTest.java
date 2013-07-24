@@ -50,8 +50,10 @@ public class ModelTreeEventsTest {
         fsm.setName("fsm");
         final State s0 = factory.createState();
         s0.setName("s0");
+        s0.setVersion("v1.2.0");
         final State s1 = factory.createState();
         s1.setName("s1");
+        s1.setVersion("v1.0.1-SNAPSHOT");
         final Transition t0 = factory.createTransition();
         final Transition t1 = factory.createTransition();
 
