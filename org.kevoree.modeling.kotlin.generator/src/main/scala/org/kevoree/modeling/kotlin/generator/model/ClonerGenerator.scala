@@ -218,7 +218,10 @@ trait ClonerGenerator {
               buffer.println("if(mutableOnly && this." + getGetter(ref.getName) + "!!.isRecursiveReadOnly()){")
               buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(this." + getGetter(ref.getName) + "!!)")
               buffer.println("} else {")
-              buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(addrs.get(this." + getGetter(ref.getName) + ") as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+
+              buffer.println("val interObj = addrs.get(this." + getGetter(ref.getName) + ")")
+              buffer.println("if(interObj == null){ throw Exception(\"Non contained "+ref.getName+" from "+cls.getName+" : \"+this." + getGetter(ref.getName) + ")}")
+              buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               buffer.println("}")
 
               buffer.println("}")
@@ -231,7 +234,10 @@ trait ClonerGenerator {
               buffer.println("if(mutableOnly && sub.isRecursiveReadOnly()){")
               buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(sub)")
               buffer.println("} else {")
-              buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(addrs.get(sub) as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+
+              buffer.println("val interObj = addrs.get(sub)")
+              buffer.println("if(interObj == null){ throw Exception(\"Non contained "+ref.getName+" from "+cls.getName+" : \"+this." + getGetter(ref.getName) + ")}")
+              buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               buffer.println("}")
 
               buffer.println("\t\t}")

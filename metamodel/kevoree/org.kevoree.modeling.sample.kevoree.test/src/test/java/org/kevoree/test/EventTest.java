@@ -64,5 +64,23 @@ public class EventTest {
 
     }
 
+    @Test
+    public void testEvent2() {
+
+        KevoreeFactory factory = new DefaultKevoreeFactory();
+        ContainerRoot modelM0 = factory.createContainerRoot();
+
+
+        ContainerNode newNode = factory.createContainerNode();
+        newNode.setName("testNode");
+        modelM0.addNodes(newNode);
+
+        assert (modelM0.findNodesByID("testNode") != null);
+        newNode.setName("newName");
+        assert (modelM0.findNodesByID("newName") != null);
+        assert (modelM0.findNodesByID("testNode") == null);
+
+    }
+
 
 }
