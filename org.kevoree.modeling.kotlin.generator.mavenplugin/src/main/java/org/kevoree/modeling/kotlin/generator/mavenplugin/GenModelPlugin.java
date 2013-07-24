@@ -43,6 +43,8 @@ package org.kevoree.modeling.kotlin.generator.mavenplugin;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.intellij.openapi.util.io.FileUtil;
+import jline.internal.Log;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -303,7 +305,17 @@ public class GenModelPlugin extends AbstractMojo {
             try {
                 outputClasses.mkdirs();
                 fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputClasses));
-           //     fileManager.setLocation(StandardLocation.CLASS_PATH, Arrays.asList(new File("/Users/duke/.m2/repository/org/jetbrains/kotlin/kotlin-compiler/0.5.998/kotlin-compiler-0.5.998.jar")));
+                try {
+                    ArrayList<File> classPaths = new ArrayList<File>();
+                    for(String path : project.getCompileClasspathElements()){
+                        classPaths.add(new File(path));
+                    }
+
+                    fileManager.setLocation(StandardLocation.CLASS_PATH, classPaths);
+                } catch (DependencyResolutionRequiredException e) {
+                    e.printStackTrace();
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -333,7 +345,7 @@ public class GenModelPlugin extends AbstractMojo {
 
 
             List<String> optionList = new ArrayList<String>();
-            //optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
+            optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
 
             Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
             javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null, compilationUnits);
