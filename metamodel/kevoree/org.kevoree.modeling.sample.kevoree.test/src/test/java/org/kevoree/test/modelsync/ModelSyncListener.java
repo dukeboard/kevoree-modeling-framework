@@ -38,6 +38,17 @@ public class ModelSyncListener implements ModelTreeListener {
             target = (KMFContainer) currentModel.findByPath(modelEvent.getSourcePath());
         }
         //reflexive apply
-        target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), cloner.clone(modelEvent.getValue()));
+
+        if(modelEvent.getElementAttributeType().equals(ModelEvent.ElementAttributeType.Containment)){
+            target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), cloner.clone(modelEvent.getValue()));
+        } else {
+            if(modelEvent.getValue() instanceof KMFContainer){
+                KMFContainer eventObj = (KMFContainer) modelEvent.getValue();
+                String originPath = eventObj.path();
+                target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), currentModel.findByPath(originPath));
+            }
+
+        }
+
     }
 }

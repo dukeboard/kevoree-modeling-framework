@@ -39,8 +39,15 @@ public class EventTest {
 
         assert (modelM1.getTypeDefinitions().size() == 1);
         assert (modelM0.getTypeDefinitions().size() == 1);
-
+        assert (modelM0.getTypeDefinitions().contains(typeDef));
         assert (!modelM1.findTypeDefinitionsByID("TD1").equals(modelM0.findTypeDefinitionsByID("TD1")));
+
+        newNode.setTypeDefinition(typeDef);
+
+        TypeDefinition M1mirrorTD = modelM1.findNodesByID("testNode").getTypeDefinition();
+
+        assert(!M1mirrorTD.equals(typeDef));
+        assert(M1mirrorTD.eContainer().equals(modelM1));
 
     }
 
