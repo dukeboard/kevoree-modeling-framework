@@ -1,11 +1,11 @@
 package org.kevoree.modeling.tests;
 
-import kmf.kevoree.ContainerRoot;
-import kmf.kevoree.Group;
-import kmf.kevoree.KevoreeFactory;
-import kmf.kevoree.impl.DefaultKevoreeFactory;
-import kmf.kevoree.loader.JSONModelLoader;
-import kmf.kevoree.serializer.JSONModelSerializer;
+import org.kevoree.ContainerRoot;
+import org.kevoree.Group;
+import org.kevoree.KevoreeFactory;
+import org.kevoree.impl.DefaultKevoreeFactory;
+import org.kevoree.loader.JSONModelLoader;
+import org.kevoree.serializer.JSONModelSerializer;
 import org.junit.Test;
 
 import java.io.File;
