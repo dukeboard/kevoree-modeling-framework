@@ -14,13 +14,11 @@
     </parent>
 
     <dependencies>
-
         <dependency>
             <groupId>org.kevoree.modeling</groupId>
             <artifactId>org.kevoree.modeling.kotlin.generator</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -37,7 +35,24 @@
             <version>0.9.9</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.jetbrains.intellij</groupId>
+            <artifactId>annotations</artifactId>
+            <version>117.157</version>
+        </dependency>
+
     </dependencies>
+
+
+
+    <repositories>
+        <repository>
+            <id>jetbrains-all</id>
+            <url>http://repository.jetbrains.com/all</url>
+        </repository>
+    </repositories>
+
 </project>
 
 

@@ -70,6 +70,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
  * Generates files based on grammar files with Antlr tool.
  *
@@ -288,16 +289,16 @@ public class GenModelPlugin extends AbstractMojo {
         if(!ctx.getJS()){
             javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-
             try {
                 outputClasses.mkdirs();
                 fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputClasses));
+           //     fileManager.setLocation(StandardLocation.CLASS_PATH, Arrays.asList(new File("/Users/duke/.m2/repository/org/jetbrains/kotlin/kotlin-compiler/0.5.998/kotlin-compiler-0.5.998.jar")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             List<File> sourceFileList = new ArrayList<File>();
             collectJavaFiles(ctx.getRootGenerationDirectory().getAbsolutePath(), sourceFileList);
+
 
             try {
                 File localFileDir = new File(outputUtil + File.separator + "org" + File.separator + "jetbrains" + File.separator + "annotations");
@@ -318,10 +319,19 @@ public class GenModelPlugin extends AbstractMojo {
                 e.printStackTrace();
             }
 
-            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
-            javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, compilationUnits);
-            boolean result = task.call();
 
+
+            List<String> optionList = new ArrayList<String>();
+            //optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
+
+            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
+            javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null, compilationUnits);
+            boolean result = task.call();
+            try {
+                fileManager.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
             System.out.println("Java API compilation : "+result);
