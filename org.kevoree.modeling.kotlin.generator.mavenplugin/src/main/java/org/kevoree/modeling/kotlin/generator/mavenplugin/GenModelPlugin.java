@@ -221,6 +221,17 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private File outputKotlinJSDir;
 
+
+    /**
+     * The output Kotlin JS file
+     *
+     * @required
+     * @parameter default-value="${basedir}/src/main/java"
+     * @parameter expression="${outputKotlinJSFile}"
+     */
+    private File sourceFile;
+
+
     private boolean deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
@@ -357,7 +368,13 @@ public class GenModelPlugin extends AbstractMojo {
             if(ctx.getJS()){
 
                 K2JSCompilerArguments args = new K2JSCompilerArguments();
-                args.sourceFiles = Collections.singletonList(ctx.getRootGenerationDirectory().getAbsolutePath()).toArray(new String[1]);
+                ArrayList<String> sources = new ArrayList<String>();
+                sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
+                if(sourceFile.exists()){
+                    getLog().info("Add directory : "+sourceFile.getAbsolutePath());
+                    sources.add(sourceFile.getAbsolutePath());
+                }
+                args.sourceFiles = sources.toArray(new String[sources.size()]);
                 args.outputFile = outputJS;
                 args.verbose = false;
                 e = KotlinCompilerJS.exec(new PrintStream(System.err){
@@ -379,7 +396,15 @@ public class GenModelPlugin extends AbstractMojo {
             } else {
                 K2JVMCompilerArguments args = new K2JVMCompilerArguments();
                 args.setClasspath(cpath.toString());
-                args.setSourceDirs(Collections.singletonList(ctx.getRootGenerationDirectory().getAbsolutePath()));
+
+                ArrayList<String> sources = new ArrayList<String>();
+                sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
+                if(sourceFile.exists()){
+                    getLog().info("Add directory : "+sourceFile.getAbsolutePath());
+                    sources.add(sourceFile.getAbsolutePath());
+                }
+
+                args.setSourceDirs(sources);
                 args.setOutputDir(outputClasses.getPath());
                 args.noJdkAnnotations = true;
                 args.noStdlib = true;

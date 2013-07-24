@@ -37,6 +37,11 @@ public class EventTest {
         System.out.println("M0 nodes size = " + modelM0.getNodes().size());
         assert (modelM0.getNodes().size() == 1);
 
+        assert (modelM1.getTypeDefinitions().size() == 1);
+        assert (modelM0.getTypeDefinitions().size() == 1);
+
+        assert (!modelM1.findTypeDefinitionsByID("TD1").equals(modelM0.findTypeDefinitionsByID("TD1")));
+
     }
 
 
