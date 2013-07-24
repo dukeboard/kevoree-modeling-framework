@@ -270,7 +270,14 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("val refMethodName = mutationType + refName.substring(0, 1).toUpperCase() + refName.substring(1); ")
     pr.println("  when(refMethodName) {")
 
-    //TODO DO same for ATT
+    cls.getEAllAttributes.foreach {
+      ref =>
+        val methodNameClean = "set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+        val valueType = ProcessorHelper.convertType(ref.getEAttributeType)
+        pr.println("   \"" + methodNameClean + "\" -> {")
+        pr.println("      this." + methodNameClean + "(value as " + valueType + ")")
+        pr.println("    }")
+    }
 
     cls.getEAllReferences.foreach {
       ref =>
@@ -295,7 +302,7 @@ trait ClassGenerator extends ClonerGenerator {
           val methodNameClean = "set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
           pr.println("   \"" + methodNameClean + "\" -> {")
-          pr.println("      this." + methodNameClean + "(value as " + valueType + ")")
+          pr.println("      this." + methodNameClean + "(value as? " + valueType + ")")
           pr.println("    }")
         }
     }
@@ -348,7 +355,7 @@ trait ClassGenerator extends ClonerGenerator {
               defaultValue
             }
           })
-          case "Int" => pr.println("Int = " ++ {
+          case "Int" => pr.println("Int = " + {
             if (defaultValue == null) {
               "0"
             } else {
@@ -589,9 +596,10 @@ trait ClassGenerator extends ClonerGenerator {
           pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
         }
         pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
+        pr.println("val oldPath = path()")
         pr.println("_" + att.getName + " = " + att.getName + param_suf)
         if (ctx.generateEvents) {
-          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Attribute, \"" + att.getName + "\", " + att.getName + param_suf + "))")
+          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Attribute, \"" + att.getName + "\", " + att.getName + param_suf + "))")
         }
         pr.println("}")
     }

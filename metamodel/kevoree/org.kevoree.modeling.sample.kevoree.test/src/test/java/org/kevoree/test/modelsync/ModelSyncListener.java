@@ -25,7 +25,7 @@ public class ModelSyncListener implements ModelTreeListener {
         System.out.println(modelEvent);
 
         try {
-         //   saver.serialize(modelEvent.getValue(), System.out);
+            //   saver.serialize(modelEvent.getValue(), System.out);
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -39,15 +39,16 @@ public class ModelSyncListener implements ModelTreeListener {
         }
         //reflexive apply
 
-        if(modelEvent.getElementAttributeType().equals(ModelEvent.ElementAttributeType.Containment)){
+        if (modelEvent.getElementAttributeType().equals(ModelEvent.ElementAttributeType.Containment)) {
             target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), cloner.clone(modelEvent.getValue()));
         } else {
-            if(modelEvent.getValue() instanceof KMFContainer){
+            if (modelEvent.getValue() instanceof KMFContainer) {
                 KMFContainer eventObj = (KMFContainer) modelEvent.getValue();
                 String originPath = eventObj.path();
                 target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), currentModel.findByPath(originPath));
+            } else {
+                target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), modelEvent.getValue());
             }
-
         }
 
     }
