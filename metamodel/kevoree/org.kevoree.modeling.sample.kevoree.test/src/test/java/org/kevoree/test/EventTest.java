@@ -51,16 +51,11 @@ public class EventTest {
         assert (!M1mirrorTD.equals(typeDef));
         assert (M1mirrorTD.eContainer().equals(modelM1));
 
-        /* change key WTF :-) */
-        newNode.setName("newName");
+        //newNode.setName("newName");
         assert (mirorNode.getName().equals(newNode.getName()));
 
-        /* check and fix reindex */
-
-
         newNode.setTypeDefinition(null);
-        modelM0.removeNodes(newNode);
-
+        //modelM0.removeNodes(newNode);
 
     }
 
@@ -69,7 +64,6 @@ public class EventTest {
 
         KevoreeFactory factory = new DefaultKevoreeFactory();
         ContainerRoot modelM0 = factory.createContainerRoot();
-
 
         ContainerNode newNode = factory.createContainerNode();
         newNode.setName("testNode");

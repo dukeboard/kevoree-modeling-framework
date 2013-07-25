@@ -37,6 +37,9 @@ import java.util
 
 class GenerationContext {
 
+
+  var genTrace : Boolean = false
+
   var genFlatInheritance: Boolean = false
 
   def getGenFlatInheritance = genFlatInheritance

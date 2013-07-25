@@ -92,7 +92,8 @@ with APIGenerator
 with EqualsGenerator
 with ContainedElementsGenerator
 with KMFIteratorGenerator
-with JavaAPIGenerator {
+with JavaAPIGenerator
+with DiffGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
@@ -104,12 +105,12 @@ with JavaAPIGenerator {
     if (ctx.genSelector) {
       generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
     }
-     if (!ctx.getJS()) {
-    generateIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-    generateIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-    generateDeepIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-    generateDeepIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-     }
+    if (!ctx.getJS()) {
+      generateIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+      generateIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+      generateDeepIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+      generateDeepIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+    }
     generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
 
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {
@@ -142,10 +143,13 @@ with JavaAPIGenerator {
           generateClass(ctx, currentPackageDir, packElement, cl)
           generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
         }
-        if(!ctx.getJS()){
+        if (!ctx.getJS()) {
           generateJAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
         } else {
           generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        }
+        if (ctx.genTrace) {
+          generateModelTraceAPI(ctx, currentPackageDir, packElement)
         }
 
       }

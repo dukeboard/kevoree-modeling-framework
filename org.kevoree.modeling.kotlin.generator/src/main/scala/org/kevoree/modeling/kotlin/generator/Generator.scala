@@ -99,6 +99,11 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     modelGen.generateContainerTrait(ctx)
     modelGen.generateRemoveFromContainerCommand(ctx)
 
+
+
+
+
+
     System.out.println("Launching model generation")
     modelGen.process(model, modelVersion)
 

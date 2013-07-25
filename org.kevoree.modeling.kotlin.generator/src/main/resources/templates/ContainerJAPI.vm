@@ -16,6 +16,8 @@ public ${formatedFactoryName} eContainer();
 
 public String getRefInParent();
 
+@org.jetbrains.annotations.NotNull
+public String metaClassName();
 
 @org.jetbrains.annotations.NotNull
 public boolean isReadOnly();

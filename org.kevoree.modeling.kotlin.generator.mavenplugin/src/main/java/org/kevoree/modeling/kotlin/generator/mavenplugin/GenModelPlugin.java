@@ -188,6 +188,13 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private Boolean events = false;
 
+    /**
+     * Generate Events
+     *
+     * @parameter
+     */
+    private Boolean trace = false;
+
 
     /**
      * The maven project.
@@ -280,6 +287,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
+        ctx.genTrace_$eq(trace);
         if (flatInheritance) {
             ctx.setGenFlatInheritance();
         }

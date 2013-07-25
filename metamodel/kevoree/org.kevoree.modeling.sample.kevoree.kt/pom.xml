@@ -58,6 +58,7 @@
 							<json>true</json>
 							<events>true</events>
                             <selector>true</selector>
+                            <trace>true</trace>
                         </configuration>
                     </execution>
                 </executions>

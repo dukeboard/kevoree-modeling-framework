@@ -257,6 +257,11 @@ class ProcessorHelperClass {
    * @return the Fully Qualified package name
    */
   def fqn(pack: EPackage): String = {
+
+    if(pack == null){
+      throw new Exception("Null Package , stop generation")
+    }
+
     var locFqn = protectReservedWords(pack.getName.toLowerCase)
     var parentPackage = pack.getESuperPackage
     while (parentPackage != null) {
