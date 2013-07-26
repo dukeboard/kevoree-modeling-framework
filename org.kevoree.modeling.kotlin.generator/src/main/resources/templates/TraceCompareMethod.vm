@@ -4,7 +4,7 @@
 
 #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
 
-private fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean) : List<${tracePack}.trace.ModelTrace> {
+override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean) : List<${tracePack}.trace.ModelTrace> {
 
     var similarObjCasted : ${FQNHelper.fqn($ctx, $currentClass)}? = null
     #if($ctx.getJS())

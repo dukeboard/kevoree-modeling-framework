@@ -64,7 +64,7 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
 
 #if(${ctx.isGenTrace()})
     #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
-    fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean) : List<${tracePack}.trace.ModelTrace>
+    fun generateDiffTraces(similarObj : ${packElem}.${formatedFactoryName}?, inter : Boolean) : List<${tracePack}.trace.ModelTrace>
 #end
 
 #if($ctx.generateEvents())
