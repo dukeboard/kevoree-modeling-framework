@@ -23,7 +23,7 @@ private fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?,
 
      #foreach( $att in $currentClass.eAllAttributes )
           attVal = get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()
-          attVal2 = similarObjCasted!!.get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()
+          attVal2 = similarObjCasted?.get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()
           if(attVal != attVal2){
                  if(!inter){
                     traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$att.getName()",null,attVal2?.toString()))
@@ -36,17 +36,17 @@ private fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?,
           }
      #end
      #foreach( $ref in $currentClass.eAllReferences )
-         #if(!$ref.isContainment())
-          attVal = path()
-          attVal2 = similarObjCasted!!.path()
+         #if(!$ref.isContainment());
+          attVal = path();
+          attVal2 = similarObjCasted?.path()
           if(attVal != attVal2){
                  if(!inter){
-                    traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2?.toString(),null))
+                    traces.add(${tracePack}.trace.ModelSetTrace(attVal!!.toString(),"$ref.getName()",attVal2?.toString(),null))
                  }
           } else {
                 //att similar
                 if(inter){
-                    traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2?.toString(),null))
+                    traces.add(${tracePack}.trace.ModelSetTrace(attVal!!.toString(),"$ref.getName()",attVal2?.toString(),null))
                 }
           }
          #end

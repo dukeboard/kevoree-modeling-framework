@@ -62,6 +62,10 @@ fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : ${
 fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
 #end
 
+#if(${ctx.isGenTrace()})
+    #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
+    fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean) : List<${tracePack}.trace.ModelTrace>
+#end
 
 #if($ctx.generateEvents())
     internal var internal_modelElementListeners : MutableList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener>?

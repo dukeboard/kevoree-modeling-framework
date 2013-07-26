@@ -1,6 +1,11 @@
 package org.kevoree.test.trace
 
 import org.kevoree.container.KMFContainer
+import org.kevoree.trace.ModelRemoveAllTrace
+import org.kevoree.trace.ModelAddTrace
+import org.kevoree.trace.ModelRemoveTrace
+import org.kevoree.trace.ModelTrace
+import org.kevoree.trace.ModelSetTrace
 
 /**
  * Created by duke on 25/07/13.

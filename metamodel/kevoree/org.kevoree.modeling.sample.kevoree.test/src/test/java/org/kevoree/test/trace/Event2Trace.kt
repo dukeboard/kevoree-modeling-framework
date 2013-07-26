@@ -4,6 +4,11 @@ package org.kevoree.test.trace
 import org.kevoree.events.ModelEvent
 import org.kevoree.events.ModelEvent.EventType
 import org.kevoree.container.KMFContainer
+import org.kevoree.trace.ModelTrace
+import org.kevoree.trace.ModelRemoveTrace
+import org.kevoree.trace.ModelRemoveAllTrace
+import org.kevoree.trace.ModelAddTrace
+import org.kevoree.trace.ModelSetTrace
 
 /**
  * Created by duke on 25/07/13.
@@ -20,10 +25,8 @@ public class Model2Trace {
             return ModelRemoveAllTrace(event.getSourcePath()!!, event.getElementAttributeName()!!)
         }
         if(event.getType().equals(EventType.add) && event.getValue() is KMFContainer){
-            return ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName()!!, (event.getValue() as KMFContainer).path()!!)
-
-            //Check set
-
+            val casted = event.getValue() as KMFContainer
+            return ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName()!!, casted.path(), casted.metaClassName())
         }
         if(event.getType().equals(EventType.set) && event.getValue() is KMFContainer){
             return ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName()!!, (event.getValue() as KMFContainer).path(), "")

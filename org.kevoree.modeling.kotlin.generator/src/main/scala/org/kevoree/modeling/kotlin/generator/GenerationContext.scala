@@ -40,6 +40,8 @@ class GenerationContext {
 
   var genTrace : Boolean = false
 
+  def isGenTrace() : Boolean = genTrace
+
   var genFlatInheritance: Boolean = false
 
   def getGenFlatInheritance = genFlatInheritance
