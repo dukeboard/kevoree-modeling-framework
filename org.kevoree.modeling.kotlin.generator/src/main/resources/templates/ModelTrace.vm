@@ -19,6 +19,12 @@ class ModelAddTrace(val srcPath: String, val refName: String, val previousPath :
     }
 }
 
+class ModelAddAllTrace(val srcPath: String, val refName: String, val previousPath : List<String>?, val typeName: List<String>?): ModelTrace {
+    override fun toString() : String {
+        return "ADDALL { src : \"" + srcPath + "\", refname : \""+refName+"\", previousPath : \""+previousPath+"\", typename : \""+typeName+"\" }"
+    }
+}
+
 class ModelRemoveTrace(val srcPath: String, val refName: String, val objPath : String): ModelTrace {
     override fun toString() : String {
         return "REMOVEALL { src : \"" + srcPath + "\", refname : \""+refName+"\", objpath : \""+objPath+"\" }"

@@ -1,0 +1,67 @@
+#* @vtlvariable name="packageName" type="java.lang.String" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+
+package ${packageName}.compare
+
+import java.util.HashMap
+import java.util.ArrayList
+
+import ${packageName}.trace.ModelTrace
+import ${packageName}.trace.ModelAddTrace
+
+/**
+ * Created by duke on 26/07/13.
+ */
+
+public class ModelCompare {
+
+    public fun diff(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): List<ModelTrace> {
+        return internal_diff(origin, target, false);
+    }
+
+    public fun inter(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): List<ModelTrace> {
+        return internal_diff(origin, target, true);
+    }
+
+    private fun internal_diff(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}, inter: Boolean): List<ModelTrace> {
+        val traces = ArrayList<ModelTrace>()
+        val objectsMap = HashMap<String, ${ctx.getKevoreeContainerImplFQN()}>()
+        traces.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter))
+        for(child in origin.containedAllElements()){
+            val childPath = child.path();
+            if(childPath != null){
+                objectsMap.put(child.path()!!, child as ${ctx.getKevoreeContainerImplFQN()});
+            } else {
+                System.err.println("Null child path " + child);
+            }
+        }
+        for(child in target.containedAllElements()){
+            val childPath = child.path();
+            if(childPath != null){
+                if(objectsMap.containsKey(childPath)){
+                    if(inter){
+                        traces.add(ModelAddTrace(child.eContainer()!!.path()!!, child.getRefInParent()!!, child.path(), child.metaClassName()))
+                    }
+                    traces.addAll(objectsMap.get(childPath)!!.generateDiffTraces(child, inter))
+                    objectsMap.remove(childPath) //drop from to process elements
+                } else {
+                    if(!inter){
+                        traces.add(ModelAddTrace(child.eContainer()!!.path()!!, child.getRefInParent()!!, child.path(), child.metaClassName()))
+                        traces.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as ${ctx.getKevoreeContainer().get()}, true))
+                    }
+                }
+            } else {
+                System.err.println("Null child path " + child);
+            }
+        }
+        if(!inter){
+            //if diff
+            for(diffChild in objectsMap.values()){
+                traces.add(ModelAddTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as ${ctx.getKevoreeContainer().get()}).path(), (diffChild as ${ctx.getKevoreeContainer().get()}).metaClassName()))
+                traces.addAll((diffChild as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(null, inter))
+            }
+        }
+        return traces;
+    }
+}

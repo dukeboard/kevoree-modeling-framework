@@ -23,11 +23,13 @@ public class TraceDiffTest {
         ModelCloner cloner = new ModelCloner();
 
         ContainerRoot model = factory.createContainerRoot();
+
         ContainerNode node1 = factory.createContainerNode();
         node1.setName("node1");
+        model.addNodes(node1);
+
         ContainerNode node2 = factory.createContainerNode();
         node2.setName("node2");
-        model.addNodes(node1);
         model.addNodes(node2);
 
         ContainerRoot model2 = cloner.clone(model);
