@@ -3,15 +3,17 @@
 
 package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.trace
 
-import java.io.Serializable
-
 /**
  * Created by duke on 25/07/13.
  */
 
-trait ModelTrace: java.io.Serializable {
-
+#if(${ctx.jS})
+trait ModelTrace {
+    fun toString() : String
 }
+#else
+trait ModelTrace: java.io.Serializable { }
+#end
 
 class ModelAddTrace(val srcPath: String, val refName: String, val previousPath : String?, val typeName: String?): ModelTrace {
     override fun toString() : String {

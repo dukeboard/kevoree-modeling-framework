@@ -13,31 +13,34 @@ return ${packElem}.DeepIterable(this)
 }
 
 override fun containedElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContainer().get()> {
-var containedIterables = Array<Any?>($currentClass.getEAllContainments().size(),{i ->
-when (i) {
-    #set($i=0)
-    #foreach( $ref in $currentClass.getEAllContainments())
-        $i -> {
-
-        #if($ref.isMany())
-            #if(${ref.getEReferenceType().getEIDAttribute()})
-            _${ref.getName()}.values()
-            #else
-            _${ref.getName()}
-            #end
-         #else
-            _${ref.getName()}
-        #end
-    }
-        #set($i=$i+1)
-    #end
-else -> {}
-}
-})
-return ${packElem}.CompositeIterable(containedIterables)
+    return ${packElem}.CompositeIterable(containedElementsArray())
 }
 
 #end
+
+override fun containedElementsArray() : Array<Any?> {
+    return Array<Any?>($currentClass.getEAllContainments().size(),{i ->
+    when (i) {
+        #set($i=0)
+        #foreach( $ref in $currentClass.getEAllContainments())
+            $i -> {
+
+            #if($ref.isMany())
+                #if(${ref.getEReferenceType().getEIDAttribute()})
+                _${ref.getName()}.values()
+                #else
+                _${ref.getName()}
+                #end
+            #else
+            _${ref.getName()}
+            #end
+        }
+            #set($i=$i+1)
+        #end
+    else -> {}
+    }
+    })
+}
 
 
 

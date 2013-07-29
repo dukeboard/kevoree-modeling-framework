@@ -33,7 +33,7 @@ public class ModelCompare {
             if(childPath != null){
                 objectsMap.put(child.path()!!, child as ${ctx.getKevoreeContainerImplFQN()});
             } else {
-                System.err.println("Null child path " + child);
+                throw Exception("Null child path " + child);
             }
         }
         for(child in target.containedAllElements()){
@@ -52,7 +52,7 @@ public class ModelCompare {
                     }
                 }
             } else {
-                System.err.println("Null child path " + child);
+                throw Exception("Null child path " + child);
             }
         }
         if(!inter){

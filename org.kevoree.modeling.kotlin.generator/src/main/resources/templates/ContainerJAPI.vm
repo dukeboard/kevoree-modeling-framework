@@ -41,6 +41,9 @@ public Iterable<${packElem}.${formatedFactoryName}> containedElements();
 @org.jetbrains.annotations.NotNull
 public Iterable<${packElem}.${formatedFactoryName}> containedAllElements();
 
+@org.jetbrains.annotations.NotNull
+public Object[] containedElementsArray();
+
 #if(${ctx.genSelector})
     @org.jetbrains.annotations.NotNull
     public List<Object> selectByQuery(@org.jetbrains.annotations.NotNull String query);
