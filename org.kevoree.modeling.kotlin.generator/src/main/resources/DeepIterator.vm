@@ -9,15 +9,17 @@ public class DeepIterator(val root : ${ctx.getKevoreeContainer().get()}) : ${mut
 
     private var currentObjSubIt : Iterator<${ctx.getKevoreeContainer().get()}>? = null;
     private var currentObj : ${ctx.getKevoreeContainer().get()}?  = null;
-    private var rootElems : Iterator<${ctx.getKevoreeContainer().get()}> = root.containedElements().iterator()
+    private var rootElems : List<Any> = root.containedElementsList()
+    private var rootElemsIndice = 0
 
     override fun hasNext() : Boolean {
         /* case 1..1 dep */
         if(currentObj != null){return true;}
         if (currentObjSubIt != null && currentObjSubIt!!.hasNext()) {return true;}
         //case next step root low level
-        if(rootElems.hasNext()){
-            currentObj = rootElems.next();
+        if(rootElemsIndice < rootElems.size()){
+            currentObj = rootElems.get(rootElemsIndice) as ${ctx.getKevoreeContainer().get()}?;
+            rootElemsIndice = rootElemsIndice + 1;
             currentObjSubIt = null;
         } else {
             return false
