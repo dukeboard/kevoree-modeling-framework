@@ -6,14 +6,12 @@ package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.ev
 public class ModelEvent {
 
 private String sourcePath;
-private EventType type;
-public enum EventType{set, add, remove, addAll, removeAll};
-private ElementAttributeType elementAttributeType;
-public enum ElementAttributeType{Attribute, Reference, Containment};
+private int type;
+private int elementAttributeType;
 private Object value;
 private String elementAttributeName;
 
-public ModelEvent(String sourcePath, EventType type, ElementAttributeType elementAttributeType, String elementAttributeName, Object value) {
+public ModelEvent(String sourcePath, int type, int elementAttributeType, String elementAttributeName, Object value) {
 this.sourcePath = sourcePath;
 this.type = type;
 this.elementAttributeType = elementAttributeType;
@@ -25,11 +23,11 @@ public String getSourcePath() {
 return sourcePath;
 }
 
-public EventType getType() {
+public int getType() {
 return type;
 }
 
-public ElementAttributeType getElementAttributeType() {
+public int getElementAttributeType() {
 return elementAttributeType;
 }
 
@@ -43,8 +41,8 @@ return value;
 
 public String toString() {
 return "ModelEvent[src:" + getSourcePath()
-+ ", type:" + getType().name()
-+ ", elementAttributeType:" + getElementAttributeType().name()
++ ", type:" + getType()
++ ", elementAttributeType:" + getElementAttributeType()
 + ", elementAttributeName:" + getElementAttributeName()
 + ", value:" + getValue()
 + "]";

@@ -305,60 +305,83 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
   def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
-    pr.println("override fun reflexiveMutator(mutationType : String,refName : String, value : Any?) {")
-    pr.println("val refMethodName = mutationType + refName.substring(0, 1).toUpperCase() + refName.substring(1); ")
-    pr.println("  when(refMethodName) {")
+    pr.println("override fun reflexiveMutator(mutationType : Int, refName : String, value : Any?) {")
+    pr.println("when(refName) {")
 
     cls.getEAllAttributes.foreach {
-      ref =>
-        val methodNameClean = "set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-        val valueType = ProcessorHelper.convertType(ref.getEAttributeType)
-        pr.println("   \"" + methodNameClean + "\" -> {")
-        pr.println("      this." + methodNameClean + "(value as " + valueType + ")")
-        pr.println("    }")
+      att =>
+        pr.println("   \"" + att.getName + "\" -> {")//START ATTR
+        pr.println("when(mutationType) {")
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET -> {")
+        val methodNameClean = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
+        var valueType : String = ""
+        if(att.getEAttributeType.isInstanceOf[EEnum]) {
+          valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
+        } else {
+          valueType = ProcessorHelper.convertType(att.getEAttributeType)
+        }
+
+        pr.println("this." + methodNameClean + "(value as " + valueType + ")")
+        pr.println("}")
+        pr.println("else -> {throw Exception(\"Unknown mutation type:\" + mutationType)}")
+        pr.println("}")//END MUTATION TYPE
+
+        pr.println("}")//END ATTR
     }
 
     cls.getEAllReferences.foreach {
       ref =>
-        if (ref.isMany) {
-          val methods = List("add", "remove", "addAll", "removeAll")
-          methods.foreach {
-            methodName =>
-              val methodNameClean = methodName + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-              val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-              pr.println("   \"" + methodNameClean + "\" -> {")
-              if (methodName.equals("addAll")) {
-                pr.println("      this." + methodNameClean + "(value as List<" + valueType + ">)")
-              } else if (methodName.equals("removeAll")) {
-                pr.println("      this." + methodNameClean + "()")
-              } else {
-                pr.println("      this." + methodNameClean + "(value as " + valueType + ")")
-              }
+        pr.println("   \"" + ref.getName + "\" -> {")//START REF
+        pr.println("when(mutationType) {")
+        val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
 
-              pr.println("    }")
-          }
-        } else {
+        if (ref.isMany) {
+
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD -> {")
+          val methodNameClean = "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+          pr.println("      this." + methodNameClean + "(value as " + valueType + ")")
+          pr.println("}")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD_ALL -> {")
+          val methodNameClean2 = "addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+          pr.println("      this." + methodNameClean2 + "(value as List<" + valueType + ">)")
+          pr.println("}")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE -> {")
+          val methodNameClean3 = "remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+          pr.println("      this." + methodNameClean3 + "(value as " + valueType + ")")
+          pr.println("}")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE_ALL -> {")
+          val methodNameClean4 = "removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+          pr.println("      this." + methodNameClean4 + "()")
+          pr.println("}")
+
+        }else {
+
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET -> {")
           val methodNameClean = "set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-          pr.println("   \"" + methodNameClean + "\" -> {")
           pr.println("      this." + methodNameClean + "(value as? " + valueType + ")")
-          pr.println("    }")
+          pr.println("}")
 
-          val methodNameClean2 = "remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-          pr.println("   \"" + methodNameClean2 + "\" -> {")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE -> {")
+          //val methodNameClean2 = "remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           pr.println("      this." + methodNameClean + "(null)")
-          pr.println("    }")
+          pr.println("}")
 
-          val methodNameClean3 = "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-          pr.println("   \"" + methodNameClean3 + "\" -> {")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD -> {")
+          //val methodNameClean3 = "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           pr.println("      this." + methodNameClean + "(value as? " + valueType + ")")
-          pr.println("    }")
+          pr.println("}")
 
         }
+
+        pr.println("else -> {throw Exception(\"Unknown mutation type:\" + mutationType)}")
+        pr.println("}")//END MUTATION TYPE
+        pr.println("}")//END Ref When case
     }
     pr.println("    else -> { throw Exception(\"Can reflexively \"+mutationType+\" for \"+refName + \" on \"+ this) }")
-    pr.println("  }")
-    pr.println("}")
+    pr.println("}")//END REFS NAME WHEN
+
+    pr.println("}")//END METHOD
   }
 
   def generateFlatClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
@@ -388,7 +411,7 @@ trait ClassGenerator extends ClonerGenerator {
     cls.getEAllAttributes.foreach {
       att => {
         var defaultValue = att.getDefaultValueLiteral
-        pr.print("override internal var " + "_" + att.getName + " : ")
+        pr.print("internal var " + "_" + att.getName + " : ")
         var typePre = ""
         var typePost = ""
         if (att.isMany) {
@@ -709,9 +732,9 @@ trait ClassGenerator extends ClonerGenerator {
 
         if (att.isID()) {
           pr.println("val previousParent = eContainer();")
-          pr.println("val previousRefNameInParent = getRefInParent();");
+          pr.println("val previousRefNameInParent = getRefInParent();")
           pr.println("if(previousParent!=null){")
-          pr.println("previousParent.reflexiveMutator(\"remove\",previousRefNameInParent!!,this);")
+          pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, previousRefNameInParent!!, this);")
           pr.println("}")
         }
 
@@ -720,12 +743,12 @@ trait ClassGenerator extends ClonerGenerator {
 
         if (att.isID()) {
           pr.println("if(previousParent!=null){")
-          pr.println("previousParent.reflexiveMutator(\"add\",previousRefNameInParent!!,this);")
+          pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, previousRefNameInParent!!, this);")
           pr.println("}")
         }
 
         if (ctx.generateEvents) {
-          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Attribute, \"" + att.getName + "\", " + att.getName + param_suf + "))")
+          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.ATTRIBUTE, \"" + att.getName + "\", " + att.getName + param_suf + "))")
         }
         pr.println("}")
     }
@@ -984,20 +1007,20 @@ trait ClassGenerator extends ClonerGenerator {
           res += "(" + "_" + ref.getName + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n"
           res += "}\n"
           res += "if(" + ref.getName + param_suf + " != null){\n"
-          res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"set\", \"" + ref.getName + "\", Any),\"" + ref.getName + "\" )\n"
+          res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, \"" + ref.getName + "\", Any),\"" + ref.getName + "\" )\n"
           res += "}\n"
         }
       } else {
         // containment with no opposite relation
         if (ref.isContainment && (ref.getEOpposite == null)) {
           if (ref.isMany) {
-            res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove\", \"" + ref.getName + "\", " + ref.getName + param_suf + "),\"" + ref.getName + "\" )\n"
+            res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, \"" + ref.getName + "\", " + ref.getName + param_suf + "),\"" + ref.getName + "\" )\n"
           } else {
             res += "if(" + "_" + ref.getName + "!=null){\n"
             res += "(" + "_" + ref.getName + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null, null,null)\n"
             res += "}\n"
             res += "if(" + ref.getName + param_suf + "!=null){\n"
-            res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,  " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"set\", \"" + ref.getName + "\", null),\"" + ref.getName + "\")\n"
+            res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,  " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, \"" + ref.getName + "\", null),\"" + ref.getName + "\")\n"
             res += "}\n"
           }
         }
@@ -1006,9 +1029,9 @@ trait ClassGenerator extends ClonerGenerator {
       res += "_" + ref.getName + " = " + ref.getName + param_suf + "\n"
       if (ctx.generateEvents) {
         if (ref.isContainment) {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
         } else {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
         }
       }
 
@@ -1032,7 +1055,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (ref.isContainment) {
         if (oppositRef != null) {
           res += "for(elem in " + ref.getName + param_suf + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove\", \"" + ref.getName + "\", elem),\"" + ref.getName + "\")\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, \"" + ref.getName + "\", elem),\"" + ref.getName + "\")\n"
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
             res += "(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
@@ -1042,7 +1065,7 @@ trait ClassGenerator extends ClonerGenerator {
           res += "}\n"
         } else {
           res += "for(elem in " + ref.getName + param_suf + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove\", \"" + ref.getName + "\", elem),\"" + ref.getName + "\")\n"
+          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, \"" + ref.getName + "\", elem),\"" + ref.getName + "\")\n"
           res += "}\n"
 
         }
@@ -1061,9 +1084,9 @@ trait ClassGenerator extends ClonerGenerator {
       }
       if (ctx.generateEvents) {
         if (ref.isContainment) {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \"" + ref.getName + "\", " + ref.getName + param_suf + "))"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, \"" + ref.getName + "\", " + ref.getName + param_suf + "))"
         } else {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.set, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \"" + ref.getName + "\", " + ref.getName + param_suf + "))"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, \"" + ref.getName + "\", " + ref.getName + param_suf + "))"
         }
 
       }
@@ -1129,7 +1152,7 @@ trait ClassGenerator extends ClonerGenerator {
     if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
       res += "for(el in " + ref.getName + param_suf + "){\n"
       if (ref.isContainment) {
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove\", \"" + ref.getName + "\", el),\"" + ref.getName + "\")\n"
+        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, \"" + ref.getName + "\", el),\"" + ref.getName + "\")\n"
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
@@ -1151,9 +1174,9 @@ trait ClassGenerator extends ClonerGenerator {
     }
     if (ctx.generateEvents) {
       if (ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.addAll, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.addAll, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
       }
     }
 
@@ -1179,7 +1202,7 @@ trait ClassGenerator extends ClonerGenerator {
     res += ("_" + ref.getName + "_java_cache=null\n")
 
     if (ref.isContainment) {
-      res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, \"remove\", \"" + ref.getName + "\", " + ref.getName + param_suf + "),\"" + ref.getName + "\")\n"
+      res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, \"" + ref.getName + "\", " + ref.getName + param_suf + "),\"" + ref.getName + "\")\n"
     }
 
     if (hasID(ref.getEReferenceType)) {
@@ -1194,9 +1217,9 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (ctx.generateEvents) {
       if (ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.add, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
       }
 
     }
@@ -1316,10 +1339,10 @@ trait ClassGenerator extends ClonerGenerator {
     if (ctx.generateEvents) {
       if (ref.isContainment) {
         res += "if(!removeAll" + formatedMethodName + "CurrentlyProcessing) {\n"
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.remove, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
         res += "}\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.remove, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, \"" + ref.getName + "\", " + ref.getName + param_suf + "))\n"
       }
     }
 
@@ -1401,11 +1424,11 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (ctx.generateEvents) {
       if (ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.removeAll, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Containment, \"" + ref.getName + "\", temp_els))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, \"" + ref.getName + "\", temp_els))\n"
         res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=false\n"
 
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.EventType.removeAll, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent.ElementAttributeType.Reference, \"" + ref.getName + "\", temp_els))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, \"" + ref.getName + "\", temp_els))\n"
       }
     }
 

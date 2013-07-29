@@ -35,6 +35,9 @@ package org.kevoree.modeling.kotlin.generator.model
  * 	Nain Gregory
  */
 
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.{EPackage, EEnum}
 import java.io.{File, PrintWriter}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
@@ -49,6 +52,7 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
  */
 
 trait EnumGenerator {
+
 
   def generateEnum(ctx : GenerationContext, currentPackageDir: String, packElement: EPackage, en: EEnum) {
     var formattedEnumName: String = en.getName.substring(0, 1).toUpperCase
@@ -94,14 +98,56 @@ trait EnumGenerator {
         pr.println(enumLit.getName.toUpperCase)
         i = i + 1
     }
-
-
-
-
-    pr.println("}")
+pr.println("}")
 
     pr.flush()
     pr.close()
   }
+
+
+  def generateActionTypeClass(ctx : GenerationContext) {
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util")
+
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util" + File.separator + "ActionType."+extension)
+    val pr = new PrintWriter(localFile, "utf-8")
+
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+
+    val template = if(ctx.getJS()){ve.getTemplate("templates/util/JSActionType.vm")}else{ve.getTemplate("templates/util/ActionType.vm")}
+    val ctxV = new VelocityContext()
+    ctxV.put("ctx",ctx)
+    ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    template.merge(ctxV,pr)
+    pr.flush()
+    pr.close()
+
+  }
+
+  def generateElementAttributeTypeClass(ctx : GenerationContext) {
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util")
+
+    val extension = if(ctx.getJS()){"kt"}else{"java"}
+
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util" + File.separator + "ElementAttributeType."+extension)
+    val pr = new PrintWriter(localFile, "utf-8")
+
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+
+    val template = if(ctx.getJS()){ve.getTemplate("templates/util/JSElementAttributeType.vm")}else{ve.getTemplate("templates/util/ElementAttributeType.vm")}
+    val ctxV = new VelocityContext()
+    ctxV.put("ctx",ctx)
+    ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    template.merge(ctxV,pr)
+    pr.flush()
+    pr.close()
+
+  }
+
 
 }

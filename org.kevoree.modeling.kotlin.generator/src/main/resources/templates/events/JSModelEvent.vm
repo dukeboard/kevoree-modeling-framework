@@ -3,33 +3,17 @@
 
 package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events;
 
-import ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent.EventType;
-import ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent.ElementAttributeType;
-
-public class ModelEvent(val sourcePath : String?, val etype : EventType , val elementAttributeType : ElementAttributeType, val elementAttributeName: String, val value : Any?) {
-
-public enum class EventType {
-    set
-    add
-    remove
-    addAll
-    removeAll
-}
-public enum class  ElementAttributeType{
-    Attribute
-    Reference
-    Containment
-}
+public class ModelEvent(val sourcePath : String?, val etype : Int , val elementAttributeType : Int, val elementAttributeName: String, val value : Any?) {
 
 public fun getSourcePath() : String? {
 return sourcePath;
 }
 
-public fun getType() : EventType {
+public fun getType() : Int {
     return etype;
 }
 
-public fun getElementAttributeType() : ElementAttributeType {
+public fun getElementAttributeType() : Int {
     return elementAttributeType;
 }
 
@@ -42,7 +26,7 @@ return value;
 }
 
 public fun toString() : String {
-return "ModelEvent[src:" + getSourcePath()+ ", type:" + getType().name()+ ", elementAttributeType:" + getElementAttributeType().name()+ ", elementAttributeName:" + getElementAttributeName()+ ", value:" + getValue()+ "]";
+return "ModelEvent[src:" + getSourcePath()+ ", type:" + getType()+ ", elementAttributeType:" + getElementAttributeType()+ ", elementAttributeName:" + getElementAttributeName()+ ", value:" + getValue()+ "]";
 }
 
 }

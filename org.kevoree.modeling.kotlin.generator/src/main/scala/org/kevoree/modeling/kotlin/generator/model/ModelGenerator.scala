@@ -111,6 +111,8 @@ with DiffGenerator {
       generateDeepIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
       generateDeepIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
     }
+    generateActionTypeClass(ctx)
+    generateElementAttributeTypeClass(ctx)
     generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
 
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {

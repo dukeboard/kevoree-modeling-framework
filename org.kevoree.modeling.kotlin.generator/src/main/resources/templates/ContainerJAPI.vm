@@ -28,7 +28,7 @@ public boolean isRecursiveReadOnly();
 public void setInternalReadOnly();
 public void delete();
 
-public void reflexiveMutator(@org.jetbrains.annotations.NotNull String mutatorType, @org.jetbrains.annotations.NotNull String refName, Object value);
+public void reflexiveMutator(@org.jetbrains.annotations.NotNull int mutatorType, @org.jetbrains.annotations.NotNull String refName, Object value);
 
 @org.jetbrains.annotations.NotNull
 public boolean modelEquals(Object similarObj);

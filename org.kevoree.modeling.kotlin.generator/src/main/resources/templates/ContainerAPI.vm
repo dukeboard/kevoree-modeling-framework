@@ -33,7 +33,7 @@ fun path() : String?
 
 fun metaClassName() : String
 
-fun reflexiveMutator(mutatorType : String,refName : String, value : Any?)
+fun reflexiveMutator(mutatorType : Int, refName : String, value : Any?)
 
 #if(${ctx.jS})
 #else

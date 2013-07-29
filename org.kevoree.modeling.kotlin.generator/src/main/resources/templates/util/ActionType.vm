@@ -1,0 +1,13 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util;
+
+public abstract class ActionType {
+
+public static final int SET = 0;
+public static final int ADD = 1;
+public static final int REMOVE = 2;
+public static final int ADD_ALL = 3;
+public static final int REMOVE_ALL = 4;
+
+}
