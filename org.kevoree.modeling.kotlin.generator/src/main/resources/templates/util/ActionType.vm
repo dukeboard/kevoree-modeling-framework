@@ -9,5 +9,5 @@ public static final int ADD = 1;
 public static final int REMOVE = 2;
 public static final int ADD_ALL = 3;
 public static final int REMOVE_ALL = 4;
-
+public static final int RENEW_INDEX = 5;
 }

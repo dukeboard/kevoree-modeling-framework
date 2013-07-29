@@ -363,16 +363,29 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
 
           pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE -> {")
-          //val methodNameClean2 = "remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           pr.println("      this." + methodNameClean + "(null)")
           pr.println("}")
 
           pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD -> {")
-          //val methodNameClean3 = "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           pr.println("      this." + methodNameClean + "(value as? " + valueType + ")")
           pr.println("}")
 
         }
+
+      if(hasID(ref.getEReferenceType) && ref.isMany) {
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX -> {")
+          pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
+        pr.println("val obj = _" + ref.getName + ".get(value)")
+        if (ctx.getGenFlatInheritance) {
+          pr.println("_" + ref.getName + ".put((obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey(),obj)")
+        } else {
+          pr.println("_" + ref.getName + ".put((obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey(),obj)")
+        }
+        pr.println("_" + ref.getName + ".remove(value)")
+
+        pr.println("}")
+        pr.println("}")
+      }
 
         pr.println("else -> {throw Exception(\"Unknown mutation type:\" + mutationType)}")
         pr.println("}")//END MUTATION TYPE
@@ -730,26 +743,41 @@ trait ClassGenerator extends ClonerGenerator {
         }
         pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
 
+        pr.println("val oldPath = path()")
+
         if (att.isID()) {
+          pr.println("val oldId = internalGetKey()")
           pr.println("val previousParent = eContainer();")
           pr.println("val previousRefNameInParent = getRefInParent();")
+      /*
           pr.println("if(previousParent!=null){")
           pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, previousRefNameInParent!!, this);")
           pr.println("}")
+      */
         }
-
-        pr.println("val oldPath = path()")
         pr.println("_" + att.getName + " = " + att.getName + param_suf)
-
-        if (att.isID()) {
-          pr.println("if(previousParent!=null){")
-          pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, previousRefNameInParent!!, this);")
-          pr.println("}")
-        }
-
         if (ctx.generateEvents) {
           pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.ATTRIBUTE, \"" + att.getName + "\", " + att.getName + param_suf + "))")
         }
+        /*
+        if (att.isID()) {
+          pr.println("val previousParent = eContainer();")
+          pr.println("val previousRefNameInParent = getRefInParent();")
+          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, \"path\", path()))")
+        }
+        */
+
+
+        if (att.isID()) {
+          pr.println("if(previousParent!=null){")
+          pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId);")
+          pr.println("}")
+          if(ctx.generateEvents) {
+            pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, \"" + att.getName + "\", path()))")
+          }
+        }
+
+
         pr.println("}")
     }
 
