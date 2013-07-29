@@ -48,6 +48,6 @@ public class DeepIterator(val root : ${ctx.getKevoreeContainer().get()}) : ${mut
 
 #if(!$ctx.jS)override#end public fun remove() {
         throw java.lang.UnsupportedOperationException();
-    }
+}
 
 }

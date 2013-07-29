@@ -8,18 +8,16 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
 
     var similarObjCasted : ${FQNHelper.fqn($ctx, $currentClass)}? = null
     #if($ctx.getJS())
-        if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)}) || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass.getEPackage())}.impl.${currentClass.getName()}Impl) ){
+        if(similarObj != null && (similarObj is ${FQNHelper.fqn($ctx, $currentClass)} || similarObj is ${FQNHelper.fqn($ctx, $currentClass.getEPackage())}.impl.${currentClass.getName()}Impl) ){
     #else
-        if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)})){
+        if(similarObj != null && (similarObj is ${FQNHelper.fqn($ctx, $currentClass)})){
     #end
-            similarObjCasted = null;
-        } else {
             similarObjCasted = similarObj as ${FQNHelper.fqn($ctx, $currentClass)}
         }
-
     val traces = java.util.ArrayList<${tracePack}.trace.ModelTrace>()
     var attVal : Any? = null;
     var attVal2 : Any? = null;
+    var attVal2String : String? = null;
     var hashLoop : java.util.HashSet<String>? = null;
     var hashResult : java.util.HashSet<String>? = null;
 
@@ -72,14 +70,19 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
                   attVal = get${ref.getName().substring(0, 1).toUpperCase()}${ref.getName().substring(1)}()?.path();
                   attVal2 = null;
                   attVal2 = similarObjCasted?.get${ref.getName().substring(0, 1).toUpperCase()}${ref.getName().substring(1)}()?.path()
+                  if(attVal2 != null){
+                    attVal2String = attVal2.toString()
+                  } else {
+                    attVal2String = null
+                  }
                   if(attVal != attVal2){
                          if(!inter){
-                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2?.toString(),null))
+                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2String,null))
                          }
                   } else {
                         //att similar
                         if(inter){
-                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2?.toString(),null))
+                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2String,null))
                         }
                   }
               #end

@@ -28,7 +28,11 @@ public class ModelCompare {
         val traces = ArrayList<ModelTrace>()
         val objectsMap = HashMap<String, ${ctx.getKevoreeContainerImplFQN()}>()
         traces.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter))
-        for(child in origin.containedAllElements()){
+                #if($ctx.jS)
+                    for(child in collectAll(origin)){
+                #else
+                    for(child in origin.containedAllElements()){
+                #end
             val childPath = child.path();
             if(childPath != null){
                 objectsMap.put(child.path()!!, child as ${ctx.getKevoreeContainerImplFQN()});
@@ -36,7 +40,11 @@ public class ModelCompare {
                 throw Exception("Null child path " + child);
             }
         }
-        for(child in target.containedAllElements()){
+            #if($ctx.jS)
+                for(child in collectAll(target)){
+            #else
+                for(child in target.containedAllElements()){
+            #end
             val childPath = child.path();
             if(childPath != null){
                 if(objectsMap.containsKey(childPath)){
@@ -64,4 +72,25 @@ public class ModelCompare {
         }
         return traces;
     }
+
+                #if($ctx.jS)
+                    private fun collectAll(obj : ${ctx.getKevoreeContainer().get()}) : List<${ctx.getKevoreeContainer().get()}> {
+                        val result = java.util.ArrayList<${ctx.getKevoreeContainer().get()}>()
+                        for(child in obj.containedElementsList()){
+                            if(child is ArrayList<*>){
+                                for(subChild in (child as ArrayList<*>) ){
+                                    var casted = subChild as ${ctx.getKevoreeContainer().get()}
+                                    result.add(casted)
+                                    result.addAll(collectAll(casted))
+                                }
+                            } else {
+                                var casted = child as ${ctx.getKevoreeContainer().get()}
+                                result.add(casted)
+                                result.addAll(collectAll(casted))
+                            }
+                        }
+                        return result
+                    }
+                #end
+
 }
