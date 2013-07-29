@@ -42,7 +42,7 @@ public Iterable<${packElem}.${formatedFactoryName}> containedElements();
 public Iterable<${packElem}.${formatedFactoryName}> containedAllElements();
 
 @org.jetbrains.annotations.NotNull
-public Object[] containedElementsArray();
+public List<Object> containedElementsList();
 
 #if(${ctx.genSelector})
     @org.jetbrains.annotations.NotNull

@@ -35,7 +35,7 @@ fun metaClassName() : String
 
 fun reflexiveMutator(mutatorType : Int, refName : String, value : Any?)
 
-    fun containedElementsArray() : Array<Any?>
+    fun containedElementsList() : List<Any>
 #if(${ctx.jS})
 #else
     fun containedElements() : Iterable<${packElem}.${formatedFactoryName}>

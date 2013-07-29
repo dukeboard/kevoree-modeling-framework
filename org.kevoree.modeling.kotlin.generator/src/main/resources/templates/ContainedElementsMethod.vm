@@ -13,33 +13,28 @@ return ${packElem}.DeepIterable(this)
 }
 
 override fun containedElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContainer().get()> {
-    return ${packElem}.CompositeIterable(containedElementsArray())
+    return ${packElem}.CompositeIterable(containedElementsList())
 }
 
 #end
 
-override fun containedElementsArray() : Array<Any?> {
-    return Array<Any?>($currentClass.getEAllContainments().size(),{i ->
-    when (i) {
-        #set($i=0)
-        #foreach( $ref in $currentClass.getEAllContainments())
-            $i -> {
+override fun containedElementsList() : MutableList<Any> {
 
-            #if($ref.isMany())
-                #if(${ref.getEReferenceType().getEIDAttribute()})
-                _${ref.getName()}.values()
-                #else
-                _${ref.getName()}
-                #end
-            #else
-            _${ref.getName()}
-            #end
-        }
-            #set($i=$i+1)
+    val result = java.util.ArrayList<Any>($currentClass.getEAllContainments().size())
+#set($i=0)
+#foreach( $ref in $currentClass.getEAllContainments())
+    #if($ref.isMany())
+        #if(${ref.getEReferenceType().getEIDAttribute()})
+        result.add(_${ref.getName()}.values())
+        #else
+        result.add(_${ref.getName()})
         #end
-    else -> {}
-    }
-    })
+    #else
+    if(_${ref.getName()}!=null){result.add(_${ref.getName()}!!)}
+    #end
+    #set($i=$i+1)
+#end
+    return result
 }
 
 

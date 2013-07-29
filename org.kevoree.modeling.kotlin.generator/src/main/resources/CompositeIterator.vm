@@ -5,7 +5,7 @@ package ${packElem}.util;
 
 #set($mutableOrNot="Mutable")
 
-public class CompositeIterator(val subLists : Array<Any?>) : ${mutableOrNot}Iterator<${ctx.getKevoreeContainer().get()}> {
+public class CompositeIterator(val subLists : List<Any>) : ${mutableOrNot}Iterator<${ctx.getKevoreeContainer().get()}> {
 
 
     private var i = 0;

@@ -5,7 +5,7 @@ package ${packElem}.util
 
 #set($mutableOrNot="Mutable")
 
-public class CompositeIterable(val subLists : Array<Any?>) : ${mutableOrNot}Iterable<${ctx.getKevoreeContainer().get()}> {
+public class CompositeIterable(val subLists : List<Any>) : ${mutableOrNot}Iterable<${ctx.getKevoreeContainer().get()}> {
 
     public override fun iterator() : ${mutableOrNot}Iterator<${ctx.getKevoreeContainer().get()}> {
         return CompositeIterator(subLists);
