@@ -20,6 +20,8 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
     val traces = java.util.ArrayList<${tracePack}.trace.ModelTrace>()
     var attVal : Any? = null;
     var attVal2 : Any? = null;
+    var hashLoop : java.util.HashSet<String>? = null;
+    var hashResult : java.util.HashSet<String>? = null;
 
      #foreach( $att in $currentClass.eAllAttributes )
           attVal = get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()
@@ -37,18 +39,53 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
      #end
      #foreach( $ref in $currentClass.eAllReferences )
          #if(!$ref.isContainment());
-          attVal = path();
-          attVal2 = similarObjCasted?.path()
-          if(attVal != attVal2){
-                 if(!inter){
-                    traces.add(${tracePack}.trace.ModelSetTrace(attVal!!.toString(),"$ref.getName()",attVal2?.toString(),null))
-                 }
-          } else {
-                //att similar
-                if(inter){
-                    traces.add(${tracePack}.trace.ModelSetTrace(attVal!!.toString(),"$ref.getName()",attVal2?.toString(),null))
-                }
-          }
+              #if($ref.isMany())
+                  hashLoop = java.util.HashSet<String>()
+                  hashResult = java.util.HashSet<String>()
+                  for(elem in get${ref.getName().substring(0, 1).toUpperCase()}${ref.getName().substring(1)}()){
+                      val elemPath = elem.path()
+                      if(elemPath != null){
+                        hashLoop!!.add(elemPath)
+                      }
+                  }
+                  if(similarObjCasted != null){
+                    for(elem in similarObjCasted!!.get${ref.getName().substring(0, 1).toUpperCase()}${ref.getName().substring(1)}()){
+                        val elemPath = elem.path()
+                        if(elemPath != null){
+                        if(hashLoop!!.contains(elemPath)){
+                          if(inter){
+                             hashResult!!.add(elemPath)
+                          }
+                       } else {
+                          if(!inter){
+                            hashResult!!.add(elemPath)
+                          }
+                       }
+                        }
+                    }
+                  }
+                  if(hashResult!!.size != 0){
+                    traces.add(${tracePack}.trace.ModelAddAllTrace(path()!!,"$ref.getName()",hashResult!!.toList(),null))
+                  }
+              #else
+                  attVal = null;
+                  attVal = get${ref.getName().substring(0, 1).toUpperCase()}${ref.getName().substring(1)}()?.path();
+                  attVal2 = null;
+                  attVal2 = similarObjCasted?.get${ref.getName().substring(0, 1).toUpperCase()}${ref.getName().substring(1)}()?.path()
+                  if(attVal != attVal2){
+                         if(!inter){
+                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2?.toString(),null))
+                         }
+                  } else {
+                        //att similar
+                        if(inter){
+                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,"$ref.getName()",attVal2?.toString(),null))
+                        }
+                  }
+              #end
+
+
+
          #end
      #end
      return traces;

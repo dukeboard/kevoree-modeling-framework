@@ -68,22 +68,6 @@ trait ClonerGenerator {
     pr.close()
   }
 
-  /*
-    def generateClonerFactories(ctx: GenerationContext, currentPackageDir: String, pack: EPackage, containerRoot: EClass) {
-      ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
-      val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner"+File.separator +"ClonerFactories.kt"), "utf-8")
-
-      val packageName = ProcessorHelper.fqn(ctx, pack)
-
-      pr.println("package " + packageName + ".cloner")
-      pr.println("trait ClonerFactories {")
-
-
-      pr.println("}") //END TRAIT
-      pr.flush()
-      pr.close()
-    }
-  */
   private def getGetter(name: String): String = {
     "get" + name.charAt(0).toUpper + name.substring(1) + "()"
   }

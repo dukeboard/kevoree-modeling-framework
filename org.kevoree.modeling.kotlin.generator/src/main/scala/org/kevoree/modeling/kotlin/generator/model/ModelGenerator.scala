@@ -150,6 +150,7 @@ with DiffGenerator {
         }
         if (ctx.genTrace) {
           generateModelTraceAPI(ctx, currentPackageDir, packElement)
+          generateModelTraceCompare(ctx, currentPackageDir, packElement)
         }
 
       }

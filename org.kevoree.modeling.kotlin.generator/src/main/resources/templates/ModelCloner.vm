@@ -4,9 +4,6 @@
 #* @vtlvariable name="packages" type="java.util.Collection<java.lang.String>" *#
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 
-
-
-
 package ${packageName}.cloner
 
 class ModelCloner {
