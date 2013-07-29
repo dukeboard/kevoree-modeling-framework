@@ -46,6 +46,7 @@
                             <clearOutput>false</clearOutput>
                             <js>true</js>
                             <json>true</json>
+                            <trace>true</trace>
                         </configuration>
                     </execution>
                 </executions>

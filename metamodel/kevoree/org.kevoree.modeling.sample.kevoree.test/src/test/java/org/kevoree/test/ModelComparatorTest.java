@@ -1,12 +1,12 @@
 package org.kevoree.test;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.ContainerNode;
 import org.kevoree.ContainerRoot;
 import org.kevoree.KevoreeFactory;
 import org.kevoree.TypeDefinition;
 import org.kevoree.cloner.ModelCloner;
+import org.kevoree.compare.ModelCompare;
 import org.kevoree.impl.DefaultKevoreeFactory;
 import org.kevoree.trace.ModelTrace;
 
@@ -20,8 +20,7 @@ import static org.junit.Assert.*;
 public class ModelComparatorTest {
     KevoreeFactory factory = new DefaultKevoreeFactory();
     ModelCloner cloner = new ModelCloner();
-    ModelComparator compare = new ModelComparator();
-
+    ModelCompare compare = new ModelCompare();
 
     @Test
     public void testCompareDiff() {

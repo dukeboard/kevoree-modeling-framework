@@ -6,6 +6,7 @@ import org.kevoree.trace.ModelAddTrace
 import org.kevoree.trace.ModelRemoveTrace
 import org.kevoree.trace.ModelTrace
 import org.kevoree.trace.ModelSetTrace
+import org.kevoree.trace.ModelAddAllTrace
 
 /**
  * Created by duke on 25/07/13.
@@ -15,9 +16,13 @@ public class ModelApplicator(val targetModel: KMFContainer) {
 
     public fun applyTraceOnModel(traces: List<ModelTrace>) {
         for(trace in traces){
-
             if(trace is ModelAddTrace){
                 val castedTrace = trace as ModelAddTrace
+
+
+            }
+            if(trace is ModelAddAllTrace){
+                val castedTrace = trace as ModelAddAllTrace
 
             }
             if(trace is ModelRemoveTrace){
