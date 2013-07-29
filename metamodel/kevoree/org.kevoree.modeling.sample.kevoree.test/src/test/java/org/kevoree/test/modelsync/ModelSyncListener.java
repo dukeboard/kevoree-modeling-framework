@@ -4,6 +4,7 @@ import org.kevoree.cloner.ModelCloner;
 import org.kevoree.container.KMFContainer;
 import org.kevoree.events.ModelEvent;
 import org.kevoree.events.ModelTreeListener;
+import org.kevoree.util.ElementAttributeType;
 import org.kevoree.serializer.JSONModelSerializer;
 
 /**
@@ -39,15 +40,15 @@ public class ModelSyncListener implements ModelTreeListener {
         }
         //reflexive apply
 
-        if (modelEvent.getElementAttributeType().equals(ModelEvent.ElementAttributeType.Containment)) {
-            target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), cloner.clone(modelEvent.getValue()));
+        if (modelEvent.getElementAttributeType() == ElementAttributeType.CONTAINMENT) {
+            target.reflexiveMutator(modelEvent.getType(), modelEvent.getElementAttributeName(), cloner.clone(modelEvent.getValue()));
         } else {
             if (modelEvent.getValue() instanceof KMFContainer) {
                 KMFContainer eventObj = (KMFContainer) modelEvent.getValue();
                 String originPath = eventObj.path();
-                target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), currentModel.findByPath(originPath));
+                target.reflexiveMutator(modelEvent.getType(), modelEvent.getElementAttributeName(), currentModel.findByPath(originPath));
             } else {
-                target.reflexiveMutator(modelEvent.getType().name(), modelEvent.getElementAttributeName(), modelEvent.getValue());
+                target.reflexiveMutator(modelEvent.getType(), modelEvent.getElementAttributeName(), modelEvent.getValue());
             }
         }
 
