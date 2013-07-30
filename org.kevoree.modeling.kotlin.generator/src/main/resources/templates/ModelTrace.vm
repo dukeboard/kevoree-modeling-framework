@@ -17,30 +17,30 @@ trait ModelTrace: java.io.Serializable { }
 
 class ModelAddTrace(val srcPath: String, val refName: String, val previousPath : String?, val typeName: String?): ModelTrace {
     override fun toString() : String {
-        return "ADD { src : \"" + srcPath + "\", refname : \""+refName+"\", previousPath : \""+previousPath+"\", typename : \""+typeName+"\" }"
+        return "{ traceType : 1 , src : \"" + srcPath + "\", refname : \""+refName+"\", previousPath : \""+previousPath+"\", typename : \""+typeName+"\" }"
     }
 }
 
 class ModelAddAllTrace(val srcPath: String, val refName: String, val previousPath : List<String>?, val typeName: List<String>?): ModelTrace {
     override fun toString() : String {
-        return "ADDALL { src : \"" + srcPath + "\", refname : \""+refName+"\", previousPath : \""+previousPath+"\", typename : \""+typeName+"\" }"
+        return "{ traceType : 3 , src : \"" + srcPath + "\", refname : \""+refName+"\", previousPath : \""+previousPath+"\", typename : \""+typeName+"\" }"
     }
 }
 
 class ModelRemoveTrace(val srcPath: String, val refName: String, val objPath : String): ModelTrace {
     override fun toString() : String {
-        return "REMOVEALL { src : \"" + srcPath + "\", refname : \""+refName+"\", objpath : \""+objPath+"\" }"
+        return "{ traceType : 2 , src : \"" + srcPath + "\", refname : \""+refName+"\", objpath : \""+objPath+"\" }"
     }
 }
 
 class ModelRemoveAllTrace(val srcPath: String, val refName: String): ModelTrace {
     override fun toString() : String {
-        return "REMOVEALL { src : \"" + srcPath + "\", refname : \""+refName+"\" }"
+        return "{ traceType : 4 , src : \"" + srcPath + "\", refname : \""+refName+"\" }"
     }
 }
 
-class ModelSetTrace(val srcPath: String, val refName: String, val objPath : String?, val content : String?): ModelTrace {
+class ModelSetTrace(val srcPath: String, val refName: String, val objPath : String?, val content : String?, val typeName: String?): ModelTrace {
     override fun toString() : String {
-        return "SET { src : \"" + srcPath + "\", refname : \""+refName+"\", objPath : \""+objPath+"\", content : \""+content+"\" }"
+        return "{ traceType : 0 , src : \"" + srcPath + "\", refname : \""+refName+"\", objPath : \""+objPath+"\", content : \""+content+"\" , typeName : \""+typeName+"\" }"
     }
 }

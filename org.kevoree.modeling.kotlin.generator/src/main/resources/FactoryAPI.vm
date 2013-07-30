@@ -1,6 +1,7 @@
 #* @vtlvariable name="packageName" type="java.lang.String" *#
 #* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
 #* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 
 package ${packageName};
 
@@ -11,5 +12,7 @@ trait ${formatedFactoryName} {
 #foreach( $class in $classes )
     fun create${class.getName()}() : ${class.getName()}
 #end
+
+    fun create(metaClassName : String) : ${ctx.getKevoreeContainer().get()}?
 
 }

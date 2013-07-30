@@ -3,6 +3,7 @@
 #* @vtlvariable name="modelVersion" type="java.lang.String" *#
 #* @vtlvariable name="js" type="java.lang.Boolean" *#
 #* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 
 package ${packageName}.impl;
 
@@ -18,5 +19,14 @@ override fun getVersion() : String { return "${modelVersion}" }
 #foreach( $class in $classes )
 override fun create${class.getName()}() : ${class.getName()} { return ${class.getName()}Impl() }
 #end
+
+override fun create(metaClassName : String) : ${ctx.getKevoreeContainer().get()}? {
+      when(metaClassName){
+#foreach( $class in $classes )
+                "${class.getName()}" -> { return create${class.getName()}() }
+#end            else -> {return null;}
+       }
+}
+
 
 }

@@ -67,6 +67,7 @@ trait PackageFactoryGenerator {
     val template = ve.getTemplate( "FactoryAPI.vm" );
     val ctxV = new VelocityContext()
     ctxV.put("packageName",packageName)
+    ctxV.put("ctx",ctx)
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName",formatedFactoryName)
     val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
@@ -118,6 +119,8 @@ trait PackageFactoryGenerator {
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("js",ctx.js)
+    ctxV.put("ctx",ctx)
+
     val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
     ctxV.put("classes",classes)
     ctxV.put("modelVersion",modelVersion)

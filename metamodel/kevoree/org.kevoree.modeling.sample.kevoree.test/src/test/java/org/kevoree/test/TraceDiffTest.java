@@ -5,6 +5,7 @@ import org.kevoree.ContainerNode;
 import org.kevoree.ContainerRoot;
 import org.kevoree.KevoreeFactory;
 import org.kevoree.cloner.ModelCloner;
+import org.kevoree.compare.ModelCompare;
 import org.kevoree.impl.DefaultKevoreeFactory;
 import org.kevoree.trace.ModelTrace;
 
@@ -19,7 +20,7 @@ public class TraceDiffTest {
     public void difftest() {
 
         KevoreeFactory factory = new DefaultKevoreeFactory();
-        ModelComparator compare = new ModelComparator();
+        ModelCompare compare = new ModelCompare();
         ModelCloner cloner = new ModelCloner();
 
         ContainerRoot model = factory.createContainerRoot();
