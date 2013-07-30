@@ -152,7 +152,11 @@ with DiffGenerator {
         }
         if (ctx.genTrace) {
           generateModelTraceAPI(ctx, currentPackageDir, packElement)
+          if(ctx.generateEvents){
+            generateModelEvent2Trace(ctx, currentPackageDir, packElement)
+          }
           generateModelTraceCompare(ctx, currentPackageDir, packElement)
+          generateModelTraceApply(ctx, currentPackageDir, packElement)
         }
 
       }
