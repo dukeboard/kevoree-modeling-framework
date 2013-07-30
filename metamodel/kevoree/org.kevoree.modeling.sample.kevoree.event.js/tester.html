@@ -17,13 +17,31 @@ var kevmod = Kotlin.modules['org.kevoree.modeling.sample.kevoree.event.js'];
 var saver = new kevmod.org.kevoree.serializer.JSONModelSerializer();
 var loader = new kevmod.org.kevoree.loader.JSONModelLoader();
 var factory = new kevmod.org.kevoree.impl.DefaultKevoreeFactory();
-
-console.log("loader!");
-
 var model = factory.createContainerRoot();
+var actionTypes = kevmod.org.kevoree.util.ActionType;
+/* Declare events listener */
+var listener = { elementChanged : function(event){
+    switch(event.getType()){
+        case actionTypes.$ADD:
+              console.log("Add event ! "+event);
+              break;
+        case actionTypes.$SET:
+            console.log("Set event ! "+event);
+            break;
+        case actionTypes.$RENEW_INDEX:
+            console.log("RenewIndex event ! "+event);
+            break;
+    }
+}};
+
+model.addModelTreeListener(listener);
 var node = factory.createContainerNode();
 node.setName("hello");
-
+model.addNodes(node);
+/* Force rename */
+node.setName("helloRename");
+/* Check reindex */
+console.log(model.findNodesByID("helloRename").getName());
 
 </script>
 
