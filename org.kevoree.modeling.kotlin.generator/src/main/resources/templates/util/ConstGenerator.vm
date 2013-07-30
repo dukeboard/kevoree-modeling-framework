@@ -1,0 +1,18 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+#* @vtlvariable name="names" type="java.util.HashMap<java.lang.String,java.lang.String>" *#
+package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util;
+object Constants {
+
+    public val READ_ONLY_EXCEPTION : String = "This model is ReadOnly. Elements are not modifiable."
+    public val LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION : String = "The list in parameter of the setter cannot be null. Use removeAll to empty a collection."
+
+    public val LOADER_XMI_LOCAL_NAME : String = "type"
+    public val LOADER_XMI_XSI : String = "xsi"
+
+#foreach($key in $names.keySet())
+    public val $key.replace(".","_") : String = "$names.get($key)"
+#end
+
+}
+

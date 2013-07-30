@@ -109,7 +109,7 @@ trait TraitGenerator {
       "templates/ContainerJAPI.vm"
     }
 
-    val template = ve.getTemplate(tName);
+    val template = ve.getTemplate(tName)
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName", formatedFactoryName)
     ctxV.put("packElem", ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")

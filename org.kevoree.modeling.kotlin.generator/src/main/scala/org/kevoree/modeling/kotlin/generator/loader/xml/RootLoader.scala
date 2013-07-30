@@ -43,7 +43,7 @@ import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EEnum,EClass}
 import scala.collection.JavaConversions._
 import java.io._
-import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}
 
 /**
@@ -231,7 +231,7 @@ class RootLoader(ctx : GenerationContext) {
     val classes = ProcessorHelper.collectAllClassifiersInModel(model)
     classes.foreach{classifier=>
       if(classifier.isInstanceOf[EClass]) {
-        pr.println("localName.contains(\""+classifier.asInstanceOf[EClass].getName.substring(0, 1).toUpperCase + classifier.asInstanceOf[EClass].getName.substring(1)+"\") -> {")
+        pr.println("localName.contains("+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.CN_"+classifier.asInstanceOf[EClass].getName+") -> {")
         pr.println("context.loadedRoots.add(load"+ classifier.asInstanceOf[EClass].getName +"Element(\"/\" + loadedRootsSize, context))")
         pr.println("}")
       }

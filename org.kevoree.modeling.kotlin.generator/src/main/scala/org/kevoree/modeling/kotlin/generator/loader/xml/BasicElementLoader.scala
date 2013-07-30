@@ -88,7 +88,9 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("for(i in 0.rangeTo(context.xmiReader!!.getAttributeCount()-1)){")
       pr.println("val localName = context.xmiReader!!.getAttributeLocalName(i)")
       pr.println("val xsi = context.xmiReader!!.getAttributePrefix(i)")
-      pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
+
+
+      pr.println("if (localName == "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LOADER_XMI_LOCAL_NAME && xsi=="+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LOADER_XMI_XSI){")
       pr.println("xsiType = context.xmiReader!!.getAttributeValue(i)")
       pr.println("break")
       pr.println("}") //END IF
@@ -161,7 +163,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
         att =>
 
           val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
-          pr.println("\"" + att.getName + "\" -> {")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {")
           val FQattTypeName = ProcessorHelper.fqn(ctx, att.getEAttributeType)
 
           if (att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -209,7 +211,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           }
 
 
-          pr.println("\"" + ref.getName + "\" -> {")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
           pr.println("for(xmiRef in valueAtt.split(\" \")) {")
 
           pr.println("var adjustedRef = if(xmiRef.startsWith(\"#\")){xmiRef.substring(1)}else{xmiRef}")
@@ -245,7 +247,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
         System.err.println("Warning NamedElement XMI compat !!! "+elementType.getName)
         pr.println("var WellNamedID = elementId.substring(0,elementId.lastIndexOf(\"/\")+1) + modelElem.getName()")
         pr.println("context.map.put(WellNamedID, modelElem)")
-        pr.println("if(debug){System.out.println(\"Stored:\" + WellNamedID)}")
+        //pr.println("if(debug){System.out.println(\"Stored:\" + WellNamedID)}")
 
         pr.println("if(elementId != \"/0\"){elementId = WellNamedID}")
 
@@ -265,7 +267,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
       elementType.getEAllContainments.foreach {
         refa =>
-          pr.println("\"" + refa.getName + "\" -> {")
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + refa.getName + "  -> {")
 
           val formattedReferenceName = refa.getName.substring(0, 1).toUpperCase + refa.getName.substring(1)
 

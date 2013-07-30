@@ -93,7 +93,8 @@ with EqualsGenerator
 with ContainedElementsGenerator
 with KMFIteratorGenerator
 with JavaAPIGenerator
-with DiffGenerator {
+with DiffGenerator
+with ConstantsGenerator{
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
@@ -113,6 +114,7 @@ with DiffGenerator {
     }
     generateActionTypeClass(ctx)
     generateElementAttributeTypeClass(ctx)
+    generateConstants(ctx, model)
     generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
 
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {

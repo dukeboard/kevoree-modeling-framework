@@ -6,7 +6,7 @@ import java.io.{File, PrintWriter}
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
-import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import scala.Some
 
 /**
@@ -310,7 +310,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEAllAttributes.foreach {
       att =>
-        pr.println("   \"" + att.getName + "\" -> {")//START ATTR
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {")//START ATTR
         pr.println("when(mutationType) {")
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET -> {")
         val methodNameClean = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
@@ -331,7 +331,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEAllReferences.foreach {
       ref =>
-        pr.println("   \"" + ref.getName + "\" -> {")//START REF
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")//START REF
         pr.println("when(mutationType) {")
         val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
 
@@ -741,7 +741,7 @@ trait ClassGenerator extends ClonerGenerator {
         } else {
           pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
         }
-        pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
+        pr.println("if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
 
         pr.println("val oldPath = path()")
 
@@ -923,9 +923,9 @@ trait ClassGenerator extends ClonerGenerator {
     res += " ) {\n"
 
     //Read only protection
-    res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
+    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     if (ref.isMany) {
-      res += "if(" + ref.getName + param_suf + " == null){ throw IllegalArgumentException(\"The list in parameter of the setter cannot be null. Use removeAll to empty a collection.\") }\n"
+      res += "if(" + ref.getName + param_suf + " == null){ throw IllegalArgumentException("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION) }\n"
     }
     if (!isSingleRef) {
       //Clear cache
@@ -1162,7 +1162,7 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\noverride fun addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     }
     res += "(" + ref.getName + param_suf + " :List<" + typeRefName + ">) {\n"
-    res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
+    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     //Clear cache
     res += ("_" + ref.getName + "_java_cache=null\n")
     if (hasID(ref.getEReferenceType)) {
@@ -1224,7 +1224,7 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\noverride fun add" + formatedAddMethodName
     }
     res += "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
-    res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
+    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
 
     //Clear cache
     res += ("_" + ref.getName + "_java_cache=null\n")
@@ -1310,7 +1310,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     res += "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
 
-    res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
+    res += ("if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n")
     //Clear cache
     res += ("_" + ref.getName + "_java_cache=null\n")
 
@@ -1405,7 +1405,7 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\noverride fun removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() {\n"
     }
 
-    res += ("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}\n")
+    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     if (ctx.generateEvents && ref.isContainment) {
       res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=true\n"
     }
