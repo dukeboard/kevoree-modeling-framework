@@ -4,11 +4,14 @@
 package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util;
 object Constants {
 
+    public val UNKNOWN_MUTATION_TYPE_EXCEPTION : String = "Unknown mutation type: "
     public val READ_ONLY_EXCEPTION : String = "This model is ReadOnly. Elements are not modifiable."
     public val LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION : String = "The list in parameter of the setter cannot be null. Use removeAll to empty a collection."
 
     public val LOADER_XMI_LOCAL_NAME : String = "type"
     public val LOADER_XMI_XSI : String = "xsi"
+
+    public val KMFQL_CONTAINED : String = "contained"
 
 #foreach($key in $names.keySet())
     public val $key.replace(".","_") : String = "$names.get($key)"

@@ -242,7 +242,7 @@ trait KMFQLFinder {
     if (optionalRelationShipNameGen) {
       //Optional relationship definition
       val relationShipOptionalName = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) /*&& (ref.getUpperBound == -1 || ref.getLowerBound > 1)*/).get(0).getName
-      pr.println("val relationName = \"" + relationShipOptionalName + "\"")
+      pr.println("val relationName = " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ relationShipOptionalName)
       pr.println("val optionalDetected = ( firstSepIndex != " + relationShipOptionalName.size + " )")
       pr.println("if(optionalDetected){ extraReadChar = extraReadChar - 2 }")
     } else {
@@ -289,7 +289,7 @@ trait KMFQLFinder {
     pr.println("return when(relationName) {")
     cls.getEAllReferences.foreach(ref => {
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-        pr.println("\"" + ref.getName + "\" -> {")
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ ref.getName + " -> {")
         pr.println("val objFound = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(queryID)")
         pr.println("if(subquery != \"\" && objFound != null){")
         if (hasFindByIDMethod(ref.getEReferenceType)) {
@@ -302,17 +302,18 @@ trait KMFQLFinder {
 
       }
 
-      //TODO :: Check that !
-      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 1)) {
-        pr.println("\"" + ref.getName + "\" -> {")
+      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) ){ //&& (ref.getLowerBound == 1)) {
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ ref.getName + " -> {")
         pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
         pr.println("}")
       }
+      /*
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
-        pr.println("\"" + ref.getName + "\" -> {")
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ ref.getName + " -> {")
         pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
         pr.println("}")
       }
+      */
     })
     pr.println("else -> {null}")
     pr.println("}")

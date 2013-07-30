@@ -13,7 +13,7 @@ override fun selectByQuery(query : String) : MutableList<Any> {
         var queryID = ""
         var extraReadChar = 2
         #if($optionalRelationShipNameGen)
-        val relationName = "${relationShipOptionalName}"
+        val relationName = ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_${relationShipOptionalName}
         val optionalDetected = ( firstSepIndex != ${relationShipOptionalName.length()} )
         if(optionalDetected){ extraReadChar = extraReadChar - 2 }
         if(query.indexOf('{') == 0){
@@ -48,7 +48,7 @@ override fun selectByQuery(query : String) : MutableList<Any> {
         }
         when(relationName) {
             #foreach( $ref in $eRefs )
-                "${ref.getName()}" -> {
+                ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_${ref.getName()} -> {
                 #if(!$ref.isMany())
                     var subResult = ${ctx.getkevoreeCacheResolver()}.filter(queryID,java.util.Collections.singleton(get${ref.getName().substring(0, 1).toUpperCase()}${ref.getName().substring(1)}())!!)
                     collected.add(subResult)
@@ -81,7 +81,7 @@ override fun selectByQuery(query : String) : MutableList<Any> {
                     return collected
                 }
             #end
-                "contained" -> {
+                ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.KMFQL_CONTAINED -> {
                     var subResult : MutableCollection<Any> = java.util.ArrayList<Any>()
                     #foreach( $subRef in $eSub )
                         #if(!$subRef.isMany())
