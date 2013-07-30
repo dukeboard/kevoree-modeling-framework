@@ -52,8 +52,8 @@ public class ModelTraceApplicator(val targetModel: ${ctx.getKevoreeContainer().g
         }
     }
 
-    public fun applyTraceOnModel(traces: List<ModelTrace>) {
-        for(trace in traces){
+    public fun applyTraceOnModel(traceSeq: TraceSequence) {
+        for(trace in traceSeq.getTraces()){
             var target: ${ctx.getKevoreeContainer().get()} = targetModel;
             if(trace is ModelAddTrace){
                 val castedTrace = trace as ModelAddTrace

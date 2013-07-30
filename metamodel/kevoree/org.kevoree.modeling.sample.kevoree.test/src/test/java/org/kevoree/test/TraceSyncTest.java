@@ -10,9 +10,12 @@ import org.kevoree.events.ModelEvent;
 import org.kevoree.events.ModelTreeListener;
 import org.kevoree.impl.DefaultKevoreeFactory;
 import org.kevoree.trace.Event2Trace;
+import org.kevoree.trace.ModelSetTrace;
 import org.kevoree.trace.ModelTraceApplicator;
-import org.kevoree.trace.ModelTrace;
-import java.util.List;
+import org.kevoree.trace.TraceSequence;
+import org.kevoree.util.ActionType;
+
+import java.util.HashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +26,7 @@ import java.util.List;
 public class TraceSyncTest {
 
     private ModelCloner cloner = new ModelCloner();
-    private         KevoreeFactory factory = new DefaultKevoreeFactory();
+    private KevoreeFactory factory = new DefaultKevoreeFactory();
 
 
     @Test
@@ -48,8 +51,12 @@ public class TraceSyncTest {
 
             @Override
             public void elementChanged(ModelEvent modelEvent) {
-                List<ModelTrace> traces = converter.convert(modelEvent);
-                applicator.applyTraceOnModel(traces);
+                TraceSequence traceSeq = converter.convert(modelEvent);
+
+                TraceSequence traceSeqClone = new TraceSequence();          /* Simulate network payload  */
+                traceSeqClone.populateFromString(traceSeq.exportToString());
+                assert (traceSeq.exportToString().equals(traceSeqClone.exportToString()));
+                applicator.applyTraceOnModel(traceSeqClone);
             }
         });
 
@@ -60,16 +67,16 @@ public class TraceSyncTest {
         /* This test the creation of a new element */
         modelM0.addNodes(newNode2);
 
-        assert(modelM1.findNodesByID("newNode2") != null);
-        assert(modelM1.findNodesByID("newNode2") != newNode2);
+        assert (modelM1.findNodesByID("newNode2") != null);
+        assert (modelM1.findNodesByID("newNode2") != newNode2);
         TypeDefinition remoteTD1M1 = modelM1.findTypeDefinitionsByID("TD1");
 
         newNode2.setTypeDefinition(typeDef); /* set un existing reference */
-        assert(modelM1.findNodesByID("newNode2") != null);
+        assert (modelM1.findNodesByID("newNode2") != null);
 
-        assert(modelM1.findTypeDefinitionsByID("TD1") != null);
-        assert(modelM1.findTypeDefinitionsByID("TD1") == remoteTD1M1);    //check TD is not overriden
-        assert(modelM1.findTypeDefinitionsByID("TD1") == modelM1.findNodesByID("newNode2").getTypeDefinition());
+        assert (modelM1.findTypeDefinitionsByID("TD1") != null);
+        assert (modelM1.findTypeDefinitionsByID("TD1") == remoteTD1M1);    //check TD is not overriden
+        assert (modelM1.findTypeDefinitionsByID("TD1") == modelM1.findNodesByID("newNode2").getTypeDefinition());
 
     }
 

@@ -23,7 +23,7 @@ import ${packName}.util.ElementAttributeType
 
 public class Event2Trace {
     val compare = ModelCompare()
-    public fun convert(event: ModelEvent): List<ModelTrace> {
+    public fun convert(event: ModelEvent): TraceSequence {
         val result = ArrayList<ModelTrace>()
         when(event.getType()){
             ActionType.REMOVE -> {
@@ -73,7 +73,7 @@ public class Event2Trace {
                 throw Exception("Can't convert event : "+event);
             }
         }
-        return result;
+        return TraceSequence().populate(result);
     }
 
 }
