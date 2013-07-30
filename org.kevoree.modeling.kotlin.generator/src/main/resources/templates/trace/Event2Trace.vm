@@ -67,7 +67,7 @@ public class Event2Trace {
                 }
             }
             else -> {
-                System.err.println("Can't convert event : " + event);
+                throw Exception("Can't convert event : "+event);
             }
         }
         return result;
