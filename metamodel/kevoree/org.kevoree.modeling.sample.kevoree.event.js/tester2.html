@@ -1,0 +1,60 @@
+
+<html>
+<head>
+
+</head>
+<body>
+<h1>Kotlin Kevoree JS Event tester</h1>
+
+<script src="target/js/kotlin-lib-ecma3.js"></script>
+<script src="target/js/kotlin-lib.js"></script>
+<script src="target/js/kotlin-maps.js"></script>
+<script type="text/javascript" src="target/js/org.kevoree.modeling.sample.kevoree.event.js.js"></script>
+
+<script  type="text/javascript">
+
+var kevmod = Kotlin.modules['org.kevoree.modeling.sample.kevoree.event.js'];
+var saver = new kevmod.org.kevoree.serializer.JSONModelSerializer();
+var loader = new kevmod.org.kevoree.loader.JSONModelLoader();
+var factory = new kevmod.org.kevoree.impl.DefaultKevoreeFactory();
+var model = factory.createContainerRoot();
+var actionTypes = kevmod.org.kevoree.util.ActionType;
+/* Declare events listener */
+
+
+var event2trace = new kevmod.org.kevoree.trace.Event2Trace();
+var model2 = factory.createContainerRoot();
+var applicator = new kevmod.org.kevoree.trace.ModelTraceApplicator(model2);
+
+var listener = { elementChanged : function(event){
+    switch(event.getType()){
+        case actionTypes.$ADD:
+              console.log("Add event ! "+event);
+              break;
+        case actionTypes.$SET:
+            console.log("Set event ! "+event);
+            break;
+        case actionTypes.$RENEW_INDEX:
+            console.log("RenewIndex event ! "+event);
+            break;
+    }
+    var traces = event2trace.convert(event);
+    applicator.applyTraceOnModel(traces);
+}};
+
+model.addModelTreeListener(listener);
+
+var node = factory.createContainerNode();
+node.setName("hello");
+model.addNodes(node);
+/* Force rename */
+node.setName("helloRename");
+/* Check reindex */
+console.log("model1="+model.findNodesByID("helloRename").getName());
+
+console.log("model2="+model2.findNodesByID("helloRename").getName());
+
+</script>
+
+</body>
+</html>

@@ -66,6 +66,9 @@ public class Event2Trace {
                     result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName()!!, (event.getValue() as ${ctx.getKevoreeContainer().get()}).path(), null,null));
                 }
             }
+            ActionType.RENEW_INDEX -> {
+
+            }
             else -> {
                 throw Exception("Can't convert event : "+event);
             }
