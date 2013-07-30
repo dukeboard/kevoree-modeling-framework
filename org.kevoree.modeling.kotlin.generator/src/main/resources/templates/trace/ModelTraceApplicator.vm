@@ -12,15 +12,14 @@ import ${packName}.trace.ModelTrace
 import ${packName}.trace.ModelSetTrace
 import ${packName}.trace.ModelAddAllTrace
 import ${packName}.util.ActionType
-//TODO multi package
-import ${packName}.impl.DefaultKevoreeFactory
+import ${packName}.factory.MainFactory
 
 /**
  * Created by duke on 25/07/13.
  */
 public class ModelTraceApplicator(val targetModel: ${ctx.getKevoreeContainer().get()}) {
 
-    var factory = DefaultKevoreeFactory();
+    var factory = MainFactory();
     var pendingObj: ${ctx.getKevoreeContainer().get()}? = null
     var pendingParent: ${ctx.getKevoreeContainer().get()}? = null
     var pendingParentRefName: String? = null

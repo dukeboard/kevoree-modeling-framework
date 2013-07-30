@@ -42,7 +42,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore.{EClassifier, EClass, EPackage}
-import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelperClass, GenerationContext, ProcessorHelper}
 import java.util
 
 /**
@@ -67,6 +67,7 @@ trait PackageFactoryGenerator {
     val template = ve.getTemplate( "FactoryAPI.vm" );
     val ctxV = new VelocityContext()
     ctxV.put("packageName",packageName)
+    ctxV.put("helper", new ProcessorHelperClass())
     ctxV.put("ctx",ctx)
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName",formatedFactoryName)

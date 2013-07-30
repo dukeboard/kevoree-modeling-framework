@@ -290,7 +290,7 @@ trait ClassGenerator extends ClonerGenerator {
     generateEqualsMethods(pr, cls, ctx)
     generateContainedElementsMethods(pr, cls, ctx)
 
-    generateMetaClassName(pr, cls);
+    generateMetaClassName(pr, cls, ctx);
 
     if (ctx.genTrace) {
       generateDiffMethod(pr,cls,ctx)
@@ -585,7 +585,7 @@ trait ClassGenerator extends ClonerGenerator {
     generateEqualsMethods(pr, cls, ctx)
     generateContainedElementsMethods(pr, cls, ctx)
 
-    generateMetaClassName(pr, cls)
+    generateMetaClassName(pr, cls, ctx)
 
     if (ctx.genTrace) {
       generateDiffMethod(pr,cls,ctx)
@@ -597,9 +597,9 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
 
-  private def generateMetaClassName(pr: PrintWriter, cls: EClass) {
+  private def generateMetaClassName(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
     pr.println("override fun metaClassName() : String {")
-    pr.println("return \"" + cls.getName + "\";")
+    pr.println("return \"" + ProcessorHelper.fqn(ctx,cls) + "\";")
     pr.println("}")
   }
 
