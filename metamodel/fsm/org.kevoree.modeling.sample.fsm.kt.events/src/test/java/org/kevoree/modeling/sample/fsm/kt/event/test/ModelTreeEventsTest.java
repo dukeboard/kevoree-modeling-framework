@@ -6,6 +6,8 @@ package org.kevoree.modeling.sample.fsm.kt.event.test;/*
 import org.fsmsample.*;
 import org.fsmsample.events.*;
 import org.fsmsample.impl.DefaultFsmSampleFactory;
+import org.fsmsample.util.ActionType;
+import org.fsmsample.util.ElementAttributeType;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class ModelTreeEventsTest {
         assertTrue("Event Value is not correct. Expected:" +expectedValues+" Was:" + evt.getValue(), ((List)evt.getValue()).containsAll(expectedValues));
     }
 
-    //@Test
+    @Test
     public void setAttributeTest() {
         final FSM fsm = factory.createFSM();
         fsm.setName("fsm");
@@ -61,14 +63,18 @@ public class ModelTreeEventsTest {
         fsm.addOwnedState(s1);
         s0.addOutgoingTransition(t0);
         s1.addOutgoingTransition(t1);
+        final String originalT0Path = t0.path();
+        final String originalT1Path = t1.path();
 
         fsm.addModelTreeListener(new ModelTreeListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
 
                 System.out.println("FSM::" +evt.toString());
-                //assertEvent(evt, t0.path(), "name", ElementAttributeType.Attribute, EventType.Set, "t0");
-                setNameT0_Fsm.release();
+                if(evt.getSourcePath().equals(originalT0Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
+                    assertEvent(evt, originalT0Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t0");
+                    setNameT0_Fsm.release();
+                }
             }
         });
 
@@ -77,15 +83,18 @@ public class ModelTreeEventsTest {
             public void elementChanged(ModelEvent evt) {
 
                 System.out.println("S0::" +evt.toString());
-               // assertEvent(evt, t0.path(), "name", ElementAttributeType.Attribute, EventType.Set, "t0");
-                setNameT0_S0.release();
+                if(evt.getSourcePath().equals(originalT0Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
+                    assertEvent(evt, originalT0Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t0");
+                    setNameT0_S0.release();
+                }
+
             }
         });
 
         t0.setName("t0");
         try {
-            assertTrue("Event never received on Fsm", setNameT0_Fsm.tryAcquire(500, TimeUnit.MILLISECONDS));
-            assertTrue("Event never received on S0.", setNameT0_S0.tryAcquire(500, TimeUnit.MILLISECONDS));
+            assertTrue("Event never received on Fsm::T0", setNameT0_Fsm.tryAcquire(800, TimeUnit.MILLISECONDS));
+            assertTrue("Event never received on S0::T0.", setNameT0_S0.tryAcquire(800, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -99,8 +108,10 @@ public class ModelTreeEventsTest {
             @Override
             public void elementChanged(ModelEvent evt) {
 
-                //assertEvent(evt, t1.path(), "name", ElementAttributeType.Attribute, EventType.Set, "t1");
-                setNameT1_Fsm.release();
+                if(evt.getSourcePath().equals(originalT1Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
+                    assertEvent(evt, originalT1Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t1");
+                    setNameT1_Fsm.release();
+                }
             }
         });
 
@@ -110,7 +121,10 @@ public class ModelTreeEventsTest {
 
                 //assertEvent(evt, t1.path(), "name", ElementAttributeType.Attribute, EventType.Set, "t1");
                 try {
-                    setNameT1_S0.acquire();
+                    if(evt.getSourcePath().equals(originalT1Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
+                        assertEvent(evt, originalT1Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t1");
+                        setNameT1_S0.acquire();
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
@@ -120,8 +134,8 @@ public class ModelTreeEventsTest {
 
         t1.setName("t1");
         try {
-            assertTrue("Event never received on Fsm", setNameT1_Fsm.tryAcquire(500, TimeUnit.MILLISECONDS));
-            assertTrue("Event received on S0.", setNameT1_S0.tryAcquire(500, TimeUnit.MILLISECONDS));
+            assertTrue("Event never received on Fsm::T1", setNameT1_Fsm.tryAcquire(800, TimeUnit.MILLISECONDS));
+            assertTrue("Event received on S0::T1", setNameT1_S0.tryAcquire(800, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
