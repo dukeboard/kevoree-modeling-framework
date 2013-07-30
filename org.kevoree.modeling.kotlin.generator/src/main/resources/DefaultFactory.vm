@@ -23,7 +23,9 @@ override fun create${class.getName()}() : ${class.getName()} { return ${class.ge
 override fun create(metaClassName : String) : ${ctx.getKevoreeContainer().get()}? {
       when(metaClassName){
 #foreach( $class in $classes )
+                "${packageName}.${class.getName()}" -> { return create${class.getName()}() }
                 "${class.getName()}" -> { return create${class.getName()}() }
+
 #end            else -> {return null;}
        }
 }

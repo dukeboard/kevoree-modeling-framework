@@ -34,9 +34,17 @@ class FactoryGenerator(ctx:GenerationContext) {
     val genFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "MainFactory.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
-    pr.println("class MainFactory {")
+
+    pr.println("trait KMFFactory {")
+
+    val containerName = ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".container.KMFContainer"
+
+    pr.println("fun create(metaClassName : String) : "+containerName+"?")
+    pr.println("}")
+
+    pr.println("class MainFactory : KMFFactory {")
     pr.println("")
-    pr.println("private var factories : Array<Any?> = Array<Any?>("+ctx.packageFactoryMap.entrySet().size()+", {i -> null});")
+    pr.println("private var factories : Array<KMFFactory?> = Array<KMFFactory?>("+ctx.packageFactoryMap.entrySet().size()+", {i -> null});")
     pr.println("")
     pr.println("{")
     ctx.packageFactoryMap.entrySet().foreach { entry =>
@@ -45,7 +53,7 @@ class FactoryGenerator(ctx:GenerationContext) {
     pr.println("}")
 
 
-    pr.println("fun getFactoryForPackage( pack : Int) : Any? {")
+    pr.println("fun getFactoryForPackage( pack : Int) : KMFFactory? {")
     pr.println("return factories.get(pack)")
     pr.println("}")
 
@@ -60,6 +68,12 @@ class FactoryGenerator(ctx:GenerationContext) {
       pr.println("")
     }
     pr.println("")
+
+    pr.print("override ")
+    pr.println("fun create(metaClassName : String) : "+ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".container.KMFContainer? {")
+    pr.println("return getFactoryForPackage(Package.getPackageForName(metaClassName))?.create(metaClassName)")
+    pr.println("}")
+
 
     pr.println("}")
     pr.flush()
@@ -79,6 +93,16 @@ class FactoryGenerator(ctx:GenerationContext) {
       pr.println(" public val " + key.toUpperCase.replace(".","_") + " : Int = " + i)
       i = i+1
     }
+
+    pr.println("fun getPackageForName(metaClassName : String) : Int {")
+    i = 0
+    ctx.packageFactoryMap.keySet().foreach{ key=>
+      pr.println(" if(metaClassName.startsWith(\"" + key + "\")){return " + i+"}")
+      i = i+1
+    }
+    pr.println("return -1")
+    pr.println("}")
+
     pr.println("}")
     pr.flush()
     pr.close()

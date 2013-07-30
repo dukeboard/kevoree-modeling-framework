@@ -86,9 +86,6 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
                         }
                   }
               #end
-
-
-
          #end
      #end
      return traces;

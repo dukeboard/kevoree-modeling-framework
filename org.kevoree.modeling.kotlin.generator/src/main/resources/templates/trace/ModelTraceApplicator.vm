@@ -1,24 +1,27 @@
-package org.kevoree.test.trace
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 
-import org.kevoree.container.KMFContainer
-import org.kevoree.trace.ModelRemoveAllTrace
-import org.kevoree.trace.ModelAddTrace
-import org.kevoree.trace.ModelRemoveTrace
-import org.kevoree.trace.ModelTrace
-import org.kevoree.trace.ModelSetTrace
-import org.kevoree.trace.ModelAddAllTrace
-import org.kevoree.util.ActionType
-import org.kevoree.impl.DefaultKevoreeFactory
+#set($packName = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
+
+package ${packName}.trace
+
+import ${packName}.trace.ModelRemoveAllTrace
+import ${packName}.trace.ModelAddTrace
+import ${packName}.trace.ModelRemoveTrace
+import ${packName}.trace.ModelTrace
+import ${packName}.trace.ModelSetTrace
+import ${packName}.trace.ModelAddAllTrace
+import ${packName}.util.ActionType
+import ${packName}.factory.MainFactory
 
 /**
  * Created by duke on 25/07/13.
  */
+public class ModelTraceApplicator(val targetModel: ${ctx.getKevoreeContainer().get()}) {
 
-public class ModelTraceApplicator(val targetModel: KMFContainer) {
-
-    var factory = DefaultKevoreeFactory();
-    var pendingObj: KMFContainer? = null
-    var pendingParent: KMFContainer? = null
+    var factory = MainFactory();
+    var pendingObj: ${ctx.getKevoreeContainer().get()}? = null
+    var pendingParent: ${ctx.getKevoreeContainer().get()}? = null
     var pendingParentRefName: String? = null
     var pendingObjPath: String? = null
 
@@ -32,7 +35,7 @@ public class ModelTraceApplicator(val targetModel: KMFContainer) {
         }
     }
 
-    public fun createOrAdd(previousPath: String?, target: KMFContainer, refName: String, potentialTypeName: String?) {
+    public fun createOrAdd(previousPath: String?, target: ${ctx.getKevoreeContainer().get()}, refName: String, potentialTypeName: String?) {
         val targetElem: Any? = if(previousPath != null){
             targetModel.findByPath(previousPath)
         } else {
@@ -50,19 +53,13 @@ public class ModelTraceApplicator(val targetModel: KMFContainer) {
     }
 
     public fun applyTraceOnModel(traces: List<ModelTrace>) {
-        println("Apply -----")
         for(trace in traces){
-            println(trace)
-        }
-        println("-----")
-
-        for(trace in traces){
-            var target: KMFContainer = targetModel;
+            var target: ${ctx.getKevoreeContainer().get()} = targetModel;
             if(trace is ModelAddTrace){
                 val castedTrace = trace as ModelAddTrace
                 tryClosePending(trace.srcPath);
                 if(trace.srcPath != ""){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    target = targetModel.findByPath(castedTrace.srcPath) as ${ctx.getKevoreeContainer().get()};
                 }
                 createOrAdd(castedTrace.previousPath, target, castedTrace.refName, castedTrace.typeName)
             }
@@ -79,7 +76,7 @@ public class ModelTraceApplicator(val targetModel: KMFContainer) {
                 val castedTrace = trace as ModelRemoveTrace
                 tryClosePending(trace.srcPath);
                 if(trace.srcPath != ""){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    target = targetModel.findByPath(castedTrace.srcPath) as ${ctx.getKevoreeContainer().get()};
                 }
                 target.reflexiveMutator(ActionType.REMOVE, castedTrace.refName, targetModel.findByPath(castedTrace.objPath))
             }
@@ -87,7 +84,7 @@ public class ModelTraceApplicator(val targetModel: KMFContainer) {
                 val castedTrace = trace as ModelRemoveAllTrace
                 tryClosePending(trace.srcPath);
                 if(trace.srcPath != ""){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    target = targetModel.findByPath(castedTrace.srcPath) as ${ctx.getKevoreeContainer().get()};
                 }
                 target.reflexiveMutator(ActionType.REMOVE_ALL, castedTrace.refName, null)
             }
@@ -95,7 +92,7 @@ public class ModelTraceApplicator(val targetModel: KMFContainer) {
                 val castedTrace = trace as ModelSetTrace
                 tryClosePending(trace.srcPath);
                 if(trace.srcPath != "" && castedTrace.srcPath != pendingObjPath){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    target = targetModel.findByPath(castedTrace.srcPath) as ${ctx.getKevoreeContainer().get()};
                 } else {
                     if(castedTrace.srcPath == pendingObjPath && pendingObj != null){
                         target = pendingObj!!;

@@ -9,11 +9,9 @@ import org.kevoree.cloner.ModelCloner;
 import org.kevoree.events.ModelEvent;
 import org.kevoree.events.ModelTreeListener;
 import org.kevoree.impl.DefaultKevoreeFactory;
-import org.kevoree.test.trace.Event2Trace;
-import org.kevoree.test.trace.ModelTraceApplicator;
+import org.kevoree.trace.Event2Trace;
+import org.kevoree.trace.ModelTraceApplicator;
 import org.kevoree.trace.ModelTrace;
-
-import java.util.Collections;
 import java.util.List;
 
 /**

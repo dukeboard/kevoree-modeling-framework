@@ -62,7 +62,7 @@ trait DiffGenerator {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/ModelTrace.vm")
+    val template = ve.getTemplate("templates/trace/ModelTrace.vm")
     val ctxV = new VelocityContext()
     ctxV.put("helper", new ProcessorHelperClass())
     ctxV.put("ctx", ctx)
@@ -71,11 +71,45 @@ trait DiffGenerator {
     pr.close()
   }
 
+  def generateModelTraceApply(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
+    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/trace/")
+    val localFile = new File(packageGenDir + "/trace/ModelTraceApplicator.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/trace/ModelTraceApplicator.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("helper", new ProcessorHelperClass())
+    ctxV.put("ctx", ctx)
+    template.merge(ctxV, pr)
+    pr.flush()
+    pr.close()
+  }
+
+
+  def generateModelEvent2Trace(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
+    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/trace/")
+    val localFile = new File(packageGenDir + "/trace/Event2Trace.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/trace/Event2Trace.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("helper", new ProcessorHelperClass())
+    ctxV.put("ctx", ctx)
+    template.merge(ctxV, pr)
+    pr.flush()
+    pr.close()
+  }
+
+
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/TraceCompareMethod.vm")
+    val template = ve.getTemplate("templates/trace/TraceCompareMethod.vm")
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
     ctxV.put("currentClass", cls)
