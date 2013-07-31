@@ -43,7 +43,6 @@ package org.kevoree.modeling.kotlin.generator.mavenplugin;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.intellij.openapi.util.io.FileUtil;
-import jline.internal.Log;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -62,15 +61,12 @@ import org.jetbrains.k2js.config.MetaInfServices;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
+import javax.tools.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -307,7 +303,7 @@ public class GenModelPlugin extends AbstractMojo {
 
 
         //call Java compiler
-        if(!ctx.getJS()){
+        if (!ctx.getJS()) {
             javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
             try {
@@ -315,7 +311,7 @@ public class GenModelPlugin extends AbstractMojo {
                 fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputClasses));
                 try {
                     ArrayList<File> classPaths = new ArrayList<File>();
-                    for(String path : project.getCompileClasspathElements()){
+                    for (String path : project.getCompileClasspathElements()) {
                         classPaths.add(new File(path));
                     }
 
@@ -329,7 +325,6 @@ public class GenModelPlugin extends AbstractMojo {
             }
             List<File> sourceFileList = new ArrayList<File>();
             collectJavaFiles(ctx.getRootGenerationDirectory().getAbsolutePath(), sourceFileList);
-
 
             try {
                 File localFileDir = new File(outputUtil + File.separator + "org" + File.separator + "jetbrains" + File.separator + "annotations");
@@ -351,16 +346,44 @@ public class GenModelPlugin extends AbstractMojo {
             }
 
 
-
             List<String> optionList = new ArrayList<String>();
-            optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
+            try {
+                StringBuffer cpath = new StringBuffer();
+                boolean firstBUF = true;
+                for (String path : project.getCompileClasspathElements()) {
+                    if (!firstBUF) {
+                        cpath.append(File.pathSeparator);
+                    }
+                    cpath.append(path);
+                    firstBUF = false;
+                }
+                optionList.addAll(Arrays.asList("-classpath", cpath.toString()));
+            } catch (Exception e) {
+                optionList.addAll(Arrays.asList("-classpath", System.getProperty("java.class.path")));
+            }
+
             optionList.add("-source");
             optionList.add("1.6");
             optionList.add("-target");
             optionList.add("1.6");
 
             Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
-            javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null, compilationUnits);
+
+            DiagnosticListener noWarningListener = new DiagnosticListener() {
+
+                @Override
+                public void report(Diagnostic diagnostic) {
+                    if (!diagnostic.getMessage(Locale.ENGLISH).contains("bootstrap class path not set in conjunction")) {
+                        if (diagnostic.getKind().equals(Diagnostic.Kind.ERROR)) {
+                            System.err.println(diagnostic);
+                        } else {
+                            System.out.println(diagnostic);
+                        }
+                    }
+                }
+            };
+
+            javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, noWarningListener, optionList, null, compilationUnits);
             boolean result = task.call();
             try {
                 fileManager.close();
@@ -369,7 +392,7 @@ public class GenModelPlugin extends AbstractMojo {
             }
 
 
-            System.out.println("Java API compilation : "+result);
+            System.out.println("Java API compilation : " + result);
 
             //TODO delete Jetbrains NotNull class file
 
@@ -389,22 +412,22 @@ public class GenModelPlugin extends AbstractMojo {
             }
 
             ExitCode e = null;
-            if(ctx.getJS()){
+            if (ctx.getJS()) {
 
                 K2JSCompilerArguments args = new K2JSCompilerArguments();
                 ArrayList<String> sources = new ArrayList<String>();
                 sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
-                if(sourceFile.exists()){
-                    getLog().info("Add directory : "+sourceFile.getAbsolutePath());
+                if (sourceFile.exists()) {
+                    getLog().info("Add directory : " + sourceFile.getAbsolutePath());
                     sources.add(sourceFile.getAbsolutePath());
                 }
                 args.sourceFiles = sources.toArray(new String[sources.size()]);
                 args.outputFile = outputJS;
                 args.verbose = false;
-                e = KotlinCompilerJS.exec(new PrintStream(System.err){
+                e = KotlinCompilerJS.exec(new PrintStream(System.err) {
                     @Override
                     public void println(String x) {
-                        if(x.startsWith("WARNING")){
+                        if (x.startsWith("WARNING")) {
 
                         } else {
                             super.println(x);
@@ -423,8 +446,8 @@ public class GenModelPlugin extends AbstractMojo {
 
                 ArrayList<String> sources = new ArrayList<String>();
                 sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
-                if(sourceFile.exists()){
-                    getLog().info("Add directory : "+sourceFile.getAbsolutePath());
+                if (sourceFile.exists()) {
+                    getLog().info("Add directory : " + sourceFile.getAbsolutePath());
                     sources.add(sourceFile.getAbsolutePath());
                 }
 
@@ -433,10 +456,10 @@ public class GenModelPlugin extends AbstractMojo {
                 args.noJdkAnnotations = true;
                 args.noStdlib = true;
                 args.verbose = false;
-                e = KotlinCompiler.exec(new PrintStream(System.err){
+                e = KotlinCompiler.exec(new PrintStream(System.err) {
                     @Override
                     public void println(String x) {
-                        if(x.startsWith("WARNING")){
+                        if (x.startsWith("WARNING")) {
 
                         } else {
                             super.println(x);
