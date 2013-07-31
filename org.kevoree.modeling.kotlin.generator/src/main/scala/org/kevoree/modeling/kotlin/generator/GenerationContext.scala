@@ -38,9 +38,9 @@ import java.util
 class GenerationContext {
 
 
-  var genTrace : Boolean = false
+  var genTrace: Boolean = false
 
-  def isGenTrace() : Boolean = genTrace
+  def isGenTrace(): Boolean = genTrace
 
   var genFlatInheritance: Boolean = false
 
@@ -110,6 +110,25 @@ class GenerationContext {
   def getRootContainerClassName = rootXmiContainerClassName
 
 
+  def getChildrenOf(parent: EClass, resource: XMIResource): List[EClass] = {
+    import scala.collection.JavaConversions._
+    resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getESuperTypes.contains(parent)).toList.asInstanceOf[List[EClass]]
+  }
+
+  def checkEID(current: EClass, resource: XMIResource) {
+    import scala.collection.JavaConversions._
+    if (current.getEAllAttributes.find(att => att.isID).isEmpty) {
+      val generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
+      generatedKmfIdAttribute.setID(true)
+      generatedKmfIdAttribute.setName("generated_KMF_ID")
+      generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
+      current.getEStructuralFeatures.add(generatedKmfIdAttribute)
+    }
+    getChildrenOf(current, resource).foreach {
+      child => checkEID(child, resource)
+    }
+  }
+
   def getEcoreModel(ecorefile: File): XMIResource = {
     import scala.collection.JavaConversions._
     System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
@@ -120,22 +139,11 @@ class GenerationContext {
     resource.load(null)
     EcoreUtil.resolveAll(resource)
 
-    resource.getAllContents.foreach{modelElm=>
-      modelElm match {
-        case cls:EClass => {
-          if(cls.getEAllAttributes.find(att=>att.isID).isEmpty) {
-            val generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
-            generatedKmfIdAttribute.setID(true)
-            generatedKmfIdAttribute.setName("generated_KMF_ID")
-            generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
-            cls.getEStructuralFeatures.add(generatedKmfIdAttribute)
-          }
-
-        }
-        case _=>{}//Ignore
-      }
+    /* select all root */
+    resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
+      modelElm =>
+        checkEID(modelElm.asInstanceOf[EClass], resource)
     }
-
     resource
   }
 
@@ -241,7 +249,8 @@ class GenerationContext {
   var flyweightFactory = false
 
   var generateEvents = false
-  def setGenerateEvents(evt:Boolean) {
+
+  def setGenerateEvents(evt: Boolean) {
     generateEvents = evt
   }
 
