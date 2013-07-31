@@ -81,8 +81,12 @@ trait KMFQLFinder {
       pr.println("fun internalGetKey() : String {")
       var first = true
       pr.print("return ")
-      cls.getEAllAttributes.filter(att => att.isID)//gets all IDs
-        .sortWith{(att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase} //order alphabetically
+      var attributes = cls.getEAllAttributes.filter(att => att.isID)
+      if(attributes.size > 1) {
+        attributes = attributes.filterNot(att => att.getName.equals("generated_KMF_ID"))
+      }
+      //gets all IDs
+      attributes.sortWith{(att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase} //order alphabetically
         .foreach {
         att =>
           if (!first) {
