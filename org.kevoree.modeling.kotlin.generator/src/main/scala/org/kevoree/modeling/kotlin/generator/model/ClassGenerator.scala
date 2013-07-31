@@ -76,14 +76,14 @@ trait ClassGenerator extends ClonerGenerator {
         }
         ProcessorHelper.convertType(att.getEAttributeType) match {
 
-          case "String" | "java.lang.String" => pr.println(typePre + "String"+typePost+" = " + {
+          case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
             if (defaultValue == null) {
               "\"\""
             } else {
               defaultValue
             }
           })
-          case "Double" => pr.println(typePre + "Double"+typePost+" = " + {
+          case "Double" => pr.println(typePre + "Double" + typePost + " = " + {
             if (defaultValue == null) {
               "0.0"
             } else {
@@ -293,7 +293,7 @@ trait ClassGenerator extends ClonerGenerator {
     generateMetaClassName(pr, cls, ctx);
 
     if (ctx.genTrace) {
-      generateDiffMethod(pr,cls,ctx)
+      generateDiffMethod(pr, cls, ctx)
     }
 
 
@@ -309,12 +309,12 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("when(refName) {")
     cls.getEAllAttributes.foreach {
       att =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {")//START ATTR
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
         pr.println("when(mutationType) {")
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET -> {")
         val methodNameClean = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
-        var valueType : String = ""
-        if(att.getEAttributeType.isInstanceOf[EEnum]) {
+        var valueType: String = ""
+        if (att.getEAttributeType.isInstanceOf[EEnum]) {
           valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
         } else {
           valueType = ProcessorHelper.convertType(att.getEAttributeType)
@@ -322,15 +322,15 @@ trait ClassGenerator extends ClonerGenerator {
 
         pr.println("this." + methodNameClean + "(value as " + valueType + ")")
         pr.println("}")
-        pr.println("else -> {throw Exception("+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
-        pr.println("}")//END MUTATION TYPE
+        pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
+        pr.println("}") //END MUTATION TYPE
 
-        pr.println("}")//END ATTR
+        pr.println("}") //END ATTR
     }
 
     cls.getEAllReferences.foreach {
       ref =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")//START REF
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {") //START REF
         pr.println("when(mutationType) {")
         val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
 
@@ -353,7 +353,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("      this." + methodNameClean4 + "()")
           pr.println("}")
 
-        }else {
+        } else {
 
           pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET -> {")
           val methodNameClean = "set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
@@ -371,29 +371,29 @@ trait ClassGenerator extends ClonerGenerator {
 
         }
 
-      if(hasID(ref.getEReferenceType) && ref.isMany) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX -> {")
+        if (hasID(ref.getEReferenceType) && ref.isMany) {
+          pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX -> {")
           pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
-        pr.println("val obj = _" + ref.getName + ".get(value)")
-        if (ctx.getGenFlatInheritance) {
-          pr.println("_" + ref.getName + ".put((obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey(),obj)")
-        } else {
-          pr.println("_" + ref.getName + ".put((obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey(),obj)")
+          pr.println("val obj = _" + ref.getName + ".get(value)")
+          if (ctx.getGenFlatInheritance) {
+            pr.println("_" + ref.getName + ".put((obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey(),obj)")
+          } else {
+            pr.println("_" + ref.getName + ".put((obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey(),obj)")
+          }
+          pr.println("_" + ref.getName + ".remove(value)")
+
+          pr.println("}")
+          pr.println("}")
         }
-        pr.println("_" + ref.getName + ".remove(value)")
 
-        pr.println("}")
-        pr.println("}")
-      }
-
-        pr.println("else -> {throw Exception("+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
-        pr.println("}")//END MUTATION TYPE
-        pr.println("}")//END Ref When case
+        pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
+        pr.println("}") //END MUTATION TYPE
+        pr.println("}") //END Ref When case
     }
     pr.println("    else -> { throw Exception(\"Can reflexively \"+mutationType+\" for \"+refName + \" on \"+ this) }")
-    pr.println("}")//END REFS NAME WHEN
+    pr.println("}") //END REFS NAME WHEN
 
-    pr.println("}")//END METHOD
+    pr.println("}") //END METHOD
   }
 
   def generateFlatClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
@@ -432,7 +432,7 @@ trait ClassGenerator extends ClonerGenerator {
           defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType) + ">()"
         }
         ProcessorHelper.convertType(att.getEAttributeType) match {
-          case "String" | "java.lang.String" => pr.println(typePre + "String"+typePost+" = " + {
+          case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
             if (defaultValue == null) {
               "\"\""
             } else {
@@ -587,7 +587,7 @@ trait ClassGenerator extends ClonerGenerator {
     generateMetaClassName(pr, cls, ctx)
 
     if (ctx.genTrace) {
-      generateDiffMethod(pr,cls,ctx)
+      generateDiffMethod(pr, cls, ctx)
     }
 
     pr.println("}")
@@ -598,7 +598,7 @@ trait ClassGenerator extends ClonerGenerator {
 
   private def generateMetaClassName(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
     pr.println("override fun metaClassName() : String {")
-    pr.println("return \"" + ProcessorHelper.fqn(ctx,cls) + "\";")
+    pr.println("return \"" + ProcessorHelper.fqn(ctx, cls) + "\";")
     pr.println("}")
   }
 
@@ -740,7 +740,7 @@ trait ClassGenerator extends ClonerGenerator {
         } else {
           pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
         }
-        pr.println("if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
+        pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
 
         pr.println("val oldPath = path()")
 
@@ -752,7 +752,7 @@ trait ClassGenerator extends ClonerGenerator {
 
         pr.println("_" + att.getName + " = " + att.getName + param_suf)
         if (ctx.generateEvents) {
-          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.ATTRIBUTE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Att_"+att.getName+", " + att.getName + param_suf + "))")
+          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + att.getName + param_suf + "))")
         }
 
 
@@ -760,8 +760,8 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("if(previousParent!=null){")
           pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId);")
           pr.println("}")
-          if(ctx.generateEvents) {
-            pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Att_"+att.getName+", path()))")
+          if (ctx.generateEvents) {
+            pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path()))")
           }
         }
 
@@ -911,9 +911,9 @@ trait ClassGenerator extends ClonerGenerator {
     res += " ) {\n"
 
     //Read only protection
-    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
+    res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     if (ref.isMany) {
-      res += "if(" + ref.getName + param_suf + " == null){ throw IllegalArgumentException("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION) }\n"
+      res += "if(" + ref.getName + param_suf + " == null){ throw IllegalArgumentException(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION) }\n"
     }
     if (!isSingleRef) {
       //Clear cache
@@ -1045,9 +1045,9 @@ trait ClassGenerator extends ClonerGenerator {
       res += "_" + ref.getName + " = " + ref.getName + param_suf + "\n"
       if (ctx.generateEvents) {
         if (ref.isContainment) {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
         } else {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
         }
       }
 
@@ -1100,9 +1100,9 @@ trait ClassGenerator extends ClonerGenerator {
       }
       if (ctx.generateEvents) {
         if (ref.isContainment) {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))"
         } else {
-          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))"
+          res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))"
         }
 
       }
@@ -1150,16 +1150,21 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\noverride fun addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     }
     res += "(" + ref.getName + param_suf + " :List<" + typeRefName + ">) {\n"
-    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
+    res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     //Clear cache
     res += ("_" + ref.getName + "_java_cache=null\n")
     if (hasID(ref.getEReferenceType)) {
       res += "for(el in " + ref.getName + param_suf + "){\n"
+
       if (ctx.getGenFlatInheritance) {
-        res += "_" + ref.getName + ".put((el as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey(),el)\n"
+        res += "val _key_ = (el as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n"
       } else {
-        res += "_" + ref.getName + ".put((el as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey(),el)\n"
+        res += "val _key_ = (el as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey()\n"
       }
+      res += "if(_key_ == \"\" || _key_ == null){ throw Exception(\"Key empty : set the attribute key before adding the object\") }\n"
+
+      res += "_" + ref.getName + ".put(_key_,el)\n"
+
       res += "}\n"
     } else {
       res += "_" + ref.getName + ".addAll(" + ref.getName + param_suf + ")\n"
@@ -1190,9 +1195,9 @@ trait ClassGenerator extends ClonerGenerator {
     }
     if (ctx.generateEvents) {
       if (ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
       }
     }
 
@@ -1212,7 +1217,7 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\noverride fun add" + formatedAddMethodName
     }
     res += "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
-    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
+    res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
 
     //Clear cache
     res += ("_" + ref.getName + "_java_cache=null\n")
@@ -1223,9 +1228,16 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (hasID(ref.getEReferenceType)) {
       if (ctx.getGenFlatInheritance) {
-        res += "_" + ref.getName + ".put((" + ref.getName + param_suf + " as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()," + ref.getName + param_suf + ")\n"
+        res += "val _key_ = ("+ref.getName + param_suf+" as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n"
       } else {
-        res += "_" + ref.getName + ".put((" + ref.getName + param_suf + " as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey()," + ref.getName + param_suf + ")\n"
+        res += "val _key_ = ("+ref.getName + param_suf+" as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey()\n"
+      }
+      res += "if(_key_ == \"\" || _key_ == null){ throw Exception(\"Key empty : set the attribute key before adding the object\") }\n"
+
+      if (ctx.getGenFlatInheritance) {
+        res += "_" + ref.getName + ".put(_key_," + ref.getName + param_suf + ")\n"
+      } else {
+        res += "_" + ref.getName + ".put(_key_," + ref.getName + param_suf + ")\n"
       }
     } else {
       res += "_" + ref.getName + ".add(" + ref.getName + param_suf + ")\n"
@@ -1233,9 +1245,9 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (ctx.generateEvents) {
       if (ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
       }
 
     }
@@ -1298,7 +1310,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     res += "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
 
-    res += ("if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n")
+    res += ("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n")
     //Clear cache
     res += ("_" + ref.getName + "_java_cache=null\n")
 
@@ -1355,10 +1367,10 @@ trait ClassGenerator extends ClonerGenerator {
     if (ctx.generateEvents) {
       if (ref.isContainment) {
         res += "if(!removeAll" + formatedMethodName + "CurrentlyProcessing) {\n"
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
         res += "}\n"
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
       }
     }
 
@@ -1393,7 +1405,7 @@ trait ClassGenerator extends ClonerGenerator {
       res += "\noverride fun removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() {\n"
     }
 
-    res += "if(isReadOnly()){throw Exception("+ ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
+    res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     if (ctx.generateEvents && ref.isContainment) {
       res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=true\n"
     }
@@ -1440,11 +1452,11 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (ctx.generateEvents) {
       if (ref.isContainment) {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", temp_els))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
         res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=false\n"
 
       } else {
-        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".util.Constants.Ref_"+ref.getName+", temp_els))\n"
+        res += "fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(path(), " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.REMOVE_ALL, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
       }
     }
 
