@@ -96,7 +96,7 @@ class ModelSetTrace(val srcPath: String, val refName: String, val objPath : Stri
     }
 }
 
-open class TraceSequence(){
+class TraceSequence(){
 
     var traces = java.util.ArrayList<ModelTrace>()
 
@@ -123,7 +123,7 @@ open class TraceSequence(){
 #end
     }
 
-    open fun populateFromStream(inputStream : java.io.InputStream) : TraceSequence {
+    fun populateFromStream(inputStream : java.io.InputStream) : TraceSequence {
                 val parser = org.kevoree.loader.JsonReader(inputStream);
                 parser.beginArray();
                 val keys = java.util.HashMap<String,String>();

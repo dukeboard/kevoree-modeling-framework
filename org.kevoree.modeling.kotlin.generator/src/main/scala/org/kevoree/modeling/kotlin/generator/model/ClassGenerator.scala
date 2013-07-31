@@ -307,7 +307,6 @@ trait ClassGenerator extends ClonerGenerator {
   def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
     pr.println("override fun reflexiveMutator(mutationType : Int, refName : String, value : Any?) {")
     pr.println("when(refName) {")
-
     cls.getEAllAttributes.foreach {
       att =>
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {")//START ATTR
