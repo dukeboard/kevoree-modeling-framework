@@ -8,6 +8,7 @@ import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import scala.Some
+import scala.collection.mutable
 
 /**
  * Created by IntelliJ IDEA.
@@ -62,93 +63,97 @@ trait ClassGenerator extends ClonerGenerator {
 
 
     //  }
-    //generate init
+    val idAttributes = cls.getEAllAttributes.filter(att => att.isID && !att.getName.equals("generated_KMF_ID"))
+    val alreadyGeneratedAttributes = new mutable.HashSet[String]()
     cls.getEAllAttributes.foreach {
       att => {
-        var defaultValue = att.getDefaultValueLiteral
-        pr.print("override internal var " + "_" + att.getName + " : ")
-        var typePre = ""
-        var typePost = ""
-        if (att.isMany) {
-          typePre = "List<"
-          typePost = ">"
-          defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType) + ">()"
-        }
-        ProcessorHelper.convertType(att.getEAttributeType) match {
+        if(!alreadyGeneratedAttributes.contains(att.getName)) {
+          alreadyGeneratedAttributes.add(att.getName)
+          var defaultValue = att.getDefaultValueLiteral
+          pr.print("override internal var " + "_" + att.getName + " : ")
+          var typePre = ""
+          var typePost = ""
+          if (att.isMany) {
+            typePre = "List<"
+            typePost = ">"
+            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType) + ">()"
+          }
+          ProcessorHelper.convertType(att.getEAttributeType) match {
 
-          case "String" | "java.lang.String" => pr.println(typePre + "String"+typePost+" = " + {
-            if(att.getName.equals("generated_KMF_ID")) {
-              "\"\"+hashCode() + java.util.Date().getTime()"
-            } else {
+            case "String" | "java.lang.String" => pr.println(typePre + "String"+typePost+" = " + {
+              if(att.getName.equals("generated_KMF_ID") &&  idAttributes.size == 0) {
+                "\"\"+hashCode() + java.util.Date().getTime()"
+              } else {
+                if (defaultValue == null) {
+                  "\"\""
+                } else {
+                  defaultValue
+                }
+              }
+
+            })
+            case "Double" => pr.println(typePre + "Double" + typePost + " = " + {
               if (defaultValue == null) {
-                "\"\""
+                "0.0"
               } else {
                 defaultValue
               }
-            }
-
-          })
-          case "Double" => pr.println(typePre + "Double" + typePost + " = " + {
-            if (defaultValue == null) {
-              "0.0"
-            } else {
-              defaultValue
-            }
-          })
-          case "java.lang.Integer" => pr.println(typePre + "Int" + typePost + " = " + {
-            if (defaultValue == null) {
-              "0"
-            } else {
-              defaultValue
-            }
-          })
-          case "Int" => pr.println(typePre + "Int" + typePost + " = " + {
-            if (defaultValue == null) {
-              "0"
-            } else {
-              defaultValue
-            }
-          })
-          case "Boolean" | "java.lang.Boolean" => pr.println(typePre + "Boolean" + typePost + " = " + {
-            if (defaultValue == null) {
-              "false"
-            } else {
-              defaultValue
-            }
-          })
-          case "java.lang.Object" | "Any" => pr.println(typePre + "Any?" + typePost + " = null")
-          case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println(typePre + "Class<out jet.Any?>?" + typePost + " = null")
-          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case "float" | "Float" => pr.println(typePre + "Float" + typePost + " = " + {
-            if (defaultValue == null) {
-              "0"
-            } else {
-              defaultValue
-            }
-          })
-          case "char" | "Char" => pr.println(typePre + "Char" + typePost + " = " + {
-            if (defaultValue == null) {
-              "a"
-            } else {
-              defaultValue
-            }
-          })
-          case "java.math.BigInteger" => pr.println(typePre + "java.math.BigInteger" + typePost + " = " + {
-            if (defaultValue == null) {
-              "java.math.BigInteger.ZERO"
-            } else {
-              defaultValue
-            }
-          })
-          case _@className => {
-            if (att.getEAttributeType.isInstanceOf[EEnum]) {
-              pr.println(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? = null")
-            } else {
-              pr.println(typePre)
-              pr.println(className)
-              pr.println(typePost)
-              if (defaultValue != null) {
-                pr.println(" = " + defaultValue)
+            })
+            case "java.lang.Integer" => pr.println(typePre + "Int" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+            case "Int" => pr.println(typePre + "Int" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+            case "Boolean" | "java.lang.Boolean" => pr.println(typePre + "Boolean" + typePost + " = " + {
+              if (defaultValue == null) {
+                "false"
+              } else {
+                defaultValue
+              }
+            })
+            case "java.lang.Object" | "Any" => pr.println(typePre + "Any?" + typePost + " = null")
+            case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println(typePre + "Class<out jet.Any?>?" + typePost + " = null")
+            case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+            case "float" | "Float" => pr.println(typePre + "Float" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+            case "char" | "Char" => pr.println(typePre + "Char" + typePost + " = " + {
+              if (defaultValue == null) {
+                "a"
+              } else {
+                defaultValue
+              }
+            })
+            case "java.math.BigInteger" => pr.println(typePre + "java.math.BigInteger" + typePost + " = " + {
+              if (defaultValue == null) {
+                "java.math.BigInteger.ZERO"
+              } else {
+                defaultValue
+              }
+            })
+            case _@className => {
+              if (att.getEAttributeType.isInstanceOf[EEnum]) {
+                pr.println(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? = null")
+              } else {
+                pr.println(typePre)
+                pr.println(className)
+                pr.println(typePost)
+                if (defaultValue != null) {
+                  pr.println(" = " + defaultValue)
+                }
               }
             }
           }
@@ -295,7 +300,7 @@ trait ClassGenerator extends ClonerGenerator {
     generateEqualsMethods(pr, cls, ctx)
     generateContainedElementsMethods(pr, cls, ctx)
 
-    generateMetaClassName(pr, cls, ctx);
+    generateMetaClassName(pr, cls, ctx)
 
     if (ctx.genTrace) {
       generateDiffMethod(pr, cls, ctx)
@@ -425,95 +430,100 @@ trait ClassGenerator extends ClonerGenerator {
     }
     //generate init
 
+    val idAttributes = cls.getEAllAttributes.filter(att => att.isID && !att.getName.equals("generated_KMF_ID"))
+    val alreadyGeneratedAttributes = new mutable.HashSet[String]()
     cls.getEAllAttributes.foreach {
       att => {
-        var defaultValue = att.getDefaultValueLiteral
-        pr.print("internal var " + "_" + att.getName + " : ")
-        var typePre = ""
-        var typePost = ""
-        if (att.isMany) {
-          typePre = "List<"
-          typePost = ">"
-          defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType) + ">()"
-        }
-        ProcessorHelper.convertType(att.getEAttributeType) match {
-          case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
-            if(att.getName.equals("generated_KMF_ID")) {
-              "\"\"+hashCode() + java.util.Date().getTime()"
-            } else {
+        if(!alreadyGeneratedAttributes.contains(att.getName)) {
+          alreadyGeneratedAttributes.add(att.getName)
+          var defaultValue = att.getDefaultValueLiteral
+          pr.print("internal var " + "_" + att.getName + " : ")
+          var typePre = ""
+          var typePost = ""
+          if (att.isMany) {
+            typePre = "List<"
+            typePost = ">"
+            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType) + ">()"
+          }
+          ProcessorHelper.convertType(att.getEAttributeType) match {
+            case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
+              if(att.getName.equals("generated_KMF_ID") &&  idAttributes.size == 0) {
+                "\"\"+hashCode() + java.util.Date().getTime()"
+              } else {
+                if (defaultValue == null) {
+                  "\"\""
+                } else {
+                  defaultValue
+                }
+              }
               if (defaultValue == null) {
                 "\"\""
               } else {
                 defaultValue
               }
-            }
-            if (defaultValue == null) {
-              "\"\""
-            } else {
-              defaultValue
-            }
-          })
-          case "Double" => pr.println("Double = " + {
-            if (defaultValue == null) {
-              "0.0"
-            } else {
-              defaultValue
-            }
-          })
-          case "java.lang.Integer" => pr.println(typePre + "Int" + typePost + " = " + {
-            if (defaultValue == null) {
-              "0"
-            } else {
-              defaultValue
-            }
-          })
-          case "Int" => pr.println(typePre + "Int" + typePost + " = " + {
-            if (defaultValue == null) {
-              "0"
-            } else {
-              defaultValue
-            }
-          })
-          case "Boolean" | "java.lang.Boolean" => pr.println(typePre + "Boolean" + typePost + " = " + {
-            if (defaultValue == null) {
-              "false"
-            } else {
-              defaultValue
-            }
-          })
-          case "java.lang.Object" | "Any" => pr.println(typePre + "Any?" + typePost + " = null")
-          case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println(typePre + "Class<out jet.Any?>?" + typePost + " = null")
-          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case "float" | "Float" => pr.println(typePre + "Float" + typePost + " = " + {
-            if (defaultValue == null) {
-              "0"
-            } else {
-              defaultValue
-            }
-          })
-          case "char" | "Char" => pr.println(typePre + "Char" + typePost + " = " + {
-            if (defaultValue == null) {
-              "a"
-            } else {
-              defaultValue
-            }
-          })
-          case "java.math.BigInteger" => pr.println(typePre + "java.math.BigInteger" + typePost + " = " + {
-            if (defaultValue == null) {
-              "java.math.BigInteger.ZERO"
-            } else {
-              defaultValue
-            }
-          })
-          case _@className => {
-            if (att.getEAttributeType.isInstanceOf[EEnum]) {
-              pr.println(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? = null")
-            } else {
-              pr.println(typePre)
-              pr.println(className)
-              pr.println(typePost)
-              if (defaultValue != null) {
-                pr.println(" = " + defaultValue)
+            })
+            case "Double" => pr.println("Double = " + {
+              if (defaultValue == null) {
+                "0.0"
+              } else {
+                defaultValue
+              }
+            })
+            case "java.lang.Integer" => pr.println(typePre + "Int" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+            case "Int" => pr.println(typePre + "Int" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+            case "Boolean" | "java.lang.Boolean" => pr.println(typePre + "Boolean" + typePost + " = " + {
+              if (defaultValue == null) {
+                "false"
+              } else {
+                defaultValue
+              }
+            })
+            case "java.lang.Object" | "Any" => pr.println(typePre + "Any?" + typePost + " = null")
+            case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.println(typePre + "Class<out jet.Any?>?" + typePost + " = null")
+            case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+            case "float" | "Float" => pr.println(typePre + "Float" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+            case "char" | "Char" => pr.println(typePre + "Char" + typePost + " = " + {
+              if (defaultValue == null) {
+                "a"
+              } else {
+                defaultValue
+              }
+            })
+            case "java.math.BigInteger" => pr.println(typePre + "java.math.BigInteger" + typePost + " = " + {
+              if (defaultValue == null) {
+                "java.math.BigInteger.ZERO"
+              } else {
+                defaultValue
+              }
+            })
+            case _@className => {
+              if (att.getEAttributeType.isInstanceOf[EEnum]) {
+                pr.println(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? = null")
+              } else {
+                pr.println(typePre)
+                pr.println(className)
+                pr.println(typePost)
+                if (defaultValue != null) {
+                  pr.println(" = " + defaultValue)
+                }
               }
             }
           }
@@ -657,37 +667,39 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEAttributes.foreach {
       att =>
-        pr.print("internal var " + "_" + att.getName + " : ")
-        if (att.isMany) {
-          pr.print("List<")
-        }
-        ProcessorHelper.convertType(att.getEAttributeType) match {
-          case "java.lang.String" => pr.print("String")
-          case "java.lang.Integer" => pr.print("Int")
-          case "java.lang.Boolean" => pr.print("Boolean")
-          case "java.lang.Object" | "Any" => pr.print("Any?")
-          case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.print("Class<out jet.Any?>?")
-          case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
-          case _@className => {
-            if (att.getEAttributeType.isInstanceOf[EEnum]) {
-              pr.print(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "?")
-            } else {
-              //println("--->" + className)
-              pr.print(className)
+        if(cls.getEAllAttributes.exists(att2=>att2.getName.equals(att.getName) && att2.getEContainingClass!=cls)){}else{
+          pr.print("internal var " + "_" + att.getName + " : ")
+          if (att.isMany) {
+            pr.print("List<")
+          }
+          ProcessorHelper.convertType(att.getEAttributeType) match {
+            case "java.lang.String" => pr.print("String")
+            case "java.lang.Integer" => pr.print("Int")
+            case "java.lang.Boolean" => pr.print("Boolean")
+            case "java.lang.Object" | "Any" => pr.print("Any?")
+            case "java.lang.Class" | "Class" | "Class<out jet.Any?>" => pr.print("Class<out jet.Any?>?")
+            case "null" => throw new UnsupportedOperationException("ClassGenerator:: Attribute type: " + att.getEAttributeType.getInstanceClassName + " has not been converted in a known type. Can not initialize.")
+            case _@className => {
+              if (att.getEAttributeType.isInstanceOf[EEnum]) {
+                pr.print(ProcessorHelper.fqn(ctx, att.getEAttributeType) + "?")
+              } else {
+                //println("--->" + className)
+                pr.print(className)
+              }
             }
           }
+          if (att.isMany) {
+            pr.print(">")
+          }
+          pr.println()
         }
-        if (att.isMany) {
-          pr.print(">")
-        }
-        pr.println()
     }
 
     cls.getEReferences.foreach {
       ref =>
 
         if (ref.getEReferenceType == null) {
-          throw new Exception("Null EReferenceType for " + ref);
+          throw new Exception("Null EReferenceType for " + ref)
         }
 
 
@@ -730,57 +742,65 @@ trait ClassGenerator extends ClonerGenerator {
     } else {
       cls.getEAttributes
     }
+    val alreadyGeneratedAttributes = new mutable.HashSet[String]()
     atts.foreach {
       att =>
-      //Generate getter
-        if (att.getEAttributeType.isInstanceOf[EEnum]) {
-          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? {\n")
-        } else if (ProcessorHelper.convertType(att.getEAttributeType) == "Any") {
-          pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
-        } else {
+        if(!alreadyGeneratedAttributes.contains(att.getName)) {
+          alreadyGeneratedAttributes.add(att.getName)
 
-          if (ProcessorHelper.convertType(att.getEAttributeType).contains("Class")) {
-            pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "? {\n")
-          } else {
-            pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+          if(!ctx.getGenFlatInheritance && cls.getEAllAttributes.exists(att2=>att2.getName.equals(att.getName) && att2.getEContainingClass!=cls)){}else{
+            //Generate getter
+
+            if (att.getEAttributeType.isInstanceOf[EEnum]) {
+              pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? {\n")
+            } else if (ProcessorHelper.convertType(att.getEAttributeType) == "Any") {
+              pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
+            } else {
+
+              if (ProcessorHelper.convertType(att.getEAttributeType).contains("Class")) {
+                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "? {\n")
+              } else {
+                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+              }
+
+            }
+            pr.println(" return " + "_" + att.getName + "\n}")
+            //generate setter
+            pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
+            if (att.getEAttributeType.isInstanceOf[EEnum]) {
+              pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
+            } else {
+              pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
+            }
+            pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
+
+            pr.println("val oldPath = path()")
+
+            if (att.isID()) {
+              pr.println("val oldId = internalGetKey()")
+              pr.println("val previousParent = eContainer();")
+              pr.println("val previousRefNameInParent = getRefInParent();")
+            }
+
+            pr.println("_" + att.getName + " = " + att.getName + param_suf)
+            if (ctx.generateEvents) {
+              pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + att.getName + param_suf + "))")
+            }
+
+
+            if (att.isID()) {
+              pr.println("if(previousParent!=null){")
+              pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId);")
+              pr.println("}")
+              if (ctx.generateEvents) {
+                pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path()))")
+              }
+            }
+
+
+            pr.println("}")
           }
-
         }
-        pr.println(" return " + "_" + att.getName + "\n}")
-        //generate setter
-        pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        if (att.getEAttributeType.isInstanceOf[EEnum]) {
-          pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
-        } else {
-          pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
-        }
-        pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
-
-        pr.println("val oldPath = path()")
-
-        if (att.isID()) {
-          pr.println("val oldId = internalGetKey()")
-          pr.println("val previousParent = eContainer();")
-          pr.println("val previousRefNameInParent = getRefInParent();")
-        }
-
-        pr.println("_" + att.getName + " = " + att.getName + param_suf)
-        if (ctx.generateEvents) {
-          pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + att.getName + param_suf + "))")
-        }
-
-
-        if (att.isID()) {
-          pr.println("if(previousParent!=null){")
-          pr.println("previousParent.reflexiveMutator(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId);")
-          pr.println("}")
-          if (ctx.generateEvents) {
-            pr.println("fireModelEvent(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".events.ModelEvent(oldPath, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.RENEW_INDEX, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path()))")
-          }
-        }
-
-
-        pr.println("}")
     }
 
     val refs = if (ctx.getGenFlatInheritance) {

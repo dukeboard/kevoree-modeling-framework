@@ -81,20 +81,23 @@ trait KMFQLFinder {
       pr.println("fun internalGetKey() : String {")
       var first = true
       pr.print("return ")
-      var attributes = cls.getEAllAttributes.filter(att => att.isID)
-      if(attributes.size > 1) {
-        attributes = attributes.filterNot(att => att.getName.equals("generated_KMF_ID"))
+      val idAttributes = cls.getEAllAttributes.filter(att => att.isID && !att.getName.equals("generated_KMF_ID"))
+
+      if(idAttributes.size > 0) {
+        //gets all IDs
+        idAttributes.sortWith{(att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase} //order alphabetically
+          .foreach {
+          att =>
+            if (!first) {
+              pr.print("+\"/\"+")
+            }
+            pr.print(" get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "()")
+            first = false
+        }
+      } else {
+        pr.print(" getGenerated_KMF_ID()")
       }
-      //gets all IDs
-      attributes.sortWith{(att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase} //order alphabetically
-        .foreach {
-        att =>
-          if (!first) {
-            pr.print("+\"/\"+")
-          }
-          pr.print(" get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "()")
-          first = false
-      }
+
       pr.println()
       pr.println("}")
       pr.println("override fun path() : String? {")
@@ -133,7 +136,7 @@ trait KMFQLFinder {
         pr.println("}")
       }
     })
-    if (generateReflexifMapper) {
+    if (generateReflexifMapper || cls.getEAllSuperTypes.filter(st=>st.getEAllReferences.exists(ref=>ref.isMany)).size > 2) {
       generateFindByPathMethods(ctx, cls, pr)
     } else {
       if (!cls.getEAllSuperTypes.exists(st => hasID(st)) || ctx.getGenFlatInheritance) {
