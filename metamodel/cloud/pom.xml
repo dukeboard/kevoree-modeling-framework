@@ -16,7 +16,7 @@
         <groupId>org.kevoree.modeling</groupId>
         <artifactId>org.kevoree.modeling.sample.root</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <dependencies>
@@ -44,7 +44,7 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
                             <clearOutput>false</clearOutput>
-                           <!-- <js>true</js> -->
+                            <js>true</js>
                             <json>true</json>
                             <events>true</events>
                             <trace>true</trace>

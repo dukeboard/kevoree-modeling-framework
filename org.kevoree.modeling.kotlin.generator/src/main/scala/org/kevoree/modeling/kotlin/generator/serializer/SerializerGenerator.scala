@@ -93,6 +93,23 @@ class SerializerGenerator(ctx: GenerationContext) {
   }
 
   private def generateDefaultSerializer(pr: PrintWriter, potentialRoots: util.ArrayList[EClassifier]) {
+
+    pr.println("override fun serialize(oMS : Any) : String? {")
+
+    if(ctx.getJS()){
+      pr.println("val oo = java.io.OutputStream()")
+    } else {
+      pr.println("val oo = java.io.ByteArrayOutputStream()")
+    }
+    pr.println("serialize(oMS,oo)")
+    pr.println("oo.flush()")
+    if(ctx.getJS()){
+      pr.println("return oo.result")
+    } else {
+      pr.println("return oo.toString()")
+    }
+    pr.println("}")
+
     pr.println("override fun serialize(oMS : Any,ostream : java.io.OutputStream) {")
     pr.println()
     pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")

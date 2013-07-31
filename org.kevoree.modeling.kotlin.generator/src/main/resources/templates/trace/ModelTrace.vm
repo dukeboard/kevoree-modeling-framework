@@ -124,7 +124,7 @@ class TraceSequence(){
     }
 
     fun populateFromStream(inputStream : java.io.InputStream) : TraceSequence {
-                val parser = org.kevoree.loader.JsonReader(inputStream);
+                val parser = ${packName}.loader.JsonReader(inputStream);
                 parser.beginArray();
                 val keys = java.util.HashMap<String,String>();
                 while (parser.hasNext() && (parser.peek() != parser.PEEKED_END_ARRAY)) {
