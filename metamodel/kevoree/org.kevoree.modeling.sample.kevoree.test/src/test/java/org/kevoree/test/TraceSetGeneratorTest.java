@@ -11,6 +11,8 @@ import org.kevoree.trace.ModelTrace;
 
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by duke on 26/07/13.
  */
@@ -32,7 +34,7 @@ public class TraceSetGeneratorTest {
         du1.setVersion("v2");
 
         List<ModelTrace> traces = du0.generateDiffTraces(null, false);
-        assert(lookupForTrace(traces,"unitName"));
+        assertTrue(traces.toString(), lookupForTrace(traces, "unitName"));
         assert(lookupForTrace(traces,"groupName"));
         assert(lookupForTrace(traces,"version"));
 
@@ -51,7 +53,7 @@ public class TraceSetGeneratorTest {
 
     private boolean lookupForTrace(List<ModelTrace> traces, String attName) {
         for (ModelTrace trace : traces) {
-              if(trace.toString().contains("refname : \""+attName+"\"")){
+              if(trace.toString().contains("\"refname\" : \""+attName+"\"")){
                   return true;
               }
         }
