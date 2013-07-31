@@ -354,6 +354,10 @@ public class GenModelPlugin extends AbstractMojo {
 
             List<String> optionList = new ArrayList<String>();
             optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
+            optionList.add("-source");
+            optionList.add("1.6");
+            optionList.add("-target");
+            optionList.add("1.6");
 
             Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
             javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null, compilationUnits);
