@@ -73,22 +73,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     }
     ctx.setBaseLocationForUtilitiesGeneration(ecoreFile)
 
-    model.getAllContents.foreach{modelElm=>
-      modelElm match {
-        case cls:EClass => {
-          if(cls.getEIDAttribute == null) {
-            val generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
-            generatedKmfIdAttribute.setID(true)
-            generatedKmfIdAttribute.setName("generated_KMF_ID")
-            generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
-            cls.getEStructuralFeatures.add(generatedKmfIdAttribute)
-          }
-
-        }
-        case _=>{}//Ignore
-      }
-    }
-
   }
 
 

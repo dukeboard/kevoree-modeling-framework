@@ -78,7 +78,7 @@ trait ClassGenerator extends ClonerGenerator {
 
           case "String" | "java.lang.String" => pr.println(typePre + "String"+typePost+" = " + {
             if(att.getName.equals("generated_KMF_ID")) {
-                "hashCode() + Date().getTime()"
+              "\"\"+hashCode() + java.util.Date().getTime()"
             } else {
               if (defaultValue == null) {
                 "\"\""
@@ -438,6 +438,15 @@ trait ClassGenerator extends ClonerGenerator {
         }
         ProcessorHelper.convertType(att.getEAttributeType) match {
           case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
+            if(att.getName.equals("generated_KMF_ID")) {
+              "\"\"+hashCode() + java.util.Date().getTime()"
+            } else {
+              if (defaultValue == null) {
+                "\"\""
+              } else {
+                defaultValue
+              }
+            }
             if (defaultValue == null) {
               "\"\""
             } else {

@@ -111,7 +111,7 @@ class GenerationContext {
 
 
   def getEcoreModel(ecorefile: File): XMIResource = {
-
+    import scala.collection.JavaConversions._
     System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
     val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
     val rs = new ResourceSetImpl()
@@ -119,6 +119,22 @@ class GenerationContext {
     val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
     resource.load(null)
     EcoreUtil.resolveAll(resource)
+
+    resource.getAllContents.foreach{modelElm=>
+      modelElm match {
+        case cls:EClass => {
+          if(cls.getEAllAttributes.find(att=>att.isID).isEmpty) {
+            val generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
+            generatedKmfIdAttribute.setID(true)
+            generatedKmfIdAttribute.setName("generated_KMF_ID")
+            generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
+            cls.getEStructuralFeatures.add(generatedKmfIdAttribute)
+          }
+
+        }
+        case _=>{}//Ignore
+      }
+    }
 
     resource
   }
