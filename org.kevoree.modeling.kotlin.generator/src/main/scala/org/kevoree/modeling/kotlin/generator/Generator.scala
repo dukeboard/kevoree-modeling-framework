@@ -40,7 +40,7 @@ import factories.FactoryGenerator
 import java.io.File
 import loader.xml.LoaderGenerator
 import model.ModelGenerator
-import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.{EcorePackage, EcoreFactory, EClass, EPackage}
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.kevoree.modeling.kotlin.generator.events.EventsGenerator
 import org.kevoree.modeling.kotlin.generator.loader.json.JsonLoaderGenerator
@@ -71,8 +71,23 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     model.getContents.filter(e => e.isInstanceOf[EPackage]).foreach {
       elem => ctx.registerFactory(elem.asInstanceOf[EPackage])
     }
-
     ctx.setBaseLocationForUtilitiesGeneration(ecoreFile)
+
+    model.getAllContents.foreach{modelElm=>
+      modelElm match {
+        case cls:EClass => {
+          if(cls.getEIDAttribute == null) {
+            val generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
+            generatedKmfIdAttribute.setID(true)
+            generatedKmfIdAttribute.setName("generated_KMF_ID")
+            generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
+            cls.getEStructuralFeatures.add(generatedKmfIdAttribute)
+          }
+
+        }
+        case _=>{}//Ignore
+      }
+    }
 
   }
 

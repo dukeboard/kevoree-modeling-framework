@@ -77,11 +77,16 @@ trait ClassGenerator extends ClonerGenerator {
         ProcessorHelper.convertType(att.getEAttributeType) match {
 
           case "String" | "java.lang.String" => pr.println(typePre + "String"+typePost+" = " + {
-            if (defaultValue == null) {
-              "\"\""
+            if(att.getName.equals("generated_KMF_ID")) {
+                "hashCode() + Date().getTime()"
             } else {
-              defaultValue
+              if (defaultValue == null) {
+                "\"\""
+              } else {
+                defaultValue
+              }
             }
+
           })
           case "Double" => pr.println(typePre + "Double"+typePost+" = " + {
             if (defaultValue == null) {
