@@ -57,7 +57,7 @@ public class ModelTraceApplicator(val targetModel: ${ctx.getKevoreeContainer().g
             var target: ${ctx.getKevoreeContainer().get()} = targetModel;
             if(trace is ModelAddTrace){
                 val castedTrace = trace as ModelAddTrace
-                tryClosePending(trace.srcPath);
+                tryClosePending("#Fake#Path");
                 if(trace.srcPath != ""){
                     target = targetModel.findByPath(castedTrace.srcPath) as ${ctx.getKevoreeContainer().get()};
                 }
@@ -65,7 +65,7 @@ public class ModelTraceApplicator(val targetModel: ${ctx.getKevoreeContainer().g
             }
             if(trace is ModelAddAllTrace){
                 val castedTrace = trace as ModelAddAllTrace
-                tryClosePending(trace.srcPath);
+                tryClosePending("#Fake#Path");
                 var i = 0
                 for(path in castedTrace.previousPath!!){
                     createOrAdd(path, target, castedTrace.refName, castedTrace.typeName!!.get(i))

@@ -25,12 +25,12 @@ override fun containedElementsList() : MutableList<Any> {
 #foreach( $ref in $currentClass.getEAllContainments())
     #if($ref.isMany())
         #if(${ref.getEReferenceType().getEIDAttribute()})
-        result.add(_${ref.getName()}.values())
+        result.addAll(_${ref.getName()}.values())
         #else
-        result.add(_${ref.getName()})
+        result.addAll(_${ref.getName()})
         #end
     #else
-    if(_${ref.getName()}!=null){result.add(_${ref.getName()}!!)}
+        if(_${ref.getName()}!=null){result.add(_${ref.getName()}!!)}
     #end
     #set($i=$i+1)
 #end
