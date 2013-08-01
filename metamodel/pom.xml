@@ -36,6 +36,9 @@
         <module>cloudml/org.kevoree.modeling.sample.cloudml.kt</module>
         <module>cloudml/org.kevoree.modeling.sample.cloudml.emf</module>
 		
+		
+		<module>cloud</module>
+		
 	</modules>
 
     <repositories>

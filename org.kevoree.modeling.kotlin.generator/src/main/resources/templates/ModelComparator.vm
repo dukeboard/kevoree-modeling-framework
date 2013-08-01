@@ -16,12 +16,12 @@ import ${packageName}.trace.ModelAddTrace
 
 public class ModelCompare {
 
-    public fun diff(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): List<ModelTrace> {
-        return internal_diff(origin, target, false);
+    public fun diff(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): ${packageName}.trace.TraceSequence {
+        return ${packageName}.trace.TraceSequence().populate(internal_diff(origin, target, false));
     }
 
-    public fun inter(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): List<ModelTrace> {
-        return internal_diff(origin, target, true);
+    public fun inter(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): ${packageName}.trace.TraceSequence {
+        return ${packageName}.trace.TraceSequence().populate(internal_diff(origin, target, true));
     }
 
     private fun internal_diff(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}, inter: Boolean): List<ModelTrace> {

@@ -35,14 +35,14 @@ public class TraceDiffTest {
 
         ContainerRoot model2 = cloner.clone(model);
 
-        List<ModelTrace> traces = compare.diff(model, model2);
+        List<ModelTrace> traces = compare.diff(model, model2).getTraces();
         assert(traces.size() == 0);
 
 
         ContainerNode node3 = factory.createContainerNode();
         node3.setName("node3");
         model.addNodes(node3);
-        traces = compare.diff(model, model2);
+        traces = compare.diff(model, model2).getTraces();
         System.out.println(traces);
 
     }

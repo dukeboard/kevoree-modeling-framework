@@ -37,7 +37,7 @@ public class ModelComparatorTest {
 
         ContainerRoot modelM1 = cloner.clone(modelM0);
 
-        List<ModelTrace> traces = compare.diff(modelM0, modelM1);
+        List<ModelTrace> traces = compare.diff(modelM0, modelM1).getTraces();
         printTraces(traces);
         assert (traces.size() == 0);
 
@@ -47,7 +47,7 @@ public class ModelComparatorTest {
         modelM1.addNodes(newNode2);
 
 
-        traces = compare.diff(modelM0, modelM1);
+        traces = compare.diff(modelM0, modelM1).getTraces();
         printTraces(traces);
 
 
@@ -73,7 +73,7 @@ public class ModelComparatorTest {
         newNode2.setHost(modelM1.findNodesByID("testNode"));
         modelM1.addNodes(newNode2);
 
-        List<ModelTrace> traces = compare.inter(modelM0, modelM1);
+        List<ModelTrace> traces = compare.inter(modelM0, modelM1).getTraces();
         for(ModelTrace trace : traces){
            if(trace.toString().equals(newNode2.getName())){
                fail("testNode2 must not be present");
