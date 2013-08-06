@@ -64,8 +64,6 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
     ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
     generateDefaultSerializer(serializerGenBaseDir, model)
-
-
   }
 
 
@@ -145,7 +143,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
         } else {
           pr.println("is " + ProcessorHelper.fqn(ctx, root) + " -> {")
         }
-        pr.println("val context = get" + root.getName + "JsonAddr(oMS as " + ProcessorHelper.fqn(ctx, root) + ",\"/\")")
+        pr.println("val context = get" + root.getName + "JsonAddr(oMS as " + ProcessorHelper.fqn(ctx, root) + ")")
         pr.println("" + root.getName + "toJson(oMS,context,wt)")
         pr.println("}")
     }
@@ -201,9 +199,9 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
       }
     }
     //GENERATE GET Json ADDR                                                                              0
-    buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
+    buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + "): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
-    buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"//\") }\n")
+    //buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"//\") }\n")
 
     if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0) {
       buffer.println("var i = 0")
@@ -218,14 +216,14 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
             buffer.println("if(sub" + subClass.getName + "!= null){")
 
-            buffer.println("val subPath_" + subClass.getName + "=sub" + subClass.getName + ".path()")
-            buffer.println("if(subPath_" + subClass.getName + "!=null){")
-            buffer.println("subResult.put(sub" + subClass.getName + ",subPath_" + subClass.getName + ")")
-            buffer.println("} else {")
-            buffer.println("subResult.put(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\" )")
-            buffer.println("}")
+            //buffer.println("val subPath_" + subClass.getName + "=sub" + subClass.getName + ".path()")
+            //buffer.println("if(subPath_" + subClass.getName + "!=null){")
+            buffer.println("subResult.put(sub" + subClass.getName + ",sub" + subClass.getName + ".path()!!)")
+            //buffer.println("} else {")
+            //buffer.println("subResult.put(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\" )")
+            //buffer.println("}")
 
-            buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\"))")
+            buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub" + subClass.getName + "))")
             buffer.println("}")
           }
           case -1 => {
@@ -236,13 +234,13 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             buffer.println("for(sub in selfObject." + getGetter(subClass.getName) + "()){")
 
             buffer.println("val subPath_" + subClass.getName + "=sub.path()")
-            buffer.println("if(subPath_" + subClass.getName + "!=null){")
-            buffer.println("subResult.put(sub,subPath_" + subClass.getName + ")")
-            buffer.println("} else {")
-            buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
-            buffer.println("}")
+            //buffer.println("if(subPath_" + subClass.getName + "!=null){")
+            buffer.println("subResult.put(sub,sub.path()!!)")
+            //buffer.println("} else {")
+            //buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
+            //buffer.println("}")
 
-            buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i))")
+            buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub))")
             buffer.println("i=i+1")
             buffer.println("}")
             buffer.println()
@@ -263,7 +261,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             buffer.println("is " + ProcessorHelper.fqn(ctx, subType) + " -> {")
           }
 
-          buffer.println("subResult.putAll(get" + subType.getName + "JsonAddr(selfObject as " + ProcessorHelper.fqn(ctx, subType) + ",previousAddr))")
+          buffer.println("subResult.putAll(get" + subType.getName + "JsonAddr(selfObject as " + ProcessorHelper.fqn(ctx, subType) + "))")
           buffer.println("}")
         }
       }

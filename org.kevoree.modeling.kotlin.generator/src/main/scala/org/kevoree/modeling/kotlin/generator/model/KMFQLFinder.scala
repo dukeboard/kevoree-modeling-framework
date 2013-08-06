@@ -147,80 +147,6 @@ trait KMFQLFinder {
       }
 
     }
-    /*
-    if (generateReflexifMapper) {
-      pr.println("override fun internalGetQuery(selfKey : String) : String? {")
-      pr.println("var res : Any? = null")
-
-
-      cls.getEAllReferences.foreach(ref => {
-        if (hasID(ref.getEReferenceType)) {
-          if (ref.getUpperBound == 1) {
-            val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal"
-            if (ref.getLowerBound == 0) {
-
-              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && (get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() as " + refInternalClassFqn + ").internalGetKey() == selfKey){")
-              if (hasID(cls)) {
-                pr.println("return (eContainer() as " + ctx.getKevoreeContainerImplFQN + ").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
-              } else {
-                pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
-              }
-              pr.println("}")
-            } else {
-              pr.println("if(get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() != null && (get" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "() as " + refInternalClassFqn + ").internalGetKey() == selfKey){")
-              if (hasID(cls)) {
-                pr.println("return (eContainer() as " + ctx.getKevoreeContainerImplFQN + ").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
-              } else {
-                pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
-              }
-              pr.println("}")
-            }
-          } else {
-            //MANY
-            pr.println("res = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(selfKey)")
-            pr.println("if(res != null){")
-            if (hasID(cls)) {
-              pr.println("return (eContainer() as " + ctx.getKevoreeContainerImplFQN + ").internalGetQuery(internalGetKey())+\"/" + ref.getName + "[\"+selfKey+\"]\"")
-            } else {
-              pr.println("return \"" + ref.getName + "[\"+selfKey+\"]\"")
-            }
-            pr.println("}")
-          }
-        }
-      })
-      pr.println("return null")
-      pr.println("}")
-
-      generateFindByPathMethods(ctx, cls, pr)
-    } else {
-
-
-      val superTypes = cls.getESuperTypes.toSet
-      if (superTypes.size > 0) {
-        pr.println()
-        pr.println("override fun internalGetQuery(selfKey : String) : String? {")
-        pr.println("var subResult : String? = null")
-        superTypes.foreach(superType => {
-
-          val ePackageName = ProcessorHelper.fqn(ctx, superType.getEPackage)
-          pr.println("subResult = super<" + ePackageName+".impl."+superType.getName + "Internal>.internalGetQuery(selfKey)")
-          pr.println("if(subResult!=null){")
-          pr.println("  return subResult")
-          pr.println("}")
-        })
-        pr.println("return null")
-        pr.println("}")
-        pr.println("")
-      }
-
-
-      if (!cls.getEAllSuperTypes.exists(st => hasID(st))) {
-        pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
-        pr.println("override fun findByPath(query : String) : Any? {return null}")
-      }
-
-    }
-    */
   }
 
   def generateFindByPathMethods(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
@@ -311,8 +237,15 @@ trait KMFQLFinder {
 
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) ){ //&& (ref.getLowerBound == 1)) {
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ ref.getName + " -> {")
+        pr.println("if(subquery != \"\"){")
+        pr.println("var obj = get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
+        pr.println("obj?.findByPath(subquery)")
+        pr.println("} else {")
         pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
         pr.println("}")
+
+        pr.println("}")
+
       }
       /*
       if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {

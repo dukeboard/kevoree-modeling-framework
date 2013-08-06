@@ -11,8 +11,7 @@ import java.io.ByteArrayInputStream
 
 class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
 
-    val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
-
+val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
 
 #if($ctx.jS)
     override fun loadModelFromString(str: String) : List<Any>? {
@@ -42,13 +41,11 @@ class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
             val nextKey = reader.nextName()
             if(nextKey.equals("eClass")) {
                 val eclassValue = reader.nextString()
-                val loadedRootsSize = context.loadedRoots.size()
-
                 when {
 #foreach($rootElement in $helper.collectAllClassifiersInModel($model))
     #if(!$rootElement.getClass().getName().toLowerCase().contains("eenum"))
         eclassValue.equals("${helper.fqn($ctx,$rootElement.getEPackage())}:$rootElement.getName()") -> {
-            context.loadedRoots.add(load$rootElement.getName()(reader, context, "/" + loadedRootsSize))
+            context.loadedRoots.add(load$rootElement.getName()(reader, context))
         }
     #end
 
@@ -109,11 +106,8 @@ class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
 #end
 
 #macro( generateLoadMethod $elemToLoad )
-    private fun load$elemToLoad.getName()(reader : JsonReader, context : LoadingContext, elementId: String) : $helper.fqn($ctx, $elemToLoad) {
-
+    private fun load$elemToLoad.getName()(reader : JsonReader, context : LoadingContext) : $helper.fqn($ctx, $elemToLoad) {
         val modelElem = mainFactory.get${elemToLoad.getEPackage().getName().substring(0,1).toUpperCase()}${elemToLoad.getEPackage().getName().substring(1)}Factory().create$elemToLoad.getName()()
-        context.map.put(elementId, modelElem)
-
         while (reader.hasNext()) {
             val nextName = reader.nextName()
             when(nextName) {
@@ -141,12 +135,6 @@ class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
                     while(reader.hasNext()){
                     #end
                         reader.beginObject()
-                            #if($ref.isMany())
-                                    val i = context.elementsCount.get(elementId + "/@$ref.getName()") ?: 0
-                                    val $ref.getName()ElementId = elementId + "/@$ref.getName()." + i
-                            #else
-                                val $ref.getName()ElementId = elementId + "/@$ref.getName()"
-                            #end
                             #set($concreteSubTypes=$helper.getAllConcreteSubTypes($ref.getEReferenceType()))
                             #set($isConcret= (!$ref.getEReferenceType().isAbstract()) && (!$ref.getEReferenceType().isInterface()))
                             #if(!( ($isConcret && $concreteSubTypes.size() == 0) || (!$isConcret && $concreteSubTypes.size() == 1) ))
@@ -157,13 +145,13 @@ class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
 
                                     #if($isConcret)
                                     "$helper.fqn($ctx, $ref.getEReferenceType().getEPackage()):$ref.getEReferenceType().getName()" -> {
-                                        val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
+                                        val loadedElem = load$ref.getEReferenceType().getName()(reader, context)
                                         modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                                     }
                                     #end
                                     #foreach($concreteType in $concreteSubTypes)
                                     "$helper.fqn($ctx, $concreteType.getEPackage()):$concreteType.getName()" -> {
-                                        val loadedElem = load$concreteType.getName()(reader, context, $ref.getName()ElementId)
+                                        val loadedElem = load$concreteType.getName()(reader, context)
                                         modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                                     }
                                     #end
@@ -176,14 +164,11 @@ class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
                             }
                             #else
                                 #if($concreteSubTypes.size() == 1)
-                                    val loadedElem = load$concreteSubTypes.get(0).getName()(reader, context, $ref.getName()ElementId)
+                                    val loadedElem = load$concreteSubTypes.get(0).getName()(reader, context)
                                 #else
-                                    val loadedElem = load$ref.getEReferenceType().getName()(reader, context, $ref.getName()ElementId)
+                                    val loadedElem = load$ref.getEReferenceType().getName()(reader, context)
                                 #end
                                 modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
-                            #end
-                            #if($ref.isMany())
-                                context.elementsCount.put(elementId + "/@$ref.getName()",i+1)
                             #end
                         reader.endObject()
                     #if($ref.isMany())
@@ -198,39 +183,12 @@ class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
                     while(reader.hasNext()) {
                     #end
                         val xmiRef = reader.nextString()!!
-                        val adjustedRef = if(xmiRef.startsWith("//")){"/0" + xmiRef.substring(1)} else { xmiRef}
-                        val ref = context.map.get(adjustedRef)
-                        if( ref != null) {
                             #if($ref.isMany())
-                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(ref as $helper.fqn($ctx, $ref.getEReferenceType()))
-                            #else
-                            modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(ref as $helper.fqn($ctx, $ref.getEReferenceType()))
-                            #end
-                        } else {
-                            #if($ref.isMany())
-                            context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.ADD, "$ref.getName()", adjustedRef))
+                            context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.ADD, "$ref.getName()", xmiRef))
                              #else
-                             context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.SET, "$ref.getName()", adjustedRef))
+                             context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.SET, "$ref.getName()", xmiRef))
                             #end
 
-                            #*
-                            context.resolvers.add({()->
-                            var $ref.getName()Ref = context.map.get(adjustedRef)
-                            var i = 0
-                            while($ref.getName()Ref == null && i < context.loadedRoots.size()) {
-                                $ref.getName()Ref = (context.loadedRoots.get(i++) as? $ctx.getKevoreeContainer().get())?.findByPath(adjustedRef)
-                            }
-
-                            if($ref.getName()Ref != null) {
-                                #if($ref.isMany())
-                                modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)($ref.getName()Ref as $helper.fqn($ctx, $ref.getEReferenceType()))
-                                #else
-                                modelElem.set$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)($ref.getName()Ref as $helper.fqn($ctx, $ref.getEReferenceType()))
-                                #end
-                            } else { throw Exception("KMF Load error : $ref.getEReferenceType().getName() not found in map ! xmiRef:" + adjustedRef)}
-                            })
-                            *#
-                        }
                     #if($ref.isMany())
                     }
                     reader.endArray()
