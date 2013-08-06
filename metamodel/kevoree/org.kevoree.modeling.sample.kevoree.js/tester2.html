@@ -1,0 +1,58 @@
+
+<html>
+<head>
+
+</head>
+<body>
+<h1>Kotlin Kevoree JS Event tester</h1>
+
+<script src="target/js/kotlin-lib-ecma3.js"></script>
+<script src="target/js/kotlin-lib.js"></script>
+<script src="target/js/kotlin-maps.js"></script>
+<script type="text/javascript" src="target/js/org.kevoree.modeling.sample.kevoree.js.js"></script>
+
+<script  type="text/javascript">
+var kevmod = Kotlin.modules['org.kevoree.modeling.sample.kevoree.js'];
+var saver = new kevmod.org.kevoree.serializer.JSONModelSerializer();
+var loader = new kevmod.org.kevoree.loader.JSONModelLoader();
+var cloner = new kevmod.org.kevoree.cloner.DefaultModelCloner();
+var compare = new kevmod.org.kevoree.compare.DefaultModelCompare();
+var factory = new kevmod.org.kevoree.impl.DefaultKevoreeFactory();
+
+var model = factory.createContainerRoot();
+var node = factory.createContainerNode();
+node.setName("hello");
+model.addNodes(node);
+
+var oo = new kevmod.java.io.OutputStream();
+saver.serialize(model,oo);
+
+console.log(model.findNodesByID("hello").getName());
+
+var clonedModel = cloner.clone(model);
+console.log(clonedModel.findNodesByID("hello").getName());
+
+var traces = compare.diff(model,clonedModel);
+console.log(traces);
+
+var node2 = factory.createContainerNode();
+node2.setName("hello2");
+clonedModel.addNodes(node2);
+traces = compare.diff(model,clonedModel);
+
+console.log("Compare Cross Compiled 2 JS from KMF :-) , diff traces detected : ");
+console.log(traces);
+console.log(traces.getTraces().$size);
+
+
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.open("GET","drop.json",false);
+xmlhttp.send();
+
+var model3 = loader.loadModelFromString(xmlhttp.responseText);
+console.log(model3.get(0).metaClassName());
+
+</script>
+
+</body>
+</html>

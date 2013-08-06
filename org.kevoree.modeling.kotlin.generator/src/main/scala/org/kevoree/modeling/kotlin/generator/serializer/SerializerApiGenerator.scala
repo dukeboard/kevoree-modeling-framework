@@ -55,6 +55,12 @@ import java.io.{PrintWriter, File}
 class SerializerApiGenerator(ctx : GenerationContext) {
 
   def generateSerializerAPI() {
+
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/ModelSerializer.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+
+    /*
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer"
     val localFile = new File(serializerGenBaseDir + File.separator + "ModelSerializer.kt")
     if(!localFile.exists()) {
@@ -75,7 +81,9 @@ class SerializerApiGenerator(ctx : GenerationContext) {
 
           pr.flush()
           pr.close()
-    }
+    } */
+
+
   }
 
 }

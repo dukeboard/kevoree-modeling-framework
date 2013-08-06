@@ -17,6 +17,8 @@ import ${packName}.factory.MainFactory
 /**
  * Created by duke on 25/07/13.
  */
+
+
 public class ModelTraceApplicator(val targetModel: ${ctx.getKevoreeContainer().get()}) {
 
     var factory = MainFactory();

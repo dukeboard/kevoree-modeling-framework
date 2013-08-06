@@ -108,7 +108,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     val genFile = new File(genDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
-    pr.println("class JSONModelSerializer : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer.ModelSerializer")
+    pr.println("class JSONModelSerializer : org.kevoree.modeling.api.ModelSerializer ")
     pr.println("{")
     pr.println()
 

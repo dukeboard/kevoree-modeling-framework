@@ -14,12 +14,24 @@ import java.io.{PrintWriter, File}
 class EventsGenerator(ctx: GenerationContext) {
 
   def generateEvents() {
-    generateElementListener()
-    generateTreeListener()
-    generateModelEventClass()
+
+    if(ctx.microframework){
+
+    } else {
+      generateElementListener()
+      //generateTreeListener()
+      generateModelEventClass()
+    }
+
   }
 
   private def generateElementListener() {
+
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/events/ModelElementListener.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+
+  /*
     val extension = if(ctx.getJS()){"kt"}else{"java"}
 
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
@@ -36,9 +48,16 @@ class EventsGenerator(ctx: GenerationContext) {
     template.merge(ctxV,pr)
     pr.flush()
     pr.close()
+    */
+
   }
 
   private def generateTreeListener() {
+
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/events/ModelTreeListener.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+     /*
     val extension = if(ctx.getJS()){"kt"}else{"java"}
 
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
@@ -56,9 +75,17 @@ class EventsGenerator(ctx: GenerationContext) {
     template.merge(ctxV,pr)
     pr.flush()
     pr.close()
+    */
   }
 
   private def generateModelEventClass() {
+
+
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/events/ModelEvent.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+
+    /*
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "events")
 
     val extension = if(ctx.getJS()){"kt"}else{"java"}
@@ -77,6 +104,7 @@ class EventsGenerator(ctx: GenerationContext) {
     template.merge(ctxV,pr)
     pr.flush()
     pr.close()
+    */
 
   }
 

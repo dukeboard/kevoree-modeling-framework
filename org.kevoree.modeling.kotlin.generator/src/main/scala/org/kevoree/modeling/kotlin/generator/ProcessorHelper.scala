@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -53,15 +53,9 @@
 
 package org.kevoree.modeling.kotlin.generator
 
-import java.io.{PrintWriter, File}
-import java.text.SimpleDateFormat
-import java.util.Date
-import org.eclipse.emf.common.util.EList
+import java.io._
 import org.eclipse.emf.ecore.xmi.XMIResource
-import scala.collection.JavaConversions._
-import collection.mutable.Buffer
 import org.eclipse.emf.ecore._
-import io.Source
 
 
 /**
@@ -73,10 +67,43 @@ import io.Source
 
 object ProcessorHelper {
 
+
+  def copyFromStream(intputStream: InputStream,name: String, target: String) {
+    val targetFile = new File(new File(target.replace("/",File.separator)), name.replace("/",File.separator))
+    targetFile.getParentFile.mkdirs()
+    val out = new FileOutputStream(targetFile)
+    val src = intputStream
+    val buffer = new Array[Byte](1024)
+    var len = src.read(buffer)
+    while (len != -1) {
+      out.write(buffer, 0, len)
+      len = src.read(buffer)
+      if (Thread.interrupted()) {
+        throw new InterruptedException()
+      }
+    }
+  }
+
+  def copyFromStream(name: String, target: String) {
+    val targetFile = new File(new File(target.replace("/",File.separator)), name.replace("/",File.separator))
+    targetFile.getParentFile.mkdirs()
+    val out = new FileOutputStream(targetFile)
+    val src = ProcessorHelper.getClass.getClassLoader.getResourceAsStream(name)
+    val buffer = new Array[Byte](1024)
+    var len = src.read(buffer)
+    while (len != -1) {
+      out.write(buffer, 0, len)
+      len = src.read(buffer)
+      if (Thread.interrupted()) {
+        throw new InterruptedException()
+      }
+    }
+  }
+
   private val helper = new ProcessorHelperClass
 
 
-  def getEClassInEPackage(ePackage : EPackage) : java.util.List[EClass] = {
+  def getEClassInEPackage(ePackage: EPackage): java.util.List[EClass] = {
     helper.getEClassInEPackage(ePackage)
   }
 
@@ -90,7 +117,7 @@ object ProcessorHelper {
   }
 
   def convertType(aType: EDataType): String = {
-   helper.convertType(aType)
+    helper.convertType(aType)
   }
 
   def convertJType(theType: String): String = {
@@ -179,12 +206,12 @@ object ProcessorHelper {
     helper.fqn(ctx, cls)
   }
 
-  def collectAllClassifiersInModel(model : XMIResource) : java.util.ArrayList[EClassifier] = {
-    helper.collectAllClassifiersInModel(model : XMIResource)
+  def collectAllClassifiersInModel(model: XMIResource): java.util.ArrayList[EClassifier] = {
+    helper.collectAllClassifiersInModel(model: XMIResource)
   }
 
 
-  def collectAllClassifiersInPackage(pack : EPackage) : java.util.ArrayList[EClassifier] = {
+  def collectAllClassifiersInPackage(pack: EPackage): java.util.ArrayList[EClassifier] = {
     helper.collectAllClassifiersInPackage(pack)
   }
 

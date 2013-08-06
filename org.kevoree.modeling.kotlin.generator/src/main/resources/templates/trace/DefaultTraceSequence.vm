@@ -1,0 +1,100 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+
+#set($packName = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
+
+package ${packName}.trace
+
+import org.kevoree.modeling.api.util.ActionType
+import org.kevoree.modeling.api.trace.*
+
+/**
+ * Created by duke on 25/07/13.
+ */
+
+class DefaultTraceSequence() : org.kevoree.modeling.api.trace.TraceSequence {
+
+var traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
+
+override fun getTraces() : List<org.kevoree.modeling.api.trace.ModelTrace> { return traces; }
+
+override fun populate(addtraces : List<org.kevoree.modeling.api.trace.ModelTrace>) : org.kevoree.modeling.api.trace.TraceSequence {
+        traces.addAll(addtraces);
+        return this;
+}
+
+override fun populateFromString(addtracesTxt : String) : org.kevoree.modeling.api.trace.TraceSequence {
+#if($ctx.jS)
+        val bytes = ByteArray(addtracesTxt.length)
+        var i = 0
+        while(i < addtracesTxt.length){
+            bytes.set(i,addtracesTxt.get(i) as Byte)
+            i = i +1
+        }
+        return populateFromStream(java.io.ByteArrayInputStream(bytes))
+#else
+        return populateFromStream(java.io.ByteArrayInputStream(addtracesTxt.toByteArray()))
+#end
+}
+
+override fun populateFromStream(inputStream : java.io.InputStream) : org.kevoree.modeling.api.trace.TraceSequence {
+                val parser = ${packName}.loader.JsonReader(inputStream);
+                parser.beginArray();
+                val keys = java.util.HashMap<String,String>();
+                while (parser.hasNext() && (parser.peek() != parser.PEEKED_END_ARRAY)) {
+                        parser.beginObject();
+                        keys.clear();
+                        parser.nextName();
+                        val value = parser.nextInt();
+                        while (parser.hasNext() && (parser.peek() != parser.PEEKED_END_OBJECT)) {
+                            keys.put(parser.nextName(),parser.nextString());
+                        }
+                        parser.endObject();
+                        when(value) {
+                            ActionType.SET -> {
+                                traces.add(ModelSetTrace(keys.get("src")!!,keys.get("refname")!!,keys.get("objpath"),keys.get("content"),keys.get("typename")));
+                            }
+                            ActionType.ADD -> {
+                                traces.add(ModelAddTrace(keys.get("src")!!,keys.get("refname")!!,keys.get("previouspath")!!,keys.get("typename")));
+                            }
+                            ActionType.ADD_ALL -> {
+                                traces.add(ModelAddAllTrace(keys.get("src")!!,keys.get("refname")!!,keys.get("content")?.split(";")?.toList(),keys.get("typename")?.split(";")?.toList()));
+                            }
+                            ActionType.REMOVE -> {
+                                traces.add(ModelRemoveTrace(keys.get("src")!!,keys.get("refname")!!,keys.get("objpath")!!));
+                            }
+                            ActionType.REMOVE_ALL -> {
+                                traces.add(ModelRemoveAllTrace(keys.get("src")!!,keys.get("refname")!!));
+                            }
+                            ActionType.RENEW_INDEX-> {
+                            }
+                            else -> {}
+                        }
+                }
+                return this;
+}
+
+override fun exportToString() : String {
+        val buffer = java.lang.StringBuilder()
+         buffer.append("[")
+         var isFirst = true
+         for(trace in traces){
+              if(!isFirst){
+                buffer.append(",")
+              }
+              buffer.append(trace.toString())
+              isFirst = false
+         }
+         buffer.append("]")
+         return buffer.toString()
+}
+
+override fun applyOn(target : org.kevoree.modeling.api.KMFContainer) : Boolean {
+            val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target,${packName}.factory.MainFactory())
+            traceApplicator.applyTraceOnModel(this)
+            //TODO implements the result
+            return true
+       }
+
+
+}

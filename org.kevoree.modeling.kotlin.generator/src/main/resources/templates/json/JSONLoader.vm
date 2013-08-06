@@ -9,7 +9,7 @@ package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 import java.io.InputStream
 import java.io.ByteArrayInputStream
 
-class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader.ModelLoader {
+class JSONModelLoader : org.kevoree.modeling.api.ModelLoader {
 
     val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
 
@@ -27,12 +27,6 @@ class JSONModelLoader : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGenera
 #else
     override fun loadModelFromString(str: String) : List<Any>? {
         return deserialize(ByteArrayInputStream(str.toByteArray()))
-    }
-#end
-
-#if(!$ctx.jS)
-override fun loadModelFromPath(file: java.io.File) : List<Any>? {
-        return loadModelFromStream(java.io.FileInputStream(file))
     }
 #end
 
@@ -214,9 +208,9 @@ override fun loadModelFromPath(file: java.io.File) : List<Any>? {
                             #end
                         } else {
                             #if($ref.isMany())
-                            context.resolvers.add(JSONResolveCommand(context, modelElem,($helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())).util.ActionType.ADD, "$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
+                            context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.ADD, "$ref.getName()", adjustedRef))
                              #else
-                             context.resolvers.add(JSONResolveCommand(context, modelElem,($helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())).util.ActionType.SET, "$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)", adjustedRef))
+                             context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.SET, "$ref.getName()", adjustedRef))
                             #end
 
                             #*

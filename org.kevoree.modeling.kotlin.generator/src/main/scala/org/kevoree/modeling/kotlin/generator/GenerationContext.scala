@@ -37,6 +37,10 @@ import java.util
 
 class GenerationContext {
 
+  var microframework: Boolean = false
+
+  def usemicrofwk() : Boolean = microframework
+
 
   var genTrace: Boolean = false
 

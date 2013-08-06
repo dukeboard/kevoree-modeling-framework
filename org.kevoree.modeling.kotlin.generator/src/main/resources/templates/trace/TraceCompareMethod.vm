@@ -4,7 +4,7 @@
 
 #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
 
-override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean) : List<${tracePack}.trace.ModelTrace> {
+override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
 
     var similarObjCasted : ${FQNHelper.fqn($ctx, $currentClass)}? = null
     #if($ctx.getJS())
@@ -14,7 +14,7 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
     #end
             similarObjCasted = similarObj as ${FQNHelper.fqn($ctx, $currentClass)}
         }
-    val traces = java.util.ArrayList<${tracePack}.trace.ModelTrace>()
+    val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
     var attVal : Any? = null;
     var attVal2 : Any? = null;
     var attVal2String : String? = null;
@@ -26,12 +26,12 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
           attVal2 = similarObjCasted?.get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()
           if(attVal != attVal2){
                  if(!inter){
-                    traces.add(${tracePack}.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2?.toString(),null))
+                    traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2?.toString(),null))
                  }
           } else {
                 //att similar
                 if(inter){
-                    traces.add(${tracePack}.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2?.toString(),null))
+                    traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2?.toString(),null))
                 }
           }
      #end
@@ -63,7 +63,7 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
                     }
                   }
                   if(hashResult!!.size != 0){
-                    traces.add(${tracePack}.trace.ModelAddAllTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(),hashResult!!.toList(),null))
+                    traces.add(org.kevoree.modeling.api.trace.ModelAddAllTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(),hashResult!!.toList(),null))
                   }
               #else
                   attVal = null;
@@ -77,12 +77,12 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
                   }
                   if(attVal != attVal2){
                          if(!inter){
-                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(),attVal2String,null,null))
+                            traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(),attVal2String,null,null))
                          }
                   } else {
                         //att similar
                         if(inter){
-                            traces.add(${tracePack}.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(),attVal2String,null,null))
+                            traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(),attVal2String,null,null))
                         }
                   }
               #end

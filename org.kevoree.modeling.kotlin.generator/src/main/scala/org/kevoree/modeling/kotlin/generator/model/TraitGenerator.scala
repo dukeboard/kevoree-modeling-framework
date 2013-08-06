@@ -86,8 +86,17 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext
 trait TraitGenerator {
 
   def generateContainerAPI(ctx: GenerationContext) {
-    //var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
-    //formatedFactoryName += packElement.getName.substring(1)
+
+    if(!ctx.microframework){
+      if(ctx.getJS()){
+        ProcessorHelper.copyFromStream(this.getClass.getClassLoader.getResourceAsStream("org/kevoree/modeling/api/KMFContainer.kt.jslib"),"org/kevoree/modeling/api/KMFContainer.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+      } else {
+        ProcessorHelper.copyFromStream("org/kevoree/modeling/api/KMFContainer.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+      }
+
+    }
+
+    /*
     val formatedFactoryName = "KMFContainer"
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
 
@@ -111,6 +120,8 @@ trait TraitGenerator {
 
     val template = ve.getTemplate(tName)
     val ctxV = new VelocityContext()
+
+
     ctxV.put("formatedFactoryName", formatedFactoryName)
     ctxV.put("packElem", ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")
     ctxV.put("FQNHelper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
@@ -118,6 +129,7 @@ trait TraitGenerator {
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
+    */
   }
 
   def generateContainerTrait(ctx: GenerationContext) {
@@ -139,7 +151,10 @@ trait TraitGenerator {
     pr.flush()
     pr.close()
 
-    ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName))
+
+    ctx.setKevoreeContainer(Some("org.kevoree.modeling.api.KMFContainer"))
+
+    //ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName))
     ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "Impl")
 
   }

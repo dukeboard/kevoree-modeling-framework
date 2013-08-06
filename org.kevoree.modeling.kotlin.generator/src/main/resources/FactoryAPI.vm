@@ -6,7 +6,7 @@
 
 package ${packageName};
 
-trait ${formatedFactoryName} : ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.factory.KMFFactory {
+trait ${formatedFactoryName} : org.kevoree.modeling.api.KMFFactory {
 
     fun getVersion() : String
 

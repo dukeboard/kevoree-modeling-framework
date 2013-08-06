@@ -1,6 +1,7 @@
 package org.kevoree.test.modelsync;
 
-import org.kevoree.container.KMFContainer;
+
+import org.kevoree.modeling.api.KMFContainer;
 
 /**
  * Created by duke on 24/07/13.

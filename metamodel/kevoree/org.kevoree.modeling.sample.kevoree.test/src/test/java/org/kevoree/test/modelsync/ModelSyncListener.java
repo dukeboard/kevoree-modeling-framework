@@ -1,10 +1,9 @@
 package org.kevoree.test.modelsync;
 
-import org.kevoree.cloner.ModelCloner;
-import org.kevoree.container.KMFContainer;
-import org.kevoree.events.ModelEvent;
-import org.kevoree.events.ModelTreeListener;
-import org.kevoree.util.ElementAttributeType;
+import org.kevoree.modeling.api.KMFContainer;
+import org.kevoree.modeling.api.ModelCloner;
+import org.kevoree.modeling.api.events.*;
+import org.kevoree.modeling.api.util.ElementAttributeType;
 import org.kevoree.serializer.JSONModelSerializer;
 
 /**
@@ -13,7 +12,7 @@ import org.kevoree.serializer.JSONModelSerializer;
 public class ModelSyncListener implements ModelTreeListener {
 
     private KMFContainer currentModel = null;
-    final ModelCloner cloner = new ModelCloner();
+    final ModelCloner cloner = new org.kevoree.cloner.DefaultModelCloner();
     final JSONModelSerializer saver = new JSONModelSerializer();
 
     public ModelSyncListener(KMFContainer m0) {
@@ -40,7 +39,7 @@ public class ModelSyncListener implements ModelTreeListener {
         }
         //reflexive apply
 
-        if (modelEvent.getElementAttributeType() == ElementAttributeType.CONTAINMENT) {
+        if (modelEvent.getElementAttributeType() == ElementAttributeType.instance$.getCONTAINMENT()) {
             target.reflexiveMutator(modelEvent.getType(), modelEvent.getElementAttributeName(), cloner.clone(modelEvent.getValue()));
         } else {
             if (modelEvent.getValue() instanceof KMFContainer) {

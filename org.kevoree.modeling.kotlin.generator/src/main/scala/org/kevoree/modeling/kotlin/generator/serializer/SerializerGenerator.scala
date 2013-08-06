@@ -82,7 +82,7 @@ class SerializerGenerator(ctx: GenerationContext) {
   private def beginSerializer(pr: PrintWriter) {
 
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
-    pr.println("class XMIModelSerializer : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer.ModelSerializer")
+    pr.println("class XMIModelSerializer : org.kevoree.modeling.api.ModelSerializer ")
     pr.println("{")
     pr.println()
 

@@ -8,10 +8,10 @@ package ${packElem}
 
 trait ${formatedFactoryName}Impl {
 
-    internal open var internal_eContainer : ${packElem}.${formatedFactoryName}?
+    internal open var internal_eContainer : org.kevoree.modeling.api.${formatedFactoryName}?
     internal open var internal_unsetCmd : RemoveFromContainerCommand?
 
-    fun eContainer() : ${packElem}.${formatedFactoryName}? { return internal_eContainer }
+    fun eContainer() : org.kevoree.modeling.api.${formatedFactoryName}? { return internal_eContainer }
 
     internal open var internal_containmentRefName : String?
 
@@ -38,7 +38,7 @@ trait ${formatedFactoryName}Impl {
         return internal_recursive_readOnlyElem
     }
 
-    fun setEContainer( container : ${packElem}.${formatedFactoryName}?, unsetCmd : RemoveFromContainerCommand?, refNameInParent : String? ) {
+    fun setEContainer( container : org.kevoree.modeling.api.${formatedFactoryName}?, unsetCmd : RemoveFromContainerCommand?, refNameInParent : String? ) {
 
         if(internal_readOnlyElem){return}
 
@@ -54,6 +54,16 @@ trait ${formatedFactoryName}Impl {
 
     }
 
+#if($ctx.genSelector)
+
+#else
+    fun selectByQuery(query : String) : List<Any> {
+        throw Exception("Not activated, please add selector option in KMF generation plugin")
+    }
+
+#end
+
+
 #if(${ctx.jS})
 fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.factory.MainFactory, mutableOnly: Boolean)
 fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
@@ -64,13 +74,13 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
 
 #if(${ctx.isGenTrace()})
     #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
-    fun generateDiffTraces(similarObj : ${packElem}.${formatedFactoryName}?, inter : Boolean) : List<${tracePack}.trace.ModelTrace>
+    fun generateDiffTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, inter : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
 #end
 
 #if($ctx.generateEvents())
-    internal var internal_modelElementListeners : MutableList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener>?
+    internal var internal_modelElementListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>?
 
-    protected fun fireModelEvent(evt:${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent) {
+    protected fun fireModelEvent(evt : org.kevoree.modeling.api.events.ModelEvent) {
         if(internal_modelElementListeners != null) {
             for(lst in internal_modelElementListeners!!) {
                 lst.elementChanged(evt)
@@ -79,14 +89,14 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
         fireModelEventOnTree(evt)
     }
 
-        fun addModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener){
+        fun addModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelElementListeners == null) {
-                internal_modelElementListeners = java.util.ArrayList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener>()
+                internal_modelElementListeners = java.util.ArrayList<org.kevoree.modeling.api.events.ModelElementListener>()
             }
             internal_modelElementListeners!!.add(lst)
         }
 
-        fun removeModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener){
+        fun removeModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelElementListeners != null) {
                 internal_modelElementListeners!!.remove(lst)
                 if(internal_modelElementListeners!!.isEmpty()) {
@@ -102,9 +112,9 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
 
-        internal var internal_modelTreeListeners : MutableList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener>?
+        internal var internal_modelTreeListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>?
 
-        private fun fireModelEventOnTree(evt:${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelEvent) {
+        private fun fireModelEventOnTree(evt: org.kevoree.modeling.api.events.ModelEvent) {
             if(internal_modelTreeListeners != null) {
                 for(lst in internal_modelTreeListeners!!) {
                     lst.elementChanged(evt)
@@ -115,14 +125,14 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
 
-        fun addModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener){
+        fun addModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelTreeListeners == null) {
-                internal_modelTreeListeners = java.util.ArrayList<${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener>()
+                internal_modelTreeListeners = java.util.ArrayList<org.kevoree.modeling.api.events.ModelElementListener>()
             }
             internal_modelTreeListeners!!.add(lst)
         }
 
-        fun removeModelTreeListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelTreeListener){
+        fun removeModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelTreeListeners != null) {
                 internal_modelTreeListeners!!.remove(lst)
                 if(internal_modelTreeListeners!!.isEmpty()) {
@@ -138,5 +148,24 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
 
+#else
+    fun addModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+        throw Exception("Not activated, please add events option in KMF generation plugin")
+    }
+    fun removeModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener ){
+        throw Exception("Not activated, please add events option in KMF generation plugin")
+    }
+    fun removeAllModelElementListeners(){
+        throw Exception("Not activated, please add events option in KMF generation plugin")
+    }
+    fun addModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+        throw Exception("Not activated, please add events option in KMF generation plugin")
+    }
+    fun removeModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+        throw Exception("Not activated, please add events option in KMF generation plugin")
+    }
+    fun removeAllModelTreeListeners(){
+        throw Exception("Not activated, please add events option in KMF generation plugin")
+    }
 #end
 }

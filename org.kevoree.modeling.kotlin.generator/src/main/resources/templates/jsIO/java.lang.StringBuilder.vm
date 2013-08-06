@@ -1,8 +1,8 @@
 package java.lang;
 
-public class StringBuilder(val base : String) {
+public class StringBuilder() {
 
-    var content = base
+    var content = ""
 
     fun append(sub : String){
         content = content + sub

@@ -6,25 +6,29 @@ package ${packageName}.compare
 
 import java.util.HashMap
 import java.util.ArrayList
-
-import ${packageName}.trace.ModelTrace
-import ${packageName}.trace.ModelAddTrace
+import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.trace.*
 
 /**
  * Created by duke on 26/07/13.
  */
 
-public class ModelCompare {
 
-    public fun diff(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): ${packageName}.trace.TraceSequence {
-        return ${packageName}.trace.TraceSequence().populate(internal_diff(origin, target, false));
+class DefaultModelCompare : org.kevoree.modeling.api.compare.ModelCompare {
+
+override public fun createSequence(): org.kevoree.modeling.api.trace.TraceSequence {
+    return ${packageName}.trace.DefaultTraceSequence()
+}
+
+override public fun diff(origin: KMFContainer, target: KMFContainer): TraceSequence {
+        return createSequence().populate(internal_diff(origin, target, false));
     }
 
-    public fun inter(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}): ${packageName}.trace.TraceSequence {
-        return ${packageName}.trace.TraceSequence().populate(internal_diff(origin, target, true));
+override public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequence {
+        return createSequence().populate(internal_diff(origin, target, true));
     }
 
-    private fun internal_diff(origin: ${ctx.getKevoreeContainer().get()}, target: ${ctx.getKevoreeContainer().get()}, inter: Boolean): List<ModelTrace> {
+    private fun internal_diff(origin: KMFContainer, target: KMFContainer, inter: Boolean): List<ModelTrace> {
         val traces = ArrayList<ModelTrace>()
         val objectsMap = HashMap<String, ${ctx.getKevoreeContainerImplFQN()}>()
         traces.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter))
@@ -56,7 +60,7 @@ public class ModelCompare {
                 } else {
                     if(!inter){
                         traces.add(ModelAddTrace(child.eContainer()!!.path()!!, child.getRefInParent()!!, child.path(), child.metaClassName()))
-                        traces.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as ${ctx.getKevoreeContainer().get()}, true))
+                        traces.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as KMFContainer, true))
                     }
                 }
             } else {
@@ -66,7 +70,7 @@ public class ModelCompare {
         if(!inter){
             //if diff
             for(diffChild in objectsMap.values()){
-                traces.add(ModelAddTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as ${ctx.getKevoreeContainer().get()}).path(), (diffChild as ${ctx.getKevoreeContainer().get()}).metaClassName()))
+                traces.add(ModelAddTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path(), (diffChild as ${ctx.getKevoreeContainer().get()}).metaClassName()))
                 traces.addAll((diffChild as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(null, inter))
             }
         }
@@ -74,17 +78,17 @@ public class ModelCompare {
     }
 
                 #if($ctx.jS)
-                    private fun collectAll(obj : ${ctx.getKevoreeContainer().get()}) : List<${ctx.getKevoreeContainer().get()}> {
-                        val result = java.util.ArrayList<${ctx.getKevoreeContainer().get()}>()
+                    private fun collectAll(obj : KMFContainer) : List<KMFContainer> {
+                        val result = java.util.ArrayList<KMFContainer>()
                         for(child in obj.containedElementsList()){
                             if(child is ArrayList<*>){
                                 for(subChild in (child as ArrayList<*>) ){
-                                    var casted = subChild as ${ctx.getKevoreeContainer().get()}
+                                    var casted = subChild as KMFContainer
                                     result.add(casted)
                                     result.addAll(collectAll(casted))
                                 }
                             } else {
-                                var casted = child as ${ctx.getKevoreeContainer().get()}
+                                var casted = child as KMFContainer
                                 result.add(casted)
                                 result.addAll(collectAll(casted))
                             }

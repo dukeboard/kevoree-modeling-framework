@@ -56,6 +56,12 @@ import java.io.{PrintWriter, File}
 class LoaderApiGenerator(ctx : GenerationContext) {
 
   def generateLoaderAPI() {
+
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/ModelLoader.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+
+    /*
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
     val localFile = new File(loaderGenBaseDir + File.separator + "ModelLoader.kt")
     if(!localFile.exists()) {
@@ -76,7 +82,7 @@ class LoaderApiGenerator(ctx : GenerationContext) {
 
       pr.flush()
       pr.close()
-    }
+    } */
   }
 
   def generateResolveCommand() {

@@ -6,42 +6,43 @@
 
 package ${packElem};
 
-trait ${formatedFactoryName} {
+#if(${ctx.usemicrofwk()})
+    trait ${formatedFactoryName} : org.kevoree.modeling.api.KMFContainer {
+#else
+    trait ${formatedFactoryName} {
 
-fun setRecursiveReadOnly() : Unit
-fun eContainer() : ${formatedFactoryName}?
-fun isReadOnly() : Boolean
-fun isRecursiveReadOnly() : Boolean
-fun setInternalReadOnly()
-fun delete()
+        fun setRecursiveReadOnly() : Unit
+        fun eContainer() : ${formatedFactoryName}?
+        fun isReadOnly() : Boolean
+        fun isRecursiveReadOnly() : Boolean
+        fun setInternalReadOnly()
+        fun delete()
+        fun modelEquals(similarObj : Any?) : Boolean
+        fun deepModelEquals(similarObj : Any?) : Boolean
+        fun getRefInParent() : String?
 
-fun modelEquals(similarObj : Any?) : Boolean
-fun deepModelEquals(similarObj : Any?) : Boolean
+        fun findByPath(query : String) : Any?
+        fun path() : String?
+        fun metaClassName() : String
+        fun reflexiveMutator(mutatorType : Int, refName : String, value : Any?)
 
-fun getRefInParent() : String?
+        fun containedElementsList() : List<Any>
+
+#end
+
 
 #if(${ctx.genSelector})
     fun selectByQuery(query : String) : List<Any>
 #end
-
 #if(!${ctx.jS})
     fun findByPath<A>(query : String, clazz : Class<A>) : A?
-#end
-
-fun findByPath(query : String) : Any?
-fun path() : String?
-
-fun metaClassName() : String
-
-fun reflexiveMutator(mutatorType : Int, refName : String, value : Any?)
-
-    fun containedElementsList() : List<Any>
-#if(${ctx.jS})
-#else
     fun containedElements() : Iterable<${packElem}.${formatedFactoryName}>
     fun containedAllElements() : Iterable<${packElem}.${formatedFactoryName}>
 #end
+#if(${ctx.jS})
+#else
 
+#end
 
 #if(${ctx.generateEvents()})
     fun addModelElementListener(lst : ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events.ModelElementListener)

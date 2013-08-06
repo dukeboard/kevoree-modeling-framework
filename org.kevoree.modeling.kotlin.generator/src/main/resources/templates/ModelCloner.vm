@@ -6,17 +6,17 @@
 
 package ${packageName}.cloner
 
-class ModelCloner {
+class DefaultModelCloner() : org.kevoree.modeling.api.ModelCloner {
 
-    fun clone<A>(o : A) : A? {
+override fun clone<A>(o : A) : A? {
         return clone(o,false)
     }
 
-    fun clone<A>(o : A,readOnly : Boolean) : A? {
+override fun clone<A>(o : A,readOnly : Boolean) : A? {
         return clone(o,readOnly,false)
     }
 
-    fun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {
+override fun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {
         return clone(o,readOnly,true)
     }
 

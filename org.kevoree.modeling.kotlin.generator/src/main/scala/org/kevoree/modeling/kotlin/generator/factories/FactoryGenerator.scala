@@ -28,6 +28,12 @@ import scala.collection.JavaConversions._
 class FactoryGenerator(ctx:GenerationContext) {
 
   def generateMainFactory() {
+
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/KMFFactory.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+
+
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory")
     generatePackageEnum()
 
@@ -35,16 +41,9 @@ class FactoryGenerator(ctx:GenerationContext) {
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
 
-    pr.println("trait KMFFactory {")
-
-    val containerName = ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".container.KMFContainer"
-
-    pr.println("fun create(metaClassName : String) : "+containerName+"?")
-    pr.println("}")
-
-    pr.println("class MainFactory : KMFFactory {")
+    pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {")
     pr.println("")
-    pr.println("private var factories : Array<KMFFactory?> = Array<KMFFactory?>("+ctx.packageFactoryMap.entrySet().size()+", {i -> null});")
+    pr.println("private var factories : Array<org.kevoree.modeling.api.KMFFactory?> = Array<org.kevoree.modeling.api.KMFFactory?>("+ctx.packageFactoryMap.entrySet().size()+", {i -> null});")
     pr.println("")
     pr.println("{")
     ctx.packageFactoryMap.entrySet().foreach { entry =>
@@ -53,7 +52,7 @@ class FactoryGenerator(ctx:GenerationContext) {
     pr.println("}")
 
 
-    pr.println("fun getFactoryForPackage( pack : Int) : KMFFactory? {")
+    pr.println("fun getFactoryForPackage( pack : Int) : org.kevoree.modeling.api.KMFFactory? {")
     pr.println("return factories.get(pack)")
     pr.println("}")
 
@@ -70,7 +69,7 @@ class FactoryGenerator(ctx:GenerationContext) {
     pr.println("")
 
     pr.print("override ")
-    pr.println("fun create(metaClassName : String) : "+ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".container.KMFContainer? {")
+    pr.println("fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {")
     pr.println("return getFactoryForPackage(Package.getPackageForName(metaClassName))?.create(metaClassName)")
     pr.println("}")
 

@@ -1,13 +1,10 @@
 package org.kevoree.test;
 
 import org.junit.Test;
-import org.kevoree.ContainerNode;
-import org.kevoree.DeployUnit;
 import org.kevoree.KevoreeFactory;
-import org.kevoree.impl.ContainerNodeImpl;
 import org.kevoree.impl.DefaultKevoreeFactory;
 import org.kevoree.impl.DeployUnitImpl;
-import org.kevoree.trace.ModelTrace;
+import org.kevoree.modeling.api.trace.ModelTrace;
 
 import java.util.List;
 

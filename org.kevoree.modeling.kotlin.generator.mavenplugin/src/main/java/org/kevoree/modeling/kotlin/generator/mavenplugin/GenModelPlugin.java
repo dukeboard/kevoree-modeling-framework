@@ -43,6 +43,7 @@ package org.kevoree.modeling.kotlin.generator.mavenplugin;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.intellij.openapi.util.io.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -63,10 +64,9 @@ import org.kevoree.modeling.kotlin.generator.Generator;
 
 import javax.tools.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 
 /**
@@ -276,6 +276,17 @@ public class GenModelPlugin extends AbstractMojo {
         }
 
         GenerationContext ctx = new GenerationContext();
+
+        try {
+            for (String path : project.getCompileClasspathElements()) {
+                if (path.contains("org.kevoree.modeling.microframework")) {
+                    ctx.microframework_$eq(true);
+                }
+            }
+        } catch (DependencyResolutionRequiredException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         ctx.setPackagePrefix(scala.Option.apply(packagePrefix));
         ctx.setRootGenerationDirectory(output);
         ctx.setRootUserDirectory(inputScala);
@@ -345,6 +356,47 @@ public class GenModelPlugin extends AbstractMojo {
                 e.printStackTrace();
             }
 
+            File microfxlpath = new File(ctx.getRootGenerationDirectory().getAbsolutePath() + File.separator + "org" + File.separator + "kevoree" + File.separator + "modeling" + File.separator + "api");
+            if (microfxlpath.exists()) {
+
+
+                //Precompile Kotlin FWK
+                K2JVMCompilerArguments args = new K2JVMCompilerArguments();
+                //args.setClasspath(cpath.toString());
+
+                ArrayList<String> sources = new ArrayList<String>();
+                getLog().info("Add directory : " + sourceFile.getAbsolutePath());
+                sources.add(microfxlpath.getAbsolutePath());
+
+                args.setSourceDirs(sources);
+                args.setOutputDir(outputClasses.getPath());
+                args.noJdkAnnotations = true;
+                args.noStdlib = true;
+                args.verbose = false;
+                ExitCode efirst = KotlinCompiler.exec(new PrintStream(System.err) {
+                    @Override
+                    public void println(String x) {
+                        if (x.startsWith("WARNING")) {
+
+                        } else {
+                            super.println(x);
+                        }
+                    }
+
+                }, args);
+                if (efirst.ordinal() != 0) {
+                    throw new MojoExecutionException("Embedded Kotlin compilation error !");
+                } else {
+
+
+                    try {
+                        FileUtils.deleteDirectory(microfxlpath);
+                    } catch (IOException e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
+                }
+
+            }
 
             List<String> optionList = new ArrayList<String>();
             try {
@@ -400,15 +452,58 @@ public class GenModelPlugin extends AbstractMojo {
 
         outputClasses.mkdirs();
 
+
         try {
             StringBuffer cpath = new StringBuffer();
             boolean firstBUF = true;
             for (String path : project.getCompileClasspathElements()) {
-                if (!firstBUF) {
-                    cpath.append(File.pathSeparator);
+
+                boolean JSLIB = false;
+                File file = new File(path);
+                if (file.exists()) {
+
+                    if (file.isFile() && ctx.js()) {
+                        JarFile jarFile = new JarFile(file);
+                        if (jarFile.getJarEntry("META-INF/services/org.jetbrains.kotlin.js.librarySource") != null) {
+                            JSLIB = true;
+                            Enumeration<JarEntry> entries = jarFile.entries();
+                            while (entries.hasMoreElements()) {
+                                JarEntry entry = entries.nextElement();
+                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt")) {
+
+                                    String fileName = entry.getName();
+                                    if (fileName.endsWith(".jslib")) {
+                                        fileName = fileName.replace(".jslib", "");
+                                    }
+
+                                    File destFile = new File(output, fileName.replace("/", File.separator + ""));
+                                    File parent = destFile.getParentFile();
+                                    if (!parent.exists() && !parent.mkdirs()) {
+                                        throw new IllegalStateException("Couldn't create dir: " + parent);
+                                    }
+                                    FileOutputStream jos = new FileOutputStream(destFile);
+                                    InputStream is = jarFile.getInputStream(entry);
+                                    byte[] buffer = new byte[4096];
+                                    int bytesRead = 0;
+                                    while ((bytesRead = is.read(buffer)) != -1) {
+                                        jos.write(buffer, 0, bytesRead);
+                                    }
+                                    is.close();
+                                    jos.flush();
+                                }
+                            }
+                        }
+                    }
+
+                    if (!JSLIB) {
+                        if (!firstBUF) {
+                            cpath.append(File.pathSeparator);
+                        }
+                        cpath.append(path);
+                        firstBUF = false;
+                    }
+
                 }
-                cpath.append(path);
-                firstBUF = false;
             }
 
             ExitCode e = null;

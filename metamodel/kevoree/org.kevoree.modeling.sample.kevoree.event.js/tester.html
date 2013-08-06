@@ -18,7 +18,7 @@ var saver = new kevmod.org.kevoree.serializer.JSONModelSerializer();
 var loader = new kevmod.org.kevoree.loader.JSONModelLoader();
 var factory = new kevmod.org.kevoree.impl.DefaultKevoreeFactory();
 var model = factory.createContainerRoot();
-var actionTypes = kevmod.org.kevoree.util.ActionType;
+var actionTypes = kevmod.org.kevoree.modeling.api.util.ActionType;
 /* Declare events listener */
 var listener = { elementChanged : function(event){
     switch(event.getType()){

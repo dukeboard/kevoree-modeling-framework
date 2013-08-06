@@ -7,17 +7,19 @@ import org.fsmsample.FSM;
 import org.fsmsample.FsmSampleFactory;
 import org.fsmsample.State;
 import org.fsmsample.Transition;
-import org.fsmsample.events.ModelElementListener;
-import org.fsmsample.events.ModelEvent;
 import org.fsmsample.impl.DefaultFsmSampleFactory;
-import org.fsmsample.util.ActionType;
-import org.fsmsample.util.ElementAttributeType;
+import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.util.ElementAttributeType;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import org.kevoree.modeling.api.events.*;
+
+
 
 import static org.junit.Assert.assertTrue;
 
@@ -36,7 +38,6 @@ public class ModelElementEventsTest {
     Semaphore removeAllReference = new Semaphore(0);
     Semaphore addAllContainment = new Semaphore(0);
     Semaphore removeAllContainment = new Semaphore(0);
-
 
     private void assertEvent(ModelEvent evt, String expectedPath, String expectedElementAttributeName, int expectedElementAttributeType, int expectedEventType, Object expectedValue ) {
 
@@ -64,7 +65,7 @@ public class ModelElementEventsTest {
         t0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, t0.path(), "input", ElementAttributeType.ATTRIBUTE, ActionType.SET, value);
+                assertEvent(evt, t0.path(), "input", ElementAttributeType.instance$.getATTRIBUTE(), ActionType.instance$.getSET(), value);
                 setAttribute.release();
             }
         });
@@ -84,7 +85,7 @@ public class ModelElementEventsTest {
         t0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, t0.path(), "input", ElementAttributeType.ATTRIBUTE, ActionType.SET, value);
+                assertEvent(evt, t0.path(), "input", ElementAttributeType.instance$.getATTRIBUTE(), ActionType.instance$.getSET(), value);
                 unsetAttribute.release();
             }
         });
@@ -104,7 +105,7 @@ public class ModelElementEventsTest {
         t0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, t0.path(), "source", ElementAttributeType.REFERENCE, ActionType.SET, s0);
+                assertEvent(evt, t0.path(), "source", ElementAttributeType.instance$.getREFERENCE(), ActionType.instance$.getSET(), s0);
                 setReference.release();
             }
         });
@@ -127,7 +128,7 @@ public class ModelElementEventsTest {
         t0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, t0.path(), "source", ElementAttributeType.REFERENCE, ActionType.SET, null);
+                assertEvent(evt, t0.path(), "source", ElementAttributeType.instance$.getREFERENCE(), ActionType.instance$.getSET(), null);
                 unsetReference.release();
             }
         });
@@ -154,7 +155,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "incomingTransition", ElementAttributeType.REFERENCE, ActionType.ADD_ALL, transitionsList);
+                assertEventWithList(evt, s0.path(), "incomingTransition", ElementAttributeType.instance$.getREFERENCE(), ActionType.instance$.getADD_ALL(), transitionsList);
                 addAllReference.release();
             }
         });
@@ -182,7 +183,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "incomingTransition", ElementAttributeType.REFERENCE, ActionType.REMOVE_ALL, transitionsList);
+                assertEventWithList(evt, s0.path(), "incomingTransition", ElementAttributeType.instance$.getREFERENCE(), ActionType.instance$.getREMOVE_ALL(), transitionsList);
                 removeAllReference.release();
             }
         });
@@ -209,7 +210,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "outgoingTransition", ElementAttributeType.CONTAINMENT, ActionType.ADD_ALL, transitionsList);
+                assertEventWithList(evt, s0.path(), "outgoingTransition", ElementAttributeType.instance$.getCONTAINMENT(), ActionType.instance$.getADD_ALL(), transitionsList);
                 addAllContainment.release();
             }
         });
@@ -237,7 +238,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEventWithList(evt, s0.path(), "outgoingTransition", ElementAttributeType.CONTAINMENT, ActionType.REMOVE_ALL, transitionsList);
+                assertEventWithList(evt, s0.path(), "outgoingTransition", ElementAttributeType.instance$.getCONTAINMENT(), ActionType.instance$.getREMOVE_ALL(), transitionsList);
                 removeAllContainment.release();
             }
         });
@@ -260,7 +261,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, s0.path(), "incomingTransition", ElementAttributeType.REFERENCE, ActionType.ADD, t0);
+                assertEvent(evt, s0.path(), "incomingTransition", ElementAttributeType.instance$.getREFERENCE(), ActionType.instance$.getADD(), t0);
                 addReference.release();
             }
         });
@@ -283,7 +284,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, s0.path(), "incomingTransition", ElementAttributeType.REFERENCE, ActionType.REMOVE, t0);
+                assertEvent(evt, s0.path(), "incomingTransition", ElementAttributeType.instance$.getREFERENCE(), ActionType.instance$.getREMOVE(), t0);
                 removeReference.release();
             }
         });
@@ -306,7 +307,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, s0.path(), "outgoingTransition", ElementAttributeType.CONTAINMENT, ActionType.ADD, t0);
+                assertEvent(evt, s0.path(), "outgoingTransition", ElementAttributeType.instance$.getCONTAINMENT(), ActionType.instance$.getADD(), t0);
                 addContainment.release();
             }
         });
@@ -329,7 +330,7 @@ public class ModelElementEventsTest {
         s0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
-                assertEvent(evt, s0.path(), "outgoingTransition", ElementAttributeType.CONTAINMENT, ActionType.REMOVE, t0);
+                assertEvent(evt, s0.path(), "outgoingTransition", ElementAttributeType.instance$.getCONTAINMENT(), ActionType.instance$.getREMOVE(), t0);
                 removeContainment.release();
             }
         });

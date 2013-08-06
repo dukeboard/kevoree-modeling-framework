@@ -18,13 +18,13 @@ var saver = new kevmod.org.kevoree.serializer.JSONModelSerializer();
 var loader = new kevmod.org.kevoree.loader.JSONModelLoader();
 var factory = new kevmod.org.kevoree.impl.DefaultKevoreeFactory();
 var model = factory.createContainerRoot();
-var actionTypes = kevmod.org.kevoree.util.ActionType;
+var actionTypes = kevmod.org.kevoree.modeling.api.util.ActionType;
 /* Declare events listener */
 
 
-var event2trace = new kevmod.org.kevoree.trace.Event2Trace();
+var compare = new kevmod.org.kevoree.compare.DefaultModelCompare();
+var event2trace = new kevmod.org.kevoree.modeling.api.trace.Event2Trace(compare);
 var model2 = factory.createContainerRoot();
-var applicator = new kevmod.org.kevoree.trace.ModelTraceApplicator(model2);
 
 var listener = { elementChanged : function(event){
     switch(event.getType()){
@@ -39,7 +39,7 @@ var listener = { elementChanged : function(event){
             break;
     }
     var traces = event2trace.convert(event);
-    applicator.applyTraceOnModel(traces);
+    traces.applyOn(model2);
 }};
 
 model.addModelTreeListener(listener);

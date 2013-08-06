@@ -9,6 +9,7 @@ import org.kevoree.serializer.JSONModelSerializer;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import static org.junit.Assert.assertEquals;
@@ -41,7 +42,7 @@ public class TestEscapeUnescape {
             serializer.serialize(root, new FileOutputStream(jsonModel));
 
             JSONModelLoader loader = new JSONModelLoader();
-            ContainerRoot loadedModel = (ContainerRoot) loader.loadModelFromPath(jsonModel).get(0);
+            ContainerRoot loadedModel = (ContainerRoot) loader.loadModelFromStream(new FileInputStream(jsonModel)).get(0);
             Group grp = loadedModel.findGroupsByID(groupName);
 
             assertEquals(groupName, grp.getName());

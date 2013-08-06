@@ -203,10 +203,10 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           var mutatorType: String = ""
           var methName : String = ""
           if (ref.getUpperBound == 1) {
-            mutatorType = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.SET"
+            mutatorType = "org.kevoree.modeling.api.util.ActionType.SET"
             methName =  "set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           } else {
-            mutatorType = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.ActionType.ADD"
+            mutatorType = "org.kevoree.modeling.api.util.ActionType.ADD"
            methName =  "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           }
 

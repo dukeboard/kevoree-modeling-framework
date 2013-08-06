@@ -5,15 +5,14 @@ import org.kevoree.ContainerNode;
 import org.kevoree.ContainerRoot;
 import org.kevoree.KevoreeFactory;
 import org.kevoree.TypeDefinition;
-import org.kevoree.cloner.ModelCloner;
-import org.kevoree.events.ModelEvent;
-import org.kevoree.events.ModelTreeListener;
+import org.kevoree.cloner.DefaultModelCloner;
+import org.kevoree.factory.MainFactory;
+import org.kevoree.modeling.api.ModelCloner;
+import org.kevoree.modeling.api.events.*;
 import org.kevoree.impl.DefaultKevoreeFactory;
-import org.kevoree.trace.Event2Trace;
-import org.kevoree.trace.ModelSetTrace;
-import org.kevoree.trace.ModelTraceApplicator;
-import org.kevoree.trace.TraceSequence;
-import org.kevoree.util.ActionType;
+import org.kevoree.modeling.api.trace.Event2Trace;
+import org.kevoree.modeling.api.trace.ModelTraceApplicator;
+import org.kevoree.modeling.api.trace.TraceSequence;
 
 import java.util.HashMap;
 
@@ -25,7 +24,7 @@ import java.util.HashMap;
  */
 public class TraceSyncTest {
 
-    private ModelCloner cloner = new ModelCloner();
+    private ModelCloner cloner = new DefaultModelCloner();
     private KevoreeFactory factory = new DefaultKevoreeFactory();
 
 
@@ -46,14 +45,16 @@ public class TraceSyncTest {
 
 
         modelM0.addModelTreeListener(new ModelTreeListener() {
-            Event2Trace converter = new Event2Trace();
-            ModelTraceApplicator applicator = new ModelTraceApplicator(modelM1);
+            org.kevoree.compare.DefaultModelCompare comparator = new org.kevoree.compare.DefaultModelCompare();
+
+            Event2Trace converter = new Event2Trace(new org.kevoree.compare.DefaultModelCompare());
+            ModelTraceApplicator applicator = new ModelTraceApplicator(modelM1, new MainFactory());
 
             @Override
             public void elementChanged(ModelEvent modelEvent) {
                 TraceSequence traceSeq = converter.convert(modelEvent);
 
-                TraceSequence traceSeqClone = new TraceSequence();          /* Simulate network payload  */
+                TraceSequence traceSeqClone = comparator.createSequence();          /* Simulate network payload  */
                 traceSeqClone.populateFromString(traceSeq.exportToString());
                 assert (traceSeq.exportToString().equals(traceSeqClone.exportToString()));
                 applicator.applyTraceOnModel(traceSeqClone);

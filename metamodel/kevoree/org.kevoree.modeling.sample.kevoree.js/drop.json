@@ -1,0 +1,1291 @@
+{ "eClass": "org.kevoree:ContainerRoot",
+    "generated_KMF_ID": "279275841375792178848",
+    "nodes": [
+        {
+            "eClass": "org.kevoree:ContainerNode",
+            "name": "node0",
+            "started": true,
+            "typeDefinition": "typeDefinitions[MiniCloudNode]",
+            "dictionary": {
+                "eClass": "org.kevoree:Dictionary",
+                "generated_KMF_ID": "112576331375792180599",
+                "values": [
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "DEBUG",
+                        "generated_KMF_ID": "99010611375792180601",
+                        "attribute": "typeDefinitions[MiniCloudNode]/dictionaryType[219247481375780867678]/attributes[coreLogLevel]"
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "DEBUG",
+                        "generated_KMF_ID": "311932131375792180601",
+                        "attribute": "typeDefinitions[MiniCloudNode]/dictionaryType[219247481375780867678]/attributes[logLevel]"
+                    }
+                ]
+            },
+            "components": [
+                {
+                    "eClass": "org.kevoree:ComponentInstance",
+                    "name": "webf",
+                    "started": true,
+                    "typeDefinition": "typeDefinitions[WebFrontend]",
+                    "dictionary": {
+                        "eClass": "org.kevoree:Dictionary",
+                        "generated_KMF_ID": "83424781375792180606",
+                        "values": [
+                            {
+                                "eClass": "org.kevoree:DictionaryValue",
+                                "value": "8080",
+                                "generated_KMF_ID": "216232571375792180606",
+                                "attribute": "typeDefinitions[WebFrontend]/dictionaryType[55319341375792160604]/attributes[port]"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "typeDefinitions": [
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "StatefulJavaSENode",
+            "factoryBean": "org.kevoree.library.defaultNodeTypes.StatefulJavaSENodeFactory",
+            "bean": "org.kevoree.library.defaultNodeTypes.StatefulJavaSENode",
+            "abstract": false,
+            "deployUnits": ["deployUnits[109532271375780867678]"],
+            "superTypes": ["typeDefinitions[JavaSENode]"],
+            "managedPrimitiveTypes": ["adaptationPrimitiveTypes[UpdateFragmentBinding]",
+                "adaptationPrimitiveTypes[UpdateDictionaryInstance]",
+                "adaptationPrimitiveTypes[UpdateBinding]",
+                "adaptationPrimitiveTypes[RemoveThirdParty]",
+                "adaptationPrimitiveTypes[RemoveInstance]",
+                "adaptationPrimitiveTypes[RemoveType]",
+                "adaptationPrimitiveTypes[StartInstance]",
+                "adaptationPrimitiveTypes[UpdateType]",
+                "adaptationPrimitiveTypes[AddFragmentBinding]",
+                "adaptationPrimitiveTypes[StartThirdParty]",
+                "adaptationPrimitiveTypes[AddBinding]",
+                "adaptationPrimitiveTypes[RemoveBinding]",
+                "adaptationPrimitiveTypes[StopInstance]",
+                "adaptationPrimitiveTypes[UpdateDeployUnit]",
+                "adaptationPrimitiveTypes[UpdateInstance]",
+                "adaptationPrimitiveTypes[RemoveFragmentBinding]",
+                "adaptationPrimitiveTypes[RemoveDeployUnit]",
+                "adaptationPrimitiveTypes[AddDeployUnit]",
+                "adaptationPrimitiveTypes[AddThirdParty]",
+                "adaptationPrimitiveTypes[AddInstance]",
+                "adaptationPrimitiveTypes[AddType]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "8633361375780743434",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "coreLogLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "logLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "storageLocation",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ],
+                "defaultValues": [
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "generated_KMF_ID": "137763961375780743474",
+                        "attribute": "typeDefinitions[StatefulJavaSENode]/dictionaryType[8633361375780743434]/attributes[storageLocation]"
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "INFO",
+                        "generated_KMF_ID": "19319601375780743440",
+                        "attribute": "typeDefinitions[StatefulJavaSENode]/dictionaryType[8633361375780743434]/attributes[logLevel]"
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "WARN",
+                        "generated_KMF_ID": "23900731375780743441",
+                        "attribute": "typeDefinitions[StatefulJavaSENode]/dictionaryType[8633361375780743434]/attributes[coreLogLevel]"
+                    }
+                ]
+            },
+            "managedPrimitiveTypeRefs": [
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "295443271375780743470",
+                    "ref": "adaptationPrimitiveTypes[AddDeployUnit]"
+                }
+                ,
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "49733731375780743473",
+                    "ref": "adaptationPrimitiveTypes[UpdateDeployUnit]"
+                }
+            ]
+        }
+        ,
+        {
+            "eClass": "org.kevoree:ComponentType",
+            "name": "WebFrontend",
+            "factoryBean": "org.kevoree.sky.web.WebFrontendFactory",
+            "bean": "org.kevoree.sky.web.WebFrontend",
+            "abstract": false,
+            "deployUnits": ["deployUnits[16017351375792160624]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "55319341375792160604",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "port",
+                        "optional": false,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ],
+                "defaultValues": [
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "80",
+                        "generated_KMF_ID": "8846901375792160613",
+                        "attribute": "typeDefinitions[WebFrontend]/dictionaryType[55319341375792160604]/attributes[port]"
+                    }
+                ]
+            }
+        }
+        ,
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "CloudNode",
+            "abstract": true,
+            "deployUnits": ["deployUnits[60678801375780867678]"],
+            "managedPrimitiveTypes": ["adaptationPrimitiveTypes[AddNode]",
+                "adaptationPrimitiveTypes[RemoveNode]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "3266331375780866665",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "DISK_SIZE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_CORE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "ARCH",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "RAM",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_FREQUENCY",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "OS",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ]
+            }
+        }
+        ,
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "PJavaSENode",
+            "factoryBean": "org.kevoree.library.sky.api.PJavaSENodeFactory",
+            "bean": "org.kevoree.library.sky.api.PJavaSENode",
+            "abstract": false,
+            "deployUnits": ["deployUnits[60678801375780867678]"],
+            "superTypes": ["typeDefinitions[CloudNode]",
+                "typeDefinitions[PaaSNode]",
+                "typeDefinitions[JavaSENode]"],
+            "managedPrimitiveTypes": ["adaptationPrimitiveTypes[UpdateFragmentBinding]",
+                "adaptationPrimitiveTypes[UpdateBinding]",
+                "adaptationPrimitiveTypes[UpdateDictionaryInstance]",
+                "adaptationPrimitiveTypes[RemoveThirdParty]",
+                "adaptationPrimitiveTypes[RemoveNode]",
+                "adaptationPrimitiveTypes[RemoveType]",
+                "adaptationPrimitiveTypes[RemoveInstance]",
+                "adaptationPrimitiveTypes[StartInstance]",
+                "adaptationPrimitiveTypes[UpdateType]",
+                "adaptationPrimitiveTypes[AddFragmentBinding]",
+                "adaptationPrimitiveTypes[StartThirdParty]",
+                "adaptationPrimitiveTypes[AddBinding]",
+                "adaptationPrimitiveTypes[AddNode]",
+                "adaptationPrimitiveTypes[RemoveBinding]",
+                "adaptationPrimitiveTypes[StopInstance]",
+                "adaptationPrimitiveTypes[UpdateDeployUnit]",
+                "adaptationPrimitiveTypes[UpdateInstance]",
+                "adaptationPrimitiveTypes[RemoveFragmentBinding]",
+                "adaptationPrimitiveTypes[RemoveDeployUnit]",
+                "adaptationPrimitiveTypes[AddDeployUnit]",
+                "adaptationPrimitiveTypes[AddThirdParty]",
+                "adaptationPrimitiveTypes[AddInstance]",
+                "adaptationPrimitiveTypes[AddType]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "82863711375780866669",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "coreLogLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "DISK_SIZE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_CORE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "ARCH",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "RAM",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "logLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "JVMARGS",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_FREQUENCY",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "OS",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "WALLCLOCKTIME",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ],
+                "defaultValues": [
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "INFO",
+                        "generated_KMF_ID": "181514891375780866669",
+                        "attribute": "typeDefinitions[PJavaSENode]/dictionaryType[82863711375780866669]/attributes[logLevel]"
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "WARN",
+                        "generated_KMF_ID": "287460071375780866669",
+                        "attribute": "typeDefinitions[PJavaSENode]/dictionaryType[82863711375780866669]/attributes[coreLogLevel]"
+                    }
+                ]
+            },
+            "managedPrimitiveTypeRefs": [
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "25617301375780866670",
+                    "ref": "adaptationPrimitiveTypes[UpdateDeployUnit]"
+                }
+                ,
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "143766301375780866670",
+                    "ref": "adaptationPrimitiveTypes[AddDeployUnit]"
+                }
+            ]
+        }
+        ,
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "MiniCloudNode",
+            "factoryBean": "org.kevoree.library.sky.minicloud.nodeType.MiniCloudNodeFactory",
+            "bean": "org.kevoree.library.sky.minicloud.nodeType.MiniCloudNode",
+            "abstract": false,
+            "deployUnits": ["deployUnits[131538471375780867678]"],
+            "superTypes": ["typeDefinitions[CloudNode]",
+                "typeDefinitions[PaaSNode]",
+                "typeDefinitions[JavaSENode]"],
+            "managedPrimitiveTypes": ["adaptationPrimitiveTypes[UpdateFragmentBinding]",
+                "adaptationPrimitiveTypes[UpdateDictionaryInstance]",
+                "adaptationPrimitiveTypes[UpdateBinding]",
+                "adaptationPrimitiveTypes[RemoveThirdParty]",
+                "adaptationPrimitiveTypes[RemoveNode]",
+                "adaptationPrimitiveTypes[RemoveInstance]",
+                "adaptationPrimitiveTypes[RemoveType]",
+                "adaptationPrimitiveTypes[StartInstance]",
+                "adaptationPrimitiveTypes[UpdateType]",
+                "adaptationPrimitiveTypes[AddFragmentBinding]",
+                "adaptationPrimitiveTypes[StartThirdParty]",
+                "adaptationPrimitiveTypes[AddBinding]",
+                "adaptationPrimitiveTypes[AddNode]",
+                "adaptationPrimitiveTypes[RemoveBinding]",
+                "adaptationPrimitiveTypes[StopInstance]",
+                "adaptationPrimitiveTypes[UpdateDeployUnit]",
+                "adaptationPrimitiveTypes[UpdateInstance]",
+                "adaptationPrimitiveTypes[RemoveFragmentBinding]",
+                "adaptationPrimitiveTypes[RemoveDeployUnit]",
+                "adaptationPrimitiveTypes[AddDeployUnit]",
+                "adaptationPrimitiveTypes[AddThirdParty]",
+                "adaptationPrimitiveTypes[AddInstance]",
+                "adaptationPrimitiveTypes[AddType]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "219247481375780867678",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "DISK_SIZE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "coreLogLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_CORE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "ARCH",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "VMARGS",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "RAM",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "logLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_FREQUENCY",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "OS",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "WALLCLOCKTIME",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ],
+                "defaultValues": [
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "WARN",
+                        "generated_KMF_ID": "118557361375780867678",
+                        "attribute": "typeDefinitions[MiniCloudNode]/dictionaryType[219247481375780867678]/attributes[coreLogLevel]"
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "INFO",
+                        "generated_KMF_ID": "280309441375780867678",
+                        "attribute": "typeDefinitions[MiniCloudNode]/dictionaryType[219247481375780867678]/attributes[logLevel]"
+                    }
+                ]
+            },
+            "managedPrimitiveTypeRefs": [
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "89460321375780867679",
+                    "ref": "adaptationPrimitiveTypes[AddDeployUnit]"
+                }
+                ,
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "321160881375780867679",
+                    "ref": "adaptationPrimitiveTypes[UpdateDeployUnit]"
+                }
+                ,
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "185117711375780867691",
+                    "ref": "adaptationPrimitiveTypes[AddNode]"
+                }
+            ]
+        }
+        ,
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "PaaSNode",
+            "abstract": true,
+            "deployUnits": ["deployUnits[60678801375780867678]"],
+            "superTypes": ["typeDefinitions[CloudNode]"],
+            "managedPrimitiveTypes": ["adaptationPrimitiveTypes[AddNode]",
+                "adaptationPrimitiveTypes[RemoveNode]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "76862161375780866661",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "DISK_SIZE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_CORE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "ARCH",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "RAM",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_FREQUENCY",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "OS",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "WALLCLOCKTIME",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ]
+            }
+        }
+        ,
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "JavaSENode",
+            "factoryBean": "org.kevoree.library.defaultNodeTypes.JavaSENodeFactory",
+            "bean": "org.kevoree.library.defaultNodeTypes.JavaSENode",
+            "abstract": false,
+            "deployUnits": ["deployUnits[109532271375780867678]"],
+            "managedPrimitiveTypes": ["adaptationPrimitiveTypes[UpdateFragmentBinding]",
+                "adaptationPrimitiveTypes[UpdateDictionaryInstance]",
+                "adaptationPrimitiveTypes[UpdateBinding]",
+                "adaptationPrimitiveTypes[RemoveThirdParty]",
+                "adaptationPrimitiveTypes[RemoveInstance]",
+                "adaptationPrimitiveTypes[RemoveType]",
+                "adaptationPrimitiveTypes[StartInstance]",
+                "adaptationPrimitiveTypes[UpdateType]",
+                "adaptationPrimitiveTypes[AddFragmentBinding]",
+                "adaptationPrimitiveTypes[StartThirdParty]",
+                "adaptationPrimitiveTypes[AddBinding]",
+                "adaptationPrimitiveTypes[RemoveBinding]",
+                "adaptationPrimitiveTypes[StopInstance]",
+                "adaptationPrimitiveTypes[UpdateDeployUnit]",
+                "adaptationPrimitiveTypes[UpdateInstance]",
+                "adaptationPrimitiveTypes[RemoveFragmentBinding]",
+                "adaptationPrimitiveTypes[RemoveDeployUnit]",
+                "adaptationPrimitiveTypes[AddDeployUnit]",
+                "adaptationPrimitiveTypes[AddThirdParty]",
+                "adaptationPrimitiveTypes[AddInstance]",
+                "adaptationPrimitiveTypes[AddType]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "151727361375780743476",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "coreLogLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "logLevel",
+                        "optional": true,
+                        "state": false,
+                        "datatype": "enum=INFO,WARN,DEBUG,ERROR,FINE",
+                        "fragmentDependant": false
+                    }
+                ],
+                "defaultValues": [
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "WARN",
+                        "generated_KMF_ID": "209031921375780743476",
+                        "attribute": "typeDefinitions[JavaSENode]/dictionaryType[151727361375780743476]/attributes[coreLogLevel]"
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryValue",
+                        "value": "INFO",
+                        "generated_KMF_ID": "280534431375780743476",
+                        "attribute": "typeDefinitions[JavaSENode]/dictionaryType[151727361375780743476]/attributes[logLevel]"
+                    }
+                ]
+            },
+            "managedPrimitiveTypeRefs": [
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "50605611375780743478",
+                    "ref": "adaptationPrimitiveTypes[AddDeployUnit]"
+                }
+                ,
+                {
+                    "eClass": "org.kevoree:AdaptationPrimitiveTypeRef",
+                    "maxTime": "120000",
+                    "generated_KMF_ID": "259272691375780743478",
+                    "ref": "adaptationPrimitiveTypes[UpdateDeployUnit]"
+                }
+            ]
+        }
+        ,
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "ProxyNode",
+            "abstract": true,
+            "deployUnits": ["deployUnits[60678801375780867678]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "100760141375780866682",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "endpoints",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "login",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "credentials",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ]
+            }
+        }
+        ,
+        {
+            "eClass": "org.kevoree:NodeType",
+            "name": "IaaSNode",
+            "abstract": true,
+            "deployUnits": ["deployUnits[60678801375780867678]"],
+            "superTypes": ["typeDefinitions[CloudNode]"],
+            "managedPrimitiveTypes": ["adaptationPrimitiveTypes[AddNode]",
+                "adaptationPrimitiveTypes[RemoveNode]"],
+            "dictionaryType": {
+                "eClass": "org.kevoree:DictionaryType",
+                "generated_KMF_ID": "35501911375780866666",
+                "attributes": [
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "DISK_SIZE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_CORE",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "ARCH",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "RAM",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "CPU_FREQUENCY",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                    ,
+                    {
+                        "eClass": "org.kevoree:DictionaryAttribute",
+                        "name": "OS",
+                        "optional": true,
+                        "state": false,
+                        "fragmentDependant": false
+                    }
+                ]
+            }
+        }
+    ],
+    "repositories": [
+        {
+            "eClass": "org.kevoree:Repository",
+            "url": "http://maven.kevoree.org/release"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:Repository",
+            "url": "http://repo.maven.apache.org/maven2"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:Repository",
+            "url": "http://repository.jetbrains.com/all"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:Repository",
+            "url": "https://oss.sonatype.org/content/groups/public/"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:Repository",
+            "url": "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:Repository",
+            "url": "http://maven.kevoree.org/snapshots"
+        }
+    ],
+    "libraries": [
+        {
+            "eClass": "org.kevoree:TypeLibrary",
+            "name": "SKY",
+            "subTypes": ["typeDefinitions[PJavaSENode]",
+                "typeDefinitions[MiniCloudNode]"]
+        }
+        ,
+        {
+            "eClass": "org.kevoree:TypeLibrary",
+            "name": "Sky",
+            "subTypes": ["typeDefinitions[WebFrontend]"]
+        }
+        ,
+        {
+            "eClass": "org.kevoree:TypeLibrary",
+            "name": "JavaSE",
+            "subTypes": ["typeDefinitions[StatefulJavaSENode]",
+                "typeDefinitions[PJavaSENode]",
+                "typeDefinitions[MiniCloudNode]",
+                "typeDefinitions[JavaSENode]"]
+        }
+    ],
+    "deployUnits": [
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.jetbrains.kotlin",
+            "unitName": "kotlin-runtime",
+            "version": "0.5.998",
+            "type": "jar",
+            "generated_KMF_ID": "213641751375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.kcl",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "112781001375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "io.netty",
+            "unitName": "netty",
+            "version": "3.5.5.Final",
+            "type": "jar",
+            "generated_KMF_ID": "229350501375792160652",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "fr.inria.jfilter",
+            "unitName": "jfilter-library",
+            "version": "1.3",
+            "type": "jar",
+            "generated_KMF_ID": "29724881375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree.corelibrary.javase",
+            "unitName": "org.kevoree.library.javase.javaseNode",
+            "version": "2.0.0-SNAPSHOT",
+            "hashcode": "201308061119332",
+            "type": "jar",
+            "generated_KMF_ID": "109532271375780867678",
+            "requiredLibs": ["deployUnits[213641751375780867678]",
+                "deployUnits[112781001375780867678]",
+                "deployUnits[29724881375780867678]",
+                "deployUnits[36437081375780867678]",
+                "deployUnits[296259911375780867678]",
+                "deployUnits[114058791375780867678]",
+                "deployUnits[20425211375780867678]",
+                "deployUnits[267986421375780867678]",
+                "deployUnits[21547081375780867678]",
+                "deployUnits[311074551375780867678]",
+                "deployUnits[86905651375780867678]",
+                "deployUnits[150251801375780867678]",
+                "deployUnits[98310651375780867678]",
+                "deployUnits[24688901375780867678]"],
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.model",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "36437081375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.basechecker",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "17225391375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.model.context",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "296259911375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.log",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "114058791375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.kompare",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "20425211375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.api",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "267986421375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree.tools",
+            "unitName": "org.kevoree.tools.annotation.api",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "21547081375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.scala-lang",
+            "unitName": "scala-library",
+            "version": "2.9.2",
+            "type": "jar",
+            "generated_KMF_ID": "334495131375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree.corelibrary.sky",
+            "unitName": "org.kevoree.library.sky.minicloud",
+            "version": "2.0.0-SNAPSHOT",
+            "hashcode": "201308061121664",
+            "type": "jar",
+            "generated_KMF_ID": "131538471375780867678",
+            "requiredLibs": ["deployUnits[213641751375780867678]",
+                "deployUnits[112781001375780867678]",
+                "deployUnits[29724881375780867678]",
+                "deployUnits[109532271375780867678]",
+                "deployUnits[36437081375780867678]",
+                "deployUnits[296259911375780867678]",
+                "deployUnits[17225391375780867678]",
+                "deployUnits[114058791375780867678]",
+                "deployUnits[20425211375780867678]",
+                "deployUnits[267986421375780867678]",
+                "deployUnits[334495131375780867678]",
+                "deployUnits[21547081375780867678]",
+                "deployUnits[86905651375780867678]",
+                "deployUnits[311074551375780867678]",
+                "deployUnits[150251801375780867678]",
+                "deployUnits[60678801375780867678]",
+                "deployUnits[98310651375780867678]",
+                "deployUnits[24688901375780867678]"],
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.framework",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "311074551375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.jgrapht",
+            "unitName": "jgrapht-jdk1.5",
+            "version": "0.7.3",
+            "type": "jar",
+            "generated_KMF_ID": "86905651375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree.tools",
+            "unitName": "org.kevoree.tools.javase.framework",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "150251801375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree.corelibrary.sky",
+            "unitName": "org.kevoree.library.sky.web",
+            "version": "2.0.0-SNAPSHOT",
+            "hashcode": "201308061429681",
+            "type": "jar",
+            "generated_KMF_ID": "16017351375792160624",
+            "requiredLibs": ["deployUnits[213641751375780867678]",
+                "deployUnits[112781001375780867678]",
+                "deployUnits[29724881375780867678]",
+                "deployUnits[229350501375792160652]",
+                "deployUnits[109532271375780867678]",
+                "deployUnits[36437081375780867678]",
+                "deployUnits[296259911375780867678]",
+                "deployUnits[17225391375780867678]",
+                "deployUnits[114058791375780867678]",
+                "deployUnits[20425211375780867678]",
+                "deployUnits[21547081375780867678]",
+                "deployUnits[267986421375780867678]",
+                "deployUnits[311074551375780867678]",
+                "deployUnits[86905651375780867678]",
+                "deployUnits[150251801375780867678]",
+                "deployUnits[89315111375792160652]",
+                "deployUnits[60678801375780867678]",
+                "deployUnits[98310651375780867678]",
+                "deployUnits[24688901375780867678]"],
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.webbitserver",
+            "unitName": "webbit",
+            "version": "0.4.15",
+            "type": "jar",
+            "generated_KMF_ID": "89315111375792160652",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree.corelibrary.sky",
+            "unitName": "org.kevoree.library.sky.api",
+            "version": "2.0.0-SNAPSHOT",
+            "hashcode": "201308061121633",
+            "type": "jar",
+            "generated_KMF_ID": "60678801375780867678",
+            "requiredLibs": ["deployUnits[213641751375780867678]",
+                "deployUnits[112781001375780867678]",
+                "deployUnits[29724881375780867678]",
+                "deployUnits[109532271375780867678]",
+                "deployUnits[36437081375780867678]",
+                "deployUnits[17225391375780867678]",
+                "deployUnits[296259911375780867678]",
+                "deployUnits[114058791375780867678]",
+                "deployUnits[20425211375780867678]",
+                "deployUnits[21547081375780867678]",
+                "deployUnits[267986421375780867678]",
+                "deployUnits[311074551375780867678]",
+                "deployUnits[86905651375780867678]",
+                "deployUnits[150251801375780867678]",
+                "deployUnits[98310651375780867678]",
+                "deployUnits[24688901375780867678]"],
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.kevoree",
+            "unitName": "org.kevoree.adaptation.model",
+            "version": "2.0.4-SNAPSHOT",
+            "type": "jar",
+            "generated_KMF_ID": "98310651375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:DeployUnit",
+            "groupName": "org.jetbrains.kotlin",
+            "unitName": "kotlin-stdlib",
+            "version": "0.5.998",
+            "type": "jar",
+            "generated_KMF_ID": "24688901375780867678",
+            "targetNodeType": "typeDefinitions[JavaSENode]"
+        }
+    ],
+    "nodeNetworks": [
+        {
+            "eClass": "org.kevoree:NodeNetwork",
+            "generated_KMF_ID": "235435261375792180618",
+            "initBy": "nodes[node0]",
+            "target": "nodes[node0]",
+            "link": [
+                {
+                    "eClass": "org.kevoree:NodeLink",
+                    "networkType": "unknown-131.254.14.25",
+                    "estimatedRate": "100",
+                    "generated_KMF_ID": "274022971375792180621",
+                    "networkProperties": [
+                        {
+                            "eClass": "org.kevoree:NetworkProperty",
+                            "name": "KEVOREE.remote.node.ip",
+                            "value": "131.254.14.25",
+                            "lastCheck": "1375792180625"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "adaptationPrimitiveTypes": [
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "UpdateFragmentBinding"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "UpdateBinding"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "UpdateDictionaryInstance"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "RemoveThirdParty"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "RemoveNode"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "RemoveType"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "RemoveInstance"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "StartInstance"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "UpdateType"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "AddFragmentBinding"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "StartThirdParty"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "AddNode"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "AddBinding"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "RemoveBinding"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "StopInstance"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "UpdateDeployUnit"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "UpdateInstance"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "RemoveFragmentBinding"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "RemoveDeployUnit"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "AddDeployUnit"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "AddThirdParty"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "AddInstance"
+        }
+        ,
+        {
+            "eClass": "org.kevoree:AdaptationPrimitiveType",
+            "name": "AddType"
+        }
+    ]
+}

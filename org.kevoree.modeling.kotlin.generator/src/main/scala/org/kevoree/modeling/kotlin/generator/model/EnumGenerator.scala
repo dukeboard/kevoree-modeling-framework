@@ -35,9 +35,6 @@ package org.kevoree.modeling.kotlin.generator.model
  * 	Nain Gregory
  */
 
-import org.apache.velocity.app.VelocityEngine
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.{EPackage, EEnum}
 import java.io.{File, PrintWriter}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
@@ -106,6 +103,11 @@ pr.println("}")
 
 
   def generateActionTypeClass(ctx : GenerationContext) {
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ActionType.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+
+     /*
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util")
 
     val extension = if(ctx.getJS()){"kt"}else{"java"}
@@ -124,10 +126,14 @@ pr.println("}")
     template.merge(ctxV,pr)
     pr.flush()
     pr.close()
-
+    */
   }
 
   def generateElementAttributeTypeClass(ctx : GenerationContext) {
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ElementAttributeType.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
+    /*
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util")
 
     val extension = if(ctx.getJS()){"kt"}else{"java"}
@@ -146,7 +152,7 @@ pr.println("}")
     template.merge(ctxV,pr)
     pr.flush()
     pr.close()
-
+   */
   }
 
 

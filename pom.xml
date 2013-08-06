@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.root</artifactId>
@@ -61,6 +62,7 @@
     </properties>
 
     <modules>
+        <module>org.kevoree.modeling.microframework</module>
         <module>org.kevoree.modeling.kotlin.generator</module>
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
     </modules>
@@ -143,34 +145,34 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-			<plugin>
-			        <groupId>org.codehaus.mojo</groupId>
-			        <artifactId>license-maven-plugin</artifactId>
-			        <version>1.4</version>
-			        <configuration>
-			          <verbose>false</verbose>
-			          <addSvnKeyWords>true</addSvnKeyWords>
-			        </configuration>
-			        <executions>
-			          <execution>
-			            <id>first</id>
-			            <goals>
-			              <goal>update-file-header</goal>
-			            </goals>
-			            <phase>process-sources</phase>
-			            <configuration>
-			              <licenseName>lgpl_v3</licenseName>
-						  <organizationName>org.kevoree</organizationName>
-						  <inceptionYear>2013</inceptionYear>
-			              <includes>
-			                <include>*.java</include>
-			                <include>*.kt</include>
-			                <include>*.scala</include>
-			              </includes>
-			            </configuration>
-			          </execution>
-			        </executions>
-			      </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <verbose>false</verbose>
+                    <addSvnKeyWords>true</addSvnKeyWords>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>first</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <licenseName>lgpl_v3</licenseName>
+                            <organizationName>org.kevoree</organizationName>
+                            <inceptionYear>2013</inceptionYear>
+                            <includes>
+                                <include>*.java</include>
+                                <include>*.kt</include>
+                                <include>*.scala</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

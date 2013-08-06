@@ -4,10 +4,9 @@ package org.kevoree.modeling.sample.fsm.kt.event.test;/*
 */
 
 import org.fsmsample.*;
-import org.fsmsample.events.*;
 import org.fsmsample.impl.DefaultFsmSampleFactory;
-import org.fsmsample.util.ActionType;
-import org.fsmsample.util.ElementAttributeType;
+import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.util.ElementAttributeType;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -17,6 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.kevoree.modeling.api.events.*;
+
 
 public class ModelTreeEventsTest {
 
@@ -66,25 +68,25 @@ public class ModelTreeEventsTest {
         final String originalT0Path = t0.path();
         final String originalT1Path = t1.path();
 
-        fsm.addModelTreeListener(new ModelTreeListener() {
+        fsm.addModelTreeListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
 
                 System.out.println("FSM::" +evt.toString());
-                if(evt.getSourcePath().equals(originalT0Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
-                    assertEvent(evt, originalT0Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t0");
+                if(evt.getSourcePath().equals(originalT0Path) && evt.getType() == ActionType.instance$.getSET() && evt.getElementAttributeName().equals("name")) {
+                    assertEvent(evt, originalT0Path, "name", ElementAttributeType.instance$.getATTRIBUTE(), ActionType.instance$.getSET(), "t0");
                     setNameT0_Fsm.release();
                 }
             }
         });
 
-        s0.addModelTreeListener(new ModelTreeListener() {
+        s0.addModelTreeListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
 
                 System.out.println("S0::" +evt.toString());
-                if(evt.getSourcePath().equals(originalT0Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
-                    assertEvent(evt, originalT0Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t0");
+                if(evt.getSourcePath().equals(originalT0Path) && evt.getType() == ActionType.instance$.getSET() && evt.getElementAttributeName().equals("name")) {
+                    assertEvent(evt, originalT0Path, "name", ElementAttributeType.instance$.getATTRIBUTE(), ActionType.instance$.getSET(), "t0");
                     setNameT0_S0.release();
                 }
 
@@ -104,25 +106,25 @@ public class ModelTreeEventsTest {
         s0.removeAllModelTreeListeners();
 
 
-        fsm.addModelTreeListener(new ModelTreeListener() {
+        fsm.addModelTreeListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
 
-                if(evt.getSourcePath().equals(originalT1Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
-                    assertEvent(evt, originalT1Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t1");
+                if(evt.getSourcePath().equals(originalT1Path) && evt.getType() == ActionType.instance$.getSET() && evt.getElementAttributeName().equals("name")) {
+                    assertEvent(evt, originalT1Path, "name", ElementAttributeType.instance$.getATTRIBUTE(), ActionType.instance$.getSET(), "t1");
                     setNameT1_Fsm.release();
                 }
             }
         });
 
-        s0.addModelTreeListener(new ModelTreeListener() {
+        s0.addModelTreeListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
 
                 //assertEvent(evt, t1.path(), "name", ElementAttributeType.Attribute, EventType.Set, "t1");
                 try {
-                    if(evt.getSourcePath().equals(originalT1Path) && evt.getType() == ActionType.SET && evt.getElementAttributeName().equals("name")) {
-                        assertEvent(evt, originalT1Path, "name", ElementAttributeType.ATTRIBUTE, ActionType.SET, "t1");
+                    if(evt.getSourcePath().equals(originalT1Path) && evt.getType() == ActionType.instance$.getSET() && evt.getElementAttributeName().equals("name")) {
+                        assertEvent(evt, originalT1Path, "name", ElementAttributeType.instance$.getATTRIBUTE(), ActionType.instance$.getSET(), "t1");
                         setNameT1_S0.acquire();
                     }
                 } catch (InterruptedException e) {

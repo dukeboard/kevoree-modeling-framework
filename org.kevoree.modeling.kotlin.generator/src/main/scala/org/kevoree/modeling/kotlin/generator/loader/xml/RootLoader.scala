@@ -79,7 +79,7 @@ class RootLoader(ctx : GenerationContext) {
     pr.println("import javax.xml.stream.XMLInputFactory")
     pr.println()
 
-    pr.print("class XMIModelLoader : " +  ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader.ModelLoader" )
+    pr.print("class XMIModelLoader : org.kevoree.modeling.api.ModelLoader" )
 
     // if (subLoaders.size > 0) {
     //   var stringListSubLoaders = List[String]()
@@ -188,11 +188,6 @@ class RootLoader(ctx : GenerationContext) {
     pr.println("return null")
     pr.println("}")
     pr.println("}")
-
-    pr.println("override fun loadModelFromPath(file: File) : List<Any>? {")
-    pr.println("return loadModelFromStream(FileInputStream(file))")
-    pr.println("}")
-
 
     pr.println("override fun loadModelFromStream(inputStream: InputStream) : List<Any>? {")
     pr.println("val isReader = java.io.BufferedReader(InputStreamReader(inputStream))")
