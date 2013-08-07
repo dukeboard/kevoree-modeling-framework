@@ -67,7 +67,7 @@ trait ClassGenerator extends ClonerGenerator {
     val alreadyGeneratedAttributes = new mutable.HashSet[String]()
     cls.getEAllAttributes.foreach {
       att => {
-        if(!alreadyGeneratedAttributes.contains(att.getName)) {
+        if (!alreadyGeneratedAttributes.contains(att.getName)) {
           alreadyGeneratedAttributes.add(att.getName)
           var defaultValue = att.getDefaultValueLiteral
           pr.print("override internal var " + "_" + att.getName + " : ")
@@ -80,8 +80,8 @@ trait ClassGenerator extends ClonerGenerator {
           }
           ProcessorHelper.convertType(att.getEAttributeType) match {
 
-            case "String" | "java.lang.String" => pr.println(typePre + "String"+typePost+" = " + {
-              if(att.getName.equals("generated_KMF_ID") &&  idAttributes.size == 0) {
+            case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
+              if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
                 "\"\"+hashCode() + java.util.Date().getTime()"
               } else {
                 if (defaultValue == null) {
@@ -332,20 +332,22 @@ trait ClassGenerator extends ClonerGenerator {
           valueType = ProcessorHelper.convertType(att.getEAttributeType)
         }
 
-         valueType match {
-           case "String" => {
-             pr.println("this." + methodNameClean + "(value as "+valueType+")")
-           }
-           case "Boolean" | "Double" | "Int" => {
-             pr.println("this." + methodNameClean + "(value.toString().to" + valueType + "())")
-           }
-           case "Any" => {
-             pr.println("this." + methodNameClean + "(value.toString() as " + valueType + ")")
-           }
-         }
+        if (ctx.getJS()) {
+          pr.println("this." + methodNameClean + "(value as " + valueType + ")")
+        } else {
+          valueType match {
+            case "String" => {
+              pr.println("this." + methodNameClean + "(value as " + valueType + ")")
+            }
+            case "Boolean" | "Double" | "Int" => {
+              pr.println("this." + methodNameClean + "(value.toString().to" + valueType + "())")
+            }
+            case "Any" => {
+              pr.println("this." + methodNameClean + "(value.toString() as " + valueType + ")")
+            }
+          }
+        }
 
-
-       // pr.println("this." + methodNameClean + "(value as " + valueType + ")")
         pr.println("}")
         pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
         pr.println("}") //END MUTATION TYPE
@@ -449,7 +451,7 @@ trait ClassGenerator extends ClonerGenerator {
     val alreadyGeneratedAttributes = new mutable.HashSet[String]()
     cls.getEAllAttributes.foreach {
       att => {
-        if(!alreadyGeneratedAttributes.contains(att.getName)) {
+        if (!alreadyGeneratedAttributes.contains(att.getName)) {
           alreadyGeneratedAttributes.add(att.getName)
           var defaultValue = att.getDefaultValueLiteral
           pr.print("internal var " + "_" + att.getName + " : ")
@@ -462,7 +464,7 @@ trait ClassGenerator extends ClonerGenerator {
           }
           ProcessorHelper.convertType(att.getEAttributeType) match {
             case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
-              if(att.getName.equals("generated_KMF_ID") &&  idAttributes.size == 0) {
+              if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
                 "\"\"+hashCode() + java.util.Date().getTime()"
               } else {
                 if (defaultValue == null) {
@@ -682,7 +684,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEAttributes.foreach {
       att =>
-        if(cls.getEAllAttributes.exists(att2=>att2.getName.equals(att.getName) && att2.getEContainingClass!=cls)){}else{
+        if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls)) {} else {
           pr.print("internal var " + "_" + att.getName + " : ")
           if (att.isMany) {
             pr.print("List<")
@@ -760,10 +762,10 @@ trait ClassGenerator extends ClonerGenerator {
     val alreadyGeneratedAttributes = new mutable.HashSet[String]()
     atts.foreach {
       att =>
-        if(!alreadyGeneratedAttributes.contains(att.getName)) {
+        if (!alreadyGeneratedAttributes.contains(att.getName)) {
           alreadyGeneratedAttributes.add(att.getName)
 
-          if(!ctx.getGenFlatInheritance && cls.getEAllAttributes.exists(att2=>att2.getName.equals(att.getName) && att2.getEContainingClass!=cls)){}else{
+          if (!ctx.getGenFlatInheritance && cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls)) {} else {
             //Generate getter
 
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -1277,9 +1279,9 @@ trait ClassGenerator extends ClonerGenerator {
 
     if (hasID(ref.getEReferenceType)) {
       if (ctx.getGenFlatInheritance) {
-        res += "val _key_ = ("+ref.getName + param_suf+" as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n"
+        res += "val _key_ = (" + ref.getName + param_suf + " as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n"
       } else {
-        res += "val _key_ = ("+ref.getName + param_suf+" as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey()\n"
+        res += "val _key_ = (" + ref.getName + param_suf + " as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Internal).internalGetKey()\n"
       }
       res += "if(_key_ == \"\" || _key_ == null){ throw Exception(\"Key empty : set the attribute key before adding the object\") }\n"
 
