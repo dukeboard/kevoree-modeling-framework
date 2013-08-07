@@ -345,6 +345,9 @@ trait ClassGenerator extends ClonerGenerator {
             case "Any" => {
               pr.println("this." + methodNameClean + "(value.toString() as " + valueType + ")")
             }
+            case _ => {
+              pr.println("this." + methodNameClean + "(value as " + valueType + ")")
+            }
           }
         }
 
