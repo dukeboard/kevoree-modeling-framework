@@ -41,14 +41,6 @@
             <artifactId>sisu-guava</artifactId>
             <version>0.9.9</version>
         </dependency>
-
-
-        <dependency>
-            <groupId>org.jetbrains.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>117.157</version>
-        </dependency>
-
     </dependencies>
 
 
