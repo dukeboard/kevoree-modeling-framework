@@ -57,6 +57,9 @@ public class TraceSyncTest {
                 TraceSequence traceSeqClone = comparator.createSequence();          /* Simulate network payload  */
                 traceSeqClone.populateFromString(traceSeq.exportToString());
                 assert (traceSeq.exportToString().equals(traceSeqClone.exportToString()));
+
+                System.out.println(traceSeq.exportToString());
+
                 applicator.applyTraceOnModel(traceSeqClone);
             }
         });

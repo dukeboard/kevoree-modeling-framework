@@ -323,6 +323,8 @@ trait ClassGenerator extends ClonerGenerator {
         pr.println("when(mutationType) {")
         pr.println("org.kevoree.modeling.api.util.ActionType.SET -> {")
         val methodNameClean = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
+
+        //hu ? TODO refactoring this craps
         var valueType: String = ""
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
           valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
@@ -330,7 +332,20 @@ trait ClassGenerator extends ClonerGenerator {
           valueType = ProcessorHelper.convertType(att.getEAttributeType)
         }
 
-        pr.println("this." + methodNameClean + "(value as " + valueType + ")")
+         valueType match {
+           case "String" => {
+             pr.println("this." + methodNameClean + "(value as "+valueType+")")
+           }
+           case "Boolean" | "Double" | "Int" => {
+             pr.println("this." + methodNameClean + "(value.toString().to" + valueType + "())")
+           }
+           case "Any" => {
+             pr.println("this." + methodNameClean + "(value.toString() as " + valueType + ")")
+           }
+         }
+
+
+       // pr.println("this." + methodNameClean + "(value as " + valueType + ")")
         pr.println("}")
         pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
         pr.println("}") //END MUTATION TYPE
