@@ -66,25 +66,13 @@
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
+    <dependencies>		
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.9</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-compiler</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-
     </dependencies>
 
     <build>
