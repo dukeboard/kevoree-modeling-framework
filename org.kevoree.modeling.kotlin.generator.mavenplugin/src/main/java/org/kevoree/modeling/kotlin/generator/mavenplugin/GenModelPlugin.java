@@ -42,8 +42,9 @@ package org.kevoree.modeling.kotlin.generator.mavenplugin;
 
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
-import com.intellij.openapi.util.io.FileUtil;
+import com.google.javascript.jscomp.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -67,6 +68,7 @@ import java.io.*;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 
 
 /**
@@ -535,6 +537,36 @@ public class GenModelPlugin extends AbstractMojo {
                 copyJsLibraryFile(KOTLIN_JS_LIB_ECMA3);
                 copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
 
+
+                //create a merged file
+                File outputMerged = new File(outputKotlinJSDir, project.getArtifactId()+".merged.js");
+                FileOutputStream mergedStream = new FileOutputStream(outputMerged);
+                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA3), mergedStream);
+                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB),mergedStream);
+                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS),mergedStream);
+                Files.copy(new File(outputKotlinJSDir, project.getArtifactId()+".js"),mergedStream);
+
+                mergedStream.write( ("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['"+project.getArtifactId()+"'];}").getBytes());
+                mergedStream.write("\n".getBytes());
+
+
+                mergedStream.flush();
+                mergedStream.close();
+
+                com.google.javascript.jscomp.Compiler.setLoggingLevel(Level.WARNING);
+                com.google.javascript.jscomp.Compiler compiler = new com.google.javascript.jscomp.Compiler();
+                CompilerOptions options = new CompilerOptions();
+                WarningLevel.QUIET.setOptionsForWarningLevel(options);
+                CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+                options.setCheckUnreachableCode(CheckLevel.OFF);
+                compiler.compile(Collections.<JSSourceFile>emptyList(),Collections.singletonList(JSSourceFile.fromFile(outputMerged)),options);
+
+
+                File outputMin = new File(outputKotlinJSDir, project.getArtifactId()+".min.js");
+                FileWriter outputFile = new FileWriter(outputMin);
+                outputFile.write(compiler.toSource());
+                outputFile.close();
+
             } else {
                 K2JVMCompilerArguments args = new K2JVMCompilerArguments();
                 args.setClasspath(cpath.toString());
@@ -575,7 +607,7 @@ public class GenModelPlugin extends AbstractMojo {
 
         //this.project.addCompileSourceRoot(output.getAbsolutePath());
     }
-
+     /*
     protected void appendFile(String jsLib, StringBuilder builder) throws MojoExecutionException {
         // lets copy the kotlin library into the output directory
         try {
@@ -595,7 +627,7 @@ public class GenModelPlugin extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
-    }
+    } */
 
     protected void copyJsLibraryFile(String jsLib) throws MojoExecutionException {
         // lets copy the kotlin library into the output directory
