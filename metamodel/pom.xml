@@ -10,7 +10,7 @@
 
     <properties>
     	<kotlin.version>0.5.998</kotlin.version>
-		<kmf.version>1.4.5-SNAPSHOT</kmf.version>
+		<kmf.version>1.4.6-SNAPSHOT</kmf.version>
         <emf.version>2.7.0</emf.version>
     </properties>
 
