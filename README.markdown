@@ -1,5 +1,7 @@
 Welcome on the KMF source code repository :-)
 
+# Please visit KMF main web site : http://kevoree.org/kmf
+
 Kevoree (see [http://www.kevoree.org](http://www.kevoree.org)) is a full Models@Runtime environment to create, manipulate and deploy component-based systems.
 Therefore, the efficiency of the code used to deal with models is crutial.
 
