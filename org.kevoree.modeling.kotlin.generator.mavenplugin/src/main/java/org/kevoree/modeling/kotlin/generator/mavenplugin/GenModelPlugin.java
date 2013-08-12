@@ -276,6 +276,10 @@ public class GenModelPlugin extends AbstractMojo {
         if (clearOutput) {
             deleteDirectory(output);
         }
+        if(trace && !json){
+            json = true; // trace need JSON
+        }
+
 
         GenerationContext ctx = new GenerationContext();
 
@@ -532,40 +536,52 @@ public class GenModelPlugin extends AbstractMojo {
                     }
                 }, args);
 
-                copyJsLibraryFile(KOTLIN_JS_MAPS);
-                copyJsLibraryFile(KOTLIN_JS_LIB);
-                copyJsLibraryFile(KOTLIN_JS_LIB_ECMA3);
-                copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
+                if (e.ordinal() != 0) {
+
+                     getLog().error("Can't compile generated code !");
+                    throw new MojoExecutionException("Embedded Kotlin compilation error !");
+                } else {
+                    copyJsLibraryFile(KOTLIN_JS_MAPS);
+                    copyJsLibraryFile(KOTLIN_JS_LIB);
+                    copyJsLibraryFile(KOTLIN_JS_LIB_ECMA3);
+                    copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
+
+                    //create a merged file
+                    File outputMerged = new File(outputKotlinJSDir, project.getArtifactId()+".merged.js");
+                    FileOutputStream mergedStream = new FileOutputStream(outputMerged);
+                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA3), mergedStream);
+                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB),mergedStream);
+                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS),mergedStream);
+                    Files.copy(new File(outputKotlinJSDir, project.getArtifactId()+".js"),mergedStream);
+
+                    mergedStream.write( ("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['"+project.getArtifactId()+"'];}").getBytes());
+                    mergedStream.write("\n".getBytes());
 
 
-                //create a merged file
-                File outputMerged = new File(outputKotlinJSDir, project.getArtifactId()+".merged.js");
-                FileOutputStream mergedStream = new FileOutputStream(outputMerged);
-                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA3), mergedStream);
-                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB),mergedStream);
-                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS),mergedStream);
-                Files.copy(new File(outputKotlinJSDir, project.getArtifactId()+".js"),mergedStream);
+                    mergedStream.flush();
+                    mergedStream.close();
 
-                mergedStream.write( ("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['"+project.getArtifactId()+"'];}").getBytes());
-                mergedStream.write("\n".getBytes());
-
-
-                mergedStream.flush();
-                mergedStream.close();
-
-                com.google.javascript.jscomp.Compiler.setLoggingLevel(Level.WARNING);
-                com.google.javascript.jscomp.Compiler compiler = new com.google.javascript.jscomp.Compiler();
-                CompilerOptions options = new CompilerOptions();
-                WarningLevel.QUIET.setOptionsForWarningLevel(options);
-                CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-                options.setCheckUnreachableCode(CheckLevel.OFF);
-                compiler.compile(Collections.<JSSourceFile>emptyList(),Collections.singletonList(JSSourceFile.fromFile(outputMerged)),options);
+                    com.google.javascript.jscomp.Compiler.setLoggingLevel(Level.WARNING);
+                    com.google.javascript.jscomp.Compiler compiler = new com.google.javascript.jscomp.Compiler();
+                    CompilerOptions options = new CompilerOptions();
+                    WarningLevel.QUIET.setOptionsForWarningLevel(options);
+                    CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
+                    options.setCheckUnreachableCode(CheckLevel.OFF);
+                    compiler.compile(Collections.<JSSourceFile>emptyList(),Collections.singletonList(JSSourceFile.fromFile(outputMerged)),options);
 
 
-                File outputMin = new File(outputKotlinJSDir, project.getArtifactId()+".min.js");
-                FileWriter outputFile = new FileWriter(outputMin);
-                outputFile.write(compiler.toSource());
-                outputFile.close();
+                    File outputMin = new File(outputKotlinJSDir, project.getArtifactId()+".min.js");
+                    FileWriter outputFile = new FileWriter(outputMin);
+                    outputFile.write(compiler.toSource());
+                    outputFile.close();
+
+                }
+
+
+
+
+
+
 
             } else {
                 K2JVMCompilerArguments args = new K2JVMCompilerArguments();

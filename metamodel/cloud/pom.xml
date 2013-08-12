@@ -51,7 +51,7 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
                             <clearOutput>false</clearOutput>
-                            <js>true</js>
+                            <js>false</js>
                             <json>true</json>
                             <events>true</events>
                             <trace>true</trace>

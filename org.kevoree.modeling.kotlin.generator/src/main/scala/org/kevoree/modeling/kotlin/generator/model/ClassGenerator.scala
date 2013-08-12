@@ -468,18 +468,17 @@ trait ClassGenerator extends ClonerGenerator {
           ProcessorHelper.convertType(att.getEAttributeType) match {
             case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
               if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
-                "\"\"+hashCode() + java.util.Date().getTime()"
+                if(ctx.getJS()){
+                  "\"\"+Math.random() + java.util.Date().getTime()"
+                } else {
+                  "\"\"+hashCode() + java.util.Date().getTime()"
+                }
               } else {
                 if (defaultValue == null) {
                   "\"\""
                 } else {
                   defaultValue
                 }
-              }
-              if (defaultValue == null) {
-                "\"\""
-              } else {
-                defaultValue
               }
             })
             case "Double" => pr.println("Double = " + {
