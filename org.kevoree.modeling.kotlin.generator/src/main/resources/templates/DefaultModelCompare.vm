@@ -70,8 +70,7 @@ override public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequ
         if(!inter){
             //if diff
             for(diffChild in objectsMap.values()){
-                traces.add(ModelAddTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path(), (diffChild as ${ctx.getKevoreeContainer().get()}).metaClassName()))
-                traces.addAll((diffChild as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(null, inter))
+                traces.add(ModelRemoveTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path()!!))
             }
         }
         return traces;
