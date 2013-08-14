@@ -113,6 +113,15 @@ trait ClassGenerator extends ClonerGenerator {
                 defaultValue
               }
             })
+
+            case "Long" => pr.println(typePre + "Long" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+
             case "Boolean" | "java.lang.Boolean" => pr.println(typePre + "Boolean" + typePost + " = " + {
               if (defaultValue == null) {
                 "false"
@@ -496,6 +505,13 @@ trait ClassGenerator extends ClonerGenerator {
               }
             })
             case "Int" => pr.println(typePre + "Int" + typePost + " = " + {
+              if (defaultValue == null) {
+                "0"
+              } else {
+                defaultValue
+              }
+            })
+            case "Long" => pr.println(typePre + "Long" + typePost + " = " + {
               if (defaultValue == null) {
                 "0"
               } else {

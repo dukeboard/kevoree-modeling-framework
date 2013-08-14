@@ -139,7 +139,7 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
     //static lang
     basePath = ctx.getRootGenerationDirectory + File.separator + "java" + File.separator + "lang"
     ProcessorHelper.checkOrCreateFolder(basePath)
-    files = util.Arrays.asList("java.lang.StringBuilder","java.lang.IntegerParser")
+    files = util.Arrays.asList("java.lang.StringBuilder","java.lang.IntegerParser","java.lang.LongParser")
     import scala.collection.JavaConversions._
     files.foreach {
       f =>

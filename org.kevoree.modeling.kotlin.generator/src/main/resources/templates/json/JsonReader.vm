@@ -156,6 +156,27 @@ class JsonReader(ins: InputStream) {
         return ret
     }
 
+    fun nextLong(): Long {
+        if (token == null) doPeek()
+        val t = token as Token
+        var ret: Long = 0
+        if (t.tokenType == Type.VALUE) {
+#if($ctx.jS)
+            val tret = java.lang.LongParser.parseLong(t.value as String)
+            if(tret != null){
+                ret = tret
+            }
+#else
+            ret = java.lang.Long.parseLong(t.value as String)
+#end
+            token = null
+        } else {
+            throw IllegalStateException("Expected VALUE(Long) but was " + peek());
+        }
+        return ret
+    }
+
+
     fun nextName(): String {
         if (token == null) {
             doPeek()

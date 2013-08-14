@@ -301,7 +301,8 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
         ctx.genTrace_$eq(trace);
-        if (flatInheritance) {
+
+        if (flatInheritance || js) {
             ctx.setGenFlatInheritance();
         }
         ctx.flyweightFactory_$eq(flyweightFactory);

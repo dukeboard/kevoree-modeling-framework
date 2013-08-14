@@ -25,6 +25,10 @@ fun print(s: Int) {
 result = result + s
 }
 
+fun print(s: Long) {
+result = result + s
+}
+
 fun print(s: Boolean) {
 if(s){
 result = result + "true"
