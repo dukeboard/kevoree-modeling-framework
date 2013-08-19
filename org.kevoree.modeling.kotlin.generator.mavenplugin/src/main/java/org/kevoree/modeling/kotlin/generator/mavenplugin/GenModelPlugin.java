@@ -476,7 +476,7 @@ public class GenModelPlugin extends AbstractMojo {
                             Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
-                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt")) {
+                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt") && !entry.getName().endsWith("aspect.kt")) {
 
                                     String fileName = entry.getName();
                                     if (fileName.endsWith(".jslib")) {
