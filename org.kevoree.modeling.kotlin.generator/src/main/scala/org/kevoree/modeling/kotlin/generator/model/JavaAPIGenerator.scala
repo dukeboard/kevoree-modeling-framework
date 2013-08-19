@@ -122,7 +122,7 @@ trait JavaAPIGenerator extends ClassGenerator {
 
         //generate setter
         pr.print("\n public void set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        pr.print("(@org.jetbrains.annotations.NotNull " + ProcessorHelper.convertJType(att.getEAttributeType) + " " + ProcessorHelper.protectReservedJWords(att.getName) + " ); \n")
+        pr.print("(@org.jetbrains.annotations.NotNull " + ProcessorHelper.convertJType(att.getEAttributeType) + " p_" + ProcessorHelper.protectReservedJWords(att.getName) + " ); \n")
     }
 
     cls.getEReferences.foreach {
