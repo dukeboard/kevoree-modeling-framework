@@ -37,6 +37,7 @@
         <module>cloudml/org.kevoree.modeling.sample.cloudml.emf</module>
 		
 		
+        <module>multiecore</module>
 		<module>cloud</module>
 		
 	</modules>
