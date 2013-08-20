@@ -38,6 +38,7 @@ package org.kevoree.modeling.kotlin.generator.serializer
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
@@ -55,7 +56,7 @@ import scala.Tuple2
 
 class SerializerJsonGenerator(ctx: GenerationContext) {
 
-  def generateJsonSerializer(pack: EPackage, model: XMIResource) {
+  def generateJsonSerializer(pack: EPackage, model: ResourceSet) {
 
     if (ctx.getJS()) {
       generateStaticJavaClass()
@@ -102,7 +103,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
   }
 
 
-  private def generateDefaultSerializer(genDir: String, model: XMIResource) {
+  private def generateDefaultSerializer(genDir: String, model: ResourceSet) {
     val genFile = new File(genDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
@@ -421,9 +422,9 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     buffer.println("}") //END TO Json
   }
 
-  def getEAllEclass(pack: XMIResource): java.util.List[EClass] = {
+  def getEAllEclass(pack: ResourceSet): java.util.List[EClass] = {
     val result = new util.ArrayList[EClass]()
-    pack.getContents.foreach {
+    pack.getAllContents.foreach {
       eclass =>
         if (eclass.isInstanceOf[EPackage]) {
           getEAllPackage(eclass.asInstanceOf[EPackage], result)

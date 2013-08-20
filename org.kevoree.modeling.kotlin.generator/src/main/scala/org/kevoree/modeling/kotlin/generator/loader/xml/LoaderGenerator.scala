@@ -38,6 +38,7 @@ package org.kevoree.modeling.kotlin.generator.loader.xml
 
 //EClass, EClassifier,
 
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
@@ -53,7 +54,7 @@ import java.io.File
 
 class LoaderGenerator(ctx : GenerationContext) {
 
-  def generateLoader(model : XMIResource) {
+  def generateLoader(model : ResourceSet) {
 
         val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)

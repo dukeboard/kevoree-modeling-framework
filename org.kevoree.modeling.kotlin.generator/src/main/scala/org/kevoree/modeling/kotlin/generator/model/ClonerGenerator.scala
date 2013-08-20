@@ -24,6 +24,7 @@ import java.io.{File, PrintWriter}
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
@@ -41,12 +42,12 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
 trait ClonerGenerator {
 
 
-  def generateCloner(ctx: GenerationContext, pack: EPackage, model: XMIResource) {
+  def generateCloner(ctx: GenerationContext, pack: EPackage, model: ResourceSet) {
     //generateClonerFactories(ctx, currentPackageDir, pack, cls)
     generateDefaultCloner(ctx, pack, model)
   }
 
-  def generateDefaultCloner(ctx: GenerationContext, pack: EPackage, model: XMIResource) {
+  def generateDefaultCloner(ctx: GenerationContext, pack: EPackage, model: ResourceSet) {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
     val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner" + File.separator + "DefaultModelCloner.kt"), "utf-8")
 

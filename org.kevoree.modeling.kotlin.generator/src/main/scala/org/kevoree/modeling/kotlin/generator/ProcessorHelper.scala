@@ -54,6 +54,7 @@
 package org.kevoree.modeling.kotlin.generator
 
 import java.io._
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore._
 
@@ -206,8 +207,8 @@ object ProcessorHelper {
     helper.fqn(ctx, cls)
   }
 
-  def collectAllClassifiersInModel(model: XMIResource): java.util.ArrayList[EClassifier] = {
-    helper.collectAllClassifiersInModel(model: XMIResource)
+  def collectAllClassifiersInModel(model: ResourceSet): java.util.ArrayList[EClassifier] = {
+    helper.collectAllClassifiersInModel(model)
   }
 
 

@@ -39,6 +39,7 @@ package org.kevoree.modeling.kotlin.generator.loader.xml
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EEnum,EClass}
 import scala.collection.JavaConversions._
@@ -56,7 +57,7 @@ import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}
 
 class RootLoader(ctx : GenerationContext) {
 
-  def generateLoader(model : XMIResource) {
+  def generateLoader(model : ResourceSet) {
 
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader")
     val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator + "XMIModelLoader.kt")
@@ -207,7 +208,7 @@ class RootLoader(ctx : GenerationContext) {
   }
 
 
-  private def generateDeserialize(pr: PrintWriter, model : XMIResource) {
+  private def generateDeserialize(pr: PrintWriter, model : ResourceSet) {
 
     pr.println("private fun deserialize(reader : XMLStreamReader): List<Any> {")
 

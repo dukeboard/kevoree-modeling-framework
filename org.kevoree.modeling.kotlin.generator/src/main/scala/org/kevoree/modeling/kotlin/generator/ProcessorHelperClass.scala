@@ -20,7 +20,7 @@ package org.kevoree.modeling.kotlin.generator
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import org.eclipse.emf.ecore.xmi.XMIResource
+import org.eclipse.emf.ecore.resource.ResourceSet
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import org.eclipse.emf.ecore._
@@ -35,13 +35,17 @@ import org.eclipse.emf.ecore._
 
 class ProcessorHelperClass {
 
-  def getLastName(name : String) : String = {
+  def getLastName(name: String): String = {
     return name.substring(name.lastIndexOf(".") + 1)
   }
 
 
-  def getEClassInEPackage(ePackage : EPackage) : java.util.List[EClass] = {
-    val list = ePackage.getEClassifiers.filter{cls => cls.isInstanceOf[EClass]}.map{cls=>cls.asInstanceOf[EClass]}
+  def getEClassInEPackage(ePackage: EPackage): java.util.List[EClass] = {
+    val list = ePackage.getEClassifiers.filter {
+      cls => cls.isInstanceOf[EClass]
+    }.map {
+      cls => cls.asInstanceOf[EClass]
+    }
     list
   }
 
@@ -174,7 +178,7 @@ class ProcessorHelperClass {
     superTypeList = Some(" : " + ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName)
     cls.getESuperTypes.foreach {
       superType =>
-        val superName = fqn(ctx, superType.getEPackage)+".impl."+superType.getName+"Internal"
+        val superName = fqn(ctx, superType.getEPackage) + ".impl." + superType.getName + "Internal"
         superTypeList = Some(superTypeList.get + " , " + superName)
     }
     superTypeList
@@ -258,7 +262,7 @@ class ProcessorHelperClass {
    */
   def fqn(pack: EPackage): String = {
 
-    if(pack == null){
+    if (pack == null) {
       throw new Exception("Null Package , stop generation")
     }
 
@@ -280,10 +284,14 @@ class ProcessorHelperClass {
   def fqn(ctx: GenerationContext, pack: EPackage): String = {
     ctx.getPackagePrefix match {
       case Some(prefix) => {
-        if (prefix.endsWith(".")) {
-          prefix + fqn(pack)
+        if (pack.getName.equals("")) {
+          prefix
         } else {
-          prefix + "." + fqn(pack)
+          if (prefix.endsWith(".")) {
+            prefix + fqn(pack)
+          } else {
+            prefix + "." + fqn(pack)
+          }
         }
       }
       case None => fqn(pack)
@@ -414,25 +422,21 @@ class ProcessorHelperClass {
   }
 
 
-
-
-  def collectAllClassifiersInModel(model : XMIResource) : java.util.ArrayList[EClassifier] = {
-    val allClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
-    for(content <- model.getContents) {
+  def collectAllClassifiersInModel(model: ResourceSet): java.util.ArrayList[EClassifier] = {
+    val allClassifiers: java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    for (content <- model.getAllContents) {
       content match {
-        case cls : EClass => {
-          println("FOUND AN CLASS" + cls.getClass.toString)
-           allClassifiers.add(cls)
+        case cls: EClass => {
+          allClassifiers.add(cls)
         }
-        case enm : EEnum => {
-          println("FOUND AN ENUM" + enm.getClass.toString)
+        case enm: EEnum => {
           allClassifiers.add(enm)
         }
-        case pack : EPackage => {
+        case pack: EPackage => {
           allClassifiers.addAll(collectAllClassifiersInPackage(pack))
         }
         case _@e => {
-          println("Got an element of type " + e.getClass + " while looking for PossibleElementAtRoot. Don't know what to do with that.")
+          //println("Got an element of type " + e.getClass + " while looking for PossibleElementAtRoot. Don't know what to do with that.")
         }
       }
     }
@@ -440,14 +444,14 @@ class ProcessorHelperClass {
   }
 
 
-  def collectAllClassifiersInPackage(pack : EPackage) : java.util.ArrayList[EClassifier] = {
-    val allClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
-    for(classifier <- pack.getEClassifiers) {
-      if(!classifier.isInstanceOf[EDataType] || classifier.isInstanceOf[EEnum]) {
+  def collectAllClassifiersInPackage(pack: EPackage): java.util.ArrayList[EClassifier] = {
+    val allClassifiers: java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    for (classifier <- pack.getEClassifiers) {
+      if (!classifier.isInstanceOf[EDataType] || classifier.isInstanceOf[EEnum]) {
         allClassifiers.add(classifier)
       }
     }
-    for(subPackage <- pack.getESubpackages) {
+    for (subPackage <- pack.getESubpackages) {
       allClassifiers.addAll(collectAllClassifiersInPackage(subPackage))
     }
     allClassifiers
@@ -458,29 +462,29 @@ class ProcessorHelperClass {
    * @param allClassifiers The classifier collection to sort
    * @return a 2-tuple with _1 > ContainedClassifiers and _2 > NotContainedClassifiers
    */
-  def getPartClassifiersByContainement(allClassifiers : java.util.ArrayList[EClassifier]) : (java.util.ArrayList[EClassifier], java.util.ArrayList[EClassifier]) = {
-    val containedClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
-    val notContainedClassifiers : java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
-    for(classifier <- allClassifiers) {
+  def getPartClassifiersByContainement(allClassifiers: java.util.ArrayList[EClassifier]): (java.util.ArrayList[EClassifier], java.util.ArrayList[EClassifier]) = {
+    val containedClassifiers: java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    val notContainedClassifiers: java.util.ArrayList[EClassifier] = new java.util.ArrayList[EClassifier]
+    for (classifier <- allClassifiers) {
       classifier match {
-        case cls : EClass => {
-          for(containedRef <- cls.getEAllContainments) {
+        case cls: EClass => {
+          for (containedRef <- cls.getEAllContainments) {
             containedClassifiers.add(containedRef.getEReferenceType)
           }
         }
-        case enm : EEnum => {
+        case enm: EEnum => {
           containedClassifiers.add(enm)
         }
       }
     }
 
-    for(classifier <- allClassifiers) {
-      if(!containedClassifiers.contains(classifier)) {
+    for (classifier <- allClassifiers) {
+      if (!containedClassifiers.contains(classifier)) {
         notContainedClassifiers.add(classifier)
       }
     }
 
-    (containedClassifiers,notContainedClassifiers)
+    (containedClassifiers, notContainedClassifiers)
   }
 
 }

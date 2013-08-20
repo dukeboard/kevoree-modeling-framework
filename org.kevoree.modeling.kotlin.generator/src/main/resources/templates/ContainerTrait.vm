@@ -6,12 +6,12 @@
 
 package ${packElem}
 
-trait ${formatedFactoryName}Impl {
+trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
 
     internal open var internal_eContainer : org.kevoree.modeling.api.${formatedFactoryName}?
     internal open var internal_unsetCmd : RemoveFromContainerCommand?
 
-    fun eContainer() : org.kevoree.modeling.api.${formatedFactoryName}? { return internal_eContainer }
+    override fun eContainer() : org.kevoree.modeling.api.${formatedFactoryName}? { return internal_eContainer }
 
     internal open var internal_containmentRefName : String?
 
@@ -19,22 +19,22 @@ trait ${formatedFactoryName}Impl {
 
     internal open var internal_recursive_readOnlyElem : Boolean
 
-    open fun setRecursiveReadOnly()
-    open fun reflexiveMutator(mutatorType : Int,refName : String, value : Any?)
+    override open fun setRecursiveReadOnly()
+    override open fun reflexiveMutator(mutatorType : Int,refName : String, value : Any?)
 
-    fun setInternalReadOnly(){
+    override fun setInternalReadOnly(){
         internal_readOnlyElem = true
     }
 
-    fun getRefInParent() : String? {
+    override fun getRefInParent() : String? {
         return internal_containmentRefName
     }
 
-    fun isReadOnly() : Boolean {
+    override fun isReadOnly() : Boolean {
         return internal_readOnlyElem
     }
 
-    fun isRecursiveReadOnly() : Boolean {
+    override fun isRecursiveReadOnly() : Boolean {
         return internal_recursive_readOnlyElem
     }
 
@@ -57,7 +57,7 @@ trait ${formatedFactoryName}Impl {
 #if($ctx.genSelector)
 
 #else
-    fun selectByQuery(query : String) : List<Any> {
+    override fun selectByQuery(query : String) : List<Any> {
         throw Exception("Not activated, please add selector option in KMF generation plugin")
     }
 
@@ -89,14 +89,14 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
         fireModelEventOnTree(evt)
     }
 
-        fun addModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+    override fun addModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelElementListeners == null) {
                 internal_modelElementListeners = java.util.ArrayList<org.kevoree.modeling.api.events.ModelElementListener>()
             }
             internal_modelElementListeners!!.add(lst)
         }
 
-        fun removeModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+    override fun removeModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelElementListeners != null) {
                 internal_modelElementListeners!!.remove(lst)
                 if(internal_modelElementListeners!!.isEmpty()) {
@@ -105,7 +105,7 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
 
-        fun removeAllModelElementListeners() {
+    override fun removeAllModelElementListeners() {
             if(internal_modelElementListeners != null) {
                 internal_modelElementListeners!!.clear()
                 internal_modelElementListeners = null
@@ -125,14 +125,14 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
 
-        fun addModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+    override fun addModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelTreeListeners == null) {
                 internal_modelTreeListeners = java.util.ArrayList<org.kevoree.modeling.api.events.ModelElementListener>()
             }
             internal_modelTreeListeners!!.add(lst)
         }
 
-        fun removeModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+    override fun removeModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
             if(internal_modelTreeListeners != null) {
                 internal_modelTreeListeners!!.remove(lst)
                 if(internal_modelTreeListeners!!.isEmpty()) {
@@ -141,7 +141,7 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
 
-        fun removeAllModelTreeListeners() {
+    override fun removeAllModelTreeListeners() {
             if(internal_modelTreeListeners != null) {
                 internal_modelTreeListeners!!.clear()
                 internal_modelElementListeners = null
@@ -149,22 +149,22 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
         }
 
 #else
-    fun addModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+    override fun addModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
         throw Exception("Not activated, please add events option in KMF generation plugin")
     }
-    fun removeModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener ){
+    override fun removeModelElementListener(lst : org.kevoree.modeling.api.events.ModelElementListener ){
         throw Exception("Not activated, please add events option in KMF generation plugin")
     }
-    fun removeAllModelElementListeners(){
+    override fun removeAllModelElementListeners(){
         throw Exception("Not activated, please add events option in KMF generation plugin")
     }
-    fun addModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+    override fun addModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
         throw Exception("Not activated, please add events option in KMF generation plugin")
     }
-    fun removeModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
+    override fun removeModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){
         throw Exception("Not activated, please add events option in KMF generation plugin")
     }
-    fun removeAllModelTreeListeners(){
+    override fun removeAllModelTreeListeners(){
         throw Exception("Not activated, please add events option in KMF generation plugin")
     }
 #end

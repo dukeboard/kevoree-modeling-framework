@@ -41,7 +41,7 @@ package org.kevoree.modeling.kotlin.generator.loader.json
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
-import org.eclipse.emf.ecore.xmi.XMIResource
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 import scala.collection.JavaConversions._
@@ -63,7 +63,7 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
   }
 
 
-  def generateLoader(model: XMIResource) {
+  def generateLoader(model: ResourceSet) {
 
     generateStaticJSONClasses()
     generateJSONResolveCommand()
@@ -182,9 +182,9 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
   }
 
 
-  def getEAllEclass(pack: XMIResource): java.util.List[EClass] = {
+  def getEAllEclass(pack: ResourceSet): java.util.List[EClass] = {
     val result = new util.ArrayList[EClass]()
-    pack.getContents.foreach {
+    pack.getAllContents.foreach {
       eclass =>
         if (eclass.isInstanceOf[EPackage]) {
           getEAllPackage(eclass.asInstanceOf[EPackage], result)

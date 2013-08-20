@@ -68,10 +68,12 @@
  */
 package org.kevoree.modeling.kotlin.generator.model
 
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import org.eclipse.emf.ecore._
 import scala.collection.JavaConversions._
+import java.io.File
 
 /**
  * Created by IntelliJ IDEA.
@@ -101,7 +103,7 @@ with ConstantsGenerator{
    * @param model the XMIResource to be generated
    * @param modelVersion the version of the model to be included in headers
    */
-  def process(model: XMIResource, modelVersion: String) {
+  def process(model: ResourceSet, modelVersion: String) {
 
     if (ctx.genSelector) {
       generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
@@ -116,6 +118,19 @@ with ConstantsGenerator{
     generateElementAttributeTypeClass(ctx)
     generateConstants(ctx, model)
     generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
+
+    val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath
+    ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
+
+    if (ctx.genTrace) {
+      generateModelTraceAPI(ctx, loaderGenBaseDir)
+      if(ctx.generateEvents){
+        generateModelEvent2Trace(ctx, loaderGenBaseDir)
+      }
+      generateModelTraceCompare(ctx, loaderGenBaseDir)
+      generateModelTraceApply(ctx, loaderGenBaseDir)
+    }
+
 
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {
       potentialRoot =>
@@ -152,15 +167,6 @@ with ConstantsGenerator{
         } else {
           generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
         }
-        if (ctx.genTrace) {
-          generateModelTraceAPI(ctx, currentPackageDir, packElement)
-          if(ctx.generateEvents){
-            generateModelEvent2Trace(ctx, currentPackageDir, packElement)
-          }
-          generateModelTraceCompare(ctx, currentPackageDir, packElement)
-          generateModelTraceApply(ctx, currentPackageDir, packElement)
-        }
-
       }
       case dt: EDataType => {
         dt match {

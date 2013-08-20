@@ -3,6 +3,7 @@ package org.kevoree.modeling.kotlin.generator.model
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.{EClass, EClassifier}
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
@@ -17,7 +18,7 @@ import scala.collection.JavaConversions._
 trait ConstantsGenerator {
 
 
-  def generateConstants(ctx : GenerationContext, model : XMIResource) {
+  def generateConstants(ctx : GenerationContext, model : ResourceSet) {
 
     val names = new util.HashMap[String, String]()
 

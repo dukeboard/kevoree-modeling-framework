@@ -19,7 +19,7 @@ package org.kevoree.modeling.kotlin.generator
 
 import java.io.{PrintWriter, File}
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.resource.{ResourceSet, Resource}
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.common.util.{URI => EmfUri}
@@ -39,7 +39,7 @@ class GenerationContext {
 
   var microframework: Boolean = false
 
-  def usemicrofwk() : Boolean = microframework
+  def usemicrofwk(): Boolean = microframework
 
 
   var genTrace: Boolean = false
@@ -133,22 +133,44 @@ class GenerationContext {
     }
   }
 
-  def getEcoreModel(ecorefile: File): XMIResource = {
+  def getRecursiveListOfFiles(dir: File, ext: String): Array[File] = {
+    val these = dir.listFiles.filter(f => f.getName.endsWith(ext))
+    these ++ these.filter(_.isDirectory).flatMap(getRecursiveListOfFiles(_, ext))
+  }
+
+  def getEcoreModel(ecorefile: File): ResourceSet = {
     import scala.collection.JavaConversions._
-    System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
-    val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
     val rs = new ResourceSetImpl()
     Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl())
-    val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
-    resource.load(null)
-    EcoreUtil.resolveAll(resource)
 
-    /* select all root */
-    resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
-      modelElm =>
-        checkEID(modelElm.asInstanceOf[EClass], resource)
+    if (ecorefile.isDirectory) {
+      val ecoreFiles = getRecursiveListOfFiles(ecorefile, "ecore")
+      ecoreFiles.foreach {
+        eFile =>
+          val resource = rs.createResource(EmfUri.createFileURI(eFile.getAbsolutePath)).asInstanceOf[XMIResource]
+          resource.load(null)
+          EcoreUtil.resolveAll(resource)
+          /* select all root */
+          resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
+            modelElm =>
+              checkEID(modelElm.asInstanceOf[EClass], resource)
+          }
+          rs.getResources.add(resource)
+      }
+    } else {
+      System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
+      val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
+      val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
+      resource.load(null)
+      EcoreUtil.resolveAll(resource)
+      /* select all root */
+      resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
+        modelElm =>
+          checkEID(modelElm.asInstanceOf[EClass], resource)
+      }
+      rs.getResources.add(resource)
     }
-    resource
+    rs
   }
 
   /**
@@ -220,6 +242,7 @@ class GenerationContext {
       var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
       formatedFactoryName += pack.getName.substring(1)
       formatedFactoryName += "Factory"
+
       val packageName = ProcessorHelper.fqn(this, pack)
       packageFactoryMap.put(packageName, packageName + "." + formatedFactoryName)
       pack.getEClassifiers.foreach {
@@ -268,8 +291,17 @@ class GenerationContext {
   def getBaseLocationForUtilitiesGeneration = baseLocationForUtilitiesGeneration
 
   def setBaseLocationForUtilitiesGeneration(metamodelFile: File) {
+    import scala.collection.JavaConversions._
+
     val metamodel = getEcoreModel(metamodelFile)
-    if (metamodel.getContents.size() > 1) {
+
+    val packages = new util.ArrayList[EPackage]()
+    metamodel.getAllContents.foreach{ content =>
+        if(content.isInstanceOf[EPackage]){
+          packages.add(content.asInstanceOf[EPackage])
+        }
+    }
+    if (packages.size > 1) {
       // Many packages at the root.
       basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage()
       basePackageForUtilitiesGeneration.setName("")
@@ -279,14 +311,14 @@ class GenerationContext {
         baseLocationForUtilitiesGeneration = getRootGenerationDirectory
       }
 
-    } else if (metamodel.getContents.size() == 1) {
+    } else if (packages.size == 1) {
       // One package at the root.
-      if (metamodel.getContents.get(0).asInstanceOf[EPackage].getEClassifiers.size() > 0) {
+      if (packages.get(0).getEClassifiers.size() > 0) {
         // Classifiers in this root package
-        basePackageForUtilitiesGeneration = metamodel.getContents.get(0).asInstanceOf[EPackage]
-        baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, metamodel.getContents.get(0).asInstanceOf[EPackage]).replace(".", File.separator) + File.separator)
+        basePackageForUtilitiesGeneration = packages.get(0)
+        baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + ProcessorHelper.fqn(this, packages.get(0)).replace(".", File.separator) + File.separator)
       } else {
-        baseLocationForUtilitiesGeneration = checkBaseLocation(metamodel.getContents.get(0).asInstanceOf[EPackage])
+        baseLocationForUtilitiesGeneration = checkBaseLocation(packages.get(0))
       }
     }
   }

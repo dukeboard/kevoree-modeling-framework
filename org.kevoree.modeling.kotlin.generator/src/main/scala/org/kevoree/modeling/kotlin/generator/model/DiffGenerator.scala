@@ -33,14 +33,13 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, ProcessorHelperCl
 trait DiffGenerator {
 
 
-  def generateModelTraceCompare(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
+  def generateModelTraceCompare(ctx: GenerationContext, packageGenDir: String) {
 
     if(!ctx.microframework){
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/compare/ModelCompare.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
 
     val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
-
     ProcessorHelper.checkOrCreateFolder(packageGenDir + "/compare/")
     val localFile = new File(packageGenDir + "/compare/DefaultModelCompare.kt")
     val pr = new PrintWriter(localFile, "utf-8")
@@ -52,14 +51,13 @@ trait DiffGenerator {
     ctxV.put("helper", new ProcessorHelperClass())
     ctxV.put("ctx", ctx)
     ctxV.put("packageName", packageName)
-
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
   }
 
 
-  def generateModelTraceAPI(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
+  def generateModelTraceAPI(ctx: GenerationContext, packageGenDir: String) {
 
     if(!ctx.microframework){
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/trace/ModelTrace.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
@@ -83,52 +81,18 @@ trait DiffGenerator {
     pr.close()
   }
 
-  def generateModelTraceApply(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
-
+  def generateModelTraceApply(ctx: GenerationContext, packageGenDir: String) {
     if(!ctx.microframework){
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/trace/ModelTraceApplicator.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-         /*
-    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/trace/")
-    val localFile = new File(packageGenDir + "/trace/ModelTraceApplicator.kt")
-    val pr = new PrintWriter(localFile, "utf-8")
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-    ve.init()
-    val template = ve.getTemplate("templates/trace/ModelTraceApplicator.vm")
-    val ctxV = new VelocityContext()
-    ctxV.put("helper", new ProcessorHelperClass())
-    ctxV.put("ctx", ctx)
-    template.merge(ctxV, pr)
-    pr.flush()
-    pr.close() */
   }
 
 
-  def generateModelEvent2Trace(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
-
+  def generateModelEvent2Trace(ctx: GenerationContext, packageGenDir: String) {
     if(!ctx.microframework){
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/trace/Event2Trace.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-
-    /*
-    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/trace/")
-    val localFile = new File(packageGenDir + "/trace/Event2Trace.kt")
-    val pr = new PrintWriter(localFile, "utf-8")
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-    ve.init()
-    val template = ve.getTemplate("templates/trace/Event2Trace.vm")
-    val ctxV = new VelocityContext()
-    ctxV.put("helper", new ProcessorHelperClass())
-    ctxV.put("ctx", ctx)
-    template.merge(ctxV, pr)
-    pr.flush()
-    pr.close()
-    */
-
   }
-
 
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
     val ve = new VelocityEngine()

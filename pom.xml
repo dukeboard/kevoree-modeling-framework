@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.root</artifactId>
@@ -56,10 +57,10 @@
         <emf.version>2.7.0</emf.version>
         <scala.version>2.9.3</scala.version>
         <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
-        <!--
         <kotlin.version>0.6.31</kotlin.version>
-        -->
-        <kotlin.version>0.5.998</kotlin.version>
+        <!--
+         <kotlin.version>0.5.998</kotlin.version>
+         -->
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
     </properties>
 
@@ -69,7 +70,7 @@
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
     </modules>
 
-    <dependencies>		
+    <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -40,6 +40,7 @@ import factories.FactoryGenerator
 import java.io.File
 import loader.xml.LoaderGenerator
 import model.ModelGenerator
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.{EcorePackage, EcoreFactory, EClass, EPackage}
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.kevoree.modeling.kotlin.generator.events.EventsGenerator
@@ -68,7 +69,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val model = ctx.getEcoreModel(ecoreFile)
 
     //registering factories
-    model.getContents.filter(e => e.isInstanceOf[EPackage]).foreach {
+    model.getAllContents.filter(e => e.isInstanceOf[EPackage]).foreach {
       elem => ctx.registerFactory(elem.asInstanceOf[EPackage])
     }
     ctx.setBaseLocationForUtilitiesGeneration(ecoreFile)
@@ -99,10 +100,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     modelGen.generateRemoveFromContainerCommand(ctx)
 
 
-
-
-
-
     System.out.println("Launching model generation")
     modelGen.process(model, modelVersion)
 
@@ -110,9 +107,9 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
   }
 
-  def checkModel(model: XMIResource) {
+  def checkModel(model: ResourceSet) {
 
-    model.getContents.foreach {
+    model.getAllContents.foreach {
       content =>
         content match {
           case pack: EPackage => {
@@ -144,7 +141,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     if (ctx.getJS()) {
       return
     }
-
 
     checkOrGenerateLoaderApi()
 
@@ -191,10 +187,10 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
     System.out.println("Launching json serializer generation")
     val serializerGenerator = new SerializerJsonGenerator(ctx)
-    model.getContents.foreach {
+    model.getAllContents.foreach {
       elem => elem match {
         case pack: EPackage => serializerGenerator.generateJsonSerializer(pack, model)
-        case _ => println("No serializer generator for containerRoot element of class: " + elem.getClass)
+        case _ => //println("No serializer generator for containerRoot element of class: " + elem.getClass)
       }
     }
     System.out.println("Done with serializer generation")

@@ -38,6 +38,7 @@ package org.kevoree.modeling.kotlin.generator.serializer
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.xmi.XMIResource
 import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
@@ -56,7 +57,7 @@ import java.util
 class SerializerGenerator(ctx: GenerationContext) {
 
 
-  def generateSerializer(model: XMIResource) {
+  def generateSerializer(model: ResourceSet) {
     if (ctx.getJS()) {
       return
     }
@@ -67,7 +68,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     beginSerializer(pr)
     generateDefaultSerializer(pr, ProcessorHelper.collectAllClassifiersInModel(model))
     generateEscapeMethod(pr)
-    model.getContents.foreach {
+    model.getAllContents.foreach {
       pack =>
         if (pack.isInstanceOf[EPackage]) {
           generateSerializer(pack.asInstanceOf[EPackage], pr)
