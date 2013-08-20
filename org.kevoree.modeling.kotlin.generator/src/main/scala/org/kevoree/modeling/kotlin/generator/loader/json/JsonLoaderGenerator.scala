@@ -186,24 +186,11 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
     val result = new util.ArrayList[EClass]()
     pack.getAllContents.foreach {
       eclass =>
-        if (eclass.isInstanceOf[EPackage]) {
-          getEAllPackage(eclass.asInstanceOf[EPackage], result)
+        if (eclass.isInstanceOf[EClass]) {
+          result.add(eclass.asInstanceOf[EClass])
         }
     }
     return result
-  }
-
-  def getEAllPackage(pack: EPackage, fillList: util.ArrayList[EClass]) {
-    pack.getEClassifiers.foreach {
-      eClazz =>
-        if (eClazz.isInstanceOf[EClass]) {
-          fillList.add(eClazz.asInstanceOf[EClass])
-        }
-    }
-    pack.getESubpackages.foreach {
-      sub =>
-        getEAllPackage(sub, fillList)
-    }
   }
 
 

@@ -151,17 +151,12 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.println("else -> { }")
     pr.println("}") //END MATCH
     pr.println("wt.flush()")
-    pr.println("wt.close()")
+    //pr.println("wt.close()")
     pr.println("}") //END serialize method
     generateEscapeMethod(pr)
     getEAllEclass(model).foreach {
-    //ProcessorHelper.collectAllClassifiersInModel(model).foreach {
       eClass => {
-       // if(eClass.isInstance(classOf[EEnum])){
-       //   generateEENUMToJsonMethod(eClass.asInstanceOf[EEnum], pr)
-       // } else {
           generateToJsonMethod(eClass, pr)
-       // }
       }
     }
     pr.println("}") //END TRAIT
@@ -200,7 +195,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
       }
     }
     //GENERATE GET Json ADDR                                                                              0
-    buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + "): Map<Any,String> {")
+    buffer.println("private fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + "): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
     //buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"//\") }\n")
 
@@ -426,24 +421,11 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     val result = new util.ArrayList[EClass]()
     pack.getAllContents.foreach {
       eclass =>
-        if (eclass.isInstanceOf[EPackage]) {
-          getEAllPackage(eclass.asInstanceOf[EPackage], result)
+        if (eclass.isInstanceOf[EClass]) {
+          result.add(eclass.asInstanceOf[EClass])
         }
     }
     return result
-  }
-
-  def getEAllPackage(pack: EPackage, fillList: util.ArrayList[EClass]) {
-    pack.getEClassifiers.foreach {
-      eClazz =>
-        if (eClazz.isInstanceOf[EClass]) {
-          fillList.add(eClazz.asInstanceOf[EClass])
-        }
-    }
-    pack.getESubpackages.foreach {
-      sub =>
-        getEAllPackage(sub, fillList)
-    }
   }
 
 
