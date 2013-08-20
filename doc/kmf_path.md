@@ -1,7 +1,7 @@
 <a id="top"></a>
 # Kevoree Modeling Framework - Query Langage (KMFQL)
 
-![Kevoree icon](http://kevoree.org/img/kevoree-logo.png)
+![Kevoree icon](http://kevoree.org/images/kevoree-gris.png)
 
 ## Overview
 
