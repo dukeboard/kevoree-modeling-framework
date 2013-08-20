@@ -57,7 +57,7 @@
         <emf.version>2.7.0</emf.version>
         <scala.version>2.9.3</scala.version>
         <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
-        <kotlin.version>0.5.998</kotlin.version>
+        <kotlin.version>0.6.31</kotlin.version>
         <!--
          <kotlin.version>0.5.998</kotlin.version>
          -->
