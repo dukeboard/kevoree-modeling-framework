@@ -121,6 +121,8 @@ val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration()
                 "$att.getName()" -> {modelElem.$methName(reader.nextDouble())}
                 #elseif($helper.convertType($att.getEAttributeType()).equals("Long"))
                 "$att.getName()" -> {modelElem.$methName(reader.nextLong())}
+                #elseif($helper.convertType($att.getEAttributeType()).endsWith("BigInteger"))
+                "$att.getName()" -> {modelElem.$methName(java.math.BigInteger(reader.nextString()))}
                 #elseif($att.getEAttributeType().getClass().getName().toLowerCase().contains("eenum"))
                 "$att.getName()" -> {modelElem.$methName(${helper.fqn($ctx,$att.getEAttributeType())}.valueOf(reader.nextString()!!))}
                 #else

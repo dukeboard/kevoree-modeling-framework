@@ -90,21 +90,24 @@ class InterfaceElementLoader(ctx : GenerationContext, elementType: EClass) {
     pr.println("val xsi = context.xmiReader!!.getAttributePrefix(i)")
     pr.println("if (localName == \"type\" && xsi==\"xsi\"){")
     pr.println("val xsiTypeValue = context.xmiReader!!.getAttributeValue(i)")
-    pr.println("val loadedElement = when {")
 
-
-    //val fqnPack = ProcessorHelper.fqn(elementType.getEPackage).replace(".","_")
-
-    val it = ProcessorHelper.getAllConcreteSubTypes(elementType).iterator()
-    while(it.hasNext) {
-      val concreteType = it.next()
+    if(ProcessorHelper.getAllConcreteSubTypes(elementType).isEmpty){
+      pr.println("throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader!!.getAttributeValue(i)  + \" elementId:\" + currentElementId);")
+    } else {
+      pr.println("return when {")
+      val it = ProcessorHelper.getAllConcreteSubTypes(elementType).iterator()
+      while(it.hasNext) {
+        val concreteType = it.next()
         pr.println("xsiTypeValue.equals(\"" + ProcessorHelper.fqn(ctx, concreteType.getEPackage) + ":" + concreteType.getName + "\") || xsiTypeValue!!.endsWith(\""+concreteType.getEPackage.getName.toLowerCase+":"+concreteType.getName+"\") -> {")
         pr.println("load" + concreteType.getName + "Element(currentElementId,context)")
         pr.println("}") // END WHEN CASE
+      }
+      pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader!!.getAttributeValue(i)  + \" elementId:\" + currentElementId);}")
+      pr.println("} as "+ProcessorHelper.fqn(ctx,elementType)) // END WHEN
     }
-    pr.println("else -> {throw UnsupportedOperationException(\"Processor for "+elementType.getName+" has no mapping for type:\" + localName+\"/raw=\"+context.xmiReader!!.getAttributeValue(i)  + \" elementId:\" + currentElementId);}")
-    pr.println("}") // END WHEN
-    pr.println("return loadedElement as " + ProcessorHelper.fqn(ctx,elementType))
+
+
+
     pr.println("}") //END IF
     pr.println("}") // END FOR
 
