@@ -544,13 +544,13 @@ public class GenModelPlugin extends AbstractMojo {
                 } else {
                     copyJsLibraryFile(KOTLIN_JS_MAPS);
                     copyJsLibraryFile(KOTLIN_JS_LIB);
-                    copyJsLibraryFile(KOTLIN_JS_LIB_ECMA3);
+                    copyJsLibraryFileRename("kotlin-lib-ecma3-fixed.js",KOTLIN_JS_LIB_ECMA3);
                     copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
 
                     //create a merged file
                     File outputMerged = new File(outputKotlinJSDir, project.getArtifactId()+".merged.js");
                     FileOutputStream mergedStream = new FileOutputStream(outputMerged);
-                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA3), mergedStream);
+                    IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB),mergedStream);
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS),mergedStream);
                     Files.copy(new File(outputKotlinJSDir, project.getArtifactId()+".js"),mergedStream);
@@ -645,6 +645,27 @@ public class GenModelPlugin extends AbstractMojo {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     } */
+
+    protected void copyJsLibraryFileRename(String jsLib,String newName) throws MojoExecutionException {
+        // lets copy the kotlin library into the output directory
+        try {
+            outputKotlinJSDir.mkdirs();
+            final InputStream inputStream = MetaInfServices.loadClasspathResource(jsLib);
+            if (inputStream == null) {
+                System.out.println("WARNING: Could not find " + jsLib + " on the classpath!");
+            } else {
+                InputSupplier<InputStream> inputSupplier = new InputSupplier<InputStream>() {
+                    @Override
+                    public InputStream getInput() throws IOException {
+                        return inputStream;
+                    }
+                };
+                Files.copy(inputSupplier, new File(outputKotlinJSDir, newName));
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
 
     protected void copyJsLibraryFile(String jsLib) throws MojoExecutionException {
         // lets copy the kotlin library into the output directory
