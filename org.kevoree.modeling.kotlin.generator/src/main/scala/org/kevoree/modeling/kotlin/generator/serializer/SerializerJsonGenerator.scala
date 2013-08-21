@@ -222,7 +222,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub" + subClass.getName + "))")
             buffer.println("}")
           }
-          case -1 => {
+          case _ if(subClass.getUpperBound == -1 || subClass.getUpperBound > 1) => {
             if (!firstUsed) {
               buffer.println("i=0")
             }

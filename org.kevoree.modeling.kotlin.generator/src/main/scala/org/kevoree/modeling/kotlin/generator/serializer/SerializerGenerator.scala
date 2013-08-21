@@ -197,7 +197,7 @@ class SerializerGenerator(ctx: GenerationContext) {
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\"))")
             buffer.println("}")
           }
-          case -1 => {
+          case _ if(subClass.getUpperBound == -1 || subClass.getUpperBound > 1) => {
             if (!firstUsed) {
               buffer.println("i=0")
             }

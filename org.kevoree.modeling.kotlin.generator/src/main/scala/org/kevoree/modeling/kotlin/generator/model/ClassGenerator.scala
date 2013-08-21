@@ -263,7 +263,7 @@ trait ClassGenerator extends ClonerGenerator {
 
     cls.getEAllReferences.foreach {
       contained =>
-        if (contained.getUpperBound == -1) {
+        if (contained.getUpperBound == -1 || contained.getUpperBound > 1) {
           // multiple values
           pr.println("for(sub in this." + getGetter(contained.getName) + "){")
           pr.println("sub.setRecursiveReadOnly()")
