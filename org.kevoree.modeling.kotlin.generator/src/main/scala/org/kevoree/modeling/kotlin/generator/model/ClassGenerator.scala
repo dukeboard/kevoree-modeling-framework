@@ -846,7 +846,7 @@ trait ClassGenerator extends ClonerGenerator {
     refs.foreach {
       ref =>
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if (ref.getUpperBound == -1) {
+        if (ref.getUpperBound == -1 || ref.getUpperBound >1) {
           // multiple values
           pr.println(generateGetter(ctx, ref, typeRefName, false, false))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
