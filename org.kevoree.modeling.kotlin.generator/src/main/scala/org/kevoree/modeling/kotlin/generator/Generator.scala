@@ -37,18 +37,19 @@
 package org.kevoree.modeling.kotlin.generator
 
 import factories.FactoryGenerator
-import java.io.File
+import java.io.{FileWriter, File}
 import loader.xml.LoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.{EcorePackage, EcoreFactory, EClass, EPackage}
-import org.eclipse.emf.ecore.xmi.XMIResource
+import org.eclipse.emf.ecore._
+import org.kevoree.modeling.aspect.{AspectParam, AspectClass, AspectMethod}
 import org.kevoree.modeling.kotlin.generator.events.EventsGenerator
 import org.kevoree.modeling.kotlin.generator.loader.json.JsonLoaderGenerator
 import org.kevoree.modeling.kotlin.generator.loader.LoaderApiGenerator
 import scala.collection.JavaConversions._
 
 import org.kevoree.modeling.kotlin.generator.serializer.{SerializerApiGenerator, SerializerJsonGenerator, SerializerGenerator}
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -77,6 +78,27 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
   }
 
 
+  def isMethodEquel(eop: EOperation, aop: AspectMethod): Boolean = {
+    if (eop.getName != aop.name) {
+      return false
+    }
+    //TODO add order param check
+    eop.getEParameters.foreach {
+      eparam =>
+        if (!aop.params.exists(aparam => /*aparam.name == eparam.getName &&*/ aparam.`type` == ProcessorHelper.convertType(eparam.getEType.getName))) {
+          return false
+        }
+    }
+    aop.params.foreach {
+      aparam =>
+        if (!eop.getEParameters.exists(eparam => /*aparam.name == eparam.getName &&*/ aparam.`type` == ProcessorHelper.convertType(eparam.getEType.getName))) {
+          return false
+        }
+    }
+    return true;
+  }
+
+
   /**
    * Triggers the generation of the given <i>ecore</i> file implementation.
    * @param modelVersion the version of the model (will be included in headers of generated files).
@@ -87,12 +109,111 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     factoryGenerator.generateMainFactory()
 
     //if(ctx.generateEvents) {
-      val eventsGenerator = new EventsGenerator(ctx)
-      eventsGenerator.generateEvents()
+    val eventsGenerator = new EventsGenerator(ctx)
+    eventsGenerator.generateEvents()
     //}
 
+    System.out.println("Check Aspect completeness")
     val model = ctx.getEcoreModel(ecoreFile)
     checkModel(model)
+    model.getAllContents.foreach {
+      content =>
+        content match {
+          case eclass: EClass => {
+            if (!eclass.getEAllOperations.isEmpty) {
+              //Should have aspect covered all method
+              val operationList = new util.ArrayList[EOperation]()
+              operationList.addAll(eclass.getEOperations)
+              ctx.aspects.values().foreach {
+                aspect =>
+                  if (aspect.aspectedClass == eclass.getName || (aspect.packageName + "." + aspect.name) == ecoreFile.getName) {
+                    //aspect match
+                    aspect.methods.foreach {
+                      method =>
+                        operationList.find(op => isMethodEquel(op, method)) match {
+                          case Some(foundOp) => {
+                            operationList.remove(foundOp)
+                          }
+                          case None => {
+                            //is it a new method
+                            if (!eclass.getEAllOperations.exists(op => isMethodEquel(op, method))) {
+                              //TODO Add to metaModel for API generation
+                              System.err.println("TODO Add Aspect Method in MetaModel " + method);
+
+                            } else {
+                              //Duplicated => ERROR
+                              var errMsg = "Duplicated Method In conflicting aspect on " + eclass.getName + "\n";
+                              errMsg = errMsg + method.toString
+                              throw new Exception(errMsg)
+                            }
+                          }
+                        }
+                    }
+                  }
+              }
+              if (!operationList.isEmpty) {
+
+                System.err.println("Auto geneate Method for aspect "+eclass.getName);
+
+                val targetSrc = ctx.getRootSrcDirectory();
+                val targetFile = new File(targetSrc + File.separator + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName + ".kt");
+                targetFile.getParentFile.mkdirs();
+                val writer = new FileWriter(targetFile);
+                writer.write("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ";\n")
+                writer.write("import org.kevoree.modeling.api.aspect;\n")
+                writer.write("public aspect trait " + "GeneratedAspect_" + eclass.getName + " : " + ProcessorHelper.fqn(ctx, eclass) + " {\n")
+
+                val newAspectClass = new AspectClass();
+                newAspectClass.name = "GeneratedAspect_" + eclass.getName
+                newAspectClass.aspectedClass = eclass.getName
+                newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
+                ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass)
+                operationList.foreach {
+                  operation =>
+                    writer.write("\toverride fun " + operation.getName + "(")
+                    var isFirst = true
+                    val newAspectOperation = new AspectMethod();
+                    newAspectOperation.name = operation.getName
+                    newAspectClass.methods.add(newAspectOperation)
+                    operation.getEParameters.foreach {
+                      param =>
+
+                        val newParam = new AspectParam();
+                        newParam.name = param.getName
+                        newParam.`type` = ProcessorHelper.convertType(param.getEType.getName)
+                        newAspectOperation.params.add(newParam)
+
+                        if (!isFirst) {
+                          writer.write(",")
+                        }
+                        writer.write(param.getName + ":" + ProcessorHelper.convertType(param.getEType.getName))
+                        isFirst = false
+                    }
+                    if (operation.getEType != null) {
+                      writer.write(") : " + ProcessorHelper.convertType(operation.getEType.getName) + " {\n")
+                    } else {
+                      writer.write("){\n")
+                    }
+                    writer.write("\t\tthrow Exception(\"Not implemented yet !\");\n")
+                    writer.write("\t}\n")
+                }
+                writer.write("}\n")
+                writer.close()
+                //create aspect to be able to be included by the factory
+
+
+              }
+            }
+          }
+          case _ =>
+        }
+    }
+
+
+
+
+
+
 
     val modelGen = new ModelGenerator(ctx)
     modelGen.generateContainerAPI(ctx)
@@ -104,6 +225,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     modelGen.process(model, modelVersion)
 
     System.out.println("Done with model generation")
+
 
   }
 

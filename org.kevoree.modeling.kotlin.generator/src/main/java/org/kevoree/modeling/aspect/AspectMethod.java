@@ -7,32 +7,34 @@ import java.util.List;
  * Created with IntelliJ IDEA.
  * User: duke
  * Date: 21/08/13
- * Time: 10:17
+ * Time: 19:34
  */
-public class AspectClass {
+public class AspectMethod {
 
     public String name;
 
-    public String packageName;
+    public List<AspectParam> params = new ArrayList<AspectParam>();
 
-    public String aspectedClass;
-
-    public List<AspectMethod> methods = new ArrayList<AspectMethod>();
+    public String returnType;
 
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Aspect " + packageName + "." + name +" for "+ aspectedClass + " [");
+        buffer.append(name + "(");
         boolean isFirst = true;
-        for (AspectMethod me : methods) {
+        for (AspectParam p : params) {
             if (!isFirst) {
                 buffer.append(",");
             }
-            buffer.append(me.toString());
+            buffer.append(p.toString());
             isFirst = false;
         }
-        buffer.append("]");
+        buffer.append(")");
+        if(returnType != null){
+            buffer.append(":"+returnType);
+        }
         return buffer.toString();
     }
+
 
 }

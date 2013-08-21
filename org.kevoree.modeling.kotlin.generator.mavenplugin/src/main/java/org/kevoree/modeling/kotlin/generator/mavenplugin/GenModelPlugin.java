@@ -61,6 +61,8 @@ import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
 import org.jetbrains.k2js.config.MetaInfServices;
 import org.kevoree.modeling.aspect.AspectClass;
+import org.kevoree.modeling.aspect.AspectMethod;
+import org.kevoree.modeling.aspect.AspectParam;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
@@ -288,20 +290,17 @@ public class GenModelPlugin extends AbstractMojo {
         if (trace && !json) {
             json = true; // trace need JSON
         }
-        if(js && !json){
+        if (js && !json) {
             json = true; // JS need JSON by default for Java extension
         }
-
-
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
-
         List<File> sourceKotlinFileList = new ArrayList<File>();
         collectFiles(sourceFile.getAbsolutePath(), sourceKotlinFileList, ".kt");
-        Pattern p = Pattern.compile(".*aspect trait ([a-zA-Z]*)\\s*:\\s*([.a-zA-Z]*).*");
-        Pattern pfun = Pattern.compile(".*fun ([a-zA-Z]*)[(].*[)]\\s*:\\s*([.a-zA-Z]*).*");
+        Pattern p = Pattern.compile(".*aspect\\s*trait\\s*([a-zA-Z]*)\\s*:\\s*([.a-zA-Z]*).*");
+        Pattern pfun = Pattern.compile(".*fun\\s*([a-zA-Z]*)\\s*[(](.*)[)](\\s*:\\s*[.a-zA-Z]*)?.*");
         Pattern packagePattern = Pattern.compile(".*package ([.a-zA-Z]*).*");
         for (File kotlinFile : sourceKotlinFileList) {
-            BufferedReader br = null;
+            BufferedReader br;
             String packageName = null;
             try {
                 br = new BufferedReader(new FileReader(kotlinFile));
@@ -311,9 +310,26 @@ public class GenModelPlugin extends AbstractMojo {
                     Matcher funMatch = pfun.matcher(line);
                     if (funMatch.matches()) {
                         if (currentAspect != null) {
-                            currentAspect.methods.add(funMatch.group(1));
-                        } else {
-                            System.out.println("Strange Behavior !!!, contact dev team");
+                            AspectMethod method = new AspectMethod();
+                            method.name = funMatch.group(1).trim();
+                            if(funMatch.groupCount()==3){
+                                method.returnType = funMatch.group(3);
+                                if(method.returnType != null){
+                                    method.returnType = method.returnType.replace(":","").trim();
+                                }
+                            }
+                            String params = funMatch.group(2);
+                            String[] paramsArray = params.split(",");
+                            for(int i=0;i<paramsArray.length;i++){
+                                String[] paramType = params.split(":");
+                                if(paramType.length == 2){
+                                    AspectParam param = new AspectParam();
+                                    param.name = paramType[0].trim();
+                                    param.type = paramType[1].trim();
+                                    method.params.add(param);
+                                }
+                            }
+                            currentAspect.methods.add(method);
                         }
                     }
                     Matcher m = p.matcher(line);
@@ -322,15 +338,14 @@ public class GenModelPlugin extends AbstractMojo {
                             cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
                         }
                         currentAspect = new AspectClass();
-                        currentAspect.name = m.group(1);
-                        currentAspect.aspectedClass = m.group(2);
-                        currentAspect.packageName = packageName;
+                        currentAspect.name = m.group(1).trim();
+                        currentAspect.aspectedClass = m.group(2).trim();
+                        currentAspect.packageName = packageName.trim();
                     }
                     Matcher packageP = packagePattern.matcher(line);
                     if (packageP.matches()) {
                         packageName = packageP.group(1);
                     }
-
                 }
                 if (currentAspect != null) {
                     cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
@@ -344,7 +359,6 @@ public class GenModelPlugin extends AbstractMojo {
                 if (!outputUtil.exists()) {
                     outputUtil.mkdirs();
                 }
-
                 URI relativeURI = sourceFile.toURI().relativize(kotlinFile.toURI());
                 File newFileTarget = new File(outputUtil + File.separator + relativeURI);
                 newFileTarget.getParentFile().mkdirs();
@@ -376,6 +390,7 @@ public class GenModelPlugin extends AbstractMojo {
 
 
         GenerationContext ctx = new GenerationContext();
+        ctx.setRootSrcDirectory(sourceFile);
         ctx.aspects_$eq(cacheAspects);
         try {
             for (String path : project.getCompileClasspathElements()) {
@@ -466,7 +481,6 @@ public class GenModelPlugin extends AbstractMojo {
                 //args.setClasspath(cpath.toString());
 
                 ArrayList<String> sources = new ArrayList<String>();
-                getLog().info("Add directory : " + sourceFile.getAbsolutePath());
                 sources.add(microfxlpath.getAbsolutePath());
 
                 args.setSourceDirs(sources);

@@ -89,6 +89,15 @@ class GenerationContext {
 
   def getRootGenerationDirectory = rootGenerationDirectory
 
+  var rootSrcDirectory : File = null;
+
+  def setRootSrcDirectory(rootSrc : File){
+    rootSrcDirectory = rootSrc;
+  }
+
+  def getRootSrcDirectory() : File = {
+    return rootSrcDirectory;
+  }
 
   /**
    * Folder containing sources created by users

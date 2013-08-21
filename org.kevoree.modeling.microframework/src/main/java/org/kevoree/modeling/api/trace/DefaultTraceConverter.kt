@@ -23,10 +23,10 @@ class DefaultTraceConverter(): TraceConverter {
 
 
     fun addAttEquivalence(name1: String, name2: String) {
-
+        //TODO
         var fqnArray_1 = name1.split("#")
         var fqnArray_2 = name1.split("#")
-
+        //TODO
         attNameEquivalence_1.put(name1, name2)
         attNameEquivalence_2.put(name2, name2)
     }
