@@ -54,11 +54,12 @@ package org.kevoree.modeling.kotlin.generator.model
 import org.eclipse.emf.ecore.{EReference, EEnum, EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
-import java.io.{Writer, PrintWriter, File}
+import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
 import com.squareup.javawriter.JavaWriter
 import java.lang.reflect.Modifier
 import java.util
+import java.util.Collections
 
 /**
  * Created with IntelliJ IDEA.
@@ -88,13 +89,13 @@ trait JavaAPIGenerator extends ClassGenerator {
       superType => superTypes(i) = fqn(ctx, superType)
         i = i + 1
     }
-    if(superTypes.size == 0) {
-      jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT,ctx.getKevoreeContainer.get, superTypes:_*)
+    if (superTypes.size == 0) {
+      jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT, ctx.getKevoreeContainer.get, superTypes: _*)
     } else {
-      jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT,superTypes.mkString(", "), new Array[String](0):_*)
+      jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT, superTypes.mkString(", "), new Array[String](0): _*)
     }
 
-    generateJAllGetterSetterMethod(pr,jwriter, cls, ctx, packName)
+    generateJAllGetterSetterMethod(pr, jwriter, cls, ctx, packName)
     jwriter.endType()
     pr.flush()
     pr.close()
@@ -102,21 +103,21 @@ trait JavaAPIGenerator extends ClassGenerator {
 
   }
 
-  private def toCamelCase(name : String) : String = {
+  private def toCamelCase(name: String): String = {
     name.substring(0, 1).toUpperCase + name.substring(1)
   }
 
 
-  private def generateJAllGetterSetterMethod(pr : PrintWriter,jwriter: JavaWriter, cls: EClass, ctx: GenerationContext, pack: String) {
+  private def generateJAllGetterSetterMethod(pr: PrintWriter, jwriter: JavaWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     cls.getEAttributes.foreach {
       att =>
       //Generate getter
-        val methodName = "get"+toCamelCase(att.getName)
+        val methodName = "get" + toCamelCase(att.getName)
         if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || ProcessorHelper.convertType(att.getEAttributeType).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
-          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType),methodName,Modifier.PUBLIC | Modifier.ABSTRACT)
+          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType), methodName, Modifier.PUBLIC | Modifier.ABSTRACT)
         } else {
           jwriter.emitAnnotation("org.jetbrains.annotations.NotNull")
-          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType),methodName,Modifier.PUBLIC | Modifier.ABSTRACT)
+          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType), methodName, Modifier.PUBLIC | Modifier.ABSTRACT)
         }
         jwriter.endMethod()
 
@@ -155,6 +156,19 @@ trait JavaAPIGenerator extends ClassGenerator {
           pr.println("public " + protectReservedJWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + " find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(@org.jetbrains.annotations.NotNull String key);")
         }
 
+    }
+
+    /* next we generated custom method */
+    cls.getEAllOperations.foreach {
+      op =>
+        val params = new util.ArrayList[String]()
+        op.getEParameters.foreach {
+          p =>
+            params.add(ProcessorHelper.convertJType(p.getEType.getName));
+            params.add(p.getName);
+        }
+        jwriter.beginMethod(ProcessorHelper.convertJType(op.getEType.getName), op.getName, Modifier.PUBLIC | Modifier.ABSTRACT, params, Collections.emptyList[String]())
+        jwriter.endMethod()
     }
 
   }
@@ -217,7 +231,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     if (!isSingleRef) {
       res += ">"
     }
-    res += " " + protectReservedJWords(ref.getName) + " );\n"
+    res += " _" + protectReservedJWords(ref.getName) + " );\n"
     return res
   }
 
@@ -225,7 +239,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     var res = ""
     res += "\n"
     res += "\n public void addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    res += "(@org.jetbrains.annotations.NotNull List<" + typeRefName + "> " + protectReservedJWords(ref.getName) + ");\n"
+    res += "(@org.jetbrains.annotations.NotNull List<" + typeRefName + "> _" + protectReservedJWords(ref.getName) + ");\n"
     return res
   }
 
@@ -234,7 +248,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     var res = ""
     val formatedAddMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "\n public void add" + formatedAddMethodName
-    res += "(@org.jetbrains.annotations.NotNull " + typeRefName + " " + protectReservedJWords(ref.getName) + ");\n"
+    res += "(@org.jetbrains.annotations.NotNull " + typeRefName + " _" + protectReservedJWords(ref.getName) + ");\n"
     res += generateJAddAllMethod(cls, ref, typeRefName)
     return res
   }
@@ -244,7 +258,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     var res = ""
     val formatedMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "\npublic void remove" + formatedMethodName
-    res += "(@org.jetbrains.annotations.NotNull " + typeRefName + " " + protectReservedJWords(ref.getName) + ");\n"
+    res += "(@org.jetbrains.annotations.NotNull " + typeRefName + " _" + protectReservedJWords(ref.getName) + ");\n"
     res += generateJRemoveAllMethod(cls, ref, typeRefName)
     return res
   }

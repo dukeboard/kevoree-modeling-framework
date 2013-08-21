@@ -250,10 +250,27 @@ trait ClassGenerator extends ClonerGenerator {
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
 
     pr.print("trait " + cls.getName + "Internal")
-    pr.println((generateSuperTypesPlusSuperAPI(ctx, cls, packElement) match {
-      case None => "{"
-      case Some(s) => s + " {"
-    }))
+
+    val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
+    var aspectsName = List[String]()
+    aspects.foreach {
+      a =>
+        aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
+    }
+    generateSuperTypesPlusSuperAPI(ctx, cls, packElement) match {
+      case None => {
+        pr.println(aspectsName.mkString(","))
+        pr.println("{")
+      }
+      case Some(s) => {
+        pr.print(s.toString)
+        if (!aspectsName.isEmpty) {
+          pr.print(",")
+          pr.print(aspectsName.mkString(","))
+        }
+        pr.println("{")
+      }
+    }
 
     //Generate RecursiveReadOnly
     pr.println("override fun setRecursiveReadOnly(){")
@@ -446,7 +463,16 @@ trait ClassGenerator extends ClonerGenerator {
     //case class name
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
     pr.print("class " + cls.getName + "Impl")
-    pr.println(" : " + ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName + " { ")
+
+    val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
+    var aspectsName = List[String]()
+    aspects.foreach {
+      a =>
+        aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
+    }
+    val resultAspectName = if(!aspectsName.isEmpty){","+aspectsName.mkString(",")}else{""}
+
+    pr.println(" : " + ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName +resultAspectName+ " { ")
 
     pr.println("override internal var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
     pr.println("override internal var internal_containmentRefName : String? = null")
@@ -477,7 +503,7 @@ trait ClassGenerator extends ClonerGenerator {
           ProcessorHelper.convertType(att.getEAttributeType) match {
             case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
               if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
-                if(ctx.getJS()){
+                if (ctx.getJS()) {
                   "\"\"+Math.random() + java.util.Date().getTime()"
                 } else {
                   "\"\"+hashCode() + java.util.Date().getTime()"
@@ -846,7 +872,7 @@ trait ClassGenerator extends ClonerGenerator {
     refs.foreach {
       ref =>
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if (ref.getUpperBound == -1 || ref.getUpperBound >1) {
+        if (ref.getUpperBound == -1 || ref.getUpperBound > 1) {
           // multiple values
           pr.println(generateGetter(ctx, ref, typeRefName, false, false))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))

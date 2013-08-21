@@ -60,20 +60,21 @@ import org.jetbrains.jet.cli.js.K2JSCompilerArguments;
 import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
 import org.jetbrains.k2js.config.MetaInfServices;
+import org.kevoree.modeling.aspect.AspectClass;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
 import javax.tools.*;
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Generates files based on grammar files with Antlr tool.
- *
  * @author <a href="mailto:ffouquet@irisa.fr">Fouquet François</a>
  * @version $Id$
  * @goal generate
@@ -238,6 +239,15 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private File sourceFile;
 
+    /**
+     * The output Kotlin JS file
+     *
+     * @required
+     * @parameter default-value="${basedir}/target/generated-source/java"
+     * @parameter expression="${outputKotlinJSFile}"
+     */
+    private File sourceCleanedFile;
+
 
     private boolean deleteDirectory(File path) {
         if (path.exists()) {
@@ -254,17 +264,16 @@ public class GenModelPlugin extends AbstractMojo {
     }
 
     CLICompiler KotlinCompiler = new K2JVMCompiler();
-
     CLICompiler KotlinCompilerJS = new K2JSCompiler();
 
-    public void collectJavaFiles(String directoryPath, List<File> sourceFileList) {
+    public void collectFiles(String directoryPath, List<File> sourceFileList, String extension) {
         for (String contents : new File(directoryPath).list()) {
             File current = new File(directoryPath + File.separator + contents);
-            if (contents.endsWith(".java")) {
+            if (contents.endsWith(extension)) {
                 sourceFileList.add(current);
             } else {
                 if (current.isDirectory()) {
-                    collectJavaFiles(current.getAbsolutePath(), sourceFileList);
+                    collectFiles(current.getAbsolutePath(), sourceFileList, extension);
                 }
             }
         }
@@ -276,13 +285,98 @@ public class GenModelPlugin extends AbstractMojo {
         if (clearOutput) {
             deleteDirectory(output);
         }
-        if(trace && !json){
+        if (trace && !json) {
             json = true; // trace need JSON
+        }
+        if(js && !json){
+            json = true; // JS need JSON by default for Java extension
+        }
+
+
+        HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
+
+        List<File> sourceKotlinFileList = new ArrayList<File>();
+        collectFiles(sourceFile.getAbsolutePath(), sourceKotlinFileList, ".kt");
+        Pattern p = Pattern.compile(".*aspect trait ([a-zA-Z]*)\\s*:\\s*([.a-zA-Z]*).*");
+        Pattern pfun = Pattern.compile(".*fun ([a-zA-Z]*)[(].*[)]\\s*:\\s*([.a-zA-Z]*).*");
+        Pattern packagePattern = Pattern.compile(".*package ([.a-zA-Z]*).*");
+        for (File kotlinFile : sourceKotlinFileList) {
+            BufferedReader br = null;
+            String packageName = null;
+            try {
+                br = new BufferedReader(new FileReader(kotlinFile));
+                String line;
+                AspectClass currentAspect = null;
+                while ((line = br.readLine()) != null) {
+                    Matcher funMatch = pfun.matcher(line);
+                    if (funMatch.matches()) {
+                        if (currentAspect != null) {
+                            currentAspect.methods.add(funMatch.group(1));
+                        } else {
+                            System.out.println("Strange Behavior !!!, contact dev team");
+                        }
+                    }
+                    Matcher m = p.matcher(line);
+                    if (m.matches()) {
+                        if (currentAspect != null) {
+                            cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
+                        }
+                        currentAspect = new AspectClass();
+                        currentAspect.name = m.group(1);
+                        currentAspect.aspectedClass = m.group(2);
+                        currentAspect.packageName = packageName;
+                    }
+                    Matcher packageP = packagePattern.matcher(line);
+                    if (packageP.matches()) {
+                        packageName = packageP.group(1);
+                    }
+
+                }
+                if (currentAspect != null) {
+                    cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (js) {
+                //copy file to util
+                if (!outputUtil.exists()) {
+                    outputUtil.mkdirs();
+                }
+
+                URI relativeURI = sourceFile.toURI().relativize(kotlinFile.toURI());
+                File newFileTarget = new File(outputUtil + File.separator + relativeURI);
+                newFileTarget.getParentFile().mkdirs();
+                try {
+                    if (cacheAspects == null) {
+                        Files.copy(kotlinFile, newFileTarget);
+                    } else {
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(newFileTarget));
+                        br = new BufferedReader(new FileReader(kotlinFile));
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            writer.write(line
+                                    .replace("aspect trait", "trait")
+                                    .replace("import org.kevoree.modeling.api.aspect", ""));
+                            writer.write("\n");
+                        }
+                        writer.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        System.out.println("Collected Aspects : ");
+        for (AspectClass aspect : cacheAspects.values()) {
+            System.out.println(aspect.toString());
         }
 
 
         GenerationContext ctx = new GenerationContext();
-
+        ctx.aspects_$eq(cacheAspects);
         try {
             for (String path : project.getCompileClasspathElements()) {
                 if (path.contains("org.kevoree.modeling.microframework")) {
@@ -342,7 +436,7 @@ public class GenModelPlugin extends AbstractMojo {
                 e.printStackTrace();
             }
             List<File> sourceFileList = new ArrayList<File>();
-            collectJavaFiles(ctx.getRootGenerationDirectory().getAbsolutePath(), sourceFileList);
+            collectFiles(ctx.getRootGenerationDirectory().getAbsolutePath(), sourceFileList, ".java");
 
             try {
                 File localFileDir = new File(outputUtil + File.separator + "org" + File.separator + "jetbrains" + File.separator + "annotations");
@@ -476,7 +570,7 @@ public class GenModelPlugin extends AbstractMojo {
                             Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
-                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt") && !entry.getName().endsWith("aspect.kt")) {
+                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt") /*&& !entry.getName().endsWith("aspect.kt")*/) {
 
                                     String fileName = entry.getName();
                                     if (fileName.endsWith(".jslib")) {
@@ -519,10 +613,12 @@ public class GenModelPlugin extends AbstractMojo {
                 K2JSCompilerArguments args = new K2JSCompilerArguments();
                 ArrayList<String> sources = new ArrayList<String>();
                 sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
-                if (sourceFile.exists()) {
-                    getLog().info("Add directory : " + sourceFile.getAbsolutePath());
-                    sources.add(sourceFile.getAbsolutePath());
+                if (outputUtil.exists()) {
+                    //getLog().info("Add directory : " + sourceFile.getAbsolutePath());
+                    sources.add(outputUtil.getAbsolutePath());
                 }
+
+
                 args.sourceFiles = sources.toArray(new String[sources.size()]);
                 args.outputFile = outputJS;
                 args.verbose = false;
@@ -539,23 +635,23 @@ public class GenModelPlugin extends AbstractMojo {
 
                 if (e.ordinal() != 0) {
 
-                     getLog().error("Can't compile generated code !");
+                    getLog().error("Can't compile generated code !");
                     throw new MojoExecutionException("Embedded Kotlin compilation error !");
                 } else {
                     copyJsLibraryFile(KOTLIN_JS_MAPS);
                     copyJsLibraryFile(KOTLIN_JS_LIB);
-                    copyJsLibraryFileRename("kotlin-lib-ecma3-fixed.js",KOTLIN_JS_LIB_ECMA3);
+                    copyJsLibraryFileRename("kotlin-lib-ecma3-fixed.js", KOTLIN_JS_LIB_ECMA3);
                     copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
 
                     //create a merged file
-                    File outputMerged = new File(outputKotlinJSDir, project.getArtifactId()+".merged.js");
+                    File outputMerged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged.js");
                     FileOutputStream mergedStream = new FileOutputStream(outputMerged);
                     IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
-                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB),mergedStream);
-                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS),mergedStream);
-                    Files.copy(new File(outputKotlinJSDir, project.getArtifactId()+".js"),mergedStream);
+                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB), mergedStream);
+                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
+                    Files.copy(new File(outputKotlinJSDir, project.getArtifactId() + ".js"), mergedStream);
 
-                    mergedStream.write( ("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['"+project.getArtifactId()+"'];}").getBytes());
+                    mergedStream.write(("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['" + project.getArtifactId() + "'];}").getBytes());
                     mergedStream.write("\n".getBytes());
 
 
@@ -568,20 +664,15 @@ public class GenModelPlugin extends AbstractMojo {
                     WarningLevel.QUIET.setOptionsForWarningLevel(options);
                     CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
                     options.setCheckUnreachableCode(CheckLevel.OFF);
-                    compiler.compile(Collections.<JSSourceFile>emptyList(),Collections.singletonList(JSSourceFile.fromFile(outputMerged)),options);
+                    compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(outputMerged)), options);
 
 
-                    File outputMin = new File(outputKotlinJSDir, project.getArtifactId()+".min.js");
+                    File outputMin = new File(outputKotlinJSDir, project.getArtifactId() + ".min.js");
                     FileWriter outputFile = new FileWriter(outputMin);
                     outputFile.write(compiler.toSource());
                     outputFile.close();
 
                 }
-
-
-
-
-
 
 
             } else {
@@ -646,7 +737,7 @@ public class GenModelPlugin extends AbstractMojo {
         }
     } */
 
-    protected void copyJsLibraryFileRename(String jsLib,String newName) throws MojoExecutionException {
+    protected void copyJsLibraryFileRename(String jsLib, String newName) throws MojoExecutionException {
         // lets copy the kotlin library into the output directory
         try {
             outputKotlinJSDir.mkdirs();

@@ -56,6 +56,9 @@ import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
+import java.util
+import java.lang.reflect.Modifier
+import java.util.Collections
 
 /**
  * Created with IntelliJ IDEA.
@@ -81,7 +84,20 @@ trait APIGenerator extends ClassGenerator {
     }))
 
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
-
+    /* Then generated user method */
+    /* next we generated custom method */
+    cls.getEAllOperations.foreach {
+      op =>
+        pr.print("fun "+op.getName+"(")
+        var isFirst = true
+        op.getEParameters.foreach {
+          p =>
+            if(!isFirst){pr.println(",")}
+            pr.print(p.getName()+":"+ProcessorHelper.convertType(p.getEType.getName))
+            isFirst = false
+        }
+        pr.println("):"+ProcessorHelper.convertType(op.getEType.getName)+";")
+    }
     pr.println("}")
     pr.flush()
     pr.close()

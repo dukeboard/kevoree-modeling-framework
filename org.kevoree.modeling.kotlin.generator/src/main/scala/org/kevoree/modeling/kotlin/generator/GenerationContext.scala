@@ -27,6 +27,7 @@ import org.eclipse.emf.common.util.{URI => EmfUri}
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
 import org.eclipse.emf.ecore._
 import java.util
+import org.kevoree.modeling.aspect.AspectClass
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,6 +55,7 @@ class GenerationContext {
     genFlatInheritance = true
   }
 
+  var aspects : java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
 
   /**
    * True if selectByQuery methods have to be generated

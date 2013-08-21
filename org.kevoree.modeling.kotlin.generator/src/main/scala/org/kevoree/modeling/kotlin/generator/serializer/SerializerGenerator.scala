@@ -344,7 +344,7 @@ class SerializerGenerator(ctx: GenerationContext) {
               buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + "!!,\"" + subClass.getName + "\",addrs,ostream,false)")
             }
           }
-          case -1 => {
+          case _ if(subClass.getUpperBound == -1 || subClass.getUpperBound > 1) => {
             buffer.println("for(so in selfObject." + getGetter(subClass.getName) + "){")
             buffer.println("" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream,false)")
             buffer.println("}")
