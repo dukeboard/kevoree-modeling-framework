@@ -172,7 +172,7 @@ trait ClassGenerator extends ClonerGenerator {
     cls.getEAllReferences.foreach {
       ref =>
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if (ref.getUpperBound == -1) {
+        if (ref.getUpperBound == -1 || ref.getUpperBound > 1) {
           // multiple values
           pr.println("override internal var " + "_" + ref.getName + "_java_cache :List<" + typeRefName + ">? = null")
           if (hasID(ref.getEReferenceType)) {
