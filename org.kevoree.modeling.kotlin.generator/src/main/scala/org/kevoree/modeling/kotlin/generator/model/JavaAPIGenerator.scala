@@ -167,7 +167,11 @@ trait JavaAPIGenerator extends ClassGenerator {
             params.add(ProcessorHelper.convertJType(p.getEType.getName));
             params.add(p.getName);
         }
-        jwriter.beginMethod(ProcessorHelper.convertJType(op.getEType.getName), op.getName, Modifier.PUBLIC | Modifier.ABSTRACT, params, Collections.emptyList[String]())
+        if (op.getEType != null) {
+          jwriter.beginMethod(ProcessorHelper.convertJType(op.getEType.getName), op.getName, Modifier.PUBLIC | Modifier.ABSTRACT, params, Collections.emptyList[String]())
+        } else {
+          jwriter.beginMethod("void", op.getName, Modifier.PUBLIC | Modifier.ABSTRACT, params, Collections.emptyList[String]())
+        }
         jwriter.endMethod()
     }
 
