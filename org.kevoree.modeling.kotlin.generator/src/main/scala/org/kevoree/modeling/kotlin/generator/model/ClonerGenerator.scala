@@ -26,7 +26,6 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
@@ -54,8 +53,8 @@ trait ClonerGenerator {
     val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
     ctx.clonerPackage = packageName + ".cloner"
 
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/ModelCloner.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    if (!ctx.microframework) {
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/ModelCloner.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
     }
 
 
@@ -123,7 +122,8 @@ trait ClonerGenerator {
     buffer.println("\t\tsubResult.put(this,selfObjectClone)")
 
 
-    if (/*ctx.getJS()*/true) {    //TODO evaluate if bad optimisation
+    if ( /*ctx.getJS()*/ true) {
+      //TODO evaluate if bad optimisation
       cls.getEAllContainments.foreach {
         contained =>
           val implExt = if (ctx.getGenFlatInheritance) {
@@ -210,7 +210,7 @@ trait ClonerGenerator {
               buffer.println("} else {")
 
               buffer.println("val interObj = addrs.get(this." + getGetter(ref.getName) + ")")
-              buffer.println("if(interObj == null){ throw Exception(\"Non contained "+ref.getName+" from "+cls.getName+" : \"+this." + getGetter(ref.getName) + ")}")
+              buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + getGetter(ref.getName) + ")}")
               buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               buffer.println("}")
 
@@ -226,7 +226,7 @@ trait ClonerGenerator {
               buffer.println("} else {")
 
               buffer.println("val interObj = addrs.get(sub)")
-              buffer.println("if(interObj == null){ throw Exception(\"Non contained "+ref.getName+" from "+cls.getName+" : \"+this." + getGetter(ref.getName) + ")}")
+              buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + getGetter(ref.getName) + ")}")
               buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               buffer.println("}")
 
@@ -240,7 +240,7 @@ trait ClonerGenerator {
     }
     //RECUSIVE CALL ON ECONTAINEMENT
 
-    if (/*ctx.getJS()*/true) {
+    if ( /*ctx.getJS()*/ true) {
       cls.getEAllContainments.foreach {
         contained =>
           val implExt = if (ctx.getGenFlatInheritance) {
@@ -257,6 +257,11 @@ trait ClonerGenerator {
               buffer.println("}")
             }
             case -1 => {
+              buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
+              buffer.println("\t\t\t(sub as " + fqnName + " ).resolve(addrs,readOnly,mutableOnly)")
+              buffer.println("\t\t}")
+            }
+            case _ if (contained.getUpperBound > 1) => {
               buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
               buffer.println("\t\t\t(sub as " + fqnName + " ).resolve(addrs,readOnly,mutableOnly)")
               buffer.println("\t\t}")
