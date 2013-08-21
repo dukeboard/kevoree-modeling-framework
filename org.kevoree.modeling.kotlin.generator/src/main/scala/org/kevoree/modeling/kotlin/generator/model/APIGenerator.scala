@@ -111,7 +111,7 @@ trait APIGenerator extends ClassGenerator {
     cls.getEReferences.foreach {
       ref =>
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if (ref.getUpperBound == -1) {
+        if (ref.getUpperBound == -1 || ref.getUpperBound > 1) {
           // multiple values
           pr.println(generateGetter(ref, typeRefName, false, false))
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
