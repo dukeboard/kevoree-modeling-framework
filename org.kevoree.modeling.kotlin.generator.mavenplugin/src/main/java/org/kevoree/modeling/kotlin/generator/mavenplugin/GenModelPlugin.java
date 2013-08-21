@@ -295,7 +295,10 @@ public class GenModelPlugin extends AbstractMojo {
         }
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
         List<File> sourceKotlinFileList = new ArrayList<File>();
-        collectFiles(sourceFile.getAbsolutePath(), sourceKotlinFileList, ".kt");
+        if(sourceFile.isDirectory() && sourceFile.exists()){
+            collectFiles(sourceFile.getAbsolutePath(), sourceKotlinFileList, ".kt");
+        }
+
         Pattern p = Pattern.compile(".*aspect\\s*trait\\s*([a-zA-Z]*)\\s*:\\s*([.a-zA-Z]*).*");
         Pattern pfun = Pattern.compile(".*fun\\s*([a-zA-Z]*)\\s*[(](.*)[)](\\s*:\\s*[.a-zA-Z]*)?.*");
         Pattern packagePattern = Pattern.compile(".*package ([.a-zA-Z]*).*");
