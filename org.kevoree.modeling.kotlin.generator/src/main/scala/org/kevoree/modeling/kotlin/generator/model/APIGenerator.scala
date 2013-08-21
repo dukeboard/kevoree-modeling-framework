@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 /**
  * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
@@ -56,9 +56,6 @@ import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
-import java.util
-import java.lang.reflect.Modifier
-import java.util.Collections
 
 /**
  * Created with IntelliJ IDEA.
@@ -67,7 +64,6 @@ import java.util.Collections
  * Time: 10:37
  */
 trait APIGenerator extends ClassGenerator {
-
 
 
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
@@ -88,15 +84,21 @@ trait APIGenerator extends ClassGenerator {
     /* next we generated custom method */
     cls.getEAllOperations.foreach {
       op =>
-        pr.print("fun "+op.getName+"(")
+        pr.print("fun " + op.getName + "(")
         var isFirst = true
         op.getEParameters.foreach {
           p =>
-            if(!isFirst){pr.println(",")}
-            pr.print(p.getName()+":"+ProcessorHelper.convertType(p.getEType.getName))
+            if (!isFirst) {
+              pr.println(",")
+            }
+            pr.print(p.getName() + ":" + ProcessorHelper.convertType(p.getEType.getName))
             isFirst = false
         }
-        pr.println("):"+ProcessorHelper.convertType(op.getEType.getName)+";")
+        if (op.getEType != null) {
+          pr.println("):" + ProcessorHelper.convertType(op.getEType.getName) + ";")
+        } else {
+          pr.println("):Unit;")
+        }
     }
     pr.println("}")
     pr.flush()
@@ -108,7 +110,7 @@ trait APIGenerator extends ClassGenerator {
   private def generateAllGetterSetterMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     cls.getEAttributes.foreach {
       att =>
-        if(cls.getEAllAttributes.exists(att2=>att2.getName.equals(att.getName) && att2.getEContainingClass!=cls && !att2.getEContainingClass.isAbstract)){}else{
+        if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls && !att2.getEContainingClass.isAbstract)) {} else {
 
           //Generate getter
           if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -238,7 +240,7 @@ trait APIGenerator extends ClassGenerator {
     val formatedAddMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
     res += "\nfun add" + formatedAddMethodName
     res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ")\n"
-    res += generateAddAllMethod(cls,ref,typeRefName)
+    res += generateAddAllMethod(cls, ref, typeRefName)
     return res
   }
 
