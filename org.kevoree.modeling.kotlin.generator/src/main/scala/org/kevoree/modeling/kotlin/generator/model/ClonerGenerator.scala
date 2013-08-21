@@ -132,7 +132,7 @@ trait ClonerGenerator {
             "Internal"
           }
           val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
-          if (contained.getUpperBound == -1) {
+          if (contained.getUpperBound == -1 || contained.getUpperBound > 1) {
             // multiple values
             buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
             buffer.println("(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
