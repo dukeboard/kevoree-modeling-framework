@@ -170,7 +170,7 @@ trait JavaAPIGenerator extends ClassGenerator {
           }
 
           pr.print("public @org.jetbrains.annotations.NotNull "+returnType+" ")
-          pr.print(" _"+ op.getName+" ")
+          pr.print(op.getName+" ")
           pr.print("(")
           var isFirst = true
           var i = 0;
