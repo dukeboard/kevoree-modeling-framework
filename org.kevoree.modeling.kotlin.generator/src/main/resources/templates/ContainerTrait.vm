@@ -74,7 +74,7 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
 
 #if(${ctx.isGenTrace()})
     #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
-    fun generateDiffTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, inter : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
+    fun generateDiffTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, inter : Boolean, ref : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
 #end
 
 #if($ctx.generateEvents())

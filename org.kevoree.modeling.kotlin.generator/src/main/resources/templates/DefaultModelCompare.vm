@@ -21,29 +21,35 @@ override public fun createSequence(): org.kevoree.modeling.api.trace.TraceSequen
 }
 
 override public fun diff(origin: KMFContainer, target: KMFContainer): TraceSequence {
-        return createSequence().populate(internal_diff(origin, target, false));
+        return createSequence().populate(internal_diff(origin, target, false,false));
     }
+
+override public fun merge(origin: KMFContainer, target: KMFContainer): TraceSequence {
+        return createSequence().populate(internal_diff(origin, target, false,true));
+}
 
 override public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequence {
-        return createSequence().populate(internal_diff(origin, target, true));
+        return createSequence().populate(internal_diff(origin, target, true,false));
     }
 
-    private fun internal_diff(origin: KMFContainer, target: KMFContainer, inter: Boolean): List<ModelTrace> {
+    private fun internal_diff(origin: KMFContainer, target: KMFContainer, inter: Boolean, merge : Boolean): List<ModelTrace> {
         val traces = ArrayList<ModelTrace>()
+        val tracesRef = ArrayList<ModelTrace>()
         val objectsMap = HashMap<String, ${ctx.getKevoreeContainerImplFQN()}>()
-        traces.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter))
-                #if($ctx.jS)
-                    for(child in collectAll(origin)){
-                #else
-                    for(child in origin.containedAllElements()){
-                #end
-            val childPath = child.path();
-            if(childPath != null){
-                objectsMap.put(child.path()!!, child as ${ctx.getKevoreeContainerImplFQN()});
-            } else {
-                throw Exception("Null child path " + child);
-            }
-        }
+        traces.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter,false))
+        tracesRef.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter,true))
+            #if($ctx.jS)
+                for(child in collectAll(origin)){
+            #else
+                for(child in origin.containedAllElements()){
+            #end
+                    val childPath = child.path();
+                    if(childPath != null){
+                        objectsMap.put(child.path()!!, child as ${ctx.getKevoreeContainerImplFQN()});
+                    } else {
+                        throw Exception("Null child path " + child);
+                    }
+                }
             #if($ctx.jS)
                 for(child in collectAll(target)){
             #else
@@ -55,12 +61,14 @@ override public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequ
                     if(inter){
                         traces.add(ModelAddTrace(child.eContainer()!!.path()!!, child.getRefInParent()!!, child.path(), child.metaClassName()))
                     }
-                    traces.addAll(objectsMap.get(childPath)!!.generateDiffTraces(child, inter))
+                    traces.addAll(objectsMap.get(childPath)!!.generateDiffTraces(child, inter,false))
+                    tracesRef.addAll(objectsMap.get(childPath)!!.generateDiffTraces(child, inter,true))
                     objectsMap.remove(childPath) //drop from to process elements
                 } else {
                     if(!inter){
                         traces.add(ModelAddTrace(child.eContainer()!!.path()!!, child.getRefInParent()!!, child.path(), child.metaClassName()))
-                        traces.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as KMFContainer, true))
+                        traces.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as KMFContainer, true,false))
+                        tracesRef.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as KMFContainer, true,true))
                     }
                 }
             } else {
@@ -69,13 +77,15 @@ override public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequ
         }
         if(!inter){
             //if diff
-            for(diffChild in objectsMap.values()){
-                traces.add(ModelRemoveTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path()!!))
+            if(!merge){
+                for(diffChild in objectsMap.values()){
+                    traces.add(ModelRemoveTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path()!!))
+                }
             }
         }
+        traces.addAll(tracesRef);
         return traces;
     }
-
                 #if($ctx.jS)
                     private fun collectAll(obj : KMFContainer) : List<KMFContainer> {
                         val result = java.util.ArrayList<KMFContainer>()

@@ -67,18 +67,25 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             if(trace is ModelRemoveTrace){
                 val castedTrace = trace as ModelRemoveTrace
                 tryClosePending(trace.srcPath);
+                var tempTarget: KMFContainer? = targetModel;
                 if(trace.srcPath != ""){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    tempTarget = targetModel.findByPath(castedTrace.srcPath) as? KMFContainer;
                 }
-                target.reflexiveMutator(ActionType.REMOVE, castedTrace.refName, targetModel.findByPath(castedTrace.objPath))
+                if(tempTarget != null){
+                    //Potentially null if top tree already dropped
+                    tempTarget!!.reflexiveMutator(ActionType.REMOVE, castedTrace.refName, targetModel.findByPath(castedTrace.objPath))
+                }
             }
             if(trace is ModelRemoveAllTrace){
                 val castedTrace = trace as ModelRemoveAllTrace
                 tryClosePending(trace.srcPath);
+                var tempTarget: KMFContainer? = targetModel;
                 if(trace.srcPath != ""){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    tempTarget = targetModel.findByPath(castedTrace.srcPath) as? KMFContainer;
                 }
-                target.reflexiveMutator(ActionType.REMOVE_ALL, castedTrace.refName, null)
+                if(tempTarget != null){
+                    tempTarget!!.reflexiveMutator(ActionType.REMOVE_ALL, castedTrace.refName, null)
+                }
             }
             if(trace is ModelSetTrace){
                 val castedTrace = trace as ModelSetTrace

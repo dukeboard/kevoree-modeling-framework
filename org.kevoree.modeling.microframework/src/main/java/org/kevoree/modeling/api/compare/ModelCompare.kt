@@ -17,6 +17,8 @@ trait ModelCompare {
 
  fun inter(origin: KMFContainer, target: KMFContainer): TraceSequence
 
+ fun merge(origin: KMFContainer, target: KMFContainer) : TraceSequence
+
  fun createSequence() : TraceSequence
 
 }

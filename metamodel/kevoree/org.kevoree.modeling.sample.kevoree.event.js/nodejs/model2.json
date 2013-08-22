@@ -1,0 +1,512 @@
+{ "eClass":"org.kevoree:ContainerRoot" ,
+ "generated_KMF_ID":"5747967281377157190108",
+"typeDefinitions": [
+{ "eClass":"org.kevoree:GroupType" ,
+ "name":"AutoBasicGroup",
+ "factoryBean":"org.kevoree.library.AutoBasicGroupFactory",
+ "bean":"org.kevoree.library.AutoBasicGroup",
+ "abstract":false,
+ "deployUnits": ["deployUnits[4054868671376270261370]"],
+ "superTypes": ["typeDefinitions[BasicGroup]"],
+"dictionaryType":{ "eClass":"org.kevoree:DictionaryType" ,
+ "generated_KMF_ID":"16822486221376270261374",
+"attributes": [
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"port",
+ "optional":true,
+ "state":false,
+ "fragmentDependant":true}
+,
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"ssl",
+ "optional":false,
+ "state":false,
+ "datatype":"enum=true,false",
+ "fragmentDependant":false}
+,
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"ip",
+ "optional":true,
+ "state":false,
+ "fragmentDependant":true}
+]
+,
+"defaultValues": [
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"8000",
+ "generated_KMF_ID":"19303771991376270261374",
+ "attribute":"typeDefinitions[AutoBasicGroup]/dictionaryType[16822486221376270261374]/attributes[port]"}
+,
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"0.0.0.0",
+ "generated_KMF_ID":"18141283641376270261374",
+ "attribute":"typeDefinitions[AutoBasicGroup]/dictionaryType[16822486221376270261374]/attributes[ip]"}
+,
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"false",
+ "generated_KMF_ID":"825936421376270261374",
+ "attribute":"typeDefinitions[AutoBasicGroup]/dictionaryType[16822486221376270261374]/attributes[ssl]"}
+]
+}
+}
+,
+{ "eClass":"org.kevoree:NodeType" ,
+ "name":"StatefulJavaSENode",
+ "factoryBean":"org.kevoree.library.defaultNodeTypes.StatefulJavaSENodeFactory",
+ "bean":"org.kevoree.library.defaultNodeTypes.StatefulJavaSENode",
+ "abstract":false,
+ "deployUnits": ["deployUnits[635942561376270270383]"],
+ "superTypes": ["typeDefinitions[JavaSENode]"],
+ "managedPrimitiveTypes": ["adaptationPrimitiveTypes[UpdateFragmentBinding]",
+"adaptationPrimitiveTypes[UpdateDictionaryInstance]",
+"adaptationPrimitiveTypes[UpdateBinding]",
+"adaptationPrimitiveTypes[RemoveThirdParty]",
+"adaptationPrimitiveTypes[RemoveInstance]",
+"adaptationPrimitiveTypes[RemoveType]",
+"adaptationPrimitiveTypes[StartInstance]",
+"adaptationPrimitiveTypes[UpdateType]",
+"adaptationPrimitiveTypes[AddFragmentBinding]",
+"adaptationPrimitiveTypes[StartThirdParty]",
+"adaptationPrimitiveTypes[AddBinding]",
+"adaptationPrimitiveTypes[RemoveBinding]",
+"adaptationPrimitiveTypes[StopInstance]",
+"adaptationPrimitiveTypes[UpdateDeployUnit]",
+"adaptationPrimitiveTypes[RemoveFragmentBinding]",
+"adaptationPrimitiveTypes[UpdateInstance]",
+"adaptationPrimitiveTypes[AddDeployUnit]",
+"adaptationPrimitiveTypes[RemoveDeployUnit]",
+"adaptationPrimitiveTypes[AddThirdParty]",
+"adaptationPrimitiveTypes[AddType]",
+"adaptationPrimitiveTypes[AddInstance]"],
+"dictionaryType":{ "eClass":"org.kevoree:DictionaryType" ,
+ "generated_KMF_ID":"12390468421376270270396",
+"attributes": [
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"coreLogLevel",
+ "optional":true,
+ "state":false,
+ "datatype":"enum=INFO,WARN,DEBUG,ERROR,FINE",
+ "fragmentDependant":false}
+,
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"logLevel",
+ "optional":true,
+ "state":false,
+ "datatype":"enum=INFO,WARN,DEBUG,ERROR,FINE",
+ "fragmentDependant":false}
+,
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"storageLocation",
+ "optional":true,
+ "state":false,
+ "fragmentDependant":false}
+]
+,
+"defaultValues": [
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"WARN",
+ "generated_KMF_ID":"52724511376270270396",
+ "attribute":"typeDefinitions[StatefulJavaSENode]/dictionaryType[12390468421376270270396]/attributes[coreLogLevel]"}
+,
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"INFO",
+ "generated_KMF_ID":"5113485351376270270396",
+ "attribute":"typeDefinitions[StatefulJavaSENode]/dictionaryType[12390468421376270270396]/attributes[logLevel]"}
+,
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "generated_KMF_ID":"786247991376270270399",
+ "attribute":"typeDefinitions[StatefulJavaSENode]/dictionaryType[12390468421376270270396]/attributes[storageLocation]"}
+]
+}
+,
+"managedPrimitiveTypeRefs": [
+{ "eClass":"org.kevoree:AdaptationPrimitiveTypeRef" ,
+ "maxTime":"120000",
+ "generated_KMF_ID":"5672544301376270270398",
+ "ref":"adaptationPrimitiveTypes[AddDeployUnit]"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveTypeRef" ,
+ "maxTime":"120000",
+ "generated_KMF_ID":"11652959771376270270398",
+ "ref":"adaptationPrimitiveTypes[UpdateDeployUnit]"}
+]
+}
+,
+{ "eClass":"org.kevoree:NodeType" ,
+ "name":"JavaSENode",
+ "factoryBean":"org.kevoree.library.defaultNodeTypes.JavaSENodeFactory",
+ "bean":"org.kevoree.library.defaultNodeTypes.JavaSENode",
+ "abstract":false,
+ "deployUnits": ["deployUnits[635942561376270270383]"],
+ "managedPrimitiveTypes": ["adaptationPrimitiveTypes[UpdateFragmentBinding]",
+"adaptationPrimitiveTypes[UpdateBinding]",
+"adaptationPrimitiveTypes[UpdateDictionaryInstance]",
+"adaptationPrimitiveTypes[RemoveThirdParty]",
+"adaptationPrimitiveTypes[RemoveType]",
+"adaptationPrimitiveTypes[RemoveInstance]",
+"adaptationPrimitiveTypes[StartInstance]",
+"adaptationPrimitiveTypes[UpdateType]",
+"adaptationPrimitiveTypes[AddFragmentBinding]",
+"adaptationPrimitiveTypes[StartThirdParty]",
+"adaptationPrimitiveTypes[AddBinding]",
+"adaptationPrimitiveTypes[RemoveBinding]",
+"adaptationPrimitiveTypes[StopInstance]",
+"adaptationPrimitiveTypes[UpdateDeployUnit]",
+"adaptationPrimitiveTypes[UpdateInstance]",
+"adaptationPrimitiveTypes[RemoveFragmentBinding]",
+"adaptationPrimitiveTypes[RemoveDeployUnit]",
+"adaptationPrimitiveTypes[AddDeployUnit]",
+"adaptationPrimitiveTypes[AddThirdParty]",
+"adaptationPrimitiveTypes[AddInstance]",
+"adaptationPrimitiveTypes[AddType]"],
+"dictionaryType":{ "eClass":"org.kevoree:DictionaryType" ,
+ "generated_KMF_ID":"1574385021376270270383",
+"attributes": [
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"coreLogLevel",
+ "optional":true,
+ "state":false,
+ "datatype":"enum=INFO,WARN,DEBUG,ERROR,FINE",
+ "fragmentDependant":false}
+,
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"logLevel",
+ "optional":true,
+ "state":false,
+ "datatype":"enum=INFO,WARN,DEBUG,ERROR,FINE",
+ "fragmentDependant":false}
+]
+,
+"defaultValues": [
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"INFO",
+ "generated_KMF_ID":"3690500101376270270383",
+ "attribute":"typeDefinitions[JavaSENode]/dictionaryType[1574385021376270270383]/attributes[logLevel]"}
+,
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"WARN",
+ "generated_KMF_ID":"6907455341376270270383",
+ "attribute":"typeDefinitions[JavaSENode]/dictionaryType[1574385021376270270383]/attributes[coreLogLevel]"}
+]
+}
+,
+"managedPrimitiveTypeRefs": [
+{ "eClass":"org.kevoree:AdaptationPrimitiveTypeRef" ,
+ "maxTime":"120000",
+ "generated_KMF_ID":"16379196461376270270394",
+ "ref":"adaptationPrimitiveTypes[UpdateDeployUnit]"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveTypeRef" ,
+ "maxTime":"120000",
+ "generated_KMF_ID":"16952505651376270270390",
+ "ref":"adaptationPrimitiveTypes[AddDeployUnit]"}
+]
+}
+,
+{ "eClass":"org.kevoree:GroupType" ,
+ "name":"BasicGroup",
+ "factoryBean":"org.kevoree.library.BasicGroupFactory",
+ "bean":"org.kevoree.library.BasicGroup",
+ "abstract":false,
+ "deployUnits": ["deployUnits[4054868671376270261370]"],
+"dictionaryType":{ "eClass":"org.kevoree:DictionaryType" ,
+ "generated_KMF_ID":"6179354011376270261370",
+"attributes": [
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"port",
+ "optional":true,
+ "state":false,
+ "fragmentDependant":true}
+,
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"ssl",
+ "optional":false,
+ "state":false,
+ "datatype":"enum=true,false",
+ "fragmentDependant":false}
+,
+{ "eClass":"org.kevoree:DictionaryAttribute" ,
+ "name":"ip",
+ "optional":true,
+ "state":false,
+ "fragmentDependant":true}
+]
+,
+"defaultValues": [
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"8000",
+ "generated_KMF_ID":"4093677151376270261370",
+ "attribute":"typeDefinitions[BasicGroup]/dictionaryType[6179354011376270261370]/attributes[port]"}
+,
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"false",
+ "generated_KMF_ID":"16499590541376270261370",
+ "attribute":"typeDefinitions[BasicGroup]/dictionaryType[6179354011376270261370]/attributes[ssl]"}
+,
+{ "eClass":"org.kevoree:DictionaryValue" ,
+ "value":"0.0.0.0",
+ "generated_KMF_ID":"18530646641376270261370",
+ "attribute":"typeDefinitions[BasicGroup]/dictionaryType[6179354011376270261370]/attributes[ip]"}
+]
+}
+}
+]
+,
+"repositories": [
+{ "eClass":"org.kevoree:Repository" ,
+ "url":"http://repo.maven.apache.org/maven2"}
+,
+{ "eClass":"org.kevoree:Repository" ,
+ "url":"https://oss.sonatype.org/content/groups/public/"}
+,
+{ "eClass":"org.kevoree:Repository" ,
+ "url":"https://oss.sonatype.org/content/repositories/snapshots"}
+]
+,
+"libraries": [
+{ "eClass":"org.kevoree:TypeLibrary" ,
+ "name":"Android",
+ "subTypes": ["typeDefinitions[AutoBasicGroup]",
+"typeDefinitions[BasicGroup]"]}
+,
+{ "eClass":"org.kevoree:TypeLibrary" ,
+ "name":"JavaSE",
+ "subTypes": ["typeDefinitions[StatefulJavaSENode]",
+"typeDefinitions[AutoBasicGroup]",
+"typeDefinitions[JavaSENode]",
+"typeDefinitions[BasicGroup]"]}
+]
+,
+"deployUnits": [
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.kcl",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"7882304041376270261372",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.framework",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"13019811681376270261371",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.jetbrains.kotlin",
+ "unitName":"kotlin-stdlib",
+ "version":"0.5.998",
+ "type":"jar",
+ "generated_KMF_ID":"19098738951376270261373",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree.tools",
+ "unitName":"org.kevoree.tools.annotation.api",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"16764840661376270261373",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree.corelibrary.javase",
+ "unitName":"org.kevoree.library.javase.javaseNode",
+ "version":"2.0.0-SNAPSHOT",
+ "hashcode":"201308120317341",
+ "type":"jar",
+ "generated_KMF_ID":"635942561376270270383",
+ "requiredLibs": ["deployUnits[7882304041376270261372]",
+"deployUnits[13019811681376270261371]",
+"deployUnits[19098738951376270261373]",
+"deployUnits[16764840661376270261373]",
+"deployUnits[816674701376270261372]",
+"deployUnits[20154256111376270261372]",
+"deployUnits[3431178571376270261372]",
+"deployUnits[16866112931376270261371]",
+"deployUnits[21092653321376270261373]",
+"deployUnits[918610511376270261372]",
+"deployUnits[8124815561376270261373]",
+"deployUnits[9986799461376270261372]",
+"deployUnits[10521617381376270261371]",
+"deployUnits[19412685371376270270384]",
+"deployUnits[15802918811376270270384]"],
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.model.context",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"816674701376270261372",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree.modeling",
+ "unitName":"org.kevoree.modeling.microframework",
+ "version":"1.4.4",
+ "type":"jar",
+ "generated_KMF_ID":"20154256111376270261372",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.adaptation.model",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"3431178571376270261372",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.api",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"16866112931376270261371",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.log",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"21092653321376270261373",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.model",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"918610511376270261372",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.jetbrains.kotlin",
+ "unitName":"kotlin-runtime",
+ "version":"0.5.998",
+ "type":"jar",
+ "generated_KMF_ID":"8124815561376270261373",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"fr.inria.jfilter",
+ "unitName":"jfilter-library",
+ "version":"1.3",
+ "type":"jar",
+ "generated_KMF_ID":"9986799461376270261372",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree.tools",
+ "unitName":"org.kevoree.tools.javase.framework",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"10521617381376270261371",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree",
+ "unitName":"org.kevoree.kompare",
+ "version":"2.0.4",
+ "type":"jar",
+ "generated_KMF_ID":"19412685371376270270384",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.jgrapht",
+ "unitName":"jgrapht-jdk1.5",
+ "version":"0.7.3",
+ "type":"jar",
+ "generated_KMF_ID":"15802918811376270270384",
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+,
+{ "eClass":"org.kevoree:DeployUnit" ,
+ "groupName":"org.kevoree.corelibrary.javase",
+ "unitName":"org.kevoree.library.javase.jexxus",
+ "version":"2.0.0-SNAPSHOT",
+ "hashcode":"201308120317291",
+ "type":"jar",
+ "generated_KMF_ID":"4054868671376270261370",
+ "requiredLibs": ["deployUnits[7882304041376270261372]",
+"deployUnits[13019811681376270261371]",
+"deployUnits[21092653321376270261373]",
+"deployUnits[19098738951376270261373]",
+"deployUnits[918610511376270261372]",
+"deployUnits[16764840661376270261373]",
+"deployUnits[9986799461376270261372]",
+"deployUnits[8124815561376270261373]",
+"deployUnits[816674701376270261372]",
+"deployUnits[10521617381376270261371]",
+"deployUnits[20154256111376270261372]",
+"deployUnits[3431178571376270261372]",
+"deployUnits[16866112931376270261371]"],
+ "targetNodeType":"typeDefinitions[JavaSENode]"}
+]
+,
+"adaptationPrimitiveTypes": [
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"UpdateFragmentBinding"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"UpdateBinding"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"UpdateDictionaryInstance"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"RemoveThirdParty"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"RemoveType"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"RemoveInstance"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"StartInstance"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"UpdateType"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"AddFragmentBinding"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"StartThirdParty"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"AddBinding"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"RemoveBinding"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"StopInstance"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"UpdateDeployUnit"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"RemoveFragmentBinding"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"UpdateInstance"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"AddDeployUnit"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"RemoveDeployUnit"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"AddThirdParty"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"AddType"}
+,
+{ "eClass":"org.kevoree:AdaptationPrimitiveType" ,
+ "name":"AddInstance"}
+]
+}

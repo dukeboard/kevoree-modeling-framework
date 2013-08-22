@@ -4,7 +4,7 @@
 
 #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
 
-override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
+override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, inter : Boolean, ref : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
 
     var similarObjCasted : ${FQNHelper.fqn($ctx, $currentClass)}? = null
     #if($ctx.getJS())
@@ -20,7 +20,7 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
     var attVal2String : String? = null;
     var hashLoop : java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>? = null;
     var hashResult : java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>? = null;
-
+    if(!ref){
      #foreach( $att in $currentClass.eAllAttributes )
           attVal = get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()
           attVal2 = similarObjCasted?.get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()
@@ -35,6 +35,7 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
                 }
           }
      #end
+     } else {
      #foreach( $ref in $currentClass.eAllReferences )
          #if(!$ref.isContainment());
               #if($ref.isMany())
@@ -90,6 +91,7 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
               #end
          #end
      #end
+     }
      return traces;
 }
 
