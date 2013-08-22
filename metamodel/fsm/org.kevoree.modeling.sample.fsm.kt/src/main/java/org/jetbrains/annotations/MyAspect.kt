@@ -13,22 +13,28 @@ import org.fsmsample.FSM
  * Time: 10:03
  */
 
-public aspect trait MyAspect : Action {
-
-    override fun run(p: Boolean): String {
+/*
+public aspect trait MyAspect2 : Action {
+    //internal comment
+    override fun run2(p: Boolean): String {
         return "";
     }
-
+}
+*/
+/** Hi */
+public aspect trait MyAspect : Action {
+    override fun run(sync: Boolean): String {
+        return "";
+    }
 }
 
-public aspect trait MyStateAspect : FSM{
-    //var currentState: State
+public aspect trait MyStateAspect : FSM {
+
     // Operational semantic
-    fun run() {
-        var currentState: State? = null
-        // reset if there is no current state
+    override fun run() {
+        var currentState: State? = this.getCurrentState();
         if (currentState == null) {
-            currentState = this.getInitialState()!!
+            currentState = this.getInitialState()
         }
         var str = "init"
         while (str != "quit") {
@@ -43,7 +49,7 @@ public aspect trait MyStateAspect : FSM{
                 System.console()?.printf(str)
             System.console()?.printf("stepping...")
             try {
-                var textRes = (currentState as StateAspect).step(str);
+                var textRes = currentState!!.step(str);
                 if (textRes == null || textRes == ""){
                     textRes = "NC";
                 }
@@ -62,7 +68,7 @@ public aspect trait MyStateAspect : FSM{
 }
 
 public aspect trait StateAspect : State { // Go to the next state
-    public fun step(c: String): String {
+    override public fun step(c: String): String {
 
         // Get the valid transitions
         var validTransitions = this.getOutgoingTransition().filter{ t -> t.getInput().equals(c) }
@@ -71,13 +77,13 @@ public aspect trait StateAspect : State { // Go to the next state
         if(validTransitions.size > 1) throw  NonDeterminism()
 
         // Fire the transition
-        return (validTransitions.get(0) as TransitionAspect ).fire()
+        return validTransitions.get(0).fire()
     }
 }
 
-public trait TransitionAspect : Transition {
+public aspect trait TransitionAspect : Transition {
     // Fire the transition
-    public fun fire(): String {
+    override public fun fire(): String {
         // update FSM current state
         this.getSource()?.getOwningFSM()?.setCurrentState(this.getTarget())
         return this.getOutput()

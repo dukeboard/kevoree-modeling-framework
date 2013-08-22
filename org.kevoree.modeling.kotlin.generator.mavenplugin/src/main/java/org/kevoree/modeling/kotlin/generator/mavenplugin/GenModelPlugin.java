@@ -63,6 +63,7 @@ import org.jetbrains.k2js.config.MetaInfServices;
 import org.kevoree.modeling.aspect.AspectClass;
 import org.kevoree.modeling.aspect.AspectMethod;
 import org.kevoree.modeling.aspect.AspectParam;
+import org.kevoree.modeling.aspect.CommentCleaner;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
@@ -299,14 +300,15 @@ public class GenModelPlugin extends AbstractMojo {
             collectFiles(sourceFile.getAbsolutePath(), sourceKotlinFileList, ".kt");
         }
 
-        Pattern p = Pattern.compile(".*aspect\\s*trait\\s*([a-zA-Z]*)\\s*:\\s*([.a-zA-Z]*).*");
-        Pattern pfun = Pattern.compile(".*fun\\s*([a-zA-Z]*)\\s*[(](.*)[)](\\s*:\\s*[.a-zA-Z]*)?.*");
-        Pattern packagePattern = Pattern.compile(".*package ([.a-zA-Z]*).*");
+        Pattern p = Pattern.compile(".*aspect\\s*trait\\s*([a-zA-Z_]*)\\s*:\\s*([.a-zA-Z_]*).*");
+        Pattern pfun = Pattern.compile(".*fun\\s*([a-zA-Z_]*)\\s*[(](.*)[)](\\s*:\\s*[.a-zA-Z_]*)?.*");
+        Pattern packagePattern = Pattern.compile(".*package ([.a-zA-Z_]*).*");
+        CommentCleaner cleaner = new CommentCleaner();
         for (File kotlinFile : sourceKotlinFileList) {
             BufferedReader br;
             String packageName = null;
             try {
-                br = new BufferedReader(new FileReader(kotlinFile));
+                br = new BufferedReader(new StringReader(cleaner.cleanComment(kotlinFile)));
                 String line;
                 AspectClass currentAspect = null;
                 while ((line = br.readLine()) != null) {
@@ -344,6 +346,13 @@ public class GenModelPlugin extends AbstractMojo {
                         currentAspect.name = m.group(1).trim();
                         currentAspect.aspectedClass = m.group(2).trim();
                         currentAspect.packageName = packageName.trim();
+                    } else {
+                        if( line.contains(" trait ") || line.contains(" class ") ){
+                            if(currentAspect != null){
+                                cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
+                            }
+                            currentAspect = null;
+                        }
                     }
                     Matcher packageP = packagePattern.matcher(line);
                     if (packageP.matches()) {
@@ -390,8 +399,6 @@ public class GenModelPlugin extends AbstractMojo {
         for (AspectClass aspect : cacheAspects.values()) {
             System.out.println(aspect.toString());
         }
-
-
         GenerationContext ctx = new GenerationContext();
         ctx.setRootSrcDirectory(sourceFile);
         ctx.aspects_$eq(cacheAspects);

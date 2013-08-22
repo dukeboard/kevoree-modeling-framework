@@ -161,18 +161,38 @@ trait JavaAPIGenerator extends ClassGenerator {
     /* next we generated custom method */
     cls.getEAllOperations.foreach {
       op =>
-        val params = new util.ArrayList[String]()
-        op.getEParameters.foreach {
-          p =>
-            params.add(ProcessorHelper.convertJType(p.getEType.getName));
-            params.add(p.getName);
-        }
-        if (op.getEType != null) {
-          jwriter.beginMethod(ProcessorHelper.convertJType(op.getEType.getName), op.getName, Modifier.PUBLIC | Modifier.ABSTRACT, params, Collections.emptyList[String]())
+        if (op.getEType != null && op.getEType.getName != null && op.getEType.getName != "") {
+          pr.print("public @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(op.getEType.getName))
+          pr.print(" "+ op.getName+" ")
+          pr.print("(")
+          var isFirst = true
+          op.getEParameters.foreach {
+            p =>
+              if(!isFirst){
+                pr.print(",")
+              }
+              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName));
+              pr.print(" "+p.getName)
+              isFirst = false
+          }
+          pr.println(");")
+
         } else {
-          jwriter.beginMethod("void", op.getName, Modifier.PUBLIC | Modifier.ABSTRACT, params, Collections.emptyList[String]())
+          pr.print("public @org.jetbrains.annotations.NotNull void ")
+          pr.print(" "+ op.getName+" ")
+          pr.print("(")
+          var isFirst = true
+          op.getEParameters.foreach {
+            p =>
+              if(!isFirst){
+                pr.print(",")
+              }
+              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName));
+              pr.print(p.getName)
+              isFirst = false
+          }
+          pr.println(");")
         }
-        jwriter.endMethod()
     }
 
   }
