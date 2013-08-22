@@ -32,37 +32,8 @@ public aspect trait MyStateAspect : FSM {
 
     // Operational semantic
     override fun run() {
-        var currentState: State? = this.getCurrentState();
-        if (currentState == null) {
-            currentState = this.getInitialState()
-        }
-        var str = "init"
-        while (str != "quit") {
-            java.lang.System.console()?.printf("Current state : " + currentState!!.getName())
-            str = System.console()?.readLine("give me a letter : ")!!
-            if (str == "quit") {
-                System.console()?.printf("")
-                System.console()?.printf("quitting ...")
-            } else if (str == "print") {
-                System.console()?.printf("")
-            } else
-                System.console()?.printf(str)
-            System.console()?.printf("stepping...")
-            try {
-                var textRes = currentState!!.step(str);
-                if (textRes == null || textRes == ""){
-                    textRes = "NC";
-                }
-                System.console()?.printf("string produced : " + textRes)
-            } catch (
-                    err: NonDeterminism) {
-                System.console()?.printf(err.toString())
-                str = "quit"
-            } catch (err: NoTransition) {
-                System.console()?.printf(err.toString())
-                str = "quit"
-            }
-        }
+         //TODO
+        this.getCurrentState()?.step("SayHello To KevAspect")
     }
 
 }

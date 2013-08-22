@@ -696,7 +696,14 @@ public class GenModelPlugin extends AbstractMojo {
                     outputFile.write(compiler.toSource());
                     outputFile.close();
 
+                    if(outputUtil.exists()){
+                        FileUtils.deleteDirectory(outputUtil);
+                    }
+
+
                 }
+
+
 
 
             } else {
