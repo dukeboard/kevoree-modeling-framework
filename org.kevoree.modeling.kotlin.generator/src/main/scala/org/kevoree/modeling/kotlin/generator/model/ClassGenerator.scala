@@ -359,7 +359,17 @@ trait ClassGenerator extends ClonerGenerator {
         }
 
         if (ctx.getJS()) {
-          pr.println("this." + methodNameClean + "(value as " + valueType + ")")
+
+          valueType match {
+            case "Boolean" => {
+              pr.println("this." + methodNameClean + "(\"true\" == value || true == value)")
+            }
+            case _ => {
+              pr.println("this." + methodNameClean + "(value as " + valueType + ")")
+            }
+          }
+
+
         } else {
           valueType match {
             case "String" => {

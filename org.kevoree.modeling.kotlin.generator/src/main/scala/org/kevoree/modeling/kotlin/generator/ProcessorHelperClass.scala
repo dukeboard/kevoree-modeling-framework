@@ -107,7 +107,7 @@ class ProcessorHelperClass {
       case "char" | "Char" => "Char"
       case "java.math.BigInteger" => "java.math.BigInteger"
       case "java.lang.Class" => "Class<out jet.Any?>"
-      case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
+      case _ => /*System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'");*/ "Any"
     }
   }
 

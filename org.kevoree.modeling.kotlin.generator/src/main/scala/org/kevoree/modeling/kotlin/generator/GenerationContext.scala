@@ -173,7 +173,7 @@ class GenerationContext {
       val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
       resource.load(null)
       EcoreUtil.resolveAll(resource)
-     // autoResolve(resource,rs)
+      autoResolve(resource,rs)
 
       /* select all root */
       resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
@@ -181,6 +181,7 @@ class GenerationContext {
           checkEID(modelElm.asInstanceOf[EClass], resource)
       }
       rs.getResources.add(resource)
+      EcoreUtil.resolveAll(rs)
     }
     rs
   }
