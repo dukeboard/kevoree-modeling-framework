@@ -174,6 +174,8 @@ class GenerationContext {
       val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
       resource.load(null)
       EcoreUtil.resolveAll(resource)
+      autoResolve(resource,rs)
+
       /* select all root */
       resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
         modelElm =>
@@ -182,6 +184,16 @@ class GenerationContext {
       rs.getResources.add(resource)
     }
     rs
+  }
+
+  def autoResolve(r : Resource, rs : ResourceSet){
+    import scala.collection.JavaConversions._
+     rs.getAllContents.foreach{
+       content =>
+       if(content.toString.toLowerCase.contains("SequenceMessage".toLowerCase)){
+         System.out.println(content.toString);
+       }
+     }
   }
 
   /**

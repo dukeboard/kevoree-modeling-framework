@@ -113,17 +113,17 @@ trait JavaAPIGenerator extends ClassGenerator {
       att =>
       //Generate getter
         val methodName = "get" + toCamelCase(att.getName)
-        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || ProcessorHelper.convertType(att.getEAttributeType).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
-          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType), methodName, Modifier.PUBLIC | Modifier.ABSTRACT)
+        if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any" || ProcessorHelper.convertType(att.getEAttributeType,ctx).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
+          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType,ctx), methodName, Modifier.PUBLIC | Modifier.ABSTRACT)
         } else {
           jwriter.emitAnnotation("org.jetbrains.annotations.NotNull")
-          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType), methodName, Modifier.PUBLIC | Modifier.ABSTRACT)
+          jwriter.beginMethod(ProcessorHelper.convertJType(att.getEAttributeType,ctx), methodName, Modifier.PUBLIC | Modifier.ABSTRACT)
         }
         jwriter.endMethod()
 
         //generate setter
         pr.print("\n public void set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-        pr.print("(@org.jetbrains.annotations.NotNull " + ProcessorHelper.convertJType(att.getEAttributeType) + " p_" + ProcessorHelper.protectReservedJWords(att.getName) + " ); \n")
+        pr.print("(@org.jetbrains.annotations.NotNull " + ProcessorHelper.convertJType(att.getEAttributeType,ctx) + " p_" + ProcessorHelper.protectReservedJWords(att.getName) + " ); \n")
     }
 
     cls.getEReferences.foreach {

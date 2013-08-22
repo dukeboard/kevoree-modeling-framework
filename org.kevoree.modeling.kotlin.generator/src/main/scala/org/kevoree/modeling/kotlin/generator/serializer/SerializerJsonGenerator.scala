@@ -299,15 +299,15 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
                     buffer.println("ostream.println(',')")
 
                     buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\")")
-                    if (!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
+                    if (!ProcessorHelper.convertType(att.getEAttributeType,ctx).equals("Boolean")) {
                       buffer.println("ostream.print(\"\\\"\")")
                     }
-                    if (ProcessorHelper.convertType(att.getEAttributeType) == "String") {
+                    if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "String") {
                       buffer.println("escapeJson(ostream, selfObject." + getGetter(att.getName) + "())")
                     } else {
                       buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
                     }
-                    if (!ProcessorHelper.convertType(att.getEAttributeType).equals("Boolean")) {
+                    if (!ProcessorHelper.convertType(att.getEAttributeType,ctx).equals("Boolean")) {
                       buffer.println("ostream.print('\"')")
                     }
                     buffer.println("}")
@@ -395,7 +395,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
               buffer.println("" + subClass.getEReferenceType.getName + "toJson(selfObject." + getGetter(subClass.getName) + "()!!,addrs,ostream)")
             }
           }
-          case -1 => {
+          case _ if(subClass.getUpperBound == -1 || subClass.getUpperBound > 1) => {
             buffer.println("if(selfObject." + getGetter(subClass.getName) + "().size() > 0){")
             buffer.println("ostream.println(',')")
             buffer.println("ostream.println(\"\\\"" + subClass.getName + "\\\": [\")")

@@ -76,9 +76,9 @@ trait ClassGenerator extends ClonerGenerator {
           if (att.isMany) {
             typePre = "List<"
             typePost = ">"
-            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType) + ">()"
+            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ">()"
           }
-          ProcessorHelper.convertType(att.getEAttributeType) match {
+          ProcessorHelper.convertType(att.getEAttributeType,ctx) match {
 
             case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
               if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
@@ -355,7 +355,7 @@ trait ClassGenerator extends ClonerGenerator {
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
           valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
         } else {
-          valueType = ProcessorHelper.convertType(att.getEAttributeType)
+          valueType = ProcessorHelper.convertType(att.getEAttributeType,ctx)
         }
 
         if (ctx.getJS()) {
@@ -498,9 +498,9 @@ trait ClassGenerator extends ClonerGenerator {
           if (att.isMany) {
             typePre = "List<"
             typePost = ">"
-            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType) + ">()"
+            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ">()"
           }
-          ProcessorHelper.convertType(att.getEAttributeType) match {
+          ProcessorHelper.convertType(att.getEAttributeType,ctx) match {
             case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
               if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
                 if (ctx.getJS()) {
@@ -733,7 +733,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (att.isMany) {
             pr.print("List<")
           }
-          ProcessorHelper.convertType(att.getEAttributeType) match {
+          ProcessorHelper.convertType(att.getEAttributeType,ctx) match {
             case "java.lang.String" => pr.print("String")
             case "java.lang.Integer" => pr.print("Int")
             case "java.lang.Boolean" => pr.print("Boolean")
@@ -814,14 +814,14 @@ trait ClassGenerator extends ClonerGenerator {
 
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
               pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? {\n")
-            } else if (ProcessorHelper.convertType(att.getEAttributeType) == "Any") {
+            } else if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any") {
               pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
             } else {
 
-              if (ProcessorHelper.convertType(att.getEAttributeType).contains("Class")) {
-                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "? {\n")
+              if (ProcessorHelper.convertType(att.getEAttributeType,ctx).contains("Class")) {
+                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "? {\n")
               } else {
-                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + " {\n")
               }
 
             }
@@ -831,7 +831,7 @@ trait ClassGenerator extends ClonerGenerator {
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
               pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
             } else {
-              pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
+              pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ") {\n")
             }
             pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
 

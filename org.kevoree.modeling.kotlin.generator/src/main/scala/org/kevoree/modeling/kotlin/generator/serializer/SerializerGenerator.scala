@@ -271,7 +271,7 @@ class SerializerGenerator(ctx: GenerationContext) {
                   } else {
                     buffer.println("if(selfObject." + getGetter(att.getName) + ".toString().notEmpty()){")
                     buffer.println("ostream.print(\" " + att.getName + "=\\\"\")")
-                    if (ProcessorHelper.convertType(att.getEAttributeType) == "String") {
+                    if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "String") {
                       buffer.println("escapeXml(ostream, selfObject." + getGetter(att.getName) + ")")
                     } else {
                       buffer.println("ostream.print(selfObject." + getGetter(att.getName) + ")")

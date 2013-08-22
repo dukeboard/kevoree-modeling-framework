@@ -113,14 +113,14 @@ trait APIGenerator extends ClassGenerator {
         if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls && !att2.getEContainingClass.isAbstract)) {} else {
 
           //Generate getter
-          if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
-            pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "?\n")
+          if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
+            pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "?\n")
           } else {
-            pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "\n")
+            pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "\n")
           }
           //generate setter
           pr.print("\nfun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-          pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") \n")
+          pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ") \n")
         }
     }
 

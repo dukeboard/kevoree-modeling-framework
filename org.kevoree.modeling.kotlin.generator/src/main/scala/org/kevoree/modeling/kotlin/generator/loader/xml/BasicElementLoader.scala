@@ -170,7 +170,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
             pr.println("modelElem." + methName + "(" + FQattTypeName + ".valueOf(valueAtt))")
           }
           else {
-            val attTypeName = ProcessorHelper.convertType(att.getEAttributeType)
+            val attTypeName = ProcessorHelper.convertType(att.getEAttributeType,ctx)
             attTypeName match {
               case "String" => {
                 pr.println("modelElem." + methName + "(unescapeXml(valueAtt))")

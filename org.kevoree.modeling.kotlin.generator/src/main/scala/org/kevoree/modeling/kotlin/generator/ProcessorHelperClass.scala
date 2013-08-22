@@ -56,19 +56,17 @@ class ProcessorHelperClass {
   }
 
 
-  def convertType(aType: EDataType): String = {
+  def convertType(aType: EDataType, ctx : GenerationContext): String = {
     aType match {
-      case theType: EEnum => theType.getName
+      case theType: EEnum => ProcessorHelper.fqn(ctx,theType.getEPackage)+"."+theType.getName
       case _@theType => convertType(theType.getInstanceClassName)
-      //case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + aType.getClass); null
     }
   }
 
-  def convertJType(aType: EDataType): String = {
+  def convertJType(aType: EDataType, ctx : GenerationContext): String = {
     aType match {
-      case theType: EEnum => theType.getName
+      case theType: EEnum => ProcessorHelper.fqn(ctx,theType.getEPackage)+"."+theType.getName
       case _@theType => convertJType(theType.getInstanceClassName)
-      //case _ => throw new UnsupportedOperationException("ProcessorHelper::convertType::No matching found for type: " + aType.getClass); null
     }
   }
 
@@ -282,9 +280,18 @@ class ProcessorHelperClass {
    * @return the Fully Qualified package name
    */
   def fqn(ctx: GenerationContext, pack: EPackage): String = {
+
+    if (pack == null) {
+      if (ctx.getPackagePrefix.isDefined) {
+        return ctx.getPackagePrefix.get
+      } else {
+        return ""
+      }
+    }
+
     ctx.getPackagePrefix match {
       case Some(prefix) => {
-        if (pack.getName.equals("")) {
+        if ("".equals(pack.getName)) {
           prefix
         } else {
           if (prefix.endsWith(".")) {
@@ -314,7 +321,15 @@ class ProcessorHelperClass {
    * @return the Fully Qualified Class name
    */
   def fqn(ctx: GenerationContext, cls: EClassifier): String = {
-    fqn(ctx, cls.getEPackage) + "." + cls.getName
+    if (cls.getEPackage != null) {
+      fqn(ctx, cls.getEPackage) + "." + cls.getName
+    } else {
+      if (ctx.getPackagePrefix.isEmpty) {
+        cls.getName
+      } else {
+        ctx.getPackagePrefix.get + "." + cls.getName
+      }
+    }
   }
 
 

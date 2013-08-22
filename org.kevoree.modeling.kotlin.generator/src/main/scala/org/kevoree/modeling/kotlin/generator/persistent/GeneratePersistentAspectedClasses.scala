@@ -331,21 +331,21 @@ class GeneratePersistentAspectedClasses(ctx: GenerationContext) extends KMFQLFin
             cls.getEAllAttributes.filter{att => !att.getName.equals("generated_KMF_ID")}.foreach {
               att =>
               //Generate getter
-                if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
-                  pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + "? {\n")
+                if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
+                  pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "? {\n")
                 } else {
-                  pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType) + " {\n")
+                  pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + " {\n")
                 }
                 //pr.println(" return getEntityMap().get(\"" + att.getName + "\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
                 /*if(hasID(cls)) {
                   pr.println(" return mapGetter.get" + eClass.getName + "Entity().get(_generated_KMF_ID!! + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
                 } else {
                 */
-                  pr.println(" return mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\") as " + ProcessorHelper.convertType(att.getEAttributeType) + "\n}")
+                  pr.println(" return mapGetter.get" + eClass.getName + "Entity().get(getGenerated_KMF_ID() + \"_"+ProcessorHelper.protectReservedWords(att.getName)+"\") as " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "\n}")
                 //}
                 //generate setter
                 pr.print("\n override fun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-                pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType) + ") {\n")
+                pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ") {\n")
                 pr.println("if(isReadOnly()){throw Exception(\"This model is ReadOnly. Elements are not modifiable.\")}")
                 if (att.isID) {
                   pr.println("_generated_KMF_ID = " + protectReservedWords(att.getName))

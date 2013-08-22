@@ -113,12 +113,12 @@ object ProcessorHelper {
     helper.checkOrCreateFolder(path)
   }
 
-  def convertJType(aType: EDataType): String = {
-    helper.convertJType(aType)
+  def convertJType(aType: EDataType,ctx : GenerationContext): String = {
+    helper.convertJType(aType,ctx)
   }
 
-  def convertType(aType: EDataType): String = {
-    helper.convertType(aType)
+  def convertType(aType: EDataType, ctx : GenerationContext): String = {
+    helper.convertType(aType,ctx)
   }
 
   def convertJType(theType: String): String = {

@@ -110,7 +110,7 @@ trait ClonerGenerator {
     cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
       att => {
 
-        if (ProcessorHelper.convertType(att.getEAttributeType) == "Any" || ProcessorHelper.convertType(att.getEAttributeType).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
+        if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any" || ProcessorHelper.convertType(att.getEAttributeType,ctx).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
           buffer.println("val subsubRef_" + att.getName + " = this." + getGetter(att.getName) + "")
           buffer.println("if( subsubRef_" + att.getName + "!=null){selfObjectClone." + getSetter(att.getName) + "(subsubRef_" + att.getName + ")}")
         } else {
