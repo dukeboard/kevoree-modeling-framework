@@ -51,11 +51,12 @@
  */
 package org.kevoree.modeling.kotlin.generator.model
 
-import org.eclipse.emf.ecore.{EReference, EEnum, EClass, EPackage}
+import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
+import scala.Some
 
 /**
  * Created with IntelliJ IDEA.
@@ -64,7 +65,6 @@ import scala.collection.JavaConversions._
  * Time: 10:37
  */
 trait APIGenerator extends ClassGenerator {
-
 
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
@@ -91,11 +91,25 @@ trait APIGenerator extends ClassGenerator {
             if (!isFirst) {
               pr.println(",")
             }
-            pr.print(p.getName() + ":" + ProcessorHelper.convertType(p.getEType.getName))
+
+            val returnTypeP = if(p.getEType.isInstanceOf[EDataType]){
+              ProcessorHelper.convertType(p.getEType.getName)
+            } else {
+              ProcessorHelper.fqn(ctx,p.getEType)
+            }
+
+            pr.print(p.getName() + ":" + returnTypeP)
             isFirst = false
         }
         if (op.getEType != null) {
-          pr.println("):" + ProcessorHelper.convertType(op.getEType.getName) + ";")
+
+          val returnTypeOP = if(op.getEType.isInstanceOf[EDataType]){
+            ProcessorHelper.convertType(op.getEType.getName)
+          } else {
+            ProcessorHelper.fqn(ctx,op.getEType)
+          }
+
+          pr.println("):" + returnTypeOP + ";")
         } else {
           pr.println("):Unit;")
         }

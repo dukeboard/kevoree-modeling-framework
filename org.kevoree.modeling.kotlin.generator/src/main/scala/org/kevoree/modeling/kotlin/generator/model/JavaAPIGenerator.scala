@@ -51,7 +51,7 @@
  */
 package org.kevoree.modeling.kotlin.generator.model
 
-import org.eclipse.emf.ecore.{EReference, EEnum, EClass, EPackage}
+import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
@@ -162,8 +162,15 @@ trait JavaAPIGenerator extends ClassGenerator {
     cls.getEAllOperations.foreach {
       op =>
         if (op.getEType != null && op.getEType.getName != null && op.getEType.getName != "") {
-          pr.print("public @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(op.getEType.getName)+" ")
-          pr.print(" "+ op.getName+" ")
+
+          val returnType = if(op.getEType.isInstanceOf[EDataType]){
+            ProcessorHelper.convertJType(op.getEType.getName)
+          } else {
+            ProcessorHelper.fqn(ctx,op.getEType)
+          }
+
+          pr.print("public @org.jetbrains.annotations.NotNull "+returnType+" ")
+          pr.print(" _"+ op.getName+" ")
           pr.print("(")
           var isFirst = true
           var i = 0;
@@ -172,7 +179,14 @@ trait JavaAPIGenerator extends ClassGenerator {
               if(!isFirst){
                 pr.print(",")
               }
-              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName)+" ");
+
+              val returnTypeP = if(p.getEType.isInstanceOf[EDataType]){
+                ProcessorHelper.convertJType(p.getEType.getName)
+              } else {
+                ProcessorHelper.fqn(ctx,p.getEType)
+              }
+
+              pr.print(" @org.jetbrains.annotations.NotNull "+returnTypeP+" ");
               if(p.getName == null || p.getName == ""){
                 pr.print("arg_"+i)
                 i = i + 1
@@ -194,7 +208,13 @@ trait JavaAPIGenerator extends ClassGenerator {
               if(!isFirst){
                 pr.print(",")
               }
-              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName)+" ");
+
+              val returnTypeP = if(p.getEType.isInstanceOf[EDataType]){
+                ProcessorHelper.convertJType(p.getEType.getName)
+              } else {
+                ProcessorHelper.fqn(ctx,p.getEType)
+              }
+              pr.print(" @org.jetbrains.annotations.NotNull "+returnTypeP+" ");
               if(p.getName == null || p.getName == ""){
                 pr.print("arg_"+i)
                 i = i + 1

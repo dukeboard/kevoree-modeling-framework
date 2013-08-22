@@ -199,11 +199,23 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                       if (!isFirst) {
                         writer.write(",")
                       }
-                      writer.write("_"+param.getName + ":" + ProcessorHelper.convertType(param.getEType.getName))
+                      if(param.getEType.isInstanceOf[EDataType]){
+                        writer.write("_"+param.getName + ":" + ProcessorHelper.convertType(param.getEType.getName))
+                      } else {
+                        if(param.getEType != null){
+                          writer.write("_"+param.getName + ":" + ProcessorHelper.fqn(ctx,param.getEType))
+                        } else {
+                          writer.write("_"+param.getName)
+                        }
+                      }
                       isFirst = false
                   }
                   if (operation.getEType != null) {
-                    writer.write(") : " + ProcessorHelper.convertType(operation.getEType.getName) + " {\n")
+                    if(operation.getEType.isInstanceOf[EDataType]){
+                      writer.write(") : " + ProcessorHelper.convertType(operation.getEType.getName) + " {\n")
+                    } else {
+                      writer.write(") : " + ProcessorHelper.fqn(ctx,operation.getEType) + " {\n")
+                    }
                   } else {
                     writer.write("){\n")
                   }

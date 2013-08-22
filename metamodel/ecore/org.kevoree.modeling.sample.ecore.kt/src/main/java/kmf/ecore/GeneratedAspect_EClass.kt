@@ -1,34 +1,34 @@
 package kmf.ecore;
 import org.kevoree.modeling.api.aspect;
 public aspect trait GeneratedAspect_EClass : kmf.ecore.EClass {
-	override fun isSuperTypeOf(_someClass:Any) : Boolean {
+	override fun isSuperTypeOf(_someClass:kmf.ecore.EClass) : Boolean {
 		throw Exception("Not implemented yet !");
 	}
 	override fun getFeatureCount() : Int {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getEStructuralFeature(_featureID:Int) : Any {
+	override fun getEStructuralFeature(_featureID:Int) : kmf.ecore.EStructuralFeature {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getFeatureID(_feature:Any) : Int {
+	override fun getFeatureID(_feature:kmf.ecore.EStructuralFeature) : Int {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getEStructuralFeature(_featureName:String) : Any {
+	override fun getEStructuralFeature(_featureName:String) : kmf.ecore.EStructuralFeature {
 		throw Exception("Not implemented yet !");
 	}
 	override fun getOperationCount() : Int {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getEOperation(_operationID:Int) : Any {
+	override fun getEOperation(_operationID:Int) : kmf.ecore.EOperation {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getOperationID(_operation:Any) : Int {
+	override fun getOperationID(_operation:kmf.ecore.EOperation) : Int {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getOverride(_operation:Any) : Any {
+	override fun getOverride(_operation:kmf.ecore.EOperation) : kmf.ecore.EOperation {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getFeatureType(_feature:Any) : Any {
+	override fun getFeatureType(_feature:kmf.ecore.EStructuralFeature) : kmf.ecore.EGenericType {
 		throw Exception("Not implemented yet !");
 	}
 }
