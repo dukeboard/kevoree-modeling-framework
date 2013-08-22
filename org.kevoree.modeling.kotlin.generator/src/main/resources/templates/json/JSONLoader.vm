@@ -113,15 +113,15 @@ val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration()
             when(nextName) {
             #foreach($att in $elemToLoad.getEAllAttributes())
                 #set($methName = "set" + $att.getName().substring(0, 1).toUpperCase() + $att.getName().substring(1))
-                #if($helper.convertType($att.getEAttributeType()).equals("Int"))
+                #if($helper.convertType($att.getEAttributeType(),$ctx).equals("Int"))
                 "$att.getName()" -> {modelElem.$methName(reader.nextInt())}
-                #elseif($helper.convertType($att.getEAttributeType()).equals("Boolean"))
+                #elseif($helper.convertType($att.getEAttributeType(),$ctx).equals("Boolean"))
                 "$att.getName()" -> {modelElem.$methName(reader.nextBoolean())}
-                #elseif($helper.convertType($att.getEAttributeType()).equals("Double"))
+                #elseif($helper.convertType($att.getEAttributeType(),$ctx).equals("Double"))
                 "$att.getName()" -> {modelElem.$methName(reader.nextDouble())}
-                #elseif($helper.convertType($att.getEAttributeType()).equals("Long"))
+                #elseif($helper.convertType($att.getEAttributeType(),$ctx).equals("Long"))
                 "$att.getName()" -> {modelElem.$methName(reader.nextLong())}
-                #elseif($helper.convertType($att.getEAttributeType()).endsWith("BigInteger"))
+                #elseif($helper.convertType($att.getEAttributeType(),$ctx).endsWith("BigInteger"))
                 "$att.getName()" -> {modelElem.$methName(java.math.BigInteger(reader.nextString()))}
                 #elseif($att.getEAttributeType().getClass().getName().toLowerCase().contains("eenum"))
                 "$att.getName()" -> {modelElem.$methName(${helper.fqn($ctx,$att.getEAttributeType())}.valueOf(reader.nextString()!!))}

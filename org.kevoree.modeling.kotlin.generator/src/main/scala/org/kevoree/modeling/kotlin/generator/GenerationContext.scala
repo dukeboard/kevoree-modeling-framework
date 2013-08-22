@@ -42,7 +42,6 @@ class GenerationContext {
 
   def usemicrofwk(): Boolean = microframework
 
-
   var genTrace: Boolean = false
 
   def isGenTrace(): Boolean = genTrace

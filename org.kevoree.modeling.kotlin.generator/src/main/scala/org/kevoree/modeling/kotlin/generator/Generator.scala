@@ -137,6 +137,10 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                           case None => {
                             //is it a new method
                             if (!eclass.getEAllOperations.exists(op => isMethodEquel(op, method))) {
+
+
+
+
                               //TODO Add to metaModel for API generation
                               System.err.println("TODO Add Aspect Method in MetaModel " + method);
 
