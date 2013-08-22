@@ -162,17 +162,23 @@ trait JavaAPIGenerator extends ClassGenerator {
     cls.getEAllOperations.foreach {
       op =>
         if (op.getEType != null && op.getEType.getName != null && op.getEType.getName != "") {
-          pr.print("public @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(op.getEType.getName))
+          pr.print("public @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(op.getEType.getName)+" ")
           pr.print(" "+ op.getName+" ")
           pr.print("(")
           var isFirst = true
+          var i = 0;
           op.getEParameters.foreach {
             p =>
               if(!isFirst){
                 pr.print(",")
               }
-              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName));
-              pr.print(" "+p.getName)
+              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName)+" ");
+              if(p.getName == null || p.getName == ""){
+                pr.print("arg_"+i)
+                i = i + 1
+              } else {
+                pr.print(p.getName)
+              }
               isFirst = false
           }
           pr.println(");")
@@ -182,13 +188,19 @@ trait JavaAPIGenerator extends ClassGenerator {
           pr.print(" "+ op.getName+" ")
           pr.print("(")
           var isFirst = true
+          var i = 0;
           op.getEParameters.foreach {
             p =>
               if(!isFirst){
                 pr.print(",")
               }
-              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName));
-              pr.print(p.getName)
+              pr.print(" @org.jetbrains.annotations.NotNull "+ProcessorHelper.convertJType(p.getEType.getName)+" ");
+              if(p.getName == null || p.getName == ""){
+                pr.print("arg_"+i)
+                i = i + 1
+              } else {
+                pr.print(p.getName)
+              }
               isFirst = false
           }
           pr.println(");")

@@ -74,15 +74,16 @@ class ProcessorHelperClass {
     theType match {
       case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "boolean"
       case "EString" | "java.lang.String" | "String" => "String"
-      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" => "int"
+      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" | "EInt" => "int"
       case "float" | "java.lang.Float" => "float"
       case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "double"
       case "long" | "java.lang.Long" => "long"
-      case "java.lang.Object" => "Object"
+      case "java.lang.Object" | "EResource" | "EJavaObject" => "Object"
       case "char" | "Char" => "char"
-      case "java.lang.Class" => "java.lang.Class"
+      case "java.lang.Class" | "EJavaClass"=> "java.lang.Class"
       case "org.eclipse.emf.common.util.Enumerator" => "Object"
-
+      case "ETreeIterator" => "java.util.Iterator"
+      case "EEList" => "java.util.List"
       case _ => theType
       //case _ => System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'"); "Any"
     }
@@ -93,20 +94,20 @@ class ProcessorHelperClass {
     theType match {
       case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"
       case "EString" | "java.lang.String" | "String" => "String"
-      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" => "Int"
+      case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" | "EInt" => "Int"
       case "float" | "java.lang.Float" => "Float"
       case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "Double"
       case "long" | "java.lang.Long" => "Long"
-      case "java.lang.Object" => "Any"
+      case "java.lang.Object" | "EResource" | "EJavaObject" => "Any"
       case "java.util.Date" => "java.util.Date"
-
+      case "ETreeIterator" => "Iterator"
       case "org.eclipse.emf.common.util.Enumerator" => "Any"
-
+      case "EEList" => "List"
       //case "org.eclipse.emf.common.util.EList" => "java.util.List<Object>"
       case "byte[]" => "Array<Byte>"
       case "char" | "Char" => "Char"
       case "java.math.BigInteger" => "java.math.BigInteger"
-      case "java.lang.Class" => "Class<out jet.Any?>"
+      case "java.lang.Class" | "EJavaClass" => "Class<out jet.Any?>"
       case _ => /*System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'");*/ "Any"
     }
   }

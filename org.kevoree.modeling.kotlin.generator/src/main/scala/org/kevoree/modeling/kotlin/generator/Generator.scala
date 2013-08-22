@@ -199,7 +199,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                       if (!isFirst) {
                         writer.write(",")
                       }
-                      writer.write(param.getName + ":" + ProcessorHelper.convertType(param.getEType.getName))
+                      writer.write("_"+param.getName + ":" + ProcessorHelper.convertType(param.getEType.getName))
                       isFirst = false
                   }
                   if (operation.getEType != null) {
