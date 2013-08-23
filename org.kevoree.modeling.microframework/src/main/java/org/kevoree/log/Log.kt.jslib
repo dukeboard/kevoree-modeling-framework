@@ -15,27 +15,27 @@ public object Log {
     /**
      * No logging at all.
      */
-    val LEVEL_NONE = 6;
+    public val LEVEL_NONE : Int = 6;
     /**
      * Critical errors. The application may no longer work correctly.
      */
-    val LEVEL_ERROR = 5;
+    public val LEVEL_ERROR : Int = 5;
     /**
      * Important warnings. The application will continue to work correctly.
      */
-    val LEVEL_WARN = 4;
+    public val LEVEL_WARN : Int = 4;
     /**
      * Informative messages. Typically used for deployment.
      */
-    val LEVEL_INFO = 3;
+    public val LEVEL_INFO : Int = 3;
     /**
      * Debug messages. This level is useful during development.
      */
-    val LEVEL_DEBUG = 2;
+    public val LEVEL_DEBUG : Int = 2;
     /**
      * Trace messages. A lot of information is logged, so this level is usually only needed when debugging a problem.
      */
-    val LEVEL_TRACE = 1;
+    public val LEVEL_TRACE : Int = 1;
 
     /**
      * The level of messages that will be logged. Compiling this and the booleans below as "final" will cause the compiler to
@@ -519,6 +519,7 @@ public object Log {
         }
     }
 
+}
 
     /**
      * Performs the actual logging. Default implementation logs to System.out. Extended and use {@link Log#logger} set to handle
@@ -548,19 +549,19 @@ public object Log {
             if (seconds <= 9) builder.append('0');
             builder.append(seconds.toString());
             when (level) {
-                LEVEL_ERROR -> {
+                Log.LEVEL_ERROR -> {
                     builder.append(error_msg);
                 }
-                LEVEL_WARN -> {
+                Log.LEVEL_WARN -> {
                     builder.append(warn_msg);
                 }
-                LEVEL_INFO -> {
+                Log.LEVEL_INFO -> {
                     builder.append(info_msg);
                 }
-                LEVEL_DEBUG -> {
+                Log.LEVEL_DEBUG -> {
                     builder.append(debug_msg);
                 }
-                LEVEL_TRACE -> {
+                Log.LEVEL_TRACE -> {
                     builder.append(trace_msg);
                 }
                 else -> {
@@ -589,4 +590,3 @@ public object Log {
             println(message);
         }
     }
-}

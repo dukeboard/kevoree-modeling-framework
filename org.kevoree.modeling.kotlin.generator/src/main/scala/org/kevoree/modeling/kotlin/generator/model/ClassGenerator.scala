@@ -436,7 +436,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
 
         }
-
+         //TODO certainly a bug here !
         if (hasID(ref.getEReferenceType) && ref.isMany) {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
