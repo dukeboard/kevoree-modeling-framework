@@ -248,9 +248,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
         pr.println("var WellNamedID = elementId.substring(0,elementId.lastIndexOf(\"/\")+1) + modelElem.getName()")
         pr.println("context.map.put(WellNamedID, modelElem)")
         //pr.println("if(debug){System.out.println(\"Stored:\" + WellNamedID)}")
-
         pr.println("if(elementId != \"/0\"){elementId = WellNamedID}")
-
       }
 
       pr.println("")

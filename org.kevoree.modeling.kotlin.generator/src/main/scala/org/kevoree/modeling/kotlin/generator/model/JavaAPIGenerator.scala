@@ -159,8 +159,9 @@ trait JavaAPIGenerator extends ClassGenerator {
     }
 
     /* next we generated custom method */
-    cls.getEAllOperations.foreach {
+    cls.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
       op =>
+
         if (op.getEType != null && op.getEType.getName != null && op.getEType.getName != "") {
 
           val returnType = if(op.getEType.isInstanceOf[EDataType]){

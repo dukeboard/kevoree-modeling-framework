@@ -82,7 +82,7 @@ trait APIGenerator extends ClassGenerator {
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
     /* Then generated user method */
     /* next we generated custom method */
-    cls.getEAllOperations.foreach {
+    cls.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
       op =>
         pr.print("fun " + op.getName + "(")
         var isFirst = true

@@ -164,7 +164,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
           case eclass: EClass => {
             //Should have aspect covered all method
             val operationList = new util.ArrayList[EOperation]()
-            operationList.addAll(eclass.getEOperations)
+            operationList.addAll(eclass.getEOperations.filter(op => op.getName != "eContainer"))
             ctx.aspects.values().foreach {
               aspect =>
                 if (aspect.aspectedClass == eclass.getName || ProcessorHelper.fqn(ctx, eclass) == aspect.aspectedClass) {
@@ -236,7 +236,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
               newAspectClass.aspectedClass = eclass.getName
               newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
               ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass)
-              eclass.getEOperations.foreach {
+              eclass.getEOperations.filter(op => op.getName != "eContainer").foreach {
                 operation =>
                   writer.write("\toverride fun " + operation.getName + "(")
                   var isFirst = true

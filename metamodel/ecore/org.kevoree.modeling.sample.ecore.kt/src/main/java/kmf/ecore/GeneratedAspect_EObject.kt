@@ -10,9 +10,6 @@ public aspect trait GeneratedAspect_EObject : kmf.ecore.EObject {
 	override fun eResource() : Any {
 		throw Exception("Not implemented yet !");
 	}
-	override fun eContainer() : kmf.ecore.EObject {
-		throw Exception("Not implemented yet !");
-	}
 	override fun eContainingFeature() : kmf.ecore.EStructuralFeature {
 		throw Exception("Not implemented yet !");
 	}
