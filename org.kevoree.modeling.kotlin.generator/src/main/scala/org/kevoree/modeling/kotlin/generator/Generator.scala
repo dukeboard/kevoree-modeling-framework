@@ -78,24 +78,66 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
   }
 
 
-  def isMethodEquel(eop: EOperation, aop: AspectMethod): Boolean = {
+  def isMethodEquel(eop: EOperation, aop: AspectMethod, ctx: GenerationContext): Boolean = {
     if (eop.getName != aop.name) {
       return false
     }
-    //TODO add order param check
-    eop.getEParameters.foreach {
-      eparam =>
-        if (!aop.params.exists(aparam => /*aparam.name == eparam.getName &&*/ aparam.`type` == ProcessorHelper.convertType(eparam.getEType.getName))) {
-          return false
-        }
+    var methodReturnTypeTxt = ""
+    if (eop.getEType != null) {
+      if (eop.getEType.isInstanceOf[EDataType]) {
+        methodReturnTypeTxt = ProcessorHelper.convertType(eop.getEType.getName)
+      } else {
+        methodReturnTypeTxt = ProcessorHelper.fqn(ctx, eop.getEType)
+      }
     }
-    aop.params.foreach {
-      aparam =>
-        if (!eop.getEParameters.exists(eparam => /*aparam.name == eparam.getName &&*/ aparam.`type` == ProcessorHelper.convertType(eparam.getEType.getName))) {
-          return false
-        }
+
+    var returnTypeCheck = false
+    val equivalentMap = new java.util.HashMap[String, String]
+    equivalentMap.put("List<*>", "MutableList");
+    equivalentMap.put("List<Any?>", "MutableList");
+    equivalentMap.put("MutableIterator<*>", "MutableIterator");
+    equivalentMap.put("MutableIterator<Any?>", "MutableIterator");
+    equivalentMap.put("Class<out jet.Any?>", "Class");
+    if (equivalentMap.get(methodReturnTypeTxt) == aop.returnType) {
+      returnTypeCheck = true
+    } else {
+      if (methodReturnTypeTxt == aop.returnType) {
+        returnTypeCheck = true
+      }
     }
-    return true;
+    if (!returnTypeCheck) {
+      System.err.println(methodReturnTypeTxt + "<->" + aop.returnType);
+      return false
+    }
+    if (eop.getEParameters.size() != aop.params.size()) {
+      //System.out.println(aop.name+"-"+eop.getEParameters.size()+"<?>"+aop.params.size());
+      return false
+    } else {
+      var i = 0;
+      eop.getEParameters.foreach {
+        eparam =>
+          i = i + 1
+          val methodReturnTypeTxt = if (eparam.getEType.isInstanceOf[EDataType]) {
+            ProcessorHelper.convertType(eparam.getEType.getName)
+          } else {
+            ProcessorHelper.fqn(ctx, eparam.getEType)
+          }
+          var returnTypeCheck = false
+          if (equivalentMap.get(methodReturnTypeTxt) == aop.params.get(i-1).`type`) {
+            returnTypeCheck = true
+          } else {
+            if (methodReturnTypeTxt == aop.params.get(i-1).`type`) {
+              returnTypeCheck = true
+            }
+          }
+
+          if (!returnTypeCheck) {
+            System.err.println(methodReturnTypeTxt + "<=>" + aop.params.get(i-1).`type` + "/" + returnTypeCheck)
+            return false
+          }
+      }
+    }
+    return true
   }
 
 
@@ -125,31 +167,33 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
             operationList.addAll(eclass.getEOperations)
             ctx.aspects.values().foreach {
               aspect =>
-                if (aspect.aspectedClass == eclass.getName || (aspect.packageName + "." + aspect.name) == ecoreFile.getName) {
+                if (aspect.aspectedClass == eclass.getName || ProcessorHelper.fqn(ctx, eclass) == aspect.aspectedClass) {
                   //aspect match
                   aspect.methods.foreach {
                     method =>
-                      operationList.find(op => isMethodEquel(op, method)) match {
+                      operationList.find(op => isMethodEquel(op, method, ctx)) match {
                         case Some(foundOp) => {
                           operationList.remove(foundOp)
                         }
                         case None => {
                           //is it a new method
-                          if (!eclass.getEAllOperations.exists(op => isMethodEquel(op, method))) {
+                          if (!eclass.getEAllOperations.exists(op => isMethodEquel(op, method, ctx))) {
 
+                            System.err.println("Add aspect Method to Ecore " + method.name + "/" + aspect.aspectedClass);
 
                             val newEOperation = EcoreFactory.eINSTANCE.createEOperation();
                             newEOperation.setName(method.name)
                             val dataType = EcoreFactory.eINSTANCE.createEDataType();
                             dataType.setName(method.returnType)
                             newEOperation.setEType(dataType)
-                            method.params.foreach{ p =>
-                              val newEParam = EcoreFactory.eINSTANCE.createEParameter();
-                              newEParam.setName(p.name)
-                              val dataTypeParam = EcoreFactory.eINSTANCE.createEDataType();
-                              dataTypeParam.setName(p.`type`)
-                              newEParam.setEType(dataTypeParam)
-                              newEOperation.getEParameters.add(newEParam)
+                            method.params.foreach {
+                              p =>
+                                val newEParam = EcoreFactory.eINSTANCE.createEParameter();
+                                newEParam.setName(p.name)
+                                val dataTypeParam = EcoreFactory.eINSTANCE.createEDataType();
+                                dataTypeParam.setName(p.`type`)
+                                newEParam.setEType(dataTypeParam)
+                                newEOperation.getEParameters.add(newEParam)
                             }
                             eclass.getEOperations.add(newEOperation)
 
@@ -167,6 +211,17 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
             if (!operationList.isEmpty) {
 
               System.err.println("Auto generate Method for aspect " + eclass.getName);
+              /*
+              operationList.foreach {
+                op =>
+                  System.err.print(">" + op.getName)
+                  op.getEParameters.foreach {
+                    p =>
+                      System.err.println("," + p.getName + ":" + p.getEType.getName);
+                  }
+                  System.err.println()
+              } */
+
 
               val targetSrc = ctx.getRootSrcDirectory();
               val targetFile = new File(targetSrc + File.separator + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName + ".kt");
@@ -181,7 +236,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
               newAspectClass.aspectedClass = eclass.getName
               newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
               ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass)
-              operationList.foreach {
+              eclass.getEOperations.foreach {
                 operation =>
                   writer.write("\toverride fun " + operation.getName + "(")
                   var isFirst = true
@@ -199,22 +254,27 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                       if (!isFirst) {
                         writer.write(",")
                       }
-                      if(param.getEType.isInstanceOf[EDataType]){
-                        writer.write("_"+param.getName + ":" + ProcessorHelper.convertType(param.getEType.getName))
+                      if (param.getEType.isInstanceOf[EDataType]) {
+                        writer.write("_" + param.getName + ":" + ProcessorHelper.convertType(param.getEType.getName))
                       } else {
-                        if(param.getEType != null){
-                          writer.write("_"+param.getName + ":" + ProcessorHelper.fqn(ctx,param.getEType))
+                        if (param.getEType != null) {
+                          writer.write("_" + param.getName + ":" + ProcessorHelper.fqn(ctx, param.getEType))
                         } else {
-                          writer.write("_"+param.getName)
+                          writer.write("_" + param.getName)
                         }
                       }
                       isFirst = false
                   }
                   if (operation.getEType != null) {
-                    if(operation.getEType.isInstanceOf[EDataType]){
-                      writer.write(") : " + ProcessorHelper.convertType(operation.getEType.getName) + " {\n")
+                    if (operation.getEType.isInstanceOf[EDataType]) {
+                      var operationReturnType = ProcessorHelper.convertType(operation.getEType.getName)
+                      if (operationReturnType.startsWith("List") && !ctx.getJS()) {
+                        operationReturnType = "Mutable" + operationReturnType
+                      }
+                      writer.write(") : " + operationReturnType + " {\n")
                     } else {
-                      writer.write(") : " + ProcessorHelper.fqn(ctx,operation.getEType) + " {\n")
+                      val operationReturnType = ProcessorHelper.fqn(ctx, operation.getEType)
+                      writer.write(") : " + operationReturnType + " {\n")
                     }
                   } else {
                     writer.write("){\n")

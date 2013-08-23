@@ -19,13 +19,13 @@ public aspect trait GeneratedAspect_EObject : kmf.ecore.EObject {
 	override fun eContainmentFeature() : kmf.ecore.EReference {
 		throw Exception("Not implemented yet !");
 	}
-	override fun eContents() : List {
+	override fun eContents() : MutableList<Any?> {
 		throw Exception("Not implemented yet !");
 	}
-	override fun eAllContents() : Iterator {
+	override fun eAllContents() : MutableIterator<*> {
 		throw Exception("Not implemented yet !");
 	}
-	override fun eCrossReferences() : List {
+	override fun eCrossReferences() : MutableList<Any?> {
 		throw Exception("Not implemented yet !");
 	}
 	override fun eGet(_feature:kmf.ecore.EStructuralFeature) : Any {
@@ -43,7 +43,7 @@ public aspect trait GeneratedAspect_EObject : kmf.ecore.EObject {
 	override fun eUnset(_feature:kmf.ecore.EStructuralFeature){
 		throw Exception("Not implemented yet !");
 	}
-	override fun eInvoke(_operation:kmf.ecore.EOperation,_arguments:List) : Any {
+	override fun eInvoke(_operation:kmf.ecore.EOperation,_arguments:List<Any?>) : Any {
 		throw Exception("Not implemented yet !");
 	}
 }

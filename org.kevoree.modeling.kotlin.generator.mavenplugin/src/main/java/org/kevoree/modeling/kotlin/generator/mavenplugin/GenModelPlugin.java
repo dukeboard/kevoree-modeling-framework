@@ -326,7 +326,7 @@ public class GenModelPlugin extends AbstractMojo {
                             String params = funMatch.group(2);
                             String[] paramsArray = params.split(",");
                             for(int i=0;i<paramsArray.length;i++){
-                                String[] paramType = params.split(":");
+                                String[] paramType = paramsArray[i].split(":");
                                 if(paramType.length == 2){
                                     AspectParam param = new AspectParam();
                                     param.name = paramType[0].trim();
