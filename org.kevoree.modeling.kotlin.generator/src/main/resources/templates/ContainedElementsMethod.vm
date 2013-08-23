@@ -20,7 +20,7 @@ override fun containedElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContai
 
 override fun containedElementsList() : MutableList<Any> {
 
-    val result = java.util.ArrayList<Any>($currentClass.getEAllContainments().size())
+    val result = java.util.ArrayList<Any>()
 #set($i=0)
 #foreach( $ref in $currentClass.getEAllContainments())
     #if($ref.isMany())

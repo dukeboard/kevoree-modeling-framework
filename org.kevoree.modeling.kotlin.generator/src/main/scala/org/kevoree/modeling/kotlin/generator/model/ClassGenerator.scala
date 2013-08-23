@@ -76,9 +76,9 @@ trait ClassGenerator extends ClonerGenerator {
           if (att.isMany) {
             typePre = "List<"
             typePost = ">"
-            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ">()"
+            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">()"
           }
-          ProcessorHelper.convertType(att.getEAttributeType,ctx) match {
+          ProcessorHelper.convertType(att.getEAttributeType, ctx) match {
 
             case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
               if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
@@ -355,7 +355,7 @@ trait ClassGenerator extends ClonerGenerator {
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
           valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
         } else {
-          valueType = ProcessorHelper.convertType(att.getEAttributeType,ctx)
+          valueType = ProcessorHelper.convertType(att.getEAttributeType, ctx)
         }
 
         if (ctx.getJS()) {
@@ -436,7 +436,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
 
         }
-         //TODO certainly a bug here !
+        //TODO certainly a bug here !
         if (hasID(ref.getEReferenceType) && ref.isMany) {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
@@ -480,9 +480,13 @@ trait ClassGenerator extends ClonerGenerator {
       a =>
         aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
     }
-    val resultAspectName = if(!aspectsName.isEmpty){","+aspectsName.mkString(",")}else{""}
+    val resultAspectName = if (!aspectsName.isEmpty) {
+      "," + aspectsName.mkString(",")
+    } else {
+      ""
+    }
 
-    pr.println(" : " + ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName +resultAspectName+ " { ")
+    pr.println(" : " + ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName + resultAspectName + " { ")
 
     pr.println("override internal var internal_eContainer : " + ctx.getKevoreeContainer.get + "? = null")
     pr.println("override internal var internal_containmentRefName : String? = null")
@@ -508,9 +512,9 @@ trait ClassGenerator extends ClonerGenerator {
           if (att.isMany) {
             typePre = "List<"
             typePost = ">"
-            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ">()"
+            defaultValue = "ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">()"
           }
-          ProcessorHelper.convertType(att.getEAttributeType,ctx) match {
+          ProcessorHelper.convertType(att.getEAttributeType, ctx) match {
             case "String" | "java.lang.String" => pr.println(typePre + "String" + typePost + " = " + {
               if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
                 if (ctx.getJS()) {
@@ -743,7 +747,7 @@ trait ClassGenerator extends ClonerGenerator {
           if (att.isMany) {
             pr.print("List<")
           }
-          ProcessorHelper.convertType(att.getEAttributeType,ctx) match {
+          ProcessorHelper.convertType(att.getEAttributeType, ctx) match {
             case "java.lang.String" => pr.print("String")
             case "java.lang.Integer" => pr.print("Int")
             case "java.lang.Boolean" => pr.print("Boolean")
@@ -824,14 +828,14 @@ trait ClassGenerator extends ClonerGenerator {
 
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
               pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + "? {\n")
-            } else if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any") {
+            } else if (ProcessorHelper.convertType(att.getEAttributeType, ctx) == "Any") {
               pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : Any? {\n")
             } else {
 
-              if (ProcessorHelper.convertType(att.getEAttributeType,ctx).contains("Class")) {
-                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "? {\n")
+              if (ProcessorHelper.convertType(att.getEAttributeType, ctx).contains("Class")) {
+                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "? {\n")
               } else {
-                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + " {\n")
+                pr.print("override fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + " {\n")
               }
 
             }
@@ -841,7 +845,7 @@ trait ClassGenerator extends ClonerGenerator {
             if (att.getEAttributeType.isInstanceOf[EEnum]) {
               pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.fqn(ctx, att.getEAttributeType) + ") {\n")
             } else {
-              pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ") {\n")
+              pr.print("(" + att.getName + param_suf + " : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ") {\n")
             }
             pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
 

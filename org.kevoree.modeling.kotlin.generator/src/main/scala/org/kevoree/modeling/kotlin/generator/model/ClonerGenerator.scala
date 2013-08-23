@@ -92,13 +92,11 @@ trait ClonerGenerator {
   }
 
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
-
     if (ctx.getJS()) {
       buffer.println("override fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
     } else {
       buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
     }
-
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")
     var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
     formatedFactoryName += pack.getName.substring(1)

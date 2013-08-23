@@ -27,7 +27,7 @@ import org.eclipse.emf.common.util.{URI => EmfUri}
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
 import org.eclipse.emf.ecore._
 import java.util
-import org.kevoree.modeling.aspect.AspectClass
+import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,7 +54,9 @@ class GenerationContext {
     genFlatInheritance = true
   }
 
-  var aspects : java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
+  var aspects: java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
+
+  var newMetaClasses : java.util.List[NewMetaClassCreation] = new java.util.ArrayList[NewMetaClassCreation]()
 
   /**
    * True if selectByQuery methods have to be generated
@@ -62,6 +64,15 @@ class GenerationContext {
   var genSelector: Boolean = false
 
   def getGenSelector = genSelector
+
+
+  var noAPI: Boolean = true
+
+  def getNoAPI = noAPI
+
+  def setNoAPI(n: Boolean) {
+    this.noAPI = n
+  }
 
 
   /**
@@ -88,13 +99,13 @@ class GenerationContext {
 
   def getRootGenerationDirectory = rootGenerationDirectory
 
-  var rootSrcDirectory : File = null;
+  var rootSrcDirectory: File = null;
 
-  def setRootSrcDirectory(rootSrc : File){
+  def setRootSrcDirectory(rootSrc: File) {
     rootSrcDirectory = rootSrc;
   }
 
-  def getRootSrcDirectory() : File = {
+  def getRootSrcDirectory(): File = {
     return rootSrcDirectory;
   }
 
@@ -109,20 +120,6 @@ class GenerationContext {
   }
 
   def getRootUserDirectory = rootUserDirectory
-
-
-  /**
-   * Specifies the RootContainer class name.
-   * Example: "ContainerRoot"
-   */
-  private var rootXmiContainerClassName: Option[String] = None
-
-  def setRootContainerClassName(className: Option[String]) {
-    rootXmiContainerClassName = className
-  }
-
-  def getRootContainerClassName = rootXmiContainerClassName
-
 
   def getChildrenOf(parent: EClass, resource: XMIResource): List[EClass] = {
     import scala.collection.JavaConversions._
@@ -248,6 +245,11 @@ class GenerationContext {
    * @param pack : The package where to start the registration
    */
   def registerFactory(pack: EPackage) {
+
+    if(pack.getName == null || pack.getName == ""){
+      return
+    }
+
     import scala.collection.JavaConversions._
     if (pack.getEClassifiers.size() > 0) {
       var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
@@ -307,15 +309,16 @@ class GenerationContext {
     val metamodel = getEcoreModel(metamodelFile)
 
     val packages = new util.ArrayList[EPackage]()
-    metamodel.getAllContents.foreach{ content =>
-        if(content.isInstanceOf[EPackage]){
+    metamodel.getAllContents.foreach {
+      content =>
+        if (content.isInstanceOf[EPackage]) {
           packages.add(content.asInstanceOf[EPackage])
         }
     }
     if (packages.size > 1) {
       // Many packages at the root.
       basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage()
-      basePackageForUtilitiesGeneration.setName("")
+      basePackageForUtilitiesGeneration.setName("kmf")
       if (getPackagePrefix.isDefined) {
         baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator))
       } else {

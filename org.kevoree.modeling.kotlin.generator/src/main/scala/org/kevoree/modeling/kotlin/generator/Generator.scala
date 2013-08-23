@@ -74,7 +74,15 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
       elem => ctx.registerFactory(elem.asInstanceOf[EPackage])
     }
     ctx.setBaseLocationForUtilitiesGeneration(ecoreFile)
-
+    model.getAllContents.foreach {
+      content =>
+        if (content.isInstanceOf[EPackage]) {
+          val pack = content.asInstanceOf[EPackage]
+          if (pack.getName == null || pack.getName == "") {
+            throw new Exception("Package with an empty name : generation stopped !");
+          }
+        }
+    }
   }
 
 
@@ -123,16 +131,16 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
             ProcessorHelper.fqn(ctx, eparam.getEType)
           }
           var returnTypeCheck = false
-          if (equivalentMap.get(methodReturnTypeTxt) == aop.params.get(i-1).`type`|| (eparam.getEType != null && eparam.getEType.getName == aop.params.get(i-1).`type`)) {
+          if (equivalentMap.get(methodReturnTypeTxt) == aop.params.get(i - 1).`type` || (eparam.getEType != null && eparam.getEType.getName == aop.params.get(i - 1).`type`)) {
             returnTypeCheck = true
           } else {
-            if (methodReturnTypeTxt == aop.params.get(i-1).`type`) {
+            if (methodReturnTypeTxt == aop.params.get(i - 1).`type`) {
               returnTypeCheck = true
             }
           }
 
           if (!returnTypeCheck) {
-            System.err.println(methodReturnTypeTxt + "<=>" + aop.params.get(i-1).`type` + "/" + returnTypeCheck)
+            System.err.println(methodReturnTypeTxt + "<=>" + aop.params.get(i - 1).`type` + "/" + returnTypeCheck)
             return false
           }
       }
@@ -158,6 +166,38 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     System.out.println("Check Aspect completeness")
     val model = ctx.getEcoreModel(ecoreFile)
     checkModel(model)
+    //Create new metaClass
+    ctx.newMetaClasses.foreach {
+      metaC =>
+        System.err.println("Auto creation of metaClass " + metaC.packageName + "." + metaC.name + " super " + metaC.parentName)
+        val newMeta = EcoreFactory.eINSTANCE.createEClass();
+        newMeta.setName(metaC.name);
+        model.getResources.get(0).getContents.add(newMeta)
+        model.getAllContents.find(e => e.isInstanceOf[EPackage] && ProcessorHelper.fqn(ctx, e.asInstanceOf[EPackage]) == metaC.packageName) match {
+          case Some(p) => {
+             p.asInstanceOf[EPackage].getEClassifiers.add(newMeta)
+          }
+          case None => {
+             System.err.println("Create package : "+metaC.packageName);
+            val newMetaPack = EcoreFactory.eINSTANCE.createEPackage();
+            newMetaPack.setName(metaC.packageName)
+            newMetaPack.getEClassifiers.add(newMeta)
+            model.getResources.get(0).getContents.add(newMetaPack)
+          }
+        }
+        model.getAllContents.find(e => e.isInstanceOf[EClass] && (ProcessorHelper.fqn(ctx, e.asInstanceOf[EClass]) == metaC.parentName || e.asInstanceOf[EClass].getName == metaC.parentName ) ) match {
+          case Some(parentclass) => {
+            newMeta.getESuperTypes.add(parentclass.asInstanceOf[EClass]);
+          }
+          case None => {
+            throw new Exception("Parent Does not exist");
+          }
+        }
+
+
+    }
+
+
     model.getAllContents.foreach {
       content =>
         content match {

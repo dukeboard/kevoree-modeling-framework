@@ -55,6 +55,11 @@ import java.util
 trait PackageFactoryGenerator {
 
   def generatePackageFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
+
+    if(packElement.getName == null || packElement.getName == ""){
+      return
+    }
+
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
@@ -80,6 +85,10 @@ trait PackageFactoryGenerator {
   }
 
   def generateFlyweightFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
+
+    if(packElement.getName == null || packElement.getName == ""){
+      return
+    }
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
@@ -105,6 +114,13 @@ trait PackageFactoryGenerator {
   }
 
   def generatePackageFactoryDefaultImpl(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
+
+
+    if(packElement.getName == null || packElement.getName == ""){
+      return
+    }
+
+
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"

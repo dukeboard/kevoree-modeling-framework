@@ -154,7 +154,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     //pr.println("wt.close()")
     pr.println("}") //END serialize method
     generateEscapeMethod(pr)
-    getEAllEclass(model).foreach {
+    getEAllEclass(model,ctx).foreach {
       eClass => {
           generateToJsonMethod(eClass, pr)
       }
@@ -417,15 +417,16 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     buffer.println("}") //END TO Json
   }
 
-  def getEAllEclass(pack: ResourceSet): java.util.List[EClass] = {
-    val result = new util.ArrayList[EClass]()
+  def getEAllEclass(pack: ResourceSet, ctx: GenerationContext): util.Collection[EClass] = {
+    val result = new util.HashMap[String,EClass]()
     pack.getAllContents.foreach {
       eclass =>
-        if (eclass.isInstanceOf[EClass]) {
-          result.add(eclass.asInstanceOf[EClass])
+
+        if (eclass.isInstanceOf[EClass] && !result.containsKey(ProcessorHelper.fqn(ctx,eclass.asInstanceOf[EClass]))) {
+          result.put(ProcessorHelper.fqn(ctx,eclass.asInstanceOf[EClass]),eclass.asInstanceOf[EClass])
         }
     }
-    return result
+    return result.values()
   }
 
 

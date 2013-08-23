@@ -63,8 +63,6 @@ public class OppositeTest {
         GenerationContext ctx = new GenerationContext();
         ctx.setPackagePrefix(scala.Option.apply(rootPackage));
         ctx.setRootGenerationDirectory(rootDir);
-        ctx.setRootContainerClassName(scala.Option.apply("Course"));
-
         Generator gen = new Generator(ctx,ecoreFile);
         gen.generateModel("1.4.0");
 
@@ -72,20 +70,13 @@ public class OppositeTest {
 
     @Test
     public void generateLoader() {
-       // File rootDir = new File("../org.kevoree.extra.ecore.loader.test/src/main/scala/");
-
         String rootPackage = "org";
         File ecoreFile = new File(getClass().getResource("/oppositTest.ecore").getPath());
-
         GenerationContext ctx = new GenerationContext();
         ctx.setPackagePrefix(scala.Option.apply(rootPackage));
         ctx.setRootGenerationDirectory(rootDir);
-        ctx.setRootContainerClassName(scala.Option.apply("Course"));
-
-
         Generator gen = new Generator(ctx,ecoreFile);
         gen.generateLoader();
-
     }
 
     @Test
@@ -97,21 +88,9 @@ public class OppositeTest {
         GenerationContext ctx = new GenerationContext();
         ctx.setPackagePrefix(scala.Option.apply(rootPackage));
         ctx.setRootGenerationDirectory(rootDir);
-        ctx.setRootContainerClassName(scala.Option.apply("Course"));
-
         Generator gen = new Generator(ctx,ecoreFile);
         gen.generateSerializer();
 
     }
-/*
-    @Test
-    public void generateCloner() {
-        File rootDir = new File("../org.kevoree.extra.ecore.loader.test/src/main/scala/");
-        String rootPackage = "org";
-        File ecoreFile = new File(getClass().getResource("/kevoree.ecore").getPath());
-        Generator gen = new Generator(rootDir, rootPackage);
-        gen.generateCloner(ecoreFile);
-
-    }*/
 
 }

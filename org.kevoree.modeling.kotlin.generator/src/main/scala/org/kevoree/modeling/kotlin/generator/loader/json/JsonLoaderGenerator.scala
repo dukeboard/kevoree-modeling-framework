@@ -89,7 +89,7 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
     ctxV.put("model", model)
     ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
     ctxV.put("ctx", ctx)
-    ctxV.put("allEClass", getEAllEclass(model))
+    ctxV.put("allEClass", getEAllEclass(model,ctx))
 
 
     template.merge(ctxV, ctx.loaderPrintWriter)
@@ -182,15 +182,16 @@ class JsonLoaderGenerator(ctx: GenerationContext) {
   }
 
 
-  def getEAllEclass(pack: ResourceSet): java.util.List[EClass] = {
-    val result = new util.ArrayList[EClass]()
+  def getEAllEclass(pack: ResourceSet, ctx: GenerationContext): util.Collection[EClass] = {
+    val result = new util.HashMap[String,EClass]()
     pack.getAllContents.foreach {
       eclass =>
-        if (eclass.isInstanceOf[EClass]) {
-          result.add(eclass.asInstanceOf[EClass])
+
+        if (eclass.isInstanceOf[EClass] && !result.containsKey(ProcessorHelper.fqn(ctx,eclass.asInstanceOf[EClass]))) {
+          result.put(ProcessorHelper.fqn(ctx,eclass.asInstanceOf[EClass]),eclass.asInstanceOf[EClass])
         }
     }
-    return result
+    return result.values()
   }
 
 

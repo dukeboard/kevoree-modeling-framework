@@ -44,6 +44,9 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>kmf</packagePrefix>
                             <clearOutput>false</clearOutput>
+							
+							<modelOnly>true</modelOnly>
+							
                         </configuration>
                     </execution>
                 </executions>

@@ -68,25 +68,19 @@ class SerializerGenerator(ctx: GenerationContext) {
     beginSerializer(pr)
     generateDefaultSerializer(pr, ProcessorHelper.collectAllClassifiersInModel(model))
     generateEscapeMethod(pr)
-    model.getAllContents.foreach {
-      pack =>
-        if (pack.isInstanceOf[EPackage]) {
-          generateSerializer(pack.asInstanceOf[EPackage], pr)
-        }
+    getEAllEclass(model,ctx).foreach { eClass =>
+      generateSerializationMethods(eClass, pr)
     }
-
     endSerializer(pr)
     pr.flush()
     pr.close()
   }
 
   private def beginSerializer(pr: PrintWriter) {
-
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
     pr.println("class XMIModelSerializer : org.kevoree.modeling.api.ModelSerializer ")
     pr.println("{")
     pr.println()
-
   }
 
   private def endSerializer(pr: PrintWriter) {
@@ -141,19 +135,18 @@ class SerializerGenerator(ctx: GenerationContext) {
     template.merge(ctxV, pr)
   }
 
-  private def generateSerializer(rootXmiPackage: EPackage, pr: PrintWriter) {
-    rootXmiPackage.getEClassifiers.foreach {
-      eClass =>
-        if (eClass.isInstanceOf[EClass]) {
-          generateSerializationMethods(rootXmiPackage, eClass.asInstanceOf[EClass], pr)
+  def getEAllEclass(pack: ResourceSet, ctx: GenerationContext): util.Collection[EClass] = {
+    val result = new util.HashMap[String,EClass]()
+    pack.getAllContents.foreach {
+      eclass =>
+
+        if (eclass.isInstanceOf[EClass] && !result.containsKey(ProcessorHelper.fqn(ctx,eclass.asInstanceOf[EClass]))) {
+          result.put(ProcessorHelper.fqn(ctx,eclass.asInstanceOf[EClass]),eclass.asInstanceOf[EClass])
         }
     }
-    /*
-    rootXmiPackage.getESubpackages.foreach {
-      subpackage =>
-        generateSerializer(subpackage, pr)
-    }  */
+    return result.values()
   }
+
 
   private def getGetter(name: String): String = {
     "get"+ name.charAt(0).toUpper + name.substring(1)+"()"
@@ -365,7 +358,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     buffer.println("}") //END TO XMI
   }
 
-  private def generateSerializationMethods(pack: EPackage, cls: EClass, buffer: PrintWriter) {
+  private def generateSerializationMethods(cls: EClass, buffer: PrintWriter) {
     var stringListSubSerializers = Set[Tuple2[String, String]]()
     if (cls.getEAllContainments.size > 0) {
       cls.getEAllContainments.foreach {

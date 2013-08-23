@@ -60,10 +60,7 @@ import org.jetbrains.jet.cli.js.K2JSCompilerArguments;
 import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
 import org.jetbrains.k2js.config.MetaInfServices;
-import org.kevoree.modeling.aspect.AspectClass;
-import org.kevoree.modeling.aspect.AspectMethod;
-import org.kevoree.modeling.aspect.AspectParam;
-import org.kevoree.modeling.aspect.CommentCleaner;
+import org.kevoree.modeling.aspect.*;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
@@ -107,27 +104,11 @@ public class GenModelPlugin extends AbstractMojo {
     private File outputUtil;
 
     /**
-     * Source user base directory
-     *
-     * @parameter default-value="src/main/java"
-     */
-    private File inputScala;
-
-
-    /**
      * code containerRoot package
      *
      * @parameter
      */
     private String packagePrefix;
-
-    /**
-     * Root XMI Container
-     *
-     * @parameter
-     */
-    private String rootXmiContainerClassName;
-
 
     /**
      * Clear output dir
@@ -137,11 +118,11 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean clearOutput = true;
 
     /**
-     * Only generate model structure
+     * Generate XMI format loader and saver
      *
      * @parameter
      */
-    private Boolean modelOnly = false;
+    private Boolean xmi = true;
 
 
     /**
@@ -158,6 +139,13 @@ public class GenModelPlugin extends AbstractMojo {
      * @parameter
      */
     private Boolean js = false;
+
+    /**
+     * Generate NoAPI version
+     *
+     * @parameter
+     */
+    private Boolean noapi = false;
 
     /**
      * Generate Flat inheritance version
@@ -295,11 +283,14 @@ public class GenModelPlugin extends AbstractMojo {
             json = true; // JS need JSON by default for Java extension
         }
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
+        List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
+
         List<File> sourceKotlinFileList = new ArrayList<File>();
-        if(sourceFile.isDirectory() && sourceFile.exists()){
+        if (sourceFile.isDirectory() && sourceFile.exists()) {
             collectFiles(sourceFile.getAbsolutePath(), sourceKotlinFileList, ".kt");
         }
 
+        Pattern metaAspect = Pattern.compile(".*metaclass[(]\"([a-zA-Z_]*)\"[)]\\s*trait\\s*([a-zA-Z_]*)(\\s*:\\s*[.a-zA-Z_]*)?.*");
         Pattern p = Pattern.compile(".*aspect\\s*trait\\s*([a-zA-Z_]*)\\s*:\\s*([.a-zA-Z_]*).*");
         Pattern pfun = Pattern.compile(".*fun\\s*([a-zA-Z_]*)\\s*[(](.*)[)](\\s*:\\s*[.a-zA-Z_]*)?.*");
         Pattern packagePattern = Pattern.compile(".*package ([.a-zA-Z_]*).*");
@@ -313,21 +304,21 @@ public class GenModelPlugin extends AbstractMojo {
                 AspectClass currentAspect = null;
                 while ((line = br.readLine()) != null) {
                     Matcher funMatch = pfun.matcher(line);
-                    if (funMatch.matches()) {
+                    if (funMatch.matches() && !line.contains(" private ")) {
                         if (currentAspect != null) {
                             AspectMethod method = new AspectMethod();
                             method.name = funMatch.group(1).trim();
-                            if(funMatch.groupCount()==3){
+                            if (funMatch.groupCount() == 3) {
                                 method.returnType = funMatch.group(3);
-                                if(method.returnType != null){
-                                    method.returnType = method.returnType.replace(":","").trim();
+                                if (method.returnType != null) {
+                                    method.returnType = method.returnType.replace(":", "").trim();
                                 }
                             }
                             String params = funMatch.group(2);
                             String[] paramsArray = params.split(",");
-                            for(int i=0;i<paramsArray.length;i++){
+                            for (int i = 0; i < paramsArray.length; i++) {
                                 String[] paramType = paramsArray[i].split(":");
-                                if(paramType.length == 2){
+                                if (paramType.length == 2) {
                                     AspectParam param = new AspectParam();
                                     param.name = paramType[0].trim();
                                     param.type = paramType[1].trim();
@@ -337,18 +328,38 @@ public class GenModelPlugin extends AbstractMojo {
                             currentAspect.methods.add(method);
                         }
                     }
+                    Matcher newMeta = metaAspect.matcher(line);
                     Matcher m = p.matcher(line);
-                    if (m.matches()) {
+                    if (m.matches() || newMeta.matches()) {
                         if (currentAspect != null) {
                             cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
                         }
-                        currentAspect = new AspectClass();
-                        currentAspect.name = m.group(1).trim();
-                        currentAspect.aspectedClass = m.group(2).trim();
-                        currentAspect.packageName = packageName.trim();
+                        if (newMeta.matches()) {
+                            NewMetaClassCreation newMetaObject = new NewMetaClassCreation();
+                            newMetaObject.originFile = kotlinFile;
+                            newMetaObject.name = newMeta.group(1).trim();
+                            newMetaObject.packageName = packageName.trim();
+                            if (newMeta.groupCount() == 3) {
+                                newMetaObject.parentName = newMeta.group(3);
+                                if (newMetaObject.parentName != null) {
+                                    newMetaObject.parentName = newMetaObject.parentName.replace(":", "").trim();
+                                }
+                            }
+                            newMetaClass.add(newMetaObject);
+                            currentAspect = new AspectClass();
+                            currentAspect.name = newMeta.group(2);
+                            //same name than the aspected class
+                            currentAspect.aspectedClass = newMetaObject.name;
+                            currentAspect.packageName = packageName.trim();
+                        } else {
+                            currentAspect = new AspectClass();
+                            currentAspect.name = m.group(1).trim();
+                            currentAspect.aspectedClass = m.group(2).trim();
+                            currentAspect.packageName = packageName.trim();
+                        }
                     } else {
-                        if( line.contains(" trait ") || line.contains(" class ") ){
-                            if(currentAspect != null){
+                        if (line.contains(" trait ") || line.contains(" class ")) {
+                            if (currentAspect != null) {
                                 cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
                             }
                             currentAspect = null;
@@ -366,33 +377,38 @@ public class GenModelPlugin extends AbstractMojo {
                 e.printStackTrace();
             }
 
-            if (js) {
-                //copy file to util
-                if (!outputUtil.exists()) {
-                    outputUtil.mkdirs();
-                }
-                URI relativeURI = sourceFile.toURI().relativize(kotlinFile.toURI());
-                File newFileTarget = new File(outputUtil + File.separator + relativeURI);
-                newFileTarget.getParentFile().mkdirs();
-                try {
-                    if (cacheAspects == null) {
-                        Files.copy(kotlinFile, newFileTarget);
-                    } else {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(newFileTarget));
-                        br = new BufferedReader(new FileReader(kotlinFile));
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            writer.write(line
-                                    .replace("aspect trait", "trait")
-                                    .replace("import org.kevoree.modeling.api.aspect;", "")
-                                    .replace("import org.kevoree.modeling.api.aspect", ""));
-                            writer.write("\n");
-                        }
-                        writer.close();
+
+            if(js){
+            //copy file to util
+            if (!outputUtil.exists()) {
+                outputUtil.mkdirs();
+            }
+            URI relativeURI = sourceFile.toURI().relativize(kotlinFile.toURI());
+            File newFileTarget = new File(outputUtil + File.separator + relativeURI);
+            newFileTarget.getParentFile().mkdirs();
+            try {
+                if (cacheAspects == null) {
+                    Files.copy(kotlinFile, newFileTarget);
+                } else {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(newFileTarget));
+                    br = new BufferedReader(new FileReader(kotlinFile));
+                    String line;
+
+                    while ((line = br.readLine()) != null) {
+                        writer.write(line
+                                .replace("aspect trait", "trait")
+                                .replace("metaclass.* trait", "trait")
+                                .replace("import org.kevoree.modeling.api.aspect;", "")
+                                .replace("import org.kevoree.modeling.api.aspect", "")
+                                .replace("import org.kevoree.modeling.api.metaclass;", "")
+                                .replace("import org.kevoree.modeling.api.metaclass", ""));
+                        writer.write("\n");
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    writer.close();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             }
         }
 
@@ -403,6 +419,7 @@ public class GenModelPlugin extends AbstractMojo {
         GenerationContext ctx = new GenerationContext();
         ctx.setRootSrcDirectory(sourceFile);
         ctx.aspects_$eq(cacheAspects);
+        ctx.newMetaClasses_$eq(newMetaClass);
         try {
             for (String path : project.getCompileClasspathElements()) {
                 if (path.contains("org.kevoree.modeling.microframework")) {
@@ -415,8 +432,7 @@ public class GenModelPlugin extends AbstractMojo {
 
         ctx.setPackagePrefix(scala.Option.apply(packagePrefix));
         ctx.setRootGenerationDirectory(output);
-        ctx.setRootUserDirectory(inputScala);
-        ctx.setRootContainerClassName(scala.Option.apply(rootXmiContainerClassName));
+        ctx.setRootUserDirectory(sourceFile);
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
@@ -430,10 +446,12 @@ public class GenModelPlugin extends AbstractMojo {
         Generator gen = new Generator(ctx, ecore);//, getLog());
 
         gen.generateModel(project.getVersion());
-        if (!modelOnly) {
+
+        if (xmi) {
             gen.generateLoader();
             gen.generateSerializer();
         }
+
         if (json) {
             gen.generateJSONSerializer();
             gen.generateJsonLoader();
@@ -595,7 +613,7 @@ public class GenModelPlugin extends AbstractMojo {
                             Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
-                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt") ) {
+                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt")) {
 
                                     String fileName = entry.getName();
                                     if (fileName.endsWith(".jslib")) {
@@ -697,14 +715,12 @@ public class GenModelPlugin extends AbstractMojo {
                     outputFile.write(compiler.toSource());
                     outputFile.close();
 
-                    if(outputUtil.exists()){
+                    if (outputUtil.exists()) {
                         FileUtils.deleteDirectory(outputUtil);
                     }
 
 
                 }
-
-
 
 
             } else {
