@@ -98,7 +98,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     equivalentMap.put("MutableIterator<*>", "MutableIterator");
     equivalentMap.put("MutableIterator<Any?>", "MutableIterator");
     equivalentMap.put("Class<out jet.Any?>", "Class");
-    if (equivalentMap.get(methodReturnTypeTxt) == aop.returnType) {
+    if (equivalentMap.get(methodReturnTypeTxt) == aop.returnType || (eop.getEType != null && eop.getEType.getName == aop.returnType)) {
       returnTypeCheck = true
     } else {
       if (methodReturnTypeTxt == aop.returnType) {
@@ -123,7 +123,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
             ProcessorHelper.fqn(ctx, eparam.getEType)
           }
           var returnTypeCheck = false
-          if (equivalentMap.get(methodReturnTypeTxt) == aop.params.get(i-1).`type`) {
+          if (equivalentMap.get(methodReturnTypeTxt) == aop.params.get(i-1).`type`|| (eparam.getEType != null && eparam.getEType.getName == aop.params.get(i-1).`type`)) {
             returnTypeCheck = true
           } else {
             if (methodReturnTypeTxt == aop.params.get(i-1).`type`) {
@@ -221,7 +221,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                   }
                   System.err.println()
               } */
-
 
               val targetSrc = ctx.getRootSrcDirectory();
               val targetFile = new File(targetSrc + File.separator + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName + ".kt");
