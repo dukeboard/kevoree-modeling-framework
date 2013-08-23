@@ -384,6 +384,7 @@ public class GenModelPlugin extends AbstractMojo {
                         while ((line = br.readLine()) != null) {
                             writer.write(line
                                     .replace("aspect trait", "trait")
+                                    .replace("import org.kevoree.modeling.api.aspect;", "")
                                     .replace("import org.kevoree.modeling.api.aspect", ""));
                             writer.write("\n");
                         }
@@ -594,7 +595,7 @@ public class GenModelPlugin extends AbstractMojo {
                             Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
-                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt") /*&& !entry.getName().endsWith("aspect.kt")*/) {
+                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt") ) {
 
                                     String fileName = entry.getName();
                                     if (fileName.endsWith(".jslib")) {
