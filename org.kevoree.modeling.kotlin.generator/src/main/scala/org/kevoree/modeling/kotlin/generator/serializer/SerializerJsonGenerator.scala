@@ -164,10 +164,6 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.close()
   }
 
-  private def getGetter(name: String): String = {
-    "get" + name.charAt(0).toUpper + name.substring(1)
-  }
-
   /*
   private def generateEENUMToJsonMethod(cls: EEnum, buffer: PrintWriter) {
     buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
@@ -197,8 +193,6 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     //GENERATE GET Json ADDR                                                                              0
     buffer.println("private fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + "): Map<Any,String> {")
     buffer.println("var subResult = java.util.HashMap<Any,String>()")
-    //buffer.println("if(previousAddr == \"/\"){ subResult.put(selfObject,\"//\") }\n")
-
     if (cls.getEAllContainments.filter(subClass => subClass.getUpperBound == -1).size > 0) {
       buffer.println("var i = 0")
     }
@@ -209,7 +203,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
       subClass =>
         subClass.getUpperBound match {
           case 1 => {
-            buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
+            buffer.println("val sub" + subClass.getName + " = selfObject." + ProcessorHelper.protectReservedWords(subClass.getName))
             buffer.println("if(sub" + subClass.getName + "!= null){")
 
             //buffer.println("val subPath_" + subClass.getName + "=sub" + subClass.getName + ".path()")
@@ -227,7 +221,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
               buffer.println("i=0")
             }
             firstUsed = false
-            buffer.println("for(sub in selfObject." + getGetter(subClass.getName) + "()){")
+            buffer.println("for(sub in selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + "){")
 
             buffer.println("val subPath_" + subClass.getName + "=sub.path()")
             //buffer.println("if(subPath_" + subClass.getName + "!=null){")
@@ -290,12 +284,12 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
               att.getLowerBound match {
                 case _ => {
                   if (att.getEAttributeType.isInstanceOf[EEnum]) {
-                    buffer.println("if(selfObject." + getGetter(att.getName) + "() != null){")
+                    buffer.println("if(selfObject." + ProcessorHelper.protectReservedWords(att.getName) + " != null){")
                     buffer.println("ostream.println(',')")
-                    buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\\\"\"+selfObject." + getGetter(att.getName) + "()!!.name()+\"\\\"\")")
+                    buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\\\"\"+selfObject." + ProcessorHelper.protectReservedWords(att.getName) + "!!.name()+\"\\\"\")")
                     buffer.println("}")
                   } else {
-                    buffer.println("if(selfObject." + getGetter(att.getName) + "().toString() != \"\"){")
+                    buffer.println("if(selfObject."+ProcessorHelper.protectReservedWords(att.getName) +"!=null && selfObject." + ProcessorHelper.protectReservedWords(att.getName) + ".toString() != \"\"){")
                     buffer.println("ostream.println(',')")
 
                     buffer.println("ostream.print(\" \\\"" + att.getName + "\\\":\")")
@@ -303,9 +297,9 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
                       buffer.println("ostream.print(\"\\\"\")")
                     }
                     if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "String") {
-                      buffer.println("escapeJson(ostream, selfObject." + getGetter(att.getName) + "())")
+                      buffer.println("escapeJson(ostream, selfObject." + ProcessorHelper.protectReservedWords(att.getName) + ")")
                     } else {
-                      buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "())")
+                      buffer.println("ostream.print(selfObject." + ProcessorHelper.protectReservedWords(att.getName) + "!!)")
                     }
                     if (!ProcessorHelper.convertType(att.getEAttributeType,ctx).equals("Boolean")) {
                       buffer.println("ostream.print('\"')")
@@ -319,9 +313,8 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
           }
       }
 
-
       def generateRef(ref: EReference) {
-        buffer.println("val subsub" + ref.getName + " = selfObject." + getGetter(ref.getName) + "()")
+        buffer.println("val subsub" + ref.getName + " = selfObject." + ProcessorHelper.protectReservedWords(ref.getName) )
         buffer.println("if(subsub" + ref.getName + " != null){")
         buffer.println("val subsubsub" + ref.getName + " = addrs.get(subsub" + ref.getName + ")")
         buffer.println("if(subsubsub" + ref.getName + " != null){")
@@ -356,11 +349,11 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
               }
             }
             case _ => {
-              buffer.println("if(selfObject." + getGetter(ref.getName) + "().size() > 0){")
+              buffer.println("if(selfObject." + ProcessorHelper.protectReservedWords(ref.getName) + ".size() > 0){")
               buffer.println("ostream.println(',')")
               buffer.println("ostream.print(\" \\\"" + ref.getName + "\\\": [\")")
               buffer.println("var firstItLoop = true")
-              buffer.println("for(sub in selfObject." + getGetter(ref.getName) + "()){")
+              buffer.println("for(sub in selfObject." + ProcessorHelper.protectReservedWords(ref.getName) + "){")
               buffer.println("if(!firstItLoop){ostream.println(\",\")}")
               buffer.println("val subsub = addrs.get(sub)")
               buffer.println("if(subsub != null){")
@@ -383,7 +376,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
         subClass.getUpperBound match {
           case 1 => {
             if (subClass.getLowerBound == 0) {
-              buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "()")
+              buffer.println("val sub" + subClass.getName + " = selfObject." + ProcessorHelper.protectReservedWords(subClass.getName))
               buffer.println("if(sub" + subClass.getName + "!= null){")
               buffer.println("ostream.println(',')")
               buffer.println("ostream.print(\"\\\"" + subClass.getName + "\\\":\")")
@@ -392,15 +385,15 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
             } else {
               buffer.println("ostream.println(',')")
               buffer.println("ostream.println(\"\\\"" + subClass.getName + "\\\":\")")
-              buffer.println("" + subClass.getEReferenceType.getName + "toJson(selfObject." + getGetter(subClass.getName) + "()!!,addrs,ostream)")
+              buffer.println("" + subClass.getEReferenceType.getName + "toJson(selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + "!!,addrs,ostream)")
             }
           }
           case _ if(subClass.getUpperBound == -1 || subClass.getUpperBound > 1) => {
-            buffer.println("if(selfObject." + getGetter(subClass.getName) + "().size() > 0){")
+            buffer.println("if(selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + ".size() > 0){")
             buffer.println("ostream.println(',')")
             buffer.println("ostream.println(\"\\\"" + subClass.getName + "\\\": [\")")
             buffer.println("var iloop_first_" + subClass.getName + " = true")
-            buffer.println("for(so in selfObject." + getGetter(subClass.getName) + "()){")
+            buffer.println("for(so in selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + "){")
             buffer.println("if(!iloop_first_" + subClass.getName + "){ostream.println(',')}")
             buffer.println("" + subClass.getEReferenceType.getName + "toJson(so,addrs,ostream)")
             buffer.println("iloop_first_" + subClass.getName + " = false")

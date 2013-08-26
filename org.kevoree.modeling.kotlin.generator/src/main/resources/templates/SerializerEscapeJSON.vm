@@ -1,5 +1,6 @@
 
-private fun escapeJson(ostream : java.io.PrintStream, chain : String) {
+private fun escapeJson(ostream : java.io.PrintStream, chain : String?) {
+    if(chain == null){return;}
     var i = 0
     while(i < chain.size){
         val c = chain.get(i)

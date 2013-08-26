@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.events.*
+import org.kevoree.modeling.api.util.ModelVisitor
 
 trait KMFContainer {
 
@@ -19,7 +20,6 @@ trait KMFContainer {
     fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?)
     fun containedElementsList(): List<Any>
 
-
     fun selectByQuery(query : String) : List<Any>
 
     fun addModelElementListener(lst : ModelElementListener)
@@ -33,5 +33,7 @@ trait KMFContainer {
     fun findByPath<A>(query : String, clazz : Class<A>) : A?
     fun containedElements() : Iterable<KMFContainer>
     fun containedAllElements() : Iterable<KMFContainer>
+
+    fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, onlyContainedRef : Boolean)
 
 }

@@ -147,13 +147,8 @@ class SerializerGenerator(ctx: GenerationContext) {
     return result.values()
   }
 
-
-  private def getGetter(name: String): String = {
-    "get"+ name.charAt(0).toUpper + name.substring(1)+"()"
-  }
-
   private def generateRef(buffer: PrintWriter, cls: EClass, ref: EReference) {
-    buffer.println("val subsub" + ref.getName + " = selfObject." + getGetter(ref.getName) + "")
+    buffer.println("val subsub" + ref.getName + " = selfObject." + ProcessorHelper.protectReservedWords(ref.getName))
     buffer.println("if(subsub" + ref.getName + " != null){")
     buffer.println("val subsubsub" + ref.getName + " = addrs.get(subsub" + ref.getName + ")")
     buffer.println("if(subsubsub" + ref.getName + " != null){")
@@ -184,7 +179,7 @@ class SerializerGenerator(ctx: GenerationContext) {
         subClass.getUpperBound match {
           case 1 => {
             //if (subClass.getLowerBound == 0) {
-            buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "")
+            buffer.println("val sub" + subClass.getName + " = selfObject." + ProcessorHelper.protectReservedWords(subClass.getName))
             buffer.println("if(sub" + subClass.getName + "!= null){")
             buffer.println("subResult.put(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\" )")
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\"))")
@@ -195,7 +190,7 @@ class SerializerGenerator(ctx: GenerationContext) {
               buffer.println("i=0")
             }
             firstUsed = false
-            buffer.println("for(sub in selfObject." + getGetter(subClass.getName) + "){")
+            buffer.println("for(sub in selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + "){")
             buffer.println("subResult.put(sub,(previousAddr+\"/@" + subClass.getName + ".\"+i))")
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "XmiAddr(sub,previousAddr+\"/@" + subClass.getName + ".\"+i))")
             buffer.println("i=i+1")
@@ -256,18 +251,18 @@ class SerializerGenerator(ctx: GenerationContext) {
               att.getLowerBound match {
                 case _ => {
                   if (att.getEAttributeType.isInstanceOf[EEnum]) {
-                    buffer.println("if(selfObject." + getGetter(att.getName) + " != null){")
+                    buffer.println("if(selfObject." + ProcessorHelper.protectReservedWords(att.getName) + " != null){")
                     buffer.println("ostream.print(\" " + att.getName + "=\\\"\")")
-                    buffer.println("ostream.print(selfObject." + getGetter(att.getName) + "!!.name())")
+                    buffer.println("ostream.print(selfObject." + ProcessorHelper.protectReservedWords(att.getName) + "!!.name())")
                     buffer.println("ostream.print('\"')")
                     buffer.println("}")
                   } else {
-                    buffer.println("if(selfObject." + getGetter(att.getName) + ".toString().notEmpty()){")
+                    buffer.println("if(selfObject." + ProcessorHelper.protectReservedWords(att.getName) + ".toString().notEmpty()){")
                     buffer.println("ostream.print(\" " + att.getName + "=\\\"\")")
                     if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "String") {
-                      buffer.println("escapeXml(ostream, selfObject." + getGetter(att.getName) + ")")
+                      buffer.println("escapeXml(ostream, selfObject." + ProcessorHelper.protectReservedWords(att.getName) + ")")
                     } else {
-                      buffer.println("ostream.print(selfObject." + getGetter(att.getName) + ")")
+                      buffer.println("ostream.print(selfObject." + ProcessorHelper.protectReservedWords(att.getName) + ")")
                     }
                     buffer.println("ostream.print('\"')")
                     buffer.println("}")
@@ -303,10 +298,10 @@ class SerializerGenerator(ctx: GenerationContext) {
             }
             case _ => {
               //buffer.println("var subadrs" + ref.getName + " : List[String] = List()")
-              buffer.println("if(selfObject." + getGetter(ref.getName) + ".size() > 0){")
+              buffer.println("if(selfObject." + ProcessorHelper.protectReservedWords(ref.getName) + ".size() > 0){")
               buffer.println("ostream.print(\" " + ref.getName + "=\\\"\")")
               buffer.println("var firstItLoop = true")
-              buffer.println("for(sub in selfObject." + getGetter(ref.getName) + "){")
+              buffer.println("for(sub in selfObject." + ProcessorHelper.protectReservedWords(ref.getName) + "){")
               buffer.println("if(!firstItLoop){ostream.print(\" \")}")
               buffer.println("val subsub = addrs.get(sub)")
               buffer.println("if(subsub != null){")
@@ -329,16 +324,16 @@ class SerializerGenerator(ctx: GenerationContext) {
         subClass.getUpperBound match {
           case 1 => {
             if (subClass.getLowerBound == 0) {
-              buffer.println("val sub" + subClass.getName + " = selfObject." + getGetter(subClass.getName) + "")
+              buffer.println("val sub" + subClass.getName + " = selfObject." + ProcessorHelper.protectReservedWords(subClass.getName))
               buffer.println("if(sub" + subClass.getName + "!= null){")
               buffer.println("" + subClass.getEReferenceType.getName + "toXmi(sub" + subClass.getName + ",\"" + subClass.getName + "\",addrs,ostream,false)")
               buffer.println("}")
             } else {
-              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + getGetter(subClass.getName) + "!!,\"" + subClass.getName + "\",addrs,ostream,false)")
+              buffer.println("" + subClass.getEReferenceType.getName + "toXmi(selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + "!!,\"" + subClass.getName + "\",addrs,ostream,false)")
             }
           }
           case _ if(subClass.getUpperBound == -1 || subClass.getUpperBound > 1) => {
-            buffer.println("for(so in selfObject." + getGetter(subClass.getName) + "){")
+            buffer.println("for(so in selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + "){")
             buffer.println("" + subClass.getEReferenceType.getName + "toXmi(so,\"" + subClass.getName + "\",addrs,ostream,false)")
             buffer.println("}")
           }

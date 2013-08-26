@@ -152,7 +152,7 @@ trait JavaAPIGenerator extends ClassGenerator {
           throw new UnsupportedOperationException("GenDefConsRef::Not a standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
         }
 
-        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
+        if (ref.getUpperBound == -1 || ref.getLowerBound > 1) {
           pr.println("public " + protectReservedJWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + " find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(@org.jetbrains.annotations.NotNull String key);")
         }
 

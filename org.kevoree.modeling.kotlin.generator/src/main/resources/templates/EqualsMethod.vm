@@ -10,14 +10,14 @@ override fun deepModelEquals(similarObj : Any?) : Boolean {
     val similarObjCasted = similarObj as ${FQNHelper.fqn($ctx, $currentClass)}
     #foreach( $sub in $currentClass.getEAllContainments())
         #if($sub.isMany())
-        for(subElement in get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){
+        for(subElement in _${sub.getName()}.values()){
         #if($sub.getEReferenceType().getEIDAttribute())
-            val foundedElement = similarObjCasted.find${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}ByID(subElement.get${sub.getEReferenceType().getEIDAttribute().getName().substring(0, 1).toUpperCase()}${sub.getEReferenceType().getEIDAttribute().getName().substring(1)}())
+            val foundedElement = similarObjCasted.find${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}ByID(subElement.${sub.getEReferenceType().getEIDAttribute().getName()})
             if(foundedElement == null || foundedElement != subElement){ return false }
         #else
             //todo optimize with pre sort on collection
             var lookEqualsSub = false
-            for(subElement2 in similarObjCasted.get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){
+            for(subElement2 in similarObjCasted.${sub.getName()}){
                 if(subElement.deepModelEquals(subElement2)){
                     lookEqualsSub = true
                 }
@@ -42,17 +42,17 @@ if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)}))
     }
     val similarObjCasted = similarObj as ${FQNHelper.fqn($ctx, $currentClass)}
     #foreach( $att in $currentClass.eAllAttributes )
-       if(get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}() != similarObjCasted.get${att.getName().substring(0, 1).toUpperCase()}${att.getName().substring(1)}()){
+       if($FQNHelper.protectReservedWords(${att.getName()}) != similarObjCasted.$FQNHelper.protectReservedWords(${att.getName()})){
             return false
        }
     #end
     #foreach( $sub in $currentClass.getEAllContainments())
         #if($sub.isMany())
-            if(get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}().size() != similarObjCasted.get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}().size()){
+            if(${FQNHelper.protectReservedWords(${sub.getName()})}.size() != similarObjCasted.${FQNHelper.protectReservedWords(${sub.getName()})}.size()){
                 return false
             }
         #else
-            if(get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}() != similarObjCasted.get${sub.getName().substring(0, 1).toUpperCase()}${sub.getName().substring(1)}()){
+            if(${FQNHelper.protectReservedWords(${sub.getName()})} != similarObjCasted.${FQNHelper.protectReservedWords(${sub.getName()})}){
                 return false
             }
         #end

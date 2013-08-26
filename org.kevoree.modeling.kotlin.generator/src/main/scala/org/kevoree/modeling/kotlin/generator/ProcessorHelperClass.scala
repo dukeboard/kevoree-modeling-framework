@@ -73,7 +73,7 @@ class ProcessorHelperClass {
   def convertJType(theType: String): String = {
     theType match {
       case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "boolean"
-      case "EString" | "java.lang.String" | "String" => "String"
+      case "org.ecore.EString"| "EString" | "java.lang.String" | "String" => "String"
       case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" | "EInt" => "int"
       case "float" | "java.lang.Float" => "float"
       case "double" | "java.lang.Double" | "EDouble" | "EDoubleObject" => "double"

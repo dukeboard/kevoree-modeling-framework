@@ -33,10 +33,6 @@ import scala.collection.JavaConversions._
  */
 trait KMFQLSelectorGenerator {
 
-  def hasFindByIDMethod(cls: EClass): Boolean
-
-  def hasID(cls: EClass): Boolean
-
   def generateSelectorCache(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
     var formatedCacheName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedCacheName += packElement.getName.substring(1)
@@ -68,10 +64,10 @@ trait KMFQLSelectorGenerator {
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
     ctxV.put("FQNHelper", new ProcessorHelperClass())
-    val optionalRelationShipNameGen = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType)).size == 1
+    val optionalRelationShipNameGen = cls.getEAllReferences.size == 1
     ctxV.put("optionalRelationShipNameGen", optionalRelationShipNameGen)
     if (optionalRelationShipNameGen) {
-      val relationShipOptionalName = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType)).get(0).getName
+      val relationShipOptionalName = cls.getEAllReferences.get(0).getName
       ctxV.put("relationShipOptionalName", relationShipOptionalName)
     }
     ctxV.put("eRefs",cls.getEAllReferences)

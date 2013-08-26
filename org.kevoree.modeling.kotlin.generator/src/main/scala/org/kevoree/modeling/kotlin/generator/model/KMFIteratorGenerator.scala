@@ -33,10 +33,6 @@ import scala.collection.JavaConversions._
  */
 trait KMFIteratorGenerator {
 
-  def hasFindByIDMethod(cls: EClass): Boolean
-
-  def hasID(cls: EClass): Boolean
-
   def generateIteratorFile(ctx: GenerationContext, packageGenDir: String, packElement: EPackage) {
     ProcessorHelper.checkOrCreateFolder(packageGenDir + "/util/")
     val localFile = new File(packageGenDir + "/util/CompositeIterator.kt")

@@ -21,6 +21,7 @@ import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.loader.XMIModelLoader;
 import org.kevoree.modeling.api.ModelCloner;
 import org.kevoree.modeling.api.ModelSerializer;
+import org.kevoree.serializer.JSONModelSerializer;
 import org.kevoree.serializer.XMIModelSerializer;
 
 import java.io.ByteArrayOutputStream;
@@ -65,6 +66,10 @@ public class ClonerTest {
             model.addNodes(node);
         }
 
+        ModelSerializer saver = new XMIModelSerializer();
+        ByteArrayOutputStream nullStream = new ByteArrayOutputStream();
+
+
         for (TypeDefinition td : model.getTypeDefinitions()) {
             td.setRecursiveReadOnly();
         }
@@ -91,6 +96,9 @@ public class ClonerTest {
 
         System.out.println(heapSize - heapSizeAfterNormalClone);
 
+        saver.serialize(modelCloned,nullStream);
+
+
 
         //Smart Clone
         long before2 = System.nanoTime();
@@ -101,15 +109,16 @@ public class ClonerTest {
             assert (model.findByPath(td.path()).equals(td));
         }
 
+        System.out.println(modelCloned.getTypeDefinitions().size());
         System.out.println(modelCloned2.getTypeDefinitions().size());
 
 
         long heapSizeAfterSmartClone = Runtime.getRuntime().freeMemory();
         System.out.println(heapSizeAfterNormalClone - heapSizeAfterSmartClone);
 
-
         ByteArrayOutputStream s = new ByteArrayOutputStream();
-        ModelSerializer saver = new XMIModelSerializer();
+        JSONModelSerializer saverJson = new JSONModelSerializer();
+        saverJson.serialize(modelCloned2, new ByteArrayOutputStream());
         saver.serialize(modelCloned2, s);
 
         ContainerNode newNode = factory.createContainerNode();

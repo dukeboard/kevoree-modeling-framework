@@ -1,7 +1,8 @@
 
 
-private fun escapeXml(ostream : java.io.PrintStream, chain : String) {
-   var i = 0
+private fun escapeXml(ostream : java.io.PrintStream, chain : String?) {
+    if(chain == null){return}
+    var i = 0
    var max = chain.length
    while(i < max){
         var c = chain.charAt(i)

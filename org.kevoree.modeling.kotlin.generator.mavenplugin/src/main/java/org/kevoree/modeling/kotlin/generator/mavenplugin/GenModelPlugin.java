@@ -148,14 +148,6 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean noapi = false;
 
     /**
-     * Generate Flat inheritance version
-     *
-     * @parameter
-     */
-    private Boolean flatInheritance = false;
-
-
-    /**
      * Generate JS version
      *
      * @parameter
@@ -437,11 +429,9 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
         ctx.genTrace_$eq(trace);
-
-        if (flatInheritance || js) {
-            ctx.setGenFlatInheritance();
-        }
         ctx.flyweightFactory_$eq(flyweightFactory);
+        ctx.setXMI(xmi);
+
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
 

@@ -79,7 +79,55 @@ trait APIGenerator extends ClassGenerator {
       case Some(s) => s + " {"
     }))
 
-    generateAllGetterSetterMethod(pr, cls, ctx, pack)
+    cls.getEAttributes.foreach {
+      att =>
+        if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls && !att2.getEContainingClass.isAbstract)) {} else {
+          if(att.isMany){
+            pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
+          } else {
+            pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?")
+          }
+        }
+    }
+
+    //Kotlin workaround // Why prop are not generated properly ?
+    if(ctx.getJS()){
+      cls.getEAttributes.foreach { att =>
+        if(att.isMany){
+          pr.println("public fun get"+toCamelCase(att)+"()"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
+          pr.println("public fun set"+toCamelCase(att)+"(p"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)")
+        } else {
+          pr.println("public fun get"+toCamelCase(att)+"() : "+ProcessorHelper.convertType(att.getEAttributeType, ctx)+"?")
+          pr.println("public fun set"+toCamelCase(att)+"(p : "+ProcessorHelper.convertType(att.getEAttributeType, ctx)+"?)")
+        }
+      }
+      cls.getEReferences.foreach { ref =>
+        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+        if(ref.isMany){
+          pr.println("public fun get"+toCamelCase(ref)+"()"+" : List<" + typeRefName + ">")
+          pr.println("public fun set"+toCamelCase(ref)+"(p"+" : List<" + typeRefName + ">)")
+        } else {
+          pr.println("public fun get"+toCamelCase(ref)+"() : "+typeRefName+"?")
+          pr.println("public fun set"+toCamelCase(ref)+"(p : "+typeRefName+"?)")
+        }
+      }
+    }
+    //end kotlin workaround
+
+    cls.getEReferences.foreach {
+      ref =>
+        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+        if (ref.isMany) {
+          pr.println("open var " + protectReservedWords(ref.getName) + " : List<" + typeRefName + ">")
+          generateAddMethod(pr, cls, ref, typeRefName)
+          generateAddAllMethod(pr, cls, ref, typeRefName)
+          generateRemoveMethod(pr, cls, ref, typeRefName)
+          generateRemoveAllMethod(pr, cls, ref, typeRefName)
+          pr.println("fun find" + toCamelCase(ref) + "ByID(key : String?) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
+        } else {
+          pr.println("open var " + protectReservedWords(ref.getName) + " : " + typeRefName + "?")
+        }
+    }
     /* Then generated user method */
     /* next we generated custom method */
     cls.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
@@ -91,22 +139,20 @@ trait APIGenerator extends ClassGenerator {
             if (!isFirst) {
               pr.println(",")
             }
-
-            val returnTypeP = if(p.getEType.isInstanceOf[EDataType]){
+            val returnTypeP = if (p.getEType.isInstanceOf[EDataType]) {
               ProcessorHelper.convertType(p.getEType.getName)
             } else {
-              ProcessorHelper.fqn(ctx,p.getEType)
+              ProcessorHelper.fqn(ctx, p.getEType)
             }
-
             pr.print(p.getName() + ":" + returnTypeP)
             isFirst = false
         }
         if (op.getEType != null) {
 
-          val returnTypeOP = if(op.getEType.isInstanceOf[EDataType]){
+          val returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
             ProcessorHelper.convertType(op.getEType.getName)
           } else {
-            ProcessorHelper.fqn(ctx,op.getEType)
+            ProcessorHelper.fqn(ctx, op.getEType)
           }
 
           pr.println("):" + returnTypeOP + ";")
@@ -117,162 +163,33 @@ trait APIGenerator extends ClassGenerator {
     pr.println("}")
     pr.flush()
     pr.close()
-
-
   }
 
-  private def generateAllGetterSetterMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
-    cls.getEAttributes.foreach {
-      att =>
-        if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls && !att2.getEContainingClass.isAbstract)) {} else {
-
-          //Generate getter
-          if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any" || att.getEAttributeType.isInstanceOf[EEnum]) {
-            pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "?\n")
-          } else {
-            pr.print("fun get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "() : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + "\n")
-          }
-          //generate setter
-          pr.print("\nfun set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1))
-          pr.print("(" + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType,ctx) + ") \n")
-        }
-    }
-
-
-
-    cls.getEReferences.foreach {
-      ref =>
-        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if (ref.getUpperBound == -1 || ref.getUpperBound > 1) {
-          // multiple values
-          pr.println(generateGetter(ref, typeRefName, false, false))
-          pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
-          pr.println(generateAddMethod(cls, ref, typeRefName))
-          pr.println(generateRemoveMethod(cls, ref, typeRefName))
-        } else if (ref.getUpperBound == 1 && ref.getLowerBound == 0) {
-          // optional single ref
-          pr.println(generateGetter(ref, typeRefName, true, true))
-          pr.println(generateSetter(ctx, cls, ref, typeRefName, true, true))
-        } else if (ref.getUpperBound == 1 && ref.getLowerBound == 1) {
-          // mandatory single ref
-          pr.println(generateGetter(ref, typeRefName, false, true))
-          pr.println(generateSetter(ctx, cls, ref, typeRefName, false, true))
-        } else if (ref.getLowerBound > 1) {
-          pr.println(generateGetter(ref, typeRefName, false, false))
-          pr.println(generateSetter(ctx, cls, ref, typeRefName, false, false))
-          pr.println(generateAddMethod(cls, ref, typeRefName))
-          pr.println(generateRemoveMethod(cls, ref, typeRefName))
-        } else {
-          throw new UnsupportedOperationException("GenDefConsRef::Not a standard arrity: " + cls.getName + "->" + typeRefName + "[" + ref.getLowerBound + "," + ref.getUpperBound + "]. Not implemented yet !")
-        }
-
-        if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-          pr.println("fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
-        }
-
-    }
-
-
+  private def generateAddAllMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
+    pr.println("fun addAll" + toCamelCase(ref) + "(" + protectReservedWords(ref.getName) + " :List<" + typeRefName + ">)")
   }
 
-  private def generateGetter(ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
-    //Generate getter
-    val methName = "get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    var res = ""
-    res += "\nfun " + methName + "() : "
-
-    //Set return type
-    res += {
-      if (isOptional) {
-        ""
-      } else {
-        ""
-      }
-    }
-    res += {
-      if (!isSingleRef) {
-        "List<"
-      } else {
-        ""
-      }
-    }
-    res += typeRefName
-    res += {
-      if (!isSingleRef) {
-        ">"
-      } else {
-        "?"
-      }
-    }
-    return res
+  private def generateAddMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
+    pr.println("fun add" + toCamelCase(ref) + "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ")")
   }
 
-  private def generateSetter(ctx: GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
-    //generate setter
-    var res = ""
-    val formatedLocalRefName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    res += "\nfun set" + formatedLocalRefName
-    res += "(" + protectReservedWords(ref.getName) + " : "
-    res += {
-      if (!isSingleRef) {
-        "List<"
-      } else {
-        if (isOptional) {
-          ""
-        } else {
-          ""
-        }
-      }
-    }
-    res += typeRefName
-    res += {
-      if (!isSingleRef) {
-        ">"
-      } else {
-        if (isOptional) {
-          "?"
-        } else {
-          "?"
-        }
-      }
-    }
-    res += " )\n"
-    return res
+  private def generateRemoveMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
+    pr.println("fun remove" + toCamelCase(ref) + "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ")")
   }
 
-  private def generateAddAllMethod(cls: EClass, ref: EReference, typeRefName: String): String = {
-    var res = ""
-    res += "\n"
-    res += "\nfun addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    res += "(" + protectReservedWords(ref.getName) + " :List<" + typeRefName + ">)\n"
-    return res
+  private def generateRemoveAllMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
+    pr.println("fun removeAll" + toCamelCase(ref) + "()")
   }
 
-  private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String): String = {
-    //generate add
-    var res = ""
-    val formatedAddMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    res += "\nfun add" + formatedAddMethodName
-    res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ")\n"
-    res += generateAddAllMethod(cls, ref, typeRefName)
-    return res
+  private def toCamelCase(ref: EReference): String = {
+    return ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
   }
 
-  private def generateRemoveMethod(cls: EClass, ref: EReference, typeRefName: String): String = {
-    //generate remove
-    var res = ""
-    val formatedMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-    res += "\nfun remove" + formatedMethodName
-    res += "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ")\n"
-    res += generateRemoveAllMethod(cls, ref, typeRefName)
-    return res
+  private def toCamelCase(att: EAttribute): String = {
+    return att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
   }
 
-  private def generateRemoveAllMethod(cls: EClass, ref: EReference, typeRefName: String): String = {
-    var res = ""
-    res += "\nfun removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()\n"
-    return res
-  }
+
 
 
 }

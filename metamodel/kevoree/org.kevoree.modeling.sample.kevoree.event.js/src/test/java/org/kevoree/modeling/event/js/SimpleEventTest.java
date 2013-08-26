@@ -58,7 +58,6 @@ public class SimpleEventTest {
 
         File html = new File("tester.html");
         final HtmlPage page = webClient.getPage("file:///" + html.getAbsolutePath());
-
         assert (traces.get(0).toLowerCase().contains("add event"));
         assert (traces.get(1).toLowerCase().contains("set event"));
         assert (traces.get(2).toLowerCase().contains("renewindex"));

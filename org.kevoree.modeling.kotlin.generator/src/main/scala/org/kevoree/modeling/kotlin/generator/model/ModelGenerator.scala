@@ -69,11 +69,9 @@
 package org.kevoree.modeling.kotlin.generator.model
 
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.xmi.XMIResource
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import org.eclipse.emf.ecore._
 import scala.collection.JavaConversions._
-import java.io.File
 
 /**
  * Created by IntelliJ IDEA.
@@ -96,7 +94,7 @@ with ContainedElementsGenerator
 with KMFIteratorGenerator
 with JavaAPIGenerator
 with DiffGenerator
-with ConstantsGenerator{
+with ConstantsGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
@@ -124,7 +122,7 @@ with ConstantsGenerator{
 
     if (ctx.genTrace) {
       generateModelTraceAPI(ctx, loaderGenBaseDir)
-      if(ctx.generateEvents){
+      if (ctx.generateEvents) {
         generateModelEvent2Trace(ctx, loaderGenBaseDir)
       }
       generateModelTraceCompare(ctx, loaderGenBaseDir)
@@ -156,17 +154,12 @@ with ConstantsGenerator{
     //log.debug("Processing classifier:" + cls.getName)
     cls match {
       case cl: EClass => {
-        if (ctx.getGenFlatInheritance) {
-          generateFlatClass(ctx, currentPackageDir, packElement, cl)
-        } else {
-          generateClass(ctx, currentPackageDir, packElement, cl)
-          generateCompanion(ctx, currentPackageDir, packElement, cl, userPackageDir)
-        }
-        if (!ctx.getJS()) {
-          generateJAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
-        } else {
-          generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
-        }
+        generateFlatClass(ctx, currentPackageDir, packElement, cl)
+        //if (!ctx.getJS()) {
+        //  generateJAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        //} else {
+        generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        //}
       }
       case dt: EDataType => {
         dt match {

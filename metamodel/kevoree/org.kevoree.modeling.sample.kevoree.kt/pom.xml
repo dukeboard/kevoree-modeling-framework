@@ -67,9 +67,9 @@
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
-                            <clearOutput>false</clearOutput>
-							<json>true</json>
 							<events>true</events>
+                            <json>true</json>
+                            <xmi>true</xmi>
                             <selector>true</selector>
                             <trace>true</trace>
                         </configuration>

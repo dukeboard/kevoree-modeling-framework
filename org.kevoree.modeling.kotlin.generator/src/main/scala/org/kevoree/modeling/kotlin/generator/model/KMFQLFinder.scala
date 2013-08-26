@@ -66,86 +66,65 @@ import scala.collection.JavaConversions._
  */
 trait KMFQLFinder {
 
-  def hasID(cls: EClass): Boolean
-
-  def hasFindByIDMethod(cls: EClass): Boolean
-
-
   def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
-    if (hasID(cls)) {
-      if(!ctx.getGenFlatInheritance){
-        if (cls.getEAllSuperTypes.exists(st => hasID(st))) {
-          pr.print("override ")
-        }
+    pr.println("override fun internalGetKey() : String? {")
+    var first = true
+    pr.print("return ")
+    val idAttributes = cls.getEAllAttributes.filter(att => att.isID && !att.getName.equals("generated_KMF_ID"))
+
+    if (idAttributes.size > 0) {
+      //gets all IDs
+      idAttributes.sortWith {
+        (att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase
+      } //order alphabetically
+        .foreach {
+        att =>
+          if (!first) {
+            pr.print("+\"/\"+")
+          }
+          pr.print(" " + protectReservedWords(att.getName))
+          first = false
       }
-      pr.println("fun internalGetKey() : String {")
-      var first = true
-      pr.print("return ")
-      val idAttributes = cls.getEAllAttributes.filter(att => att.isID && !att.getName.equals("generated_KMF_ID"))
-
-      if(idAttributes.size > 0) {
-        //gets all IDs
-        idAttributes.sortWith{(att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase} //order alphabetically
-          .foreach {
-          att =>
-            if (!first) {
-              pr.print("+\"/\"+")
-            }
-            pr.print(" get" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1) + "()")
-            first = false
-        }
-      } else {
-        pr.print(" getGenerated_KMF_ID()")
-      }
-
-      pr.println()
-      pr.println("}")
-      pr.println("override fun path() : String? {")
-      pr.println("val container = eContainer()")
-      pr.println("if(container != null) {")
-        pr.println("val parentPath = container.path()")
-        pr.println("if(parentPath== null){return null} else {")
-      pr.println("return  if(parentPath == \"\"){\"\"}else{parentPath + \"/\"} + internal_containmentRefName + \"[\"+internalGetKey()+\"]\"")
-      pr.println("}")
-      pr.println("} else {")
-      pr.println("return \"\"")
-      pr.println("}")
-
-      pr.println("}")
     } else {
-
-      if (!cls.getEAllSuperTypes.exists(st => hasID(st))) {
-        pr.println("override fun path() : String? {")
-        pr.println("if(eContainer() == null){return \"\"} else {return null}")
-        pr.println("}")
-      }
-
-
+      pr.print(" generated_KMF_ID")
     }
+
+    pr.println()
+    pr.println("}")
+    pr.println("override fun path() : String? {")
+    pr.println("val container = eContainer()")
+    pr.println("if(container != null) {")
+    pr.println("val parentPath = container.path()")
+    pr.println("if(parentPath== null){return null} else {")
+    pr.println("return  if(parentPath == \"\"){\"\"}else{parentPath + \"/\"} + internal_containmentRefName + \"[\"+internalGetKey()+\"]\"")
+    pr.println("}")
+    pr.println("} else {")
+    pr.println("return \"\"")
+    pr.println("}")
+
+    pr.println("}")
 
 
     //GENERATE findByID methods
     var generateReflexifMapper = false
-
-    val refs = if(ctx.getGenFlatInheritance){cls.getEAllReferences}else{cls.getEReferences}
-    refs.foreach(ref => {
-      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
+    cls.getEAllReferences.foreach(ref => {
+      if (ref.isMany) {
         generateReflexifMapper = true
-        pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
-        pr.println("return " + protectReservedWords("_" + ref.getName) + ".get(key)")
+        pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String?) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
+        pr.println("return " + "_" + ref.getName + ".get(key)")
         pr.println("}")
       }
     })
-    if (generateReflexifMapper || cls.getEAllSuperTypes.filter(st=>st.getEAllReferences.exists(ref=>ref.isMany)).size > 2) {
+
+
+
+    if (generateReflexifMapper || cls.getEAllSuperTypes.filter(st => st.getEAllReferences.exists(ref => ref.isMany)).size > 2) {
       generateFindByPathMethods(ctx, cls, pr)
     } else {
-      if (!cls.getEAllSuperTypes.exists(st => hasID(st)) || ctx.getGenFlatInheritance) {
-        if (!ctx.getJS()) {
-          pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
-        }
-        pr.println("override fun findByPath(query : String) : Any? {return null}")
+      if (!ctx.getJS()) {
+        pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
       }
-
+      pr.println("override fun findByPath(query : String) : Any? {return null}")
     }
   }
 
@@ -171,11 +150,11 @@ trait KMFQLFinder {
     pr.println("var queryID = \"\"")
     pr.println("var extraReadChar = 2")
 
-    val optionalRelationShipNameGen = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType)).size == 1
+    val optionalRelationShipNameGen = cls.getEAllReferences.size == 1
     if (optionalRelationShipNameGen) {
       //Optional relationship definition
-      val relationShipOptionalName = cls.getEAllReferences.filter(ref => hasID(ref.getEReferenceType) /*&& (ref.getUpperBound == -1 || ref.getLowerBound > 1)*/).get(0).getName
-      pr.println("val relationName = " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ relationShipOptionalName)
+      val relationShipOptionalName = cls.getEAllReferences.get(0).getName
+      pr.println("val relationName = " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + relationShipOptionalName)
       pr.println("val optionalDetected = ( firstSepIndex != " + relationShipOptionalName.size + " )")
       pr.println("if(optionalDetected){ extraReadChar = extraReadChar - 2 }")
     } else {
@@ -221,39 +200,25 @@ trait KMFQLFinder {
     pr.println("}")
     pr.println("return when(relationName) {")
     cls.getEAllReferences.foreach(ref => {
-      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == -1 || ref.getLowerBound > 1)) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ ref.getName + " -> {")
+      if (ref.isMany) {
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
         pr.println("val objFound = find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(queryID)")
         pr.println("if(subquery != \"\" && objFound != null){")
-        if (hasFindByIDMethod(ref.getEReferenceType)) {
-          pr.println("objFound.findByPath(subquery)")
-        } else {
-          pr.println("throw Exception(\"KMFQL : rejected sucessor\"+relationName+\" from "+cls.getName+"\")")
-        }
+        pr.println("objFound.findByPath(subquery)")
         pr.println("} else {objFound}")
         pr.println("}")
 
       }
-
-      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) ){ //&& (ref.getLowerBound == 1)) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ ref.getName + " -> {")
+      if (ref.getUpperBound == 1) {
+        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
         pr.println("if(subquery != \"\"){")
-        pr.println("var obj = get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
+        pr.println("var obj = " + ProcessorHelper.protectReservedWords(ref.getName))
         pr.println("obj?.findByPath(subquery)")
         pr.println("} else {")
-        pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
+        pr.println( ProcessorHelper.protectReservedWords(ref.getName) )
         pr.println("}")
-
-        pr.println("}")
-
-      }
-      /*
-      if (hasID(ref.getEReferenceType) && (ref.getUpperBound == 1) && (ref.getLowerBound == 0)) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_"+ ref.getName + " -> {")
-        pr.println("get" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "()")
         pr.println("}")
       }
-      */
     })
     pr.println("else -> {null}")
     pr.println("}")

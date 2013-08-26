@@ -15,27 +15,74 @@ return ${packElem}.DeepIterable(this)
 override fun containedElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContainer().get()> {
     return ${packElem}.CompositeIterable(containedElementsList())
 }
-
 #end
 
-override fun containedElementsList() : MutableList<Any> {
-
+override fun containedElementsList() : List<Any> {
     val result = java.util.ArrayList<Any>()
-#set($i=0)
 #foreach( $ref in $currentClass.getEAllContainments())
     #if($ref.isMany())
-        #if(${ref.getEReferenceType().getEIDAttribute()})
-        result.addAll(_${ref.getName()}.values())
-        #else
-        result.addAll(_${ref.getName()})
-        #end
+        result.addAll(_${FQNHelper.protectReservedWords(${ref.getName()})}.values())
     #else
-        if(_${ref.getName()}!=null){result.add(_${ref.getName()}!!)}
+        if(${FQNHelper.protectReservedWords(${ref.getName()})}!=null){result.add(${FQNHelper.protectReservedWords(${ref.getName()})}!!)}
     #end
-    #set($i=$i+1)
 #end
     return result
 }
+
+#if(!$currentClass.getEAllContainments().isEmpty())
+override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, onlyContainedRef : Boolean){
+            #foreach( $ref in $currentClass.getEAllContainments())
+                #if($ref.isMany())
+                    for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
+                        var KMFLoopEntry = _${ref.getName()}.get(KMFLoopEntryKey)!!
+                        visitor.visit(KMFLoopEntry,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
+                        if(visitor.visitStopped){return}
+                        if(recursive){
+                            KMFLoopEntry.visit(visitor,recursive,onlyContainedRef)
+                        }
+                    }
+                #else
+                    if(${FQNHelper.protectReservedWords(${ref.getName()})}!=null){
+                        visitor.visit(${FQNHelper.protectReservedWords(${ref.getName()})}!!,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
+                        if(visitor.visitStopped){return}
+                        if(recursive){
+                            ${FQNHelper.protectReservedWords(${ref.getName()})}!!.visit(visitor,recursive,onlyContainedRef)
+                        }
+                    }
+                #end
+            #end
+           #set($firstGeneratedRef = true)
+                #foreach( $ref in $currentClass.getEAllReferences())
+                    #if(!$currentClass.getEAllContainments().contains($ref))
+                        #if($firstGeneratedRef)
+           if(!onlyContainedRef){
+                            #set($firstGeneratedRef = false)
+                        #end
+                        #if($ref.isMany())
+                            for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
+                                var KMFLoopEntry = _${ref.getName()}.get(KMFLoopEntryKey)!!
+                                visitor.visit(KMFLoopEntry,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
+                                if(visitor.visitStopped){return}
+                                if(recursive){
+                                    KMFLoopEntry.visit(visitor,recursive,onlyContainedRef)
+                                }
+                            }
+                        #else
+                            visitor.visit(${FQNHelper.protectReservedWords(${ref.getName()})}!!,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
+                            if(visitor.visitStopped){return}
+                            if(recursive){
+                                ${FQNHelper.protectReservedWords(${ref.getName()})}!!.visit(visitor,recursive,onlyContainedRef)
+                            }
+                        #end
+                    #end
+                #end
+           #if(!$firstGeneratedRef)
+           }
+           #end
+}
+#end
+
+
 
 
 

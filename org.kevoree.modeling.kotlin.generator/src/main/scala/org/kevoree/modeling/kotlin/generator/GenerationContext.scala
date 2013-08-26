@@ -38,6 +38,15 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 
 class GenerationContext {
 
+  var xmi : Boolean = false
+
+  def genXMI = xmi
+
+  def setXMI(b : Boolean){
+    xmi = b
+  }
+
+
   var microframework: Boolean = false
 
   def usemicrofwk(): Boolean = microframework
@@ -45,14 +54,6 @@ class GenerationContext {
   var genTrace: Boolean = false
 
   def isGenTrace(): Boolean = genTrace
-
-  var genFlatInheritance: Boolean = false
-
-  def getGenFlatInheritance = genFlatInheritance
-
-  def setGenFlatInheritance() {
-    genFlatInheritance = true
-  }
 
   var aspects: java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
 
@@ -279,12 +280,7 @@ class GenerationContext {
 
   def setJS(isJS: Boolean) {
     js = isJS
-    if (isJS) {
-      /* Kotlin workaround */
-      genFlatInheritance = true
-    }
   }
-
 
   var flyweightFactory = false
 

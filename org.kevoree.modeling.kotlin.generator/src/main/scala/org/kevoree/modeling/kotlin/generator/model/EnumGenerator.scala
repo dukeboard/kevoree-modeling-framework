@@ -106,53 +106,15 @@ pr.println("}")
     if(!ctx.microframework){
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ActionType.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-
-     /*
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util")
-
-    val extension = if(ctx.getJS()){"kt"}else{"java"}
-
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util" + File.separator + "ActionType."+extension)
-    val pr = new PrintWriter(localFile, "utf-8")
-
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-    ve.init()
-
-    val template = if(ctx.getJS()){ve.getTemplate("templates/util/JSActionType.vm")}else{ve.getTemplate("templates/util/ActionType.vm")}
-    val ctxV = new VelocityContext()
-    ctxV.put("ctx",ctx)
-    ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-    template.merge(ctxV,pr)
-    pr.flush()
-    pr.close()
-    */
+    if(!ctx.microframework){
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    }
   }
 
   def generateElementAttributeTypeClass(ctx : GenerationContext) {
     if(!ctx.microframework){
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ElementAttributeType.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-    /*
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util")
-
-    val extension = if(ctx.getJS()){"kt"}else{"java"}
-
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "util" + File.separator + "ElementAttributeType."+extension)
-    val pr = new PrintWriter(localFile, "utf-8")
-
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-    ve.init()
-
-    val template = if(ctx.getJS()){ve.getTemplate("templates/util/JSElementAttributeType.vm")}else{ve.getTemplate("templates/util/ElementAttributeType.vm")}
-    val ctxV = new VelocityContext()
-    ctxV.put("ctx",ctx)
-    ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-    template.merge(ctxV,pr)
-    pr.flush()
-    pr.close()
-   */
   }
 
 

@@ -19,7 +19,6 @@ trait KMFContainer {
     fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?)
     fun containedElementsList(): List<Any>
 
-
     fun selectByQuery(query : String) : List<Any>
 
     fun addModelElementListener(lst : ModelElementListener)
@@ -28,5 +27,7 @@ trait KMFContainer {
     fun addModelTreeListener(lst : ModelElementListener)
     fun removeModelTreeListener(lst : ModelElementListener)
     fun removeAllModelTreeListeners()
+
+    fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, onlyContainedRef : Boolean)
 
 }

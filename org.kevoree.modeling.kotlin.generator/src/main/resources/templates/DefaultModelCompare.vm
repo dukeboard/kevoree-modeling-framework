@@ -38,43 +38,43 @@ override public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequ
         val objectsMap = HashMap<String, ${ctx.getKevoreeContainerImplFQN()}>()
         traces.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter,false))
         tracesRef.addAll((origin as ${ctx.getKevoreeContainerImplFQN()} ).generateDiffTraces(target, inter,true))
-            #if($ctx.jS)
-                for(child in collectAll(origin)){
-            #else
-                for(child in origin.containedAllElements()){
-            #end
-                    val childPath = child.path();
-                    if(childPath != null){
-                        objectsMap.put(child.path()!!, child as ${ctx.getKevoreeContainerImplFQN()});
-                    } else {
-                        throw Exception("Null child path " + child);
-                    }
-                }
-            #if($ctx.jS)
-                for(child in collectAll(target)){
-            #else
-                for(child in target.containedAllElements()){
-            #end
-            val childPath = child.path();
-            if(childPath != null){
-                if(objectsMap.containsKey(childPath)){
-                    if(inter){
-                        traces.add(ModelAddTrace(child.eContainer()!!.path()!!, child.getRefInParent()!!, child.path(), child.metaClassName()))
-                    }
-                    traces.addAll(objectsMap.get(childPath)!!.generateDiffTraces(child, inter,false))
-                    tracesRef.addAll(objectsMap.get(childPath)!!.generateDiffTraces(child, inter,true))
-                    objectsMap.remove(childPath) //drop from to process elements
+
+        val visitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
+            override public fun visit(elem : org.kevoree.modeling.api.KMFContainer, refNameInParent : String, parent : org.kevoree.modeling.api.KMFContainer){
+                val childPath = elem.path();
+                if(childPath != null){
+                    objectsMap.put(childPath, elem as ${ctx.getKevoreeContainerImplFQN()});
                 } else {
-                    if(!inter){
-                        traces.add(ModelAddTrace(child.eContainer()!!.path()!!, child.getRefInParent()!!, child.path(), child.metaClassName()))
-                        traces.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as KMFContainer, true,false))
-                        tracesRef.addAll((child as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(child as KMFContainer, true,true))
-                    }
+                    throw Exception("Null child path " + elem);
                 }
-            } else {
-                throw Exception("Null child path " + child);
             }
         }
+        origin.visit(visitor,true,true)
+
+        val visitor2 = object : org.kevoree.modeling.api.util.ModelVisitor(){
+            override public fun visit(elem : org.kevoree.modeling.api.KMFContainer, refNameInParent : String, parent : org.kevoree.modeling.api.KMFContainer){
+                val childPath = elem.path();
+                if(childPath != null){
+                    if(objectsMap.containsKey(childPath)){
+                        if(inter){
+                            traces.add(ModelAddTrace(parent.path()!!, refNameInParent, elem.path(), elem.metaClassName()))
+                        }
+                        traces.addAll(objectsMap.get(childPath)!!.generateDiffTraces(elem, inter,false))
+                        tracesRef.addAll(objectsMap.get(childPath)!!.generateDiffTraces(elem, inter,true))
+                        objectsMap.remove(childPath) //drop from to process elements
+                    } else {
+                        if(!inter){
+                            traces.add(ModelAddTrace(parent.path()!!, refNameInParent, elem.path(), elem.metaClassName()))
+                            traces.addAll((elem as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(elem as KMFContainer, true,false))
+                            tracesRef.addAll((elem as ${ctx.getKevoreeContainerImplFQN()}).generateDiffTraces(elem as KMFContainer, true,true))
+                        }
+                    }
+                } else {
+                    throw Exception("Null child path " + elem);
+                }
+            }
+        }
+        target.visit(visitor2,true,true)
         if(!inter){
             //if diff
             if(!merge){
@@ -86,24 +86,5 @@ override public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequ
         traces.addAll(tracesRef);
         return traces;
     }
-                #if($ctx.jS)
-                    private fun collectAll(obj : KMFContainer) : List<KMFContainer> {
-                        val result = java.util.ArrayList<KMFContainer>()
-                        for(child in obj.containedElementsList()){
-                            if(child is ArrayList<*>){
-                                for(subChild in (child as ArrayList<*>) ){
-                                    var casted = subChild as KMFContainer
-                                    result.add(casted)
-                                    result.addAll(collectAll(casted))
-                                }
-                            } else {
-                                var casted = child as KMFContainer
-                                result.add(casted)
-                                result.addAll(collectAll(casted))
-                            }
-                        }
-                        return result
-                    }
-                #end
 
 }

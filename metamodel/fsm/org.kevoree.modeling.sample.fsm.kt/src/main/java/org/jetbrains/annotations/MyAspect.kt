@@ -33,7 +33,7 @@ public aspect trait MyStateAspect : FSM {
     // Operational semantic
     override fun run() {
          //TODO
-        this.getCurrentState()?.step("SayHello To KevAspect")
+        this.currentState?.step("SayHello To KevAspect")
     }
 
 }
@@ -42,7 +42,7 @@ public aspect trait StateAspect : State { // Go to the next state
     override public fun step(c: String): String {
 
         // Get the valid transitions
-        var validTransitions = this.getOutgoingTransition().filter{ t -> t.getInput().equals(c) }
+        var validTransitions = this.outgoingTransition.filter{ t -> t.input.equals(c) }
         // Check if there is one and only one valid transition
         if(validTransitions.empty) throw NoTransition()
         if(validTransitions.size > 1) throw  NonDeterminism()
@@ -56,8 +56,8 @@ public aspect trait TransitionAspect : Transition {
     // Fire the transition
     override public fun fire(): String {
         // update FSM current state
-        this.getSource()?.getOwningFSM()?.setCurrentState(this.getTarget())
-        return this.getOutput()
+        //this.source?.owningFSM?.currentState = this.target
+        return this.output!!
     }
 }
 

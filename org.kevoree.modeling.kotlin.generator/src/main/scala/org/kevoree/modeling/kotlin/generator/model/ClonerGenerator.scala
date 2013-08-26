@@ -73,14 +73,6 @@ trait ClonerGenerator {
     pr.close()
   }
 
-  private def getGetter(name: String): String = {
-    "get" + name.charAt(0).toUpper + name.substring(1) + "()"
-  }
-
-  private def getSetter(name: String): String = {
-    "set" + name.charAt(0).toUpper + name.substring(1)
-  }
-
   private def generateFactorySetter(ctx: GenerationContext, pr: PrintWriter) {
     ctx.packageFactoryMap.values().foreach {
       factoryFqn =>
@@ -88,7 +80,6 @@ trait ClonerGenerator {
         val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
         pr.println("override var " + factoryFqn.replace(".", "_") + " : " + factoryFqn + " = " + factoryPackage + ".impl.Default" + factoryName + "()")
     }
-
   }
 
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
@@ -108,11 +99,11 @@ trait ClonerGenerator {
     cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
       att => {
 
-        if (ProcessorHelper.convertType(att.getEAttributeType,ctx) == "Any" || ProcessorHelper.convertType(att.getEAttributeType,ctx).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
-          buffer.println("val subsubRef_" + att.getName + " = this." + getGetter(att.getName) + "")
-          buffer.println("if( subsubRef_" + att.getName + "!=null){selfObjectClone." + getSetter(att.getName) + "(subsubRef_" + att.getName + ")}")
+        if (ProcessorHelper.convertType(att.getEAttributeType, ctx) == "Any" || ProcessorHelper.convertType(att.getEAttributeType, ctx).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
+          buffer.println("val subsubRef_" + att.getName + " = this." + ProcessorHelper.protectReservedWords(att.getName) + "")
+          buffer.println("if( subsubRef_" + att.getName + "!=null){selfObjectClone." + ProcessorHelper.protectReservedWords(att.getName) + " = subsubRef_" + att.getName + "}")
         } else {
-          buffer.println("\t\tselfObjectClone." + getSetter(att.getName) + "(this." + getGetter(att.getName) + ")")
+          buffer.println("\t\tselfObjectClone." + ProcessorHelper.protectReservedWords(att.getName) + " = this." + ProcessorHelper.protectReservedWords(att.getName) + "")
         }
 
       }
@@ -124,27 +115,21 @@ trait ClonerGenerator {
       //TODO evaluate if bad optimisation
       cls.getEAllContainments.foreach {
         contained =>
-          val implExt = if (ctx.getGenFlatInheritance) {
-            "Impl"
-          } else {
-            "Internal"
-          }
-          val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
           if (contained.getUpperBound == -1 || contained.getUpperBound > 1) {
             // multiple values
-            buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
-            buffer.println("(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
+            buffer.println("for(sub in this." + ProcessorHelper.protectReservedWords(contained.getName) + "){")
+            buffer.println("(sub as " + ctx.getKevoreeContainerImplFQN + ").getClonelazy(subResult, _factories,mutableOnly)")
             buffer.println("}")
           } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
             // optional single ref
 
-            buffer.println("val subsubsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
+            buffer.println("val subsubsubsub" + contained.getName + " = this." + ProcessorHelper.protectReservedWords(contained.getName) + "")
             buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
-            buffer.println("(subsubsubsub" + contained.getName + " as " + fqnName + " ).getClonelazy(subResult, _factories,mutableOnly)")
+            buffer.println("(subsubsubsub" + contained.getName + " as " + ctx.getKevoreeContainerImplFQN + " ).getClonelazy(subResult, _factories,mutableOnly)")
             buffer.println("}")
           } else if (contained.getLowerBound > 1) {
-            buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
-            buffer.println("\t\t\t(sub as " + fqnName + ").getClonelazy(subResult, _factories,mutableOnly)")
+            buffer.println("for(sub in this." + ProcessorHelper.protectReservedWords(contained.getName) + "){")
+            buffer.println("\t\t\t(sub as " + ctx.getKevoreeContainerImplFQN + ").getClonelazy(subResult, _factories,mutableOnly)")
             buffer.println("\t\t}")
           } else {
             throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
@@ -181,13 +166,7 @@ trait ClonerGenerator {
     buffer.println("return this")
     buffer.println("}")
 
-    if (ctx.getGenFlatInheritance) {
-      buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Impl")
-    } else {
-      buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Internal")
-    }
-
-
+    buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Impl")
 
     //SET ALL REFERENCE
     cls.getEAllReferences.foreach {
@@ -202,20 +181,28 @@ trait ClonerGenerator {
           }
           ref.getUpperBound match {
             case 1 => {
-              buffer.println("if(this." + getGetter(ref.getName) + "!=null){")
-              buffer.println("if(mutableOnly && this." + getGetter(ref.getName) + "!!.isRecursiveReadOnly()){")
-              buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(this." + getGetter(ref.getName) + "!!)")
+              buffer.println("if(this." + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){")
+              buffer.println("if(mutableOnly && this." + ProcessorHelper.protectReservedWords(ref.getName) + "!!.isRecursiveReadOnly()){")
+              if (ref.getEOpposite != null) {
+                buffer.println("clonedSelfObject.noOpposite_" + ref.getName + "(this." + ProcessorHelper.protectReservedWords(ref.getName) + "!!)")
+              } else {
+                buffer.println("clonedSelfObject." + ProcessorHelper.protectReservedWords(ref.getName) + " = this." + ProcessorHelper.protectReservedWords(ref.getName) + "!!")
+              }
               buffer.println("} else {")
 
-              buffer.println("val interObj = addrs.get(this." + getGetter(ref.getName) + ")")
-              buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + getGetter(ref.getName) + ")}")
-              buffer.println("clonedSelfObject." + noOpPrefix + getSetter(ref.getName) + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              buffer.println("val interObj = addrs.get(this." + ProcessorHelper.protectReservedWords(ref.getName) + ")")
+              buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + ProcessorHelper.protectReservedWords(ref.getName) + ")}")
+              if (ref.getEOpposite != null) {
+                buffer.println("clonedSelfObject.noOpposite_" + ref.getName + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              } else {
+                buffer.println("clonedSelfObject." + ProcessorHelper.protectReservedWords(ref.getName) + " = (interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              }
               buffer.println("}")
 
               buffer.println("}")
             }
             case _ => {
-              buffer.println("for(sub in this." + getGetter(ref.getName) + "){")
+              buffer.println("for(sub in this." + ProcessorHelper.protectReservedWords(ref.getName) + "){")
               var formatedName: String = ref.getName.substring(0, 1).toUpperCase
               formatedName += ref.getName.substring(1)
 
@@ -224,7 +211,7 @@ trait ClonerGenerator {
               buffer.println("} else {")
 
               buffer.println("val interObj = addrs.get(sub)")
-              buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + getGetter(ref.getName) + ")}")
+              buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + ProcessorHelper.protectReservedWords(ref.getName) + ")}")
               buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
               buffer.println("}")
 
@@ -241,27 +228,21 @@ trait ClonerGenerator {
     if ( /*ctx.getJS()*/ true) {
       cls.getEAllContainments.foreach {
         contained =>
-          val implExt = if (ctx.getGenFlatInheritance) {
-            "Impl"
-          } else {
-            "Internal"
-          }
-          val fqnName = ProcessorHelper.fqn(ctx, contained.getEReferenceType.getEPackage) + ".impl." + contained.getEReferenceType.getName + implExt
           contained.getUpperBound match {
             case 1 => {
-              buffer.println("val subsubsub" + contained.getName + " = this." + getGetter(contained.getName) + "")
+              buffer.println("val subsubsub" + contained.getName + " = this." + ProcessorHelper.protectReservedWords(contained.getName) + "")
               buffer.println("if(subsubsub" + contained.getName + "!=null){ ")
-              buffer.println("(subsubsub" + contained.getName + " as " + fqnName + ").resolve(addrs,readOnly,mutableOnly)")
+              buffer.println("(subsubsub" + contained.getName + " as " + ctx.getKevoreeContainerImplFQN + ").resolve(addrs,readOnly,mutableOnly)")
               buffer.println("}")
             }
             case -1 => {
-              buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
-              buffer.println("\t\t\t(sub as " + fqnName + " ).resolve(addrs,readOnly,mutableOnly)")
+              buffer.println("for(sub in this." + ProcessorHelper.protectReservedWords(contained.getName) + "){")
+              buffer.println("\t\t\t(sub as " + ctx.getKevoreeContainerImplFQN + " ).resolve(addrs,readOnly,mutableOnly)")
               buffer.println("\t\t}")
             }
             case _ if (contained.getUpperBound > 1) => {
-              buffer.println("for(sub in this." + getGetter(contained.getName) + "){")
-              buffer.println("\t\t\t(sub as " + fqnName + " ).resolve(addrs,readOnly,mutableOnly)")
+              buffer.println("for(sub in this." + ProcessorHelper.protectReservedWords(contained.getName) + "){")
+              buffer.println("\t\t\t(sub as " + ctx.getKevoreeContainerImplFQN + " ).resolve(addrs,readOnly,mutableOnly)")
               buffer.println("\t\t}")
             }
           }
@@ -272,10 +253,6 @@ trait ClonerGenerator {
       buffer.println("(sub as " + ctx.getKevoreeContainer.get + ").resolve(addrs,readOnly,mutableOnly)")
       buffer.println("}")
     }
-
-
-
-
     buffer.println("\t\tif(readOnly){clonedSelfObject.setInternalReadOnly()}")
     buffer.println("return clonedSelfObject") //RETURN CLONED OBJECT
     buffer.println("}") //END METHOD

@@ -27,6 +27,7 @@ package ${packElem};
         fun reflexiveMutator(mutatorType : Int, refName : String, value : Any?)
 
         fun containedElementsList() : List<Any>
+        fun referencedElementsList() : List<Any>
 
 #end
 

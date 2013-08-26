@@ -36,9 +36,11 @@ var listener = { elementChanged : function(event){
 
 model.addModelTreeListener(listener);
 var node = factory.createContainerNode();
+
 node.setName("hello");
 model.addNodes(node);
 /* Force rename */
+
 node.setName("helloRename");
 /* Check reindex */
 console.log(model.findNodesByID("helloRename").getName());

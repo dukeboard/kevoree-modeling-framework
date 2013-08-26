@@ -90,7 +90,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       pr.println("val xsi = context.xmiReader!!.getAttributePrefix(i)")
 
 
-      pr.println("if (localName == "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LOADER_XMI_LOCAL_NAME && xsi=="+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LOADER_XMI_XSI){")
+      pr.println("if (localName == " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LOADER_XMI_LOCAL_NAME && xsi==" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LOADER_XMI_XSI){")
       pr.println("xsiType = context.xmiReader!!.getAttributeValue(i)")
       pr.println("break")
       pr.println("}") //END IF
@@ -118,7 +118,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
     pr.println("context.map.put(elementId, modelElem)")
     //TODO: REMOVE NEXT LiNE AFTER DEBUG
-   // pr.println("if(debug){System.out.println(\"Stored:\" + elementId)}")
+    // pr.println("if(debug){System.out.println(\"Stored:\" + elementId)}")
 
 
     pr.println("")
@@ -162,7 +162,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       elementType.getEAllAttributes.foreach {
         att =>
 
-          val methName = "set" + att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
+          val methName = ProcessorHelper.protectReservedWords(att.getName)
           pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {")
           val FQattTypeName = ProcessorHelper.fqn(ctx, att.getEAttributeType)
 
@@ -170,16 +170,16 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
             pr.println("modelElem." + methName + "(" + FQattTypeName + ".valueOf(valueAtt))")
           }
           else {
-            val attTypeName = ProcessorHelper.convertType(att.getEAttributeType,ctx)
+            val attTypeName = ProcessorHelper.convertType(att.getEAttributeType, ctx)
             attTypeName match {
               case "String" => {
-                pr.println("modelElem." + methName + "(unescapeXml(valueAtt))")
+                pr.println("modelElem." + methName + " = (unescapeXml(valueAtt))")
               }
               case "Boolean" | "Double" | "Int" => {
-                pr.println("modelElem." + methName + "(valueAtt.to" + attTypeName + "())")
+                pr.println("modelElem." + methName + " = (valueAtt.to" + attTypeName + "())")
               }
               case "Any" => {
-                pr.println("modelElem." + methName + "(valueAtt as " + attTypeName + ")")
+                pr.println("modelElem." + methName + " = (valueAtt as " + attTypeName + ")")
               }
               case "Class<out jet.Any?>" => {
                 //TODO do something :-) ObjectStream ?
@@ -188,7 +188,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
 
               case _@_type => {
-                pr.println("modelElem." + methName + "(valueAtt.to" + _type + "() as " + attTypeName + ")")
+                pr.println("modelElem." + methName + "= (valueAtt.to" + _type + "() as " + attTypeName + ")")
               }
             }
           }
@@ -201,13 +201,16 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
       references.foreach {
         ref =>
           var mutatorType: String = ""
-          var methName : String = ""
+          var methName: String = ""
+          var setter = false
+
           if (ref.getUpperBound == 1) {
             mutatorType = "org.kevoree.modeling.api.util.ActionType.SET"
-            methName =  "set" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+            methName = ProcessorHelper.protectReservedWords(ref.getName)
+            setter = true
           } else {
             mutatorType = "org.kevoree.modeling.api.util.ActionType.ADD"
-           methName =  "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
+            methName = "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
           }
 
 
@@ -223,9 +226,15 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           }
           pr.println("val ref = context.map.get(adjustedRef)")
           pr.println("if( ref != null) {")
-          pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+
+          if (setter) {
+            pr.println("modelElem." + methName + " = (ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+          } else {
+            pr.println("modelElem." + methName + "(ref as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+          }
+
           pr.println("} else {")
-          pr.println("context.resolvers.add(XMIResolveCommand(context, modelElem, "+mutatorType+", \""+ref.getName+"\", adjustedRef))")
+          pr.println("context.resolvers.add(XMIResolveCommand(context, modelElem, " + mutatorType + ", \"" + ref.getName + "\", adjustedRef))")
           pr.println("}") // Else
 
           if (ref.getEOpposite != null) {
@@ -244,7 +253,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
       //TODO check getName
       if (namedElement) {
-        System.err.println("Warning NamedElement XMI compat !!! "+elementType.getName)
+        System.err.println("Warning NamedElement XMI compat !!! " + elementType.getName)
         pr.println("var WellNamedID = elementId.substring(0,elementId.lastIndexOf(\"/\")+1) + modelElem.getName()")
         pr.println("context.map.put(WellNamedID, modelElem)")
         //pr.println("if(debug){System.out.println(\"Stored:\" + WellNamedID)}")
@@ -272,8 +281,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           if (!refa.isMany) {
 
             pr.println("val " + refa.getName + "ElementId = elementId + \"/@" + refa.getName + "\"")
-
-            pr.println("modelElem.set" + formattedReferenceName + "(load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context))")
+            pr.println("modelElem." + ProcessorHelper.protectReservedWords(refa.getName) + " = (load" + refa.getEReferenceType.getName + "Element(" + refa.getName + "ElementId, context))")
             //}
           } else {
             pr.println("val i = context.elementsCount.get(elementId + \"/@" + refa.getName + "\") ?: 0")
