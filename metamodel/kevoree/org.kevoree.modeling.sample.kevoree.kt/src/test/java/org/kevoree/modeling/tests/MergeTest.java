@@ -2,18 +2,23 @@ package org.kevoree.modeling.tests;
 
 import org.junit.Test;
 import org.kevoree.ContainerRoot;
+import org.kevoree.cloner.DefaultModelCloner;
 import org.kevoree.compare.DefaultModelCompare;
 import org.kevoree.impl.DefaultKevoreeFactory;
 import org.kevoree.loader.XMIModelLoader;
+import org.kevoree.modeling.api.ModelCloner;
 import org.kevoree.modeling.api.compare.ModelCompare;
+import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.resolver.MavenResolver;
+import org.kevoree.serializer.JSONModelSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -85,11 +90,35 @@ public class MergeTest {
                     JarFile jar = new JarFile(file);
                     JarEntry jarEntry = jar.getJarEntry("KEV-INF/lib.kev");
                     if (jarEntry != null) {
+
+                        System.err.println("Merge from "+file.getAbsolutePath());
+
+                        ModelCloner cloner = new DefaultModelCloner();
+
+                        ContainerRoot clonedModel = cloner.clone(fullModel);
+
                         ContainerRoot model = (ContainerRoot) loader.loadModelFromStream(jar.getInputStream(jarEntry)).get(0);
                         TraceSequence mergeSeq = compare.merge(fullModel, model);
                         // THIS IS GOING TO FAIL AT SOME POINT
                         // THROWING: java.lang.Exception: Unknown mutation type: 5
-                        mergeSeq.applyOn(fullModel);
+
+                        try {
+                            mergeSeq.applyOn(fullModel);
+                            JSONModelSerializer saver = new JSONModelSerializer();
+                            saver.serialize(clonedModel,new ByteArrayOutputStream());
+                        } catch (Exception e){
+                            e.printStackTrace();
+                            JSONModelSerializer saver = new JSONModelSerializer();
+                            saver.serialize(clonedModel,System.err);
+
+                            System.err.println("----------- Trace ");
+                            for(ModelTrace t : mergeSeq.getTraces()){
+                                System.err.println(t);
+                            }
+
+                            return;
+                        }
+
                     }
                 }
             }

@@ -101,7 +101,6 @@ trait KMFQLFinder {
     pr.println("} else {")
     pr.println("return \"\"")
     pr.println("}")
-
     pr.println("}")
 
 

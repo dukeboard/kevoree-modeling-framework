@@ -122,16 +122,18 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
 
         }
-        //TODO certainly a bug here !
         if (ref.isMany) {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
           pr.println("val obj = _" + ref.getName + ".get(value)")
           pr.println("val objNewKey = (obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n")
           pr.println("if(objNewKey == null){throw Exception(\"Key newed to null \"+obj)}\n")
-          pr.println("_" + ref.getName + ".put(objNewKey,obj)")
           pr.println("_" + ref.getName + ".remove(value)")
+          pr.println("_" + ref.getName + ".put(objNewKey,obj)")
           pr.println("}")
+          pr.println("}")
+        } else {
+          pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("}")
         }
 
@@ -298,6 +300,7 @@ trait ClassGenerator extends ClonerGenerator {
             pr.println("\t set(iP : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?){")
           }
           pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
+          pr.println("if(iP != "+ProcessorHelper.protectReservedWords(att.getName)+"){")
           pr.println("val oldPath = path()")
           if (att.isID()) {
             pr.println("val oldId = internalGetKey()")
@@ -316,6 +319,7 @@ trait ClassGenerator extends ClonerGenerator {
               pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path()))")
             }
           }
+          pr.println("}")
           pr.println("\t}//end of getter")
 
         }

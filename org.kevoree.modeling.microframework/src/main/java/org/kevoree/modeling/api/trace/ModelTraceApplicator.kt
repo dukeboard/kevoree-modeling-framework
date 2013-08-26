@@ -45,6 +45,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
     }
 
     public fun applyTraceOnModel(traceSeq: TraceSequence) {
+
         for(trace in traceSeq.getTraces()){
             var target: KMFContainer = targetModel;
             if(trace is ModelAddTrace){
@@ -91,7 +92,12 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                 val castedTrace = trace as ModelSetTrace
                 tryClosePending(trace.srcPath);
                 if(trace.srcPath != "" && castedTrace.srcPath != pendingObjPath){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    var tempObject = targetModel.findByPath(castedTrace.srcPath)
+                    if(tempObject == null){
+
+                        throw Exception("Set Trace source not found for path : "+castedTrace.srcPath+"/ pending "+pendingObjPath+"\n"+trace.toString())
+                    }
+                    target = tempObject as KMFContainer;
                 } else {
                     if(castedTrace.srcPath == pendingObjPath && pendingObj != null){
                         target = pendingObj!!;

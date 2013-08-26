@@ -22,6 +22,7 @@ override fun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {
 
     private fun clone<A>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {
 
+
         #foreach($potentialRoot in $potentialRoots)
             #if(!$potentialRoot.getClass().getName().toLowerCase().contains("eenum"))
                 #if($ctx.getJS())
