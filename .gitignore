@@ -31,3 +31,4 @@ keystore
 **.idea
 **/node_modules/**
 **/*.jar
+/release.properties
