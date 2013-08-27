@@ -85,7 +85,7 @@ public class ClonerTest {
         long heapSize = Runtime.getRuntime().freeMemory();
 
         //Normal Clone
-        long before = System.currentTimeMillis();
+        /*long before = System.currentTimeMillis();
         ContainerRoot modelCloned = cloner.clone(model);
         System.out.println("NormalClone = " + (System.currentTimeMillis() - before) + " ms");
         for (TypeDefinition td : modelCloned.getTypeDefinitions()) {
@@ -97,7 +97,7 @@ public class ClonerTest {
         System.out.println(heapSize - heapSizeAfterNormalClone);
 
         saver.serialize(modelCloned,nullStream);
-
+        */
 
 
         //Smart Clone
@@ -109,12 +109,12 @@ public class ClonerTest {
             assert (model.findByPath(td.path()).equals(td));
         }
 
-        System.out.println(modelCloned.getTypeDefinitions().size());
-        System.out.println(modelCloned2.getTypeDefinitions().size());
+        //System.out.println(modelCloned.getTypeDefinitions().size());
+       // System.out.println(modelCloned2.getTypeDefinitions().size());
 
 
         long heapSizeAfterSmartClone = Runtime.getRuntime().freeMemory();
-        System.out.println(heapSizeAfterNormalClone - heapSizeAfterSmartClone);
+       // System.out.println(heapSizeAfterNormalClone - heapSizeAfterSmartClone);
 
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         JSONModelSerializer saverJson = new JSONModelSerializer();

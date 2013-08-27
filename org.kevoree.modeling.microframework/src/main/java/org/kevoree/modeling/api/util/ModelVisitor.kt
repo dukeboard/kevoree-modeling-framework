@@ -17,6 +17,12 @@ public abstract class ModelVisitor {
         visitStopped = true
     }
 
+    var visitChildren = true
+
+    fun noChildrenVisit(){
+        visitChildren = true
+    }
+
     public abstract fun visit(elem : KMFContainer, refNameInParent : String, parent : KMFContainer)
 
 }

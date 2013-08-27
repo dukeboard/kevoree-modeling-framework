@@ -91,14 +91,14 @@ trait ClonerGenerator {
 
     //CALL SUB TYPE OR PROCESS OBJECT
     if (ctx.getJS()) {
-      buffer.println("override fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
+      buffer.println("override fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) {")
     } else {
-      buffer.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
+      buffer.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) {")
     }
 
     //GET CLONED OBJECT
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){")
-    buffer.println("return this")
+    buffer.println("return")
     buffer.println("}")
 
     buffer.println("val clonedSelfObject = addrs.get(this) as " + ProcessorHelper.fqn(ctx, cls.getEPackage) + ".impl." + cls.getName + "Impl")
@@ -121,7 +121,7 @@ trait ClonerGenerator {
               if (ref.getEOpposite != null) {
                 buffer.println("clonedSelfObject.noOpposite_" + ref.getName + "(this." + ProcessorHelper.protectReservedWords(ref.getName) + "!!)")
               } else {
-                buffer.println("clonedSelfObject." + ProcessorHelper.protectReservedWords(ref.getName) + " = this." + ProcessorHelper.protectReservedWords(ref.getName) + "!!")
+                buffer.println("clonedSelfObject." + ProcessorHelper.protectReservedWords(ref.getName) + " = this." + ProcessorHelper.protectReservedWords(ref.getName))
               }
               buffer.println("} else {")
               buffer.println("val interObj = addrs.get(this." + ProcessorHelper.protectReservedWords(ref.getName) + ")")

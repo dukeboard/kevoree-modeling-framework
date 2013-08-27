@@ -299,28 +299,7 @@ trait ClassGenerator extends ClonerGenerator {
   }
 
   private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
-    //TODO unreference object
     pr.println("override fun delete(){")
-    if (!ctx.getJS()) {
-      pr.println("for(sub in containedElements()){")
-      pr.println("sub.delete()")
-      pr.println("}")
-    } else {
-      cls.getEAllContainments.foreach {
-        c =>
-          if (c.isMany()) {
-            pr.println("for(el in " + "_" + c.getName + ".entrySet()){")
-            if (c.getEReferenceType.getEIDAttribute != null) {
-              pr.println("el.value.delete()")
-            } else {
-              pr.println("el.delete()")
-            }
-            pr.println("}")
-          } else {
-            pr.println(c.getName + "?.delete()")
-          }
-      }
-    }
     cls.getEAllReferences.foreach {
       ref =>
         if (ref.isMany) {
