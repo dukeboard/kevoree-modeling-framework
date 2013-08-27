@@ -3,52 +3,15 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="packElem" type="java.lang.String" *#
 
-#if($ctx.jS)
-    #set($mutableOrNot="")
-#else
-    #set($mutableOrNot="Mutable")
-
-override fun containedAllElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContainer().get()> {
-return ${packElem}.DeepIterable(this)
-}
-
-override fun containedElements() : ${mutableOrNot}Iterable<$ctx.getKevoreeContainer().get()> {
-    return ${packElem}.CompositeIterable(containedElementsList())
-}
-#end
-
-override fun containedElementsList() : List<Any> {
-    val result = java.util.ArrayList<Any>()
-#foreach( $ref in $currentClass.getEAllContainments())
-    #if($ref.isMany())
-        result.addAll(_${FQNHelper.protectReservedWords(${ref.getName()})}.values())
-    #else
-        if(${FQNHelper.protectReservedWords(${ref.getName()})}!=null){result.add(${FQNHelper.protectReservedWords(${ref.getName()})}!!)}
-    #end
-#end
-    return result
-}
-
 #if(!$currentClass.getEAllContainments().isEmpty())
 override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, onlyContainedRef : Boolean){
             #foreach( $ref in $currentClass.getEAllContainments())
                 #if($ref.isMany())
                     for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
-                        var KMFLoopEntry = _${ref.getName()}.get(KMFLoopEntryKey)!!
-                        visitor.visit(KMFLoopEntry,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
-                        if(visitor.visitStopped){return}
-                        if(recursive){
-                            KMFLoopEntry.visit(visitor,recursive,onlyContainedRef)
-                        }
+                        internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                     }
                 #else
-                    if(${FQNHelper.protectReservedWords(${ref.getName()})}!=null){
-                        visitor.visit(${FQNHelper.protectReservedWords(${ref.getName()})}!!,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
-                        if(visitor.visitStopped){return}
-                        if(recursive){
-                            ${FQNHelper.protectReservedWords(${ref.getName()})}!!.visit(visitor,recursive,onlyContainedRef)
-                        }
-                    }
+                    internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                 #end
             #end
            #set($firstGeneratedRef = true)
@@ -60,19 +23,10 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
                         #end
                         #if($ref.isMany())
                             for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
-                                var KMFLoopEntry = _${ref.getName()}.get(KMFLoopEntryKey)!!
-                                visitor.visit(KMFLoopEntry,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
-                                if(visitor.visitStopped){return}
-                                if(recursive){
-                                    KMFLoopEntry.visit(visitor,recursive,onlyContainedRef)
-                                }
+                                internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                             }
                         #else
-                            visitor.visit(${FQNHelper.protectReservedWords(${ref.getName()})}!!,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()},this)
-                            if(visitor.visitStopped){return}
-                            if(recursive){
-                                ${FQNHelper.protectReservedWords(${ref.getName()})}!!.visit(visitor,recursive,onlyContainedRef)
-                            }
+                            internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                         #end
                     #end
                 #end

@@ -74,70 +74,21 @@ trait ClonerGenerator {
   }
 
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
-    if (ctx.getJS()) {
-      buffer.println("override fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
-    } else {
-      buffer.println("override fun getClonelazy(subResult : java.util.IdentityHashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")
-    }
-    buffer.println("if(mutableOnly && isRecursiveReadOnly()){return}")
-    var formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase
-    formatedFactoryName += pack.getName.substring(1)
-    formatedFactoryName += "Factory"
-
-    var formatedName: String = cls.getName.substring(0, 1).toUpperCase
-    formatedName += cls.getName.substring(1)
-    buffer.println("\t\tval selfObjectClone = _factories.get" + formatedFactoryName + "().create" + formatedName + "()")
-    cls.getEAllAttributes /*.filter(eref => !cls.getEAllContainments.contains(eref))*/ .foreach {
-      att => {
-
-        if (ProcessorHelper.convertType(att.getEAttributeType, ctx) == "Any" || ProcessorHelper.convertType(att.getEAttributeType, ctx).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
-          buffer.println("val subsubRef_" + att.getName + " = this." + ProcessorHelper.protectReservedWords(att.getName) + "")
-          buffer.println("if( subsubRef_" + att.getName + "!=null){selfObjectClone." + ProcessorHelper.protectReservedWords(att.getName) + " = subsubRef_" + att.getName + "}")
-        } else {
-          buffer.println("\t\tselfObjectClone." + ProcessorHelper.protectReservedWords(att.getName) + " = this." + ProcessorHelper.protectReservedWords(att.getName) + "")
-        }
-
-      }
-    }
-    buffer.println("\t\tsubResult.put(this,selfObjectClone)")
-
-
-    if ( /*ctx.getJS()*/ true) {
-      //TODO evaluate if bad optimisation
-      cls.getEAllContainments.foreach {
-        contained =>
-          if (contained.getUpperBound == -1 || contained.getUpperBound > 1) {
-            // multiple values
-            buffer.println("for(sub in this." + ProcessorHelper.protectReservedWords(contained.getName) + "){")
-            buffer.println("(sub as " + ctx.getKevoreeContainerImplFQN + ").getClonelazy(subResult, _factories,mutableOnly)")
-            buffer.println("}")
-          } else if (contained.getUpperBound == 1 /*&& contained.getLowerBound == 0*/ ) {
-            // optional single ref
-
-            buffer.println("val subsubsubsub" + contained.getName + " = this." + ProcessorHelper.protectReservedWords(contained.getName) + "")
-            buffer.println("if(subsubsubsub" + contained.getName + "!= null){ ")
-            buffer.println("(subsubsubsub" + contained.getName + " as " + ctx.getKevoreeContainerImplFQN + " ).getClonelazy(subResult, _factories,mutableOnly)")
-            buffer.println("}")
-          } else if (contained.getLowerBound > 1) {
-            buffer.println("for(sub in this." + ProcessorHelper.protectReservedWords(contained.getName) + "){")
-            buffer.println("\t\t\t(sub as " + ctx.getKevoreeContainerImplFQN + ").getClonelazy(subResult, _factories,mutableOnly)")
-            buffer.println("\t\t}")
+      buffer.println("override fun createClone(_factories: "+ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)+".factory.MainFactory) : org.kevoree.modeling.api.KMFContainer {")
+      val formatedFactoryName: String = pack.getName.substring(0, 1).toUpperCase+pack.getName.substring(1)+"Factory"
+      val formatedName: String = cls.getName.substring(0, 1).toUpperCase+cls.getName.substring(1)
+      buffer.println("val selfObjectClone = _factories.get" + formatedFactoryName + "().create" + formatedName + "()")
+      cls.getEAllAttributes.foreach {
+        att => {
+          if (ProcessorHelper.convertType(att.getEAttributeType, ctx) == "Any" || ProcessorHelper.convertType(att.getEAttributeType, ctx).contains("Class") || att.getEAttributeType.isInstanceOf[EEnum]) {
+            buffer.println("val subsubRef_" + att.getName + " = this." + ProcessorHelper.protectReservedWords(att.getName) + "")
+            buffer.println("if( subsubRef_" + att.getName + "!=null){selfObjectClone." + ProcessorHelper.protectReservedWords(att.getName) + " = subsubRef_" + att.getName + "}")
           } else {
-            throw new UnsupportedOperationException("ClonerGenerator::Not standard arrity: " + cls.getName + "->" + contained.getName + "[" + contained.getLowerBound + "," + contained.getUpperBound + "]. Not implemented yet !")
+            buffer.println("selfObjectClone." + ProcessorHelper.protectReservedWords(att.getName) + " = this." + ProcessorHelper.protectReservedWords(att.getName) + "")
           }
-          buffer.println()
+        }
       }
-    } else {
-      buffer.println("for(sub in containedElements()){")
-      buffer.println("(sub as " + ctx.getKevoreeContainer.get + ").getClonelazy(subResult, _factories,mutableOnly)")
-      buffer.println("}")
-    }
-
-
-
-
-
-    //buffer.println("subResult") //result
+    buffer.println("return selfObjectClone")
     buffer.println("\t}") //END METHOD
 
     //GENERATE CLONE METHOD
@@ -147,10 +98,7 @@ trait ClonerGenerator {
       buffer.println("override fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
     } else {
       buffer.println("override fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any {")
-
     }
-
-
 
     //GET CLONED OBJECT
     buffer.println("if(mutableOnly && isRecursiveReadOnly()){")

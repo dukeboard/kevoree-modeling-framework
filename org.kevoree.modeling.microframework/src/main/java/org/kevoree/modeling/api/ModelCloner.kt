@@ -9,10 +9,10 @@ package org.kevoree.modeling.api
 
 trait ModelCloner {
 
-    fun clone<A>(o : A) : A?
+    fun clone<A: org.kevoree.modeling.api.KMFContainer>(o : A) : A?
 
-    fun clone<A>(o : A,readOnly : Boolean) : A?
+    fun clone<A: org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean) : A?
 
-    fun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A?
+    fun cloneMutableOnly<A: org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean) : A?
 
 }

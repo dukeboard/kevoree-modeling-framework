@@ -8,47 +8,36 @@ package ${packageName}.cloner
 
 class DefaultModelCloner() : org.kevoree.modeling.api.ModelCloner {
 
-override fun clone<A>(o : A) : A? {
+override fun clone<A : org.kevoree.modeling.api.KMFContainer>(o : A) : A? {
         return clone(o,false)
     }
 
-override fun clone<A>(o : A,readOnly : Boolean) : A? {
+override fun clone<A : org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean) : A? {
         return clone(o,readOnly,false)
     }
 
-override fun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {
+override fun cloneMutableOnly<A : org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean) : A? {
         return clone(o,readOnly,true)
     }
 
-    private fun clone<A>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {
+    private fun clone<A : org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {
 
         #if($ctx.getJS())
             val context = java.util.HashMap<Any,Any>()
         #else
             val context = java.util.IdentityHashMap<Any,Any>()
         #end
-        val visitorCloneGraph =
 
-
-        #foreach($potentialRoot in $potentialRoots)
-            #if(!$potentialRoot.getClass().getName().toLowerCase().contains("eenum"))
-                #if($ctx.getJS())
-                if(o is ${helper.fqn($ctx,$potentialRoot)} || o is ${helper.fqn($ctx,$potentialRoot.getEPackage())}.impl.${potentialRoot.getName()}Impl) {
-                val context = java.util.HashMap<Any,Any>()
-            #else
-                if(o is ${helper.fqn($ctx,$potentialRoot)}) {
-                val context = java.util.IdentityHashMap<Any,Any>()
-            #end
-
-            (o as ${ctx.getKevoreeContainerImplFQN()}).getClonelazy(context, mainFactory,mutableOnly)
-            return (o as ${ctx.getKevoreeContainerImplFQN()}).resolve(context,readOnly,mutableOnly) as A
+        val cloneGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
+            override public fun visit(elem : org.kevoree.modeling.api.KMFContainer, refNameInParent : String, parent : org.kevoree.modeling.api.KMFContainer){
+                if(mutableOnly && elem.isRecursiveReadOnly()){stopVisit();return}
+                context.put(elem,(elem as ${ctx.getKevoreeContainerImplFQN()}).createClone(mainFactory))
             }
-
-           #end
-        #end
-        return null
+        }
+        o.visit(cloneGraphVisitor,true,true)
+        return (o as ${ctx.getKevoreeContainerImplFQN()}).resolve(context,readOnly,mutableOnly) as A
     }
-         var mainFactory : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
+     var mainFactory : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
      #foreach($factoryFqn in $packages)
          #set($lastIndexOfPoint = $factoryFqn.lastIndexOf(".") + 1)
          #set($factoryName = $factoryFqn.substring($lastIndexOfPoint))
