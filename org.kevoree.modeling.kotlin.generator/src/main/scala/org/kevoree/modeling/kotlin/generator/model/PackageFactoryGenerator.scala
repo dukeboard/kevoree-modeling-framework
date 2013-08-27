@@ -76,7 +76,7 @@ trait PackageFactoryGenerator {
     ctxV.put("ctx",ctx)
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName",formatedFactoryName)
-    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
+    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract&& !cls.asInstanceOf[EClass].isInterface).toList
     ctxV.put("classes",classes)
     template.merge(ctxV,pr)
     pr.flush()
@@ -138,7 +138,7 @@ trait PackageFactoryGenerator {
     ctxV.put("js",ctx.js)
     ctxV.put("ctx",ctx)
 
-    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).toList
+    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract && !cls.asInstanceOf[EClass].isInterface).toList
     ctxV.put("classes",classes)
     ctxV.put("modelVersion",modelVersion)
     template.merge(ctxV,pr)

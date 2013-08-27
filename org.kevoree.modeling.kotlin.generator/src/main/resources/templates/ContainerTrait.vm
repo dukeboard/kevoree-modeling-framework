@@ -31,8 +31,6 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
         setInternalReadOnly()
     }
 
-    override open fun reflexiveMutator(mutatorType : Int,refName : String, value : Any?, noOpposite : Boolean)
-
     override fun setInternalReadOnly(){
         internal_readOnlyElem = true
     }

@@ -167,7 +167,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
           val FQattTypeName = ProcessorHelper.fqn(ctx, att.getEAttributeType)
 
           if (att.getEAttributeType.isInstanceOf[EEnum]) {
-            pr.println("modelElem." + methName + "(" + FQattTypeName + ".valueOf(valueAtt))")
+            pr.println("modelElem." + methName + " = " + FQattTypeName + ".valueOf(valueAtt)")
           }
           else {
             val attTypeName = ProcessorHelper.convertType(att.getEAttributeType, ctx)
