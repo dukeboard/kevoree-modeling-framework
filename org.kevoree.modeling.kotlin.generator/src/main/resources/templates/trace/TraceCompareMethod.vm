@@ -22,18 +22,23 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
     var hashResult : java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>? = null;
     if(!kmf_internal_ref){
      #foreach( $att in $currentClass.eAllAttributes )
-          attVal = ${FQNHelper.protectReservedWords(${att.getName()})}
-          attVal2 = similarObjCasted?.${FQNHelper.protectReservedWords(${att.getName()})}
-          if(attVal != attVal2){
-                 if(!kmf_internal_inter){
-                    traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2?.toString(),null))
-                 }
-          } else {
-                //att similar
-                if(kmf_internal_inter){
-                    traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2?.toString(),null))
-                }
-          }
+        attVal = ${FQNHelper.protectReservedWords(${att.getName()})}
+        attVal2 = similarObjCasted?.${FQNHelper.protectReservedWords(${att.getName()})}
+        if(attVal2 != null){
+            attVal2String = attVal2.toString()
+        } else {
+            attVal2String = null
+        }
+        if(attVal != attVal2){
+            if(!kmf_internal_inter) {
+                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2String,null))
+            }
+        } else {
+            //att similar
+            if(kmf_internal_inter) {
+                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2String,null))
+            }
+        }
      #end
      } else {
      #foreach( $kmf_internal_ref in $currentClass.eAllReferences )
