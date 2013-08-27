@@ -136,7 +136,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
       pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
     }
     pr.println("when(oMS) {")
-    ProcessorHelper.collectAllClassifiersInModel(model).filter(proot => !proot.isInstanceOf[EEnum]).foreach {
+    ProcessorHelper.collectAllClassifiersInModel(model).filter(proot => !proot.isInstanceOf[EEnum] && !proot.asInstanceOf[EClass].isAbstract).foreach {
       root =>
         if (ctx.getJS()) {
           //KotLin bug Workaround : http://youtrack.jetbrains.com/issue/KT-3519
