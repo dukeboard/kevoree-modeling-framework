@@ -196,14 +196,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
           case 1 => {
             buffer.println("val sub" + subClass.getName + " = selfObject." + ProcessorHelper.protectReservedWords(subClass.getName))
             buffer.println("if(sub" + subClass.getName + "!= null){")
-
-            //buffer.println("val subPath_" + subClass.getName + "=sub" + subClass.getName + ".path()")
-            //buffer.println("if(subPath_" + subClass.getName + "!=null){")
             buffer.println("subResult.put(sub" + subClass.getName + ",sub" + subClass.getName + ".path()!!)")
-            //buffer.println("} else {")
-            //buffer.println("subResult.put(sub" + subClass.getName + ",previousAddr+\"/@" + subClass.getName + "\" )")
-            //buffer.println("}")
-
             buffer.println("subResult.putAll(get" + subClass.getEReferenceType.getName + "JsonAddr(sub" + subClass.getName + "))")
             buffer.println("}")
           }
@@ -379,7 +372,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
               buffer.println("" + subClass.getEReferenceType.getName + "toJson(selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + "!!,addrs,ostream)")
             }
           }
-          case _ if(subClass.getUpperBound == -1 || subClass.getUpperBound > 1) => {
+          case _ if(subClass.isMany()) => {
             buffer.println("if(selfObject." + ProcessorHelper.protectReservedWords(subClass.getName) + ".size() > 0){")
             buffer.println("ostream.println(',')")
             buffer.println("ostream.println(\"\\\"" + subClass.getName + "\\\": [\")")
