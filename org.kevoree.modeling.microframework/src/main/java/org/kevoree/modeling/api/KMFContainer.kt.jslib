@@ -16,7 +16,7 @@ trait KMFContainer {
     fun findByPath(query: String): Any?
     fun path(): String?
     fun metaClassName(): String
-    fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?)
+    fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?, noOpposite : Boolean = false)
     fun containedElementsList(): List<Any>
 
     fun selectByQuery(query : String) : List<Any>

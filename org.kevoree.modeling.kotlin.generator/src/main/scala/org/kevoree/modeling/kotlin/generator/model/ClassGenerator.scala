@@ -39,7 +39,7 @@ trait ClassGenerator extends ClonerGenerator {
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
   def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
-    pr.println("override fun reflexiveMutator(mutationType : Int, refName : String, value : Any?) {")
+    pr.println("override fun reflexiveMutator(mutationType : Int, refName : String, value : Any?, noOpposite : Boolean) {")
     pr.println("when(refName) {")
     cls.getEAllAttributes.foreach {
       att =>
@@ -91,34 +91,91 @@ trait ClassGenerator extends ClonerGenerator {
         val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.isMany) {
           pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {")
-          val methodNameClean = "add" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-          pr.println("      this." + methodNameClean + "(value as " + valueType + ")")
+          val methodNameClean = "add" + toCamelCase(ref)
+          if(ref.getEOpposite != null) {
+            pr.println("      if(noOpposite) {")
+            pr.println("        this.noOpposite_" + methodNameClean + "(value as " + valueType + ")")
+            pr.println("      } else {")
+            pr.println("        this." + methodNameClean + "(value as " + valueType + ")")
+            pr.println("      }")
+          } else {
+            pr.println("        this." + methodNameClean + "(value as " + valueType + ")")
+          }
           pr.println("}")
           pr.println("org.kevoree.modeling.api.util.ActionType.ADD_ALL -> {")
-          val methodNameClean2 = "addAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-          pr.println("      this." + methodNameClean2 + "(value as List<" + valueType + ">)")
+          val methodNameClean2 = "addAll" + toCamelCase(ref)
+          if(ref.getEOpposite != null) {
+            pr.println("      if(noOpposite) {")
+            pr.println("        this.noOpposite_" + methodNameClean2 + "(value as List<" + valueType + ">)")
+            pr.println("      } else {")
+            pr.println("        this." + methodNameClean2 + "(value as List<" + valueType + ">)")
+            pr.println("      }")
+          } else {
+            pr.println("        this." + methodNameClean2 + "(value as List<" + valueType + ">)")
+          }
           pr.println("}")
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE -> {")
-          val methodNameClean3 = "remove" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-          pr.println("      this." + methodNameClean3 + "(value as " + valueType + ")")
+          val methodNameClean3 = "remove" + toCamelCase(ref)
+          if(ref.getEOpposite != null) {
+            pr.println("      if(noOpposite) {")
+            pr.println("        this.noOpposite_" + methodNameClean3 + "(value as " + valueType + ")")
+            pr.println("      } else {")
+            pr.println("        this." + methodNameClean3 + "(value as " + valueType + ")")
+            pr.println("      }")
+          } else {
+            pr.println("        this." + methodNameClean3 + "(value as " + valueType + ")")
+          }
           pr.println("}")
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE_ALL -> {")
-          val methodNameClean4 = "removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-          pr.println("      this." + methodNameClean4 + "()")
+          val methodNameClean4 = "removeAll" + toCamelCase(ref)
+          if(ref.getEOpposite != null) {
+          pr.println("      if(noOpposite) {")
+          pr.println("        this.noOpposite_" + methodNameClean4 + "()")
+          pr.println("      } else {")
+          pr.println("        this." + methodNameClean4 + "()")
+          pr.println("      }")
+          } else {
+            pr.println("        this." + methodNameClean4 + "()")
+          }
           pr.println("}")
         } else {
           pr.println("org.kevoree.modeling.api.util.ActionType.SET -> {")
           val methodNameClean = ProcessorHelper.protectReservedWords(ref.getName)
           val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-          pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
+          if(ref.getEOpposite != null) {
+            pr.println("      if(noOpposite) {")
+            pr.println("        this.noOpposite_" + methodNameClean + " = (value as? " + valueType + ")")
+            pr.println("      } else {")
+            pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
+            pr.println("      }")
+          } else {
+            pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
+          }
+
           pr.println("}")
 
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE -> {")
-          pr.println("      this." + methodNameClean + " = null")
+          if(ref.getEOpposite != null) {
+            pr.println("      if(noOpposite) {")
+            pr.println("        this.noOpposite_" + methodNameClean + " = null")
+            pr.println("      } else {")
+            pr.println("        this." + methodNameClean + " = null")
+            pr.println("      }")
+          } else {
+            pr.println("      this." + methodNameClean + " = null")
+          }
           pr.println("}")
 
           pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {")
-          pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
+          if(ref.getEOpposite != null) {
+            pr.println("      if(noOpposite) {")
+            pr.println("        this.noOpposite_" + methodNameClean + " = (value as? " + valueType + ")")
+            pr.println("      } else {")
+            pr.println("        this." + methodNameClean + " = (value as? " + valueType + ")")
+            pr.println("      }")
+          } else {
+            pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
+          }
           pr.println("}")
 
         }
@@ -126,7 +183,10 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
           pr.println("val obj = _" + ref.getName + ".get(value)")
-          pr.println("val objNewKey = (obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n")
+
+
+          //pr.println("val objNewKey = (obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n")
+          pr.println("val objNewKey = (obj as " + ctx.getKevoreeContainerImplFQN +").internalGetKey()\n")
           pr.println("if(objNewKey == null){throw Exception(\"Key newed to null \"+obj)}\n")
           pr.println("_" + ref.getName + ".remove(value)")
           pr.println("_" + ref.getName + ".put(objNewKey,obj)")
@@ -391,21 +451,21 @@ trait ClassGenerator extends ClonerGenerator {
       // -> Single ref : 0,1 or 1
       if (!noOpposite && (oppositRef != null)) {
         //Management of opposite relation in regular setter
-        val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
+        //val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
         if (oppositRef.isMany) {
           // 0,1 or 1  -- *
           if (ref.isRequired) {
             // Single Ref  1
             res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null){\n"
-            res += "($" + ProcessorHelper.protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this)\n"
+            res += "$" + ProcessorHelper.protectReservedWords(ref.getName) + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
             res += "}\n"
             res += "if(" + ref.getName + param_suf + " != null){\n"
-            res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
+            res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
             res += "}\n"
           } else {
             // Single Ref  0,1
-            res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null) { ($" + ref.getName + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
-            res += "if(" + ref.getName + param_suf + "!=null) {(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}\n"
+            res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null) {$" + ProcessorHelper.protectReservedWords(ref.getName) + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
+            res += "if(" + ref.getName + param_suf + "!=null) {" + ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
           }
 
         } else {
@@ -413,13 +473,13 @@ trait ClassGenerator extends ClonerGenerator {
           if (ref.isRequired) {
             // 1 -- 0,1 or 1
             res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null){\n"
-            res += "($" + ProcessorHelper.protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_" + formatedOpositName + "(null)\n"
+            res += "$" + ProcessorHelper.protectReservedWords(ref.getName) + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", null, true)\n"
             if (ref.isContainment) {
               res += "($" + ProcessorHelper.protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
             }
             res += "}\n"
             res += "if(" + ref.getName + param_suf + " != null){\n"
-            res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_" + formatedOpositName + "(this)\n"
+            res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
             if (ref.isContainment) {
               res += "(" + ref.getName + param_suf + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + ref.getName + "\")\n"
             }
@@ -430,36 +490,34 @@ trait ClassGenerator extends ClonerGenerator {
             if (oppositRef.isRequired) {
               // 0,1 -- 1
               if (!ref.isContainment) {
-                res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){($" + ProcessorHelper.protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ").noOpposite_" + formatedOpositName + "(null) }\n"
-                res += "if(" + ref.getName + param_suf + "!=null){(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_" + formatedOpositName + "(this)}\n"
+                res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){$" + ProcessorHelper.protectReservedWords(ref.getName) + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", null, true)}\n"
+                res += "if(" + ref.getName + param_suf + "!=null){" + ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ",this, true)}\n"
               } else {
                 res += "if(" + "_" + ref.getName + "!=null) {\n"
-                res += "(" + "_" + ref.getName + " as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(null)\n"
+                res += "_" + ref.getName + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ",null, true)\n"
                 res += "(" + "_" + ref.getName + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
                 res += "}\n"
                 res += "if(" + ref.getName + param_suf + "!= null) {\n"
-                res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(this)\n"
+                res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
                 res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + ref.getName + "\")\n"
                 res += "}\n"
               }
             } else {
               // 0,1 -- 0,1
               if (!ref.isContainment) {
-                res += "if(" + "_" + ref.getName + "!=null) {(" + "_" + ref.getName + " as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(null) }\n"
-                res += "if(" + ref.getName + param_suf + "!=null) {(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(this)}\n"
+                res += "if(" + "_" + ref.getName + "!=null) {_" + ref.getName + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", null, true)}\n"
+                res += "if(" + ref.getName + param_suf + "!=null) {" + ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
               } else {
                 res += "if(" + "_" + ref.getName + "!=null) {\n"
-                res += "(" + "_" + ref.getName + " as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(null)\n"
+                res += "_" + ref.getName + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", null, true)\n"
                 res += "_" + ref.getName + ".setEContainer(null,null,null)\n"
                 res += "}\n"
                 res += "if(" + ref.getName + param_suf + "!= null) {\n"
-                res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(this)\n"
+                res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
                 res += "(" + ref.getName + param_suf + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this,null,\"" + ref.getName + "\")\n"
                 res += "}\n"
               }
-
             }
-
           }
         }
       }
@@ -520,9 +578,9 @@ trait ClassGenerator extends ClonerGenerator {
           res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, \"" + ref.getName + "\", elem),\"" + ref.getName + "\")\n"
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
-            res += "(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)\n"
+            res += "elem.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
           } else {
-            res += "(elem as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(this)\n"
+            res += "elem.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
           }
           res += "}\n"
         } else {
@@ -534,9 +592,9 @@ trait ClassGenerator extends ClonerGenerator {
         if (oppositRef != null) {
           val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
           if (oppositRef.isMany) {
-            res += "for(elem in " + ref.getName + param_suf + "){(elem as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)}\n"
+            res += "for(elem in " + ref.getName + param_suf + "){elem.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
           } else {
-            res += "for(elem in " + ref.getName + param_suf + "){(elem as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(this)}\n"
+            res += "for(elem in " + ref.getName + param_suf + "){elem.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
           }
         }
       }
@@ -553,16 +611,16 @@ trait ClassGenerator extends ClonerGenerator {
     if (noOpposite && oppositRef != null && oppositRef.isMany) {
       res += "else {\n"
       //DUPLICATE CASE OF SET / ONLY IN LOADER RUN
-      val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
+      //val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
       // 0,1 or 1  -- *
       if (ref.isRequired) {
         // Single Ref  1
         res += "if(" + ProcessorHelper.protectReservedWords(ref.getName) + " != null){\n"
-        res += "(" + ProcessorHelper.protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this)\n"
+        res += ProcessorHelper.protectReservedWords(ref.getName) + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
         res += "}\n"
       } else {
         // Single Ref  0,1
-        res += "if(" + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){ (" + ProcessorHelper.protectReservedWords(ref.getName) + " as " + refInternalClassFqn + ")!!.noOpposite_remove" + formatedOpositName + "(this) }\n"
+        res += "if(" + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){ " + ProcessorHelper.protectReservedWords(ref.getName) + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
       }
       res += "}\n"
     }
@@ -605,9 +663,9 @@ trait ClassGenerator extends ClonerGenerator {
         val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
         val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl"
         if (!opposite.isMany) {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_" + opposite.getName + "(this)"
+          res += "el.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, true)\n"
         } else {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
+          res += "el.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, true)\n"
         }
       }
       res += "}\n"
@@ -660,9 +718,9 @@ trait ClassGenerator extends ClonerGenerator {
       val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
       val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl"
       if (!opposite.isMany) {
-        res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_" + opposite.getName + "(this)"
+        res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, true)\n"
       } else {
-        res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_add" + formatedOpositName + "(this)"
+        res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, true)\n"
       }
     }
     res += "}"
@@ -727,12 +785,12 @@ trait ClassGenerator extends ClonerGenerator {
 
     val oppositRef = ref.getEOpposite
     if (!noOpposite && oppositRef != null) {
-      val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
+      //val formatedOpositName = oppositRef.getName.substring(0, 1).toUpperCase + oppositRef.getName.substring(1)
       val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl"
       if (oppositRef.isMany) {
-        res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
+        res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
       } else {
-        res += "(" + ref.getName + param_suf + " as " + refInternalClassFqn + ").noOpposite_" + oppositRef.getName + "(null)\n"
+        res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", null, true)\n"
       }
     }
     res += "}\n"
@@ -759,12 +817,12 @@ trait ClassGenerator extends ClonerGenerator {
       }
       if (ref.getEOpposite != null && !noOpposite) {
         val opposite = ref.getEOpposite
-        val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
+        //val formatedOpositName = opposite.getName.substring(0, 1).toUpperCase + opposite.getName.substring(1)
         val refInternalClassFqn = ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl"
         if (!opposite.isMany) {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_" + opposite.getName + "(null)\n"
+          res += "el.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", null, true)\n"
         } else {
-          res += "(el as " + refInternalClassFqn + ").noOpposite_remove" + formatedOpositName + "(this)\n"
+          res += "el.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, true)\n"
         }
       }
       res += "}\n"

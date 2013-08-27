@@ -154,7 +154,9 @@ with ConstantsGenerator {
     //log.debug("Processing classifier:" + cls.getName)
     cls match {
       case cl: EClass => {
-        generateFlatClass(ctx, currentPackageDir, packElement, cl)
+        if( !cl.isAbstract && !cl.isInterface) {
+          generateFlatClass(ctx, currentPackageDir, packElement, cl)
+        }
         //if (!ctx.getJS()) {
         //  generateJAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
         //} else {
