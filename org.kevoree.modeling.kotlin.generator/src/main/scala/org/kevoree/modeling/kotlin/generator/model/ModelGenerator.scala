@@ -106,12 +106,13 @@ with ConstantsGenerator {
     if (ctx.genSelector) {
       generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
     }
+    /*
     if (!ctx.getJS()) {
       generateIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
       generateIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
       generateDeepIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
       generateDeepIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-    }
+    } */
     generateActionTypeClass(ctx)
     generateElementAttributeTypeClass(ctx)
     generateConstants(ctx, model)
