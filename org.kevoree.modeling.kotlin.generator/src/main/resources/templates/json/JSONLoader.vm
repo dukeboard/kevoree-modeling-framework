@@ -43,7 +43,7 @@ val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration()
                 val eclassValue = reader.nextString()
                 when {
 #foreach($rootElement in $helper.collectAllClassifiersInModel($model))
-    #if(!$rootElement.getClass().getName().toLowerCase().contains("eenum"))
+    #if(!$rootElement.getClass().getName().toLowerCase().contains("eenum") && !$rootElement.isAbstract() && !$rootElement.isInterface())
         eclassValue.equals("${helper.fqn($ctx,$rootElement.getEPackage())}:$rootElement.getName()") -> {
             context.loadedRoots.add(load$rootElement.getName()(reader, context))
         }
@@ -98,7 +98,7 @@ val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration()
     }
 
 #foreach($eClazz in $allEClass)
-    #if( $eClazz.getEReferenceType().isAbstract() || $eClazz.getEReferenceType().isInterface())
+    #if( $eClazz.isAbstract() || $eClazz.isInterface())
 
     #else
         #generateLoadMethod($eClazz)
