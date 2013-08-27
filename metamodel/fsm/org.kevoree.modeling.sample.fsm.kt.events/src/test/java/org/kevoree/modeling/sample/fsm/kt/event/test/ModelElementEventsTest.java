@@ -82,6 +82,7 @@ public class ModelElementEventsTest {
         final Transition t0 = factory.createTransition();
         final String value = null;
         t0.setName("t0");
+        t0.setInput("previousInput");
         t0.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
