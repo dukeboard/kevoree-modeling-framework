@@ -49,15 +49,11 @@ trait ClonerGenerator {
   def generateDefaultCloner(ctx: GenerationContext, pack: EPackage, model: ResourceSet) {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
     val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner" + File.separator + "DefaultModelCloner.kt"), "utf-8")
-
     val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
     ctx.clonerPackage = packageName + ".cloner"
-
     if (!ctx.microframework) {
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/ModelCloner.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-
-
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
     ve.init()
@@ -128,7 +124,6 @@ trait ClonerGenerator {
                 buffer.println("clonedSelfObject." + ProcessorHelper.protectReservedWords(ref.getName) + " = this." + ProcessorHelper.protectReservedWords(ref.getName) + "!!")
               }
               buffer.println("} else {")
-
               buffer.println("val interObj = addrs.get(this." + ProcessorHelper.protectReservedWords(ref.getName) + ")")
               buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + ProcessorHelper.protectReservedWords(ref.getName) + ")}")
               if (ref.getEOpposite != null) {
@@ -162,9 +157,8 @@ trait ClonerGenerator {
         }
         buffer.println()
     }
-    //RECUSIVE CALL ON ECONTAINEMENT
 
-    if ( /*ctx.getJS()*/ true) {
+       /*
       cls.getEAllContainments.foreach {
         contained =>
           contained.getUpperBound match {
@@ -187,13 +181,11 @@ trait ClonerGenerator {
           }
           buffer.println()
       }
-    } else {
-      buffer.println("for(sub in containedElements()){")
-      buffer.println("(sub as " + ctx.getKevoreeContainer.get + ").resolve(addrs,readOnly,mutableOnly)")
-      buffer.println("}")
-    }
+
     buffer.println("\t\tif(readOnly){clonedSelfObject.setInternalReadOnly()}")
     buffer.println("return clonedSelfObject") //RETURN CLONED OBJECT
+       */
+
     buffer.println("}") //END METHOD
   }
 

@@ -81,9 +81,9 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
 
     fun createClone(_factories:${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory) : org.kevoree.modeling.api.KMFContainer
 #if(${ctx.jS})
-fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
+fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean)
 #else
-fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean) : Any
+fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean)
 #end
 
 #if(${ctx.isGenTrace()})
