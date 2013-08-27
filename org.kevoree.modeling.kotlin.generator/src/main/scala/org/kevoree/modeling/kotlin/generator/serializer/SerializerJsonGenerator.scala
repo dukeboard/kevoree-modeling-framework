@@ -164,15 +164,6 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     pr.close()
   }
 
-  /*
-  private def generateEENUMToJsonMethod(cls: EEnum, buffer: PrintWriter) {
-    buffer.println("fun get" + cls.getName + "JsonAddr(selfObject : " + ProcessorHelper.fqn(ctx, cls) + ",previousAddr : String): Map<Any,String> {")
-    buffer.println("ostream.print('{')")
-    buffer.println("ostream.print(\" \\\"eClass\\\":\\\"" + ProcessorHelper.fqn(ctx, cls.getEPackage) + ":" + cls.getName + "\\\" \")")
-    buffer.println("ostream.print('}')") // end JSON element
-    buffer.println("}")
-  } */
-
   private def generateToJsonMethod(cls: EClass, buffer: PrintWriter) {
     var stringListSubSerializers = Set[Tuple2[String, String]]()
     if (cls.getEAllContainments.size > 0) {
