@@ -22,6 +22,13 @@ override fun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {
 
     private fun clone<A>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {
 
+        #if($ctx.getJS())
+            val context = java.util.HashMap<Any,Any>()
+        #else
+            val context = java.util.IdentityHashMap<Any,Any>()
+        #end
+        val visitorCloneGraph =
+
 
         #foreach($potentialRoot in $potentialRoots)
             #if(!$potentialRoot.getClass().getName().toLowerCase().contains("eenum"))
@@ -46,9 +53,6 @@ override fun cloneMutableOnly<A>(o : A,readOnly : Boolean) : A? {
          #set($lastIndexOfPoint = $factoryFqn.lastIndexOf(".") + 1)
          #set($factoryName = $factoryFqn.substring($lastIndexOfPoint))
          fun set$factoryName(fct : $factoryFqn) { mainFactory.set$factoryName(fct)}
-         ##fun get$factoryName() : $factoryFqn { return mainFactory.get$factoryName()}
-
-     ##override var ${pack.replace(".", "_")} : $pack = ${pack.substring(0, $pack.lastIndexOf("."))}.impl.Default${helper.getLastName($pack)}()
      #end
 
 }

@@ -73,15 +73,6 @@ trait ClonerGenerator {
     pr.close()
   }
 
-  private def generateFactorySetter(ctx: GenerationContext, pr: PrintWriter) {
-    ctx.packageFactoryMap.values().foreach {
-      factoryFqn =>
-        val factoryPackage = factoryFqn.substring(0, factoryFqn.lastIndexOf("."))
-        val factoryName = factoryFqn.substring(factoryFqn.lastIndexOf(".") + 1)
-        pr.println("override var " + factoryFqn.replace(".", "_") + " : " + factoryFqn + " = " + factoryPackage + ".impl.Default" + factoryName + "()")
-    }
-  }
-
   def generateCloneMethods(ctx: GenerationContext, cls: EClass, buffer: PrintWriter, pack: EPackage /*, isRoot: Boolean = false */) = {
     if (ctx.getJS()) {
       buffer.println("override fun getClonelazy(subResult : java.util.HashMap<Any,Any>, _factories : " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory, mutableOnly: Boolean) {")

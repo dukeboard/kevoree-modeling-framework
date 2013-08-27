@@ -26,10 +26,6 @@
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.emf</module>
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.event.js</module>
 		
-		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
-		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
-		<module>kermeta/org.kevoree.modeling.sample.kermeta.js</module>
-			
 		<module>thingml/org.kevoree.modeling.sample.thingml.kt</module>
 		<module>thingml/org.kevoree.modeling.sample.thingml.emf</module>
 		<module>diva/org.kevoree.modeling.sample.diva.kt</module>
@@ -40,6 +36,10 @@
 		
         <module>multiecore</module>
 		<module>cloud</module>
+		
+		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
+		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
+		<module>kermeta/org.kevoree.modeling.sample.kermeta.js</module>
 		
 	</modules>
 

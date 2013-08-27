@@ -129,7 +129,7 @@ class GenerationContext {
 
   def checkEID(current: EClass, resource: XMIResource) {
     import scala.collection.JavaConversions._
-    if (current.getEAllAttributes.find(att => att.isID).isEmpty && !current.isAbstract) {
+    if (current.getEAllAttributes.find(att => att.isID).isEmpty) {
       val generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
       generatedKmfIdAttribute.setID(true)
       generatedKmfIdAttribute.setName("generated_KMF_ID")
