@@ -29,7 +29,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
                 }
             }
         }
-        visit(recVisitor,true,false)
+        visit(recVisitor,true,true,true)
         setInternalReadOnly()
     }
 
@@ -184,14 +184,20 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
     }
 #end
 
-    override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, onlyContainedRef : Boolean){}
+    override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){}
+    override fun visit(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){}
 
-    fun internal_visit(visitor : org.kevoree.modeling.api.util.ModelVisitor,internalElem : org.kevoree.modeling.api.KMFContainer?,recursive:Boolean,onlyContainedRef:Boolean, refName : String){
+    fun internal_visit(visitor : org.kevoree.modeling.api.util.ModelVisitor,internalElem : org.kevoree.modeling.api.KMFContainer?,recursive:Boolean,containedReference : Boolean,nonContainedReference : Boolean, refName : String){
         if(internalElem != null){
+            if(nonContainedReference){
+                var elemPath = internalElem.path()!!
+                if(visitor.alreadyVisited.containsKey(elemPath)){return}
+                visitor.alreadyVisited.put(elemPath,internalElem)
+            }
             visitor.visit(internalElem,refName,this)
             if(!visitor.visitStopped){
                 if(recursive && visitor.visitChildren){
-                    internalElem.visit(visitor,recursive,onlyContainedRef)
+                    internalElem.visit(visitor,recursive,containedReference,nonContainedReference)
                 }
                 visitor.visitChildren = true
             }

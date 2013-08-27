@@ -26,6 +26,8 @@ trait KMFContainer {
     fun removeModelTreeListener(lst : ModelElementListener)
     fun removeAllModelTreeListeners()
     fun findByPath<A>(query : String, clazz : Class<A>) : A?
-    fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, onlyContainedRef : Boolean)
+
+    fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean)
+    fun visit(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor)
 
 }
