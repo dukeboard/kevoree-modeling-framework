@@ -2,6 +2,7 @@ package org.kevoree.test;
 
 import org.junit.Test;
 import org.kevoree.ContainerNode;
+import org.kevoree.ComponentType;
 import org.kevoree.ContainerRoot;
 import org.kevoree.KevoreeFactory;
 import org.kevoree.TypeDefinition;
@@ -23,7 +24,7 @@ public class EventTest {
         ModelSync sync = new ModelSync(modelM0, modelM1);
 
         //add node
-        TypeDefinition typeDef = factory.createTypeDefinition();
+        ComponentType typeDef = factory.createComponentType();
         typeDef.setName("TD1");
         modelM0.addTypeDefinitions(typeDef);
 

@@ -3,6 +3,7 @@ package org.kevoree.test;
 import org.junit.Test;
 import org.kevoree.ContainerNode;
 import org.kevoree.ContainerRoot;
+import org.kevoree.ComponentType;
 import org.kevoree.KevoreeFactory;
 import org.kevoree.TypeDefinition;
 import org.kevoree.cloner.DefaultModelCloner;
@@ -33,7 +34,7 @@ public class TraceSyncTest {
 
 
         ContainerRoot modelM0 = factory.createContainerRoot();
-        TypeDefinition typeDef = factory.createTypeDefinition();
+        ComponentType typeDef = factory.createComponentType();
         typeDef.setName("TD1");
         modelM0.addTypeDefinitions(typeDef);
 

@@ -2,6 +2,7 @@ package org.kevoree.test;
 
 import org.junit.Test;
 import org.kevoree.ContainerNode;
+import org.kevoree.ComponentType;
 import org.kevoree.ContainerRoot;
 import org.kevoree.KevoreeFactory;
 import org.kevoree.TypeDefinition;
@@ -27,7 +28,7 @@ public class ModelComparatorTest {
 
         ContainerRoot modelM0 = factory.createContainerRoot();
 
-        TypeDefinition typeDef = factory.createTypeDefinition();
+        ComponentType typeDef = factory.createComponentType();
         typeDef.setName("TD1");
         modelM0.addTypeDefinitions(typeDef);
 
@@ -58,7 +59,7 @@ public class ModelComparatorTest {
     public void testCompareInter() {
 
         ContainerRoot modelM0 = factory.createContainerRoot();
-        TypeDefinition typeDef = factory.createTypeDefinition();
+        ComponentType typeDef = factory.createComponentType();
         typeDef.setName("TD1");
         modelM0.addTypeDefinitions(typeDef);
 
