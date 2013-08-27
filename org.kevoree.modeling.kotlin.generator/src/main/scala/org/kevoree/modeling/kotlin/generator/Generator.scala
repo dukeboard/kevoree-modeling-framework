@@ -175,17 +175,17 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
         model.getResources.get(0).getContents.add(newMeta)
         model.getAllContents.find(e => e.isInstanceOf[EPackage] && ProcessorHelper.fqn(ctx, e.asInstanceOf[EPackage]) == metaC.packageName) match {
           case Some(p) => {
-             p.asInstanceOf[EPackage].getEClassifiers.add(newMeta)
+            p.asInstanceOf[EPackage].getEClassifiers.add(newMeta)
           }
           case None => {
-             System.err.println("Create package : "+metaC.packageName);
+            System.err.println("Create package : " + metaC.packageName);
             val newMetaPack = EcoreFactory.eINSTANCE.createEPackage();
             newMetaPack.setName(metaC.packageName)
             newMetaPack.getEClassifiers.add(newMeta)
             model.getResources.get(0).getContents.add(newMetaPack)
           }
         }
-        model.getAllContents.find(e => e.isInstanceOf[EClass] && (ProcessorHelper.fqn(ctx, e.asInstanceOf[EClass]) == metaC.parentName || e.asInstanceOf[EClass].getName == metaC.parentName ) ) match {
+        model.getAllContents.find(e => e.isInstanceOf[EClass] && (ProcessorHelper.fqn(ctx, e.asInstanceOf[EClass]) == metaC.parentName || e.asInstanceOf[EClass].getName == metaC.parentName)) match {
           case Some(parentclass) => {
             newMeta.getESuperTypes.add(parentclass.asInstanceOf[EClass]);
           }
@@ -204,7 +204,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
           case eclass: EClass => {
             //Should have aspect covered all method
             val operationList = new util.ArrayList[EOperation]()
-            operationList.addAll(eclass.getEOperations.filter(op => op.getName != "eContainer"))
+            operationList.addAll(eclass.getEAllOperations.filter(op => op.getName != "eContainer"))
             ctx.aspects.values().foreach {
               aspect =>
                 if (aspect.aspectedClass == eclass.getName || ProcessorHelper.fqn(ctx, eclass) == aspect.aspectedClass) {
@@ -238,10 +238,17 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                             eclass.getEOperations.add(newEOperation)
 
                           } else {
-                            //Duplicated => ERROR
-                            var errMsg = "Duplicated Method In conflicting aspect on " + eclass.getName + "\n";
-                            errMsg = errMsg + method.toString
-                            throw new Exception(errMsg)
+
+
+                            eclass.getEAllOperations.filter(op => isMethodEquel(op, method, ctx)).foreach {
+                              op =>
+                                if(op.getEContainingClass == eclass){
+                                  var errMsg = "Duplicated Method In conflicting aspect on " + eclass.getName + "\n";
+                                  errMsg = errMsg + method.toString
+                                  throw new Exception(errMsg)
+                                }
+                            }
+
                           }
                         }
                       }
@@ -275,7 +282,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
               newAspectClass.aspectedClass = eclass.getName
               newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
               ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass)
-              eclass.getEOperations.filter(op => op.getName != "eContainer").foreach {
+              eclass.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
                 operation =>
                   writer.write("\toverride fun " + operation.getName + "(")
                   var isFirst = true

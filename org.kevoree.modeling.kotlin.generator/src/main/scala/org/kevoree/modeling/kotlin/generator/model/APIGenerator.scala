@@ -132,6 +132,10 @@ trait APIGenerator extends ClassGenerator {
     /* next we generated custom method */
     cls.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
       op =>
+
+        if(op.getEContainingClass != cls){
+          pr.print("override ")
+        }
         pr.print("fun " + op.getName + "(")
         var isFirst = true
         op.getEParameters.foreach {
