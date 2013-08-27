@@ -93,7 +93,8 @@ trait TraitGenerator {
       } else {
         ProcessorHelper.copyFromStream("org/kevoree/modeling/api/KMFContainer.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
       }
-
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelAttributeVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
 
     /*

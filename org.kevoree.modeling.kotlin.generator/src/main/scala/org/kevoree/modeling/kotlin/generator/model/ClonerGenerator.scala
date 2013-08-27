@@ -110,10 +110,6 @@ trait ClonerGenerator {
           throw new Exception("Null EType for " + ref.getName + " in " + cls.getName)
         }
         if (ref.getEReferenceType.getName != null) {
-          var noOpPrefix = ""
-          if (ref.getEOpposite != null) {
-            noOpPrefix = "noOpposite_"
-          }
           ref.getUpperBound match {
             case 1 => {
               buffer.println("if(this." + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){")
@@ -141,12 +137,21 @@ trait ClonerGenerator {
               formatedName += ref.getName.substring(1)
 
               buffer.println("if(mutableOnly && sub.isRecursiveReadOnly()){")
-              buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(sub)")
+              if(ref.getEOpposite != null) {
+                buffer.println("clonedSelfObject.add" + formatedName + "(sub, false)")
+              } else {
+                buffer.println("clonedSelfObject.add" + formatedName + "(sub)")
+              }
+
               buffer.println("} else {")
 
               buffer.println("val interObj = addrs.get(sub)")
               buffer.println("if(interObj == null){ throw Exception(\"Non contained " + ref.getName + " from " + cls.getName + " : \"+this." + ProcessorHelper.protectReservedWords(ref.getName) + ")}")
-              buffer.println("clonedSelfObject." + noOpPrefix + "add" + formatedName + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              if(ref.getEOpposite != null) {
+                buffer.println("clonedSelfObject.add" + formatedName + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ", false)")
+              } else {
+                buffer.println("clonedSelfObject.add" + formatedName + "(interObj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ")")
+              }
               buffer.println("}")
 
               buffer.println("\t\t}")
