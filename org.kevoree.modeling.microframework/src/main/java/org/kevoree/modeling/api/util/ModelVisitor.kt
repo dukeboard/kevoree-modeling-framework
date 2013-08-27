@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.util
 
 import org.kevoree.modeling.api.KMFContainer
+import java.util.HashMap
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,5 +25,7 @@ public abstract class ModelVisitor {
     }
 
     public abstract fun visit(elem : KMFContainer, refNameInParent : String, parent : KMFContainer)
+
+    var alreadyVisited = HashMap<String,KMFContainer>()
 
 }

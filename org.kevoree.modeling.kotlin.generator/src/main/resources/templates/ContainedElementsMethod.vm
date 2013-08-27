@@ -3,30 +3,38 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="packElem" type="java.lang.String" *#
 
-#if(!$currentClass.getEAllContainments().isEmpty())
-override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, onlyContainedRef : Boolean){
+#if(!$currentClass.getEAllReferences().isEmpty())
+override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){
+            #set($firstGeneratedCont = true)
             #foreach( $ref in $currentClass.getEAllContainments())
+                #if($firstGeneratedCont)
+            if(containedReference){
+                    #set($firstGeneratedCont = false)
+                #end
                 #if($ref.isMany())
                     for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
-                        internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
+                        internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                     }
                 #else
-                    internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
+                    internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                 #end
+            #end
+            #if(!$firstGeneratedCont)
+            }
             #end
            #set($firstGeneratedRef = true)
                 #foreach( $ref in $currentClass.getEAllReferences())
                     #if(!$currentClass.getEAllContainments().contains($ref))
                         #if($firstGeneratedRef)
-           if(!onlyContainedRef){
+           if(nonContainedReference){
                             #set($firstGeneratedRef = false)
                         #end
                         #if($ref.isMany())
                             for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
-                                internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
+                                internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                             }
                         #else
-                            internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,onlyContainedRef,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
+                            internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                         #end
                     #end
                 #end
@@ -36,7 +44,10 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
 }
 #end
 
-
-
-
-
+#if(!$currentClass.getEAllAttributes().isEmpty())
+override fun visit(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){
+    #foreach( $att in $currentClass.getEAllAttributes())
+        visitor.visit(${FQNHelper.protectReservedWords($att.getName())},${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Att_${att.getName()},this)
+    #end
+}
+#end
