@@ -6,7 +6,7 @@ import java.io.{File, PrintWriter}
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{AspectMatcher, ProcessorHelper, GenerationContext}
 import scala.collection.mutable
 
 /**
@@ -203,7 +203,8 @@ trait ClassGenerator extends ClonerGenerator {
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
     pr.print("class " + cls.getName + "Impl")
 
-    val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
+   // val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
+     val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx,v,cls))
     var aspectsName = List[String]()
     aspects.foreach {
       a =>

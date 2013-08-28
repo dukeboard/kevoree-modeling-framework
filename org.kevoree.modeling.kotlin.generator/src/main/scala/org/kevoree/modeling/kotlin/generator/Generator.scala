@@ -197,7 +197,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
     }
 
-
     model.getAllContents.foreach {
       content =>
         content match {
@@ -207,7 +206,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
             operationList.addAll(eclass.getEAllOperations.filter(op => op.getName != "eContainer"))
             ctx.aspects.values().foreach {
               aspect =>
-                if (aspect.aspectedClass == eclass.getName || ProcessorHelper.fqn(ctx, eclass) == aspect.aspectedClass) {
+                if (AspectMatcher.aspectMatcher(ctx,aspect,eclass)) {
                   //aspect match
                   aspect.methods.foreach {
                     method =>
@@ -238,8 +237,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                             eclass.getEOperations.add(newEOperation)
 
                           } else {
-
-
                             eclass.getEAllOperations.filter(op => isMethodEquel(op, method, ctx)).foreach {
                               op =>
                                 if(op.getEContainingClass == eclass){
@@ -255,7 +252,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                   }
                 }
             }
-            if (!operationList.isEmpty) {
+            if (!operationList.isEmpty && !eclass.isAbstract && !eclass.isInterface) {
 
               System.err.println("Auto generate Method for aspect " + eclass.getName);
               /*
