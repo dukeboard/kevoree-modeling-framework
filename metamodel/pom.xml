@@ -18,7 +18,10 @@
 		<module>fsm/org.kevoree.modeling.sample.fsm.kt</module>
 		<module>fsm/org.kevoree.modeling.sample.fsm.emf</module>
 		<module>fsm/org.kevoree.modeling.sample.fsm.kt.events</module>
-		
+        <module>fsm/org.kevoree.modeling.sample.fsm.test</module>
+
+        <module>opposite/org.kevoree.modeling.sample.opposite</module>
+
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.kt</module>
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.test</module>
 		
