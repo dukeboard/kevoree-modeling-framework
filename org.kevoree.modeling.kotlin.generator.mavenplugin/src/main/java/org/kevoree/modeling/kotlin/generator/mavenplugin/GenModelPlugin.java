@@ -390,7 +390,7 @@ public class GenModelPlugin extends AbstractMojo {
                     String line;
                     while ((line = br.readLine()) != null) {
                         writer.write(line
-                                .replaceFirst("(metaclass.*trait)", "trait")
+                                .replaceAll("(metaclass.*trait)", "trait")
                                 .replace("aspect trait", "trait")
                                 .replace("import org.kevoree.modeling.api.aspect;", "")
                                 .replace("import org.kevoree.modeling.api.aspect", "")
