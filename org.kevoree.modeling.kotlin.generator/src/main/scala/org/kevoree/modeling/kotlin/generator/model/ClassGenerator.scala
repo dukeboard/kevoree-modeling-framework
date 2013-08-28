@@ -415,20 +415,8 @@ trait ClassGenerator extends ClonerGenerator {
         //Management of opposite relation in regular setter
         if (oppositRef.isMany) {
           // 0,1 or 1  -- *
-          if (ref.isRequired) {
-            // Single Ref  1
-            res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null){\n"
-            res += "$" + ProcessorHelper.protectReservedWords(ref.getName) + "!!.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
-            res += "}\n"
-            res += "if(" + ref.getName + param_suf + " != null){\n"
-            res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
-            res += "}\n"
-          } else {
-            // Single Ref  0,1
-            res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null) {$" + ProcessorHelper.protectReservedWords(ref.getName) + "!!.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
-            res += "if(" + ref.getName + param_suf + "!=null) {" + ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
-          }
-
+          res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null) {$" + ProcessorHelper.protectReservedWords(ref.getName) + "!!.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
+          res += "if(" + ref.getName + param_suf + "!=null) {" + ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
         } else {
           // -> // 0,1 or 1  --  0,1 or 1
           if (ref.isRequired) {
@@ -921,111 +909,5 @@ trait ClassGenerator extends ClonerGenerator {
     res += "}\n"
     res
   }
-
-
-
-  /*
-  private def generateRemoveMethodOp(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean, ctx: GenerationContext): String = {
-    //generate remove
-    var res = ""
-    val formatedMethodName = ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-
-    if (ctx.generateEvents && ref.isContainment && !noOpposite) {
-      // only once in the class, only for contained references
-      res += "\nvar removeAll" + formatedMethodName + "CurrentlyProcessing : Boolean = false\n"
-
-
-    }
-
-    if (noOpposite) {
-      res += "\nfun noOpposite_remove" + formatedMethodName
-    } else {
-      res += "\noverride fun remove" + formatedMethodName
-    }
-
-
-    res += "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
-
-    res += ("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n")
-    if (isOptional) {
-      res += "if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey((" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey())) {\n"
-    } else {
-      res += "if(" + "_" + ref.getName + ".size == " + ref.getLowerBound + "&& " + "_" + ref.getName + ".containsKey((" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()) ) {\n"
-      res += "throw UnsupportedOperationException(\"The list of " + ref.getName + param_suf + " must contain at least " + ref.getLowerBound + " element. Can not remove sizeof(" + ref.getName + param_suf + ")=\"+" + "_" + ref.getName + ".size)\n"
-      res += "} else {\n"
-    }
-
-    res += "_" + ref.getName + ".remove((" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey())\n"
-    if (ref.isContainment) {
-      //TODO
-      res += "(" + ref.getName + param_suf + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
-    }
-
-    if (ctx.generateEvents) {
-      if (ref.isContainment) {
-        res += "if(!removeAll" + formatedMethodName + "CurrentlyProcessing) {\n"
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-        res += "}\n"
-      } else {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-      }
-    }
-
-    val oppositRef = ref.getEOpposite
-    if (!noOpposite && oppositRef != null) {
-      if (oppositRef.isMany) {
-        res += "(" + ref.getName + param_suf + " as " + typeRefName + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
-      } else {
-        res += "(" + ref.getName + param_suf + " as " + typeRefName + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", null, true)\n"
-      }
-    }
-    res += "}\n"
-    res += "}\n"
-    res
-  }
-
-  private def generateRemoveAllMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, noOpposite: Boolean, ctx: GenerationContext): String = {
-    var res = ""
-    if (noOpposite) {
-      res += "\nfun noOpposite_removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() {\n"
-    } else {
-      res += "\noverride fun removeAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "() {\n"
-    }
-    res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
-    if (ctx.generateEvents && ref.isContainment) {
-      res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=true\n"
-    }
-    res += "val temp_els = " + ProcessorHelper.protectReservedWords(ref.getName) + "!!\n"
-    if ((!noOpposite && ref.getEOpposite != null) || ref.isContainment) {
-      res += "for(el in temp_els!!){\n"
-      if (ref.isContainment) {
-        res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
-      }
-      if (ref.getEOpposite != null && !noOpposite) {
-        val opposite = ref.getEOpposite
-        if (!opposite.isMany) {
-          res += "(el as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", null, true)\n"
-        } else {
-          res += "(el as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, true)\n"
-        }
-      }
-      res += "}\n"
-    }
-    res += "_" + ref.getName + ".clear()\n"
-
-    if (ctx.generateEvents) {
-      if (ref.isContainment) {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
-        res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=false\n"
-
-      } else {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
-      }
-    }
-
-    res += "}\n"
-    res
-  }
-*/
 
 }
