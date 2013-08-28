@@ -139,22 +139,29 @@ val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration()
                         reader.beginObject()
                             #set($concreteSubTypes=$helper.getAllConcreteSubTypes($ref.getEReferenceType()))
                             #set($isConcret= (!$ref.getEReferenceType().isAbstract()) && (!$ref.getEReferenceType().isInterface()))
-                            #if(!( ($isConcret && $concreteSubTypes.size() == 0) || (!$isConcret && $concreteSubTypes.size() == 1) ))
+                             #if(!( ($isConcret && $concreteSubTypes.size() == 0) || (!$isConcret && $concreteSubTypes.size() == 1) ))
                             val nextKey = reader.nextName()
                             if(nextKey.equals("eClass")) {
                             val eclassValue = reader.nextString()
                                 when(eclassValue) {
-
                                     #if($isConcret)
                                     "$helper.fqn($ctx, $ref.getEReferenceType().getEPackage()):$ref.getEReferenceType().getName()" -> {
                                         val loadedElem = load$ref.getEReferenceType().getName()(reader, context)
-                                        modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                        #if($ref.isMany())
+                                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                        #{else}
+                                            modelElem.${helper.protectReservedWords($ref.getName())} = loadedElem
+                                        #{end}
                                     }
                                     #end
                                     #foreach($concreteType in $concreteSubTypes)
                                     "$helper.fqn($ctx, $concreteType.getEPackage()):$concreteType.getName()" -> {
                                         val loadedElem = load$concreteType.getName()(reader, context)
-                                        modelElem.#if($ref.isMany())add#{else}set#{end}$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                        #if($ref.isMany())
+                                            modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
+                                        #{else}
+                                            modelElem.${helper.protectReservedWords($ref.getName())} = loadedElem
+                                        #{end}
                                     }
                                     #end
                                     else -> {
@@ -173,7 +180,7 @@ val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration()
                                 #if($ref.isMany())
                                     modelElem.add$ref.getName().substring(0,1).toUpperCase()$ref.getName().substring(1)(loadedElem)
                                 #{else}
-                                    modelElem.${ref.getName()} = loadedElem
+                                    modelElem.${helper.protectReservedWords($ref.getName())} = loadedElem
                                 #{end}
                             #end
                         reader.endObject()
@@ -190,9 +197,9 @@ val mainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration()
                     #end
                         val xmiRef = reader.nextString()!!
                             #if($ref.isMany())
-                            context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.ADD, "$ref.getName()", xmiRef))
+                            context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.ADD, ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(), xmiRef))
                              #else
-                             context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.SET, "$ref.getName()", xmiRef))
+                             context.resolvers.add(JSONResolveCommand(context, modelElem,org.kevoree.modeling.api.util.ActionType.SET, ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$ref.getName(), xmiRef))
                             #end
 
                     #if($ref.isMany())
