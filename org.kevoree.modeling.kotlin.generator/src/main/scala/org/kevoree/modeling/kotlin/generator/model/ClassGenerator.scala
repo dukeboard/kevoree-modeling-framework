@@ -459,7 +459,7 @@ trait ClassGenerator extends ClonerGenerator {
               } else {
                 res += "if(" + "$" + ref.getName + "!=null) {\n"
                 res += "$" + ref.getName + "!!.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", null, true)\n"
-                res += "$" + ref.getName + "!!.setEContainer(null,null,null)\n"
+                res += "(" + "$" + ref.getName + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
                 res += "}\n"
                 res += "if(" + ref.getName + param_suf + "!= null) {\n"
                 res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
@@ -485,7 +485,7 @@ trait ClassGenerator extends ClonerGenerator {
           res += "(" + ProcessorHelper.protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n"
           res += "}\n"
           res += "if(" + ref.getName + param_suf + " != null){\n"
-          res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", Any)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
+          res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", null)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
           res += "}\n"
         }
       } else {
@@ -555,6 +555,7 @@ trait ClassGenerator extends ClonerGenerator {
     }
     res += "}\n" //END IF newRef != localRef
 
+    /*
     if (noOpposite && oppositRef != null && oppositRef.isMany) {
       res += "else {\n"
       //DUPLICATE CASE OF SET / ONLY IN LOADER RUN
@@ -570,6 +571,7 @@ trait ClassGenerator extends ClonerGenerator {
       }
       res += "}\n"
     }
+    */
     res += "\n}" //END Method
     res
   }
@@ -591,12 +593,14 @@ trait ClassGenerator extends ClonerGenerator {
 
     res += "val _key_ = (" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n"
     res += "if(_key_ == \"\" || _key_ == null){ throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.EMPTY_KEY) }\n"
-    res += "_" + ref.getName + ".put(_key_," + ref.getName + param_suf + ")\n"
+    res += "if(!_" + ref.getName + ".containsKey(_key_)) {\n"
 
+    res += "_" + ref.getName + ".put(_key_," + ref.getName + param_suf + ")\n"
     if (ref.isContainment) {
       res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ")," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
     }
 
+    res += "}\n"
     res += "}\n"
     res
   }

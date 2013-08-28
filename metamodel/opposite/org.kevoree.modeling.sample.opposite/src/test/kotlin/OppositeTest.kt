@@ -15,24 +15,12 @@
  * Fouquet Francois
  * Nain Gregory
  */
-/**
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
- */
+
 import org.junit.Test
+import kmf.test.TestFactory
+import kmf.test.impl.DefaultTestFactory
+import kmf.test.A
+import kmf.test.B
 
 /*
 * Author : Gregory Nain (developer.name@uni.lu)
@@ -43,594 +31,583 @@ import org.junit.Test
 
 class OppositeTest {
 
-  Test fun optionalSingleA_optionalSingleB_Test() {
-    //val container = TestFactory.createContainer
-    val b = TestFactory.createB
-    val a = TestFactory.createA
+    val factory = DefaultTestFactory()
+    
+    Test fun optionalSingleA_optionalSingleB_Test() {
+        //val container = TestFactory.createContainer
+        val b = factory.createB()
+        val a = factory.createA()
 
-    //Set a in B
-    b.setOptionalSingleA_optionalSingleB(Some(a))
-    assert(a.getOptionalSingleA_optionalSingleB.isDefined && a.getOptionalSingleA_optionalSingleB.get == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
+        //Set a in B
+        b.optionalSingleA_optionalSingleB = a
+        assert(a.optionalSingleA_optionalSingleB != null && a.optionalSingleA_optionalSingleB == b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
 
-    b.setOptionalSingleA_optionalSingleB(Some(a))
-    assert(a.getOptionalSingleA_optionalSingleB.isDefined && a.getOptionalSingleA_optionalSingleB.get == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-
-
-    //Remove A from B
-    b.setOptionalSingleA_optionalSingleB(None)
-    assert(a.getOptionalSingleA_optionalSingleB == None)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-
-    //Set B in A
-    a.setOptionalSingleA_optionalSingleB(Some(b))
-    assert(b.getOptionalSingleA_optionalSingleB.isDefined && b.getOptionalSingleA_optionalSingleB.get == a)
-    assert(a.eContainer == b)
-
-    //Set B in A
-    a.setOptionalSingleA_optionalSingleB(Some(b))
-    assert(b.getOptionalSingleA_optionalSingleB.isDefined && b.getOptionalSingleA_optionalSingleB.get == a)
-    assert(a.eContainer == b)
-
-    //Remove B from A
-    a.setOptionalSingleA_optionalSingleB(None)
-    assert(b.getOptionalSingleA_optionalSingleB == None)
-    assert(a.eContainer == null)
-
-  }
+        b.optionalSingleA_optionalSingleB = a
+        assert(a.optionalSingleA_optionalSingleB != null && a.optionalSingleA_optionalSingleB == b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
 
 
-  @Test
-  def mandatorySingleA_mandatorySingleB_Test() {
-    //val container = TestFactory.createContainer
-    val b = TestFactory.createB
-    val a = TestFactory.createA
+        //Remove A from B
+        b.optionalSingleA_optionalSingleB = null
+        assert(a.optionalSingleA_optionalSingleB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
 
-    //Set a in B
-    b.setMandatorySingleA_mandatorySingleB(a)
-    assert(a.getMandatorySingleA_mandatorySingleB == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
+        //Set B in A
+        a.optionalSingleA_optionalSingleB = b
+        assert(b.optionalSingleA_optionalSingleB != null && b.optionalSingleA_optionalSingleB== a)
+        assert(a.eContainer() == b)
 
-    b.setMandatorySingleA_mandatorySingleB(a)
-    assert(a.getMandatorySingleA_mandatorySingleB == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
+        //Set B in A
+        a.optionalSingleA_optionalSingleB = b
+        assert(b.optionalSingleA_optionalSingleB != null && b.optionalSingleA_optionalSingleB== a)
+        assert(a.eContainer() == b)
 
+        //Remove B from A
+        a.optionalSingleA_optionalSingleB = null
+        assert(b.optionalSingleA_optionalSingleB == null)
+        assert(a.eContainer() == null)
 
-    //Remove A from B
-    b.setMandatorySingleA_mandatorySingleB(null)
-    assert(a.getMandatorySingleA_mandatorySingleB == null)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-
-    b.setMandatorySingleA_mandatorySingleB(null)
-    assert(a.getMandatorySingleA_mandatorySingleB == null)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-
-    //Set B in A
-    a.setMandatorySingleA_mandatorySingleB(b)
-    assert(b.getMandatorySingleA_mandatorySingleB == a)
-    assert(a.eContainer == b)
-
-    //Set B in A
-    a.setMandatorySingleA_mandatorySingleB(b)
-    assert(b.getMandatorySingleA_mandatorySingleB == a)
-    assert(a.eContainer == b)
-
-    //Remove B from A
-    a.setMandatorySingleA_mandatorySingleB(null)
-    assert(b.getMandatorySingleA_mandatorySingleB == null)
-    assert(a.eContainer == null)
-
-  }
-
-
-
-
-  @Test
-  def optionalSingleA_MandatorySingleB_Test() {
-    //val container = TestFactory.createContainer
-    val b = TestFactory.createB
-    val a = TestFactory.createA
-
-    //Set a in B
-    b.setOptionalSingleA_MandatorySingleB(a)
-    assert(a.getOptionalSingleA_MandatorySingleB.isDefined && a.getOptionalSingleA_MandatorySingleB.get == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-
-    //Set a in B
-    b.setOptionalSingleA_MandatorySingleB(a)
-    assert(a.getOptionalSingleA_MandatorySingleB.isDefined && a.getOptionalSingleA_MandatorySingleB.get == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-
-
-    //Remove A from B
-    b.setOptionalSingleA_MandatorySingleB(null)
-    assert(a.getOptionalSingleA_MandatorySingleB == None)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-
-    //Remove A from B
-    b.setOptionalSingleA_MandatorySingleB(_)
-    assert(a.getOptionalSingleA_MandatorySingleB == None)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-
-    //Set B in A
-    a.setOptionalSingleA_MandatorySingleB(Some(b))
-    assert(b.getOptionalSingleA_MandatorySingleB == a)
-    assert(a.eContainer == b)
-
-    //Set B in A
-    a.setOptionalSingleA_MandatorySingleB(Some(b))
-    assert(b.getOptionalSingleA_MandatorySingleB == a)
-    assert(a.eContainer == b)
-
-    //Remove B from A
-    a.setOptionalSingleA_MandatorySingleB(None)
-    assert(b.getOptionalSingleA_MandatorySingleB == null, b.getOptionalSingleA_MandatorySingleB.getClass)
-    assert(a.eContainer == null)
-
-  }
-
-
-  @Test
-  def optionalSingleA_StarListB_Test() {
-    //val container = TestFactory.createContainer
-    val b = TestFactory.createB
-    val a = TestFactory.createA
-    val a2 = TestFactory.createA
-
-    //add a in B
-    b.addOptionalSingleA_StarListB(a)
-    assert(b.getOptionalSingleA_StarListB.size == 1)
-    assert(a.getOptionalSingleA_StarListB.isDefined && a.getOptionalSingleA_StarListB.get == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-
-    //add a2 in B
-    b.addOptionalSingleA_StarListB(a2)
-    assert(b.getOptionalSingleA_StarListB.size == 2)
-    assert(a2.getOptionalSingleA_StarListB.isDefined && a2.getOptionalSingleA_StarListB.get == b)
-    assert(a2.eContainer == b, "eContainer:" + a2.eContainer.getClass)
-    b.addOptionalSingleA_StarListB(a2)
-    assert(b.getOptionalSingleA_StarListB.size == 2)
-
-    //Remove A from B
-    b.removeOptionalSingleA_StarListB(a)
-    assert(b.getOptionalSingleA_StarListB.size == 1)
-    assert(a.getOptionalSingleA_StarListB == None)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-
-    b.removeOptionalSingleA_StarListB(a)
-    assert(b.getOptionalSingleA_StarListB.size == 1)
-
-    b.removeOptionalSingleA_StarListB(a2)
-    assert(b.getOptionalSingleA_StarListB.size == 0)
-    assert(a2.getOptionalSingleA_StarListB == None)
-    assert(a2.eContainer == null, "eContainer:" + a2.eContainer.toString)
-
-    val aList = List(a,a2)
-    b.setOptionalSingleA_StarListB(aList)
-    assert(b.getOptionalSingleA_StarListB.size == 2)
-    assert(a.getOptionalSingleA_StarListB.isDefined && a.getOptionalSingleA_StarListB.get == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-    assert(a2.getOptionalSingleA_StarListB.isDefined && a2.getOptionalSingleA_StarListB.get == b)
-    assert(a2.eContainer == b, "eContainer:" + a2.eContainer.getClass)
-
-    var e : Exception = null
-    try{
-      b.setOptionalSingleA_StarListB(null)
-    } catch {
-      case exp:Exception => e = exp
     }
-    assert(e != null && e.isInstanceOf[IllegalArgumentException])
-
-    b.removeAllOptionalSingleA_StarListB()
-    assert(b.getOptionalSingleA_StarListB.size == 0)
-    assert(a.getOptionalSingleA_StarListB == None)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-    assert(a2.getOptionalSingleA_StarListB == None)
-    assert(a2.eContainer == null, "eContainer:" + a2.eContainer.toString)
-
-    b.addAllOptionalSingleA_StarListB(aList)
-    assert(b.getOptionalSingleA_StarListB.size == 2)
-    assert(a.getOptionalSingleA_StarListB.isDefined && a.getOptionalSingleA_StarListB.get == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-    assert(a2.getOptionalSingleA_StarListB.isDefined && a2.getOptionalSingleA_StarListB.get == b)
-    assert(a2.eContainer == b, "eContainer:" + a2.eContainer.getClass)
-
-    b.removeAllOptionalSingleA_StarListB()
-    assert(b.getOptionalSingleA_StarListB.size == 0)
-    assert(a.getOptionalSingleA_StarListB == None)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-    assert(a2.getOptionalSingleA_StarListB == None)
-    assert(a2.eContainer == null, "eContainer:" + a2.eContainer.toString)
 
 
-    a.setOptionalSingleA_StarListB(Some(b))
-    assert(b.getOptionalSingleA_StarListB.size == 1)
-    assert(a.getOptionalSingleA_StarListB.isDefined && a.getOptionalSingleA_StarListB.get == b)
-    assert(a.eContainer == b)
+    Test fun mandatorySingleA_mandatorySingleB_Test() {
+        //val container = TestFactory.createContainer
+        val b = factory.createB()
+        val a = factory.createA()
 
-    //Remove B from A
-    a.setOptionalSingleA_StarListB(None)
-    assert(b.getOptionalSingleA_StarListB.size == 0)
-    assert(a.getOptionalSingleA_StarListB == None)
-    assert(a.eContainer == null)
+        //Set a in B
+        b.mandatorySingleA_mandatorySingleB = a
+        assert(a.mandatorySingleA_mandatorySingleB == b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
 
-  }
+        b.mandatorySingleA_mandatorySingleB = a
+        assert(a.mandatorySingleA_mandatorySingleB == b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
 
 
+        //Remove A from B
+        b.mandatorySingleA_mandatorySingleB = null
+        assert(a.mandatorySingleA_mandatorySingleB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
 
-  @Test
-  def mandatorySingleA_StarListB_Test() {
-    //val container = TestFactory.createContainer
-    val b = TestFactory.createB
-    val a = TestFactory.createA
-    val a2 = TestFactory.createA
+        b.mandatorySingleA_mandatorySingleB = null
+        assert(a.mandatorySingleA_mandatorySingleB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
 
-    //add a in B
-    b.addMandatorySingleA_StarListB(a)
-    assert(b.getMandatorySingleA_StarListB.size == 1)
-    assert(a.getMandatorySingleA_StartListB == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
+        //Set B in A
+        a.mandatorySingleA_mandatorySingleB = b
+        assert(b.mandatorySingleA_mandatorySingleB == a)
+        assert(a.eContainer() == b)
 
-    //add a2 in B
-    b.addMandatorySingleA_StarListB(a2)
-    assert(b.getMandatorySingleA_StarListB.size == 2)
-    assert(a2.getMandatorySingleA_StartListB == b)
-    assert(a2.eContainer == b, "eContainer:" + a2.eContainer.getClass)
-    b.addMandatorySingleA_StarListB(a2)
-    assert(b.getMandatorySingleA_StarListB.size == 2)
+        //Set B in A
+        a.mandatorySingleA_mandatorySingleB = b
+        assert(b.mandatorySingleA_mandatorySingleB == a)
+        assert(a.eContainer() == b)
 
-    //Remove A from B
-    b.removeMandatorySingleA_StarListB(a)
-    assert(b.getMandatorySingleA_StarListB.size == 1)
-    assert(a.getMandatorySingleA_StartListB == null)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
+        //Remove B from A
+        a.mandatorySingleA_mandatorySingleB = null
+        assert(b.mandatorySingleA_mandatorySingleB == null)
+        assert(a.eContainer() == null)
 
-    b.removeMandatorySingleA_StarListB(a)
-    assert(b.getMandatorySingleA_StarListB.size == 1)
-
-    b.removeMandatorySingleA_StarListB(a2)
-    assert(b.getMandatorySingleA_StarListB.size == 0)
-    assert(a2.getMandatorySingleA_StartListB == null)
-    assert(a2.eContainer == null, "eContainer:" + a2.eContainer.toString)
-
-    val aList = List(a,a2)
-    b.setMandatorySingleA_StarListB(aList)
-    assert(b.getMandatorySingleA_StarListB.size == 2)
-    assert(a.getMandatorySingleA_StartListB == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-    assert(a2.getMandatorySingleA_StartListB == b)
-    assert(a2.eContainer == b, "eContainer:" + a2.eContainer.getClass)
-
-    var e : Exception = null
-    try{
-      b.setMandatorySingleA_StarListB(null)
-    } catch {
-      case exp:Exception => e = exp
     }
-    assert(e != null && e.isInstanceOf[IllegalArgumentException])
-
-    b.removeAllMandatorySingleA_StarListB()
-    assert(b.getMandatorySingleA_StarListB.size == 0)
-    assert(a.getMandatorySingleA_StartListB == null)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-    assert(a2.getMandatorySingleA_StartListB == null)
-    assert(a2.eContainer == null, "eContainer:" + a2.eContainer.toString)
-
-    b.addAllMandatorySingleA_StarListB(aList)
-    assert(b.getMandatorySingleA_StarListB.size == 2)
-    assert(a.getMandatorySingleA_StartListB == b)
-    assert(a.eContainer == b, "eContainer:" + a.eContainer.getClass)
-    assert(a2.getMandatorySingleA_StartListB == b)
-    assert(a2.eContainer == b, "eContainer:" + a2.eContainer.getClass)
-
-    b.removeAllMandatorySingleA_StarListB()
-    assert(b.getMandatorySingleA_StarListB.size == 0)
-    assert(a.getMandatorySingleA_StartListB == null)
-    assert(a.eContainer == null, "eContainer:" + a.eContainer.toString)
-    assert(a2.getMandatorySingleA_StartListB == null)
-    assert(a2.eContainer == null, "eContainer:" + a2.eContainer.toString)
-
-
-    a.setMandatorySingleA_StartListB(b)
-    assert(b.getMandatorySingleA_StarListB.size == 1)
-    assert(a.getMandatorySingleA_StartListB == b)
-    assert(a.eContainer == b)
-
-    //Remove B from A
-    a.setMandatorySingleA_StartListB(null)
-    assert(b.getMandatorySingleA_StarListB.size == 0)
-    assert(a.getMandatorySingleA_StartListB == null)
-    assert(a.eContainer == null)
-
-  }
-
-  @Test
-  def starListA_StarListB_Test() {
-
-    val b = TestFactory.createB
-    val b2 = TestFactory.createB
-    val a = TestFactory.createA
-    val a2 = TestFactory.createA
-    val listA = List(a,a2)
-    val listB = List(b,b2)
-
-
-    a.addStarListA_StarListB(b)
-    assert(b.getStarListA_StarListB.size == 1)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b)
-
-    a.addStarListA_StarListB(b2)
-    assert(b2.getStarListA_StarListB.size == 1)
-    assert(b.getStarListA_StarListB.size == 0)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b2)
-
-    b.addStarListA_StarListB(a)
-    assert(b.getStarListA_StarListB.size == 1)
-    assert(b2.getStarListA_StarListB.size == 0)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b)
-
-    b.addStarListA_StarListB(a2)
-    assert(b.getStarListA_StarListB.size == 2)
-    assert(b2.getStarListA_StarListB.size == 0)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a2.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b)
-    assert(a2.eContainer == b)
-
-    b2.addStarListA_StarListB(a2)
-    assert(b.getStarListA_StarListB.size == 1)
-    assert(b2.getStarListA_StarListB.size == 1)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a2.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b)
-    assert(a2.eContainer == b2)
-
-    b2.addStarListA_StarListB(a2)
-    assert(b.getStarListA_StarListB.size == 1)
-    assert(b2.getStarListA_StarListB.size == 1)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a2.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b)
-    assert(a2.eContainer == b2)
-
-
-    b.removeStarListA_StarListB(a)
-    assert(b.getStarListA_StarListB.size == 0)
-    assert(b2.getStarListA_StarListB.size == 1)
-    assert(a.getStarListA_StarListB.size == 0)
-    assert(a2.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == null)
-    assert(a2.eContainer == b2)
-
-    b.addAllStarListA_StarListB(listA)
-    assert(b.getStarListA_StarListB.size == 2)
-    assert(b2.getStarListA_StarListB.size == 0)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a2.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b)
-    assert(a2.eContainer == b)
 
-    b2.addAllStarListA_StarListB(listA)
-    assert(b.getStarListA_StarListB.size == 0)
-    assert(b2.getStarListA_StarListB.size == 2)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a2.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b2)
-    assert(a2.eContainer == b2)
 
-    b2.removeAllStarListA_StarListB()
-    assert(b.getStarListA_StarListB.size == 0)
-    assert(b2.getStarListA_StarListB.size == 0)
-    assert(a.getStarListA_StarListB.size == 0)
-    assert(a2.getStarListA_StarListB.size == 0)
-    assert(a.eContainer == null)
-    assert(a2.eContainer == null)
 
-    a.addAllStarListA_StarListB(listB)
-    assert(b.getStarListA_StarListB.size == 0)
-    assert(b2.getStarListA_StarListB.size == 1)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b2)
 
-
-    a2.addAllStarListA_StarListB(listB)
-    assert(b.getStarListA_StarListB.size == 0)
-    assert(b2.getStarListA_StarListB.size == 2)
-    assert(a.getStarListA_StarListB.size == 1)
-    assert(a2.getStarListA_StarListB.size == 1)
-    assert(a.eContainer == b2)
-    assert(a2.eContainer == b2)
-
-  }
-
-
-  @Test
-  def A_optionalSingleRef() {
-
-    val a = TestFactory.createA
-    val b = TestFactory.createB
-    val b2 = TestFactory.createB
-
-    a.setOptionalSingleRef(Some(b))
-    assert(a.getOptionalSingleRef.isDefined && a.getOptionalSingleRef.get == b)
-
-    a.setOptionalSingleRef(Some(b))
-    assert(a.getOptionalSingleRef.isDefined && a.getOptionalSingleRef.get == b)
-
-    a.setOptionalSingleRef(Some(b2))
-    assert(a.getOptionalSingleRef.isDefined && a.getOptionalSingleRef.get == b2)
-
-    a.setOptionalSingleRef(None)
-    assert(a.getOptionalSingleRef == None)
-
-  }
-
-  @Test
-  def A_mendatorySingleRef() {
-    val a = TestFactory.createA
-    val b = TestFactory.createB
-    val b2 = TestFactory.createB
-
-    a.setMandatorySingleRef(b)
-    assert(a.getMandatorySingleRef == b)
-
-    a.setMandatorySingleRef(b)
-    assert(a.getMandatorySingleRef == b)
-
-    a.setMandatorySingleRef(b2)
-    assert(a.getMandatorySingleRef == b2)
-
-    a.setMandatorySingleRef(null)
-    assert(a.getMandatorySingleRef == null)
-
-    a.setMandatorySingleRef(null)
-    assert(a.getMandatorySingleRef == null)
-  }
-
-  @Test
-  def A_StarList() {
-    val a = TestFactory.createA
-    val b = TestFactory.createB
-    val b2 = TestFactory.createB
-    val listB = List(b,b2)
-
-    a.addStarList(b)
-    assert(a.getStarList.size == 1, "Size:" + a.getStarList.size)
-
-    a.addStarList(b2)
-    assert(a.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    a.addStarList(b2)
-    assert(a.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    a.removeStarList(b)
-    assert(a.getStarList.size == 1, "Size:" + a.getStarList.size)
-
-    a.removeStarList(b2)
-    assert(a.getStarList.size == 0, "Size:" + a.getStarList.size)
-
-    a.removeStarList(b2)
-    assert(a.getStarList.size == 0, "Size:" + a.getStarList.size)
-
-    a.addAllStarList(listB)
-    assert(a.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    a.addAllStarList(listB)
-    assert(a.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    a.removeAllStarList()
-    assert(a.getStarList.size == 0, "Size:" + a.getStarList.size)
-
-    a.removeAllStarList()
-    assert(a.getStarList.size == 0, "Size:" + a.getStarList.size)
-  }
-
-
-  @Test
-  def B_optionalSingleRef() {
-    val b = TestFactory.createB
-    val a = TestFactory.createA
-    val a2 = TestFactory.createA
-
-    b.setOptionalSingleRef(Some(a))
-    assert(a.eContainer == b)
-    assert(b.getOptionalSingleRef.isDefined && b.getOptionalSingleRef.get == a)
-
-    b.setOptionalSingleRef(Some(a))
-    assert(a.eContainer == b)
-    assert(b.getOptionalSingleRef.isDefined && b.getOptionalSingleRef.get == a)
-
-    b.setOptionalSingleRef(Some(a2))
-    assert(a.eContainer == null)
-    assert(a2.eContainer == b)
-    assert(b.getOptionalSingleRef.isDefined && b.getOptionalSingleRef.get == a2)
-
-    b.setOptionalSingleRef(None)
-    assert(a.eContainer == null)
-    assert(a2.eContainer == null)
-    assert(b.getOptionalSingleRef == None)
-  }
-
-  @Test
-  def B_mendatorySingleRef() {
-    val b = TestFactory.createB
-    val a = TestFactory.createA
-    val a2 = TestFactory.createA
-
-    b.setMandatorySingleRef(a)
-    assert(a.eContainer == b)
-    assert(b.getMandatorySingleRef == a)
-
-    b.setMandatorySingleRef(a)
-    assert(a.eContainer == b)
-    assert(b.getMandatorySingleRef == a)
-
-    b.setMandatorySingleRef(a2)
-    assert(a.eContainer == null)
-    assert(a2.eContainer == b)
-    assert(b.getMandatorySingleRef == a2)
-
-    b.setMandatorySingleRef(null)
-    assert(a2.eContainer == null)
-    assert(b.getMandatorySingleRef == null)
-
-    b.setMandatorySingleRef(null)
-    assert(b.getMandatorySingleRef == null)
-  }
-
-  @Test
-  def B_StarList() {
-    val b = TestFactory.createB
-    val a = TestFactory.createA
-    val a2 = TestFactory.createA
-    val listA = List(a,a2)
-
-    b.addStarList(a)
-    assert(a.eContainer == b)
-    assert(b.getStarList.size == 1, "Size:" + a.getStarList.size)
-
-    b.addStarList(a2)
-    assert(a.eContainer == b)
-    assert(a2.eContainer == b)
-    assert(b.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    b.addStarList(a2)
-    assert(a.eContainer == b)
-    assert(a2.eContainer == b)
-    assert(b.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    b.removeStarList(a)
-    assert(a.eContainer == null)
-    assert(a2.eContainer == b)
-    assert(b.getStarList.size == 1, "Size:" + a.getStarList.size)
-
-    b.removeStarList(a2)
-    assert(a.eContainer == null)
-    assert(a2.eContainer == null)
-    assert(b.getStarList.size == 0, "Size:" + a.getStarList.size)
-
-    b.removeStarList(a2)
-    assert(b.getStarList.size == 0, "Size:" + a.getStarList.size)
-
-    b.addAllStarList(listA)
-    assert(a.eContainer == b)
-    assert(a2.eContainer == b)
-    assert(b.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    b.addAllStarList(listA)
-    assert(b.getStarList.size == 2, "Size:" + a.getStarList.size)
-
-    b.removeAllStarList()
-    assert(a.eContainer == null)
-    assert(a2.eContainer == null)
-    assert(b.getStarList.size == 0, "Size:" + a.getStarList.size)
-
-    b.removeAllStarList()
-    assert(b.getStarList.size == 0, "Size:" + a.getStarList.size)
-  }
+    Test fun optionalSingleA_MandatorySingleB_Test() {
+        //val container = TestFactory.createContainer
+        val b = factory.createB()
+        val a = factory.createA()
+
+        //Set a in B
+        b.optionalSingleA_MandatorySingleB = a
+        assert(a.optionalSingleA_MandatorySingleB != null && a.optionalSingleA_MandatorySingleB== b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+
+        //Set a in B
+        b.optionalSingleA_MandatorySingleB = a
+        assert(a.optionalSingleA_MandatorySingleB != null && a.optionalSingleA_MandatorySingleB== b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+
+
+        //Remove A from B
+        b.optionalSingleA_MandatorySingleB = null
+        assert(a.optionalSingleA_MandatorySingleB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+
+        //Remove A from B
+        b.optionalSingleA_MandatorySingleB = null
+        assert(a.optionalSingleA_MandatorySingleB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+
+        //Set B in A
+        a.optionalSingleA_MandatorySingleB = b
+        assert(b.optionalSingleA_MandatorySingleB == a)
+        assert(a.eContainer() == b)
+
+        //Set B in A
+        a.optionalSingleA_MandatorySingleB = b
+        assert(b.optionalSingleA_MandatorySingleB == a)
+        assert(a.eContainer() == b)
+
+        //Remove B from A
+        a.optionalSingleA_MandatorySingleB = null
+        assert(b.optionalSingleA_MandatorySingleB == null)
+        assert(a.eContainer() == null)
+
+    }
+
+
+    Test fun optionalSingleA_StarListB_Test() {
+        //val container = TestFactory.createContainer
+        val b = factory.createB()
+        val a = factory.createA()
+        val a2 = factory.createA()
+
+        //add a in B
+        b.addOptionalSingleA_StarListB(a)
+        assert(b.optionalSingleA_StarListB.size == 1)
+        assert(a.optionalSingleA_StarListB != null && a.optionalSingleA_StarListB== b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+
+        //add a2 in B
+        b.addOptionalSingleA_StarListB(a2)
+        assert(b.optionalSingleA_StarListB.size == 2)
+        assert(a2.optionalSingleA_StarListB != null && a2.optionalSingleA_StarListB== b)
+        assert(a2.eContainer() == b, "eContainer:" + a2.eContainer().javaClass)
+        b.addOptionalSingleA_StarListB(a2)
+        assert(b.optionalSingleA_StarListB.size == 2, "Size:" + b.optionalSingleA_StarListB.size )
+
+        //Remove A from B
+        b.removeOptionalSingleA_StarListB(a)
+        assert(b.optionalSingleA_StarListB.size == 1)
+        assert(a.optionalSingleA_StarListB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+
+        b.removeOptionalSingleA_StarListB(a)
+        assert(b.optionalSingleA_StarListB.size == 1)
+
+        b.removeOptionalSingleA_StarListB(a2)
+        assert(b.optionalSingleA_StarListB.size == 0)
+        assert(a2.optionalSingleA_StarListB == null)
+        assert(a2.eContainer() == null, "eContainer:" + a2.eContainer().toString())
+
+        val aList = java.util.ArrayList<A>()
+        aList.add(a)
+        aList.add(a2)
+        b.optionalSingleA_StarListB = aList
+        assert(b.optionalSingleA_StarListB.size == 2)
+        assert(a.optionalSingleA_StarListB != null && a.optionalSingleA_StarListB== b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+        assert(a2.optionalSingleA_StarListB != null && a2.optionalSingleA_StarListB== b)
+        assert(a2.eContainer() == b, "eContainer:" + a2.eContainer().javaClass)
+
+        b.removeAllOptionalSingleA_StarListB()
+        assert(b.optionalSingleA_StarListB.size == 0)
+        assert(a.optionalSingleA_StarListB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+        assert(a2.optionalSingleA_StarListB == null)
+        assert(a2.eContainer() == null, "eContainer:" + a2.eContainer().toString())
+
+        b.addAllOptionalSingleA_StarListB(aList)
+        assert(b.optionalSingleA_StarListB.size == 2)
+        assert(a.optionalSingleA_StarListB != null && a.optionalSingleA_StarListB== b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+        assert(a2.optionalSingleA_StarListB != null && a2.optionalSingleA_StarListB== b)
+        assert(a2.eContainer() == b, "eContainer:" + a2.eContainer().javaClass)
+
+        b.removeAllOptionalSingleA_StarListB()
+        assert(b.optionalSingleA_StarListB.size == 0)
+        assert(a.optionalSingleA_StarListB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+        assert(a2.optionalSingleA_StarListB == null)
+        assert(a2.eContainer() == null, "eContainer:" + a2.eContainer().toString())
+
+
+        a.optionalSingleA_StarListB = b
+        assert(b.optionalSingleA_StarListB.size == 1)
+        assert(a.optionalSingleA_StarListB != null && a.optionalSingleA_StarListB== b)
+        assert(a.eContainer() == b)
+
+        //Remove B from A
+        a.optionalSingleA_StarListB = null
+        assert(b.optionalSingleA_StarListB.size == 0)
+        assert(a.optionalSingleA_StarListB == null)
+        assert(a.eContainer() == null)
+
+    }
+
+
+
+    Test fun starListA_StarListB_Test() {
+
+        val b = factory.createB()
+        val b2 = factory.createB()
+        val a = factory.createA()
+        val a2 = factory.createA()
+        val listA = java.util.ArrayList<A>()
+        listA.add(a)
+        listA.add(a2)
+        val listB = java.util.ArrayList<B>()
+        listB.add(b)
+        listB.add(b2)
+
+        a.addStarListA_StarListB(b)
+        assert(b.starListA_StarListB.size == 1)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b)
+
+        a.addStarListA_StarListB(b2)
+        assert(b2.starListA_StarListB.size == 1)
+        assert(b.starListA_StarListB.size == 0)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b2)
+
+        b.addStarListA_StarListB(a)
+        assert(b.starListA_StarListB.size == 1)
+        assert(b2.starListA_StarListB.size == 0)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b)
+
+        b.addStarListA_StarListB(a2)
+        assert(b.starListA_StarListB.size == 2)
+        assert(b2.starListA_StarListB.size == 0)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a2.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b)
+        assert(a2.eContainer() == b)
+
+        b2.addStarListA_StarListB(a2)
+        assert(b.starListA_StarListB.size == 1)
+        assert(b2.starListA_StarListB.size == 1)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a2.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b)
+        assert(a2.eContainer() == b2)
+
+        b2.addStarListA_StarListB(a2)
+        assert(b.starListA_StarListB.size == 1)
+        assert(b2.starListA_StarListB.size == 1, "Size:" + b2.starListA_StarListB.size)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a2.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b)
+        assert(a2.eContainer() == b2)
+
+
+        b.removeStarListA_StarListB(a)
+        assert(b.starListA_StarListB.size == 0)
+        assert(b2.starListA_StarListB.size == 1)
+        assert(a.starListA_StarListB.size == 0)
+        assert(a2.starListA_StarListB.size == 1)
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == b2)
+
+        b.addAllStarListA_StarListB(listA)
+        assert(b.starListA_StarListB.size == 2)
+        assert(b2.starListA_StarListB.size == 0)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a2.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b)
+        assert(a2.eContainer() == b)
+
+        b2.addAllStarListA_StarListB(listA)
+        assert(b.starListA_StarListB.size == 0)
+        assert(b2.starListA_StarListB.size == 2)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a2.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b2)
+        assert(a2.eContainer() == b2)
+
+        b2.removeAllStarListA_StarListB()
+        assert(b.starListA_StarListB.size == 0)
+        assert(b2.starListA_StarListB.size == 0)
+        assert(a.starListA_StarListB.size == 0)
+        assert(a2.starListA_StarListB.size == 0)
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == null)
+
+        a.addAllStarListA_StarListB(listB)
+        assert(b.starListA_StarListB.size == 0)
+        assert(b2.starListA_StarListB.size == 1)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b2)
+
+
+        a2.addAllStarListA_StarListB(listB)
+        assert(b.starListA_StarListB.size == 0)
+        assert(b2.starListA_StarListB.size == 2)
+        assert(a.starListA_StarListB.size == 1)
+        assert(a2.starListA_StarListB.size == 1)
+        assert(a.eContainer() == b2)
+        assert(a2.eContainer() == b2)
+
+    }
+
+    Test fun mandatorySingleA_StarListB_Test() {
+        //val container = TestFactory.createContainer
+        val b = factory.createB()
+        val a = factory.createA()
+        val a2 = factory.createA()
+
+        //add a in B
+        b.addMandatorySingleA_StarListB(a)
+        assert(b.mandatorySingleA_StarListB.size == 1)
+        assert(a.mandatorySingleA_StartListB == b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+
+        //add a2 in B
+        b.addMandatorySingleA_StarListB(a2)
+        assert(b.mandatorySingleA_StarListB.size == 2)
+        assert(a2.mandatorySingleA_StartListB == b)
+        assert(a2.eContainer() == b, "eContainer:" + a2.eContainer().javaClass)
+        b.addMandatorySingleA_StarListB(a2)
+        assert(b.mandatorySingleA_StarListB.size == 2, "Size:" + b.mandatorySingleA_StarListB.size)
+        assert(a2.mandatorySingleA_StartListB == b)
+        assert(a2.eContainer() == b, "eContainer:" + a2.eContainer().javaClass)
+
+        //Remove A from B
+        b.removeMandatorySingleA_StarListB(a)
+        assert(b.mandatorySingleA_StarListB.size == 1)
+        assert(a.mandatorySingleA_StartListB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+
+        b.removeMandatorySingleA_StarListB(a)
+        assert(b.mandatorySingleA_StarListB.size == 1)
+
+        b.removeMandatorySingleA_StarListB(a2)
+        assert(b.mandatorySingleA_StarListB.size == 0)
+        assert(a2.mandatorySingleA_StartListB == null)
+        assert(a2.eContainer() == null, "eContainer:" + a2.eContainer().toString())
+
+        val aList = java.util.ArrayList<A>()
+        aList.add(a)
+        aList.add(a2)
+
+        b.mandatorySingleA_StarListB = aList
+        assert(b.mandatorySingleA_StarListB.size == 2)
+        assert(a.mandatorySingleA_StartListB == b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+        assert(a2.mandatorySingleA_StartListB == b)
+        assert(a2.eContainer() == b, "eContainer:" + a2.eContainer().javaClass)
+
+        b.removeAllMandatorySingleA_StarListB()
+        assert(b.mandatorySingleA_StarListB.size == 0)
+        assert(a.mandatorySingleA_StartListB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+        assert(a2.mandatorySingleA_StartListB == null)
+        assert(a2.eContainer() == null, "eContainer:" + a2.eContainer().toString())
+
+        b.addAllMandatorySingleA_StarListB(aList)
+        assert(b.mandatorySingleA_StarListB.size == 2)
+        assert(a.mandatorySingleA_StartListB == b)
+        assert(a.eContainer() == b, "eContainer:" + a.eContainer().javaClass)
+        assert(a2.mandatorySingleA_StartListB == b)
+        assert(a2.eContainer() == b, "eContainer:" + a2.eContainer().javaClass)
+
+        b.removeAllMandatorySingleA_StarListB()
+        assert(b.mandatorySingleA_StarListB.size == 0)
+        assert(a.mandatorySingleA_StartListB == null)
+        assert(a.eContainer() == null, "eContainer:" + a.eContainer().toString())
+        assert(a2.mandatorySingleA_StartListB == null)
+        assert(a2.eContainer() == null, "eContainer:" + a2.eContainer().toString())
+
+
+        a.mandatorySingleA_StartListB = b
+        assert(b.mandatorySingleA_StarListB.size == 1)
+        assert(a.mandatorySingleA_StartListB == b)
+        assert(a.eContainer() == b)
+
+        //Remove B from A
+        a.mandatorySingleA_StartListB = null
+        assert(b.mandatorySingleA_StarListB.size == 0)
+        assert(a.mandatorySingleA_StartListB == null)
+        assert(a.eContainer() == null)
+
+    }
+
+
+    Test fun A_optionalSingleRef() {
+
+        val a = factory.createA()
+        val b = factory.createB()
+        val b2 = factory.createB()
+
+        a.optionalSingleRef = b
+        assert(a.optionalSingleRef != null && a.optionalSingleRef== b)
+
+        a.optionalSingleRef = b
+        assert(a.optionalSingleRef != null && a.optionalSingleRef== b)
+
+        a.optionalSingleRef = b2
+        assert(a.optionalSingleRef != null && a.optionalSingleRef== b2)
+
+        a.optionalSingleRef = null
+        assert(a.optionalSingleRef == null)
+
+    }
+
+    Test fun A_mendatorySingleRef() {
+        val a = factory.createA()
+        val b = factory.createB()
+        val b2 = factory.createB()
+
+        a.mandatorySingleRef = b
+        assert(a.mandatorySingleRef == b)
+
+        a.mandatorySingleRef = b
+        assert(a.mandatorySingleRef == b)
+
+        a.mandatorySingleRef = b2
+        assert(a.mandatorySingleRef == b2)
+
+        a.mandatorySingleRef = null
+        assert(a.mandatorySingleRef == null)
+
+        a.mandatorySingleRef = null
+        assert(a.mandatorySingleRef == null)
+    }
+
+    Test fun A_StarList() {
+        val a = factory.createA()
+        val b = factory.createB()
+        val b2 = factory.createB()
+        val listB = java.util.ArrayList<B>()
+        listB.add(b)
+        listB.add(b2)
+
+        a.addStarList(b)
+        assert(a.starList.size == 1, "Size:" + a.starList.size)
+
+        a.addStarList(b2)
+        assert(a.starList.size == 2, "Size:" + a.starList.size)
+
+        a.addStarList(b2)
+        assert(a.starList.size == 2, "Size:" + a.starList.size)
+
+        a.removeStarList(b)
+        assert(a.starList.size == 1, "Size:" + a.starList.size)
+
+        a.removeStarList(b2)
+        assert(a.starList.size == 0, "Size:" + a.starList.size)
+
+        a.removeStarList(b2)
+        assert(a.starList.size == 0, "Size:" + a.starList.size)
+
+        a.addAllStarList(listB)
+        assert(a.starList.size == 2, "Size:" + a.starList.size)
+
+        a.addAllStarList(listB)
+        assert(a.starList.size == 2, "Size:" + a.starList.size)
+
+        a.removeAllStarList()
+        assert(a.starList.size == 0, "Size:" + a.starList.size)
+
+        a.removeAllStarList()
+        assert(a.starList.size == 0, "Size:" + a.starList.size)
+    }
+
+
+    Test fun B_optionalSingleRef() {
+        val b = factory.createB()
+        val a = factory.createA()
+        val a2 = factory.createA()
+
+        b.optionalSingleRef = a
+        assert(a.eContainer() == b)
+        assert(b.optionalSingleRef != null && b.optionalSingleRef== a)
+
+        b.optionalSingleRef = a
+        assert(a.eContainer() == b)
+        assert(b.optionalSingleRef != null && b.optionalSingleRef== a)
+
+        b.optionalSingleRef =a2
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == b)
+        assert(b.optionalSingleRef != null && b.optionalSingleRef== a2)
+
+        b.optionalSingleRef = null
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == null)
+        assert(b.optionalSingleRef == null)
+    }
+
+    Test fun B_mendatorySingleRef() {
+        val b = factory.createB()
+        val a = factory.createA()
+        val a2 = factory.createA()
+
+        b.mandatorySingleRef = a
+        assert(a.eContainer() == b)
+        assert(b.mandatorySingleRef == a)
+
+        b.mandatorySingleRef = a
+        assert(a.eContainer() == b)
+        assert(b.mandatorySingleRef == a)
+
+        b.mandatorySingleRef = a2
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == b)
+        assert(b.mandatorySingleRef == a2)
+
+        b.mandatorySingleRef = null
+        assert(a2.eContainer() == null)
+        assert(b.mandatorySingleRef == null)
+
+        b.mandatorySingleRef = null
+        assert(b.mandatorySingleRef == null)
+    }
+
+    Test fun B_StarList() {
+        val b = factory.createB()
+        val a = factory.createA()
+        val a2 = factory.createA()
+        val listA = java.util.ArrayList<A>()
+        listA.add(a)
+        listA.add(a2)
+
+        b.addStarList(a)
+        assert(a.eContainer() == b)
+        assert(b.starList.size == 1, "Size:" + a.starList.size)
+
+        b.addStarList(a2)
+        assert(a.eContainer() == b)
+        assert(a2.eContainer() == b)
+        assert(b.starList.size == 2, "Size:" + a.starList.size)
+
+        b.addStarList(a2)
+        assert(a.eContainer() == b)
+        assert(a2.eContainer() == b)
+        assert(b.starList.size == 2, "Size:" + a.starList.size)
+
+        b.removeStarList(a)
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == b)
+        assert(b.starList.size == 1, "Size:" + a.starList.size)
+
+        b.removeStarList(a2)
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == null)
+        assert(b.starList.size == 0, "Size:" + a.starList.size)
+
+        b.removeStarList(a2)
+        assert(b.starList.size == 0, "Size:" + a.starList.size)
+
+        b.addAllStarList(listA)
+        assert(a.eContainer() == b)
+        assert(a2.eContainer() == b)
+        assert(b.starList.size == 2, "Size:" + a.starList.size)
+
+        b.addAllStarList(listA)
+        assert(b.starList.size == 2, "Size:" + a.starList.size)
+
+        b.removeAllStarList()
+        assert(a.eContainer() == null)
+        assert(a2.eContainer() == null)
+        assert(b.starList.size == 0, "Size:" + a.starList.size)
+
+        b.removeAllStarList()
+        assert(b.starList.size == 0, "Size:" + a.starList.size)
+    }
 
 }
