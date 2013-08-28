@@ -7,7 +7,7 @@
  "bean":"org.kevoree.library.ui.fileExplorer.FileExplorer",
  "abstract":false,
  "deployUnits": ["deployUnits[1027911291376270298138]"],
-"dictionaryType":{ "eClass":"org.kevoree:DictionaryType" ,
+"dictionaryType": { "eClass":"org.kevoree:DictionaryType" ,
  "generated_KMF_ID":"13351312101376270250806",
 "attributes": [
 { "eClass":"org.kevoree:DictionaryAttribute" ,

@@ -28,4 +28,8 @@ public abstract class ModelVisitor {
 
     var alreadyVisited = HashMap<String,KMFContainer>()
 
+    open fun beginVisitElem(elem : KMFContainer){}
+
+    open fun endVisitElem(elem : KMFContainer){}
+
 }
