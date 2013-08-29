@@ -82,7 +82,7 @@ public trait TraceSequence {
     }
 
     fun exportToString() : String {
-        val buffer = java.lang.StringBuilder()
+        val buffer = StringBuilder()
         buffer.append("[")
         var isFirst = true
         for(trace in traces){

@@ -85,7 +85,7 @@ public class Lexer(val inputStream : InputStream) {
         }
         var tokenType = Type.EOF
         var c = nextChar()
-        var currentValue = java.lang.StringBuilder()
+        var currentValue = StringBuilder()
         var jsonValue: Any? = null
         while (! isDone() && isSpace(c)) {
             c = nextChar()

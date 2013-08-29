@@ -1,7 +1,7 @@
 package org.kevoree.log
 
-import java.lang.StringBuilder
 import java.util.Date
+import java.lang.StringBuilder
 
 /**
  * Created with IntelliJ IDEA.
