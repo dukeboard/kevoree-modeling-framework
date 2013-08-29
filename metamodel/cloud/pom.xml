@@ -55,6 +55,7 @@
                             <json>true</json>
                             <events>true</events>
                             <trace>true</trace>
+                            <xmi>false</xmi>
                         </configuration>
                     </execution>
                 </executions>

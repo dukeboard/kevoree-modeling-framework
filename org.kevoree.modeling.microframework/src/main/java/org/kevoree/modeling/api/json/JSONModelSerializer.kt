@@ -1,4 +1,4 @@
-package org.kevoree.test
+package org.kevoree.modeling.api.json
 
 import org.kevoree.modeling.api.KMFContainer
 import java.io.PrintStream
@@ -6,6 +6,8 @@ import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import java.io.OutputStream
 import java.util.HashMap
+import org.kevoree.modeling.api.ModelSerializer
+import java.io.ByteArrayOutputStream
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,9 +16,16 @@ import java.util.HashMap
  * Time: 11:08
  */
 
-public class JSONModelSerializer {
+public open class JSONModelSerializer : ModelSerializer {
 
-    public fun serialize(model: KMFContainer, raw: OutputStream) {
+    override fun serialize(model: KMFContainer): String? {
+        val outstream = ByteArrayOutputStream()
+        serialize(model,outstream)
+        outstream.close()
+        return outstream.toString()
+    }
+
+    override public fun serialize(model: KMFContainer, raw: OutputStream) {
         val out = PrintStream(raw)
         //visitor for printing reference
         var internalReferenceVisitor = object : ModelVisitor() {

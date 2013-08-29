@@ -2,10 +2,7 @@ package org.kevoree.test;
 
 import org.kevoree.modeling.api.KMFContainer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,18 +12,39 @@ import java.io.FileOutputStream;
  */
 public class TEster {
 
-      public static void main(String[] args) throws FileNotFoundException {
+      public static void main(String[] args) throws IOException {
 
-          KMFContainer model = (KMFContainer) new org.kevoree.loader.JSONModelLoader().loadModelFromStream(new FileInputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/model1.json"))).get(0);
+          org.kevoree.loader.JSONModelLoader previousLoader = new org.kevoree.loader.JSONModelLoader();
+
+          //hotLoad
+          long before = System.currentTimeMillis();
+          previousLoader.loadModelFromStream(new FileInputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/model1.json"))).get(0);
+          System.out.println(System.currentTimeMillis()-before);
+
+          before = System.currentTimeMillis();
+          KMFContainer model = (KMFContainer) previousLoader.loadModelFromStream(new FileInputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/model1.json"))).get(0);
+          System.out.println(System.currentTimeMillis()-before);
 
           JSONModelSerializer saver = new JSONModelSerializer();
-          saver.serialize(model,System.out);
+          ByteArrayOutputStream out = new ByteArrayOutputStream();
+          saver.serialize(model, out);
+          out.close();
 
-         // saver.serialize(model,new FileOutputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/temp.json")));
+          FileOutputStream oo = new FileOutputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/temp.json"));
+          saver.serialize(model,oo);
+          oo.close();
 
-         // KMFContainer model2 = new JSONModelLoader().loadModelFromStream(new FileInputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/temp.json"))).get(0);
+          JSONModelLoader loader = new JSONModelLoader();
+          before = System.currentTimeMillis();
+          KMFContainer model3 = loader.loadModelFromStream(new FileInputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/temp.json"))).get(0);
+          System.out.println("v2="+(System.currentTimeMillis()-before));
 
-          //saver.serialize(model2,System.out);
+          before = System.currentTimeMillis();
+          KMFContainer model4 = loader.loadModelFromStream(new FileInputStream(new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.test/src/test/resources/temp.json"))).get(0);
+          System.out.println("v2="+(System.currentTimeMillis()-before));
+
+
+          System.out.println(model.modelEquals(model4));
 
 
       }

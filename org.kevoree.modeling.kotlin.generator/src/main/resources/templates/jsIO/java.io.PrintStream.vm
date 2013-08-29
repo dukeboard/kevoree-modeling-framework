@@ -43,7 +43,7 @@ println()
 }
 
 fun flush(){
-oo.result = result
+(oo as ByteArrayOutputStream).result = result
 }
 
 fun close(){}

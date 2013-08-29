@@ -204,4 +204,23 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
         }
     }
 
+    override fun path(): String? {
+        val container = eContainer()
+        if(container != null) {
+            val parentPath = container.path()
+            if(parentPath == null){
+                return null
+            } else {
+                return  if(parentPath == ""){
+                    ""
+                }else{
+                    parentPath + "/"
+                } + internal_containmentRefName + "[" + internalGetKey() + "]"
+            }
+        } else {
+            return ""
+        }
+    }
+
+
 }

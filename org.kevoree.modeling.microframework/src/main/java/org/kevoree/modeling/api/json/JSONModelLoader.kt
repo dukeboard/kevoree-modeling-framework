@@ -1,11 +1,12 @@
-package org.kevoree.test
+package org.kevoree.modeling.api.json
 
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import org.kevoree.modeling.api.KMFContainer
 import java.util.ArrayList
-import org.kevoree.factory.MainFactory
 import org.kevoree.modeling.api.util.ActionType
+import org.kevoree.modeling.api.KMFFactory
+import org.kevoree.modeling.api.ModelLoader
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,26 +14,30 @@ import org.kevoree.modeling.api.util.ActionType
  * Date: 28/08/13
  * Time: 13:08
  */
-public class JSONModelLoader  {
+public open class JSONModelLoader : ModelLoader {
 
-    var factory = MainFactory()
+    open var factory : KMFFactory? = null
 
-    fun loadModelFromString(str: String): List<KMFContainer>? {
-        return deserialize(ByteArrayInputStream(str.toByteArray()))
+    override fun loadModelFromString(str: String): List<KMFContainer>? {
+        val bytes = ByteArray(str.length)
+        var i = 0
+        while(i < str.length){
+            bytes.set(i,str.get(i) as Byte)
+            i = i +1
+        }
+        return deserialize(ByteArrayInputStream(bytes))
     }
 
-    fun loadModelFromStream(inputStream: InputStream): List<KMFContainer>? {
+    override fun loadModelFromStream(inputStream: InputStream): List<KMFContainer>? {
         return deserialize(inputStream)
     }
 
-
     private fun deserialize(instream: InputStream): List<KMFContainer> {
-
         var resolverCommands = ArrayList<ResolveCommand>()
         var roots = ArrayList<KMFContainer>()
         var lexer: Lexer = Lexer(instream)
         var currentToken = lexer.nextToken()
-        if(currentToken.tokenType == org.kevoree.loader.Type.LEFT_BRACE){
+        if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE){
             loadObject(lexer, null, null, roots, resolverCommands)
         } else {
             throw Exception("Bad Format / { expected")
@@ -48,12 +53,12 @@ public class JSONModelLoader  {
         //must ne currently on { at input
         var currentToken = lexer.nextToken()
         var currentObject: KMFContainer? = null
-        if(currentToken.tokenType == org.kevoree.loader.Type.VALUE){
+        if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE){
             if(currentToken.value == "eClass"){
                 lexer.nextToken() //unpop :
                 currentToken = lexer.nextToken() //Two step for having the name
                 val name = currentToken.value?.toString()!!
-                currentObject = factory.create(name)
+                currentObject = factory?.create(name)
                 if(parent == null){
                     roots.add(currentObject!!)
                 }
@@ -61,14 +66,14 @@ public class JSONModelLoader  {
                 var currentNameAttOrRef: String? = null
                 var refModel = false
                 currentToken = lexer.nextToken()
-                while(currentToken.tokenType != org.kevoree.loader.Type.EOF){
-                    if(currentToken.tokenType == org.kevoree.loader.Type.LEFT_BRACE){
+                while(currentToken.tokenType != org.kevoree.modeling.api.json.Type.EOF){
+                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE){
                         loadObject(lexer, currentNameAttOrRef!!, currentObject, roots, commands)
                     }
-                    if(currentToken.tokenType == org.kevoree.loader.Type.COMMA){
+                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.COMMA){
                         //ignore
                     }
-                    if(currentToken.tokenType == org.kevoree.loader.Type.VALUE){
+                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE){
                         if(currentNameAttOrRef == null){
                             currentNameAttOrRef = currentToken.value.toString()
                         } else {
@@ -80,19 +85,19 @@ public class JSONModelLoader  {
                             }
                         }
                     }
-                    if(currentToken.tokenType == org.kevoree.loader.Type.LEFT_BRACKET){
+                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACKET){
                         currentToken = lexer.nextToken()
-                        if(currentToken.tokenType == org.kevoree.loader.Type.LEFT_BRACE){
+                        if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE){
                             loadObject(lexer, currentNameAttOrRef!!, currentObject, roots, commands)
                         } else {
                             refModel = true //wait for all ref to be found
                         }
                     }
-                    if(currentToken.tokenType == org.kevoree.loader.Type.RIGHT_BRACKET){
+                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACKET){
                         currentNameAttOrRef = null //unpop
                         refModel = false
                     }
-                    if(currentToken.tokenType == org.kevoree.loader.Type.RIGHT_BRACE){
+                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACE){
                         if(parent != null){
                             parent.reflexiveMutator(ActionType.ADD, nameInParent!!, currentObject)
                         }

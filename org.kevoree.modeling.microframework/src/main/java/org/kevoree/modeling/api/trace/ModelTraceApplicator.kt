@@ -46,7 +46,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
 
     public fun applyTraceOnModel(traceSeq: TraceSequence) {
 
-        for(trace in traceSeq.getTraces()){
+        for(trace in traceSeq.traces){
             var target: KMFContainer = targetModel;
             if(trace is ModelAddTrace){
                 val castedTrace = trace as ModelAddTrace
@@ -95,7 +95,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                     var tempObject = targetModel.findByPath(castedTrace.srcPath)
                     if(tempObject == null){
 
-                        throw Exception("Set Trace source not found for path : "+castedTrace.srcPath+"/ pending "+pendingObjPath+"\n"+trace.toString())
+                        throw Exception("Set Trace source not found for path : " + castedTrace.srcPath + "/ pending " + pendingObjPath + "\n" + trace.toString())
                     }
                     target = tempObject as KMFContainer;
                 } else {

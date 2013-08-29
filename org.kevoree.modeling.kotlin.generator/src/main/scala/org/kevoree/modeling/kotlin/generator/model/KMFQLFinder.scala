@@ -91,6 +91,8 @@ trait KMFQLFinder {
 
     pr.println()
     pr.println("}")
+
+    /*
     pr.println("override fun path() : String? {")
     pr.println("val container = eContainer()")
     pr.println("if(container != null) {")
@@ -102,7 +104,7 @@ trait KMFQLFinder {
     pr.println("return \"\"")
     pr.println("}")
     pr.println("}")
-
+    */
 
     //GENERATE findByID methods
     var generateReflexifMapper = false

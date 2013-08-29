@@ -1,11 +1,19 @@
 package java.io
 
-class OutputStream {
+public class ByteArrayOutputStream : OutputStream {
 
 fun flush(){}
 
 fun close(){}
 
+public fun toString() : String {
+return result
+}
 var result : String = ""
+
+
+}
+
+public trait OutputStream {
 
 }
