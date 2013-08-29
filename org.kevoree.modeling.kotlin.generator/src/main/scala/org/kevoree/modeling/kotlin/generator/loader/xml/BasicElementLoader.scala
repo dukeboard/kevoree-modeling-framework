@@ -188,7 +188,7 @@ class BasicElementLoader(ctx: GenerationContext, elementType: EClass) {
 
 
               case _@_type => {
-                pr.println("modelElem." + methName + "= (valueAtt.to" + _type + "() as " + attTypeName + ")")
+                pr.println("modelElem." + methName + "= (valueAtt as " + attTypeName + ")")
               }
             }
           }

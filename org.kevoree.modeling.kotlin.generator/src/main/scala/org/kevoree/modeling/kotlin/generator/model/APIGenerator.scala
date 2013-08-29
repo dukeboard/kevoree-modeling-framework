@@ -83,7 +83,7 @@ trait APIGenerator extends ClassGenerator {
       att =>
         if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls && !att2.getEContainingClass.isAbstract)) {} else {
           if(att.isMany){
-            pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
+            pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?")
           } else {
             pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?")
           }
