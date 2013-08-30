@@ -136,6 +136,7 @@ trait PackageFactoryGenerator {
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName",formatedFactoryName)
     ctxV.put("js",ctx.js)
+    ctxV.put("helper", new ProcessorHelperClass())
     ctxV.put("ctx",ctx)
 
     val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract && !cls.asInstanceOf[EClass].isInterface).toList

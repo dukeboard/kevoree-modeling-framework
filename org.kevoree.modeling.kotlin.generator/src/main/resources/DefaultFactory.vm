@@ -4,6 +4,7 @@
 #* @vtlvariable name="js" type="java.lang.Boolean" *#
 #* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 
 package ${packageName}.impl;
 
@@ -23,8 +24,8 @@ override fun create${class.getName()}() : ${class.getName()} { return ${class.ge
 override fun create(metaClassName : String) : ${ctx.getKevoreeContainer().get()}? {
       when(metaClassName){
 #foreach( $class in $classes )
-                "${packageName}.${class.getName()}" -> { return create${class.getName()}() }
-                "${class.getName()}" -> { return create${class.getName()}() }
+            ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
+            ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.CN_$class.getName() -> { return create${class.getName()}() }
 
 #end            else -> {return null;}
        }
