@@ -16,6 +16,28 @@ import java.io.ByteArrayOutputStream
  * Time: 11:08
  */
 
+
+class ModelReferenceVisitor(val out : PrintStream) : ModelVisitor() {
+    //override public fun beginVisitElem(elem: KMFContainer){}
+    //override public fun endVisitElem(elem: KMFContainer){}
+    override fun beginVisitRef(refName: String) {
+        out.print(",\"" + refName + "\":[")
+        isFirst = true
+    }
+    override fun endVisitRef(refName: String) {
+        out.print("]")
+    }
+    var isFirst = true
+    public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+        if(!isFirst){
+            out.print(",")
+        } else {
+            isFirst = false
+        }
+        out.print("\"" + elem.path() + "\"")
+    }
+}
+
 public open class JSONModelSerializer : ModelSerializer {
 
     override fun serialize(model: KMFContainer): String? {
@@ -28,26 +50,7 @@ public open class JSONModelSerializer : ModelSerializer {
     override public fun serialize(model: KMFContainer, raw: OutputStream) {
         val out = PrintStream(raw)
         //visitor for printing reference
-        var internalReferenceVisitor = object : ModelVisitor() {
-            override public fun beginVisitElem(elem: KMFContainer){}
-            override public fun endVisitElem(elem: KMFContainer){}
-            override fun beginVisitRef(refName: String) {
-                out.print(",\"" + refName + "\":[")
-                isFirst = true
-            }
-            override fun endVisitRef(refName: String) {
-                out.print("]")
-            }
-            var isFirst = true
-            public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
-                if(!isFirst){
-                    out.print(",")
-                } else {
-                    isFirst = false
-                }
-                out.print("\"" + elem.path() + "\"")
-            }
-        }
+        val internalReferenceVisitor = ModelReferenceVisitor(out)
         //Visitor for Model naviguation
         var masterVisitor = object : ModelVisitor() {
             var isFirstInRef = true
@@ -79,7 +82,7 @@ public open class JSONModelSerializer : ModelSerializer {
 
     fun printAttName(elem: KMFContainer, out: PrintStream) {
         out.print("\n{\"eClass\":\"" + elem.metaClassName() + "\"")
-        var attributeVisitor = object : ModelAttributeVisitor {
+        val attributeVisitor = object : ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: KMFContainer) {
                 if(value != null){
                     out.print(",\"" + name + "\":\"" + value.toString() + "\"")

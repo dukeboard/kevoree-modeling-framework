@@ -1,4 +1,4 @@
-var model = require('./org.kevoree.modeling.sample.cloud.js.min.js');
+var model = require('./org.kevoree.modeling.sample.cloud.js.merged.js');
 
 var saver = new model.org.cloud.serializer.JSONModelSerializer();
 var loader = new model.org.cloud.loader.JSONModelLoader();
@@ -23,10 +23,12 @@ for(var nodeI=0;nodeI<5;nodeI++){
     }
 }
 
-/* Utility function */
-String.prototype.repeat = function( num ){return new Array( num + 1 ).join(this);}
+//save in JSON
+var savedModel = saver.serialize(cloud);
 
-//Pretty print aspect
+
+/*
+String.prototype.repeat = function( num ){return new Array( num + 1 ).join(this);}
 function prettyPrint(indice){
     indice = typeof indice !== 'undefined' ? indice : 0;
     var children = this.containedElementsList();    
@@ -52,3 +54,4 @@ fs.writeFile("cloud.json", savedModel, function(err) {
 }); 
 
 console.log(savedModel);
+*/

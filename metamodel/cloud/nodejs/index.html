@@ -1,0 +1,32 @@
+<html lang="en">
+
+<script type="text/javascript" src="org.kevoree.modeling.sample.cloud.js.merged.js"></script>
+<script>
+var model = Kotlin.modules['org.kevoree.modeling.sample.cloud.js'];
+var saver = new model.org.cloud.serializer.JSONModelSerializer();
+var loader = new model.org.cloud.loader.JSONModelLoader();
+var cloner = new model.org.cloud.cloner.DefaultModelCloner();
+var compare = new model.org.cloud.compare.DefaultModelCompare();
+var event2trace = new model.org.kevoree.modeling.api.trace.Event2Trace(compare);
+var factory = new model.org.cloud.impl.DefaultCloudFactory();
+var ActionType = model.org.kevoree.modeling.api.util.ActionType;
+
+
+
+//Just define a deep cloud model
+var cloud = factory.createCloud();
+for(var nodeI=0;nodeI<5;nodeI++){
+    var newNode = factory.createNode();
+    newNode.setId("Node_"+nodeI);
+    cloud.addNodes(newNode);
+    for(var softI=0;softI<3;softI++){
+       var newSoft = factory.createSoftware();
+       newSoft.setName("Soft_"+nodeI+"_"+softI);
+       newNode.addSoftwares(newSoft);
+    }
+}
+
+//save in JSON
+var savedModel = saver.serialize(cloud);
+</script>
+</html>
