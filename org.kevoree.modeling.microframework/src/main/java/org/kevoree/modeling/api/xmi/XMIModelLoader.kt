@@ -224,3 +224,49 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         return context.loadedRoots
     }
 }
+
+public class LoadingContext() {
+
+    var xmiReader : XMLStreamReader? = null
+
+    var loadedRoots : java.util.ArrayList<Any> = java.util.ArrayList<Any>()
+
+    val map : java.util.HashMap<String, Any> = java.util.HashMap<String, Any>()
+
+    val elementsCount : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()
+
+    val resolvers : java.util.ArrayList<XMIResolveCommand> = java.util.ArrayList<XMIResolveCommand>()
+
+    val stats : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()
+
+    val oppositesAlreadySet : java.util.HashMap<String, Boolean> = java.util.HashMap<String, Boolean>()
+
+    public fun isOppositeAlreadySet(localRef : String, oppositeRef : String) : Boolean {
+        val res = (oppositesAlreadySet.get(oppositeRef + "_" + localRef) != null || (oppositesAlreadySet.get(localRef + "_" + oppositeRef) != null))
+        return res
+    }
+
+    public fun storeOppositeRelation(localRef : String, oppositeRef : String) {
+        oppositesAlreadySet.put(localRef + "_" + oppositeRef, true)
+    }
+
+}
+
+
+public class XMIResolveCommand(val context : LoadingContext, val target : org.kevoree.modeling.api.KMFContainer, val mutatorType : Int, val refName : String, val ref : String){
+    fun run() {
+        var referencedElement = context.map.get(ref)
+        if(referencedElement != null) {
+            target.reflexiveMutator(mutatorType,refName, referencedElement)
+            return
+        }
+        if(ref.equals("/0/") || ref.equals("/")) {
+            referencedElement = context.map.get("/0")
+            if(referencedElement != null)   {
+                target.reflexiveMutator(mutatorType,refName, referencedElement)
+                return
+            }
+        }
+        throw Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " "+refName+"  on " + target.toString())
+    }
+}
