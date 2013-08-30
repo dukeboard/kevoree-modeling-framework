@@ -1,8 +1,8 @@
-#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
-#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
-package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
 
-public class XMIResolveCommand(val context : LoadingContext, val target : org.kevoree.modeling.api.KMFContainer, val mutatorType : Int, val refName : String, val ref : String) : ResolveCommand {
+
+package org.kevoree.modeling.api.xmi
+
+public class XMIResolveCommand(val context : LoadingContext, val target : org.kevoree.modeling.api.KMFContainer, val mutatorType : Int, val refName : String, val ref : String) : org.kevoree.modeling.api.util.ResolveCommand {
     override fun run() {
         var referencedElement = context.map.get(ref)
         if(referencedElement != null) {

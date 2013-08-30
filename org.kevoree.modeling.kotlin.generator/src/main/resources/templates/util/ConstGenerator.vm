@@ -10,9 +10,6 @@ object Constants {
     public val ELEMENT_HAS_NO_KEY_IN_COLLECTION : String = "Cannot set the collection, because at least one element of it has no key!"
     public val EMPTY_KEY : String = "Key empty : please set the attribute key before adding the object."
 
-    public val LOADER_XMI_LOCAL_NAME : String = "type"
-    public val LOADER_XMI_XSI : String = "xsi"
-
     public val KMFQL_CONTAINED : String = "contained"
 
 #foreach($key in $names.keySet())

@@ -11,24 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kevoree.model.test;
+package org.kevoree.modeling.tests;
 
 import org.junit.Test;
 import org.kevoree.ContainerRoot;
 import org.kevoree.cloner.DefaultModelCloner;
+import org.kevoree.modeling.api.KMFContainer;
 import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.loader.XMIModelLoader;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.io.FileNotFoundException;
 
 import org.kevoree.modeling.api.ModelCloner;
+import org.kevoree.modeling.api.ModelSerializer;
+import org.kevoree.serializer.XMIModelSerializer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,7 +44,7 @@ public class KMFLoadTest {
 
         ModelLoader loader = new XMIModelLoader();
         ModelCloner cloner = new DefaultModelCloner();
-        ContainerRoot model = (ContainerRoot)loader.loadModelFromStream(new FileInputStream(new File(ClonerTest.class.getResource("/node0.kev").toURI()))).get(0);
+        ContainerRoot model = (ContainerRoot)loader.loadModelFromStream(new FileInputStream(new File(KMFLoadTest.class.getResource("/node0.kev").toURI()))).get(0);
 
         long before = System.currentTimeMillis();
         for(int i=0;i<10000;i++){
@@ -59,7 +60,37 @@ public class KMFLoadTest {
         List<GarbageCollectorMXBean> mbs2 = ManagementFactory.getGarbageCollectorMXBeans();
         System.out.println(mbs2.get(0).getCollectionTime());
 
+    }
 
+
+    @Test
+    public void testSaveAndLoad() {
+        //System.out.print("Saving model from memory to tempFile =>")
+         try {
+
+            ModelLoader loader = new XMIModelLoader();
+            ContainerRoot localModel = (ContainerRoot)loader.loadModelFromStream(new FileInputStream(new File(getClass().getResource("/bootstrapModel0.kev").toURI()))).get(0);
+            assert(localModel != null);
+
+            File tempFile = File.createTempFile("kmfTest_" + System.currentTimeMillis(), "kev");
+            System.out.println(tempFile.getAbsolutePath());
+             FileOutputStream pr = new FileOutputStream(tempFile);
+             ModelSerializer ms = new XMIModelSerializer();
+
+
+            ms.serialize(localModel,pr);
+            pr.close();
+            System.out.println("Loading saved model");
+            ModelLoader loader2 = new XMIModelLoader();
+            KMFContainer localModel2 = (KMFContainer)loader2.loadModelFromStream(new FileInputStream(tempFile)).get(0);
+             assert(localModel2 != null);
+            System.out.println("Loding OK.");
+
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (URISyntaxException e) {
+             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+         }
 
     }
 

@@ -32,7 +32,7 @@ public abstract class ModelVisitor {
 
     open fun endVisitElem(elem : KMFContainer){}
 
-    open fun beginVisitRef(refName : String){}
+    open fun beginVisitRef(refName : String, refType : String){}
 
     open fun endVisitRef(refName : String){}
 

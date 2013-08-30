@@ -62,28 +62,4 @@ class LoaderApiGenerator(ctx : GenerationContext) {
     }
   }
 
-  def generateResolveCommand() {
-    val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
-    val localFile = new File(loaderGenBaseDir + File.separator + "ResolveCommand.kt")
-    if(!localFile.exists()) {
-      ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
-
-      val pr = new PrintWriter(localFile,"utf-8")
-
-      val ve = new VelocityEngine()
-      ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
-      ve.init()
-      val template = ve.getTemplate("templates/commands/ResolveCommand.vm")
-      val ctxV = new VelocityContext()
-
-      ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-      ctxV.put("ctx",ctx)
-
-      template.merge(ctxV,pr)
-
-      pr.flush()
-      pr.close()
-    }
-  }
-
 }
