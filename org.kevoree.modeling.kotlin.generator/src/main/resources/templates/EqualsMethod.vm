@@ -3,7 +3,7 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 
 
-override fun deepModelEquals(similarObj : Any?) : Boolean {
+override fun deepModelEquals(similarObj : org.kevoree.modeling.api.KMFContainer?) : Boolean {
     if(!modelEquals(similarObj)){
         return false
     }
@@ -30,7 +30,7 @@ override fun deepModelEquals(similarObj : Any?) : Boolean {
     return true
 }
 
-override fun modelEquals(similarObj : Any?) : Boolean {
+override fun modelEquals(similarObj : org.kevoree.modeling.api.KMFContainer?) : Boolean {
 
 #if($ctx.getJS())
 if(similarObj == null || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass)}) || !(similarObj is ${FQNHelper.fqn($ctx, $currentClass.getEPackage())}.impl.${currentClass.getName()}Impl) ){

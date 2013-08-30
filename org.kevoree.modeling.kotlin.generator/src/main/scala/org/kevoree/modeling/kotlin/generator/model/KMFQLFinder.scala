@@ -125,7 +125,7 @@ trait KMFQLFinder {
       if (!ctx.getJS()) {
         pr.println("override fun findByPath<A>(query : String, clazz : Class<A>) : A? {return null}")
       }
-      pr.println("override fun findByPath(query : String) : Any? {return null}")
+      pr.println("override fun findByPath(query : String) : org.kevoree.modeling.api.KMFContainer? {return null}")
     }
   }
 
@@ -146,7 +146,7 @@ trait KMFQLFinder {
 
 
     pr.print("override fun ")
-    pr.println("findByPath(query : String) : Any? {")
+    pr.println("findByPath(query : String) : org.kevoree.modeling.api.KMFContainer? {")
     pr.println("val firstSepIndex = query.indexOf('[')")
     pr.println("var queryID = \"\"")
     pr.println("var extraReadChar = 2")

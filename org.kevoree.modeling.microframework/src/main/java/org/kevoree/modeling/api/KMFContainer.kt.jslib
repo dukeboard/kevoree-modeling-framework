@@ -10,10 +10,10 @@ trait KMFContainer {
     fun isRecursiveReadOnly(): Boolean
     fun setInternalReadOnly()
     fun delete()
-    fun modelEquals(similarObj: Any?): Boolean
-    fun deepModelEquals(similarObj: Any?): Boolean
+    fun modelEquals(similarObj: KMFContainer?): Boolean
+    fun deepModelEquals(similarObj: KMFContainer?): Boolean
     fun getRefInParent(): String?
-    fun findByPath(query: String): Any?
+    fun findByPath(query: String): KMFContainer?
     fun path(): String?
     fun metaClassName(): String
     fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?, noOpposite : Boolean = false)
@@ -26,6 +26,6 @@ trait KMFContainer {
     fun removeAllModelTreeListeners()
 
     fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean)
-    fun visit(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor)
+    fun visitAttributes(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor)
 
 }

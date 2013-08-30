@@ -90,6 +90,6 @@ public open class JSONModelSerializer : ModelSerializer {
                 }
             }
         }
-        elem.visit(attributeVisitor)
+        elem.visitAttributes(attributeVisitor)
     }
 }

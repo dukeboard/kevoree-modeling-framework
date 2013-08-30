@@ -1,5 +1,3 @@
-<<<<<<< Local Changes
-=======
 /*  Prototype JavaScript framework, version 1.6.1
  *  (c) 2005-2009 Sam Stephenson
  *
@@ -1671,7 +1669,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       },
       visit: function (visitor, recursive, containedReference, nonContainedReference) {
       },
-      visit_0: function (visitor) {
+      visitAttributes: function (visitor) {
       },
       internal_visit: function (visitor, internalElem, recursive, containedReference, nonContainedReference, refName) {
         if (internalElem != null) {
@@ -1713,6 +1711,47 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
          else {
           return '';
         }
+      },
+      modelEquals: function (similarObj) {
+        if (similarObj == null) {
+          return false;
+        }
+        if (Kotlin.equals(this, similarObj)) {
+          return true;
+        }
+        if (!Kotlin.equals(similarObj.metaClassName(), this.metaClassName())) {
+          return false;
+        }
+        var values = new Kotlin.PrimitiveHashMap(0);
+        var attVisitor = _.org.cloud.container.KMFContainerImpl.f1(values);
+        this.visitAttributes(attVisitor);
+        similarObj.visitAttributes(attVisitor);
+        if (!values.isEmpty()) {
+          return false;
+        }
+        var payload = '';
+        var refVisitor = _.org.cloud.container.KMFContainerImpl.f2(values, payload);
+        this.visit(refVisitor, false, false, true);
+        similarObj.visit(refVisitor, false, false, true);
+        if (!values.isEmpty()) {
+          return false;
+        }
+        return true;
+      },
+      deepModelEquals: function (similarObj) {
+        if (!this.modelEquals(similarObj)) {
+          return false;
+        }
+        var similarRoot = similarObj != null ? similarObj : Kotlin.throwNPE();
+        while (similarRoot.eContainer() != null) {
+          var tmp$0;
+          similarRoot = (tmp$0 = similarRoot.eContainer()) != null ? tmp$0 : Kotlin.throwNPE();
+        }
+        var resultTest = {v: true};
+        var finalRoot = similarRoot;
+        var objVisitor = _.org.cloud.container.KMFContainerImpl.f3(finalRoot, resultTest);
+        this.visit(objVisitor, true, true, false);
+        return resultTest.v;
       }
     }, /** @lends _.org.cloud.container.KMFContainerImpl */ {
       f0: function () {
@@ -1727,6 +1766,53 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
              else {
               (elem != null ? elem : Kotlin.throwNPE()).setInternalRecursiveReadOnly();
               elem.setInternalReadOnly();
+            }
+          }
+        });
+      },
+      f1: function (values) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelAttributeVisitor, {
+          initialize: function () {
+          },
+          visit: function (value, name, parent) {
+            if (values.containsKey(name)) {
+              if (Kotlin.equals(values.get(name), Kotlin.toString(value))) {
+                values.remove(name);
+              }
+            }
+             else {
+              values.put(name, Kotlin.toString(value));
+            }
+          }
+        });
+      },
+      f2: function (values, payload) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, {
+          initialize: function () {
+            this.super_init();
+          },
+          visit: function (elem, refNameInParent, parent) {
+            var concatedKey = refNameInParent + '_' + elem.path();
+            if (values.containsKey(concatedKey)) {
+              values.remove(concatedKey);
+            }
+             else {
+              values.put(concatedKey, payload);
+            }
+          }
+        });
+      },
+      f3: function (finalRoot, resultTest) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, {
+          initialize: function () {
+            this.super_init();
+          },
+          visit: function (elem, refNameInParent, parent) {
+            var tmp$0;
+            var similarSubObj = finalRoot.findByPath((tmp$0 = elem.path()) != null ? tmp$0 : Kotlin.throwNPE());
+            if (!elem.modelEquals(similarSubObj)) {
+              resultTest = false;
+              this.stopVisit();
             }
           }
         });
@@ -1889,7 +1975,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       printAttName: function (elem, out) {
         out.print('\n{"eClass":"' + elem.metaClassName() + '"');
         var attributeVisitor = _.org.kevoree.modeling.api.json.JSONModelSerializer.f1(out);
-        elem.visit_0(attributeVisitor);
+        elem.visitAttributes(attributeVisitor);
       }
     }, /** @lends _.org.kevoree.modeling.api.json.JSONModelSerializer */ {
       f0: function ($outer, out, internalReferenceVisitor) {
@@ -7788,36 +7874,6 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               }
               return tmp$2;
             },
-            deepModelEquals: function (similarObj) {
-              if (!this.modelEquals(similarObj)) {
-                return false;
-              }
-              var similarObjCasted = similarObj != null ? similarObj : Kotlin.throwNPE();
-              {
-                var tmp$0 = this.get__nodes().values().iterator();
-                while (tmp$0.hasNext()) {
-                  var subElement = tmp$0.next();
-                  var foundedElement = similarObjCasted.findNodesByID(subElement.get_id());
-                  if (foundedElement == null || !Kotlin.equals(foundedElement, subElement)) {
-                    return false;
-                  }
-                }
-              }
-              return true;
-            },
-            modelEquals: function (similarObj) {
-              if (similarObj == null || !Kotlin.isType(similarObj, _.org.cloud.Cloud) || !Kotlin.isType(similarObj, _.org.cloud.impl.CloudImpl)) {
-                return false;
-              }
-              var similarObjCasted = similarObj != null ? similarObj : Kotlin.throwNPE();
-              if (!Kotlin.equals(this.get_generated_KMF_ID(), similarObjCasted.get_generated_KMF_ID())) {
-                return false;
-              }
-              if (this.get_nodes().size() !== similarObjCasted.get_nodes().size()) {
-                return false;
-              }
-              return true;
-            },
             visit: function (visitor, recursive, containedReference, nonContainedReference) {
               visitor.beginVisitElem(this);
               if (containedReference) {
@@ -7833,7 +7889,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               }
               visitor.endVisitElem(this);
             },
-            visit_0: function (visitor) {
+            visitAttributes: function (visitor) {
               visitor.visit(this.get_generated_KMF_ID(), _.org.cloud.util.Constants.get_Att_generated_KMF_ID(), this);
             },
             metaClassName: function () {
@@ -8232,36 +8288,6 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               }
               return tmp$2;
             },
-            deepModelEquals: function (similarObj) {
-              if (!this.modelEquals(similarObj)) {
-                return false;
-              }
-              var similarObjCasted = similarObj != null ? similarObj : Kotlin.throwNPE();
-              {
-                var tmp$0 = this.get__softwares().values().iterator();
-                while (tmp$0.hasNext()) {
-                  var subElement = tmp$0.next();
-                  var foundedElement = similarObjCasted.findSoftwaresByID(subElement.get_name());
-                  if (foundedElement == null || !Kotlin.equals(foundedElement, subElement)) {
-                    return false;
-                  }
-                }
-              }
-              return true;
-            },
-            modelEquals: function (similarObj) {
-              if (similarObj == null || !Kotlin.isType(similarObj, _.org.cloud.Node) || !Kotlin.isType(similarObj, _.org.cloud.impl.NodeImpl)) {
-                return false;
-              }
-              var similarObjCasted = similarObj != null ? similarObj : Kotlin.throwNPE();
-              if (!Kotlin.equals(this.get_id(), similarObjCasted.get_id())) {
-                return false;
-              }
-              if (this.get_softwares().size() !== similarObjCasted.get_softwares().size()) {
-                return false;
-              }
-              return true;
-            },
             visit: function (visitor, recursive, containedReference, nonContainedReference) {
               visitor.beginVisitElem(this);
               if (containedReference) {
@@ -8277,7 +8303,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               }
               visitor.endVisitElem(this);
             },
-            visit_0: function (visitor) {
+            visitAttributes: function (visitor) {
               visitor.visit(this.get_id(), _.org.cloud.util.Constants.get_Att_id(), this);
             },
             metaClassName: function () {
@@ -8434,28 +8460,11 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             findByPath: function (query) {
               return null;
             },
-            deepModelEquals: function (similarObj) {
-              if (!this.modelEquals(similarObj)) {
-                return false;
-              }
-              var similarObjCasted = similarObj != null ? similarObj : Kotlin.throwNPE();
-              return true;
-            },
-            modelEquals: function (similarObj) {
-              if (similarObj == null || !Kotlin.isType(similarObj, _.org.cloud.Software) || !Kotlin.isType(similarObj, _.org.cloud.impl.SoftwareImpl)) {
-                return false;
-              }
-              var similarObjCasted = similarObj != null ? similarObj : Kotlin.throwNPE();
-              if (!Kotlin.equals(this.get_name(), similarObjCasted.get_name())) {
-                return false;
-              }
-              return true;
-            },
             visit: function (visitor, recursive, containedReference, nonContainedReference) {
               visitor.beginVisitElem(this);
               visitor.endVisitElem(this);
             },
-            visit_0: function (visitor) {
+            visitAttributes: function (visitor) {
               visitor.visit(this.get_name(), _.org.cloud.util.Constants.get_Att_name(), this);
             },
             metaClassName: function () {
@@ -10138,4 +10147,3 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
   Kotlin.defineModule('org.kevoree.modeling.sample.cloud.js', _);
 }());
 if(typeof(module)!='undefined'){module.exports = Kotlin.modules['org.kevoree.modeling.sample.cloud.js'];}
->>>>>>> External Changes

@@ -250,7 +250,7 @@ trait ClassGenerator extends ClonerGenerator {
     if (ctx.genSelector) {
       generateSelectorMethods(pr, cls, ctx)
     }
-    generateEqualsMethods(pr, cls, ctx)
+    //generateEqualsMethods(pr, cls, ctx)
     generateContainedElementsMethods(pr, cls, ctx)
 
     generateMetaClassName(pr, cls, ctx)
