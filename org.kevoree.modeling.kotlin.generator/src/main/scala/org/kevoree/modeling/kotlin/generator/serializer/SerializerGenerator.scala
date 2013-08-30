@@ -89,7 +89,7 @@ class SerializerGenerator(ctx: GenerationContext) {
 
   private def generateDefaultSerializer(pr: PrintWriter, potentialRoots: util.ArrayList[EClassifier]) {
 
-    pr.println("override fun serialize(oMS : KMFContainer) : String? {")
+    pr.println("override fun serialize(oMS : org.kevoree.modeling.api.KMFContainer) : String? {")
 
     if(ctx.getJS()){
       pr.println("val oo = java.io.OutputStream()")
@@ -105,7 +105,7 @@ class SerializerGenerator(ctx: GenerationContext) {
     }
     pr.println("}")
 
-    pr.println("override fun serialize(oMS : KMFContainer,ostream : java.io.OutputStream) {")
+    pr.println("override fun serialize(oMS : org.kevoree.modeling.api.KMFContainer,ostream : java.io.OutputStream) {")
     pr.println()
     pr.println("val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)")
 
