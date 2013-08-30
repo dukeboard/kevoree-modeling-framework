@@ -1,5 +1,6 @@
 package org.kevoree.test;
 
+import junit.framework.Assert;
 import org.junit.Test;
 import org.kevoree.ContainerNode;
 import org.kevoree.ContainerRoot;
@@ -57,7 +58,7 @@ public class TraceSyncTest {
 
                 TraceSequence traceSeqClone = comparator.createSequence();          /* Simulate network payload  */
                 traceSeqClone.populateFromString(traceSeq.exportToString());
-                assert (traceSeq.exportToString().equals(traceSeqClone.exportToString()));
+                Assert.assertEquals(traceSeq.exportToString(),traceSeqClone.exportToString());
 
                 System.out.println(traceSeq.exportToString());
 
