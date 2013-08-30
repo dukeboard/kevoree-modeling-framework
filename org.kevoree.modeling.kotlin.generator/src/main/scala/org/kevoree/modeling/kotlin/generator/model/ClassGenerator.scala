@@ -244,7 +244,6 @@ trait ClassGenerator extends ClonerGenerator {
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
     //GENERATE CLONE METHOD
 
-    generateCloneMethods(ctx, cls, pr, packElement)
     generateFlatReflexiveSetters(ctx, cls, pr)
     generateKMFQLMethods(pr, cls, ctx, pack)
     if (ctx.genSelector) {

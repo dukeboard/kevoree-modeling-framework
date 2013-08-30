@@ -37,5 +37,12 @@ console.log("assert true = "+emptyModel.deepModelEquals(emptyModel));
 console.log("assert false = "+cloud.deepModelEquals(emptyModel));
 console.log("assert true = "+cloud.deepModelEquals(cloud));
 
+var clonedCloud = cloner.clone(cloud);
+console.log(clonedCloud);
+
+console.log("assert true = "+clonedCloud.deepModelEquals(cloud));
+console.log("assert true = "+cloud.deepModelEquals(clonedCloud));
+
+
 </script>
 </html>

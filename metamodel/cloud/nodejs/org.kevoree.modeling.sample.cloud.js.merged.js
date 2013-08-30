@@ -2026,7 +2026,100 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         });
       }
     })
-    , ce = Kotlin.createTrait()
+    , ce = Kotlin.createTrait(/** @lends _.org.kevoree.modeling.api.ModelCloner.prototype */ {
+      get_mainFactory: function () {
+        return this.$mainFactory;
+      },
+      set_mainFactory: function (tmp$0) {
+        this.$mainFactory = tmp$0;
+      },
+      clone: function (o) {
+        return this.clone_0(o, false);
+      },
+      clone_0: function (o, readOnly) {
+        return this.clone_1(o, readOnly, false);
+      },
+      cloneMutableOnly: function (o, readOnly) {
+        return this.clone_1(o, readOnly, true);
+      },
+      cloneModelElem: function (src) {
+        var tmp$0;
+        var clonedSrc = (tmp$0 = this.get_mainFactory().create(src.metaClassName())) != null ? tmp$0 : Kotlin.throwNPE();
+        var attributesCloner = _.org.kevoree.modeling.api.ModelCloner.f0(clonedSrc);
+        src.visitAttributes(attributesCloner);
+        return clonedSrc;
+      },
+      resolveModelElem: function (src, target, context) {
+        var refResolver = _.org.kevoree.modeling.api.ModelCloner.f1(target, context);
+        src.visit(refResolver, false, true, true);
+      },
+      clone_1: function (o, readOnly, mutableOnly) {
+        var context = this.createContext();
+        var clonedObject = this.cloneModelElem(o);
+        context.put(o, clonedObject);
+        var cloneGraphVisitor = _.org.kevoree.modeling.api.ModelCloner.f2(this, mutableOnly, context);
+        o.visit(cloneGraphVisitor, true, true, false);
+        var resolveGraphVisitor = _.org.kevoree.modeling.api.ModelCloner.f3(this, context, readOnly);
+        o.visit(resolveGraphVisitor, true, true, false);
+        this.resolveModelElem(o, clonedObject, context);
+        if (readOnly) {
+          clonedObject.setInternalReadOnly();
+        }
+        return clonedObject != null ? clonedObject : Kotlin.throwNPE();
+      }
+    }, /** @lends _.org.kevoree.modeling.api.ModelCloner */ {
+      f0: function (clonedSrc) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelAttributeVisitor, {
+          initialize: function () {
+          },
+          visit: function (value, name, parent) {
+            if (value != null) {
+              clonedSrc.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.get_SET(), name, value, false);
+            }
+          }
+        });
+      },
+      f1: function (target, context) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, {
+          initialize: function () {
+            this.super_init();
+          },
+          visit: function (elem, refNameInParent, parent) {
+            target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.get_ADD(), refNameInParent, context.get(elem), false);
+          }
+        });
+      },
+      f2: function ($outer, mutableOnly, context) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, {
+          initialize: function () {
+            this.super_init();
+          },
+          visit: function (elem, refNameInParent, parent) {
+            if (mutableOnly && elem.isRecursiveReadOnly()) {
+              this.noChildrenVisit();
+            }
+             else {
+              context.put(elem, $outer.cloneModelElem(elem));
+            }
+          }
+        });
+      },
+      f3: function ($outer, context, readOnly) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, {
+          initialize: function () {
+            this.super_init();
+          },
+          visit: function (elem, refNameInParent, parent) {
+            var tmp$0;
+            var clonedObj = (tmp$0 = context.get(elem)) != null ? tmp$0 : Kotlin.throwNPE();
+            $outer.resolveModelElem(elem, clonedObj, context);
+            if (readOnly) {
+              clonedObj.setInternalReadOnly();
+            }
+          }
+        });
+      }
+    })
     , ch = Kotlin.createTrait()
     , ci = Kotlin.createTrait()
     , cj = Kotlin.createTrait(/** @lends _.org.kevoree.modeling.api.trace.TraceSequence.prototype */ {
@@ -7353,66 +7446,14 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             initialize: function () {
               this.$mainFactory = new _.org.cloud.factory.MainFactory();
             },
-            clone: function (o) {
-              return this.clone_0(o, false);
-            },
-            clone_0: function (o, readOnly) {
-              return this.clone_1(o, readOnly, false);
-            },
-            cloneMutableOnly: function (o, readOnly) {
-              return this.clone_1(o, readOnly, true);
-            },
-            clone_1: function (o, readOnly, mutableOnly) {
-              var context = new Kotlin.ComplexHashMap(0);
-              var clonedObject = (o != null ? o : Kotlin.throwNPE()).createClone(this.get_mainFactory());
-              context.put(o, clonedObject);
-              var cloneGraphVisitor = _.org.cloud.cloner.DefaultModelCloner.f0(this, mutableOnly, context);
-              o.visit(cloneGraphVisitor, true, true, false);
-              var resolveGraphVisitor = _.org.cloud.cloner.DefaultModelCloner.f1(context, readOnly, mutableOnly);
-              o.visit(resolveGraphVisitor, true, true, false);
-              (o != null ? o : Kotlin.throwNPE()).resolve(context, readOnly, mutableOnly);
-              if (readOnly) {
-                (clonedObject != null ? clonedObject : Kotlin.throwNPE()).setInternalReadOnly();
-              }
-              return clonedObject != null ? clonedObject : Kotlin.throwNPE();
+            createContext: function () {
+              return new Kotlin.ComplexHashMap(0);
             },
             get_mainFactory: function () {
               return this.$mainFactory;
             },
             set_mainFactory: function (tmp$0) {
               this.$mainFactory = tmp$0;
-            },
-            setCloudFactory: function (fct) {
-              this.get_mainFactory().setCloudFactory(fct);
-            }
-          }, /** @lends _.org.cloud.cloner.DefaultModelCloner */ {
-            f0: function ($outer, mutableOnly, context) {
-              return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, {
-                initialize: function () {
-                  this.super_init();
-                },
-                visit: function (elem, refNameInParent, parent) {
-                  if (mutableOnly && elem.isRecursiveReadOnly()) {
-                    this.noChildrenVisit();
-                  }
-                   else {
-                    context.put(elem, (elem != null ? elem : Kotlin.throwNPE()).createClone($outer.get_mainFactory()));
-                  }
-                }
-              });
-            },
-            f1: function (context, readOnly, mutableOnly) {
-              return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, {
-                initialize: function () {
-                  this.super_init();
-                },
-                visit: function (elem, refNameInParent, parent) {
-                  (elem != null ? elem : Kotlin.throwNPE()).resolve(context, readOnly, mutableOnly);
-                  if (readOnly) {
-                    (elem != null ? elem : Kotlin.throwNPE()).setInternalReadOnly();
-                  }
-                }
-              });
             }
           })
         }),
@@ -7750,34 +7791,6 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               this.get__nodes().clear();
               this.fireModelEvent(new _.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.get_REMOVE_ALL(), _.org.kevoree.modeling.api.util.ElementAttributeType.get_CONTAINMENT(), _.org.cloud.util.Constants.get_Ref_nodes(), temp_els));
               this.set_removeAllNodesCurrentlyProcessing(false);
-            },
-            createClone: function (_factories) {
-              var selfObjectClone = _factories.getCloudFactory().createCloud();
-              selfObjectClone.set_generated_KMF_ID(this.get_generated_KMF_ID());
-              return selfObjectClone;
-            },
-            resolve: function (addrs, readOnly, mutableOnly) {
-              if (mutableOnly && this.isRecursiveReadOnly()) {
-                return;
-              }
-              var tmp$0;
-              var clonedSelfObject = (tmp$0 = addrs.get(this)) != null ? tmp$0 : Kotlin.throwNPE();
-              {
-                var tmp$1 = this.get_nodes().iterator();
-                while (tmp$1.hasNext()) {
-                  var sub = tmp$1.next();
-                  if (mutableOnly && sub.isRecursiveReadOnly()) {
-                    clonedSelfObject.addNodes(sub);
-                  }
-                   else {
-                    var interObj = addrs.get(sub);
-                    if (interObj == null) {
-                      throw new Error('Non contained nodes from Cloud : ' + this.get_nodes());
-                    }
-                    clonedSelfObject.addNodes(interObj != null ? interObj : Kotlin.throwNPE());
-                  }
-                }
-              }
             },
             reflexiveMutator: function (mutationType, refName, value, noOpposite) {
               if (refName === _.org.cloud.util.Constants.get_Att_generated_KMF_ID()) {
@@ -8165,34 +8178,6 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               this.fireModelEvent(new _.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.get_REMOVE_ALL(), _.org.kevoree.modeling.api.util.ElementAttributeType.get_CONTAINMENT(), _.org.cloud.util.Constants.get_Ref_softwares(), temp_els));
               this.set_removeAllSoftwaresCurrentlyProcessing(false);
             },
-            createClone: function (_factories) {
-              var selfObjectClone = _factories.getCloudFactory().createNode();
-              selfObjectClone.set_id(this.get_id());
-              return selfObjectClone;
-            },
-            resolve: function (addrs, readOnly, mutableOnly) {
-              if (mutableOnly && this.isRecursiveReadOnly()) {
-                return;
-              }
-              var tmp$0;
-              var clonedSelfObject = (tmp$0 = addrs.get(this)) != null ? tmp$0 : Kotlin.throwNPE();
-              {
-                var tmp$1 = this.get_softwares().iterator();
-                while (tmp$1.hasNext()) {
-                  var sub = tmp$1.next();
-                  if (mutableOnly && sub.isRecursiveReadOnly()) {
-                    clonedSelfObject.addSoftwares(sub);
-                  }
-                   else {
-                    var interObj = addrs.get(sub);
-                    if (interObj == null) {
-                      throw new Error('Non contained softwares from Node : ' + this.get_softwares());
-                    }
-                    clonedSelfObject.addSoftwares(interObj != null ? interObj : Kotlin.throwNPE());
-                  }
-                }
-              }
-            },
             reflexiveMutator: function (mutationType, refName, value, noOpposite) {
               if (refName === _.org.cloud.util.Constants.get_Att_id()) {
                 this.set_id(value);
@@ -8433,18 +8418,6 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 }
                 this.fireModelEvent(new _.org.kevoree.modeling.api.events.ModelEvent(oldPath, _.org.kevoree.modeling.api.util.ActionType.get_RENEW_INDEX(), _.org.kevoree.modeling.api.util.ElementAttributeType.get_REFERENCE(), _.org.cloud.util.Constants.get_Att_name(), this.path()));
               }
-            },
-            createClone: function (_factories) {
-              var selfObjectClone = _factories.getCloudFactory().createSoftware();
-              selfObjectClone.set_name(this.get_name());
-              return selfObjectClone;
-            },
-            resolve: function (addrs, readOnly, mutableOnly) {
-              if (mutableOnly && this.isRecursiveReadOnly()) {
-                return;
-              }
-              var tmp$0;
-              var clonedSelfObject = (tmp$0 = addrs.get(this)) != null ? tmp$0 : Kotlin.throwNPE();
             },
             reflexiveMutator: function (mutationType, refName, value, noOpposite) {
               if (refName === _.org.cloud.util.Constants.get_Att_name()) {
