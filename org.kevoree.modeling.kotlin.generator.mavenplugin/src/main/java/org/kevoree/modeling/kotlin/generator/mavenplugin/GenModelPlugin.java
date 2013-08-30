@@ -274,6 +274,10 @@ public class GenModelPlugin extends AbstractMojo {
         if (js && !json) {
             json = true; // JS need JSON by default for Java extension
         }
+        if(js){
+            xmi = false ;
+        }
+
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
         List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
 
@@ -611,7 +615,15 @@ public class GenModelPlugin extends AbstractMojo {
                             Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
-                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !exclusions.contains(entry.getName())) {
+
+                                boolean filtered = false;
+                                for(String filter : exclusions){
+                                    if(entry.getName().contains(filter)){
+                                        filtered = true;
+                                    }
+                                }
+
+                                if ((entry.getName().endsWith(".kt") && !filtered) || entry.getName().endsWith(".kt.jslib") ) {
 
                                     String fileName = entry.getName();
                                     if (fileName.endsWith(".jslib")) {

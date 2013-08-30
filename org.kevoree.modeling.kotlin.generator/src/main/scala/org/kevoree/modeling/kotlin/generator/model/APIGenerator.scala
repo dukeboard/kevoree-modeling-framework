@@ -148,7 +148,7 @@ trait APIGenerator extends ClassGenerator {
             } else {
               ProcessorHelper.fqn(ctx, p.getEType)
             }
-            pr.print(p.getName() + ":" + returnTypeP)
+            pr.print(p.getName() + "P :" + returnTypeP)
             isFirst = false
         }
         if (op.getEType != null) {

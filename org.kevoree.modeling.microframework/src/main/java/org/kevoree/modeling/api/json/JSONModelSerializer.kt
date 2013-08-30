@@ -86,10 +86,30 @@ public open class JSONModelSerializer : ModelSerializer {
         val attributeVisitor = object : ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: KMFContainer) {
                 if(value != null){
-                    out.print(",\"" + name + "\":\"" + value.toString() + "\"")
+                    out.print(",\"" + name + "\":\"")
+                    escapeJson(out,value.toString())
+                    out.print("\"")
                 }
             }
         }
         elem.visitAttributes(attributeVisitor)
     }
+
+    private fun escapeJson(ostream : java.io.PrintStream, chain : String?) {
+        if(chain == null){return;}
+        var i = 0
+        while(i < chain.size){
+            val c = chain.get(i)
+            if(c == '"') {
+                ostream.print("&quot;")
+            } else if(c == '\'') {
+                ostream.print("&apos;")
+            } else {
+                ostream.print(c)
+            }
+            i = i + 1
+        }
+    }
+
 }
+

@@ -44,17 +44,18 @@ public trait TraceSequence {
         val keys = java.util.HashMap<String,String>();
         var previousName : String? = null
         while (currentToken.tokenType != Type.EOF && currentToken.tokenType != Type.RIGHT_BRACKET) {
-            if(currentToken.tokenType != Type.LEFT_BRACE){
+            if(currentToken.tokenType == Type.LEFT_BRACE){
                 keys.clear();
             }
-            if(currentToken.tokenType != Type.VALUE){
+            if(currentToken.tokenType == Type.VALUE){
                 if(previousName!= null){
                     keys.put(previousName!!,currentToken.value.toString());
+                    previousName = null;
                 }   else {
                     previousName = currentToken.value.toString()
                 }
             }
-            if(currentToken.tokenType != Type.RIGHT_BRACE){
+            if(currentToken.tokenType == Type.RIGHT_BRACE){
                 when(keys.get("traceType")!!) {
                     ActionType.SET.toString() -> {
                         traces.add(ModelSetTrace(keys.get("src")!!,keys.get("refname")!!,keys.get("objpath"),keys.get("content"),keys.get("typename")));

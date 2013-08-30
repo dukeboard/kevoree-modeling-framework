@@ -80,7 +80,7 @@ public open class JSONModelLoader : ModelLoader {
                             if(refModel){
                                 commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
                             } else {
-                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, currentToken.value)
+                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unescapeJSON(currentToken.value.toString()))
                                 currentNameAttOrRef = null //unpop
                             }
                         }
@@ -111,6 +111,39 @@ public open class JSONModelLoader : ModelLoader {
             }
         } else {
             throw Exception("Bad Format")
+        }
+    }
+
+
+    private fun unescapeJSON(src : String) : String {
+        var builder : String? = null
+        var i : Int = 0
+        while (i < src.length) {
+            val c = src[i]
+            if(c == '&') {
+                if(builder == null) {
+                    builder = src.substring(0,i)
+                }
+                if(src[i+1]=='a') {
+                    builder = builder!! + "'"
+                    i = i+6
+                } else if(src[i+1]=='q') {
+                    builder = builder!! + "\""
+                    i = i+6
+                } else {
+                    println("Could not unescaped chain:" + src[i] + src[i+1])
+                }
+            } else {
+                if(builder != null) {
+                    builder = builder!! + c
+                }
+                i++
+            }
+        }
+        if(builder != null) {
+            return builder!!
+        } else {
+            return src
         }
     }
 

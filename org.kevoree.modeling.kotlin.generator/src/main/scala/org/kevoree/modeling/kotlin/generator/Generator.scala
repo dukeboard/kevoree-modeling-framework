@@ -387,10 +387,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
   def generateLoader() {
 
-    if (ctx.getJS()) {
-      return
-    }
-
     checkOrGenerateLoaderApi()
 
     val model = ctx.getEcoreModel(ecoreFile)
