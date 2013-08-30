@@ -23,7 +23,7 @@ public class JSONTest {
          System.out.println("Hello");
 
         JSONModelLoader loader = new JSONModelLoader();
-        ContainerRoot model = (ContainerRoot) loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("firstModel.json")).get(0);
+        ContainerRoot model = (ContainerRoot) loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("temp.json")).get(0);
 
         DictionaryType dicAttType = (DictionaryType) model.findByPath("typeDefinitions[MiniCloudNode]/dictionaryType[19024801375806419736]");
        // System.out.println("att="+dicAttType.findByPath("attributes[logLevel]"));
