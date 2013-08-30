@@ -592,6 +592,8 @@ public class GenModelPlugin extends AbstractMojo {
         List<String> exclusions = new ArrayList<String>();
         exclusions.add("KMFContainer.kt");
         exclusions.add("Lexer.kt");
+        exclusions.add("TraceSequence.kt");
+        exclusions.add("XMIModelLoader.kt");
 
         try {
             StringBuffer cpath = new StringBuffer();

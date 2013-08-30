@@ -25,7 +25,13 @@ public trait TraceSequence {
     }
 
     fun populateFromString(addtracesTxt : String) : org.kevoree.modeling.api.trace.TraceSequence{
-        return populateFromStream(java.io.ByteArrayInputStream(addtracesTxt.toByteArray()))
+        val bytes = ByteArray(addtracesTxt.length)
+        var i = 0
+        while(i < addtracesTxt.length){
+            bytes.set(i,addtracesTxt.get(i) as Byte)
+            i = i +1
+        }
+        return populateFromStream(java.io.ByteArrayInputStream(bytes))
     }
 
     fun populateFromStream(inputStream : java.io.InputStream) : org.kevoree.modeling.api.trace.TraceSequence {
