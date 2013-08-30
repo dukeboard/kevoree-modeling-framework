@@ -78,6 +78,7 @@ public open class JSONModelSerializer : ModelSerializer {
             }
         }
         model.visit(masterVisitor, true, true, false)
+        out.flush();
     }
 
     fun printAttName(elem: KMFContainer, out: PrintStream) {

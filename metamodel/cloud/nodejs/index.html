@@ -28,5 +28,13 @@ for(var nodeI=0;nodeI<5;nodeI++){
 
 //save in JSON
 var savedModel = saver.serialize(cloud);
+var cloudLoaded = loader.loadModelFromString(savedModel).get(0);
+
+var childVisitor = new model.org.kevoree.modeling.api.util.ModelVisitor(){}
+childVisitor.visit = function(modelElem){
+	console.log(modelElem.metaClassName());
+}
+cloud.visit(childVisitor,true,true,false)
+
 </script>
 </html>

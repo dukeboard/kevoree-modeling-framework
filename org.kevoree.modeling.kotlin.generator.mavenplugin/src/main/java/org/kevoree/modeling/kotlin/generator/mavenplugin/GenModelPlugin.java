@@ -589,6 +589,10 @@ public class GenModelPlugin extends AbstractMojo {
         outputClasses.mkdirs();
 
 
+        List<String> exclusions = new ArrayList<String>();
+        exclusions.add("KMFContainer.kt");
+        exclusions.add("Lexer.kt");
+
         try {
             StringBuffer cpath = new StringBuffer();
             boolean firstBUF = true;
@@ -605,7 +609,7 @@ public class GenModelPlugin extends AbstractMojo {
                             Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
-                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !entry.getName().endsWith("KMFContainer.kt")) {
+                                if ((entry.getName().endsWith(".kt") || entry.getName().endsWith(".kt.jslib")) && !exclusions.contains(entry.getName())) {
 
                                     String fileName = entry.getName();
                                     if (fileName.endsWith(".jslib")) {

@@ -1,3 +1,5 @@
+<<<<<<< Local Changes
+=======
 /*  Prototype JavaScript framework, version 1.6.1
  *  (c) 2005-2009 Sam Stephenson
  *
@@ -1882,6 +1884,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         var internalReferenceVisitor = new _.org.kevoree.modeling.api.json.ModelReferenceVisitor(out);
         var masterVisitor = _.org.kevoree.modeling.api.json.JSONModelSerializer.f0(this, out, internalReferenceVisitor);
         model.visit(masterVisitor, true, true, false);
+        out.flush();
       },
       printAttName: function (elem, out) {
         out.print('\n{"eClass":"' + elem.metaClassName() + '"');
@@ -8800,11 +8803,12 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                   return c === ' ' || c === '\r' || c === '\n' || c === '\t';
                 },
                 nextChar: function () {
-                  var tmp$0, tmp$1;
-                  return this.get_bytes()[tmp$0 = this.get_index(), tmp$1 = tmp$0, this.set_index(tmp$0 + 1), tmp$1].toChar();
+                  var tmp$0, tmp$1, tmp$2;
+                  return (tmp$2 = this.get_bytes()[tmp$0 = this.get_index(), tmp$1 = tmp$0, this.set_index(tmp$0 + 1), tmp$1]) != null ? tmp$2 : Kotlin.throwNPE();
                 },
                 peekChar: function () {
-                  return this.get_bytes()[this.get_index()].toChar();
+                  var tmp$0;
+                  return (tmp$0 = this.get_bytes()[this.get_index()]) != null ? tmp$0 : Kotlin.throwNPE();
                 },
                 isDone: function () {
                   return this.get_index() >= this.get_bytes().length;
@@ -10134,3 +10138,4 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
   Kotlin.defineModule('org.kevoree.modeling.sample.cloud.js', _);
 }());
 if(typeof(module)!='undefined'){module.exports = Kotlin.modules['org.kevoree.modeling.sample.cloud.js'];}
+>>>>>>> External Changes

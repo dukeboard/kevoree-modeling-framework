@@ -1,7 +1,5 @@
-#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
-#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 
-package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.loader
+package org.kevoree.modeling.api.json
 
 import java.io.InputStream
 
@@ -34,11 +32,11 @@ public class Lexer(val inputStream : InputStream) {
     }
 
     private fun nextChar() : Char {
-        return bytes[index++]#if(!$ctx.jS).toChar()#else as Char#end
+        return bytes[index++] as Char
     }
 
     private fun peekChar() : Char {
-        return bytes[index]#if(!$ctx.jS).toChar()#else as Char#end
+        return bytes[index] as Char
     }
 
     private fun isDone() : Boolean {
@@ -58,12 +56,8 @@ public class Lexer(val inputStream : InputStream) {
             BOOLEAN_LETTERS!!.add('r')
             BOOLEAN_LETTERS!!.add('u')
         }
-        #if($ctx.jS)
-            return BOOLEAN_LETTERS!!.contains(c)
-        #else
-            return BOOLEAN_LETTERS!!.contains(Character.toLowerCase(c))
-        #end
-    }
+                    return BOOLEAN_LETTERS!!.contains(c)
+            }
 
     var DIGIT : java.util.HashSet<Char>? = null
     private fun isDigit(c: Char) : Boolean {
@@ -93,7 +87,7 @@ public class Lexer(val inputStream : InputStream) {
         }
         var tokenType = Type.EOF
         var c = nextChar()
-        var currentValue = java.lang.StringBuilder()
+        var currentValue = StringBuilder()
         var jsonValue: Any? = null
         while (! isDone() && isSpace(c)) {
             c = nextChar()
