@@ -5,7 +5,7 @@
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.sample.ecore.js</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: Sample :: Kevoree :: JS</name>
+    <name>Kevoree :: Modeling :: Sample :: Ecore :: JS</name>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
