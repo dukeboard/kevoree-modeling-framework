@@ -1,8 +1,0 @@
-#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
-#* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
-
-package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.events;
-
-public trait ModelElementListener {
-    public fun elementChanged(evt : ModelEvent);
-}

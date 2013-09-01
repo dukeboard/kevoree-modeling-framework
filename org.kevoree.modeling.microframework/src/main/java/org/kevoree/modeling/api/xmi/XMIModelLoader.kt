@@ -71,7 +71,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         }
     }
 
-    override fun loadModelFromString(str: String) : List<Any>? {
+    override fun loadModelFromString(str: String) : List<KMFContainer>? {
         val stringReader = StringReader(str)
         val factory = XMLInputFactory.newInstance()
         val reader = factory?.createXMLStreamReader(stringReader)
@@ -85,7 +85,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         }
     }
 
-    override fun loadModelFromStream(inputStream: InputStream) : List<Any>? {
+    override fun loadModelFromStream(inputStream: InputStream) : List<KMFContainer>? {
         val isReader = java.io.BufferedReader(InputStreamReader(inputStream))
         val factory = XMLInputFactory.newInstance()
         val reader = factory?.createXMLStreamReader(isReader)
@@ -197,7 +197,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
 
 
-    private fun deserialize(reader : XMLStreamReader): List<Any> {
+    private fun deserialize(reader : XMLStreamReader): List<KMFContainer> {
         val context = LoadingContext()
         context.xmiReader = reader
         while(reader.hasNext()) {
@@ -229,7 +229,7 @@ public class LoadingContext() {
 
     var xmiReader : XMLStreamReader? = null
 
-    var loadedRoots : java.util.ArrayList<Any> = java.util.ArrayList<Any>()
+    var loadedRoots : java.util.ArrayList<KMFContainer> = java.util.ArrayList<KMFContainer>()
 
     val map : java.util.HashMap<String, Any> = java.util.HashMap<String, Any>()
 

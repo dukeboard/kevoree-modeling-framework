@@ -18,8 +18,6 @@ import java.io.ByteArrayOutputStream
 
 
 class ModelReferenceVisitor(val out : PrintStream) : ModelVisitor() {
-    //override public fun beginVisitElem(elem: KMFContainer){}
-    //override public fun endVisitElem(elem: KMFContainer){}
     override fun beginVisitRef(refName: String, refType : String) {
         out.print(",\"" + refName + "\":[")
         isFirst = true
@@ -60,6 +58,7 @@ public open class JSONModelSerializer : ModelSerializer {
                     isFirstInRef = false
                 }
                 printAttName(elem, out)
+                internalReferenceVisitor.alreadyVisited.clear()
                 elem.visit(internalReferenceVisitor, false, false, true)
             }
             override public fun endVisitElem(elem: KMFContainer){

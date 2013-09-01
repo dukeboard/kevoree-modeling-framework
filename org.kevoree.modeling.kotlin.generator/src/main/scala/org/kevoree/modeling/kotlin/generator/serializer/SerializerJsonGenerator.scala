@@ -59,15 +59,6 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
     generateDefaultSerializer(serializerGenBaseDir, model)
   }
 
-  private def generateEscapeMethod(pr: PrintWriter) {
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-    ve.init()
-    val template = ve.getTemplate("templates/SerializerEscapeJSON.vm")
-    val ctxV = new VelocityContext()
-    template.merge(ctxV, pr)
-  }
-
   private def generateDefaultSerializer(genDir: String, model: ResourceSet) {
     val genFile = new File(genDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")

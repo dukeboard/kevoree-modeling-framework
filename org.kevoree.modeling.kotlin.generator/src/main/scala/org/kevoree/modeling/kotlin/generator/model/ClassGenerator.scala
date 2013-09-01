@@ -32,8 +32,6 @@ trait ClassGenerator extends ClonerGenerator {
 
   def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-  def generateEqualsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
-
   def generateContainedElementsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
@@ -253,10 +251,10 @@ trait ClassGenerator extends ClonerGenerator {
     generateContainedElementsMethods(pr, cls, ctx)
 
     generateMetaClassName(pr, cls, ctx)
-
+             /*
     if (ctx.genTrace) {
       generateDiffMethod(pr, cls, ctx)
-    }
+    }          */
 
 
     //Kotlin workaround // Why prop are not generated properly ?

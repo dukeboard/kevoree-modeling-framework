@@ -2,6 +2,7 @@ package org.kevoree.modeling.tests;
 
 import org.junit.Test;
 import org.kevoree.ContainerRoot;
+import org.kevoree.TypedElement;
 import org.kevoree.cloner.DefaultModelCloner;
 import org.kevoree.compare.DefaultModelCompare;
 import org.kevoree.impl.DefaultKevoreeFactory;
@@ -20,6 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -40,12 +42,12 @@ public class MergeTest {
     public void test() throws Exception {
         System.out.println("Testing merge");
 
-        MavenResolver resolver          = new MavenResolver();
-        ArrayList<String> list          = new ArrayList<String>();
-        XMIModelLoader loader           = new XMIModelLoader();
-        ModelCompare compare            = new DefaultModelCompare();
-        DefaultKevoreeFactory factory   = new DefaultKevoreeFactory();
-        ContainerRoot fullModel         = factory.createContainerRoot();
+        MavenResolver resolver = new MavenResolver();
+        ArrayList<String> list = new ArrayList<String>();
+        XMIModelLoader loader = new XMIModelLoader();
+        ModelCompare compare = new DefaultModelCompare();
+        DefaultKevoreeFactory factory = new DefaultKevoreeFactory();
+        ContainerRoot fullModel = factory.createContainerRoot();
 
         list.add("http://oss.sonatype.org/content/groups/public");
 
@@ -60,11 +62,11 @@ public class MergeTest {
             Node node = nList.item(i);
             NodeList childNode = node.getChildNodes();
 
-            String resourceURI  = null;
-            String groupId      = null;
-            String artifactId   = null;
-            String version      = null;
-            String classifier   = null;
+            String resourceURI = null;
+            String groupId = null;
+            String artifactId = null;
+            String version = null;
+            String classifier = null;
 
             for (int j = 0; j < childNode.getLength(); j++) {
                 Node nodeChild = childNode.item(j);
@@ -91,7 +93,7 @@ public class MergeTest {
                     JarEntry jarEntry = jar.getJarEntry("KEV-INF/lib.kev");
                     if (jarEntry != null) {
 
-                        System.err.println("Merge from "+file.getAbsolutePath());
+                        System.err.println("Merge from " + file.getAbsolutePath());
 
                         ModelCloner cloner = new DefaultModelCloner();
 
@@ -105,16 +107,35 @@ public class MergeTest {
                         try {
                             mergeSeq.applyOn(fullModel);
                             JSONModelSerializer saver = new JSONModelSerializer();
-                            saver.serialize(clonedModel,new ByteArrayOutputStream());
-                        } catch (Exception e){
+                            saver.serialize(clonedModel, new ByteArrayOutputStream());
+                        } catch (Exception e) {
                             e.printStackTrace();
                             JSONModelSerializer saver = new JSONModelSerializer();
-                            saver.serialize(clonedModel,System.err);
+                            File tempF = File.createTempFile("tempDebug", "tempDebug");
+                            FileOutputStream tempout = new FileOutputStream(tempF);
+                            saver.serialize(clonedModel, tempout);
+                            tempout.flush();
+
+                            File tempF2 = File.createTempFile("tempDebug2", "tempDebug2");
+                            FileOutputStream tempout2 = new FileOutputStream(tempF2);
+                            saver.serialize(model, tempout2);
+                            tempout2.flush();
+
+                            System.out.println("-"+model.findByPath("dataTypes[{Array[Byte]}]"));
+                            System.out.println("--"+fullModel.findByPath("dataTypes[Array[Byte]]"));
+                            System.out.println(model.findByID("dataTypes","Array[Byte]"));
+
+                            System.err.println(">" + tempF.getAbsolutePath());
+                            System.err.println(">>" + tempF2.getAbsolutePath());
+
+                            System.err.println("Load from " + file.getAbsolutePath());
 
                             System.err.println("----------- Trace ");
-                            for(ModelTrace t : mergeSeq.getTraces()){
+                            for (ModelTrace t : mergeSeq.getTraces()) {
                                 System.err.println(t);
                             }
+
+
 
                             return;
                         }
