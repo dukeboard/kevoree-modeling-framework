@@ -258,7 +258,7 @@ trait ClassGenerator extends ClonerGenerator {
 
 
     //Kotlin workaround // Why prop are not generated properly ?
-    if(ctx.getJS()){
+    if(ctx.getJS() && !ctx.ecma5){
 
       ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach { att =>
         if(att.isMany){

@@ -52,6 +52,7 @@
                             <packagePrefix>org</packagePrefix>
                             <clearOutput>false</clearOutput>
                             <js>true</js>
+                            <ecma5>true</ecma5>
                         </configuration>
                     </execution>
                 </executions>

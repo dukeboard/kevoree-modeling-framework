@@ -38,6 +38,7 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 
 class GenerationContext {
 
+  var ecma5 = false;
 
   var microframework: Boolean = false
 

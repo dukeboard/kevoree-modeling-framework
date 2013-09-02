@@ -59,6 +59,7 @@ import org.jetbrains.jet.cli.js.K2JSCompiler;
 import org.jetbrains.jet.cli.js.K2JSCompilerArguments;
 import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
+import org.jetbrains.k2js.config.EcmaVersion;
 import org.jetbrains.k2js.config.MetaInfServices;
 import org.kevoree.modeling.aspect.*;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
@@ -82,6 +83,13 @@ import java.util.regex.Pattern;
  * @requiresDependencyResolution compile
  */
 public class GenModelPlugin extends AbstractMojo {
+
+    /**
+     * Generate JS for ECMA5
+     *
+     * @parameter
+     */
+    private Boolean ecma5 = false;
 
     /**
      * Ecore file
@@ -226,7 +234,7 @@ public class GenModelPlugin extends AbstractMojo {
     CLICompiler KotlinCompilerJS = new K2JSCompiler();
 
     public void collectFiles(File directoryPath, List<File> sourceFileList, String extension) {
-        for (String contents :directoryPath.list()) {
+        for (String contents : directoryPath.list()) {
             File current = new File(directoryPath + File.separator + contents);
             if (contents.endsWith(extension)) {
                 sourceFileList.add(current);
@@ -400,6 +408,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
         ctx.flyweightFactory_$eq(flyweightFactory);
+        ctx.ecma5_$eq(ecma5);
 
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
@@ -407,14 +416,14 @@ public class GenModelPlugin extends AbstractMojo {
         gen.generateModel(project.getVersion());
 
 //        if (xmi) {
-            gen.generateLoader();
-            gen.generateSerializer();
+        gen.generateLoader();
+        gen.generateSerializer();
 //        }
 
- //       if (json) {
-            gen.generateJSONSerializer();
-            gen.generateJsonLoader();
-  //      }
+        //       if (json) {
+        gen.generateJSONSerializer();
+        gen.generateJsonLoader();
+        //      }
 
 
         //call Java compiler
@@ -639,6 +648,9 @@ public class GenModelPlugin extends AbstractMojo {
                 args.sourceFiles = sources.toArray(new String[sources.size()]);
                 args.outputFile = outputJS;
                 args.verbose = false;
+                if (ecma5) {
+                    args.target = EcmaVersion.v5.name();
+                }
                 e = KotlinCompilerJS.exec(new PrintStream(System.err) {
                     @Override
                     public void println(String x) {
@@ -663,7 +675,13 @@ public class GenModelPlugin extends AbstractMojo {
                     //create a merged file
                     File outputMerged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged.js");
                     FileOutputStream mergedStream = new FileOutputStream(outputMerged);
-                    IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
+
+                    if (ecma5) {
+                        IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
+                    } else {
+                        IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
+                    }
+
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB), mergedStream);
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
                     Files.copy(new File(outputKotlinJSDir, project.getArtifactId() + ".js"), mergedStream);
@@ -675,13 +693,35 @@ public class GenModelPlugin extends AbstractMojo {
                     mergedStream.flush();
                     mergedStream.close();
 
+
+                    //Cleanup ECMA5 strict mode
+                    File ecm5merged = null;
+                    if(ecma5){
+                        ecm5merged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged2.js");
+                        FileOutputStream mergedStream2 = new FileOutputStream(ecm5merged);
+                        //kotlin workaround
+                        BufferedReader buffered = new BufferedReader(new FileReader(outputMerged));
+                        String line;
+                        while ((line = buffered.readLine()) != null) {
+                            mergedStream2.write(line.replace("\"use strict\";","").replace("'use strict';","").getBytes());
+                            //mergedStream2.write(line.replaceFirst("get_size.*get_size","get_size").getBytes());
+                            mergedStream2.write("\n".getBytes());
+                        }
+                        buffered.close();
+                        mergedStream2.close();
+                    }
+
                     com.google.javascript.jscomp.Compiler.setLoggingLevel(Level.WARNING);
                     com.google.javascript.jscomp.Compiler compiler = new com.google.javascript.jscomp.Compiler();
                     CompilerOptions options = new CompilerOptions();
                     WarningLevel.QUIET.setOptionsForWarningLevel(options);
                     CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
                     options.setCheckUnreachableCode(CheckLevel.OFF);
-                    compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(outputMerged)), options);
+                    if(ecma5){
+                        compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(ecm5merged)), options);
+                    } else {
+                        compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(outputMerged)), options);
+                    }
 
 
                     File outputMin = new File(outputKotlinJSDir, project.getArtifactId() + ".min.js");
