@@ -20,6 +20,7 @@ package org.kevoree.modeling.kotlin.generator
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.ResourceSet
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
@@ -36,7 +37,7 @@ import java.util
 
 class ProcessorHelperClass {
 
-  def noduplicate(allAtt : Iterable[EAttribute]) : java.util.List[EAttribute] = {
+  def noduplicate(allAtt : EList[EAttribute]) : java.util.List[EAttribute] = {
     import scala.collection.JavaConversions._
     val eATTs = new util.HashMap[String,EAttribute]()
     allAtt.foreach{  at =>
