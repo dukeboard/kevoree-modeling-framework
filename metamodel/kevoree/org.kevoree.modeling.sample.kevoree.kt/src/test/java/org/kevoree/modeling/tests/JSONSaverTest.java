@@ -19,7 +19,7 @@ public class JSONSaverTest {
     @org.junit.Test
     public void test() throws FileNotFoundException {
         XMIModelLoader loader = new XMIModelLoader();
-        KMFContainer model = loader.loadModelFromStream(new FileInputStream("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/kevoree/org.kevoree.modeling.sample.kevoree.kt/src/test/resources/complexModel.kev")).get(0);
+        KMFContainer model = loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("complexModel.kev")).get(0);
 
         JSONModelSerializer saver = new JSONModelSerializer();
         saver.serialize(model, System.out);
