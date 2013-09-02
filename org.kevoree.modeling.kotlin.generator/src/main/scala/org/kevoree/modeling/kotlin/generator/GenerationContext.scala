@@ -38,11 +38,11 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 
 class GenerationContext {
 
-  var xmi : Boolean = false
+  var xmi: Boolean = false
 
   def genXMI = xmi
 
-  def setXMI(b : Boolean){
+  def setXMI(b: Boolean) {
     xmi = b
   }
 
@@ -57,7 +57,7 @@ class GenerationContext {
 
   var aspects: java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
 
-  var newMetaClasses : java.util.List[NewMetaClassCreation] = new java.util.ArrayList[NewMetaClassCreation]()
+  var newMetaClasses: java.util.List[NewMetaClassCreation] = new java.util.ArrayList[NewMetaClassCreation]()
 
   /**
    * True if selectByQuery methods have to be generated
@@ -128,17 +128,19 @@ class GenerationContext {
   }
 
 
-  def checkEID(current: EClass, resource: XMIResource) {
+  def checkEID(current: EClass) {
     import scala.collection.JavaConversions._
-    if (current.getEAllAttributes.find{att => att.isID}.isEmpty) {
+    if (current.getEAllAttributes.find {
+      att => att.isID
+    }.isEmpty) {
       val generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute()
       generatedKmfIdAttribute.setID(true)
       generatedKmfIdAttribute.setName("generated_KMF_ID")
       generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
       current.getEStructuralFeatures.add(generatedKmfIdAttribute)
-    }
-    getChildrenOf(current, resource).foreach {
-      child => checkEID(child, resource)
+
+      println("Add Generated if for "+current.getName)
+
     }
   }
 
@@ -147,7 +149,13 @@ class GenerationContext {
     these ++ these.filter(_.isDirectory).flatMap(getRecursiveListOfFiles(_, ext))
   }
 
+  var cacheEcore = new util.HashMap[File,ResourceSet]()
+
   def getEcoreModel(ecorefile: File): ResourceSet = {
+    if(cacheEcore.containsKey(ecorefile)){
+      return cacheEcore.get(ecorefile)
+    }
+
     import scala.collection.JavaConversions._
     val rs = new ResourceSetImpl()
     Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl())
@@ -156,30 +164,34 @@ class GenerationContext {
       val ecoreFiles = getRecursiveListOfFiles(ecorefile, "ecore")
       ecoreFiles.foreach {
         eFile =>
-          val resource = rs.createResource(EmfUri.createFileURI(eFile.getAbsolutePath)).asInstanceOf[XMIResource]
+
+          println("Include Ecore File : " + eFile.getCanonicalPath)
+
+          val resource = rs.createResource(EmfUri.createFileURI(eFile.getCanonicalPath)).asInstanceOf[XMIResource]
           resource.load(null)
           EcoreUtil.resolveAll(resource)
           /* select all root */
-          resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
+          resource.getAllContents.filter(cls => cls.isInstanceOf[EClass]).foreach {
             modelElm =>
-              checkEID(modelElm.asInstanceOf[EClass], resource)
+              checkEID(modelElm.asInstanceOf[EClass])
           }
           rs.getResources.add(resource)
       }
     } else {
       System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
-      val fileUri = EmfUri.createFileURI(ecorefile.getAbsolutePath)
+      val fileUri = EmfUri.createFileURI(ecorefile.getCanonicalPath)
       val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
       resource.load(null)
       EcoreUtil.resolveAll(resource)
       /* select all root */
-      resource.getAllContents.filter(cls => cls.isInstanceOf[EClass] && cls.asInstanceOf[EClass].getEAllSuperTypes.isEmpty).foreach {
+      resource.getAllContents.filter(cls => cls.isInstanceOf[EClass]).foreach {
         modelElm =>
-          checkEID(modelElm.asInstanceOf[EClass], resource)
+          checkEID(modelElm.asInstanceOf[EClass])
       }
       rs.getResources.add(resource)
       EcoreUtil.resolveAll(rs)
     }
+    cacheEcore.put(ecorefile,rs)
     rs
   }
 
@@ -248,7 +260,7 @@ class GenerationContext {
    */
   def registerFactory(pack: EPackage) {
 
-    if(pack.getName == null || pack.getName == ""){
+    if (pack.getName == null || pack.getName == "") {
       return
     }
 
