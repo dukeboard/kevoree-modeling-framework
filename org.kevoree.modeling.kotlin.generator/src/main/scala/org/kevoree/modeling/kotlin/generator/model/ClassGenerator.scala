@@ -126,7 +126,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE_ALL -> {")
           val methodNameClean4 = "removeAll" + toCamelCase(ref)
           if(ref.getEOpposite != null) {
-            pr.println("        this." + methodNameClean4 + "(!noOpposite)")
+            pr.println("        this.internal_" + methodNameClean4 + "(!noOpposite, true)")
           } else {
             pr.println("        this." + methodNameClean4 + "()")
           }
@@ -511,7 +511,7 @@ trait ClassGenerator extends ClonerGenerator {
       if (oppositRef == null) {
         res += "_" + ref.getName + ".clear()\n"
       } else {
-        res += "removeAll" + toCamelCase(ref) + "(true, false)\n"
+        res += "this.internal_removeAll" + toCamelCase(ref) + "(true, false)\n"
       }
       res += "for(el in " + ref.getName + param_suf + "){\n"
       res += "val elKey = (el as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n"
@@ -782,7 +782,7 @@ trait ClassGenerator extends ClonerGenerator {
 
 
   private def generateRemoveAllMethodWithParam(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
-    var res = "\nprivate fun removeAll" + toCamelCase(ref) + "(setOpposite : Boolean, fireEvent : Boolean = true) {\n"
+    var res = "\nprivate fun internal_removeAll" + toCamelCase(ref) + "(setOpposite : Boolean, fireEvent : Boolean) {\n"
 
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     if (ctx.generateEvents && ref.isContainment) {
@@ -885,13 +885,15 @@ trait ClassGenerator extends ClonerGenerator {
     }
     res += "\noverride fun removeAll" + toCamelCase(ref) + "() {\n"
     if (ref.getEOpposite != null) {
-      res += "removeAll" + toCamelCase(ref) + "(true)\n"
+      res += "internal_removeAll" + toCamelCase(ref) + "(true, true)\n"
     } else {
       res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
       if (ctx.generateEvents && ref.isContainment) {
         res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=true\n"
       }
-      res += "val temp_els = " + ProcessorHelper.protectReservedWords(ref.getName) + "!!\n"
+      if (ctx.generateEvents || ref.isContainment) {
+        res += "val temp_els = " + ProcessorHelper.protectReservedWords(ref.getName) + "!!\n"
+      }
       if (ref.isContainment) {
         res += "for(el in temp_els!!){\n"
         res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
