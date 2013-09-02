@@ -105,7 +105,7 @@ class ModelSerializationVisitor(val ostream : java.io.PrintStream, val addressTa
 }
 
 
-class ModelAddressVisitor(val addressTable : java.util.HashMap<KMFContainer, String>, val elementsCount : java.util.HashMap<String, Int>) : ModelVisitor() {
+class ModelAddressVisitor(val addressTable : java.util.HashMap<KMFContainer, String>, val elementsCount : java.util.HashMap<String, Int>, val packageList : java.util.ArrayList<String>) : ModelVisitor() {
 
 
     override public fun beginVisitElem(elem: KMFContainer){}
@@ -118,8 +118,11 @@ class ModelAddressVisitor(val addressTable : java.util.HashMap<KMFContainer, Str
         val i = elementsCount.get(parentXmiAddress + "/@" + refNameInParent) ?: 0
         addressTable.put(elem, parentXmiAddress + "/@" + refNameInParent +"." + i)
         elementsCount.put(parentXmiAddress + "/@" + refNameInParent,i+1)
+        val pack = elem.metaClassName().substring(0, elem.metaClassName().lastIndexOf('.'))
+        if(!packageList.contains(pack))
+            packageList.add(pack)
+        }
     }
-}
 
 
 
@@ -138,27 +141,32 @@ public open class XMIModelSerializer : org.kevoree.modeling.api.ModelSerializer 
 
         //First Pass for building address table
         val addressTable : java.util.HashMap<org.kevoree.modeling.api.KMFContainer, String> = java.util.HashMap<org.kevoree.modeling.api.KMFContainer, String>()
+        val packageList : java.util.ArrayList<String> =  java.util.ArrayList<String>()
         addressTable.put(oMS, "/")
         val elementsCount : java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()
-        var addressBuilderVisitor = ModelAddressVisitor(addressTable, elementsCount)
+        var addressBuilderVisitor = ModelAddressVisitor(addressTable, elementsCount, packageList)
         oMS.visit(addressBuilderVisitor, true, true, false)
 
         var masterVisitor = ModelSerializationVisitor(wt, addressTable, elementsCount)
 
         wt.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
 
-        wt.print("<" + formatMetaClassName(oMS.metaClassName()))
-        wt.print(" xmlns:org.kevoree=\"http://kevoree/1.0\"")
+        wt.print("<" + formatMetaClassName(oMS.metaClassName()).replace(".","_"))
         wt.print(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"")
         wt.print(" xmi:version=\"2.0\"")
         wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"")
+
+        for(i in 0..packageList.size-1) {
+            wt.print(" xmlns:"+packageList.get(i).replace(".","_")+"=\"http://"+packageList.get(i)+"\"")
+        }
+
         oMS.visitAttributes(AttributesVisitor(wt))
         oMS.visit(ReferencesVisitor(wt,addressTable, elementsCount), false, false, true)
         wt.println(">")
 
         oMS.visit(masterVisitor, false, true, false)
 
-        wt.println("</"+formatMetaClassName(oMS.metaClassName())+">")
+        wt.println("</"+formatMetaClassName(oMS.metaClassName()).replace(".","_")+">")
 
         wt.flush()
     }
