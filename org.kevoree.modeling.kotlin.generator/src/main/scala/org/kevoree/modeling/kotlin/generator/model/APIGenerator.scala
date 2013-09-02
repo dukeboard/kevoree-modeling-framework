@@ -82,7 +82,7 @@ trait APIGenerator extends ClassGenerator {
     cls.getEAttributes.foreach {
       att =>
         if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls)) {} else {
-          if(att.isMany){
+          if (att.isMany) {
             pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?")
           } else {
             pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?")
@@ -91,25 +91,39 @@ trait APIGenerator extends ClassGenerator {
     }
 
     //Kotlin workaround // Why prop are not generated properly ?
-    if(ctx.getJS()){
-      ProcessorHelper.noduplicate(cls.getEAttributes).foreach { att =>
-        if(att.isMany){
-          pr.println("public fun get"+toCamelCase(att)+"()"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
-          pr.println("public fun set"+toCamelCase(att)+"(p"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)")
-        } else {
-          pr.println("public fun get"+toCamelCase(att)+"() : "+ProcessorHelper.convertType(att.getEAttributeType, ctx)+"?")
-          pr.println("public fun set"+toCamelCase(att)+"(p : "+ProcessorHelper.convertType(att.getEAttributeType, ctx)+"?)")
-        }
+    if (ctx.getJS()) {
+      ProcessorHelper.noduplicate(cls.getEAttributes).foreach {
+        att =>
+
+          if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls)) {
+
+          } else {
+            if (att.isMany) {
+              pr.println("public fun get" + toCamelCase(att) + "()" + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
+              pr.println("public fun set" + toCamelCase(att) + "(p" + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)")
+            } else {
+              pr.println("public fun get" + toCamelCase(att) + "() : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?")
+              pr.println("public fun set" + toCamelCase(att) + "(p : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?)")
+            }
+          }
+
+
       }
-      cls.getEReferences.foreach { ref =>
-        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if(ref.isMany){
-          pr.println("public fun get"+toCamelCase(ref)+"()"+" : List<" + typeRefName + ">")
-          pr.println("public fun set"+toCamelCase(ref)+"(p"+" : List<" + typeRefName + ">)")
-        } else {
-          pr.println("public fun get"+toCamelCase(ref)+"() : "+typeRefName+"?")
-          pr.println("public fun set"+toCamelCase(ref)+"(p : "+typeRefName+"?)")
-        }
+      cls.getEReferences.foreach {
+        ref =>
+
+          if (cls.getEAllReferences.exists(ref2 => ref2.getName.equals(ref.getName) && ref2.getEContainingClass != cls)) {
+
+          } else {
+            val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+            if (ref.isMany) {
+              pr.println("public fun get" + toCamelCase(ref) + "()" + " : List<" + typeRefName + ">")
+              pr.println("public fun set" + toCamelCase(ref) + "(p" + " : List<" + typeRefName + ">)")
+            } else {
+              pr.println("public fun get" + toCamelCase(ref) + "() : " + typeRefName + "?")
+              pr.println("public fun set" + toCamelCase(ref) + "(p : " + typeRefName + "?)")
+            }
+          }
       }
     }
     //end kotlin workaround
@@ -133,7 +147,7 @@ trait APIGenerator extends ClassGenerator {
     cls.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
       op =>
 
-        if(op.getEContainingClass != cls){
+        if (op.getEContainingClass != cls) {
           pr.print("override ")
         }
         pr.print("fun " + op.getName + "(")
@@ -192,8 +206,6 @@ trait APIGenerator extends ClassGenerator {
   private def toCamelCase(att: EAttribute): String = {
     return att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
   }
-
-
 
 
 }

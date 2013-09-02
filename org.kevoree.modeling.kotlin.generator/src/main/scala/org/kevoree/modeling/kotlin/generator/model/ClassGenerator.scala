@@ -259,7 +259,8 @@ trait ClassGenerator extends ClonerGenerator {
 
     //Kotlin workaround // Why prop are not generated properly ?
     if(ctx.getJS()){
-      ProcessorHelper.noduplicate(cls.getEAttributes).foreach { att =>
+
+      ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach { att =>
         if(att.isMany){
           pr.println("override public fun get"+toCamelCase(att)+"()"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">"+"{ return "+ProcessorHelper.protectReservedWords(att.getName)+"}")
           pr.println("override public fun set"+toCamelCase(att)+"(internal_p"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)"+"{ "+ProcessorHelper.protectReservedWords(att.getName)+" = internal_p }")
