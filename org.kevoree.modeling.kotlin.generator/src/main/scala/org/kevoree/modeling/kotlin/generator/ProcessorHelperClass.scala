@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import scala.collection.JavaConversions._
 import collection.mutable.Buffer
 import org.eclipse.emf.ecore._
+import java.util
 
 
 /**
@@ -34,6 +35,15 @@ import org.eclipse.emf.ecore._
  */
 
 class ProcessorHelperClass {
+
+  def noduplicate(allAtt : Iterable[EAttribute]) : java.util.List[EAttribute] = {
+    import scala.collection.JavaConversions._
+    val eATTs = new util.HashMap[String,EAttribute]()
+    allAtt.foreach{  at =>
+      eATTs.put(at.getName,at)
+    }
+    eATTs.values().toList
+  }
 
   def getLastName(name: String): String = {
     return name.substring(name.lastIndexOf(".") + 1)
