@@ -64,9 +64,32 @@ public class KMFLoadTest {
 
 
     @Test
+    public void testSaveXmi() {
+        try {
+            ModelLoader loader = new XMIModelLoader();
+            ContainerRoot localModel = (ContainerRoot)loader.loadModelFromStream(new FileInputStream(new File(getClass().getResource("/bootstrapModel0.kev").toURI()))).get(0);
+            assert(localModel != null);
+
+            File tempFile = File.createTempFile("kmfTest_" + System.currentTimeMillis(), "kev");
+            System.out.println(tempFile.getAbsolutePath());
+            FileOutputStream pr = new FileOutputStream(tempFile);
+            ModelSerializer ms = new XMIModelSerializer();
+
+            ms.serialize(localModel,pr);
+            pr.close();
+            System.out.println("Model Saved to: " + tempFile.getAbsolutePath());
+            tempFile.deleteOnExit();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (URISyntaxException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
+
+    @Test
     public void testSaveAndLoad() {
         //System.out.print("Saving model from memory to tempFile =>")
-         try {
+        try {
 
             ModelLoader loader = new XMIModelLoader();
             ContainerRoot localModel = (ContainerRoot)loader.loadModelFromStream(new FileInputStream(new File(getClass().getResource("/bootstrapModel0.kev").toURI()))).get(0);
@@ -74,23 +97,23 @@ public class KMFLoadTest {
 
             File tempFile = File.createTempFile("kmfTest_" + System.currentTimeMillis(), "kev");
             System.out.println(tempFile.getAbsolutePath());
-             FileOutputStream pr = new FileOutputStream(tempFile);
-             ModelSerializer ms = new XMIModelSerializer();
+            FileOutputStream pr = new FileOutputStream(tempFile);
+            ModelSerializer ms = new XMIModelSerializer();
 
 
             ms.serialize(localModel,pr);
             pr.close();
-            System.out.println("Loading saved model");
+            System.out.println("Loading saved model " + tempFile.getAbsolutePath());
             ModelLoader loader2 = new XMIModelLoader();
             KMFContainer localModel2 = (KMFContainer)loader2.loadModelFromStream(new FileInputStream(tempFile)).get(0);
-             assert(localModel2 != null);
-            System.out.println("Loding OK.");
-
+            assert(localModel2 != null);
+            System.out.println("Loading OK.");
+            tempFile.deleteOnExit();
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (URISyntaxException e) {
-             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-         }
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
     }
 
