@@ -92,7 +92,7 @@ trait APIGenerator extends ClassGenerator {
 
     //Kotlin workaround // Why prop are not generated properly ?
     if(ctx.getJS()){
-      cls.getEAttributes.foreach { att =>
+      ProcessorHelper.noduplicate(cls.getEAttributes).foreach { att =>
         if(att.isMany){
           pr.println("public fun get"+toCamelCase(att)+"()"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
           pr.println("public fun set"+toCamelCase(att)+"(p"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)")
