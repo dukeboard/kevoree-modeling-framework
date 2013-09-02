@@ -112,14 +112,12 @@ with ConstantsGenerator {
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
-    if (ctx.genTrace) {
-      generateModelTraceAPI(ctx, loaderGenBaseDir)
-      if (ctx.generateEvents) {
-        generateModelEvent2Trace(ctx, loaderGenBaseDir)
-      }
-      generateModelTraceCompare(ctx, loaderGenBaseDir)
-      generateModelTraceApply(ctx, loaderGenBaseDir)
+    generateModelTraceAPI(ctx, loaderGenBaseDir)
+    if (ctx.generateEvents) {
+      generateModelEvent2Trace(ctx, loaderGenBaseDir)
     }
+    generateModelTraceCompare(ctx, loaderGenBaseDir)
+    generateModelTraceApply(ctx, loaderGenBaseDir)
 
 
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {

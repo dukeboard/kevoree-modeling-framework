@@ -38,22 +38,10 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 
 class GenerationContext {
 
-  var xmi: Boolean = false
-
-  def genXMI = xmi
-
-  def setXMI(b: Boolean) {
-    xmi = b
-  }
-
 
   var microframework: Boolean = false
 
   def usemicrofwk(): Boolean = microframework
-
-  var genTrace: Boolean = false
-
-  def isGenTrace(): Boolean = genTrace
 
   var aspects: java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
 
@@ -65,16 +53,6 @@ class GenerationContext {
   var genSelector: Boolean = false
 
   def getGenSelector = genSelector
-
-
-  var noAPI: Boolean = true
-
-  def getNoAPI = noAPI
-
-  def setNoAPI(n: Boolean) {
-    this.noAPI = n
-  }
-
 
   /**
    * Package to be added before the RootPackage of the model

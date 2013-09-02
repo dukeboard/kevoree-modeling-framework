@@ -118,14 +118,6 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean clearOutput = true;
 
     /**
-     * Generate XMI format loader and saver
-     *
-     * @parameter
-     */
-    private Boolean xmi = true;
-
-
-    /**
      * Generate also selector
      *
      * @parameter
@@ -156,26 +148,11 @@ public class GenModelPlugin extends AbstractMojo {
 
 
     /**
-     * Generate JSON
-     *
-     * @parameter
-     */
-    private Boolean json = false;
-
-
-    /**
      * Generate Events
      *
      * @parameter
      */
     private Boolean events = false;
-
-    /**
-     * Generate Events
-     *
-     * @parameter
-     */
-    private Boolean trace = false;
 
 
     /**
@@ -266,15 +243,6 @@ public class GenModelPlugin extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         if (clearOutput) {
             deleteDirectory(output);
-        }
-        if (trace && !json) {
-            json = true; // trace need JSON
-        }
-        if (js && !json) {
-            json = true; // JS need JSON by default for Java extension
-        }
-        if (js) {
-            xmi = false;
         }
 
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
@@ -431,24 +399,22 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.genSelector_$eq(selector);
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
-        ctx.genTrace_$eq(trace);
         ctx.flyweightFactory_$eq(flyweightFactory);
-        ctx.setXMI(xmi);
 
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
 
         gen.generateModel(project.getVersion());
 
-        if (xmi) {
+//        if (xmi) {
             gen.generateLoader();
             gen.generateSerializer();
-        }
+//        }
 
-        if (json) {
+ //       if (json) {
             gen.generateJSONSerializer();
             gen.generateJsonLoader();
-        }
+  //      }
 
 
         //call Java compiler

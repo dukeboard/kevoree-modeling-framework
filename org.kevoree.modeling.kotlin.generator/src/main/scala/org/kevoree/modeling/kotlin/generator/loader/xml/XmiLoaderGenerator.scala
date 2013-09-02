@@ -43,6 +43,11 @@ import java.io.{PrintWriter, File}
 class XmiLoaderGenerator(ctx: GenerationContext) {
 
   def generateLoader(model: ResourceSet) {
+
+    if(ctx.getJS()){    //return
+      return
+    }
+
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
     val localFile = new File(loaderGenBaseDir + "/XmiModelLoader.kt")
