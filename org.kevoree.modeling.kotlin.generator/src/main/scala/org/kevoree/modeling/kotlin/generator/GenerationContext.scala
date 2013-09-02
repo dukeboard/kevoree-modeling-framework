@@ -116,9 +116,6 @@ class GenerationContext {
       generatedKmfIdAttribute.setName("generated_KMF_ID")
       generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString)
       current.getEStructuralFeatures.add(generatedKmfIdAttribute)
-
-      println("Add Generated if for "+current.getName)
-
     }
   }
 
