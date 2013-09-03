@@ -26,6 +26,31 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
     protected open var factory : KMFFactory? = null
 
+    private val attributesHashmap = java.util.HashMap<String, java.util.HashMap<String, Boolean>>()
+    private val referencesHashmap = java.util.HashMap<String, java.util.HashMap<String, String>>()
+
+    private val attributeVisitor = object : ModelAttributeVisitor {
+        public override fun visit(value: Any?, name: String, parent: KMFContainer) {
+            attributesHashmap.getOrPut(parent.metaClassName()){java.util.HashMap<String, Boolean>()}.put(name, true)
+        }
+    }
+
+    private val referencesVisitor = object : ModelVisitor() {
+
+        var refMap : java.util.HashMap<String, String>? = null
+
+        override fun beginVisitElem(elem: KMFContainer) {
+            refMap = referencesHashmap.getOrPut(elem.metaClassName()){java.util.HashMap<String, String>()}
+        }
+        override fun endVisitElem(elem: KMFContainer) {
+            refMap = null
+        }
+        override fun beginVisitRef(refName: String, refType : String) {
+            refMap!!.put(refName, refType)
+        }
+        public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {}
+    }
+
     private fun unescapeXml(src : String) : String {
         var builder : StringBuilder? = null
         var i : Int = 0
@@ -101,11 +126,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
     private fun loadObject(ctx : LoadingContext, xmiAddress : String, objectType : String? = null) : KMFContainer {
 
-        val attributesHashmap = java.util.HashMap<String, Boolean>()
-        val referencesHashmap = java.util.HashMap<String, String>()
-
         val elementTagName = ctx.xmiReader!!.getLocalName()
-
         var modelElem : KMFContainer?
         if(objectType != null) {
             modelElem = factory?.create(objectType)
@@ -134,20 +155,16 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         ctx.map.put(xmiAddress.replace(".0",""), modelElem!!)
         //println("Registering " + xmiAddress)
 
-        val attributeVisitor = object : ModelAttributeVisitor {
-            public override fun visit(value: Any?, name: String, parent: KMFContainer) {
-                attributesHashmap.put(name, true)
-            }
+        if(!attributesHashmap.containsKey(modelElem!!.metaClassName())) {
+            modelElem?.visitAttributes(attributeVisitor)
         }
-        modelElem?.visitAttributes(attributeVisitor)
+        val elemAttributesMap = attributesHashmap.get(modelElem!!.metaClassName())!!
 
-        var referencesVisitor = object : ModelVisitor() {
-            override fun beginVisitRef(refName: String, refType : String) {
-                referencesHashmap.put(refName, refType)
-            }
-            public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {}
+
+        if(!referencesHashmap.containsKey(modelElem!!.metaClassName())) {
+            modelElem?.visit(referencesVisitor, false, true, false)
         }
-        modelElem?.visit(referencesVisitor, false, true, false)
+        val elemReferencesMap = referencesHashmap.get(modelElem!!.metaClassName())!!
 
         for(i in 0.rangeTo(ctx.xmiReader!!.getAttributeCount()-1)) {
             val prefix = ctx.xmiReader!!.getAttributePrefix(i)
@@ -155,7 +172,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                 val attrName = ctx.xmiReader!!.getAttributeLocalName(i)
                 val valueAtt = ctx.xmiReader!!.getAttributeValue(i)
                 if( valueAtt != null) {
-                    if(attributesHashmap.containsKey(attrName)) {
+                    if(elemAttributesMap.containsKey(attrName)) {
                         modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, (unescapeXml(valueAtt)))
                     } else {
                         for(xmiRef in valueAtt.split(" ")) {
@@ -181,7 +198,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                     val subElemName = ctx.xmiReader!!.getLocalName()
                     val i = ctx.elementsCount.get(xmiAddress + "/@" + subElemName) ?: 0
                     val subElementId = xmiAddress + "/@"+subElemName+"." + i
-                    val containedElement = loadObject(ctx, subElementId, referencesHashmap.get(subElemName))
+                    val containedElement = loadObject(ctx, subElementId, elemReferencesMap.get(subElemName))
                     modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, subElemName!!, containedElement)
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName,i+1)
                 }
@@ -191,7 +208,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                 else -> {}
             }
         }
-       // println("Loading " + modelElem)
+        // println("Loading " + modelElem)
         return modelElem!!
     }
 
