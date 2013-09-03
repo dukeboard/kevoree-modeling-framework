@@ -30,7 +30,7 @@ trait ModelCloner {
         val attributesCloner = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer) {
                 if(value != null){
-                    clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, value, true)
+                    clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, value, false, false)
                 }
             }
         }
@@ -41,11 +41,11 @@ trait ModelCloner {
     private fun resolveModelElem(src: org.kevoree.modeling.api.KMFContainer, target: org.kevoree.modeling.api.KMFContainer, context: Map<KMFContainer, KMFContainer>, mutableOnly: Boolean) {
         val refResolver = object : org.kevoree.modeling.api.util.ModelVisitor() {
             public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
-                if(mutableOnly && elem.isRecursiveReadOnly()){
-                    target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem,true)
-                } else {
-                    target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, context.get(elem),true)
-                }
+                 if(mutableOnly && elem.isRecursiveReadOnly()){
+                     target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem, false, false)
+                 } else {
+                     target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, context.get(elem), false, false)
+                 }
             }
         }
         src.visit(refResolver, false, true, true);
