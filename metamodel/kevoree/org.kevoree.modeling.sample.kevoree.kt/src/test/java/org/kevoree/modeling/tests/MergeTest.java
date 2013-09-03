@@ -99,8 +99,6 @@ public class MergeTest {
 
                         ContainerRoot model = (ContainerRoot) loader.loadModelFromStream(jar.getInputStream(jarEntry)).get(0);
                         TraceSequence mergeSeq = compare.merge(fullModel, model);
-                        // THIS IS GOING TO FAIL AT SOME POINT
-                        // THROWING: java.lang.Exception: Unknown mutation type: 5
 
                         try {
                             mergeSeq.applyOn(fullModel);
