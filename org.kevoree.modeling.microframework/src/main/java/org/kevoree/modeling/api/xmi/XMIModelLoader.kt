@@ -152,7 +152,8 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         if(modelElem == null) {
             println("Could not create an object for local name " + elementTagName)
         }
-        ctx.map.put(xmiAddress.replace(".0",""), modelElem!!)
+        ctx.map.put(xmiAddress, modelElem!!)
+        //ctx.map.put(xmiAddress.replace(".0",""), modelElem!!)
         //println("Registering " + xmiAddress)
 
         if(!attributesHashmap.containsKey(modelElem!!.metaClassName())) {
@@ -197,7 +198,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                 XMLStreamConstants.START_ELEMENT -> {
                     val subElemName = ctx.xmiReader!!.getLocalName()
                     val i = ctx.elementsCount.get(xmiAddress + "/@" + subElemName) ?: 0
-                    val subElementId = xmiAddress + "/@"+subElemName+"." + i
+                    val subElementId = xmiAddress + "/@"+subElemName + (if(i != 0){"." + i} else {""})
                     val containedElement = loadObject(ctx, subElementId, elemReferencesMap.get(subElemName))
                     modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, subElemName!!, containedElement)
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName,i+1)
