@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api
 
-import java.util.HashMap
-
 /**
  * Created with IntelliJ IDEA.
  * User: duke
@@ -32,7 +30,7 @@ trait ModelCloner {
         val attributesCloner = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer) {
                 if(value != null){
-                    clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, value)
+                    clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, value, true)
                 }
             }
         }
@@ -40,17 +38,17 @@ trait ModelCloner {
         return clonedSrc;
     }
 
-    private fun resolveModelElem(src: org.kevoree.modeling.api.KMFContainer,target: org.kevoree.modeling.api.KMFContainer, context : Map<KMFContainer,KMFContainer>, mutableOnly: Boolean) {
+    private fun resolveModelElem(src: org.kevoree.modeling.api.KMFContainer, target: org.kevoree.modeling.api.KMFContainer, context: Map<KMFContainer, KMFContainer>, mutableOnly: Boolean) {
         val refResolver = object : org.kevoree.modeling.api.util.ModelVisitor() {
             public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
-                 if(mutableOnly && elem.isRecursiveReadOnly()){
-                     target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem)
-                 } else {
-                     target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, context.get(elem))
-                 }
+                if(mutableOnly && elem.isRecursiveReadOnly()){
+                    target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem,true)
+                } else {
+                    target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, context.get(elem),true)
+                }
             }
         }
-        src.visit(refResolver,false,true,true);
+        src.visit(refResolver, false, true, true);
     }
 
     private fun clone<A : org.kevoree.modeling.api.KMFContainer>(o: A, readOnly: Boolean, mutableOnly: Boolean): A? {
@@ -73,14 +71,18 @@ trait ModelCloner {
 
                 } else {
                     val clonedObj = context.get(elem)!!
-                    resolveModelElem(elem,clonedObj,context,mutableOnly)
-                    if(readOnly){clonedObj.setInternalReadOnly()}
+                    resolveModelElem(elem, clonedObj, context, mutableOnly)
+                    if(readOnly){
+                        clonedObj.setInternalReadOnly()
+                    }
                 }
             }
         }
         o.visit(resolveGraphVisitor, true, true, false)
-        resolveModelElem(o,clonedObject,context,mutableOnly)
-        if(readOnly){clonedObject.setInternalReadOnly()}
+        resolveModelElem(o, clonedObject, context, mutableOnly)
+        if(readOnly){
+            clonedObject.setInternalReadOnly()
+        }
         return clonedObject as A
     }
 
