@@ -25,7 +25,7 @@ class Event2Trace(val compare: ModelCompare) {
                 val casted = event.getValue() as KMFContainer
                 val traces = compare.inter(casted, casted)
                 result.add(ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName()!!, casted.path(), casted.metaClassName()));
-                result.addAll(traces.getTraces())
+                result.addAll(traces.traces)
             }
             ActionType.ADD_ALL -> {
                 val casted = event.getValue() as KMFContainer
@@ -33,7 +33,7 @@ class Event2Trace(val compare: ModelCompare) {
                     val elemCasted = elem as KMFContainer
                     val traces = compare.inter(elemCasted, elemCasted)
                     result.add(ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName()!!, elemCasted.path(), elemCasted.metaClassName()));
-                    result.addAll(traces.getTraces())
+                    result.addAll(traces.traces)
                 }
             }
             ActionType.SET -> {

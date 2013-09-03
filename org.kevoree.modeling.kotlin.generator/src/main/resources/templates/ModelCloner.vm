@@ -8,54 +8,14 @@ package ${packageName}.cloner
 
 class DefaultModelCloner() : org.kevoree.modeling.api.ModelCloner {
 
-override fun clone<A : org.kevoree.modeling.api.KMFContainer>(o : A) : A? {
-        return clone(o,false)
-    }
-
-override fun clone<A : org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean) : A? {
-        return clone(o,readOnly,false)
-    }
-
-override fun cloneMutableOnly<A : org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean) : A? {
-        return clone(o,readOnly,true)
-    }
-
-    private fun clone<A : org.kevoree.modeling.api.KMFContainer>(o : A,readOnly : Boolean,mutableOnly : Boolean) : A? {
-
+override fun createContext(): MutableMap<org.kevoree.modeling.api.KMFContainer, org.kevoree.modeling.api.KMFContainer> {
         #if($ctx.getJS())
-            val context = java.util.HashMap<Any,Any>()
+        return java.util.HashMap<org.kevoree.modeling.api.KMFContainer,org.kevoree.modeling.api.KMFContainer>()
         #else
-            val context = java.util.IdentityHashMap<Any,Any>()
+        return java.util.IdentityHashMap<org.kevoree.modeling.api.KMFContainer,org.kevoree.modeling.api.KMFContainer>()
         #end
-        val clonedObject = (o as ${ctx.getKevoreeContainerImplFQN()}).createClone(mainFactory)
-        context.put(o,clonedObject)
-        val cloneGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
-            override public fun visit(elem : org.kevoree.modeling.api.KMFContainer, refNameInParent : String, parent : org.kevoree.modeling.api.KMFContainer){
-                if(mutableOnly && elem.isRecursiveReadOnly()){
-                    noChildrenVisit();
-                } else {
-                    context.put(elem,(elem as ${ctx.getKevoreeContainerImplFQN()}).createClone(mainFactory))
-                }
-            }
-        }
-        o.visit(cloneGraphVisitor,true,true,false)
-
-        val resolveGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
-            override public fun visit(elem : org.kevoree.modeling.api.KMFContainer, refNameInParent : String, parent : org.kevoree.modeling.api.KMFContainer){
-                (elem as ${ctx.getKevoreeContainerImplFQN()}).resolve(context,readOnly,mutableOnly)
-                if(readOnly){(elem as ${ctx.getKevoreeContainerImplFQN()}).setInternalReadOnly()}
-            }
-        }
-        o.visit(resolveGraphVisitor,true,true,false)
-        (o as ${ctx.getKevoreeContainerImplFQN()}).resolve(context,readOnly,mutableOnly)
-        if(readOnly){(clonedObject as ${ctx.getKevoreeContainerImplFQN()}).setInternalReadOnly()}
-        return clonedObject as A
     }
-     var mainFactory : ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
-     #foreach($factoryFqn in $packages)
-         #set($lastIndexOfPoint = $factoryFqn.lastIndexOf(".") + 1)
-         #set($factoryName = $factoryFqn.substring($lastIndexOfPoint))
-         fun set$factoryName(fct : $factoryFqn) { mainFactory.set$factoryName(fct)}
-     #end
+
+    override var mainFactory : org.kevoree.modeling.api.KMFFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
 
 }

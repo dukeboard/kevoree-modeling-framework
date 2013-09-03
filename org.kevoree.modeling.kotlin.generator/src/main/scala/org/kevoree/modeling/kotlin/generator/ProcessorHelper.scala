@@ -54,6 +54,7 @@
 package org.kevoree.modeling.kotlin.generator
 
 import java.io._
+import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.xmi.XMIResource
 import org.eclipse.emf.ecore._
@@ -67,6 +68,10 @@ import org.eclipse.emf.ecore._
  */
 
 object ProcessorHelper {
+
+  def noduplicate(allAtt : EList[EAttribute]) : java.util.List[EAttribute] = {
+    helper.noduplicate(allAtt)
+  }
 
 
   def copyFromStream(intputStream: InputStream,name: String, target: String) {

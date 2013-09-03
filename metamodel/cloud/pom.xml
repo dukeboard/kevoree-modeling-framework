@@ -52,19 +52,10 @@
                             <packagePrefix>org</packagePrefix>
                             <clearOutput>false</clearOutput>
                             <js>true</js>
-                            <json>true</json>
-                            <events>true</events>
-                            <trace>true</trace>
+                            <ecma5>true</ecma5>
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jetbrains.kotlin</groupId>
-                        <artifactId>kotlin-js-library</artifactId>
-                        <version>${kotlin.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>

@@ -17,7 +17,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
     var pendingParentRefName: String? = null
     var pendingObjPath: String? = null
 
-    private fun tryClosePending(srcPath: String) {
+    private fun tryClosePending(srcPath: String?) {
         if(pendingObj != null && pendingObjPath != srcPath){
             pendingParent!!.reflexiveMutator(ActionType.ADD, pendingParentRefName!!, pendingObj)
             pendingObj = null
@@ -46,11 +46,11 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
 
     public fun applyTraceOnModel(traceSeq: TraceSequence) {
 
-        for(trace in traceSeq.getTraces()){
+        for(trace in traceSeq.traces){
             var target: KMFContainer = targetModel;
             if(trace is ModelAddTrace){
                 val castedTrace = trace as ModelAddTrace
-                tryClosePending("#Fake#Path");
+                tryClosePending(null);
                 if(trace.srcPath != ""){
                     target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
                 }
@@ -58,7 +58,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             }
             if(trace is ModelAddAllTrace){
                 val castedTrace = trace as ModelAddAllTrace
-                tryClosePending("#Fake#Path");
+                tryClosePending(null);
                 var i = 0
                 for(path in castedTrace.previousPath!!){
                     createOrAdd(path, target, castedTrace.refName, castedTrace.typeName!!.get(i))
@@ -95,7 +95,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                     var tempObject = targetModel.findByPath(castedTrace.srcPath)
                     if(tempObject == null){
 
-                        throw Exception("Set Trace source not found for path : "+castedTrace.srcPath+"/ pending "+pendingObjPath+"\n"+trace.toString())
+                        throw Exception("Set Trace source not found for path : " + castedTrace.srcPath + "/ pending " + pendingObjPath + "\n" + trace.toString())
                     }
                     target = tempObject as KMFContainer;
                 } else {
@@ -123,7 +123,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                 }
             }
         }
-        tryClosePending("#Fake#Path");
+        tryClosePending(null);
     }
 
 }

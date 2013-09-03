@@ -13,7 +13,7 @@ trait ModelTrace {
 
 class ModelAddTrace(val srcPath: String, val refName: String, val previousPath: String?, val typeName: String?): ModelTrace {
     override fun toString(): String {
-        val buffer = java.lang.StringBuilder()
+        val buffer = StringBuilder()
         buffer.append("{ \"traceType\" : " + ActionType.ADD + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\"")
         if(previousPath != null){
             buffer.append(", \"previouspath\" : \"" + previousPath + "\"")
@@ -32,7 +32,7 @@ class ModelAddAllTrace(val srcPath: String, val refName: String, val previousPat
         if(ss == null){
             return null
         }
-        val buffer = java.lang.StringBuilder()
+        val buffer = StringBuilder()
         var isFirst = true
         for(s in ss){
             if(!isFirst){
@@ -45,7 +45,7 @@ class ModelAddAllTrace(val srcPath: String, val refName: String, val previousPat
     }
 
     override fun toString(): String {
-        val buffer = java.lang.StringBuilder()
+        val buffer = StringBuilder()
         buffer.append("{ \"traceType\" : " + ActionType.ADD_ALL + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\"")
         if(previousPath != null){
             buffer.append(", \"previouspath\" : \"" + mkString(previousPath) + "\"")
@@ -72,7 +72,7 @@ class ModelRemoveAllTrace(val srcPath: String, val refName: String): ModelTrace 
 
 class ModelSetTrace(val srcPath: String, val refName: String, val objPath: String?, val content: String?, val typeName: String?): ModelTrace {
     override fun toString(): String {
-        val buffer = java.lang.StringBuilder()
+        val buffer = StringBuilder()
         buffer.append("{ \"traceType\" : " + ActionType.SET + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\"")
         if(objPath != null){
             buffer.append(", \"objpath\" : \"" + objPath + "\"")

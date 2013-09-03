@@ -89,9 +89,7 @@ with EnumGenerator
 with KMFQLFinder
 with KMFQLSelectorGenerator
 with APIGenerator
-with EqualsGenerator
 with ContainedElementsGenerator
-with KMFIteratorGenerator
 with JavaAPIGenerator
 with DiffGenerator
 with ConstantsGenerator {
@@ -106,13 +104,6 @@ with ConstantsGenerator {
     if (ctx.genSelector) {
       generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
     }
-    /*
-    if (!ctx.getJS()) {
-      generateIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-      generateIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-      generateDeepIteratorFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-      generateDeepIterableFile(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
-    } */
     generateActionTypeClass(ctx)
     generateElementAttributeTypeClass(ctx)
     generateConstants(ctx, model)
@@ -121,14 +112,12 @@ with ConstantsGenerator {
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
-    if (ctx.genTrace) {
-      generateModelTraceAPI(ctx, loaderGenBaseDir)
-      if (ctx.generateEvents) {
-        generateModelEvent2Trace(ctx, loaderGenBaseDir)
-      }
-      generateModelTraceCompare(ctx, loaderGenBaseDir)
-      generateModelTraceApply(ctx, loaderGenBaseDir)
+    generateModelTraceAPI(ctx, loaderGenBaseDir)
+    if (ctx.generateEvents) {
+      generateModelEvent2Trace(ctx, loaderGenBaseDir)
     }
+    generateModelTraceCompare(ctx, loaderGenBaseDir)
+    generateModelTraceApply(ctx, loaderGenBaseDir)
 
 
     ProcessorHelper.collectAllClassifiersInModel(model).foreach {
@@ -152,17 +141,12 @@ with ConstantsGenerator {
 
 
   private def process(currentPackageDir: String, packElement: EPackage, cls: EClassifier, userPackageDir: String) {
-    //log.debug("Processing classifier:" + cls.getName)
     cls match {
       case cl: EClass => {
-        if( !cl.isAbstract && !cl.isInterface) {
+        if (!cl.isAbstract && !cl.isInterface) {
           generateFlatClass(ctx, currentPackageDir, packElement, cl)
         }
-        //if (!ctx.getJS()) {
-        //  generateJAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
-        //} else {
         generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
-        //}
       }
       case dt: EDataType => {
         dt match {

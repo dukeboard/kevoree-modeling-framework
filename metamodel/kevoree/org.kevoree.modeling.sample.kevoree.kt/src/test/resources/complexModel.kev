@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<org.kevoree:ContainerRoot xmlns:org.kevoree="http://kevoree/1.0" xmlns:xsi="http://wwww.w3.org/2001/XMLSchema-instance" xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" generated_KMF_ID="6260114401376380000483">
+<typeDefinitions xsi:type="org.kevoree:ServicePortType" name="org.kevoree.library.javase.fileSystem.api.FileService" abstract="false" synchrone="false">
+<operations xsi:type="org.kevoree:Operation" name="saveFile" returnType="//@dataTypes.4">
+<parameters xsi:type="org.kevoree:Parameter" name="relativePath" order="0" type="//@dataTypes.1">
+</parameters>
+<parameters xsi:type="org.kevoree:Parameter" name="data" order="1" type="//@dataTypes.5">
+</parameters>
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="getFileContent" returnType="//@dataTypes.5">
+<parameters xsi:type="org.kevoree:Parameter" name="relativePath" order="0" type="//@dataTypes.1">
+</parameters>
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="mkdirs" returnType="//@dataTypes.4">
+<parameters xsi:type="org.kevoree:Parameter" name="relativePath" order="0" type="//@dataTypes.1">
+</parameters>
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="getAbsolutePath" returnType="//@dataTypes.1">
+<parameters xsi:type="org.kevoree:Parameter" name="relativePath" order="0" type="//@dataTypes.1">
+</parameters>
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="delete" returnType="//@dataTypes.4">
+<parameters xsi:type="org.kevoree:Parameter" name="relativePath" order="0" type="//@dataTypes.1">
+</parameters>
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="getTree" returnType="//@dataTypes.3">
+<parameters xsi:type="org.kevoree:Parameter" name="root" order="0" type="//@dataTypes.3">
+</parameters>
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="list" returnType="//@dataTypes.0">
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="listFromFilter" returnType="//@dataTypes.0">
+<parameters xsi:type="org.kevoree:Parameter" name="extensions" order="0" type="//@dataTypes.2">
+</parameters>
+</operations>
+<operations xsi:type="org.kevoree:Operation" name="move" returnType="//@dataTypes.4">
+<parameters xsi:type="org.kevoree:Parameter" name="oldRelativePath" order="0" type="//@dataTypes.1">
+</parameters>
+<parameters xsi:type="org.kevoree:Parameter" name="newRelativePath" order="1" type="//@dataTypes.1">
+</parameters>
+</operations>
+</typeDefinitions>
+<typeDefinitions xsi:type="org.kevoree:ComponentType" name="BasicFileSystem" factoryBean="org.kevoree.library.javase.fileSystem.api.BasicFileSystemFactory" bean="org.kevoree.library.javase.fileSystem.api.BasicFileSystem" abstract="false" deployUnits="//@deployUnits.1">
+<dictionaryType xsi:type="org.kevoree:DictionaryType" generated_KMF_ID="20200902111376380000484">
+<attributes xsi:type="org.kevoree:DictionaryAttribute" name="basedir" optional="false" state="false" fragmentDependant="false">
+</attributes>
+</dictionaryType>
+<provided xsi:type="org.kevoree:PortTypeRef" name="files" optional="false" noDependency="false" ref="//@typeDefinitions.0">
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="saveFile" serviceMethodName="saveFile" generated_KMF_ID="1295107651376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="delete" serviceMethodName="delete" generated_KMF_ID="11976273381376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="listFromFilter" serviceMethodName="listFromFilter" generated_KMF_ID="10649067961376380000499">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="mkdirs" serviceMethodName="mkdirs" generated_KMF_ID="12185116371376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="mkdirs" serviceMethodName="mkdirs" generated_KMF_ID="17316544831376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="list" serviceMethodName="list" generated_KMF_ID="10600288511376380000499">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="saveFile" serviceMethodName="saveFile" generated_KMF_ID="1584464351376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="delete" serviceMethodName="delete" generated_KMF_ID="11210252671376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="listFromFilter" serviceMethodName="listFromFilter" generated_KMF_ID="9201579491376380000499">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="getTree" serviceMethodName="getTree" generated_KMF_ID="9722879071376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="list" serviceMethodName="list" generated_KMF_ID="3805632451376380000499">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="getAbsolutePath" serviceMethodName="getAbsolutePath" generated_KMF_ID="15016505341376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="getTree" serviceMethodName="getTree" generated_KMF_ID="6776389641376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="getFileContent" serviceMethodName="getFileContent" generated_KMF_ID="7598062741376380000499">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="getAbsolutePath" serviceMethodName="getAbsolutePath" generated_KMF_ID="10127053941376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="move" serviceMethodName="move" generated_KMF_ID="12864929441376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="getFileContent" serviceMethodName="getFileContent" generated_KMF_ID="11262820561376380000500">
+</mappings>
+<mappings xsi:type="org.kevoree:PortTypeMapping" beanMethodName="move" serviceMethodName="move" generated_KMF_ID="12215518121376380000500">
+</mappings>
+</provided>
+</typeDefinitions>
+<typeDefinitions xsi:type="org.kevoree:NodeType" name="JavaSENode" abstract="false">
+</typeDefinitions>
+<repositories xsi:type="org.kevoree:Repository" url="http://repo.maven.apache.org/maven2">
+</repositories>
+<repositories xsi:type="org.kevoree:Repository" url="https://oss.sonatype.org/content/groups/public/">
+</repositories>
+<repositories xsi:type="org.kevoree:Repository" url="https://oss.sonatype.org/content/repositories/snapshots">
+</repositories>
+<repositories xsi:type="org.kevoree:Repository" url="https://oss.sonatype.org/service/local/staging/deploy/maven2">
+</repositories>
+<dataTypes xsi:type="org.kevoree:TypedElement" name="Array[java.lang.String]">
+</dataTypes>
+<dataTypes xsi:type="org.kevoree:TypedElement" name="java.lang.String">
+</dataTypes>
+<dataTypes xsi:type="org.kevoree:TypedElement" name="java.util.Set" genericTypes="//@dataTypes.1">
+</dataTypes>
+<dataTypes xsi:type="org.kevoree:TypedElement" name="org.kevoree.library.javase.fileSystem.api.AbstractItem">
+</dataTypes>
+<dataTypes xsi:type="org.kevoree:TypedElement" name="Boolean">
+</dataTypes>
+<dataTypes xsi:type="org.kevoree:TypedElement" name="Array[Byte]">
+</dataTypes>
+<libraries xsi:type="org.kevoree:TypeLibrary" name="JavaSE" subTypes="//@typeDefinitions.1">
+</libraries>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.jetbrains.kotlin" unitName="kotlin-stdlib" version="0.5.998" type="jar" generated_KMF_ID="13260709821376380000486" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree.corelibrary.javase" unitName="org.kevoree.library.javase.fileSystem" version="2.0.2" hashcode="201308130946437" type="jar" generated_KMF_ID="20872008541376380000484" requiredLibs="//@deployUnits.0 //@deployUnits.2 //@deployUnits.3 //@deployUnits.4 //@deployUnits.5 //@deployUnits.6 //@deployUnits.7 //@deployUnits.8 //@deployUnits.9 //@deployUnits.10 //@deployUnits.11 //@deployUnits.12 //@deployUnits.13 //@deployUnits.14 //@deployUnits.15 //@deployUnits.16" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="com.google.gwt" unitName="gwt-user" version="2.5.0-rc1" type="jar" generated_KMF_ID="4393794331376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree" unitName="org.kevoree.adaptation.model" version="2.0.5" type="jar" generated_KMF_ID="13907293991376380000486" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.json" unitName="json" version="20090211" type="jar" generated_KMF_ID="16587561111376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree" unitName="org.kevoree.model.context" version="2.0.5" type="jar" generated_KMF_ID="13645724161376380000486" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="fr.inria.jfilter" unitName="jfilter-library" version="1.3" type="jar" generated_KMF_ID="8188516561376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.jetbrains.kotlin" unitName="kotlin-runtime" version="0.5.998" type="jar" generated_KMF_ID="6897059081376380000486" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree.tools" unitName="org.kevoree.tools.javase.framework" version="2.0.5" type="jar" generated_KMF_ID="812522231376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree.modeling" unitName="org.kevoree.modeling.microframework" version="1.4.4" type="jar" generated_KMF_ID="17137424601376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree" unitName="org.kevoree.model" version="2.0.5" type="jar" generated_KMF_ID="2984523151376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="javax.validation" unitName="validation-api" version="1.0.0.GA" type="jar" generated_KMF_ID="16013520451376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree.tools" unitName="org.kevoree.tools.annotation.api" version="2.0.5" type="jar" generated_KMF_ID="19179528971376380000486" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree" unitName="org.kevoree.framework" version="2.0.5" type="jar" generated_KMF_ID="19539961161376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree" unitName="org.kevoree.kcl" version="2.0.5" type="jar" generated_KMF_ID="7769950451376380000486" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree" unitName="org.kevoree.log" version="2.0.5" type="jar" generated_KMF_ID="1076639081376380000486" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+<deployUnits xsi:type="org.kevoree:DeployUnit" groupName="org.kevoree" unitName="org.kevoree.api" version="2.0.5" type="jar" generated_KMF_ID="14927916881376380000485" targetNodeType="//@typeDefinitions.2">
+</deployUnits>
+</org.kevoree:ContainerRoot>

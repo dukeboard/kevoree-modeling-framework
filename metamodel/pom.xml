@@ -10,7 +10,7 @@
 
     <properties>
         <kotlin.version>0.6.31</kotlin.version>
-		<kmf.version>1.4.9-SNAPSHOT</kmf.version>
+		<kmf.version>1.5.1-SNAPSHOT</kmf.version>
         <emf.version>2.7.0</emf.version>
     </properties>
 
@@ -43,6 +43,10 @@
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.js</module>
+		
+		<module>ecore/org.kevoree.modeling.sample.ecore.kt</module>
+		<!--><module>ecore/org.kevoree.modeling.sample.ecore.js</module>-->
+		
 		
 	</modules>
 

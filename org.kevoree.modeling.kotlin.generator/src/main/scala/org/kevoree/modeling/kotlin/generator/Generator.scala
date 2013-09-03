@@ -38,7 +38,7 @@ package org.kevoree.modeling.kotlin.generator
 
 import factories.FactoryGenerator
 import java.io.{FileWriter, File}
-import loader.xml.LoaderGenerator
+import org.kevoree.modeling.kotlin.generator.loader.xml.XmiLoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore._
@@ -383,21 +383,16 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
   private def checkOrGenerateLoaderApi() {
     val apiGenerator = new LoaderApiGenerator(ctx)
     apiGenerator.generateLoaderAPI()
-    apiGenerator.generateResolveCommand()
   }
 
   def generateLoader() {
-
-    if (ctx.getJS()) {
-      return
-    }
 
     checkOrGenerateLoaderApi()
 
     val model = ctx.getEcoreModel(ecoreFile)
 
     System.out.println("Launching loader generation")
-    val loaderGenerator = new LoaderGenerator(ctx)
+    val loaderGenerator = new XmiLoaderGenerator(ctx)
     loaderGenerator.generateLoader(model)
     System.out.println("Done with loader generation")
   }

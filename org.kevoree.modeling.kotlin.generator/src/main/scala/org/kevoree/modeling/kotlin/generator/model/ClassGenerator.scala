@@ -32,8 +32,6 @@ trait ClassGenerator extends ClonerGenerator {
 
   def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-  def generateEqualsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
-
   def generateContainedElementsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
@@ -44,8 +42,10 @@ trait ClassGenerator extends ClonerGenerator {
     cls.getEAllAttributes.foreach {
       att =>
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
-        pr.println("when(mutationType) {")
-        pr.println("org.kevoree.modeling.api.util.ActionType.SET -> {")
+        if(att.isMany) {
+          pr.println("if(mutationType == org.kevoree.modeling.api.util.ActionType.SET) {")
+        }
+
         //hu ? TODO refactoring this craps
         var valueType: String = ""
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
@@ -67,8 +67,14 @@ trait ClassGenerator extends ClonerGenerator {
             case "String" => {
               pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
             }
-            case "Boolean" | "Double" | "Int" => {
+            case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short"  => {
               pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().to" + valueType + "())")
+            }
+            case "Byte" => {
+              pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toInt().to" + valueType + "())")
+            }
+            case "ByteArray" => {
+              pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
             }
             case "Any" => {
               pr.println("this." + protectReservedWords(att.getName) + " = (value.toString() as? " + valueType + ")")
@@ -78,9 +84,12 @@ trait ClassGenerator extends ClonerGenerator {
             }
           }
         }
-        pr.println("}")
-        pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
-        pr.println("}") //END MUTATION TYPE
+        if(att.isMany) {
+          pr.println("} else {")
+          //ADD INTO LIST
+
+          pr.println("}") //END MUTATION TYPE
+        }
         pr.println("}") //END ATTR
     }
 
@@ -117,7 +126,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE_ALL -> {")
           val methodNameClean4 = "removeAll" + toCamelCase(ref)
           if(ref.getEOpposite != null) {
-            pr.println("        this." + methodNameClean4 + "(!noOpposite)")
+            pr.println("        this.internal_" + methodNameClean4 + "(!noOpposite, true)")
           } else {
             pr.println("        this." + methodNameClean4 + "()")
           }
@@ -203,8 +212,8 @@ trait ClassGenerator extends ClonerGenerator {
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
     pr.print("class " + cls.getName + "Impl")
 
-   // val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
-     val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx,v,cls))
+    // val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
+    val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx,v,cls))
     var aspectsName = List[String]()
     aspects.foreach {
       a =>
@@ -233,25 +242,25 @@ trait ClassGenerator extends ClonerGenerator {
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
     //GENERATE CLONE METHOD
 
-    generateCloneMethods(ctx, cls, pr, packElement)
     generateFlatReflexiveSetters(ctx, cls, pr)
     generateKMFQLMethods(pr, cls, ctx, pack)
     if (ctx.genSelector) {
       generateSelectorMethods(pr, cls, ctx)
     }
-    generateEqualsMethods(pr, cls, ctx)
+    //generateEqualsMethods(pr, cls, ctx)
     generateContainedElementsMethods(pr, cls, ctx)
 
     generateMetaClassName(pr, cls, ctx)
-
+             /*
     if (ctx.genTrace) {
       generateDiffMethod(pr, cls, ctx)
-    }
+    }          */
 
 
     //Kotlin workaround // Why prop are not generated properly ?
-    if(ctx.getJS()){
-      cls.getEAllAttributes.foreach { att =>
+    if(ctx.getJS() && !ctx.ecma5){
+
+      ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach { att =>
         if(att.isMany){
           pr.println("override public fun get"+toCamelCase(att)+"()"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">"+"{ return "+ProcessorHelper.protectReservedWords(att.getName)+"}")
           pr.println("override public fun set"+toCamelCase(att)+"(internal_p"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)"+"{ "+ProcessorHelper.protectReservedWords(att.getName)+" = internal_p }")
@@ -313,8 +322,8 @@ trait ClassGenerator extends ClonerGenerator {
           }
           //Generate getter
           if (att.isMany) {
-            pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
-            pr.println("\t set(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">){")
+            pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = null")
+            pr.println("\t set(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?){")
           } else {
             if (defaultValue == null || defaultValue == "") {
               pr.println("public override var " + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "? = null")
@@ -325,7 +334,9 @@ trait ClassGenerator extends ClonerGenerator {
           }
           pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
           pr.println("if(iP != "+ProcessorHelper.protectReservedWords(att.getName)+"){")
-          pr.println("val oldPath = path()")
+          if (ctx.generateEvents) {
+            pr.println("val oldPath = path()")
+          }
           if (att.isID()) {
             pr.println("val oldId = internalGetKey()")
             pr.println("val previousParent = eContainer();")
@@ -452,7 +463,7 @@ trait ClassGenerator extends ClonerGenerator {
           res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(this,null," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
         }
         res += "}\n"
-        
+
         /*
         if (!ref.isRequired) {
           res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){\n"
@@ -498,36 +509,39 @@ trait ClassGenerator extends ClonerGenerator {
 
     } else {
       // -> Collection ref : * or +
-      res += "_" + ref.getName + ".clear()\n"
+      if (oppositRef == null) {
+        res += "_" + ref.getName + ".clear()\n"
+      } else {
+        res += "this.internal_removeAll" + toCamelCase(ref) + "(true, false)\n"
+      }
       res += "for(el in " + ref.getName + param_suf + "){\n"
       res += "val elKey = (el as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n"
       res += "if(elKey == null){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.ELEMENT_HAS_NO_KEY_IN_COLLECTION)}\n"
       res += "_" + ref.getName + ".put(elKey!!,el)\n"
-      res += "}\n"
+
       if (ref.isContainment) {
         if (oppositRef != null) {
-          res += "for(elem in " + ref.getName + param_suf + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", elem)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
+          res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", el)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
           if (oppositRef.isMany) {
-            res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
+            res += "(el as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
           } else {
-            res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
+            res += "(el as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
           }
-          res += "}\n"
         } else {
-          res += "for(elem in " + ref.getName + param_suf + "){\n"
-          res += "(elem as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", elem)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
-          res += "}\n"
+          res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", el)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
         }
       } else {
         if (oppositRef != null) {
           if (oppositRef.isMany) {
-            res += "for(elem in " + ref.getName + param_suf + "){(elem as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
+            res += "(el as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
           } else {
-            res += "for(elem in " + ref.getName + param_suf + "){(elem as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
+            res += "(el as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
           }
         }
       }
+
+      res += "}\n"
+
       if (ctx.generateEvents) {
         if (ref.isContainment) {
           res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))"
@@ -769,11 +783,13 @@ trait ClassGenerator extends ClonerGenerator {
 
 
   private def generateRemoveAllMethodWithParam(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
-    var res = "\nprivate fun removeAll" + toCamelCase(ref) + "(setOpposite : Boolean) {\n"
+    var res = "\nprivate fun internal_removeAll" + toCamelCase(ref) + "(setOpposite : Boolean, fireEvent : Boolean) {\n"
 
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     if (ctx.generateEvents && ref.isContainment) {
+      res += "if(fireEvent){\n"
       res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=true\n"
+      res += "}\n"
     }
     res += "val temp_els = " + ProcessorHelper.protectReservedWords(ref.getName) + "!!\n"
 
@@ -809,13 +825,14 @@ trait ClassGenerator extends ClonerGenerator {
     res += "_" + ref.getName + ".clear()\n"
 
     if (ctx.generateEvents) {
+      res += "if(fireEvent){\n"
       if (ref.isContainment) {
         res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
         res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=false\n"
-
       } else {
         res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
       }
+      res += "}\n"
     }
 
     res += "}\n"
@@ -869,13 +886,15 @@ trait ClassGenerator extends ClonerGenerator {
     }
     res += "\noverride fun removeAll" + toCamelCase(ref) + "() {\n"
     if (ref.getEOpposite != null) {
-      res += "removeAll" + toCamelCase(ref) + "(true)\n"
+      res += "internal_removeAll" + toCamelCase(ref) + "(true, true)\n"
     } else {
       res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
       if (ctx.generateEvents && ref.isContainment) {
         res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=true\n"
       }
-      res += "val temp_els = " + ProcessorHelper.protectReservedWords(ref.getName) + "!!\n"
+      if (ctx.generateEvents || ref.isContainment) {
+        res += "val temp_els = " + ProcessorHelper.protectReservedWords(ref.getName) + "!!\n"
+      }
       if (ref.isContainment) {
         res += "for(el in temp_els!!){\n"
         res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"

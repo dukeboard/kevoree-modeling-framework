@@ -30,17 +30,17 @@ public class TraceSetGeneratorTest {
         du1.setGroupName("modelGroup");
         du1.setVersion("v2");
 
-        List<ModelTrace> traces = du0.generateDiffTraces(null, false,false);
+        List<ModelTrace> traces = du0.createTraces(null,false, false,false,true);
         assertTrue(traces.toString(), lookupForTrace(traces, "unitName"));
         assert(lookupForTrace(traces,"groupName"));
         assert(lookupForTrace(traces,"version"));
 
-        List<ModelTrace> traces2 = du0.generateDiffTraces(du1, false,false);
+        List<ModelTrace> traces2 = du0.createTraces(du1, false,false,false,true);
         assert(lookupForTrace(traces2,"version"));
         assert(!lookupForTrace(traces2,"unitName"));
         assert(!lookupForTrace(traces2,"groupName"));
 
-        List<ModelTrace> traces3 = du0.generateDiffTraces(du1, true,false);
+        List<ModelTrace> traces3 = du0.createTraces(du1, true,false,false,true);
         assert(!lookupForTrace(traces3,"version"));
         assert(lookupForTrace(traces3,"unitName"));
         assert(lookupForTrace(traces3,"groupName"));

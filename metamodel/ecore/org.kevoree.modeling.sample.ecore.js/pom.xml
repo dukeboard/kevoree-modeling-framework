@@ -3,13 +3,13 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.kevoree.modeling</groupId>
-    <artifactId>org.kevoree.modeling.sample.kevoree.js</artifactId>
+    <artifactId>org.kevoree.modeling.sample.ecore.js</artifactId>
     <packaging>jar</packaging>
-    <name>Kevoree :: Modeling :: Sample :: Kevoree :: JS</name>
+    <name>Kevoree :: Modeling :: Sample :: Ecore :: JS</name>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <metamodel.ecore>metamodel/kevoree.ecore</metamodel.ecore>
+        <metamodel.ecore>metamodel/ecore.ecore</metamodel.ecore>
     </properties>
 
     <parent>
@@ -24,6 +24,11 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kevoree.modeling</groupId>
+            <artifactId>org.kevoree.modeling.microframework</artifactId>
+            <version>${kmf.version}</version>
         </dependency>
     </dependencies>
 

@@ -36,14 +36,8 @@
 
 package org.kevoree.modeling.kotlin.generator.serializer
 
-//EClass, EClassifier,
-
-import org.apache.velocity.app.VelocityEngine
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-import org.apache.velocity.VelocityContext
-import org.eclipse.emf.ecore.{EClass, EPackage}
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
-import java.io.{PrintWriter, File}
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,35 +49,9 @@ import java.io.{PrintWriter, File}
 class SerializerApiGenerator(ctx : GenerationContext) {
 
   def generateSerializerAPI() {
-
     if(!ctx.microframework){
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/ModelSerializer.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-
-    /*
-    val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer"
-    val localFile = new File(serializerGenBaseDir + File.separator + "ModelSerializer.kt")
-    if(!localFile.exists()) {
-          ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
-
-          val pr = new PrintWriter(localFile,"utf-8")
-
-          val ve = new VelocityEngine()
-          ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
-          ve.init()
-          val template = ve.getTemplate("templates/SerializerAPI.vm")
-          val ctxV = new VelocityContext()
-
-          ctxV.put("helper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-          ctxV.put("ctx",ctx)
-
-          template.merge(ctxV,pr)
-
-          pr.flush()
-          pr.close()
-    } */
-
-
   }
 
 }

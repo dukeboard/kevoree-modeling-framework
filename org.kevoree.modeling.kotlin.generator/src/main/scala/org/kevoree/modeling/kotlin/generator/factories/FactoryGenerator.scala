@@ -70,8 +70,20 @@ class FactoryGenerator(ctx:GenerationContext) {
 
     pr.print("override ")
     pr.println("fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {")
-    pr.println("return getFactoryForPackage(Package.getPackageForName(metaClassName))?.create(metaClassName)")
-    pr.println("}")
+      pr.println("val pack = Package.getPackageForName(metaClassName)")
+      pr.println("    if(pack != -1) {")
+      pr.println("        return getFactoryForPackage(pack)?.create(metaClassName)")
+      pr.println("    } else {")
+      pr.println("        for(i in factories.indices) {")
+      pr.println("            val obj = factories[i]!!.create(metaClassName)")
+      pr.println("            if(obj != null) {")
+      pr.println("                return obj;")
+      pr.println("            }")
+      pr.println("        }")
+      pr.println("        return null")
+      pr.println("    }")
+      //pr.println("return getFactoryForPackage(Package.getPackageForName(metaClassName))?.create(metaClassName)")
+      pr.println("}")
 
 
     pr.println("}")

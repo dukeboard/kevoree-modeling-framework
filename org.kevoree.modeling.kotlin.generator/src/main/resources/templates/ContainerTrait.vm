@@ -79,19 +79,6 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
     }
 #end
 
-
-    fun createClone(_factories:${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory) : org.kevoree.modeling.api.KMFContainer
-#if(${ctx.jS})
-fun resolve(addrs : java.util.HashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean)
-#else
-fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutableOnly: Boolean)
-#end
-
-#if(${ctx.isGenTrace()})
-    #set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
-    fun generateDiffTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, inter : Boolean, ref : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
-#end
-
 #if($ctx.generateEvents())
     internal var internal_modelElementListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>?
 
@@ -185,7 +172,7 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
 #end
 
     override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){}
-    override fun visit(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){}
+    override fun visitAttributes(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){}
 
     fun internal_visit(visitor : org.kevoree.modeling.api.util.ModelVisitor,internalElem : org.kevoree.modeling.api.KMFContainer?,recursive:Boolean,containedReference : Boolean,nonContainedReference : Boolean, refName : String){
         if(internalElem != null){
@@ -203,5 +190,197 @@ fun resolve(addrs : java.util.IdentityHashMap<Any,Any>,readOnly:Boolean, mutable
             }
         }
     }
+
+    override fun path(): String? {
+        val container = eContainer()
+        if(container != null) {
+            val parentPath = container.path()
+            if(parentPath == null){
+                return null
+            } else {
+                return  if(parentPath == ""){
+                    ""
+                }else{
+                    parentPath + "/"
+                } + internal_containmentRefName + "[" + internalGetKey() + "]"
+            }
+        } else {
+            return ""
+        }
+    }
+
+    override fun modelEquals(similarObj: org.kevoree.modeling.api.KMFContainer?): Boolean {
+        if(similarObj == null){return false}
+        if(this == similarObj){return true}//same Object
+        if(similarObj.metaClassName()!=metaClassName()){return false}
+        val values = java.util.HashMap<String,String?>()
+        val attVisitor = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+            public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
+                if(values.containsKey(name)){
+                    if(values.get(name) == value?.toString()){
+                        values.remove(name)
+                    }
+                } else {
+                    values.put(name,value?.toString())
+                }
+            }
+        }
+        this.visitAttributes(attVisitor)
+        similarObj.visitAttributes(attVisitor)
+        if(!values.isEmpty()){return false}
+        val payload = "";
+        val refVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
+            public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+                val concatedKey = refNameInParent+"_"+elem.path()
+                if(values.containsKey(concatedKey)){
+                    values.remove(concatedKey)
+                } else {
+                    values.put(concatedKey,payload)
+                }
+            }
+        }
+        this.visit(refVisitor,false,false,true)
+        similarObj.visit(refVisitor,false,false,true)
+        if(!values.isEmpty()){return false}
+        return true
+    }
+
+    override fun deepModelEquals(similarObj: org.kevoree.modeling.api.KMFContainer?): Boolean {
+        if(!modelEquals(similarObj)){return false}
+        var similarRoot : org.kevoree.modeling.api.KMFContainer = similarObj!!
+        while(similarRoot.eContainer() != null){
+            similarRoot = similarRoot.eContainer()!!;
+        }
+        var resultTest = true
+        val finalRoot = similarRoot
+        val objVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
+            public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+                  var similarSubObj = finalRoot.findByPath(elem.path()!!)
+                  if(!elem.modelEquals(similarSubObj)){
+                      resultTest = false
+                      stopVisit()
+                  }
+            }
+        }
+        visit(objVisitor,true,true,false)
+        return resultTest
+    }
+
+
+#if(!$ctx.getJS())
+    override fun findByPath<A>(query: String, clazz: Class<A>): A? {
+        try {
+            val res = findByPath(query)
+            if(res != null){
+                return res as A
+            } else {
+                return null
+            }
+        }catch(e: Exception){
+            return null
+        }
+    }
+#end
+
+    override fun findByPath(query: String): org.kevoree.modeling.api.KMFContainer? {
+        val firstSepIndex = query.indexOf('[')
+        var queryID = ""
+        var extraReadChar = 2
+        val relationName = query.substring(0, query.indexOf('['))
+        if(query.indexOf('{') == firstSepIndex + 1){
+            queryID = query.substring(query.indexOf('{') + 1, query.indexOf('}'))
+            extraReadChar = extraReadChar + 2
+        } else {
+            var indexFirstClose = query.indexOf(']')
+            while( indexFirstClose + 1 < query.length && query.charAt(indexFirstClose + 1) != '/'){
+                indexFirstClose = query.indexOf(']',indexFirstClose + 1)
+            }
+            queryID = query.substring(query.indexOf('[') + 1, indexFirstClose)
+        }
+        var subquery = query.substring(relationName.size + queryID.size + extraReadChar, query.size)
+        if (subquery.indexOf('/') != -1){
+            subquery = subquery.substring(subquery.indexOf('/') + 1, subquery.size)
+        }
+        val objFound = findByID(relationName,queryID)
+        if(subquery != "" && objFound != null){
+             return objFound.findByPath(subquery)
+        } else {
+             return objFound
+        }
+    }
+
+
+    override fun createTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, isInter : Boolean, isMerge : Boolean, onlyReferences : Boolean, onlyAttributes : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
+        val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
+        val values = java.util.HashMap<String,String?>()
+        if(onlyAttributes){
+            val attVisitorFill = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+                public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
+                    values.put(name,value?.toString())
+                }
+            }
+            this.visitAttributes(attVisitorFill)
+            val attVisitor = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+                public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
+                        var attVal2 : String?
+                        if(value != null){
+                            attVal2 = value.toString()
+                        } else {
+                            attVal2 = null
+                        }
+                        if(values.get(name) == attVal2){
+                            if(isInter) {
+                                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,attVal2,null))
+                            }
+                        } else {
+                            if(!isInter) {
+                                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,attVal2,null))
+                            }
+                        }
+                        values.remove(name)
+                }
+            }
+            if(similarObj!=null){similarObj.visitAttributes(attVisitor)}
+            if(!isInter && !isMerge && values.size!= 0){
+                for(hashLoopRes in values.keySet()){
+                    traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,hashLoopRes,null,null,null))
+                }
+            }
+        }
+        if(onlyReferences){
+            val payload = "";
+            val refVisitorFill = object : org.kevoree.modeling.api.util.ModelVisitor() {
+                public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+                    val concatedKey = refNameInParent+"_"+elem.path()
+                    values.put(concatedKey,payload)
+                }
+            }
+            this.visit(refVisitorFill,false,false,true)
+            val refVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
+                public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+                    val concatedKey = refNameInParent+"_"+elem.path()
+                    if(values.get(concatedKey) == concatedKey){
+                        if(isInter){
+                            traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,refNameInParent,elem.path()!!,null))
+                        }
+                    } else {
+                       if(!isInter){
+                            traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,refNameInParent,elem.path()!!,null))
+                       }
+                    }
+                    values.remove(concatedKey)
+                }
+            }
+            if(similarObj!=null){similarObj.visit(refVisitor,false,false,true)}
+            if(!isInter && !isMerge && values.size!= 0){
+                for(hashLoopRes in values.keySet()){
+                    val splittedVal = hashLoopRes.split("_");
+                    traces.add(org.kevoree.modeling.api.trace.ModelRemoveTrace(path()!!,splittedVal.get(0),splittedVal.get(1)))
+                }
+            }
+        }
+        return traces
+    }
+
 
 }

@@ -65,6 +65,138 @@
       <element xmi:type="ecore:EClass" href="oppositeModel.ecore#//test/B"/>
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_AlnrojlfEeKL_slKLQCImw" x="680" y="240" height="707"/>
     </children>
+    <children xmi:type="notation:Node" xmi:id="_mUPNcRCBEeONoaAeC194ZQ" type="1001">
+      <children xmi:type="notation:Node" xmi:id="_mUYXYBCBEeONoaAeC194ZQ" type="4001"/>
+      <children xmi:type="notation:Node" xmi:id="_mUfsIBCBEeONoaAeC194ZQ" type="5001">
+        <children xmi:type="notation:Node" xmi:id="_rtwP0BCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/bigDecimal"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_rtxd8BCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vH8ewBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/bigInteger"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vH8ewRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vUtvcBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/boolean"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vUtvcRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vagOYBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/booleanObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vagOYRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vdhGIBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/byte"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vdhGIRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vfeN8BCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/byteArray"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vfeN8RCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_viVUsBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/byteObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_viVUsRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vkFoMBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/char"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vkFoMRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vly4YBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/charObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vly4YRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_volGoBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/date"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_volGoRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vtTOkBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/double"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vtTOkRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vu6_MBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/doubleObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vu6_MRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vwwLMBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/list"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vwwyQBCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_vyjiABCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/enum"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_vyjiARCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_v6DRIBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/float"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_v6DRIRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_v7yWgBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/floatObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_v7yWgRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_v9uQMBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/int"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_v9uQMRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_v_bgYBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/integerObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_v_bgYRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_wCh3sBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/javaClass"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_wCh3sRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_wEMEkBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/object"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_wEMEkRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_wG-54BCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/long"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_wG-54RCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_wIShcBCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/longObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_wIShcRCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_wKyb0BCBEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/map"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_wKyb0RCBEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_Y-I5kBCCEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/resource"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_Y-I5kRCCEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_Y_50IBCCEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/resourceSet"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_Y_50IRCCEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_ZCbjsBCCEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/short"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_ZCbjsRCCEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_ZFAWkBCCEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/shortObject"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_ZFAWkRCCEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_ZHXHABCCEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/string"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_ZHXHARCCEeONoaAeC194ZQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_ZJJPsBCCEeONoaAeC194ZQ" type="2001">
+          <element xmi:type="ecore:EAttribute" href="oppositeModel.ecore#//test/DataTypesTest/treeIterator"/>
+          <layoutConstraint xmi:type="notation:Location" xmi:id="_ZJJPsRCCEeONoaAeC194ZQ"/>
+        </children>
+        <styles xmi:type="notation:DrawerStyle" xmi:id="_mUfsIRCBEeONoaAeC194ZQ"/>
+        <styles xmi:type="notation:SortingStyle" xmi:id="_mUfsIhCBEeONoaAeC194ZQ"/>
+        <styles xmi:type="notation:FilteringStyle" xmi:id="_mUfsIxCBEeONoaAeC194ZQ"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_mUgTMBCBEeONoaAeC194ZQ" type="5002">
+        <styles xmi:type="notation:DrawerStyle" xmi:id="_mUgTMRCBEeONoaAeC194ZQ"/>
+        <styles xmi:type="notation:SortingStyle" xmi:id="_mUgTMhCBEeONoaAeC194ZQ"/>
+        <styles xmi:type="notation:FilteringStyle" xmi:id="_mUgTMxCBEeONoaAeC194ZQ"/>
+      </children>
+      <styles xmi:type="notation:ShapeStyle" xmi:id="_mUPNchCBEeONoaAeC194ZQ" fontColor="4210752" fontName="Lucida Grande" fontHeight="10" fillColor="13761016" lineColor="8421504"/>
+      <element xmi:type="ecore:EClass" href="oppositeModel.ecore#//test/DataTypesTest"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_mUPNcxCBEeONoaAeC194ZQ" x="920" y="80"/>
+    </children>
     <styles xmi:type="notation:DiagramStyle" xmi:id="_9x_tcTleEeKL_slKLQCImw"/>
     <element xmi:type="ecore:EPackage" href="oppositeModel.ecore#//test"/>
     <edges xmi:type="notation:Edge" xmi:id="_EyDP0DlfEeKL_slKLQCImw" type="3002" source="__Lyx8DleEeKL_slKLQCImw" target="_AlnroDlfEeKL_slKLQCImw">
@@ -472,6 +604,20 @@
       <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_9unQAzljEeKL_slKLQCImw" points="[-13, 10, 506, 2]$[-517, 22, 2, 14]"/>
       <sourceAnchor xmi:type="notation:IdentityAnchor" xmi:id="_9upsQDljEeKL_slKLQCImw" id="(0.13725490196078433,0.9745403111739745)"/>
       <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_9upsQTljEeKL_slKLQCImw" id="(0.8235294117647058,0.9801980198019802)"/>
+    </edges>
+    <edges xmi:type="notation:Edge" xmi:id="_owoXYBCBEeONoaAeC194ZQ" type="3002" source="__Lyx8DleEeKL_slKLQCImw" target="_mUPNcRCBEeONoaAeC194ZQ">
+      <children xmi:type="notation:Node" xmi:id="_owo-cBCBEeONoaAeC194ZQ" type="4011">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_owo-cRCBEeONoaAeC194ZQ" x="-10" y="-10"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_owplgBCBEeONoaAeC194ZQ" type="4012">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_owplgRCBEeONoaAeC194ZQ" x="10" y="10"/>
+      </children>
+      <styles xmi:type="notation:ConnectorStyle" xmi:id="_owoXYRCBEeONoaAeC194ZQ" lineColor="4210752"/>
+      <styles xmi:type="notation:FontStyle" xmi:id="_owoXYhCBEeONoaAeC194ZQ" fontColor="4210752" fontName="Lucida Grande" fontHeight="10"/>
+      <element xmi:type="ecore:EReference" href="oppositeModel.ecore#//test/Container/dataTypes"/>
+      <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_owoXYxCBEeONoaAeC194ZQ" points="[18, 0, -447, 18]$[467, -24, 2, -6]"/>
+      <sourceAnchor xmi:type="notation:IdentityAnchor" xmi:id="_owso0BCBEeONoaAeC194ZQ" id="(0.8235294117647058,0.11904761904761904)"/>
+      <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_owso0RCBEeONoaAeC194ZQ" id="(0.5882352941176471,0.16666666666666666)"/>
     </edges>
   </notation:Diagram>
 </xmi:XMI>

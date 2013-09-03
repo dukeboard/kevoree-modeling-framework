@@ -12,6 +12,7 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
             if(containedReference){
                     #set($firstGeneratedCont = false)
                 #end
+                visitor.beginVisitRef(${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()}, ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.${FQNHelper.fqn($ctx, $ref.getEReferenceType()).replace(".", "_")})
                 #if($ref.isMany())
                     for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
                         internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
@@ -19,6 +20,7 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
                 #else
                     internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                 #end
+                visitor.endVisitRef(${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
             #end
             #if(!$firstGeneratedCont)
             }
@@ -30,6 +32,7 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
            if(nonContainedReference){
                             #set($firstGeneratedRef = false)
                         #end
+                        visitor.beginVisitRef(${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()}, ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.${FQNHelper.fqn($ctx, $ref.getEReferenceType()).replace(".", "_")})
                         #if($ref.isMany())
                             for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
                                 internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
@@ -37,6 +40,7 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
                         #else
                             internal_visit(visitor,${FQNHelper.protectReservedWords(${ref.getName()})},recursive,containedReference,nonContainedReference,${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                         #end
+                        visitor.endVisitRef(${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Ref_${ref.getName()})
                     #end
                 #end
            #if(!$firstGeneratedRef)
@@ -47,8 +51,8 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
 ##end
 
 #if(!$currentClass.getEAllAttributes().isEmpty())
-override fun visit(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){
-    #foreach( $att in $currentClass.getEAllAttributes())
+override fun visitAttributes(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){
+    #foreach( $att in ${FQNHelper.noduplicate($currentClass.getEAllAttributes())})
         visitor.visit(${FQNHelper.protectReservedWords($att.getName())},${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Att_${att.getName()},this)
     #end
 }

@@ -59,7 +59,7 @@ public class SimpleJSTest {
         File html = new File("tester.html");
         final HtmlPage page = webClient.getPage("file:///" + html.getAbsolutePath());
 
-        assert (traces.contains("6.0"));
+        assert (traces.contains("4.0"));
 
         webClient.closeAllWindows();
 

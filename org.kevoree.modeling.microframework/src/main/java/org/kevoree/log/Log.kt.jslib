@@ -1,7 +1,7 @@
 package org.kevoree.log
 
-import java.lang.StringBuilder
 import java.util.Date
+import java.lang.StringBuilder
 
 /**
  * Created with IntelliJ IDEA.
@@ -173,351 +173,77 @@ public object Log {
         }
     }
 
-
-    public fun error(message: String) {
-        if (ERROR) logger.log(LEVEL_ERROR, message, null);
-    }
-
-    public fun error(message:String, ex:Throwable?) {
-        if (ERROR) logger.log(LEVEL_ERROR, message, ex);
-    }
-
-    public fun error(message:String, ex:Throwable?, p1:Any?) {
+    public fun error(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (ERROR) {
-            error(processMessage(message, p1, null, null, null, null), ex);
+            internal_error(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
-
-    public fun error(message:String, ex:Throwable?, p1:Any?, p2:Any?) {
+    public fun error(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (ERROR) {
-            error(processMessage(message, p1, p2, null, null, null), ex);
+            internal_error(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
-
-    public fun error(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, p2, p3, null, null), ex);
-        }
+    private fun internal_error(message : String, ex:Throwable?){
+        logger.log(LEVEL_ERROR, message, ex);
     }
 
-    public fun error(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, p2, p3, p4, null), ex);
-        }
-    }
-
-    public fun error(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, p2, p3, p4, p5), ex);
-        }
-    }
-
-    public fun error(message:String,p1:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, null, null, null, null), null);
-        }
-    }
-
-    public fun error(message:String,p1:Any?, p2:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, p2, null, null, null), null);
-        }
-    }
-
-    public fun error(message:String,p1:Any?, p2:Any?, p3:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, p2, p3, null, null), null);
-        }
-    }
-
-    public fun error(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, p2, p3, p4, null), null);
-        }
-    }
-
-    public fun error(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (ERROR) {
-            error(processMessage(message, p1, p2, p3, p4, p5), null);
-        }
-    }
-
-
-    /* WARN */
-    public fun warn(message:String, ex:Throwable?) {
-        if (WARN) logger.log(LEVEL_WARN, message, ex);
-    }
-
-    public fun warn(message: String) {
-        if (WARN) logger.log(LEVEL_WARN, message, null);
-    }
-
-    public fun warn(message:String, ex:Throwable?, p1:Any?) {
+    public fun warn(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (WARN) {
-            warn(processMessage(message, p1, null, null, null, null), ex);
+            internal_warn(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
-
-    public fun warn(message:String, ex:Throwable?, p1:Any?, p2:Any?) {
+    public fun warn(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (WARN) {
-            warn(processMessage(message, p1, p2, null, null, null), ex);
+            internal_warn(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
-
-    public fun warn(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, p2, p3, null, null), ex);
-        }
+    private fun internal_warn(message : String, ex:Throwable?){
+        logger.log(LEVEL_WARN, message, ex);
     }
 
-    public fun warn(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, p2, p3, p4, null), ex);
-        }
-    }
 
-    public fun warn(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, p2, p3, p4, p5), ex);
-        }
-    }
-
-    public fun warn(message:String,p1:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, null, null, null, null), null);
-        }
-    }
-
-    public fun warn(message:String,p1:Any?, p2:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, p2, null, null, null), null);
-        }
-    }
-
-    public fun warn(message:String,p1:Any?, p2:Any?, p3:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, p2, p3, null, null), null);
-        }
-    }
-
-    public fun warn(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, p2, p3, p4, null), null);
-        }
-    }
-
-    public fun warn(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (WARN) {
-            warn(processMessage(message, p1, p2, p3, p4, p5), null);
-        }
-    }
-
-    /* INFO */
-    public fun info(message:String, ex:Throwable?) {
-        if (INFO) logger.log(LEVEL_INFO, message, ex);
-    }
-
-    public fun info(message: String) {
-        if (INFO) logger.log(LEVEL_INFO, message, null);
-    }
-
-    public fun info(message:String, ex:Throwable?, p1:Any?) {
+    public fun info(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (INFO) {
-            info(processMessage(message, p1, null, null, null, null), ex);
+            internal_info(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
-
-    public fun info(message:String, ex:Throwable?, p1:Any?, p2:Any?) {
+    public fun info(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (INFO) {
-            info(processMessage(message, p1, p2, null, null, null), ex);
+            internal_info(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
-
-    public fun info(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, p2, p3, null, null), ex);
-        }
+    private fun internal_info(message : String, ex:Throwable?){
+        logger.log(LEVEL_INFO, message, ex);
     }
 
-    public fun info(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, p2, p3, p4, null), ex);
-        }
-    }
-
-    public fun info(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, p2, p3, p4, p5), ex);
-        }
-    }
-
-    public fun info(message:String,p1:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, null, null, null, null), null);
-        }
-    }
-
-    public fun info(message:String,p1:Any?, p2:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, p2, null, null, null), null);
-        }
-    }
-
-    public fun info(message:String,p1:Any?, p2:Any?, p3:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, p2, p3, null, null), null);
-        }
-    }
-
-    public fun info(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, p2, p3, p4, null), null);
-        }
-    }
-
-    public fun info(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (INFO) {
-            info(processMessage(message, p1, p2, p3, p4, p5), null);
-        }
-    }
-
-
-    /* DEBUG */
-    public fun debug(message:String, ex:Throwable?) {
-        if (DEBUG) logger.log(LEVEL_DEBUG, message, ex);
-    }
-
-    public fun debug(message: String) {
-        if (DEBUG) logger.log(LEVEL_DEBUG, message, null);
-    }
-
-    public fun debug(message:String, ex:Throwable?, p1:Any?) {
+    public fun debug(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (DEBUG) {
-            debug(processMessage(message, p1, null, null, null, null), ex);
+            internal_debug(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
-
-    public fun debug(message:String, ex:Throwable?, p1:Any?, p2:Any?) {
+    public fun debug(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (DEBUG) {
-            debug(processMessage(message, p1, p2, null, null, null), ex);
+            internal_debug(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
-
-    public fun debug(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, p2, p3, null, null), ex);
-        }
+    private fun internal_debug(message : String, ex:Throwable?){
+        logger.log(LEVEL_DEBUG, message, ex);
     }
 
-    public fun debug(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, p2, p3, p4, null), ex);
-        }
-    }
-
-    public fun debug(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, p2, p3, p4, p5), ex);
-        }
-    }
-
-    public fun debug(message:String,p1:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, null, null, null, null), null);
-        }
-    }
-
-    public fun debug(message:String,p1:Any?, p2:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, p2, null, null, null), null);
-        }
-    }
-
-    public fun debug(message:String,p1:Any?, p2:Any?, p3:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, p2, p3, null, null), null);
-        }
-    }
-
-    public fun debug(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, p2, p3, p4, null), null);
-        }
-    }
-
-    public fun debug(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (DEBUG) {
-            debug(processMessage(message, p1, p2, p3, p4, p5), null);
-        }
-    }
-
-    public fun trace(message:String, ex:Throwable?) {
-        if (TRACE) logger.log(LEVEL_TRACE, message, ex);
-    }
-
-    public fun trace(message: String) {
-        if (TRACE) logger.log(LEVEL_TRACE, message, null);
-    }
-
-    public fun trace(message:String, ex:Throwable?, p1:Any?) {
+    public fun trace(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
         if (TRACE) {
-            trace(processMessage(message, p1, null, null, null, null), ex);
+            internal_trace(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
+    }
+    public fun trace(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
+        if (TRACE) {
+            internal_trace(processMessage(message, p1, p2, p3, p4, p5), null);
+        }
+    }
+    private fun internal_trace(message : String, ex:Throwable?){
+        logger.log(LEVEL_TRACE, message, ex);
     }
 
-    public fun trace(message:String, ex:Throwable?, p1:Any?, p2:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, null, null, null), ex);
-        }
-    }
-
-    public fun trace(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, p3, null, null), ex);
-        }
-    }
-
-    public fun trace(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, p3, p4, null), ex);
-        }
-    }
-
-    public fun trace(message:String, ex:Throwable?, p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, p3, p4, p5), ex);
-        }
-    }
-
-    public fun trace(message:String,p1:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, null, null, null, null), null);
-        }
-    }
-
-    public fun trace(message:String,p1:Any?, p2:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, null, null, null), null);
-        }
-    }
-
-    public fun trace(message:String,p1:Any?, p2:Any?, p3:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, p3, null, null), null);
-        }
-    }
-
-    public fun trace(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, p3, p4, null), null);
-        }
-    }
-
-    public fun trace(message:String,p1:Any?, p2:Any?, p3:Any?, p4:Any?, p5:Any?) {
-        if (TRACE) {
-            trace(processMessage(message, p1, p2, p3, p4, p5), null);
-        }
-    }
 
 }
 

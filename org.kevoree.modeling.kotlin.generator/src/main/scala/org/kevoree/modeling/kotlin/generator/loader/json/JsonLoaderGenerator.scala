@@ -36,165 +36,22 @@
 
 package org.kevoree.modeling.kotlin.generator.loader.json
 
-//EClass, EClassifier,
-
-import org.apache.velocity.app.VelocityEngine
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.EClass
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
-import scala.collection.JavaConversions._
 import java.io.{PrintWriter, File}
-import java.util
-
-/**
- * Created by IntelliJ IDEA.
- * User: Gregory NAIN
- * Date: 24/09/11
- * Time: 18:09
- */
 
 class JsonLoaderGenerator(ctx: GenerationContext) {
 
-  private def generateContext() {
-    val el = new ContextGenerator(ctx)
-    el.generateContext()
-  }
-
-
   def generateLoader(model: ResourceSet) {
-
-    generateStaticJSONClasses()
-    generateJSONResolveCommand()
-    if (!ctx.genXMI || ctx.getJS()) {
-      generateContext()
-    }
-    if (ctx.getJS()) {
-      generateJSStaticJSONClasses()
-    }
-
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
-
     val localFile = new File(loaderGenBaseDir + "/JSONModelLoader.kt")
-    ctx.loaderPrintWriter = new PrintWriter(localFile, "utf-8")
-    ctx.generatedLoaderFiles.clear()
-
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
-    ve.init()
-    val template = ve.getTemplate("templates/json/JSONLoader.vm")
-    val ctxV = new VelocityContext()
-
-    //ctxV.put("rootElement",cls)
-    ctxV.put("model", model)
-    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-    ctxV.put("ctx", ctx)
-    ctxV.put("allEClass", getEAllEclass(model, ctx))
-
-
-    template.merge(ctxV, ctx.loaderPrintWriter)
-
-    ctx.loaderPrintWriter.flush()
-    ctx.loaderPrintWriter.close()
+    val pr = new PrintWriter(localFile, "utf-8")
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader")
+    pr.println("class JSONModelLoader : org.kevoree.modeling.api.json.JSONModelLoader() {")
+    pr.println("override var factory : org.kevoree.modeling.api.KMFFactory? = "+ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory.MainFactory()")
+    pr.println("}")
+    pr.flush()
+    pr.close()
   }
-
-  def generateJSONResolveCommand() {
-    val genOutputStreamFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader" + File.separator + "JSONResolveCommand.kt")
-    val outputStream = new PrintWriter(genOutputStreamFile, "utf-8")
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-    ve.init()
-    val template1 = ve.getTemplate("templates/commands/JSONResolveCommand.vm")
-    val ctxV = new VelocityContext()
-    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-    ctxV.put("ctx", ctx)
-
-    template1.merge(ctxV, outputStream)
-    outputStream.flush()
-    outputStream.close()
-  }
-
-  private def generateJSStaticJSONClasses() {
-    //static IO
-    var basePath = ctx.getRootGenerationDirectory + File.separator + "java" + File.separator + "io"
-    ProcessorHelper.checkOrCreateFolder(basePath)
-    var files = util.Arrays.asList("java.io.InputStream", "java.io.ByteArrayInputStream")
-    import scala.collection.JavaConversions._
-    files.foreach {
-      f =>
-        val genOutputStreamFile = new File(basePath + File.separator + f.substring(f.lastIndexOf(".") + 1) + ".kt")
-        val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
-        val ve = new VelocityEngine()
-        ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-        ve.init()
-        val template1 = ve.getTemplate("templates/jsIO/" + f + ".vm")
-        val ctxV = new VelocityContext()
-        ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-        ctxV.put("ctx", ctx)
-
-        template1.merge(ctxV, OutputStream)
-        OutputStream.flush()
-        OutputStream.close()
-    }
-    //static lang
-    basePath = ctx.getRootGenerationDirectory + File.separator + "java" + File.separator + "lang"
-    ProcessorHelper.checkOrCreateFolder(basePath)
-    files = util.Arrays.asList("java.lang.StringBuilder", "java.lang.IntegerParser", "java.lang.LongParser")
-    import scala.collection.JavaConversions._
-    files.foreach {
-      f =>
-        val genOutputStreamFile = new File(basePath + File.separator + f.substring(f.lastIndexOf(".") + 1) + ".kt")
-        val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
-        val ve = new VelocityEngine()
-        ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-        ve.init()
-        val template1 = ve.getTemplate("templates/jsIO/" + f + ".vm")
-        val ctxV = new VelocityContext()
-        ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-        ctxV.put("ctx", ctx)
-        template1.merge(ctxV, OutputStream)
-        OutputStream.flush()
-        OutputStream.close()
-    }
-  }
-
-  private def generateStaticJSONClasses() {
-    val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
-    ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
-    val files = util.Arrays.asList("JsonReader", "JsonToken", "Lexer")
-    import scala.collection.JavaConversions._
-    files.foreach {
-      f =>
-        val genOutputStreamFile = new File(loaderGenBaseDir + File.separator + f + ".kt")
-        val OutputStream = new PrintWriter(genOutputStreamFile, "utf-8")
-        val ve = new VelocityEngine()
-        ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-        ve.init()
-        val template1 = ve.getTemplate("templates/json/" + f + ".vm")
-        val ctxV = new VelocityContext()
-        ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-        ctxV.put("ctx", ctx)
-
-        template1.merge(ctxV, OutputStream)
-        OutputStream.flush()
-        OutputStream.close()
-    }
-  }
-
-
-  def getEAllEclass(pack: ResourceSet, ctx: GenerationContext): util.Collection[EClass] = {
-    val result = new util.HashMap[String, EClass]()
-    pack.getAllContents.foreach {
-      eclass =>
-
-        if (eclass.isInstanceOf[EClass] && !result.containsKey(ProcessorHelper.fqn(ctx, eclass.asInstanceOf[EClass]))) {
-          result.put(ProcessorHelper.fqn(ctx, eclass.asInstanceOf[EClass]), eclass.asInstanceOf[EClass])
-        }
-    }
-    return result.values()
-  }
-
-
 }
