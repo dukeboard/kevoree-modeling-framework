@@ -57,6 +57,8 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
 
     fun setEContainer( container : org.kevoree.modeling.api.${formatedFactoryName}?, unsetCmd : RemoveFromContainerCommand?, refNameInParent : String? ) {
 
+        path_cache = null
+
         if(internal_readOnlyElem){return}
 
         val tempUnsetCmd = internal_unsetCmd
@@ -191,22 +193,22 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
         }
     }
 
+    var path_cache : String?
+
     override fun path(): String? {
+        if(path_cache!=null){return path_cache}
         val container = eContainer()
         if(container != null) {
             val parentPath = container.path()
             if(parentPath == null){
                 return null
             } else {
-                return  if(parentPath == ""){
-                    ""
-                }else{
-                    parentPath + "/"
-                } + internal_containmentRefName + "[" + internalGetKey() + "]"
+                path_cache = if(parentPath == ""){""}else{parentPath + "/"} + internal_containmentRefName + "[" + internalGetKey() + "]"
             }
         } else {
-            return ""
+            path_cache =  ""
         }
+        return path_cache;
     }
 
     override fun modelEquals(similarObj: org.kevoree.modeling.api.KMFContainer?): Boolean {

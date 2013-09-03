@@ -258,6 +258,8 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("override internal var internal_modelTreeListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>? = null")
     }
 
+    pr.println("override var path_cache : String? = null")
+
     generateDeleteMethod(pr, cls, ctx, pack)
     // Getters and Setters Generation
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
