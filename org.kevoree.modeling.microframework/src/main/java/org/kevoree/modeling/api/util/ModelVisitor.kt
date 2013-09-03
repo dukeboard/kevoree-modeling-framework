@@ -26,7 +26,7 @@ public abstract class ModelVisitor {
 
     public abstract fun visit(elem : KMFContainer, refNameInParent : String, parent : KMFContainer)
 
-    var alreadyVisited = HashMap<String,KMFContainer>()
+    var alreadyVisited : HashMap<String,KMFContainer>? = null
 
     open fun beginVisitElem(elem : KMFContainer){}
 

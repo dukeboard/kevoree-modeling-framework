@@ -58,7 +58,7 @@ public open class JSONModelSerializer : ModelSerializer {
                     isFirstInRef = false
                 }
                 printAttName(elem, out)
-                internalReferenceVisitor.alreadyVisited.clear()
+                internalReferenceVisitor.alreadyVisited?.clear()
                 elem.visit(internalReferenceVisitor, false, false, true)
             }
             override public fun endVisitElem(elem: KMFContainer){
