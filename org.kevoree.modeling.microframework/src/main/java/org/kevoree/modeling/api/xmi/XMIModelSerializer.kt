@@ -114,7 +114,7 @@ class ModelAddressVisitor(val addressTable : java.util.HashMap<KMFContainer, Str
     override fun endVisitRef(refName: String) {}
     public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
 
-        val parentXmiAddress = addressTable.get(parent)
+        val parentXmiAddress = addressTable.get(parent)!!
         val i = elementsCount.get(parentXmiAddress + "/@" + refNameInParent) ?: 0
         addressTable.put(elem, parentXmiAddress + "/@" + refNameInParent +"." + i)
         elementsCount.put(parentXmiAddress + "/@" + refNameInParent,i+1)
@@ -156,8 +156,10 @@ public open class XMIModelSerializer : org.kevoree.modeling.api.ModelSerializer 
         wt.print(" xmi:version=\"2.0\"")
         wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"")
 
-        for(i in 0..packageList.size-1) {
-            wt.print(" xmlns:"+packageList.get(i).replace(".","_")+"=\"http://"+packageList.get(i)+"\"")
+        var index = 0;
+        while(index < packageList.size) {
+            wt.print(" xmlns:"+packageList.get(index).replace(".","_")+"=\"http://"+packageList.get(index)+"\"")
+            index++
         }
 
         oMS.visitAttributes(AttributesVisitor(wt))

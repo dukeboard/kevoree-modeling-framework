@@ -7,10 +7,18 @@ package java.io
  * Time: 21:12
  */
 
+
+
+
 trait InputStream {
     fun readBytes() : ByteArray
 }
 public trait OutputStream {}
+public class BufferedOutputStream(val oo : OutputStream) : OutputStream{
+    fun write(s : String) {
+        (oo as ByteArrayOutputStream).result = s;
+    }
+}
 public class ByteArrayInputStream(val inputBytes : ByteArray) : InputStream {
     override fun readBytes() : ByteArray {
         return inputBytes;
@@ -24,7 +32,7 @@ public class ByteArrayOutputStream : OutputStream {
     }
     var result : String = ""
 }
-class PrintStream(val oo : OutputStream) {
+class PrintStream(val oo : OutputStream, autoflush : Boolean) {
     var result: String = ""
     fun println() {
         result = result + "\n"
@@ -56,6 +64,6 @@ class PrintStream(val oo : OutputStream) {
         print(s)
         println()
     }
-    fun flush(){(oo as ByteArrayOutputStream).result = result}
+    fun flush(){(oo as BufferedOutputStream).write(result)}
     fun close(){}
 }

@@ -1,6 +1,6 @@
 <html lang="en">
 
-<script type="text/javascript" src="org.kevoree.modeling.sample.cloud.js.min.js"></script>
+<script type="text/javascript" src="org.kevoree.modeling.sample.cloud.js.merged2.js"></script>
 <script>
 var model = Kotlin.modules['org.kevoree.modeling.sample.cloud.js'];
 var saver = new model.org.cloud.serializer.JSONModelSerializer();
@@ -10,7 +10,8 @@ var compare = new model.org.cloud.compare.DefaultModelCompare();
 var event2trace = new model.org.kevoree.modeling.api.trace.Event2Trace(compare);
 var factory = new model.org.cloud.impl.DefaultCloudFactory();
 var ActionType = model.org.kevoree.modeling.api.util.ActionType;
-
+var saverXmi = new model.org.cloud.serializer.XMIModelSerializer();
+var loaderXmi = new model.org.cloud.loader.XMIModelLoader();
 
 
 //Just define a deep cloud model
@@ -46,6 +47,13 @@ console.log("assert true = "+cloud.deepModelEquals(clonedCloud));
 Object.getPrototypeOf(cloud).hello = function(){};
 cloud.hello();
 clonedCloud.hello();
+
+
+var savedModelXmi = saverXmi.serialize(cloud);
+    console.log(savedModelXmi);
+
+    var xmiLoaded = loaderXmi.loadModelFromString(savedModelXmi);
+    console.log(xmiLoaded);
 
 </script>
 </html>

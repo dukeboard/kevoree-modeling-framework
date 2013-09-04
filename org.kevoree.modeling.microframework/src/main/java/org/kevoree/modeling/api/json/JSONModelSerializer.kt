@@ -46,7 +46,7 @@ public open class JSONModelSerializer : ModelSerializer {
     }
 
     override public fun serialize(model: KMFContainer, raw: OutputStream) {
-        val out = PrintStream(raw)
+        val out = PrintStream(java.io.BufferedOutputStream(raw), false)
         //visitor for printing reference
         val internalReferenceVisitor = ModelReferenceVisitor(out)
         //Visitor for Model naviguation

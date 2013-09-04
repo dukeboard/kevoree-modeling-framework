@@ -5,17 +5,13 @@ package org.kevoree.modeling.api.xmi
 * Date : 30/08/13
 */
 
-import java.io.File
-import java.io.FileInputStream
-import java.io.StringReader
-import java.io.InputStreamReader
-import java.io.InputStream
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
-import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.KMFFactory
+import java.io.InputStream
 import java.io.ByteArrayInputStream
+import org.kevoree.modeling.api.util.ByteConverter
 
 public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
@@ -56,7 +52,8 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
             val c = src[i]
             if(c == '&') {
                 if(builder == null) {
-                    builder = StringBuilder(src.substring(0,i))
+                    builder = StringBuilder()
+                    builder!!.append(src.substring(0,i))
                 }
                 if(src[i+1]=='a') {
                     if(src[i+2] == 'm') {
@@ -66,7 +63,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                         builder?.append("'")
                         i = i+6
                     } else {
-                        System.err.println("Could not unescaped chain:" + src[i] + src[i+1] + src[i+2])
+                        println("Could not unescaped chain:" + src[i] + src[i+1] + src[i+2])
                     }
                 } else if(src[i+1]=='q') {
                     builder?.append("\"")
@@ -78,7 +75,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                     builder?.append(">")
                     i = i+4
                 } else {
-                    System.err.println("Could not unescaped chain:" + src[i] + src[i+1])
+                   println("Could not unescaped chain:" + src[i] + src[i+1])
                 }
             } else {
                 if(builder != null) {
@@ -95,18 +92,11 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
     }
 
     override fun loadModelFromString(str: String) : List<KMFContainer>? {
-
-        val bytes = ByteArray(str.length)
-        var i = 0
-        while(i < str.length){
-            bytes.set(i,str.get(i) as Byte)
-            i = i +1
-        }
-        val reader = XmlParser(ByteArrayInputStream(bytes))
+        val reader = XmlParser(ByteConverter.byteArrayInputStreamFromString(str))
         if(reader.hasNext()) {
             return deserialize(reader)
         } else {
-            System.out.println("Loader::Noting in the String !")
+            println("Loader::Noting in the String !")
             return null
         }
 
@@ -117,7 +107,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         if(reader.hasNext()) {
             return deserialize(reader)
         } else {
-            System.out.println("Loader::Noting in the file !")
+            println("Loader::Noting in the file !")
             return null
         }
     }
@@ -226,7 +216,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                         context.loadedRoots.add(loadObject(context, "/" + loadedRootsSize))
 
                     } else {
-                        System.out.println("Tried to read a tag with null tag_name.")
+                        println("Tried to read a tag with null tag_name.")
                     }
                 }
                 Token.END_TAG -> {break}

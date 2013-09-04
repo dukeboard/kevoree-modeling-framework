@@ -2,6 +2,7 @@
 package org.kevoree.modeling.api.json
 
 import java.io.InputStream
+import org.kevoree.modeling.api.util.ByteConverter
 
 public object Type {
     public val VALUE            : Int = 0
@@ -32,10 +33,10 @@ public class Lexer(val inputStream : InputStream) {
     }
 
     private fun nextChar() : Char {
-        return bytes[index++].toChar()    }
+        return ByteConverter.toChar(bytes[index++])    }
 
     private fun peekChar() : Char {
-        return bytes[index].toChar()    }
+        return ByteConverter.toChar(bytes[index])   }
 
     private fun isDone() : Boolean {
         return index >= bytes.size

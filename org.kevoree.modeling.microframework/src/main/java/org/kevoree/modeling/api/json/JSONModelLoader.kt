@@ -7,6 +7,7 @@ import java.util.ArrayList
 import org.kevoree.modeling.api.util.ActionType
 import org.kevoree.modeling.api.KMFFactory
 import org.kevoree.modeling.api.ModelLoader
+import org.kevoree.modeling.api.util.ByteConverter
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,7 +20,7 @@ public open class JSONModelLoader : ModelLoader {
     open var factory : KMFFactory? = null
 
     override fun loadModelFromString(str: String): List<KMFContainer>? {
-        return deserialize(ByteArrayInputStream(str.getBytes()))
+        return deserialize(ByteConverter.byteArrayInputStreamFromString(str))
     }
 
     override fun loadModelFromStream(inputStream: InputStream): List<KMFContainer>? {

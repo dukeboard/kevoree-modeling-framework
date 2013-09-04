@@ -58,9 +58,11 @@ class SerializerGenerator(ctx: GenerationContext) {
 
 
   def generateSerializer(model: ResourceSet) {
+    /*
     if (ctx.getJS()) {
       return
     }
+    */
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
     ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
     val genFile = new File(serializerGenBaseDir + "XMIModelSerializer.kt")

@@ -387,6 +387,15 @@ String.prototype.contains = function (s) {
         };
     })();
 
+    Kotlin.PropertyMetadata = Kotlin.$createClass(null, {
+        initialize: function(name) {
+            this.$name = name;
+        },
+        get_name: function () {
+            return this.$name;
+        }
+    });
+
     Kotlin.AbstractCollection = Kotlin.$createClass(Kotlin.Collection, {
         size: function () {
             return this.$size;
@@ -1491,7 +1500,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
     Kotlin.ComplexHashSet = Kotlin.HashSet;
 }());
 (function () {
-  'use strict';
+  
   var classes = function () {
     var c0 = Kotlin.createTrait(null)
     , c1 = Kotlin.createTrait(null)
@@ -1528,6 +1537,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return this.internal_recursive_readOnlyElem;
       }, writable: true},
       setEContainer: {value: function (container, unsetCmd, refNameInParent) {
+        this.path_cache = null;
         if (this.internal_readOnlyElem) {
           return;
         }
@@ -1543,23 +1553,80 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       selectByQuery: {value: function (query) {
         throw new Error('Not activated, please add selector option in KMF generation plugin');
       }, writable: true},
+      fireModelEvent: {value: function (evt) {
+        if (this.internal_modelElementListeners != null) {
+          var tmp$0;
+          {
+            var tmp$1 = ((tmp$0 = this.internal_modelElementListeners) != null ? tmp$0 : Kotlin.throwNPE()).iterator();
+            while (tmp$1.hasNext()) {
+              var lst = tmp$1.next();
+              lst.elementChanged(evt);
+            }
+          }
+        }
+        this.fireModelEventOnTree(evt);
+      }, writable: true},
       addModelElementListener: {value: function (lst) {
-        throw new Error('Not activated, please add events option in KMF generation plugin');
+        if (this.internal_modelElementListeners == null) {
+          this.internal_modelElementListeners = Kotlin.ArrayList(0);
+        }
+        var tmp$0;
+        ((tmp$0 = this.internal_modelElementListeners) != null ? tmp$0 : Kotlin.throwNPE()).add(lst);
       }, writable: true},
       removeModelElementListener: {value: function (lst) {
-        throw new Error('Not activated, please add events option in KMF generation plugin');
+        if (this.internal_modelElementListeners != null) {
+          var tmp$0, tmp$1;
+          ((tmp$0 = this.internal_modelElementListeners) != null ? tmp$0 : Kotlin.throwNPE()).remove(lst);
+          if (((tmp$1 = this.internal_modelElementListeners) != null ? tmp$1 : Kotlin.throwNPE()).isEmpty()) {
+            this.internal_modelElementListeners = null;
+          }
+        }
       }, writable: true},
       removeAllModelElementListeners: {value: function () {
-        throw new Error('Not activated, please add events option in KMF generation plugin');
+        if (this.internal_modelElementListeners != null) {
+          var tmp$0;
+          ((tmp$0 = this.internal_modelElementListeners) != null ? tmp$0 : Kotlin.throwNPE()).clear();
+          this.internal_modelElementListeners = null;
+        }
+      }, writable: true},
+      fireModelEventOnTree: {value: function (evt) {
+        if (this.internal_modelTreeListeners != null) {
+          var tmp$0;
+          {
+            var tmp$1 = ((tmp$0 = this.internal_modelTreeListeners) != null ? tmp$0 : Kotlin.throwNPE()).iterator();
+            while (tmp$1.hasNext()) {
+              var lst = tmp$1.next();
+              lst.elementChanged(evt);
+            }
+          }
+        }
+        if (this.eContainer() != null) {
+          var tmp$2;
+          ((tmp$2 = this.eContainer()) != null ? tmp$2 : Kotlin.throwNPE()).fireModelEventOnTree(evt);
+        }
       }, writable: true},
       addModelTreeListener: {value: function (lst) {
-        throw new Error('Not activated, please add events option in KMF generation plugin');
+        if (this.internal_modelTreeListeners == null) {
+          this.internal_modelTreeListeners = Kotlin.ArrayList(0);
+        }
+        var tmp$0;
+        ((tmp$0 = this.internal_modelTreeListeners) != null ? tmp$0 : Kotlin.throwNPE()).add(lst);
       }, writable: true},
       removeModelTreeListener: {value: function (lst) {
-        throw new Error('Not activated, please add events option in KMF generation plugin');
+        if (this.internal_modelTreeListeners != null) {
+          var tmp$0, tmp$1;
+          ((tmp$0 = this.internal_modelTreeListeners) != null ? tmp$0 : Kotlin.throwNPE()).remove(lst);
+          if (((tmp$1 = this.internal_modelTreeListeners) != null ? tmp$1 : Kotlin.throwNPE()).isEmpty()) {
+            this.internal_modelTreeListeners = null;
+          }
+        }
       }, writable: true},
       removeAllModelTreeListeners: {value: function () {
-        throw new Error('Not activated, please add events option in KMF generation plugin');
+        if (this.internal_modelTreeListeners != null) {
+          var tmp$0;
+          ((tmp$0 = this.internal_modelTreeListeners) != null ? tmp$0 : Kotlin.throwNPE()).clear();
+          this.internal_modelElementListeners = null;
+        }
       }, writable: true},
       visit: {value: function (visitor, recursive, containedReference, nonContainedReference) {
       }, writable: true},
@@ -1567,13 +1634,16 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }, writable: true},
       internal_visit: {value: function (visitor, internalElem, recursive, containedReference, nonContainedReference, refName) {
         if (internalElem != null) {
-          if (nonContainedReference) {
-            var tmp$0;
+          if (nonContainedReference && recursive) {
+            var tmp$0, tmp$1, tmp$2;
             var elemPath = (tmp$0 = internalElem.path()) != null ? tmp$0 : Kotlin.throwNPE();
-            if (visitor.alreadyVisited.containsKey(elemPath)) {
+            if (visitor.alreadyVisited != null && ((tmp$1 = visitor.alreadyVisited) != null ? tmp$1 : Kotlin.throwNPE()).containsKey(elemPath)) {
               return;
             }
-            visitor.alreadyVisited.put(elemPath, internalElem);
+            if (visitor.alreadyVisited == null) {
+              visitor.alreadyVisited = Kotlin.PrimitiveHashMap(0);
+            }
+            ((tmp$2 = visitor.alreadyVisited) != null ? tmp$2 : Kotlin.throwNPE()).put(elemPath, internalElem);
           }
           visitor.visit(internalElem, refName, this);
           if (!visitor.visitStopped) {
@@ -1585,6 +1655,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
       }, writable: true},
       path: {value: function () {
+        if (this.path_cache != null) {
+          return this.path_cache;
+        }
         var container = this.eContainer();
         if (container != null) {
           var parentPath = container.path();
@@ -1599,12 +1672,13 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
              else {
               tmp$0 = parentPath + '/';
             }
-            return tmp$0 + this.internal_containmentRefName + '[' + this.internalGetKey() + ']';
+            this.path_cache = tmp$0 + this.internal_containmentRefName + '[' + this.internalGetKey() + ']';
           }
         }
          else {
-          return '';
+          this.path_cache = '';
         }
+        return this.path_cache;
       }, writable: true},
       modelEquals: {value: function (similarObj) {
         if (similarObj == null) {
@@ -1826,7 +1900,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }, {
           visit: {value: function (elem, refNameInParent, parent) {
             var concatedKey = refNameInParent + '_' + elem.path();
-            if (Kotlin.equals(values.get(concatedKey), concatedKey)) {
+            if (values.get(concatedKey) != null) {
               if (isInter) {
                 var tmp$0, tmp$1;
                 traces.add(_.org.kevoree.modeling.api.trace.ModelAddTrace((tmp$0 = $outer.path()) != null ? tmp$0 : Kotlin.throwNPE(), refNameInParent, (tmp$1 = elem.path()) != null ? tmp$1 : Kotlin.throwNPE(), null));
@@ -1871,8 +1945,24 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               var tmp$0 = objectsMap.values().iterator();
               while (tmp$0.hasNext()) {
                 var diffChild = tmp$0.next();
-                var tmp$1, tmp$2, tmp$3, tmp$4;
-                traces.add(_.org.kevoree.modeling.api.trace.ModelRemoveTrace((tmp$2 = ((tmp$1 = diffChild.eContainer()) != null ? tmp$1 : Kotlin.throwNPE()).path()) != null ? tmp$2 : Kotlin.throwNPE(), (tmp$3 = diffChild.getRefInParent()) != null ? tmp$3 : Kotlin.throwNPE(), (tmp$4 = (diffChild != null ? diffChild : Kotlin.throwNPE()).path()) != null ? tmp$4 : Kotlin.throwNPE()));
+                var tmp$3, tmp$5, tmp$6;
+                if (diffChild.eContainer() != null) {
+                  var tmp$1, tmp$2;
+                  tmp$3 = (tmp$2 = ((tmp$1 = diffChild.eContainer()) != null ? tmp$1 : Kotlin.throwNPE()).path()) != null ? tmp$2 : Kotlin.throwNPE();
+                }
+                 else {
+                  tmp$3 = 'null';
+                }
+                var src = tmp$3;
+                if (diffChild.getRefInParent() != null) {
+                  var tmp$4;
+                  tmp$5 = (tmp$4 = diffChild.getRefInParent()) != null ? tmp$4 : Kotlin.throwNPE();
+                }
+                 else {
+                  tmp$5 = 'null';
+                }
+                var refNameInParent = tmp$5;
+                traces.add(_.org.kevoree.modeling.api.trace.ModelRemoveTrace(src, refNameInParent, (tmp$6 = (diffChild != null ? diffChild : Kotlin.throwNPE()).path()) != null ? tmp$6 : Kotlin.throwNPE()));
               }
             }
           }
@@ -1936,14 +2026,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       Object.defineProperty(this, 'factory', {value: null, writable: true});
     }, /** @lends _.org.kevoree.modeling.api.json.JSONModelLoader.prototype */ {
       loadModelFromString: {value: function (str) {
-        var bytes = Kotlin.numberArrayOfSize(str.length);
-        var i = 0;
-        while (i < str.length) {
-          var tmp$0;
-          bytes[i] = (tmp$0 = str.charAt(i)) != null ? tmp$0 : Kotlin.throwNPE();
-          i = i + 1;
-        }
-        return this.deserialize(_.java.io.ByteArrayInputStream(bytes));
+        return this.deserialize(_.org.kevoree.modeling.api.util.ByteConverter.byteArrayInputStreamFromString(str));
       }, writable: true},
       loadModelFromStream: {value: function (inputStream) {
         return this.deserialize(inputStream);
@@ -2000,7 +2083,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                     commands.add(_.org.kevoree.modeling.api.json.ResolveCommand(roots, Kotlin.toString((tmp$2 = currentToken.value) != null ? tmp$2 : Kotlin.throwNPE()), currentObject != null ? currentObject : Kotlin.throwNPE(), currentNameAttOrRef != null ? currentNameAttOrRef : Kotlin.throwNPE()));
                   }
                    else {
-                    (currentObject != null ? currentObject : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, currentNameAttOrRef != null ? currentNameAttOrRef : Kotlin.throwNPE(), this.unescapeJSON(Kotlin.toString(currentToken.value)), false);
+                    (currentObject != null ? currentObject : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, currentNameAttOrRef != null ? currentNameAttOrRef : Kotlin.throwNPE(), this.unescapeJSON(Kotlin.toString(currentToken.value)), false, false);
                     currentNameAttOrRef = null;
                   }
                 }
@@ -2012,6 +2095,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 }
                  else {
                   refModel = true;
+                  if (currentToken.tokenType === _.org.kevoree.modeling.api.json.Type.VALUE) {
+                    var tmp$3;
+                    commands.add(_.org.kevoree.modeling.api.json.ResolveCommand(roots, Kotlin.toString((tmp$3 = currentToken.value) != null ? tmp$3 : Kotlin.throwNPE()), currentObject != null ? currentObject : Kotlin.throwNPE(), currentNameAttOrRef != null ? currentNameAttOrRef : Kotlin.throwNPE()));
+                  }
                 }
               }
               if (currentToken.tokenType === _.org.kevoree.modeling.api.json.Type.RIGHT_BRACKET) {
@@ -2020,7 +2107,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               }
               if (currentToken.tokenType === _.org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
                 if (parent != null) {
-                  parent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, nameInParent != null ? nameInParent : Kotlin.throwNPE(), currentObject, false);
+                  parent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, nameInParent != null ? nameInParent : Kotlin.throwNPE(), currentObject, false, false);
                 }
                 return;
               }
@@ -2080,7 +2167,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return outstream.toString();
       }, writable: true},
       serialize_0: {value: function (model, raw) {
-        var out = _.java.io.PrintStream(raw);
+        var out = _.java.io.PrintStream(_.java.io.BufferedOutputStream(raw), false);
         var internalReferenceVisitor = _.org.kevoree.modeling.api.json.ModelReferenceVisitor(out);
         var masterVisitor = _.org.kevoree.modeling.api.json.JSONModelSerializer.f0(this, out, internalReferenceVisitor);
         model.visit(masterVisitor, true, true, false);
@@ -2122,7 +2209,8 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               this.isFirstInRef = false;
             }
             $outer.printAttName(elem, out);
-            internalReferenceVisitor.alreadyVisited.clear();
+            var tmp$0;
+            (tmp$0 = internalReferenceVisitor.alreadyVisited) != null ? tmp$0.clear() : null;
             elem.visit(internalReferenceVisitor, false, false, true);
           }, writable: true, enumerable: true},
           endVisitElem: {value: function (elem) {
@@ -2193,7 +2281,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelAttributeVisitor, null, {
           visit: {value: function (value, name, parent) {
             if (value != null) {
-              clonedSrc.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, name, value, false);
+              clonedSrc.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, name, value, false, false);
             }
           }, writable: true, enumerable: true}
         });
@@ -2204,10 +2292,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }, {
           visit: {value: function (elem, refNameInParent, parent) {
             if (mutableOnly && elem.isRecursiveReadOnly()) {
-              target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem, false);
+              target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem, false, false);
             }
              else {
-              target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, context.get(elem), false);
+              target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, context.get(elem), false, false);
             }
           }, writable: true, enumerable: true}
         });
@@ -2253,14 +2341,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return this;
       }, writable: true},
       populateFromString: {value: function (addtracesTxt) {
-        var bytes = Kotlin.numberArrayOfSize(addtracesTxt.length);
-        var i = 0;
-        while (i < addtracesTxt.length) {
-          var tmp$0;
-          bytes[i] = (tmp$0 = addtracesTxt.charAt(i)) != null ? tmp$0 : Kotlin.throwNPE();
-          i = i + 1;
-        }
-        return this.populateFromStream(_.java.io.ByteArrayInputStream(bytes));
+        return this.populateFromStream(_.org.kevoree.modeling.api.util.ByteConverter.byteArrayInputStreamFromString(addtracesTxt));
       }, writable: true},
       populateFromStream: {value: function (inputStream) {
         var lexer = _.org.kevoree.modeling.api.json.Lexer(inputStream);
@@ -2297,7 +2378,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             }
              else if (tmp$1 === Kotlin.toString(_.org.kevoree.modeling.api.util.ActionType.ADD_ALL)) {
               var tmp$7, tmp$8, tmp$9, tmp$10, tmp$11, tmp$12;
-              this.traces.add(_.org.kevoree.modeling.api.trace.ModelAddAllTrace((tmp$7 = keys.get('src')) != null ? tmp$7 : Kotlin.throwNPE(), (tmp$8 = keys.get('refname')) != null ? tmp$8 : Kotlin.throwNPE(), (tmp$10 = (tmp$9 = keys.get('content')) != null ? Kotlin.splitString(tmp$9, ';') : null) != null ? _.kotlin.toList_8(tmp$10) : null, (tmp$12 = (tmp$11 = keys.get('typename')) != null ? Kotlin.splitString(tmp$11, ';') : null) != null ? _.kotlin.toList_8(tmp$12) : null));
+              this.traces.add(_.org.kevoree.modeling.api.trace.ModelAddAllTrace((tmp$7 = keys.get('src')) != null ? tmp$7 : Kotlin.throwNPE(), (tmp$8 = keys.get('refname')) != null ? tmp$8 : Kotlin.throwNPE(), (tmp$10 = (tmp$9 = keys.get('content')) != null ? Kotlin.splitString(tmp$9, ';') : null) != null ? _.kotlin.toList_2(tmp$10) : null, (tmp$12 = (tmp$11 = keys.get('typename')) != null ? Kotlin.splitString(tmp$11, ';') : null) != null ? _.kotlin.toList_2(tmp$12) : null));
             }
              else if (tmp$1 === Kotlin.toString(_.org.kevoree.modeling.api.util.ActionType.REMOVE)) {
               var tmp$13, tmp$14, tmp$15;
@@ -2310,6 +2391,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
              else if (tmp$1 === Kotlin.toString(_.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX)) {
             }
              else {
+              Kotlin.println('Trace lost !!!');
             }
           }
           currentToken = lexer.nextToken();
@@ -2345,7 +2427,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
     , cl = Kotlin.createClass(null, function () {
       Object.defineProperty(this, 'visitStopped', {value: false, writable: true});
       Object.defineProperty(this, 'visitChildren', {value: true, writable: true});
-      Object.defineProperty(this, 'alreadyVisited', {value: Kotlin.PrimitiveHashMap(0), writable: true});
+      Object.defineProperty(this, 'alreadyVisited', {value: null, writable: true});
     }, /** @lends _.org.kevoree.modeling.api.util.ModelVisitor.prototype */ {
       stopVisit: {value: function () {
         this.visitStopped = true;
@@ -2362,13 +2444,329 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       endVisitRef: {value: function (refName) {
       }, writable: true}
     })
-    , cm = Kotlin.createTrait(null, /** @lends _.org.w3c.dom.events.EventListener.prototype */ {
+    , cm = Kotlin.createClass(cf, function () {
+      Object.defineProperty(this, 'LOADER_XMI_LOCAL_NAME', {value: 'type'});
+      Object.defineProperty(this, 'LOADER_XMI_XSI', {value: 'xsi'});
+      Object.defineProperty(this, 'factory', {value: null, writable: true});
+      Object.defineProperty(this, 'attributesHashmap', {value: Kotlin.PrimitiveHashMap(0)});
+      Object.defineProperty(this, 'referencesHashmap', {value: Kotlin.PrimitiveHashMap(0)});
+      Object.defineProperty(this, 'attributeVisitor', {value: _.org.kevoree.modeling.api.xmi.XMIModelLoader.f1(this)});
+      Object.defineProperty(this, 'referencesVisitor', {value: _.org.kevoree.modeling.api.xmi.XMIModelLoader.f3(this)});
+    }, /** @lends _.org.kevoree.modeling.api.xmi.XMIModelLoader.prototype */ {
+      unescapeXml: {value: function (src) {
+        var builder = null;
+        var i = 0;
+        while (i < src.length) {
+          var c = src.charAt(i);
+          if (c === '&') {
+            if (builder == null) {
+              builder = _.java.lang.StringBuilder();
+              (builder != null ? builder : Kotlin.throwNPE()).append(src.substring(0, i));
+            }
+            if (src.charAt(i + 1) === 'a') {
+              if (src.charAt(i + 2) === 'm') {
+                builder != null ? builder.append('&') : null;
+                i = i + 5;
+              }
+               else if (src.charAt(i + 2) === 'p') {
+                builder != null ? builder.append("'") : null;
+                i = i + 6;
+              }
+               else {
+                Kotlin.println('Could not unescaped chain:' + src.charAt(i) + src.charAt(i + 1) + src.charAt(i + 2));
+              }
+            }
+             else if (src.charAt(i + 1) === 'q') {
+              builder != null ? builder.append('"') : null;
+              i = i + 6;
+            }
+             else if (src.charAt(i + 1) === 'l') {
+              builder != null ? builder.append('<') : null;
+              i = i + 4;
+            }
+             else if (src.charAt(i + 1) === 'g') {
+              builder != null ? builder.append('>') : null;
+              i = i + 4;
+            }
+             else {
+              Kotlin.println('Could not unescaped chain:' + src.charAt(i) + src.charAt(i + 1));
+            }
+          }
+           else {
+            if (builder != null) {
+              builder != null ? builder.append_0(c) : null;
+            }
+            i++;
+          }
+        }
+        if (builder != null) {
+          return Kotlin.toString(builder);
+        }
+         else {
+          return src;
+        }
+      }},
+      loadModelFromString: {value: function (str) {
+        var reader = _.org.kevoree.modeling.api.xmi.XmlParser(_.org.kevoree.modeling.api.util.ByteConverter.byteArrayInputStreamFromString(str));
+        if (reader.hasNext()) {
+          return this.deserialize(reader);
+        }
+         else {
+          Kotlin.println('Loader::Noting in the String !');
+          return null;
+        }
+      }, writable: true},
+      loadModelFromStream: {value: function (inputStream) {
+        var reader = _.org.kevoree.modeling.api.xmi.XmlParser(inputStream);
+        if (reader.hasNext()) {
+          return this.deserialize(reader);
+        }
+         else {
+          Kotlin.println('Loader::Noting in the file !');
+          return null;
+        }
+      }, writable: true},
+      loadObject: {value: function (ctx, xmiAddress, objectType) {
+        var tmp$0, tmp$12, tmp$13, tmp$14, tmp$15, tmp$16, tmp$17, tmp$18;
+        var elementTagName = ((tmp$0 = ctx.xmiReader) != null ? tmp$0 : Kotlin.throwNPE()).getLocalName();
+        var modelElem;
+        if (objectType != null) {
+          var tmp$1;
+          modelElem = (tmp$1 = this.factory) != null ? tmp$1.create(objectType) : null;
+          if (modelElem == null) {
+            var xsiType = null;
+            var tmp$2, tmp$3, tmp$4, tmp$5, tmp$6;
+            {
+              tmp$3 = Kotlin.NumberRange(0, ((tmp$2 = ctx.xmiReader) != null ? tmp$2 : Kotlin.throwNPE()).getAttributeCount() - 1), tmp$4 = tmp$3.get_start(), tmp$5 = tmp$3.get_end(), tmp$6 = tmp$3.get_increment();
+              for (var i = tmp$4; i <= tmp$5; i += tmp$6) {
+                var tmp$7, tmp$8;
+                var localName = ((tmp$7 = ctx.xmiReader) != null ? tmp$7 : Kotlin.throwNPE()).getAttributeLocalName(i);
+                var xsi = ((tmp$8 = ctx.xmiReader) != null ? tmp$8 : Kotlin.throwNPE()).getAttributePrefix(i);
+                if (Kotlin.equals(localName, this.LOADER_XMI_LOCAL_NAME) && Kotlin.equals(xsi, this.LOADER_XMI_XSI)) {
+                  var tmp$9;
+                  xsiType = ((tmp$9 = ctx.xmiReader) != null ? tmp$9 : Kotlin.throwNPE()).getAttributeValue(i);
+                  break;
+                }
+              }
+            }
+            if (xsiType != null) {
+              var tmp$10;
+              modelElem = (tmp$10 = this.factory) != null ? tmp$10.create((xsiType != null ? xsiType : Kotlin.throwNPE()).substring((xsiType != null ? xsiType : Kotlin.throwNPE()).lastIndexOf(':') + 1, (xsiType != null ? xsiType : Kotlin.throwNPE()).length)) : null;
+            }
+          }
+        }
+         else {
+          var tmp$11;
+          modelElem = (tmp$11 = this.factory) != null ? tmp$11.create(elementTagName != null ? elementTagName : Kotlin.throwNPE()) : null;
+        }
+        if (modelElem == null) {
+          Kotlin.println('Could not create an object for local name ' + elementTagName);
+        }
+        ctx.map.put(xmiAddress, modelElem != null ? modelElem : Kotlin.throwNPE());
+        if (!this.attributesHashmap.containsKey((modelElem != null ? modelElem : Kotlin.throwNPE()).metaClassName())) {
+          modelElem != null ? modelElem.visitAttributes(this.attributeVisitor) : null;
+        }
+        var elemAttributesMap = (tmp$12 = this.attributesHashmap.get((modelElem != null ? modelElem : Kotlin.throwNPE()).metaClassName())) != null ? tmp$12 : Kotlin.throwNPE();
+        if (!this.referencesHashmap.containsKey((modelElem != null ? modelElem : Kotlin.throwNPE()).metaClassName())) {
+          modelElem != null ? modelElem.visit(this.referencesVisitor, false, true, false) : null;
+        }
+        var elemReferencesMap = (tmp$13 = this.referencesHashmap.get((modelElem != null ? modelElem : Kotlin.throwNPE()).metaClassName())) != null ? tmp$13 : Kotlin.throwNPE();
+        {
+          tmp$15 = Kotlin.NumberRange(0, ((tmp$14 = ctx.xmiReader) != null ? tmp$14 : Kotlin.throwNPE()).getAttributeCount() - 1), tmp$16 = tmp$15.get_start(), tmp$17 = tmp$15.get_end(), tmp$18 = tmp$15.get_increment();
+          for (var i_0 = tmp$16; i_0 <= tmp$17; i_0 += tmp$18) {
+            var tmp$19;
+            var prefix = ((tmp$19 = ctx.xmiReader) != null ? tmp$19 : Kotlin.throwNPE()).getAttributePrefix(i_0);
+            if (prefix == null || Kotlin.equals(prefix, '')) {
+              var tmp$20, tmp$21;
+              var attrName = ((tmp$20 = ctx.xmiReader) != null ? tmp$20 : Kotlin.throwNPE()).getAttributeLocalName(i_0);
+              var valueAtt = ((tmp$21 = ctx.xmiReader) != null ? tmp$21 : Kotlin.throwNPE()).getAttributeValue(i_0);
+              if (valueAtt != null) {
+                if (elemAttributesMap.containsKey(attrName)) {
+                  modelElem != null ? modelElem.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, attrName != null ? attrName : Kotlin.throwNPE(), this.unescapeXml(valueAtt), false, false) : null;
+                }
+                 else {
+                  var tmp$22, tmp$23, tmp$24;
+                  {
+                    tmp$22 = Kotlin.splitString(valueAtt, ' '), tmp$23 = tmp$22.length;
+                    for (var tmp$24 = 0; tmp$24 !== tmp$23; ++tmp$24) {
+                      var xmiRef = tmp$22[tmp$24];
+                      {
+                        var tmp$25, tmp$26;
+                        if (xmiRef.startsWith('#')) {
+                          tmp$25 = xmiRef.substring(1);
+                        }
+                         else {
+                          tmp$25 = xmiRef;
+                        }
+                        var adjustedRef = tmp$25;
+                        if (adjustedRef.startsWith('//')) {
+                          tmp$26 = '/0' + adjustedRef.substring(1);
+                        }
+                         else {
+                          tmp$26 = adjustedRef;
+                        }
+                        adjustedRef = tmp$26;
+                        adjustedRef = adjustedRef.replace('.0', '');
+                        var ref = ctx.map.get(adjustedRef);
+                        if (ref != null) {
+                          modelElem != null ? modelElem.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, attrName != null ? attrName : Kotlin.throwNPE(), ref, false, false) : null;
+                        }
+                         else {
+                          ctx.resolvers.add(_.org.kevoree.modeling.api.xmi.XMIResolveCommand(ctx, modelElem != null ? modelElem : Kotlin.throwNPE(), _.org.kevoree.modeling.api.util.ActionType.ADD, attrName != null ? attrName : Kotlin.throwNPE(), adjustedRef));
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        var done = false;
+        while (!done) {
+          var tmp$27;
+          var tmp$28 = ((tmp$27 = ctx.xmiReader) != null ? tmp$27 : Kotlin.throwNPE()).next();
+          if (tmp$28 === _.org.kevoree.modeling.api.xmi.Token.START_TAG) {
+            var tmp$29, tmp$31;
+            var subElemName = ((tmp$29 = ctx.xmiReader) != null ? tmp$29 : Kotlin.throwNPE()).getLocalName();
+            var i_1 = ctx.elementsCount.get(xmiAddress + '/@' + subElemName) !== null ? ctx.elementsCount.get(xmiAddress + '/@' + subElemName) : 0;
+            var tmp$30 = xmiAddress + '/@' + subElemName;
+            if (i_1 !== 0) {
+              tmp$31 = '.' + i_1;
+            }
+             else {
+              tmp$31 = '';
+            }
+            var subElementId = tmp$30 + tmp$31;
+            var containedElement = this.loadObject(ctx, subElementId, elemReferencesMap.get(subElemName));
+            modelElem != null ? modelElem.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, subElemName != null ? subElemName : Kotlin.throwNPE(), containedElement, false, false) : null;
+            ctx.elementsCount.put(xmiAddress + '/@' + subElemName, i_1 + 1);
+          }
+           else if (tmp$28 === _.org.kevoree.modeling.api.xmi.Token.END_TAG) {
+            var tmp$32;
+            if (Kotlin.equals(((tmp$32 = ctx.xmiReader) != null ? tmp$32 : Kotlin.throwNPE()).getLocalName(), elementTagName)) {
+              done = true;
+            }
+          }
+           else {
+          }
+        }
+        return modelElem != null ? modelElem : Kotlin.throwNPE();
+      }},
+      deserialize: {value: function (reader) {
+        var context = _.org.kevoree.modeling.api.xmi.LoadingContext();
+        context.xmiReader = reader;
+        while (reader.hasNext()) {
+          var nextTag = reader.next();
+          if (nextTag === _.org.kevoree.modeling.api.xmi.Token.START_TAG) {
+            var localName = reader.getLocalName();
+            if (localName != null) {
+              var loadedRootsSize = context.loadedRoots.size();
+              context.loadedRoots.add(this.loadObject(context, '/' + loadedRootsSize, null));
+            }
+             else {
+              Kotlin.println('Tried to read a tag with null tag_name.');
+            }
+          }
+           else if (nextTag === _.org.kevoree.modeling.api.xmi.Token.END_TAG) {
+            break;
+          }
+           else if (nextTag === _.org.kevoree.modeling.api.xmi.Token.END_DOCUMENT) {
+            break;
+          }
+           else {
+          }
+        }
+        {
+          var tmp$0 = context.resolvers.iterator();
+          while (tmp$0.hasNext()) {
+            var res = tmp$0.next();
+            res.run();
+          }
+        }
+        return context.loadedRoots;
+      }}
+    }, /** @lends _.org.kevoree.modeling.api.xmi.XMIModelLoader */ {
+      f0: {value: function () {
+        return Kotlin.PrimitiveHashMap(0);
+      }},
+      f1: {value: function ($outer) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelAttributeVisitor, null, {
+          visit: {value: function (value, name, parent) {
+            _.kotlin.getOrPut($outer.attributesHashmap, parent.metaClassName(), _.org.kevoree.modeling.api.xmi.XMIModelLoader.f0).put(name, true);
+          }, writable: true, enumerable: true}
+        });
+      }},
+      f2: {value: function () {
+        return Kotlin.PrimitiveHashMap(0);
+      }},
+      f3: {value: function ($outer) {
+        return Kotlin.createObject(_.org.kevoree.modeling.api.util.ModelVisitor, function $fun() {
+          $fun.baseInitializer.call(this);
+          Object.defineProperty(this, 'refMap', {value: null, writable: true, enumerable: true});
+        }, {
+          beginVisitElem: {value: function (elem) {
+            this.refMap = _.kotlin.getOrPut($outer.referencesHashmap, elem.metaClassName(), _.org.kevoree.modeling.api.xmi.XMIModelLoader.f2);
+          }, writable: true, enumerable: true},
+          endVisitElem: {value: function (elem) {
+            this.refMap = null;
+          }, writable: true, enumerable: true},
+          beginVisitRef: {value: function (refName, refType) {
+            var tmp$0;
+            ((tmp$0 = this.refMap) != null ? tmp$0 : Kotlin.throwNPE()).put(refName, refType);
+          }, writable: true, enumerable: true},
+          visit: {value: function (elem, refNameInParent, parent) {
+          }, writable: true, enumerable: true}
+        });
+      }}
+    })
+    , cn = Kotlin.createClass(cg, null, /** @lends _.org.kevoree.modeling.api.xmi.XMIModelSerializer.prototype */ {
+      serialize: {value: function (oMS) {
+        var oo = _.java.io.ByteArrayOutputStream();
+        this.serialize_0(oMS, oo);
+        oo.flush();
+        return oo.toString();
+      }, writable: true},
+      serialize_0: {value: function (oMS, ostream) {
+        var wt = _.java.io.PrintStream(_.java.io.BufferedOutputStream(ostream), false);
+        var addressTable = Kotlin.ComplexHashMap(0);
+        var packageList = Kotlin.ArrayList(0);
+        addressTable.put(oMS, '/');
+        var elementsCount = Kotlin.PrimitiveHashMap(0);
+        var addressBuilderVisitor = _.org.kevoree.modeling.api.xmi.ModelAddressVisitor(addressTable, elementsCount, packageList);
+        oMS.visit(addressBuilderVisitor, true, true, false);
+        var masterVisitor = _.org.kevoree.modeling.api.xmi.ModelSerializationVisitor(wt, addressTable, elementsCount);
+        wt.println('<?xml version="1.0" encoding="UTF-8"?>');
+        wt.print('<' + this.formatMetaClassName(oMS.metaClassName()).replace('.', '_'));
+        wt.print(' xmlns:xsi="http://wwww.w3.org/2001/XMLSchema-instance"');
+        wt.print(' xmi:version="2.0"');
+        wt.print(' xmlns:xmi="http://www.omg.org/XMI"');
+        var index = 0;
+        while (index < _.kotlin.get_size(packageList)) {
+          wt.print(' xmlns:' + packageList.get(index).replace('.', '_') + '="http://' + packageList.get(index) + '"');
+          index++;
+        }
+        oMS.visitAttributes(_.org.kevoree.modeling.api.xmi.AttributesVisitor(wt));
+        oMS.visit(_.org.kevoree.modeling.api.xmi.ReferencesVisitor(wt, addressTable, elementsCount), false, false, true);
+        wt.println('>');
+        oMS.visit(masterVisitor, false, true, false);
+        wt.println('<\/' + this.formatMetaClassName(oMS.metaClassName()).replace('.', '_') + '>');
+        wt.flush();
+      }, writable: true},
+      formatMetaClassName: {value: function (metaClassName) {
+        var lastPoint = _.js.lastIndexOf_0(metaClassName, '.');
+        var pack = metaClassName.substring(0, lastPoint);
+        var cls = metaClassName.substring(lastPoint + 1);
+        return pack + ':' + cls;
+      }}
+    })
+    , co = Kotlin.createTrait(null, /** @lends _.org.w3c.dom.events.EventListener.prototype */ {
       handleEvent: {value: function (arg1) {
         noImpl;
       }, writable: true}
     })
-    , cn = Kotlin.createTrait(null)
-    , co = Kotlin.createClass(Kotlin.Iterator, function () {
+    , cp = Kotlin.createTrait(null)
+    , cq = Kotlin.createClass(Kotlin.Iterator, function () {
       Object.defineProperty(this, 'state', {value: _.kotlin.support.State.NotReady, writable: true});
       Object.defineProperty(this, 'nextValue', {value: null, writable: true});
     }, /** @lends _.kotlin.support.AbstractIterator.prototype */ {
@@ -2409,24 +2807,42 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         this.state = _.kotlin.support.State.Done;
       }}
     });
-    return {c0: c0, c1: c1, cc: cc, c2: c2, cd: cd, c3: c3, c4: c4, c5: c5, c6: c6, c7: c7, c8: c8, c9: c9, cf: cf, ca: ca, cg: cg, cb: cb, ce: ce, ch: ch, ci: ci, cj: cj, ck: ck, cl: cl, cm: cm, cn: cn, co: co};
+    return {c0: c0, c1: c1, cc: cc, c2: c2, cd: cd, c3: c3, c4: c4, c5: c5, c6: c6, c7: c7, c8: c8, c9: c9, cf: cf, ca: ca, cg: cg, cb: cb, ce: ce, ch: ch, ci: ci, cj: cj, ck: ck, cl: cl, cm: cm, cn: cn, co: co, cp: cp, cq: cq};
   }()
   , _ = Object.create(null, {
     kotlin: Kotlin.definePackage(null, {
-      hashMap: {value: function (values) {
-        var answer = Kotlin.ComplexHashMap(0);
-        var tmp$0, tmp$1, tmp$2;
-        {
-          tmp$0 = values, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var v = tmp$0[tmp$2];
-            {
-              answer.put(v.first, v.second);
-            }
-          }
-        }
-        return answer;
-      }},
+      Pair: {value: Kotlin.createClass(null, function (first, second) {
+        Object.defineProperty(this, 'first', {value: first});
+        Object.defineProperty(this, 'second', {value: second});
+      }, /** @lends _.kotlin.Pair.prototype */ {
+        component1: {value: function () {
+          return this.first;
+        }},
+        component2: {value: function () {
+          return this.second;
+        }},
+        toString: {value: function () {
+          return '(' + this.first.toString() + ', ' + this.second.toString() + ')';
+        }}
+      })},
+      Triple: {value: Kotlin.createClass(null, function (first, second, third) {
+        Object.defineProperty(this, 'first', {value: first});
+        Object.defineProperty(this, 'second', {value: second});
+        Object.defineProperty(this, 'third', {value: third});
+      }, /** @lends _.kotlin.Triple.prototype */ {
+        component1: {value: function () {
+          return this.first;
+        }},
+        component2: {value: function () {
+          return this.second;
+        }},
+        component3: {value: function () {
+          return this.third;
+        }},
+        toString: {value: function () {
+          return '(' + this.first.toString() + ', ' + this.second.toString() + ', ' + this.third.toString() + ')';
+        }}
+      })},
       toString: {value: function ($receiver) {
         return _.kotlin.makeString($receiver, ', ', '[', ']', -1, '...');
       }},
@@ -2464,41 +2880,61 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       mapValues: {value: function ($receiver, transform) {
         return _.kotlin.mapValuesTo($receiver, Kotlin.ComplexHashMap(0), transform);
       }},
-      Pair: {value: Kotlin.createClass(null, function (first, second) {
-        Object.defineProperty(this, 'first', {value: first});
-        Object.defineProperty(this, 'second', {value: second});
-      }, /** @lends _.kotlin.Pair.prototype */ {
-        component1: {value: function () {
-          return this.first;
-        }},
-        component2: {value: function () {
-          return this.second;
-        }},
-        toString: {value: function () {
-          return '(' + this.first.toString() + ', ' + this.second.toString() + ')';
-        }}
-      })},
-      Triple: {value: Kotlin.createClass(null, function (first, second, third) {
-        Object.defineProperty(this, 'first', {value: first});
-        Object.defineProperty(this, 'second', {value: second});
-        Object.defineProperty(this, 'third', {value: third});
-      }, /** @lends _.kotlin.Triple.prototype */ {
-        component1: {value: function () {
-          return this.first;
-        }},
-        component2: {value: function () {
-          return this.second;
-        }},
-        component3: {value: function () {
-          return this.third;
-        }},
-        toString: {value: function () {
-          return '(' + this.first.toString() + ', ' + this.second.toString() + ', ' + this.third.toString() + ')';
-        }}
-      })},
+      hashMap: {value: function (values) {
+        var answer = Kotlin.ComplexHashMap(0);
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = values, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var v = tmp$0[tmp$2];
+            {
+              answer.put(v.first, v.second);
+            }
+          }
+        }
+        return answer;
+      }},
+      require: {value: function (value, message) {
+        if (!value) {
+          throw Kotlin.IllegalArgumentException(Kotlin.toString(message));
+        }
+      }},
+      require_0: {value: function (value, lazyMessage) {
+        if (!value) {
+          var message = lazyMessage();
+          throw Kotlin.IllegalArgumentException(message.toString());
+        }
+      }},
+      requireNotNull: {value: function (value, message) {
+        if (value == null) {
+          throw Kotlin.IllegalArgumentException(Kotlin.toString(message));
+        }
+         else {
+          return value;
+        }
+      }},
+      check: {value: function (value, message) {
+        if (!value) {
+          throw Kotlin.IllegalStateException(Kotlin.toString(message));
+        }
+      }},
+      check_0: {value: function (value, lazyMessage) {
+        if (!value) {
+          var message = lazyMessage();
+          throw Kotlin.IllegalStateException(message.toString());
+        }
+      }},
+      checkNotNull: {value: function (value, message) {
+        if (value == null) {
+          throw Kotlin.IllegalStateException(message);
+        }
+         else {
+          return value;
+        }
+      }},
       all: {value: function ($receiver, predicate) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (!predicate(element))
@@ -2509,7 +2945,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       any: {value: function ($receiver, predicate) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -2521,7 +2957,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       count: {value: function ($receiver, predicate) {
         var count = 0;
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -2532,7 +2968,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       find: {value: function ($receiver, predicate) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -2541,12 +2977,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return null;
       }},
-      filter: {value: function ($receiver, predicate) {
-        return _.kotlin.filterTo($receiver, Kotlin.ArrayList(0), predicate);
-      }},
       filterTo: {value: function ($receiver, result, predicate) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -2555,15 +2988,23 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      filterNot: {value: function ($receiver, predicate) {
-        return _.kotlin.filterNotTo($receiver, Kotlin.ArrayList(0), predicate);
-      }},
       filterNotTo: {value: function ($receiver, result, predicate) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (!predicate(element))
+              result.add(element);
+          }
+        }
+        return result;
+      }},
+      filterNotNullTo: {value: function ($receiver, result) {
+        {
+          var tmp$0 = $receiver.iterator();
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            if (element != null)
               result.add(element);
           }
         }
@@ -2573,7 +3014,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         var first = Kotlin.ArrayList(0);
         var second = Kotlin.ArrayList(0);
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element)) {
@@ -2586,12 +3027,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return _.kotlin.Pair(first, second);
       }},
-      map_0: {value: function ($receiver, transform) {
-        return _.kotlin.mapTo_0($receiver, Kotlin.ArrayList(0), transform);
-      }},
       mapTo_0: {value: function ($receiver, result, transform) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var item = tmp$0.next();
             result.add(transform(item));
@@ -2599,12 +3037,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      flatMap: {value: function ($receiver, transform) {
-        return _.kotlin.flatMapTo($receiver, Kotlin.ArrayList(0), transform);
-      }},
       flatMapTo: {value: function ($receiver, result, transform) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             var list = transform(element);
@@ -2621,7 +3056,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       forEach: {value: function ($receiver, operation) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             operation(element);
@@ -2631,7 +3066,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       fold: {value: function ($receiver, initial, operation) {
         var answer = initial;
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             answer = operation(answer, element);
@@ -2639,16 +3074,8 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      foldRight: {value: function ($receiver, initial, operation) {
-        var r = initial;
-        var index = $receiver.length - 1;
-        while (index >= 0) {
-          r = operation($receiver[index--], r);
-        }
-        return r;
-      }},
       reduce: {value: function ($receiver, operation) {
-        var iterator = Kotlin.arrayIterator($receiver);
+        var iterator = $receiver.iterator();
         if (!iterator.hasNext()) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
         }
@@ -2658,17 +3085,6 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      reduceRight: {value: function ($receiver, operation) {
-        var index = $receiver.length - 1;
-        if (index < 0) {
-          throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
-        }
-        var r = $receiver[index--];
-        while (index >= 0) {
-          r = operation($receiver[index--], r);
-        }
-        return r;
-      }},
       groupBy: {value: function ($receiver, toKey) {
         return _.kotlin.groupByTo($receiver, Kotlin.ComplexHashMap(0), toKey);
       }},
@@ -2677,7 +3093,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       groupByTo: {value: function ($receiver, result, toKey) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             var key = toKey(element);
@@ -2696,7 +3112,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       dropWhileTo: {value: function ($receiver, result, predicate) {
         var start = true;
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (start && predicate(element)) {
@@ -2709,15 +3125,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      take: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile($receiver, _.kotlin.countTo(n));
-      }},
-      takeWhile: {value: function ($receiver, predicate) {
-        return _.kotlin.takeWhileTo($receiver, Kotlin.ArrayList(0), predicate);
-      }},
       takeWhileTo: {value: function ($receiver, result, predicate) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -2730,7 +3140,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       toCollection: {value: function ($receiver, result) {
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             result.add(element);
@@ -2755,29 +3165,8 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       toSortedSet: {value: function ($receiver) {
         return _.kotlin.toCollection($receiver, Kotlin.TreeSet());
       }},
-      plus: {value: function ($receiver, element) {
-        var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection($receiver, answer);
-        answer.add(element);
-        return answer;
-      }},
-      plus_0: {value: function ($receiver, iterator) {
-        var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection($receiver, answer);
-        {
-          var tmp$0 = iterator;
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            answer.add(element);
-          }
-        }
-        return answer;
-      }},
-      plus_1: {value: function ($receiver, collection) {
-        return _.kotlin.plus_0($receiver, collection.iterator());
-      }},
       withIndices: {value: function ($receiver) {
-        return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
+        return _.kotlin.IndexIterator($receiver.iterator());
       }},
       f1: {value: function (f, x, y) {
         var xr = f(x);
@@ -2794,7 +3183,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         buffer.append(prefix);
         var count = 0;
         {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
+          var tmp$0 = $receiver.iterator();
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (++count > 1)
@@ -2811,513 +3200,11 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString_0: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
       }},
-      test: Kotlin.definePackage(function () {
-        Object.defineProperty(this, 'asserter', {value: _.kotlin.test.QUnitAsserter(), writable: true});
-      }, {
-        todo: {value: function (block) {
-          Kotlin.println('TODO at ' + block);
-        }},
-        QUnitAsserter: {value: Kotlin.createClass(classes.cn, null, /** @lends _.kotlin.test.QUnitAsserter.prototype */ {
-          assertTrue: {value: function (message, actual) {
-            ok(actual, message);
-          }, writable: true},
-          assertEquals: {value: function (message, expected, actual) {
-            ok(Kotlin.equals(expected, actual), message + '. Expected <' + expected.toString() + '> actual <' + actual.toString() + '>');
-          }, writable: true},
-          assertNotNull: {value: function (message, actual) {
-            ok(actual != null, message);
-          }, writable: true},
-          assertNull: {value: function (message, actual) {
-            ok(actual == null, message);
-          }, writable: true},
-          fail: {value: function (message) {
-            ok(false, message);
-          }, writable: true}
-        })},
-        assertTrue: {value: function (message, block) {
-          var actual = block();
-          _.kotlin.test.asserter.assertTrue(message, actual);
-        }},
-        assertTrue_0: {value: function (block) {
-          _.kotlin.test.assertTrue(Kotlin.toString(block), block);
-        }},
-        f0: {value: function (block) {
-          return !block();
-        }},
-        assertNot: {value: function (message, block) {
-          _.kotlin.test.assertTrue(message, _.kotlin.test.f0.bind(null, block));
-        }},
-        assertNot_0: {value: function (block) {
-          _.kotlin.test.assertNot(Kotlin.toString(block), block);
-        }},
-        assertTrue_1: {value: function (actual, message) {
-          return _.kotlin.test.assertEquals(true, actual, message);
-        }},
-        assertFalse: {value: function (actual, message) {
-          return _.kotlin.test.assertEquals(false, actual, message);
-        }},
-        assertEquals: {value: function (expected, actual, message) {
-          _.kotlin.test.asserter.assertEquals(message, expected, actual);
-        }},
-        assertNotNull: {value: function (actual, message) {
-          _.kotlin.test.asserter.assertNotNull(message, actual);
-          return actual != null ? actual : Kotlin.throwNPE();
-        }},
-        assertNotNull_0: {value: function (actual, message, block) {
-          _.kotlin.test.asserter.assertNotNull(message, actual);
-          if (actual != null) {
-            block(actual);
-          }
-        }},
-        assertNull: {value: function (actual, message) {
-          _.kotlin.test.asserter.assertNull(message, actual);
-        }},
-        fail: {value: function (message) {
-          _.kotlin.test.asserter.fail(message);
-        }},
-        expect: {value: function (expected, block) {
-          _.kotlin.test.expect_0(expected, Kotlin.toString(block), block);
-        }},
-        expect_0: {value: function (expected, message, block) {
-          var actual = block();
-          _.kotlin.test.assertEquals(expected, actual, message);
-        }},
-        fails: {value: function (block) {
-          try {
-            block();
-            _.kotlin.test.asserter.fail('Expected an exception to be thrown');
-            return null;
-          }
-           catch (e) {
-            return e;
-          }
-        }},
-        Asserter: {value: classes.cn}
-      }),
-      dom: Kotlin.definePackage(null, {
-        createDocument: {value: function () {
-          return document.implementation.createDocument(null, null, null);
-        }},
-        toXmlString: {value: function ($receiver) {
-          return $receiver.outerHTML;
-        }},
-        toXmlString_0: {value: function ($receiver, xmlDeclaration) {
-          return $receiver.outerHTML;
-        }},
-        eventHandler: {value: function (handler) {
-          return _.kotlin.dom.EventListenerHandler(handler);
-        }},
-        EventListenerHandler: {value: Kotlin.createClass(classes.cm, function (handler) {
-          Object.defineProperty(this, 'handler', {value: handler});
-        }, /** @lends _.kotlin.dom.EventListenerHandler.prototype */ {
-          handleEvent: {value: function (e) {
-            if (e != null) {
-              this.handler(e);
-            }
-          }, writable: true}
-        })},
-        f0: {value: function (handler, e) {
-          if (Kotlin.isType(e, MouseEvent)) {
-            handler(e);
-          }
-        }},
-        mouseEventHandler: {value: function (handler) {
-          return _.kotlin.dom.eventHandler(_.kotlin.dom.f0.bind(null, handler));
-        }},
-        on: {value: function ($receiver, name, capture, handler) {
-          return _.kotlin.dom.on_0($receiver, name, capture, _.kotlin.dom.eventHandler(handler));
-        }},
-        on_0: {value: function ($receiver, name, capture, listener) {
-          var tmp$0;
-          if (Kotlin.isType($receiver, EventTarget)) {
-            addEventListener(name, listener, capture);
-            tmp$0 = _.kotlin.dom.CloseableEventListener($receiver, listener, name, capture);
-          }
-           else {
-            tmp$0 = null;
-          }
-          return tmp$0;
-        }},
-        CloseableEventListener: {value: Kotlin.createClass(Kotlin.Closeable, function (target, listener, name, capture) {
-          Object.defineProperty(this, 'target', {value: target});
-          Object.defineProperty(this, 'listener', {value: listener});
-          Object.defineProperty(this, 'name', {value: name});
-          Object.defineProperty(this, 'capture', {value: capture});
-        }, /** @lends _.kotlin.dom.CloseableEventListener.prototype */ {
-          close: {value: function () {
-            this.target.removeEventListener(this.name, this.listener, this.capture);
-          }, writable: true}
-        })},
-        onClick: {value: function ($receiver, capture, handler) {
-          return _.kotlin.dom.on_0($receiver, 'click', capture, _.kotlin.dom.mouseEventHandler(handler));
-        }},
-        onDoubleClick: {value: function ($receiver, capture, handler) {
-          return _.kotlin.dom.on_0($receiver, 'dblclick', capture, _.kotlin.dom.mouseEventHandler(handler));
-        }},
-        emptyElementList: {value: function () {
-          return Kotlin.emptyList();
-        }},
-        emptyNodeList: {value: function () {
-          return Kotlin.emptyList();
-        }},
-        get_text: {value: function ($receiver) {
-          return $receiver.textContent;
-        }},
-        set_text: {value: function ($receiver, value) {
-          $receiver.textContent = value;
-        }},
-        get_childrenText: {value: function ($receiver) {
-          var buffer = Kotlin.StringBuilder();
-          var nodeList = $receiver.childNodes;
-          var i = 0;
-          var size = nodeList.length;
-          while (i < size) {
-            var node = nodeList.item(i);
-            if (node != null) {
-              if (_.kotlin.dom.isText(node)) {
-                buffer.append(node.nodeValue);
-              }
-            }
-            i++;
-          }
-          return buffer.toString();
-        }},
-        set_childrenText: {value: function ($receiver, value) {
-          var element = $receiver;
-          {
-            var tmp$0 = _.kotlin.dom.children(element).iterator();
-            while (tmp$0.hasNext()) {
-              var node = tmp$0.next();
-              if (_.kotlin.dom.isText(node)) {
-                $receiver.removeChild(node);
-              }
-            }
-          }
-          _.kotlin.dom.addText(element, value, null);
-        }},
-        get_id: {value: function ($receiver) {
-          return $receiver.getAttribute('id') !== null ? $receiver.getAttribute('id') : '';
-        }},
-        set_id: {value: function ($receiver, value) {
-          $receiver.setAttribute('id', value);
-          $receiver.setIdAttribute('id', true);
-        }},
-        get_style: {value: function ($receiver) {
-          return $receiver.getAttribute('style') !== null ? $receiver.getAttribute('style') : '';
-        }},
-        set_style: {value: function ($receiver, value) {
-          $receiver.setAttribute('style', value);
-        }},
-        get_classes: {value: function ($receiver) {
-          return $receiver.getAttribute('class') !== null ? $receiver.getAttribute('class') : '';
-        }},
-        set_classes: {value: function ($receiver, value) {
-          $receiver.setAttribute('class', value);
-        }},
-        hasClass: {value: function ($receiver, cssClass) {
-          var c = _.kotlin.dom.get_classes($receiver);
-          return _.js.matches(c, '(^|.*' + '\\' + 's+)' + cssClass + '(' + '$' + '|' + '\\' + 's+.*)');
-        }},
-        children: {value: function ($receiver) {
-          return _.kotlin.dom.toList($receiver != null ? $receiver.childNodes : null);
-        }},
-        f1: {value: function (it) {
-          return it.nodeType === Node.ELEMENT_NODE;
-        }},
-        f2: {value: function (it) {
-          return it != null ? it : Kotlin.throwNPE();
-        }},
-        childElements: {value: function ($receiver) {
-          return _.kotlin.map_3(_.kotlin.filter_2(_.kotlin.dom.children($receiver), _.kotlin.dom.f1), _.kotlin.dom.f2);
-        }},
-        f3: {value: function (name, it) {
-          return it.nodeType === Node.ELEMENT_NODE && Kotlin.equals(it.nodeName, name);
-        }},
-        f4: {value: function (it) {
-          return it != null ? it : Kotlin.throwNPE();
-        }},
-        childElements_0: {value: function ($receiver, name) {
-          return _.kotlin.map_3(_.kotlin.filter_2(_.kotlin.dom.children($receiver), _.kotlin.dom.f3.bind(null, name)), _.kotlin.dom.f4);
-        }},
-        get_elements: {value: function ($receiver) {
-          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName('*') : null);
-        }},
-        get_elements: {value: function ($receiver) {
-          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName('*') : null);
-        }},
-        elements: {value: function ($receiver, localName) {
-          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName(localName) : null);
-        }},
-        elements_0: {value: function ($receiver, localName) {
-          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName(localName) : null);
-        }},
-        elements_1: {value: function ($receiver, namespaceUri, localName) {
-          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagNameNS(namespaceUri, localName) : null);
-        }},
-        elements_2: {value: function ($receiver, namespaceUri, localName) {
-          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagNameNS(namespaceUri, localName) : null);
-        }},
-        toList: {value: function ($receiver) {
-          var tmp$0;
-          if ($receiver == null) {
-            tmp$0 = _.kotlin.dom.emptyNodeList();
-          }
-           else {
-            tmp$0 = _.kotlin.dom.NodeListAsList($receiver);
-          }
-          return tmp$0;
-        }},
-        toElementList: {value: function ($receiver) {
-          var tmp$0;
-          if ($receiver == null) {
-            tmp$0 = Kotlin.ArrayList(0);
-          }
-           else {
-            tmp$0 = _.kotlin.dom.ElementListAsList($receiver);
-          }
-          return tmp$0;
-        }},
-        f5: {value: function (selector, it) {
-          return _.kotlin.dom.hasClass(it, selector.substring(1));
-        }},
-        get: {value: function ($receiver, selector) {
-          var root = $receiver != null ? $receiver.documentElement : null;
-          var tmp$0;
-          if (root != null) {
-            if (Kotlin.equals(selector, '*')) {
-              tmp$0 = _.kotlin.dom.get_elements($receiver);
-            }
-             else if (selector.startsWith('.')) {
-              tmp$0 = _.kotlin.toList_2(_.kotlin.filter_2(_.kotlin.dom.get_elements($receiver), _.kotlin.dom.f5.bind(null, selector)));
-            }
-             else if (selector.startsWith('#')) {
-              var id = selector.substring(1);
-              var element = $receiver != null ? $receiver.getElementById(id) : null;
-              return element != null ? _.kotlin.arrayList([element]) : _.kotlin.dom.emptyElementList();
-            }
-             else {
-              tmp$0 = _.kotlin.dom.elements_0($receiver, selector);
-            }
-          }
-           else {
-            tmp$0 = _.kotlin.dom.emptyElementList();
-          }
-          return tmp$0;
-        }},
-        f6: {value: function (selector, it) {
-          return _.kotlin.dom.hasClass(it, selector.substring(1));
-        }},
-        get_0: {value: function ($receiver, selector) {
-          var tmp$1;
-          if (Kotlin.equals(selector, '*')) {
-            tmp$1 = _.kotlin.dom.get_elements($receiver);
-          }
-           else if (selector.startsWith('.')) {
-            tmp$1 = _.kotlin.toList_2(_.kotlin.filter_2(_.kotlin.dom.get_elements($receiver), _.kotlin.dom.f6.bind(null, selector)));
-          }
-           else if (selector.startsWith('#')) {
-            var tmp$0;
-            var element = (tmp$0 = $receiver.ownerDocument) != null ? tmp$0.getElementById(selector.substring(1)) : null;
-            return element != null ? _.kotlin.arrayList([element]) : _.kotlin.dom.emptyElementList();
-          }
-           else {
-            tmp$1 = _.kotlin.dom.elements($receiver, selector);
-          }
-          return tmp$1;
-        }},
-        NodeListAsList: {value: Kotlin.createClass(Kotlin.AbstractList, function $fun(nodeList) {
-          Object.defineProperty(this, 'nodeList', {value: nodeList});
-          $fun.baseInitializer.call(this);
-        }, /** @lends _.kotlin.dom.NodeListAsList.prototype */ {
-          get: {value: function (index) {
-            var node = this.nodeList.item(index);
-            if (node == null) {
-              throw new RangeError('NodeList does not contain a node at index: ' + index);
-            }
-             else {
-              return node;
-            }
-          }, writable: true},
-          size: {value: function () {
-            return this.nodeList.length;
-          }, writable: true}
-        })},
-        ElementListAsList: {value: Kotlin.createClass(Kotlin.AbstractList, function $fun(nodeList) {
-          Object.defineProperty(this, 'nodeList', {value: nodeList});
-          $fun.baseInitializer.call(this);
-        }, /** @lends _.kotlin.dom.ElementListAsList.prototype */ {
-          get: {value: function (index) {
-            var node = this.nodeList.item(index);
-            if (node == null) {
-              throw new RangeError('NodeList does not contain a node at index: ' + index);
-            }
-             else if (node.nodeType === Node.ELEMENT_NODE) {
-              return node != null ? node : Kotlin.throwNPE();
-            }
-             else {
-              throw Kotlin.IllegalArgumentException('Node is not an Element as expected but is ' + node.toString());
-            }
-          }, writable: true},
-          size: {value: function () {
-            return this.nodeList.length;
-          }, writable: true}
-        })},
-        clear: {value: function ($receiver) {
-          while (true) {
-            var child = $receiver.firstChild;
-            if (child == null) {
-              return;
-            }
-             else {
-              $receiver.removeChild(child);
-            }
-          }
-        }},
-        nextSiblings: {value: function ($receiver) {
-          return _.kotlin.dom.NextSiblingIterator($receiver);
-        }},
-        NextSiblingIterator: {value: Kotlin.createClass(classes.co, function $fun(node) {
-          Object.defineProperty(this, 'node', {value: node, writable: true});
-          $fun.baseInitializer.call(this);
-        }, /** @lends _.kotlin.dom.NextSiblingIterator.prototype */ {
-          computeNext: {value: function () {
-            var nextValue = this.node.nextSibling;
-            if (nextValue != null) {
-              this.setNext(nextValue);
-              this.node = nextValue;
-            }
-             else {
-              this.done();
-            }
-          }, writable: true}
-        })},
-        previousSiblings: {value: function ($receiver) {
-          return _.kotlin.dom.PreviousSiblingIterator($receiver);
-        }},
-        PreviousSiblingIterator: {value: Kotlin.createClass(classes.co, function $fun(node) {
-          Object.defineProperty(this, 'node', {value: node, writable: true});
-          $fun.baseInitializer.call(this);
-        }, /** @lends _.kotlin.dom.PreviousSiblingIterator.prototype */ {
-          computeNext: {value: function () {
-            var nextValue = this.node.previousSibling;
-            if (nextValue != null) {
-              this.setNext(nextValue);
-              this.node = nextValue;
-            }
-             else {
-              this.done();
-            }
-          }, writable: true}
-        })},
-        isText: {value: function ($receiver) {
-          var nt = $receiver.nodeType;
-          return nt === Node.TEXT_NODE || nt === Node.CDATA_SECTION_NODE;
-        }},
-        attribute: {value: function ($receiver, name) {
-          return $receiver.getAttribute(name) !== null ? $receiver.getAttribute(name) : '';
-        }},
-        get_head: {value: function ($receiver) {
-          return $receiver != null && $receiver.length > 0 ? $receiver.item(0) : null;
-        }},
-        get_first: {value: function ($receiver) {
-          return _.kotlin.dom.get_head($receiver);
-        }},
-        get_tail: {value: function ($receiver) {
-          if ($receiver == null) {
-            return null;
-          }
-           else {
-            var s = $receiver.length;
-            return s > 0 ? $receiver.item(s - 1) : null;
-          }
-        }},
-        get_last: {value: function ($receiver) {
-          return _.kotlin.dom.get_tail($receiver);
-        }},
-        toXmlString_1: {value: function ($receiver, xmlDeclaration) {
-          var tmp$0;
-          if ($receiver == null)
-            tmp$0 = '';
-          else {
-            tmp$0 = _.kotlin.dom.nodesToXmlString(_.kotlin.dom.toList($receiver), xmlDeclaration);
-          }
-          return tmp$0;
-        }},
-        nodesToXmlString: {value: function (nodes, xmlDeclaration) {
-          var builder = Kotlin.StringBuilder();
-          {
-            var tmp$0 = nodes.iterator();
-            while (tmp$0.hasNext()) {
-              var n = tmp$0.next();
-              builder.append(_.kotlin.dom.toXmlString_0(n, xmlDeclaration));
-            }
-          }
-          return builder.toString();
-        }},
-        plus: {value: function ($receiver, child) {
-          if (child != null) {
-            $receiver.appendChild(child);
-          }
-          return $receiver;
-        }},
-        plus_0: {value: function ($receiver, text) {
-          return _.kotlin.dom.addText($receiver, text, null);
-        }},
-        plusAssign: {value: function ($receiver, text) {
-          return _.kotlin.dom.addText($receiver, text, null);
-        }},
-        createElement: {value: function ($receiver, name, init) {
-          var tmp$0;
-          var elem = (tmp$0 = $receiver.createElement(name)) != null ? tmp$0 : Kotlin.throwNPE();
-          init(elem);
-          return elem;
-        }},
-        createElement_0: {value: function ($receiver, name, doc, init) {
-          var tmp$0;
-          var elem = (tmp$0 = _.kotlin.dom.ownerDocument($receiver, doc).createElement(name)) != null ? tmp$0 : Kotlin.throwNPE();
-          init(elem);
-          return elem;
-        }},
-        ownerDocument: {value: function ($receiver, doc) {
-          var tmp$0;
-          if ($receiver.nodeType === Node.DOCUMENT_NODE)
-            tmp$0 = $receiver != null ? $receiver : Kotlin.throwNPE();
-          else if (doc == null)
-            tmp$0 = $receiver.ownerDocument;
-          else
-            tmp$0 = doc;
-          var answer = tmp$0;
-          if (answer == null) {
-            throw Kotlin.IllegalArgumentException('Element does not have an ownerDocument and none was provided for: ' + $receiver.toString());
-          }
-           else {
-            return answer;
-          }
-        }},
-        addElement: {value: function ($receiver, name, init) {
-          var child = _.kotlin.dom.createElement($receiver, name, init);
-          $receiver.appendChild(child);
-          return child;
-        }},
-        addElement_0: {value: function ($receiver, name, doc, init) {
-          var child = _.kotlin.dom.createElement_0($receiver, name, doc, init);
-          $receiver.appendChild(child);
-          return child;
-        }},
-        addText: {value: function ($receiver, text, doc) {
-          if (text != null) {
-            var tmp$0;
-            var child = (tmp$0 = _.kotlin.dom.ownerDocument($receiver, doc).createTextNode(text)) != null ? tmp$0 : Kotlin.throwNPE();
-            $receiver.appendChild(child);
-          }
-          return $receiver;
-        }}
-      }),
       all_0: {value: function ($receiver, predicate) {
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
@@ -3363,7 +3250,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return null;
       }},
-      filter_0: {value: function ($receiver, predicate) {
+      filter: {value: function ($receiver, predicate) {
         return _.kotlin.filterTo_0($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterTo_0: {value: function ($receiver, result, predicate) {
@@ -3377,7 +3264,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      filterNot_0: {value: function ($receiver, predicate) {
+      filterNot: {value: function ($receiver, predicate) {
         return _.kotlin.filterNotTo_0($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterNotTo_0: {value: function ($receiver, result, predicate) {
@@ -3408,7 +3295,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return _.kotlin.Pair(first, second);
       }},
-      map_1: {value: function ($receiver, transform) {
+      map_0: {value: function ($receiver, transform) {
         return _.kotlin.mapTo_1($receiver, Kotlin.ArrayList(0), transform);
       }},
       mapTo_1: {value: function ($receiver, result, transform) {
@@ -3421,7 +3308,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      flatMap_0: {value: function ($receiver, transform) {
+      flatMap: {value: function ($receiver, transform) {
         return _.kotlin.flatMapTo_0($receiver, Kotlin.ArrayList(0), transform);
       }},
       flatMapTo_0: {value: function ($receiver, result, transform) {
@@ -3461,7 +3348,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      foldRight_0: {value: function ($receiver, initial, operation) {
+      foldRight: {value: function ($receiver, initial, operation) {
         var r = initial;
         var index = $receiver.length - 1;
         while (index >= 0) {
@@ -3480,7 +3367,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      reduceRight_0: {value: function ($receiver, operation) {
+      reduceRight: {value: function ($receiver, operation) {
         var index = $receiver.length - 1;
         if (index < 0) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
@@ -3531,10 +3418,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      take_0: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_0($receiver, _.kotlin.countTo(n));
+      take: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile($receiver, _.kotlin.countTo(n));
       }},
-      takeWhile_0: {value: function ($receiver, predicate) {
+      takeWhile: {value: function ($receiver, predicate) {
         return _.kotlin.takeWhileTo_0($receiver, Kotlin.ArrayList(0), predicate);
       }},
       takeWhileTo_0: {value: function ($receiver, result, predicate) {
@@ -3577,13 +3464,13 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       toSortedSet_0: {value: function ($receiver) {
         return _.kotlin.toCollection_0($receiver, Kotlin.TreeSet());
       }},
-      plus_2: {value: function ($receiver, element) {
+      plus: {value: function ($receiver, element) {
         var answer = Kotlin.ArrayList(0);
         _.kotlin.toCollection_0($receiver, answer);
         answer.add(element);
         return answer;
       }},
-      plus_3: {value: function ($receiver, iterator) {
+      plus_0: {value: function ($receiver, iterator) {
         var answer = Kotlin.ArrayList(0);
         _.kotlin.toCollection_0($receiver, answer);
         {
@@ -3595,8 +3482,8 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      plus_4: {value: function ($receiver, collection) {
-        return _.kotlin.plus_3($receiver, collection.iterator());
+      plus_1: {value: function ($receiver, collection) {
+        return _.kotlin.plus_0($receiver, collection.iterator());
       }},
       withIndices_0: {value: function ($receiver) {
         return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
@@ -3633,38 +3520,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString_1: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString_0: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString_0($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
-      }},
-      iterator: {value: function ($receiver) {
-        return Kotlin.createObject(Kotlin.Iterator, null, {
-          hasNext: {value: function () {
-            return $receiver.hasMoreElements();
-          }, writable: true, enumerable: true},
-          next: {value: function () {
-            return $receiver.nextElement();
-          }, writable: true, enumerable: true}
-        });
-      }},
-      toArrayList: {value: function ($receiver) {
-        return _.kotlin.toCollection_1($receiver, Kotlin.ArrayList(0));
-      }},
-      toHashSet: {value: function ($receiver) {
-        return _.kotlin.toCollection_1($receiver, Kotlin.ComplexHashSet());
-      }},
-      to: {value: function ($receiver, that) {
-        return _.kotlin.Pair($receiver, that);
-      }},
-      run: {value: function (f) {
-        return f();
-      }},
-      with: {value: function (receiver, f) {
-        return f(receiver);
-      }},
-      let: {value: function ($receiver, f) {
-        return f($receiver);
       }},
       all_1: {value: function ($receiver, predicate) {
         {
@@ -3711,7 +3570,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return null;
       }},
-      filter_1: {value: function ($receiver, predicate) {
+      filter_0: {value: function ($receiver, predicate) {
         return _.kotlin.filterTo_1($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterTo_1: {value: function ($receiver, result, predicate) {
@@ -3725,7 +3584,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      filterNot_1: {value: function ($receiver, predicate) {
+      filterNot_0: {value: function ($receiver, predicate) {
         return _.kotlin.filterNotTo_1($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterNotTo_1: {value: function ($receiver, result, predicate) {
@@ -3756,7 +3615,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return _.kotlin.Pair(first, second);
       }},
-      map_2: {value: function ($receiver, transform) {
+      map_1: {value: function ($receiver, transform) {
         return _.kotlin.mapTo_2($receiver, Kotlin.ArrayList(0), transform);
       }},
       mapTo_2: {value: function ($receiver, result, transform) {
@@ -3769,7 +3628,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      flatMap_1: {value: function ($receiver, transform) {
+      flatMap_0: {value: function ($receiver, transform) {
         return _.kotlin.flatMapTo_1($receiver, Kotlin.ArrayList(0), transform);
       }},
       flatMapTo_1: {value: function ($receiver, result, transform) {
@@ -3809,7 +3668,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      foldRight_1: {value: function ($receiver, initial, operation) {
+      foldRight_0: {value: function ($receiver, initial, operation) {
         var r = initial;
         var index = $receiver.length - 1;
         while (index >= 0) {
@@ -3828,7 +3687,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      reduceRight_1: {value: function ($receiver, operation) {
+      reduceRight_0: {value: function ($receiver, operation) {
         var index = $receiver.length - 1;
         if (index < 0) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
@@ -3879,10 +3738,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      take_1: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_1($receiver, _.kotlin.countTo(n));
+      take_0: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_0($receiver, _.kotlin.countTo(n));
       }},
-      takeWhile_1: {value: function ($receiver, predicate) {
+      takeWhile_0: {value: function ($receiver, predicate) {
         return _.kotlin.takeWhileTo_1($receiver, Kotlin.ArrayList(0), predicate);
       }},
       takeWhileTo_1: {value: function ($receiver, result, predicate) {
@@ -3898,7 +3757,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_2: {value: function ($receiver, result) {
+      toCollection_1: {value: function ($receiver, result) {
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
@@ -3909,31 +3768,31 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       reverse_1: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_2($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_1($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_1: {value: function ($receiver) {
-        return _.kotlin.toCollection_2($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_1($receiver, Kotlin.LinkedList());
       }},
       toList_1: {value: function ($receiver) {
-        return _.kotlin.toCollection_2($receiver, Kotlin.ArrayList(0));
+        return _.kotlin.toCollection_1($receiver, Kotlin.ArrayList(0));
       }},
       toSet_1: {value: function ($receiver) {
-        return _.kotlin.toCollection_2($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_1($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_1: {value: function ($receiver) {
-        return _.kotlin.toCollection_2($receiver, Kotlin.TreeSet());
+        return _.kotlin.toCollection_1($receiver, Kotlin.TreeSet());
       }},
-      plus_5: {value: function ($receiver, element) {
+      plus_2: {value: function ($receiver, element) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_2($receiver, answer);
+        _.kotlin.toCollection_1($receiver, answer);
         answer.add(element);
         return answer;
       }},
-      plus_6: {value: function ($receiver, iterator) {
+      plus_3: {value: function ($receiver, iterator) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_2($receiver, answer);
+        _.kotlin.toCollection_1($receiver, answer);
         {
           var tmp$0 = iterator;
           while (tmp$0.hasNext()) {
@@ -3943,8 +3802,8 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      plus_7: {value: function ($receiver, collection) {
-        return _.kotlin.plus_6($receiver, collection.iterator());
+      plus_4: {value: function ($receiver, collection) {
+        return _.kotlin.plus_3($receiver, collection.iterator());
       }},
       withIndices_1: {value: function ($receiver) {
         return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
@@ -3955,7 +3814,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return xr.compareTo(yr);
       }},
       sortBy_1: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_2($receiver, Kotlin.ArrayList(0));
+        var sortedList = _.kotlin.toCollection_1($receiver, Kotlin.ArrayList(0));
         var sortBy = Kotlin.comparator(_.kotlin.f5.bind(null, f));
         Kotlin.collectionsSort(sortedList, sortBy);
         return sortedList;
@@ -3981,329 +3840,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString_2: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString_1: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString_1($receiver, buffer, separator, prefix, postfix, limit, truncated);
-        return buffer.toString();
-      }},
-      all_2: {value: function ($receiver, predicate) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (!predicate(element))
-              return false;
-          }
-        }
-        return true;
-      }},
-      any_2: {value: function ($receiver, predicate) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (predicate(element))
-              return true;
-          }
-        }
-        return false;
-      }},
-      count_2: {value: function ($receiver, predicate) {
-        var count = 0;
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (predicate(element))
-              count++;
-          }
-        }
-        return count;
-      }},
-      find_2: {value: function ($receiver, predicate) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (predicate(element))
-              return element;
-          }
-        }
-        return null;
-      }},
-      filter_3: {value: function ($receiver, predicate) {
-        return _.kotlin.filterTo_2($receiver, Kotlin.ArrayList(0), predicate);
-      }},
-      filterTo_2: {value: function ($receiver, result, predicate) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (predicate(element))
-              result.add(element);
-          }
-        }
-        return result;
-      }},
-      filterNot_2: {value: function ($receiver, predicate) {
-        return _.kotlin.filterNotTo_2($receiver, Kotlin.ArrayList(0), predicate);
-      }},
-      filterNotTo_2: {value: function ($receiver, result, predicate) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (!predicate(element))
-              result.add(element);
-          }
-        }
-        return result;
-      }},
-      partition_2: {value: function ($receiver, predicate) {
-        var first = Kotlin.ArrayList(0);
-        var second = Kotlin.ArrayList(0);
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (predicate(element)) {
-              first.add(element);
-            }
-             else {
-              second.add(element);
-            }
-          }
-        }
-        return _.kotlin.Pair(first, second);
-      }},
-      map_4: {value: function ($receiver, transform) {
-        return _.kotlin.mapTo_3($receiver, Kotlin.ArrayList(0), transform);
-      }},
-      mapTo_3: {value: function ($receiver, result, transform) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var item = tmp$0.next();
-            result.add(transform(item));
-          }
-        }
-        return result;
-      }},
-      flatMap_2: {value: function ($receiver, transform) {
-        return _.kotlin.flatMapTo_2($receiver, Kotlin.ArrayList(0), transform);
-      }},
-      flatMapTo_2: {value: function ($receiver, result, transform) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            var list = transform(element);
-            {
-              var tmp$1 = list.iterator();
-              while (tmp$1.hasNext()) {
-                var r = tmp$1.next();
-                result.add(r);
-              }
-            }
-          }
-        }
-        return result;
-      }},
-      forEach_2: {value: function ($receiver, operation) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            operation(element);
-          }
-        }
-      }},
-      fold_2: {value: function ($receiver, initial, operation) {
-        var answer = initial;
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            answer = operation(answer, element);
-          }
-        }
-        return answer;
-      }},
-      foldRight_2: {value: function ($receiver, initial, operation) {
-        var r = initial;
-        var index = $receiver.length - 1;
-        while (index >= 0) {
-          r = operation($receiver[index--], r);
-        }
-        return r;
-      }},
-      reduce_2: {value: function ($receiver, operation) {
-        var iterator = Kotlin.arrayIterator($receiver);
-        if (!iterator.hasNext()) {
-          throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
-        }
-        var result = iterator.next();
-        while (iterator.hasNext()) {
-          result = operation(result, iterator.next());
-        }
-        return result;
-      }},
-      reduceRight_2: {value: function ($receiver, operation) {
-        var index = $receiver.length - 1;
-        if (index < 0) {
-          throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
-        }
-        var r = $receiver[index--];
-        while (index >= 0) {
-          r = operation($receiver[index--], r);
-        }
-        return r;
-      }},
-      groupBy_2: {value: function ($receiver, toKey) {
-        return _.kotlin.groupByTo_2($receiver, Kotlin.ComplexHashMap(0), toKey);
-      }},
-      f6: {value: function () {
-        return Kotlin.ArrayList(0);
-      }},
-      groupByTo_2: {value: function ($receiver, result, toKey) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            var key = toKey(element);
-            var list = _.kotlin.getOrPut(result, key, _.kotlin.f6);
-            list.add(element);
-          }
-        }
-        return result;
-      }},
-      drop_2: {value: function ($receiver, n) {
-        return _.kotlin.dropWhile_2($receiver, _.kotlin.countTo(n));
-      }},
-      dropWhile_2: {value: function ($receiver, predicate) {
-        return _.kotlin.dropWhileTo_2($receiver, Kotlin.ArrayList(0), predicate);
-      }},
-      dropWhileTo_2: {value: function ($receiver, result, predicate) {
-        var start = true;
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (start && predicate(element)) {
-            }
-             else {
-              start = false;
-              result.add(element);
-            }
-          }
-        }
-        return result;
-      }},
-      take_2: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_2($receiver, _.kotlin.countTo(n));
-      }},
-      takeWhile_2: {value: function ($receiver, predicate) {
-        return _.kotlin.takeWhileTo_2($receiver, Kotlin.ArrayList(0), predicate);
-      }},
-      takeWhileTo_2: {value: function ($receiver, result, predicate) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (predicate(element))
-              result.add(element);
-            else
-              break;
-          }
-        }
-        return result;
-      }},
-      toCollection_3: {value: function ($receiver, result) {
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            result.add(element);
-          }
-        }
-        return result;
-      }},
-      reverse_2: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_3($receiver, Kotlin.ArrayList(0));
-        Kotlin.reverse(list);
-        return list;
-      }},
-      toLinkedList_2: {value: function ($receiver) {
-        return _.kotlin.toCollection_3($receiver, Kotlin.LinkedList());
-      }},
-      toList_3: {value: function ($receiver) {
-        return _.kotlin.toCollection_3($receiver, Kotlin.ArrayList(0));
-      }},
-      toSet_2: {value: function ($receiver) {
-        return _.kotlin.toCollection_3($receiver, Kotlin.LinkedHashSet());
-      }},
-      toSortedSet_2: {value: function ($receiver) {
-        return _.kotlin.toCollection_3($receiver, Kotlin.TreeSet());
-      }},
-      plus_8: {value: function ($receiver, element) {
-        var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_3($receiver, answer);
-        answer.add(element);
-        return answer;
-      }},
-      plus_9: {value: function ($receiver, iterator) {
-        var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_3($receiver, answer);
-        {
-          var tmp$0 = iterator;
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            answer.add(element);
-          }
-        }
-        return answer;
-      }},
-      plus_10: {value: function ($receiver, collection) {
-        return _.kotlin.plus_9($receiver, collection.iterator());
-      }},
-      withIndices_2: {value: function ($receiver) {
-        return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
-      }},
-      f7: {value: function (f, x, y) {
-        var xr = f(x);
-        var yr = f(y);
-        return xr.compareTo(yr);
-      }},
-      sortBy_2: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_3($receiver, Kotlin.ArrayList(0));
-        var sortBy = Kotlin.comparator(_.kotlin.f7.bind(null, f));
-        Kotlin.collectionsSort(sortedList, sortBy);
-        return sortedList;
-      }},
-      appendString_2: {value: function ($receiver, buffer, separator, prefix, postfix, limit, truncated) {
-        buffer.append(prefix);
-        var count = 0;
-        {
-          var tmp$0 = Kotlin.arrayIterator($receiver);
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (++count > 1)
-              buffer.append(separator);
-            if (limit < 0 || count <= limit) {
-              var text = element == null ? 'null' : Kotlin.toString(element);
-              buffer.append(text);
-            }
-             else
-              break;
-          }
-        }
-        if (limit >= 0 && count > limit)
-          buffer.append(truncated);
-        buffer.append(postfix);
-      }},
-      makeString_3: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
-        var buffer = Kotlin.StringBuilder();
-        _.kotlin.appendString_2($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
       }},
       downTo: {value: function ($receiver, to) {
@@ -4453,6 +3992,382 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       downTo_47: {value: function ($receiver, to) {
         return _.jet.DoubleProgression($receiver, to, -1.0);
       }},
+      all_2: {value: function ($receiver, predicate) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (!predicate(element))
+              return false;
+          }
+        }
+        return true;
+      }},
+      any_2: {value: function ($receiver, predicate) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (predicate(element))
+              return true;
+          }
+        }
+        return false;
+      }},
+      count_2: {value: function ($receiver, predicate) {
+        var count = 0;
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (predicate(element))
+              count++;
+          }
+        }
+        return count;
+      }},
+      find_2: {value: function ($receiver, predicate) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (predicate(element))
+              return element;
+          }
+        }
+        return null;
+      }},
+      filter_1: {value: function ($receiver, predicate) {
+        return _.kotlin.filterTo_2($receiver, Kotlin.ArrayList(0), predicate);
+      }},
+      filterTo_2: {value: function ($receiver, result, predicate) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (predicate(element))
+              result.add(element);
+          }
+        }
+        return result;
+      }},
+      filterNot_1: {value: function ($receiver, predicate) {
+        return _.kotlin.filterNotTo_2($receiver, Kotlin.ArrayList(0), predicate);
+      }},
+      filterNotTo_2: {value: function ($receiver, result, predicate) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (!predicate(element))
+              result.add(element);
+          }
+        }
+        return result;
+      }},
+      filterNotNull: {value: function ($receiver) {
+        return _.kotlin.filterNotNullTo_0($receiver, Kotlin.ArrayList(0));
+      }},
+      filterNotNullTo_0: {value: function ($receiver, result) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (element != null)
+              result.add(element);
+          }
+        }
+        return result;
+      }},
+      partition_2: {value: function ($receiver, predicate) {
+        var first = Kotlin.ArrayList(0);
+        var second = Kotlin.ArrayList(0);
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            {
+              if (predicate(element)) {
+                first.add(element);
+              }
+               else {
+                second.add(element);
+              }
+            }
+          }
+        }
+        return _.kotlin.Pair(first, second);
+      }},
+      map_2: {value: function ($receiver, transform) {
+        return _.kotlin.mapTo_3($receiver, Kotlin.ArrayList(0), transform);
+      }},
+      mapTo_3: {value: function ($receiver, result, transform) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var item = tmp$0[tmp$2];
+            result.add(transform(item));
+          }
+        }
+        return result;
+      }},
+      flatMap_1: {value: function ($receiver, transform) {
+        return _.kotlin.flatMapTo_2($receiver, Kotlin.ArrayList(0), transform);
+      }},
+      flatMapTo_2: {value: function ($receiver, result, transform) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            {
+              var list = transform(element);
+              {
+                var tmp$3 = list.iterator();
+                while (tmp$3.hasNext()) {
+                  var r = tmp$3.next();
+                  result.add(r);
+                }
+              }
+            }
+          }
+        }
+        return result;
+      }},
+      forEach_2: {value: function ($receiver, operation) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            operation(element);
+          }
+        }
+      }},
+      fold_2: {value: function ($receiver, initial, operation) {
+        var answer = initial;
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            answer = operation(answer, element);
+          }
+        }
+        return answer;
+      }},
+      foldRight_1: {value: function ($receiver, initial, operation) {
+        var r = initial;
+        var index = $receiver.length - 1;
+        while (index >= 0) {
+          r = operation($receiver[index--], r);
+        }
+        return r;
+      }},
+      reduce_2: {value: function ($receiver, operation) {
+        var iterator = Kotlin.arrayIterator($receiver);
+        if (!iterator.hasNext()) {
+          throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
+        }
+        var result = iterator.next();
+        while (iterator.hasNext()) {
+          result = operation(result, iterator.next());
+        }
+        return result;
+      }},
+      reduceRight_1: {value: function ($receiver, operation) {
+        var index = $receiver.length - 1;
+        if (index < 0) {
+          throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
+        }
+        var r = $receiver[index--];
+        while (index >= 0) {
+          r = operation($receiver[index--], r);
+        }
+        return r;
+      }},
+      groupBy_2: {value: function ($receiver, toKey) {
+        return _.kotlin.groupByTo_2($receiver, Kotlin.ComplexHashMap(0), toKey);
+      }},
+      f6: {value: function () {
+        return Kotlin.ArrayList(0);
+      }},
+      groupByTo_2: {value: function ($receiver, result, toKey) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            {
+              var key = toKey(element);
+              var list = _.kotlin.getOrPut(result, key, _.kotlin.f6);
+              list.add(element);
+            }
+          }
+        }
+        return result;
+      }},
+      drop_2: {value: function ($receiver, n) {
+        return _.kotlin.dropWhile_2($receiver, _.kotlin.countTo(n));
+      }},
+      dropWhile_2: {value: function ($receiver, predicate) {
+        return _.kotlin.dropWhileTo_2($receiver, Kotlin.ArrayList(0), predicate);
+      }},
+      dropWhileTo_2: {value: function ($receiver, result, predicate) {
+        var start = true;
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            {
+              if (start && predicate(element)) {
+              }
+               else {
+                start = false;
+                result.add(element);
+              }
+            }
+          }
+        }
+        return result;
+      }},
+      take_1: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_1($receiver, _.kotlin.countTo(n));
+      }},
+      takeWhile_1: {value: function ($receiver, predicate) {
+        return _.kotlin.takeWhileTo_2($receiver, Kotlin.ArrayList(0), predicate);
+      }},
+      takeWhileTo_2: {value: function ($receiver, result, predicate) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            if (predicate(element))
+              result.add(element);
+            else
+              break;
+          }
+        }
+        return result;
+      }},
+      toCollection_2: {value: function ($receiver, result) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            result.add(element);
+          }
+        }
+        return result;
+      }},
+      reverse_2: {value: function ($receiver) {
+        var list = _.kotlin.toCollection_2($receiver, Kotlin.ArrayList(0));
+        Kotlin.reverse(list);
+        return list;
+      }},
+      toLinkedList_2: {value: function ($receiver) {
+        return _.kotlin.toCollection_2($receiver, Kotlin.LinkedList());
+      }},
+      toList_2: {value: function ($receiver) {
+        return _.kotlin.toCollection_2($receiver, Kotlin.ArrayList(0));
+      }},
+      toSet_2: {value: function ($receiver) {
+        return _.kotlin.toCollection_2($receiver, Kotlin.LinkedHashSet());
+      }},
+      toSortedSet_2: {value: function ($receiver) {
+        return _.kotlin.toCollection_2($receiver, Kotlin.TreeSet());
+      }},
+      requireNoNulls: {value: function ($receiver) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            {
+              if (element == null) {
+                throw Kotlin.IllegalArgumentException('null element found in ' + $receiver.toString());
+              }
+            }
+          }
+        }
+        return $receiver != null ? $receiver : Kotlin.throwNPE();
+      }},
+      plus_5: {value: function ($receiver, element) {
+        var answer = Kotlin.ArrayList(0);
+        _.kotlin.toCollection_2($receiver, answer);
+        answer.add(element);
+        return answer;
+      }},
+      plus_6: {value: function ($receiver, iterator) {
+        var answer = Kotlin.ArrayList(0);
+        _.kotlin.toCollection_2($receiver, answer);
+        {
+          var tmp$0 = iterator;
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            answer.add(element);
+          }
+        }
+        return answer;
+      }},
+      plus_7: {value: function ($receiver, collection) {
+        return _.kotlin.plus_6($receiver, collection.iterator());
+      }},
+      withIndices_2: {value: function ($receiver) {
+        return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
+      }},
+      f7: {value: function (f, x, y) {
+        var xr = f(x);
+        var yr = f(y);
+        return xr.compareTo(yr);
+      }},
+      sortBy_2: {value: function ($receiver, f) {
+        var sortedList = _.kotlin.toCollection_2($receiver, Kotlin.ArrayList(0));
+        var sortBy = Kotlin.comparator(_.kotlin.f7.bind(null, f));
+        Kotlin.collectionsSort(sortedList, sortBy);
+        return sortedList;
+      }},
+      appendString_2: {value: function ($receiver, buffer, separator, prefix, postfix, limit, truncated) {
+        buffer.append(prefix);
+        var count = 0;
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = $receiver, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var element = tmp$0[tmp$2];
+            {
+              if (++count > 1)
+                buffer.append(separator);
+              if (limit < 0 || count <= limit) {
+                var text = element == null ? 'null' : Kotlin.toString(element);
+                buffer.append(text);
+              }
+               else
+                break;
+            }
+          }
+        }
+        if (limit >= 0 && count > limit)
+          buffer.append(truncated);
+        buffer.append(postfix);
+      }},
+      makeString_2: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+        var buffer = Kotlin.StringBuilder();
+        _.kotlin.appendString_2($receiver, buffer, separator, prefix, postfix, limit, truncated);
+        return buffer.toString();
+      }},
       all_3: {value: function ($receiver, predicate) {
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
@@ -4498,7 +4413,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return null;
       }},
-      filter_4: {value: function ($receiver, predicate) {
+      filter_2: {value: function ($receiver, predicate) {
         return _.kotlin.filterTo_3($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterTo_3: {value: function ($receiver, result, predicate) {
@@ -4512,7 +4427,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      filterNot_3: {value: function ($receiver, predicate) {
+      filterNot_2: {value: function ($receiver, predicate) {
         return _.kotlin.filterNotTo_3($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterNotTo_3: {value: function ($receiver, result, predicate) {
@@ -4543,7 +4458,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return _.kotlin.Pair(first, second);
       }},
-      map_5: {value: function ($receiver, transform) {
+      map_3: {value: function ($receiver, transform) {
         return _.kotlin.mapTo_4($receiver, Kotlin.ArrayList(0), transform);
       }},
       mapTo_4: {value: function ($receiver, result, transform) {
@@ -4556,7 +4471,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      flatMap_3: {value: function ($receiver, transform) {
+      flatMap_2: {value: function ($receiver, transform) {
         return _.kotlin.flatMapTo_3($receiver, Kotlin.ArrayList(0), transform);
       }},
       flatMapTo_3: {value: function ($receiver, result, transform) {
@@ -4596,7 +4511,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      foldRight_3: {value: function ($receiver, initial, operation) {
+      foldRight_2: {value: function ($receiver, initial, operation) {
         var r = initial;
         var index = $receiver.length - 1;
         while (index >= 0) {
@@ -4615,7 +4530,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      reduceRight_3: {value: function ($receiver, operation) {
+      reduceRight_2: {value: function ($receiver, operation) {
         var index = $receiver.length - 1;
         if (index < 0) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
@@ -4666,10 +4581,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      take_3: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_3($receiver, _.kotlin.countTo(n));
+      take_2: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_2($receiver, _.kotlin.countTo(n));
       }},
-      takeWhile_3: {value: function ($receiver, predicate) {
+      takeWhile_2: {value: function ($receiver, predicate) {
         return _.kotlin.takeWhileTo_3($receiver, Kotlin.ArrayList(0), predicate);
       }},
       takeWhileTo_3: {value: function ($receiver, result, predicate) {
@@ -4685,7 +4600,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_4: {value: function ($receiver, result) {
+      toCollection_3: {value: function ($receiver, result) {
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
@@ -4696,31 +4611,31 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       reverse_3: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_4($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_3($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_3: {value: function ($receiver) {
-        return _.kotlin.toCollection_4($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_3($receiver, Kotlin.LinkedList());
       }},
-      toList_4: {value: function ($receiver) {
-        return _.kotlin.toCollection_4($receiver, Kotlin.ArrayList(0));
+      toList_3: {value: function ($receiver) {
+        return _.kotlin.toCollection_3($receiver, Kotlin.ArrayList(0));
       }},
       toSet_3: {value: function ($receiver) {
-        return _.kotlin.toCollection_4($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_3($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_3: {value: function ($receiver) {
-        return _.kotlin.toCollection_4($receiver, Kotlin.TreeSet());
+        return _.kotlin.toCollection_3($receiver, Kotlin.TreeSet());
       }},
-      plus_11: {value: function ($receiver, element) {
+      plus_8: {value: function ($receiver, element) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_4($receiver, answer);
+        _.kotlin.toCollection_3($receiver, answer);
         answer.add(element);
         return answer;
       }},
-      plus_12: {value: function ($receiver, iterator) {
+      plus_9: {value: function ($receiver, iterator) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_4($receiver, answer);
+        _.kotlin.toCollection_3($receiver, answer);
         {
           var tmp$0 = iterator;
           while (tmp$0.hasNext()) {
@@ -4730,8 +4645,8 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      plus_13: {value: function ($receiver, collection) {
-        return _.kotlin.plus_12($receiver, collection.iterator());
+      plus_10: {value: function ($receiver, collection) {
+        return _.kotlin.plus_9($receiver, collection.iterator());
       }},
       withIndices_3: {value: function ($receiver) {
         return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
@@ -4742,7 +4657,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return xr.compareTo(yr);
       }},
       sortBy_3: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_4($receiver, Kotlin.ArrayList(0));
+        var sortedList = _.kotlin.toCollection_3($receiver, Kotlin.ArrayList(0));
         var sortBy = Kotlin.comparator(_.kotlin.f9.bind(null, f));
         Kotlin.collectionsSort(sortedList, sortBy);
         return sortedList;
@@ -4768,119 +4683,58 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString_4: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString_3: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString_3($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
       }},
-      trim: {value: function ($receiver, text) {
-        return _.kotlin.trimTrailing(_.kotlin.trimLeading($receiver, text), text);
+      get_size: {value: function ($receiver) {
+        return $receiver.size();
       }},
-      trim_0: {value: function ($receiver, prefix, postfix) {
-        return _.kotlin.trimTrailing(_.kotlin.trimLeading($receiver, prefix), postfix);
+      get_empty: {value: function ($receiver) {
+        return $receiver.isEmpty();
       }},
-      trimLeading: {value: function ($receiver, prefix) {
-        var answer = $receiver;
-        if (answer.startsWith(prefix)) {
-          answer = answer.substring(prefix.length);
-        }
-        return answer;
+      get_indices: {value: function ($receiver) {
+        return Kotlin.NumberRange(0, _.kotlin.get_size($receiver) - 1);
       }},
-      trimTrailing: {value: function ($receiver, postfix) {
-        var answer = $receiver;
-        if (answer.endsWith(postfix)) {
-          answer = answer.substring(0, $receiver.length - postfix.length);
-        }
-        return answer;
+      get_indices: {value: function ($receiver) {
+        return Kotlin.NumberRange(0, $receiver - 1);
       }},
-      notEmpty: {value: function ($receiver) {
-        return $receiver != null && $receiver.length > 0;
+      isNotEmpty_0: {value: function ($receiver) {
+        return !$receiver.isEmpty();
       }},
-      iterator_0: {value: function ($receiver) {
-        return Kotlin.createObject(_.jet.CharIterator, function $fun() {
-          $fun.baseInitializer.call(this);
-          Object.defineProperty(this, 'index', {value: 0, writable: true, enumerable: true});
-        }, {
-          nextChar: {value: function () {
-            var tmp$0, tmp$1;
-            return $receiver.get((tmp$0 = this.index, tmp$1 = tmp$0, this.index = tmp$0 + 1, tmp$1));
-          }, writable: true, enumerable: true},
-          hasNext: {value: function () {
-            return this.index < $receiver.length;
-          }, writable: true, enumerable: true}
-        });
+      get_notEmpty: {value: function ($receiver) {
+        return _.kotlin.isNotEmpty_0($receiver);
       }},
       orEmpty: {value: function ($receiver) {
-        return $receiver !== null ? $receiver : '';
+        var tmp$0;
+        return $receiver != null ? $receiver : (tmp$0 = Kotlin.emptyList()) != null ? tmp$0 : Kotlin.throwNPE();
       }},
-      get_size: {value: function ($receiver) {
-        return $receiver.length;
+      toSortedList: {value: function ($receiver) {
+        return _.kotlin.sort(_.kotlin.toCollection($receiver, Kotlin.ArrayList(0)));
       }},
-      count_4: {value: function ($receiver, predicate) {
-        var answer = 0;
-        {
-          var tmp$0 = _.kotlin.iterator_0($receiver);
-          while (tmp$0.hasNext()) {
-            var c = tmp$0.next();
-            if (predicate(c)) {
-              answer++;
-            }
-          }
-        }
-        return answer;
+      toSortedList_0: {value: function ($receiver, comparator) {
+        return _.kotlin.sort_0(_.kotlin.toList($receiver), comparator);
       }},
-      count_5: {value: function ($receiver) {
-        if (Kotlin.isType($receiver, _.jet.Collection)) {
-          return $receiver.size();
-        }
-        var number = 0;
-        {
-          var tmp$0 = $receiver.iterator();
-          while (tmp$0.hasNext()) {
-            var elem = tmp$0.next();
-            ++number;
-          }
-        }
-        return number;
+      orEmpty_0: {value: function ($receiver) {
+        var tmp$0;
+        return $receiver != null ? $receiver : (tmp$0 = Kotlin.emptyList()) != null ? tmp$0 : Kotlin.throwNPE();
       }},
-      fa: {value: function (count, n, it) {
-        ++count.v;
-        return count.v <= n;
+      get_first: {value: function ($receiver) {
+        return _.kotlin.get_head($receiver);
       }},
-      countTo: {value: function (n) {
-        var count = {v: 0};
-        return _.kotlin.fa.bind(null, count, n);
+      get_last: {value: function ($receiver) {
+        var s = _.kotlin.get_size($receiver);
+        return s > 0 ? $receiver.get(s - 1) : null;
       }},
-      first: {value: function ($receiver) {
-        if (Kotlin.isType($receiver, _.jet.List)) {
-          return _.kotlin.first($receiver);
-        }
-        return $receiver.iterator().next();
+      get_lastIndex: {value: function ($receiver) {
+        return _.kotlin.get_size($receiver) - 1;
       }},
-      containsItem: {value: function ($receiver, item) {
-        if (Kotlin.isType($receiver, Kotlin.AbstractCollection)) {
-          return $receiver.contains(item);
-        }
-        {
-          var tmp$0 = $receiver.iterator();
-          while (tmp$0.hasNext()) {
-            var elem = tmp$0.next();
-            if (Kotlin.equals(elem, item)) {
-              return true;
-            }
-          }
-        }
-        return false;
+      get_head: {value: function ($receiver) {
+        return $receiver.get(0);
       }},
-      sort: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
-        Kotlin.collectionsSort(list);
-        return list;
-      }},
-      sort_0: {value: function ($receiver, comparator) {
-        var list = _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
-        Kotlin.collectionsSort(list, comparator);
-        return list;
+      get_tail: {value: function ($receiver) {
+        return _.kotlin.drop($receiver, 1);
       }},
       all_4: {value: function ($receiver, predicate) {
         var tmp$0, tmp$1, tmp$2;
@@ -4906,7 +4760,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return false;
       }},
-      count_6: {value: function ($receiver, predicate) {
+      count_4: {value: function ($receiver, predicate) {
         var count = 0;
         var tmp$0, tmp$1, tmp$2;
         {
@@ -4931,7 +4785,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return null;
       }},
-      filter_5: {value: function ($receiver, predicate) {
+      filter_3: {value: function ($receiver, predicate) {
         return _.kotlin.filterTo_4($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterTo_4: {value: function ($receiver, result, predicate) {
@@ -4946,7 +4800,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      filterNot_4: {value: function ($receiver, predicate) {
+      filterNot_3: {value: function ($receiver, predicate) {
         return _.kotlin.filterNotTo_4($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterNotTo_4: {value: function ($receiver, result, predicate) {
@@ -4981,7 +4835,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return _.kotlin.Pair(first, second);
       }},
-      map_6: {value: function ($receiver, transform) {
+      map_4: {value: function ($receiver, transform) {
         return _.kotlin.mapTo_5($receiver, Kotlin.ArrayList(0), transform);
       }},
       mapTo_5: {value: function ($receiver, result, transform) {
@@ -4995,7 +4849,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      flatMap_4: {value: function ($receiver, transform) {
+      flatMap_3: {value: function ($receiver, transform) {
         return _.kotlin.flatMapTo_4($receiver, Kotlin.ArrayList(0), transform);
       }},
       flatMapTo_4: {value: function ($receiver, result, transform) {
@@ -5040,7 +4894,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      foldRight_4: {value: function ($receiver, initial, operation) {
+      foldRight_3: {value: function ($receiver, initial, operation) {
         var r = initial;
         var index = $receiver.length - 1;
         while (index >= 0) {
@@ -5059,7 +4913,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      reduceRight_4: {value: function ($receiver, operation) {
+      reduceRight_3: {value: function ($receiver, operation) {
         var index = $receiver.length - 1;
         if (index < 0) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
@@ -5073,7 +4927,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       groupBy_4: {value: function ($receiver, toKey) {
         return _.kotlin.groupByTo_4($receiver, Kotlin.ComplexHashMap(0), toKey);
       }},
-      fb: {value: function () {
+      fa: {value: function () {
         return Kotlin.ArrayList(0);
       }},
       groupByTo_4: {value: function ($receiver, result, toKey) {
@@ -5084,7 +4938,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             var element = tmp$0[tmp$2];
             {
               var key = toKey(element);
-              var list = _.kotlin.getOrPut(result, key, _.kotlin.fb);
+              var list = _.kotlin.getOrPut(result, key, _.kotlin.fa);
               list.add(element);
             }
           }
@@ -5116,10 +4970,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      take_4: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_4($receiver, _.kotlin.countTo(n));
+      take_3: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_3($receiver, _.kotlin.countTo(n));
       }},
-      takeWhile_4: {value: function ($receiver, predicate) {
+      takeWhile_3: {value: function ($receiver, predicate) {
         return _.kotlin.takeWhileTo_4($receiver, Kotlin.ArrayList(0), predicate);
       }},
       takeWhileTo_4: {value: function ($receiver, result, predicate) {
@@ -5136,7 +4990,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_6: {value: function ($receiver, result) {
+      toCollection_4: {value: function ($receiver, result) {
         var tmp$0, tmp$1, tmp$2;
         {
           tmp$0 = $receiver, tmp$1 = tmp$0.length;
@@ -5148,31 +5002,31 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       reverse_4: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_6($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_4($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_4: {value: function ($receiver) {
-        return _.kotlin.toCollection_6($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_4($receiver, Kotlin.LinkedList());
       }},
-      toList_5: {value: function ($receiver) {
-        return _.kotlin.toCollection_6($receiver, Kotlin.ArrayList(0));
+      toList_4: {value: function ($receiver) {
+        return _.kotlin.toCollection_4($receiver, Kotlin.ArrayList(0));
       }},
       toSet_4: {value: function ($receiver) {
-        return _.kotlin.toCollection_6($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_4($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_4: {value: function ($receiver) {
-        return _.kotlin.toCollection_6($receiver, Kotlin.TreeSet());
+        return _.kotlin.toCollection_4($receiver, Kotlin.TreeSet());
       }},
-      plus_14: {value: function ($receiver, element) {
+      plus_11: {value: function ($receiver, element) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_6($receiver, answer);
+        _.kotlin.toCollection_4($receiver, answer);
         answer.add(element);
         return answer;
       }},
-      plus_15: {value: function ($receiver, iterator) {
+      plus_12: {value: function ($receiver, iterator) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_6($receiver, answer);
+        _.kotlin.toCollection_4($receiver, answer);
         {
           var tmp$0 = iterator;
           while (tmp$0.hasNext()) {
@@ -5182,20 +5036,20 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      plus_16: {value: function ($receiver, collection) {
-        return _.kotlin.plus_15($receiver, collection.iterator());
+      plus_13: {value: function ($receiver, collection) {
+        return _.kotlin.plus_12($receiver, collection.iterator());
       }},
       withIndices_4: {value: function ($receiver) {
         return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
       }},
-      fc: {value: function (f, x, y) {
+      fb: {value: function (f, x, y) {
         var xr = f(x);
         var yr = f(y);
         return xr.compareTo(yr);
       }},
       sortBy_4: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_6($receiver, Kotlin.ArrayList(0));
-        var sortBy = Kotlin.comparator(_.kotlin.fc.bind(null, f));
+        var sortedList = _.kotlin.toCollection_4($receiver, Kotlin.ArrayList(0));
+        var sortBy = Kotlin.comparator(_.kotlin.fb.bind(null, f));
         Kotlin.collectionsSort(sortedList, sortBy);
         return sortedList;
       }},
@@ -5223,10 +5077,285 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString_5: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString_4: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString_4($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
+      }},
+      test: Kotlin.definePackage(function () {
+        Object.defineProperty(this, 'asserter', {value: _.kotlin.test.QUnitAsserter(), writable: true});
+      }, {
+        todo: {value: function (block) {
+          Kotlin.println('TODO at ' + block);
+        }},
+        QUnitAsserter: {value: Kotlin.createClass(classes.cp, null, /** @lends _.kotlin.test.QUnitAsserter.prototype */ {
+          assertTrue: {value: function (message, actual) {
+            ok(actual, message);
+          }, writable: true},
+          assertEquals: {value: function (message, expected, actual) {
+            ok(Kotlin.equals(expected, actual), message + '. Expected <' + expected.toString() + '> actual <' + actual.toString() + '>');
+          }, writable: true},
+          assertNotNull: {value: function (message, actual) {
+            ok(actual != null, message);
+          }, writable: true},
+          assertNull: {value: function (message, actual) {
+            ok(actual == null, message);
+          }, writable: true},
+          fail: {value: function (message) {
+            ok(false, message);
+          }, writable: true}
+        })},
+        assertTrue: {value: function (message, block) {
+          var actual = block();
+          _.kotlin.test.asserter.assertTrue(message, actual);
+        }},
+        assertTrue_0: {value: function (block) {
+          _.kotlin.test.assertTrue(Kotlin.toString(block), block);
+        }},
+        f0: {value: function (block) {
+          return !block();
+        }},
+        assertNot: {value: function (message, block) {
+          _.kotlin.test.assertTrue(message, _.kotlin.test.f0.bind(null, block));
+        }},
+        assertNot_0: {value: function (block) {
+          _.kotlin.test.assertNot(Kotlin.toString(block), block);
+        }},
+        assertTrue_1: {value: function (actual, message) {
+          return _.kotlin.test.assertEquals(true, actual, message);
+        }},
+        assertFalse: {value: function (actual, message) {
+          return _.kotlin.test.assertEquals(false, actual, message);
+        }},
+        assertEquals: {value: function (expected, actual, message) {
+          _.kotlin.test.asserter.assertEquals(message, expected, actual);
+        }},
+        assertNotNull: {value: function (actual, message) {
+          _.kotlin.test.asserter.assertNotNull(message, actual);
+          return actual != null ? actual : Kotlin.throwNPE();
+        }},
+        assertNotNull_0: {value: function (actual, message, block) {
+          _.kotlin.test.asserter.assertNotNull(message, actual);
+          if (actual != null) {
+            block(actual);
+          }
+        }},
+        assertNull: {value: function (actual, message) {
+          _.kotlin.test.asserter.assertNull(message, actual);
+        }},
+        fail: {value: function (message) {
+          _.kotlin.test.asserter.fail(message);
+        }},
+        expect: {value: function (expected, block) {
+          _.kotlin.test.expect_0(expected, Kotlin.toString(block), block);
+        }},
+        expect_0: {value: function (expected, message, block) {
+          var actual = block();
+          _.kotlin.test.assertEquals(expected, actual, message);
+        }},
+        fails: {value: function (block) {
+          try {
+            block();
+            _.kotlin.test.asserter.fail('Expected an exception to be thrown');
+            return null;
+          }
+           catch (e) {
+            return e;
+          }
+        }},
+        Asserter: {value: classes.cp}
+      }),
+      filter_4: {value: function ($receiver, predicate) {
+        return _.kotlin.FilterIterator($receiver, predicate);
+      }},
+      fc: {value: function (predicate, it) {
+        return !predicate(it);
+      }},
+      filterNot_4: {value: function ($receiver, predicate) {
+        return _.kotlin.filter_4($receiver, _.kotlin.fc.bind(null, predicate));
+      }},
+      filterNotNull_0: {value: function ($receiver) {
+        return _.kotlin.FilterNotNullIterator($receiver);
+      }},
+      map_5: {value: function ($receiver, transform) {
+        return _.kotlin.MapIterator($receiver, transform);
+      }},
+      flatMap_4: {value: function ($receiver, transform) {
+        return _.kotlin.FlatMapIterator($receiver, transform);
+      }},
+      fd: {value: function (it) {
+        if (it == null)
+          throw Kotlin.IllegalArgumentException('null element in iterator ' + $receiver.toString());
+        else
+          return it;
+      }},
+      requireNoNulls_0: {value: function ($receiver) {
+        return _.kotlin.map_5($receiver, _.kotlin.fd);
+      }},
+      fe: {value: function (count, it) {
+        return --count.v >= 0;
+      }},
+      take_4: {value: function ($receiver, n) {
+        var count = {v: n};
+        return _.kotlin.takeWhile_4($receiver, _.kotlin.fe.bind(null, count));
+      }},
+      takeWhile_4: {value: function ($receiver, predicate) {
+        return _.kotlin.TakeWhileIterator($receiver, predicate);
+      }},
+      plus_14: {value: function ($receiver, element) {
+        return _.kotlin.CompositeIterator([$receiver, _.kotlin.SingleIterator(element)]);
+      }},
+      plus_15: {value: function ($receiver, iterator) {
+        return _.kotlin.CompositeIterator([$receiver, iterator]);
+      }},
+      plus_16: {value: function ($receiver, collection) {
+        return _.kotlin.plus_15($receiver, collection.iterator());
+      }},
+      filter_5: {value: function ($receiver, predicate) {
+        return _.kotlin.filterTo($receiver, Kotlin.ArrayList(0), predicate);
+      }},
+      filterNot_5: {value: function ($receiver, predicate) {
+        return _.kotlin.filterNotTo($receiver, Kotlin.ArrayList(0), predicate);
+      }},
+      filterNotNull_1: {value: function ($receiver) {
+        return _.kotlin.filterNotNullTo($receiver, Kotlin.ArrayList(0));
+      }},
+      map_6: {value: function ($receiver, transform) {
+        return _.kotlin.mapTo_0($receiver, Kotlin.ArrayList(0), transform);
+      }},
+      flatMap_5: {value: function ($receiver, transform) {
+        return _.kotlin.flatMapTo($receiver, Kotlin.ArrayList(0), transform);
+      }},
+      take_5: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_5($receiver, _.kotlin.countTo(n));
+      }},
+      takeWhile_5: {value: function ($receiver, predicate) {
+        return _.kotlin.takeWhileTo($receiver, Kotlin.ArrayList(0), predicate);
+      }},
+      requireNoNulls_1: {value: function ($receiver) {
+        {
+          var tmp$0 = $receiver.iterator();
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            if (element == null) {
+              throw Kotlin.IllegalArgumentException('null element found in ' + $receiver.toString());
+            }
+          }
+        }
+        return $receiver != null ? $receiver : Kotlin.throwNPE();
+      }},
+      plus_17: {value: function ($receiver, element) {
+        var answer = Kotlin.ArrayList(0);
+        _.kotlin.toCollection($receiver, answer);
+        answer.add(element);
+        return answer;
+      }},
+      plus_18: {value: function ($receiver, iterator) {
+        var answer = Kotlin.ArrayList(0);
+        _.kotlin.toCollection($receiver, answer);
+        {
+          var tmp$0 = iterator;
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            answer.add(element);
+          }
+        }
+        return answer;
+      }},
+      plus_19: {value: function ($receiver, collection) {
+        return _.kotlin.plus_18($receiver, collection.iterator());
+      }},
+      get_size: {value: function ($receiver) {
+        return $receiver.size();
+      }},
+      get_empty: {value: function ($receiver) {
+        return $receiver.isEmpty();
+      }},
+      set: {value: function ($receiver, key, value) {
+        return $receiver.put(key, value);
+      }},
+      orEmpty_1: {value: function ($receiver) {
+        var tmp$0;
+        return $receiver != null ? $receiver : (tmp$0 = Kotlin.emptyMap()) != null ? tmp$0 : Kotlin.throwNPE();
+      }},
+      get_key: {value: function ($receiver) {
+        return $receiver.getKey();
+      }},
+      get_value: {value: function ($receiver) {
+        return $receiver.getValue();
+      }},
+      component1: {value: function ($receiver) {
+        return $receiver.getKey();
+      }},
+      component2: {value: function ($receiver) {
+        return $receiver.getValue();
+      }},
+      getOrElse: {value: function ($receiver, key, defaultValue) {
+        if ($receiver.containsKey(key)) {
+          var tmp$0;
+          return (tmp$0 = $receiver.get(key)) != null ? tmp$0 : Kotlin.throwNPE();
+        }
+         else {
+          return defaultValue();
+        }
+      }},
+      getOrPut: {value: function ($receiver, key, defaultValue) {
+        if ($receiver.containsKey(key)) {
+          var tmp$0;
+          return (tmp$0 = $receiver.get(key)) != null ? tmp$0 : Kotlin.throwNPE();
+        }
+         else {
+          var answer = defaultValue();
+          $receiver.put(key, answer);
+          return answer;
+        }
+      }},
+      iterator: {value: function ($receiver) {
+        var entrySet = $receiver.entrySet();
+        return entrySet.iterator();
+      }},
+      mapTo: {value: function ($receiver, result, transform) {
+        {
+          var tmp$0 = _.kotlin.iterator($receiver);
+          while (tmp$0.hasNext()) {
+            var item = tmp$0.next();
+            result.add(transform(item));
+          }
+        }
+        return result;
+      }},
+      mapValuesTo: {value: function ($receiver, result, transform) {
+        {
+          var tmp$0 = _.kotlin.iterator($receiver);
+          while (tmp$0.hasNext()) {
+            var e = tmp$0.next();
+            var newValue = transform(e);
+            result.put(_.kotlin.get_key(e), newValue);
+          }
+        }
+        return result;
+      }},
+      putAll: {value: function ($receiver, values) {
+        var tmp$0, tmp$1, tmp$2;
+        {
+          tmp$0 = values, tmp$1 = tmp$0.length;
+          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
+            var v = tmp$0[tmp$2];
+            {
+              $receiver.put(v.first, v.second);
+            }
+          }
+        }
+      }},
+      toMap: {value: function ($receiver, map) {
+        map.putAll($receiver);
+        return map;
+      }},
+      map_7: {value: function ($receiver, transform) {
+        return _.kotlin.mapTo($receiver, Kotlin.ArrayList(_.kotlin.get_size($receiver)), transform);
+      }},
+      mapValues_0: {value: function ($receiver, transform) {
+        return _.kotlin.mapValuesTo($receiver, Kotlin.ComplexHashMap(_.kotlin.get_size($receiver)), transform);
       }},
       all_5: {value: function ($receiver, predicate) {
         {
@@ -5250,7 +5379,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return false;
       }},
-      count_7: {value: function ($receiver, predicate) {
+      count_5: {value: function ($receiver, predicate) {
         var count = 0;
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
@@ -5287,7 +5416,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      filterNot_5: {value: function ($receiver, predicate) {
+      filterNot_6: {value: function ($receiver, predicate) {
         return _.kotlin.filterNotTo_5($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterNotTo_5: {value: function ($receiver, result, predicate) {
@@ -5318,7 +5447,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return _.kotlin.Pair(first, second);
       }},
-      map_7: {value: function ($receiver, transform) {
+      map_8: {value: function ($receiver, transform) {
         return _.kotlin.mapTo_6($receiver, Kotlin.ArrayList(0), transform);
       }},
       mapTo_6: {value: function ($receiver, result, transform) {
@@ -5331,7 +5460,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      flatMap_5: {value: function ($receiver, transform) {
+      flatMap_6: {value: function ($receiver, transform) {
         return _.kotlin.flatMapTo_5($receiver, Kotlin.ArrayList(0), transform);
       }},
       flatMapTo_5: {value: function ($receiver, result, transform) {
@@ -5371,7 +5500,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      foldRight_5: {value: function ($receiver, initial, operation) {
+      foldRight_4: {value: function ($receiver, initial, operation) {
         var r = initial;
         var index = $receiver.length - 1;
         while (index >= 0) {
@@ -5390,7 +5519,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      reduceRight_5: {value: function ($receiver, operation) {
+      reduceRight_4: {value: function ($receiver, operation) {
         var index = $receiver.length - 1;
         if (index < 0) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
@@ -5404,7 +5533,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       groupBy_5: {value: function ($receiver, toKey) {
         return _.kotlin.groupByTo_5($receiver, Kotlin.ComplexHashMap(0), toKey);
       }},
-      fd: {value: function () {
+      ff: {value: function () {
         return Kotlin.ArrayList(0);
       }},
       groupByTo_5: {value: function ($receiver, result, toKey) {
@@ -5413,7 +5542,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             var key = toKey(element);
-            var list = _.kotlin.getOrPut(result, key, _.kotlin.fd);
+            var list = _.kotlin.getOrPut(result, key, _.kotlin.ff);
             list.add(element);
           }
         }
@@ -5441,10 +5570,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      take_5: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_5($receiver, _.kotlin.countTo(n));
+      take_6: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_6($receiver, _.kotlin.countTo(n));
       }},
-      takeWhile_5: {value: function ($receiver, predicate) {
+      takeWhile_6: {value: function ($receiver, predicate) {
         return _.kotlin.takeWhileTo_5($receiver, Kotlin.ArrayList(0), predicate);
       }},
       takeWhileTo_5: {value: function ($receiver, result, predicate) {
@@ -5460,7 +5589,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_7: {value: function ($receiver, result) {
+      toCollection_5: {value: function ($receiver, result) {
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
@@ -5471,31 +5600,31 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       reverse_5: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_7($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_5: {value: function ($receiver) {
-        return _.kotlin.toCollection_7($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_5($receiver, Kotlin.LinkedList());
       }},
-      toList_6: {value: function ($receiver) {
-        return _.kotlin.toCollection_7($receiver, Kotlin.ArrayList(0));
+      toList_5: {value: function ($receiver) {
+        return _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
       }},
       toSet_5: {value: function ($receiver) {
-        return _.kotlin.toCollection_7($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_5($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_5: {value: function ($receiver) {
-        return _.kotlin.toCollection_7($receiver, Kotlin.TreeSet());
+        return _.kotlin.toCollection_5($receiver, Kotlin.TreeSet());
       }},
-      plus_17: {value: function ($receiver, element) {
+      plus_20: {value: function ($receiver, element) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_7($receiver, answer);
+        _.kotlin.toCollection_5($receiver, answer);
         answer.add(element);
         return answer;
       }},
-      plus_18: {value: function ($receiver, iterator) {
+      plus_21: {value: function ($receiver, iterator) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_7($receiver, answer);
+        _.kotlin.toCollection_5($receiver, answer);
         {
           var tmp$0 = iterator;
           while (tmp$0.hasNext()) {
@@ -5505,20 +5634,20 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      plus_19: {value: function ($receiver, collection) {
-        return _.kotlin.plus_18($receiver, collection.iterator());
+      plus_22: {value: function ($receiver, collection) {
+        return _.kotlin.plus_21($receiver, collection.iterator());
       }},
       withIndices_5: {value: function ($receiver) {
         return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
       }},
-      fe: {value: function (f, x, y) {
+      fg: {value: function (f, x, y) {
         var xr = f(x);
         var yr = f(y);
         return xr.compareTo(yr);
       }},
       sortBy_5: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_7($receiver, Kotlin.ArrayList(0));
-        var sortBy = Kotlin.comparator(_.kotlin.fe.bind(null, f));
+        var sortedList = _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
+        var sortBy = Kotlin.comparator(_.kotlin.fg.bind(null, f));
         Kotlin.collectionsSort(sortedList, sortBy);
         return sortedList;
       }},
@@ -5543,263 +5672,430 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString_6: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString_5: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString_5($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
       }},
-      get_size: {value: function ($receiver) {
-        return $receiver.size();
-      }},
-      get_empty: {value: function ($receiver) {
-        return $receiver.isEmpty();
-      }},
-      set: {value: function ($receiver, key, value) {
-        return $receiver.put(key, value);
-      }},
-      orEmpty_0: {value: function ($receiver) {
-        var tmp$0;
-        return $receiver != null ? $receiver : (tmp$0 = Kotlin.emptyMap()) != null ? tmp$0 : Kotlin.throwNPE();
-      }},
-      get_key: {value: function ($receiver) {
-        return $receiver.getKey();
-      }},
-      get_value: {value: function ($receiver) {
-        return $receiver.getValue();
-      }},
-      component1: {value: function ($receiver) {
-        return $receiver.getKey();
-      }},
-      component2: {value: function ($receiver) {
-        return $receiver.getValue();
-      }},
-      getOrElse: {value: function ($receiver, key, defaultValue) {
-        if ($receiver.containsKey(key)) {
-          var tmp$0;
-          return (tmp$0 = $receiver.get(key)) != null ? tmp$0 : Kotlin.throwNPE();
-        }
-         else {
-          return defaultValue();
-        }
-      }},
-      getOrPut: {value: function ($receiver, key, defaultValue) {
-        if ($receiver.containsKey(key)) {
-          var tmp$0;
-          return (tmp$0 = $receiver.get(key)) != null ? tmp$0 : Kotlin.throwNPE();
-        }
-         else {
-          var answer = defaultValue();
-          $receiver.put(key, answer);
-          return answer;
-        }
-      }},
-      iterator_1: {value: function ($receiver) {
-        var entrySet = $receiver.entrySet();
-        return entrySet.iterator();
-      }},
-      mapTo: {value: function ($receiver, result, transform) {
-        {
-          var tmp$0 = _.kotlin.iterator_1($receiver);
-          while (tmp$0.hasNext()) {
-            var item = tmp$0.next();
-            result.add(transform(item));
-          }
-        }
-        return result;
-      }},
-      mapValuesTo: {value: function ($receiver, result, transform) {
-        {
-          var tmp$0 = _.kotlin.iterator_1($receiver);
-          while (tmp$0.hasNext()) {
-            var e = tmp$0.next();
-            var newValue = transform(e);
-            result.put(_.kotlin.get_key(e), newValue);
-          }
-        }
-        return result;
-      }},
-      putAll: {value: function ($receiver, values) {
-        var tmp$0, tmp$1, tmp$2;
-        {
-          tmp$0 = values, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var v = tmp$0[tmp$2];
-            {
-              $receiver.put(v.first, v.second);
+      dom: Kotlin.definePackage(null, {
+        createDocument: {value: function () {
+          return document.implementation.createDocument(null, null, null);
+        }},
+        toXmlString: {value: function ($receiver) {
+          return $receiver.outerHTML;
+        }},
+        toXmlString_0: {value: function ($receiver, xmlDeclaration) {
+          return $receiver.outerHTML;
+        }},
+        eventHandler: {value: function (handler) {
+          return _.kotlin.dom.EventListenerHandler(handler);
+        }},
+        EventListenerHandler: {value: Kotlin.createClass(classes.co, function (handler) {
+          Object.defineProperty(this, 'handler', {value: handler});
+        }, /** @lends _.kotlin.dom.EventListenerHandler.prototype */ {
+          handleEvent: {value: function (e) {
+            if (e != null) {
+              this.handler(e);
             }
+          }, writable: true}
+        })},
+        f0: {value: function (handler, e) {
+          if (Kotlin.isType(e, MouseEvent)) {
+            handler(e);
           }
-        }
-      }},
-      toMap: {value: function ($receiver, map) {
-        map.putAll($receiver);
-        return map;
-      }},
-      map_8: {value: function ($receiver, transform) {
-        return _.kotlin.mapTo($receiver, Kotlin.ArrayList(_.kotlin.get_size($receiver)), transform);
-      }},
-      mapValues_0: {value: function ($receiver, transform) {
-        return _.kotlin.mapValuesTo($receiver, Kotlin.ComplexHashMap(_.kotlin.get_size($receiver)), transform);
-      }},
-      iterate: {value: function (nextFunction) {
-        return _.kotlin.FunctionIterator(nextFunction);
-      }},
-      FilterIterator: {value: Kotlin.createClass(classes.co, function $fun(iterator, predicate) {
-        Object.defineProperty(this, 'iterator', {value: iterator});
-        Object.defineProperty(this, 'predicate', {value: predicate});
-        $fun.baseInitializer.call(this);
-      }, /** @lends _.kotlin.FilterIterator.prototype */ {
-        computeNext: {value: function () {
-          while (this.iterator.hasNext()) {
-            var next = this.iterator.next();
-            if (this.predicate(next)) {
-              this.setNext(next);
-              return;
+        }},
+        mouseEventHandler: {value: function (handler) {
+          return _.kotlin.dom.eventHandler(_.kotlin.dom.f0.bind(null, handler));
+        }},
+        on: {value: function ($receiver, name, capture, handler) {
+          return _.kotlin.dom.on_0($receiver, name, capture, _.kotlin.dom.eventHandler(handler));
+        }},
+        on_0: {value: function ($receiver, name, capture, listener) {
+          var tmp$0;
+          if (Kotlin.isType($receiver, EventTarget)) {
+            addEventListener(name, listener, capture);
+            tmp$0 = _.kotlin.dom.CloseableEventListener($receiver, listener, name, capture);
+          }
+           else {
+            tmp$0 = null;
+          }
+          return tmp$0;
+        }},
+        CloseableEventListener: {value: Kotlin.createClass(Kotlin.Closeable, function (target, listener, name, capture) {
+          Object.defineProperty(this, 'target', {value: target});
+          Object.defineProperty(this, 'listener', {value: listener});
+          Object.defineProperty(this, 'name', {value: name});
+          Object.defineProperty(this, 'capture', {value: capture});
+        }, /** @lends _.kotlin.dom.CloseableEventListener.prototype */ {
+          close: {value: function () {
+            this.target.removeEventListener(this.name, this.listener, this.capture);
+          }, writable: true}
+        })},
+        onClick: {value: function ($receiver, capture, handler) {
+          return _.kotlin.dom.on_0($receiver, 'click', capture, _.kotlin.dom.mouseEventHandler(handler));
+        }},
+        onDoubleClick: {value: function ($receiver, capture, handler) {
+          return _.kotlin.dom.on_0($receiver, 'dblclick', capture, _.kotlin.dom.mouseEventHandler(handler));
+        }},
+        emptyElementList: {value: function () {
+          return Kotlin.emptyList();
+        }},
+        emptyNodeList: {value: function () {
+          return Kotlin.emptyList();
+        }},
+        get_text: {value: function ($receiver) {
+          return $receiver.textContent;
+        }},
+        set_text: {value: function ($receiver, value) {
+          $receiver.textContent = value;
+        }},
+        get_childrenText: {value: function ($receiver) {
+          var buffer = Kotlin.StringBuilder();
+          var nodeList = $receiver.childNodes;
+          var i = 0;
+          var size = nodeList.length;
+          while (i < size) {
+            var node = nodeList.item(i);
+            if (node != null) {
+              if (_.kotlin.dom.isText(node)) {
+                buffer.append(node.nodeValue);
+              }
             }
+            i++;
           }
-          this.done();
-        }, writable: true}
-      })},
-      FilterNotNullIterator: {value: Kotlin.createClass(classes.co, function $fun(iterator) {
-        Object.defineProperty(this, 'iterator', {value: iterator});
-        $fun.baseInitializer.call(this);
-      }, /** @lends _.kotlin.FilterNotNullIterator.prototype */ {
-        computeNext: {value: function () {
-          if (this.iterator != null) {
-            while (this.iterator.hasNext()) {
-              var next = this.iterator.next();
-              if (next != null) {
-                this.setNext(next);
-                return;
+          return buffer.toString();
+        }},
+        set_childrenText: {value: function ($receiver, value) {
+          var element = $receiver;
+          {
+            var tmp$0 = _.kotlin.dom.children(element).iterator();
+            while (tmp$0.hasNext()) {
+              var node = tmp$0.next();
+              if (_.kotlin.dom.isText(node)) {
+                $receiver.removeChild(node);
               }
             }
           }
-          this.done();
-        }, writable: true}
-      })},
-      MapIterator: {value: Kotlin.createClass(classes.co, function $fun(iterator, transform) {
-        Object.defineProperty(this, 'iterator', {value: iterator});
-        Object.defineProperty(this, 'transform', {value: transform});
-        $fun.baseInitializer.call(this);
-      }, /** @lends _.kotlin.MapIterator.prototype */ {
-        computeNext: {value: function () {
-          if (this.iterator.hasNext()) {
-            this.setNext(this.transform(this.iterator.next()));
+          _.kotlin.dom.addText(element, value, null);
+        }},
+        get_id: {value: function ($receiver) {
+          return $receiver.getAttribute('id') !== null ? $receiver.getAttribute('id') : '';
+        }},
+        set_id: {value: function ($receiver, value) {
+          $receiver.setAttribute('id', value);
+          $receiver.setIdAttribute('id', true);
+        }},
+        get_style: {value: function ($receiver) {
+          return $receiver.getAttribute('style') !== null ? $receiver.getAttribute('style') : '';
+        }},
+        set_style: {value: function ($receiver, value) {
+          $receiver.setAttribute('style', value);
+        }},
+        get_classes: {value: function ($receiver) {
+          return $receiver.getAttribute('class') !== null ? $receiver.getAttribute('class') : '';
+        }},
+        set_classes: {value: function ($receiver, value) {
+          $receiver.setAttribute('class', value);
+        }},
+        hasClass: {value: function ($receiver, cssClass) {
+          var c = _.kotlin.dom.get_classes($receiver);
+          return _.js.matches(c, '(^|.*' + '\\' + 's+)' + cssClass + '(' + '$' + '|' + '\\' + 's+.*)');
+        }},
+        children: {value: function ($receiver) {
+          return _.kotlin.dom.toList($receiver != null ? $receiver.childNodes : null);
+        }},
+        f1: {value: function (it) {
+          return it.nodeType === Node.ELEMENT_NODE;
+        }},
+        f2: {value: function (it) {
+          return it != null ? it : Kotlin.throwNPE();
+        }},
+        childElements: {value: function ($receiver) {
+          return _.kotlin.map_6(_.kotlin.filter_5(_.kotlin.dom.children($receiver), _.kotlin.dom.f1), _.kotlin.dom.f2);
+        }},
+        f3: {value: function (name, it) {
+          return it.nodeType === Node.ELEMENT_NODE && Kotlin.equals(it.nodeName, name);
+        }},
+        f4: {value: function (it) {
+          return it != null ? it : Kotlin.throwNPE();
+        }},
+        childElements_0: {value: function ($receiver, name) {
+          return _.kotlin.map_6(_.kotlin.filter_5(_.kotlin.dom.children($receiver), _.kotlin.dom.f3.bind(null, name)), _.kotlin.dom.f4);
+        }},
+        get_elements: {value: function ($receiver) {
+          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName('*') : null);
+        }},
+        get_elements: {value: function ($receiver) {
+          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName('*') : null);
+        }},
+        elements: {value: function ($receiver, localName) {
+          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName(localName) : null);
+        }},
+        elements_0: {value: function ($receiver, localName) {
+          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagName(localName) : null);
+        }},
+        elements_1: {value: function ($receiver, namespaceUri, localName) {
+          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagNameNS(namespaceUri, localName) : null);
+        }},
+        elements_2: {value: function ($receiver, namespaceUri, localName) {
+          return _.kotlin.dom.toElementList($receiver != null ? $receiver.getElementsByTagNameNS(namespaceUri, localName) : null);
+        }},
+        toList: {value: function ($receiver) {
+          var tmp$0;
+          if ($receiver == null) {
+            tmp$0 = _.kotlin.dom.emptyNodeList();
           }
            else {
-            this.done();
+            tmp$0 = _.kotlin.dom.NodeListAsList($receiver);
           }
-        }, writable: true}
-      })},
-      FlatMapIterator: {value: Kotlin.createClass(classes.co, function $fun(iterator, transform) {
-        Object.defineProperty(this, 'iterator', {value: iterator});
-        Object.defineProperty(this, 'transform', {value: transform});
-        $fun.baseInitializer.call(this);
-        Object.defineProperty(this, 'transformed', {value: _.kotlin.iterate(function () {
-          return null;
-        }), writable: true});
-      }, /** @lends _.kotlin.FlatMapIterator.prototype */ {
-        computeNext: {value: function () {
+          return tmp$0;
+        }},
+        toElementList: {value: function ($receiver) {
+          var tmp$0;
+          if ($receiver == null) {
+            tmp$0 = Kotlin.ArrayList(0);
+          }
+           else {
+            tmp$0 = _.kotlin.dom.ElementListAsList($receiver);
+          }
+          return tmp$0;
+        }},
+        f5: {value: function (selector, it) {
+          return _.kotlin.dom.hasClass(it, selector.substring(1));
+        }},
+        get: {value: function ($receiver, selector) {
+          var root = $receiver != null ? $receiver.documentElement : null;
+          var tmp$0;
+          if (root != null) {
+            if (Kotlin.equals(selector, '*')) {
+              tmp$0 = _.kotlin.dom.get_elements($receiver);
+            }
+             else if (selector.startsWith('.')) {
+              tmp$0 = _.kotlin.toList(_.kotlin.filter_5(_.kotlin.dom.get_elements($receiver), _.kotlin.dom.f5.bind(null, selector)));
+            }
+             else if (selector.startsWith('#')) {
+              var id = selector.substring(1);
+              var element = $receiver != null ? $receiver.getElementById(id) : null;
+              return element != null ? _.kotlin.arrayList([element]) : _.kotlin.dom.emptyElementList();
+            }
+             else {
+              tmp$0 = _.kotlin.dom.elements_0($receiver, selector);
+            }
+          }
+           else {
+            tmp$0 = _.kotlin.dom.emptyElementList();
+          }
+          return tmp$0;
+        }},
+        f6: {value: function (selector, it) {
+          return _.kotlin.dom.hasClass(it, selector.substring(1));
+        }},
+        get_0: {value: function ($receiver, selector) {
+          var tmp$1;
+          if (Kotlin.equals(selector, '*')) {
+            tmp$1 = _.kotlin.dom.get_elements($receiver);
+          }
+           else if (selector.startsWith('.')) {
+            tmp$1 = _.kotlin.toList(_.kotlin.filter_5(_.kotlin.dom.get_elements($receiver), _.kotlin.dom.f6.bind(null, selector)));
+          }
+           else if (selector.startsWith('#')) {
+            var tmp$0;
+            var element = (tmp$0 = $receiver.ownerDocument) != null ? tmp$0.getElementById(selector.substring(1)) : null;
+            return element != null ? _.kotlin.arrayList([element]) : _.kotlin.dom.emptyElementList();
+          }
+           else {
+            tmp$1 = _.kotlin.dom.elements($receiver, selector);
+          }
+          return tmp$1;
+        }},
+        NodeListAsList: {value: Kotlin.createClass(Kotlin.AbstractList, function $fun(nodeList) {
+          Object.defineProperty(this, 'nodeList', {value: nodeList});
+          $fun.baseInitializer.call(this);
+        }, /** @lends _.kotlin.dom.NodeListAsList.prototype */ {
+          get: {value: function (index) {
+            var node = this.nodeList.item(index);
+            if (node == null) {
+              throw new RangeError('NodeList does not contain a node at index: ' + index);
+            }
+             else {
+              return node;
+            }
+          }, writable: true},
+          size: {value: function () {
+            return this.nodeList.length;
+          }, writable: true}
+        })},
+        ElementListAsList: {value: Kotlin.createClass(Kotlin.AbstractList, function $fun(nodeList) {
+          Object.defineProperty(this, 'nodeList', {value: nodeList});
+          $fun.baseInitializer.call(this);
+        }, /** @lends _.kotlin.dom.ElementListAsList.prototype */ {
+          get: {value: function (index) {
+            var node = this.nodeList.item(index);
+            if (node == null) {
+              throw new RangeError('NodeList does not contain a node at index: ' + index);
+            }
+             else if (node.nodeType === Node.ELEMENT_NODE) {
+              return node != null ? node : Kotlin.throwNPE();
+            }
+             else {
+              throw Kotlin.IllegalArgumentException('Node is not an Element as expected but is ' + node.toString());
+            }
+          }, writable: true},
+          size: {value: function () {
+            return this.nodeList.length;
+          }, writable: true}
+        })},
+        clear: {value: function ($receiver) {
           while (true) {
-            if (this.transformed.hasNext()) {
-              this.setNext(this.transformed.next());
+            var child = $receiver.firstChild;
+            if (child == null) {
               return;
             }
-            if (this.iterator.hasNext()) {
-              this.transformed = this.transform(this.iterator.next());
+             else {
+              $receiver.removeChild(child);
+            }
+          }
+        }},
+        nextSiblings: {value: function ($receiver) {
+          return _.kotlin.dom.NextSiblingIterator($receiver);
+        }},
+        NextSiblingIterator: {value: Kotlin.createClass(classes.cq, function $fun(node) {
+          Object.defineProperty(this, 'node', {value: node, writable: true});
+          $fun.baseInitializer.call(this);
+        }, /** @lends _.kotlin.dom.NextSiblingIterator.prototype */ {
+          computeNext: {value: function () {
+            var nextValue = this.node.nextSibling;
+            if (nextValue != null) {
+              this.setNext(nextValue);
+              this.node = nextValue;
             }
              else {
               this.done();
-              return;
             }
-          }
-        }, writable: true}
-      })},
-      TakeWhileIterator: {value: Kotlin.createClass(classes.co, function $fun(iterator, predicate) {
-        Object.defineProperty(this, 'iterator', {value: iterator});
-        Object.defineProperty(this, 'predicate', {value: predicate});
-        $fun.baseInitializer.call(this);
-      }, /** @lends _.kotlin.TakeWhileIterator.prototype */ {
-        computeNext: {value: function () {
-          if (this.iterator.hasNext()) {
-            var item = this.iterator.next();
-            if (this.predicate(item)) {
-              this.setNext(item);
-              return;
+          }, writable: true}
+        })},
+        previousSiblings: {value: function ($receiver) {
+          return _.kotlin.dom.PreviousSiblingIterator($receiver);
+        }},
+        PreviousSiblingIterator: {value: Kotlin.createClass(classes.cq, function $fun(node) {
+          Object.defineProperty(this, 'node', {value: node, writable: true});
+          $fun.baseInitializer.call(this);
+        }, /** @lends _.kotlin.dom.PreviousSiblingIterator.prototype */ {
+          computeNext: {value: function () {
+            var nextValue = this.node.previousSibling;
+            if (nextValue != null) {
+              this.setNext(nextValue);
+              this.node = nextValue;
             }
-          }
-          this.done();
-        }, writable: true}
-      })},
-      FunctionIterator: {value: Kotlin.createClass(classes.co, function $fun(nextFunction) {
-        Object.defineProperty(this, 'nextFunction', {value: nextFunction});
-        $fun.baseInitializer.call(this);
-      }, /** @lends _.kotlin.FunctionIterator.prototype */ {
-        computeNext: {value: function () {
-          var next = this.nextFunction();
-          if (next == null) {
-            this.done();
+             else {
+              this.done();
+            }
+          }, writable: true}
+        })},
+        isText: {value: function ($receiver) {
+          var nt = $receiver.nodeType;
+          return nt === Node.TEXT_NODE || nt === Node.CDATA_SECTION_NODE;
+        }},
+        attribute: {value: function ($receiver, name) {
+          return $receiver.getAttribute(name) !== null ? $receiver.getAttribute(name) : '';
+        }},
+        get_head: {value: function ($receiver) {
+          return $receiver != null && $receiver.length > 0 ? $receiver.item(0) : null;
+        }},
+        get_first: {value: function ($receiver) {
+          return _.kotlin.dom.get_head($receiver);
+        }},
+        get_tail: {value: function ($receiver) {
+          if ($receiver == null) {
+            return null;
           }
            else {
-            this.setNext(next);
+            var s = $receiver.length;
+            return s > 0 ? $receiver.item(s - 1) : null;
           }
-        }, writable: true}
-      })},
-      CompositeIterator: {value: Kotlin.createClass(classes.co, function $fun(iterators) {
-        $fun.baseInitializer.call(this);
-        Object.defineProperty(this, 'iteratorsIter', {value: Kotlin.arrayIterator(iterators)});
-        Object.defineProperty(this, 'currentIter', {value: null, writable: true});
-      }, /** @lends _.kotlin.CompositeIterator.prototype */ {
-        computeNext: {value: function () {
-          while (true) {
-            if (this.currentIter == null) {
-              if (this.iteratorsIter.hasNext()) {
-                this.currentIter = this.iteratorsIter.next();
-              }
-               else {
-                this.done();
-                return;
-              }
-            }
-            var iter = this.currentIter;
-            if (iter != null) {
-              if (iter.hasNext()) {
-                this.setNext(iter.next());
-                return;
-              }
-               else {
-                this.currentIter = null;
-              }
+        }},
+        get_last: {value: function ($receiver) {
+          return _.kotlin.dom.get_tail($receiver);
+        }},
+        toXmlString_1: {value: function ($receiver, xmlDeclaration) {
+          var tmp$0;
+          if ($receiver == null)
+            tmp$0 = '';
+          else {
+            tmp$0 = _.kotlin.dom.nodesToXmlString(_.kotlin.dom.toList($receiver), xmlDeclaration);
+          }
+          return tmp$0;
+        }},
+        nodesToXmlString: {value: function (nodes, xmlDeclaration) {
+          var builder = Kotlin.StringBuilder();
+          {
+            var tmp$0 = nodes.iterator();
+            while (tmp$0.hasNext()) {
+              var n = tmp$0.next();
+              builder.append(_.kotlin.dom.toXmlString_0(n, xmlDeclaration));
             }
           }
-        }, writable: true}
-      })},
-      SingleIterator: {value: Kotlin.createClass(classes.co, function $fun(value) {
-        Object.defineProperty(this, 'value', {value: value});
-        $fun.baseInitializer.call(this);
-        Object.defineProperty(this, 'first', {value: true, writable: true});
-      }, /** @lends _.kotlin.SingleIterator.prototype */ {
-        computeNext: {value: function () {
-          if (this.first) {
-            this.first = false;
-            this.setNext(this.value);
+          return builder.toString();
+        }},
+        plus: {value: function ($receiver, child) {
+          if (child != null) {
+            $receiver.appendChild(child);
+          }
+          return $receiver;
+        }},
+        plus_0: {value: function ($receiver, text) {
+          return _.kotlin.dom.addText($receiver, text, null);
+        }},
+        plusAssign: {value: function ($receiver, text) {
+          return _.kotlin.dom.addText($receiver, text, null);
+        }},
+        createElement: {value: function ($receiver, name, init) {
+          var tmp$0;
+          var elem = (tmp$0 = $receiver.createElement(name)) != null ? tmp$0 : Kotlin.throwNPE();
+          init(elem);
+          return elem;
+        }},
+        createElement_0: {value: function ($receiver, name, doc, init) {
+          var tmp$0;
+          var elem = (tmp$0 = _.kotlin.dom.ownerDocument($receiver, doc).createElement(name)) != null ? tmp$0 : Kotlin.throwNPE();
+          init(elem);
+          return elem;
+        }},
+        ownerDocument: {value: function ($receiver, doc) {
+          var tmp$0;
+          if ($receiver.nodeType === Node.DOCUMENT_NODE)
+            tmp$0 = $receiver != null ? $receiver : Kotlin.throwNPE();
+          else if (doc == null)
+            tmp$0 = $receiver.ownerDocument;
+          else
+            tmp$0 = doc;
+          var answer = tmp$0;
+          if (answer == null) {
+            throw Kotlin.IllegalArgumentException('Element does not have an ownerDocument and none was provided for: ' + $receiver.toString());
           }
            else {
-            this.done();
+            return answer;
           }
-        }, writable: true}
-      })},
-      IndexIterator: {value: Kotlin.createClass(Kotlin.Iterator, function (iterator) {
-        Object.defineProperty(this, 'iterator', {value: iterator});
-        Object.defineProperty(this, 'index', {value: 0, writable: true});
-      }, /** @lends _.kotlin.IndexIterator.prototype */ {
-        next: {value: function () {
-          var tmp$0, tmp$1;
-          return _.kotlin.Pair((tmp$0 = this.index, tmp$1 = tmp$0, this.index = tmp$0 + 1, tmp$1), this.iterator.next());
-        }, writable: true},
-        hasNext: {value: function () {
-          return this.iterator.hasNext();
-        }, writable: true}
-      })},
+        }},
+        addElement: {value: function ($receiver, name, init) {
+          var child = _.kotlin.dom.createElement($receiver, name, init);
+          $receiver.appendChild(child);
+          return child;
+        }},
+        addElement_0: {value: function ($receiver, name, doc, init) {
+          var child = _.kotlin.dom.createElement_0($receiver, name, doc, init);
+          $receiver.appendChild(child);
+          return child;
+        }},
+        addText: {value: function ($receiver, text, doc) {
+          if (text != null) {
+            var tmp$0;
+            var child = (tmp$0 = _.kotlin.dom.ownerDocument($receiver, doc).createTextNode(text)) != null ? tmp$0 : Kotlin.throwNPE();
+            $receiver.appendChild(child);
+          }
+          return $receiver;
+        }}
+      }),
       all_6: {value: function ($receiver, predicate) {
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
@@ -5822,7 +6118,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return false;
       }},
-      count_8: {value: function ($receiver, predicate) {
+      count_6: {value: function ($receiver, predicate) {
         var count = 0;
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
@@ -5859,7 +6155,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      filterNot_6: {value: function ($receiver, predicate) {
+      filterNot_7: {value: function ($receiver, predicate) {
         return _.kotlin.filterNotTo_6($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterNotTo_6: {value: function ($receiver, result, predicate) {
@@ -5903,7 +6199,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      flatMap_6: {value: function ($receiver, transform) {
+      flatMap_7: {value: function ($receiver, transform) {
         return _.kotlin.flatMapTo_6($receiver, Kotlin.ArrayList(0), transform);
       }},
       flatMapTo_6: {value: function ($receiver, result, transform) {
@@ -5943,7 +6239,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      foldRight_6: {value: function ($receiver, initial, operation) {
+      foldRight_5: {value: function ($receiver, initial, operation) {
         var r = initial;
         var index = $receiver.length - 1;
         while (index >= 0) {
@@ -5962,7 +6258,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      reduceRight_6: {value: function ($receiver, operation) {
+      reduceRight_5: {value: function ($receiver, operation) {
         var index = $receiver.length - 1;
         if (index < 0) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
@@ -5976,7 +6272,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       groupBy_6: {value: function ($receiver, toKey) {
         return _.kotlin.groupByTo_6($receiver, Kotlin.ComplexHashMap(0), toKey);
       }},
-      ff: {value: function () {
+      fh: {value: function () {
         return Kotlin.ArrayList(0);
       }},
       groupByTo_6: {value: function ($receiver, result, toKey) {
@@ -5985,7 +6281,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             var key = toKey(element);
-            var list = _.kotlin.getOrPut(result, key, _.kotlin.ff);
+            var list = _.kotlin.getOrPut(result, key, _.kotlin.fh);
             list.add(element);
           }
         }
@@ -6013,10 +6309,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      take_6: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_6($receiver, _.kotlin.countTo(n));
+      take_7: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_7($receiver, _.kotlin.countTo(n));
       }},
-      takeWhile_6: {value: function ($receiver, predicate) {
+      takeWhile_7: {value: function ($receiver, predicate) {
         return _.kotlin.takeWhileTo_6($receiver, Kotlin.ArrayList(0), predicate);
       }},
       takeWhileTo_6: {value: function ($receiver, result, predicate) {
@@ -6032,7 +6328,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_8: {value: function ($receiver, result) {
+      toCollection_6: {value: function ($receiver, result) {
         {
           var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
@@ -6043,31 +6339,31 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       reverse_6: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_8($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_6($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_6: {value: function ($receiver) {
-        return _.kotlin.toCollection_8($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_6($receiver, Kotlin.LinkedList());
       }},
-      toList_7: {value: function ($receiver) {
-        return _.kotlin.toCollection_8($receiver, Kotlin.ArrayList(0));
+      toList_6: {value: function ($receiver) {
+        return _.kotlin.toCollection_6($receiver, Kotlin.ArrayList(0));
       }},
       toSet_6: {value: function ($receiver) {
-        return _.kotlin.toCollection_8($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_6($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_6: {value: function ($receiver) {
-        return _.kotlin.toCollection_8($receiver, Kotlin.TreeSet());
+        return _.kotlin.toCollection_6($receiver, Kotlin.TreeSet());
       }},
-      plus_20: {value: function ($receiver, element) {
+      plus_23: {value: function ($receiver, element) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_8($receiver, answer);
+        _.kotlin.toCollection_6($receiver, answer);
         answer.add(element);
         return answer;
       }},
-      plus_21: {value: function ($receiver, iterator) {
+      plus_24: {value: function ($receiver, iterator) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_8($receiver, answer);
+        _.kotlin.toCollection_6($receiver, answer);
         {
           var tmp$0 = iterator;
           while (tmp$0.hasNext()) {
@@ -6077,20 +6373,20 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
-      plus_22: {value: function ($receiver, collection) {
-        return _.kotlin.plus_21($receiver, collection.iterator());
+      plus_25: {value: function ($receiver, collection) {
+        return _.kotlin.plus_24($receiver, collection.iterator());
       }},
       withIndices_6: {value: function ($receiver) {
         return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
       }},
-      fg: {value: function (f, x, y) {
+      fi: {value: function (f, x, y) {
         var xr = f(x);
         var yr = f(y);
         return xr.compareTo(yr);
       }},
       sortBy_6: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_8($receiver, Kotlin.ArrayList(0));
-        var sortBy = Kotlin.comparator(_.kotlin.fg.bind(null, f));
+        var sortedList = _.kotlin.toCollection_6($receiver, Kotlin.ArrayList(0));
+        var sortBy = Kotlin.comparator(_.kotlin.fi.bind(null, f));
         Kotlin.collectionsSort(sortedList, sortBy);
         return sortedList;
       }},
@@ -6115,14 +6411,14 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString_7: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString_6: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString_6($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
       }},
       all_7: {value: function ($receiver, predicate) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (!predicate(element))
@@ -6133,7 +6429,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       any_7: {value: function ($receiver, predicate) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -6142,10 +6438,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return false;
       }},
-      count_9: {value: function ($receiver, predicate) {
+      count_7: {value: function ($receiver, predicate) {
         var count = 0;
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -6156,7 +6452,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       find_7: {value: function ($receiver, predicate) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -6165,9 +6461,12 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return null;
       }},
+      filter_8: {value: function ($receiver, predicate) {
+        return _.kotlin.filterTo_7($receiver, Kotlin.ArrayList(0), predicate);
+      }},
       filterTo_7: {value: function ($receiver, result, predicate) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -6176,23 +6475,15 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
+      filterNot_8: {value: function ($receiver, predicate) {
+        return _.kotlin.filterNotTo_7($receiver, Kotlin.ArrayList(0), predicate);
+      }},
       filterNotTo_7: {value: function ($receiver, result, predicate) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (!predicate(element))
-              result.add(element);
-          }
-        }
-        return result;
-      }},
-      filterNotNullTo: {value: function ($receiver, result) {
-        {
-          var tmp$0 = $receiver.iterator();
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (element != null)
               result.add(element);
           }
         }
@@ -6202,7 +6493,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         var first = Kotlin.ArrayList(0);
         var second = Kotlin.ArrayList(0);
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element)) {
@@ -6215,9 +6506,12 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return _.kotlin.Pair(first, second);
       }},
+      map_10: {value: function ($receiver, transform) {
+        return _.kotlin.mapTo_8($receiver, Kotlin.ArrayList(0), transform);
+      }},
       mapTo_8: {value: function ($receiver, result, transform) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var item = tmp$0.next();
             result.add(transform(item));
@@ -6225,9 +6519,12 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
+      flatMap_8: {value: function ($receiver, transform) {
+        return _.kotlin.flatMapTo_7($receiver, Kotlin.ArrayList(0), transform);
+      }},
       flatMapTo_7: {value: function ($receiver, result, transform) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             var list = transform(element);
@@ -6244,7 +6541,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       forEach_7: {value: function ($receiver, operation) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             operation(element);
@@ -6254,7 +6551,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       fold_7: {value: function ($receiver, initial, operation) {
         var answer = initial;
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             answer = operation(answer, element);
@@ -6262,8 +6559,16 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return answer;
       }},
+      foldRight_6: {value: function ($receiver, initial, operation) {
+        var r = initial;
+        var index = $receiver.length - 1;
+        while (index >= 0) {
+          r = operation($receiver[index--], r);
+        }
+        return r;
+      }},
       reduce_7: {value: function ($receiver, operation) {
-        var iterator = $receiver.iterator();
+        var iterator = Kotlin.arrayIterator($receiver);
         if (!iterator.hasNext()) {
           throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
         }
@@ -6273,19 +6578,30 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
+      reduceRight_6: {value: function ($receiver, operation) {
+        var index = $receiver.length - 1;
+        if (index < 0) {
+          throw Kotlin.UnsupportedOperationException("Empty iterable can't be reduced");
+        }
+        var r = $receiver[index--];
+        while (index >= 0) {
+          r = operation($receiver[index--], r);
+        }
+        return r;
+      }},
       groupBy_7: {value: function ($receiver, toKey) {
         return _.kotlin.groupByTo_7($receiver, Kotlin.ComplexHashMap(0), toKey);
       }},
-      fh: {value: function () {
+      fj: {value: function () {
         return Kotlin.ArrayList(0);
       }},
       groupByTo_7: {value: function ($receiver, result, toKey) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             var key = toKey(element);
-            var list = _.kotlin.getOrPut(result, key, _.kotlin.fh);
+            var list = _.kotlin.getOrPut(result, key, _.kotlin.fj);
             list.add(element);
           }
         }
@@ -6300,7 +6616,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       dropWhileTo_7: {value: function ($receiver, result, predicate) {
         var start = true;
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (start && predicate(element)) {
@@ -6313,9 +6629,15 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
+      take_8: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_8($receiver, _.kotlin.countTo(n));
+      }},
+      takeWhile_8: {value: function ($receiver, predicate) {
+        return _.kotlin.takeWhileTo_7($receiver, Kotlin.ArrayList(0), predicate);
+      }},
       takeWhileTo_7: {value: function ($receiver, result, predicate) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (predicate(element))
@@ -6326,9 +6648,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_5: {value: function ($receiver, result) {
+      toCollection_7: {value: function ($receiver, result) {
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             result.add(element);
@@ -6337,33 +6659,54 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       reverse_7: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_7($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_7: {value: function ($receiver) {
-        return _.kotlin.toCollection_5($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_7($receiver, Kotlin.LinkedList());
       }},
-      toList_2: {value: function ($receiver) {
-        return _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
+      toList_7: {value: function ($receiver) {
+        return _.kotlin.toCollection_7($receiver, Kotlin.ArrayList(0));
       }},
       toSet_7: {value: function ($receiver) {
-        return _.kotlin.toCollection_5($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_7($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_7: {value: function ($receiver) {
-        return _.kotlin.toCollection_5($receiver, Kotlin.TreeSet());
+        return _.kotlin.toCollection_7($receiver, Kotlin.TreeSet());
+      }},
+      plus_26: {value: function ($receiver, element) {
+        var answer = Kotlin.ArrayList(0);
+        _.kotlin.toCollection_7($receiver, answer);
+        answer.add(element);
+        return answer;
+      }},
+      plus_27: {value: function ($receiver, iterator) {
+        var answer = Kotlin.ArrayList(0);
+        _.kotlin.toCollection_7($receiver, answer);
+        {
+          var tmp$0 = iterator;
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            answer.add(element);
+          }
+        }
+        return answer;
+      }},
+      plus_28: {value: function ($receiver, collection) {
+        return _.kotlin.plus_27($receiver, collection.iterator());
       }},
       withIndices_7: {value: function ($receiver) {
-        return _.kotlin.IndexIterator($receiver.iterator());
+        return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
       }},
-      fi: {value: function (f, x, y) {
+      fk: {value: function (f, x, y) {
         var xr = f(x);
         var yr = f(y);
         return xr.compareTo(yr);
       }},
       sortBy_7: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0));
-        var sortBy = Kotlin.comparator(_.kotlin.fi.bind(null, f));
+        var sortedList = _.kotlin.toCollection_7($receiver, Kotlin.ArrayList(0));
+        var sortBy = Kotlin.comparator(_.kotlin.fk.bind(null, f));
         Kotlin.collectionsSort(sortedList, sortBy);
         return sortedList;
       }},
@@ -6371,7 +6714,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         buffer.append(prefix);
         var count = 0;
         {
-          var tmp$0 = $receiver.iterator();
+          var tmp$0 = Kotlin.arrayIterator($receiver);
           while (tmp$0.hasNext()) {
             var element = tmp$0.next();
             if (++count > 1)
@@ -6388,182 +6731,176 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           buffer.append(truncated);
         buffer.append(postfix);
       }},
-      makeString: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+      makeString_7: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
         var buffer = Kotlin.StringBuilder();
         _.kotlin.appendString_7($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
       }},
-      notEmpty_0: {value: function ($receiver) {
-        return !_.kotlin.isEmpty($receiver);
+      iterate: {value: function (nextFunction) {
+        return _.kotlin.FunctionIterator(nextFunction);
       }},
-      isEmpty: {value: function ($receiver) {
-        return $receiver.length === 0;
-      }},
-      orEmpty_1: {value: function ($receiver) {
-        return $receiver != null ? $receiver : [];
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return $receiver.length - 1;
-      }},
-      get_size: {value: function ($receiver) {
-        return $receiver.size();
-      }},
-      get_empty: {value: function ($receiver) {
-        return $receiver.isEmpty();
-      }},
-      get_indices: {value: function ($receiver) {
-        return Kotlin.NumberRange(0, _.kotlin.get_size($receiver) - 1);
-      }},
-      get_indices: {value: function ($receiver) {
-        return Kotlin.NumberRange(0, $receiver - 1);
-      }},
-      notEmpty_1: {value: function ($receiver) {
-        return !$receiver.isEmpty();
-      }},
-      orEmpty_2: {value: function ($receiver) {
-        var tmp$0;
-        return $receiver != null ? $receiver : (tmp$0 = Kotlin.emptyList()) != null ? tmp$0 : Kotlin.throwNPE();
-      }},
-      toSortedList: {value: function ($receiver) {
-        return _.kotlin.sort(_.kotlin.toCollection_5($receiver, Kotlin.ArrayList(0)));
-      }},
-      toSortedList_0: {value: function ($receiver, comparator) {
-        return _.kotlin.sort_0(_.kotlin.toList_2($receiver), comparator);
-      }},
-      orEmpty_3: {value: function ($receiver) {
-        var tmp$0;
-        return $receiver != null ? $receiver : (tmp$0 = Kotlin.emptyList()) != null ? tmp$0 : Kotlin.throwNPE();
-      }},
-      get_first: {value: function ($receiver) {
-        return _.kotlin.get_head($receiver);
-      }},
-      get_last: {value: function ($receiver) {
-        var s = _.kotlin.get_size($receiver);
-        return s > 0 ? $receiver.get(s - 1) : null;
-      }},
-      get_lastIndex: {value: function ($receiver) {
-        return _.kotlin.get_size($receiver) - 1;
-      }},
-      get_head: {value: function ($receiver) {
-        return $receiver.get(0);
-      }},
-      get_tail: {value: function ($receiver) {
-        return _.kotlin.drop_7($receiver, 1);
-      }},
-      require: {value: function (value, message) {
-        if (!value) {
-          throw Kotlin.IllegalArgumentException(Kotlin.toString(message));
-        }
-      }},
-      require_0: {value: function (value, lazyMessage) {
-        if (!value) {
-          var message = lazyMessage();
-          throw Kotlin.IllegalArgumentException(message.toString());
-        }
-      }},
-      requireNotNull: {value: function (value, message) {
-        if (value == null) {
-          throw Kotlin.IllegalArgumentException(Kotlin.toString(message));
-        }
-         else {
-          return value;
-        }
-      }},
-      check: {value: function (value, message) {
-        if (!value) {
-          throw Kotlin.IllegalStateException(Kotlin.toString(message));
-        }
-      }},
-      check_0: {value: function (value, lazyMessage) {
-        if (!value) {
-          var message = lazyMessage();
-          throw Kotlin.IllegalStateException(message.toString());
-        }
-      }},
-      checkNotNull: {value: function (value, message) {
-        if (value == null) {
-          throw Kotlin.IllegalStateException(message);
-        }
-         else {
-          return value;
-        }
-      }},
-      filter_8: {value: function ($receiver, predicate) {
-        return _.kotlin.FilterIterator($receiver, predicate);
-      }},
-      fj: {value: function (predicate, it) {
-        return !predicate(it);
-      }},
-      filterNot_7: {value: function ($receiver, predicate) {
-        return _.kotlin.filter_8($receiver, _.kotlin.fj.bind(null, predicate));
-      }},
-      filterNotNull: {value: function ($receiver) {
-        return _.kotlin.FilterNotNullIterator($receiver);
-      }},
-      map_10: {value: function ($receiver, transform) {
-        return _.kotlin.MapIterator($receiver, transform);
-      }},
-      flatMap_7: {value: function ($receiver, transform) {
-        return _.kotlin.FlatMapIterator($receiver, transform);
-      }},
-      fk: {value: function (it) {
-        if (it == null)
-          throw Kotlin.IllegalArgumentException('null element in iterator ' + $receiver.toString());
-        else
-          return it;
-      }},
-      requireNoNulls: {value: function ($receiver) {
-        return _.kotlin.map_10($receiver, _.kotlin.fk);
-      }},
-      fl: {value: function (count, it) {
-        return --count.v >= 0;
-      }},
-      take_7: {value: function ($receiver, n) {
-        var count = {v: n};
-        return _.kotlin.takeWhile_7($receiver, _.kotlin.fl.bind(null, count));
-      }},
-      takeWhile_7: {value: function ($receiver, predicate) {
-        return _.kotlin.TakeWhileIterator($receiver, predicate);
-      }},
-      plus_23: {value: function ($receiver, element) {
-        return _.kotlin.CompositeIterator([$receiver, _.kotlin.SingleIterator(element)]);
-      }},
-      plus_24: {value: function ($receiver, iterator) {
-        return _.kotlin.CompositeIterator([$receiver, iterator]);
-      }},
-      plus_25: {value: function ($receiver, collection) {
-        return _.kotlin.plus_24($receiver, collection.iterator());
-      }},
+      FilterIterator: {value: Kotlin.createClass(classes.cq, function $fun(iterator, predicate) {
+        Object.defineProperty(this, 'iterator', {value: iterator});
+        Object.defineProperty(this, 'predicate', {value: predicate});
+        $fun.baseInitializer.call(this);
+      }, /** @lends _.kotlin.FilterIterator.prototype */ {
+        computeNext: {value: function () {
+          while (this.iterator.hasNext()) {
+            var next = this.iterator.next();
+            if (this.predicate(next)) {
+              this.setNext(next);
+              return;
+            }
+          }
+          this.done();
+        }, writable: true}
+      })},
+      FilterNotNullIterator: {value: Kotlin.createClass(classes.cq, function $fun(iterator) {
+        Object.defineProperty(this, 'iterator', {value: iterator});
+        $fun.baseInitializer.call(this);
+      }, /** @lends _.kotlin.FilterNotNullIterator.prototype */ {
+        computeNext: {value: function () {
+          if (this.iterator != null) {
+            while (this.iterator.hasNext()) {
+              var next = this.iterator.next();
+              if (next != null) {
+                this.setNext(next);
+                return;
+              }
+            }
+          }
+          this.done();
+        }, writable: true}
+      })},
+      MapIterator: {value: Kotlin.createClass(classes.cq, function $fun(iterator, transform) {
+        Object.defineProperty(this, 'iterator', {value: iterator});
+        Object.defineProperty(this, 'transform', {value: transform});
+        $fun.baseInitializer.call(this);
+      }, /** @lends _.kotlin.MapIterator.prototype */ {
+        computeNext: {value: function () {
+          if (this.iterator.hasNext()) {
+            this.setNext(this.transform(this.iterator.next()));
+          }
+           else {
+            this.done();
+          }
+        }, writable: true}
+      })},
+      FlatMapIterator: {value: Kotlin.createClass(classes.cq, function $fun(iterator, transform) {
+        Object.defineProperty(this, 'iterator', {value: iterator});
+        Object.defineProperty(this, 'transform', {value: transform});
+        $fun.baseInitializer.call(this);
+        Object.defineProperty(this, 'transformed', {value: _.kotlin.iterate(function () {
+          return null;
+        }), writable: true});
+      }, /** @lends _.kotlin.FlatMapIterator.prototype */ {
+        computeNext: {value: function () {
+          while (true) {
+            if (this.transformed.hasNext()) {
+              this.setNext(this.transformed.next());
+              return;
+            }
+            if (this.iterator.hasNext()) {
+              this.transformed = this.transform(this.iterator.next());
+            }
+             else {
+              this.done();
+              return;
+            }
+          }
+        }, writable: true}
+      })},
+      TakeWhileIterator: {value: Kotlin.createClass(classes.cq, function $fun(iterator, predicate) {
+        Object.defineProperty(this, 'iterator', {value: iterator});
+        Object.defineProperty(this, 'predicate', {value: predicate});
+        $fun.baseInitializer.call(this);
+      }, /** @lends _.kotlin.TakeWhileIterator.prototype */ {
+        computeNext: {value: function () {
+          if (this.iterator.hasNext()) {
+            var item = this.iterator.next();
+            if (this.predicate(item)) {
+              this.setNext(item);
+              return;
+            }
+          }
+          this.done();
+        }, writable: true}
+      })},
+      FunctionIterator: {value: Kotlin.createClass(classes.cq, function $fun(nextFunction) {
+        Object.defineProperty(this, 'nextFunction', {value: nextFunction});
+        $fun.baseInitializer.call(this);
+      }, /** @lends _.kotlin.FunctionIterator.prototype */ {
+        computeNext: {value: function () {
+          var next = this.nextFunction();
+          if (next == null) {
+            this.done();
+          }
+           else {
+            this.setNext(next);
+          }
+        }, writable: true}
+      })},
+      CompositeIterator: {value: Kotlin.createClass(classes.cq, function $fun(iterators) {
+        $fun.baseInitializer.call(this);
+        Object.defineProperty(this, 'iteratorsIter', {value: Kotlin.arrayIterator(iterators)});
+        Object.defineProperty(this, 'currentIter', {value: null, writable: true});
+      }, /** @lends _.kotlin.CompositeIterator.prototype */ {
+        computeNext: {value: function () {
+          while (true) {
+            if (this.currentIter == null) {
+              if (this.iteratorsIter.hasNext()) {
+                this.currentIter = this.iteratorsIter.next();
+              }
+               else {
+                this.done();
+                return;
+              }
+            }
+            var iter = this.currentIter;
+            if (iter != null) {
+              if (iter.hasNext()) {
+                this.setNext(iter.next());
+                return;
+              }
+               else {
+                this.currentIter = null;
+              }
+            }
+          }
+        }, writable: true}
+      })},
+      SingleIterator: {value: Kotlin.createClass(classes.cq, function $fun(value) {
+        Object.defineProperty(this, 'value', {value: value});
+        $fun.baseInitializer.call(this);
+        Object.defineProperty(this, 'first', {value: true, writable: true});
+      }, /** @lends _.kotlin.SingleIterator.prototype */ {
+        computeNext: {value: function () {
+          if (this.first) {
+            this.first = false;
+            this.setNext(this.value);
+          }
+           else {
+            this.done();
+          }
+        }, writable: true}
+      })},
+      IndexIterator: {value: Kotlin.createClass(Kotlin.Iterator, function (iterator) {
+        Object.defineProperty(this, 'iterator', {value: iterator});
+        Object.defineProperty(this, 'index', {value: 0, writable: true});
+      }, /** @lends _.kotlin.IndexIterator.prototype */ {
+        next: {value: function () {
+          var tmp$0, tmp$1;
+          return _.kotlin.Pair((tmp$0 = this.index, tmp$1 = tmp$0, this.index = tmp$0 + 1, tmp$1), this.iterator.next());
+        }, writable: true},
+        hasNext: {value: function () {
+          return this.iterator.hasNext();
+        }, writable: true}
+      })},
       all_8: {value: function ($receiver, predicate) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             if (!predicate(element))
               return false;
           }
@@ -6571,24 +6908,22 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return true;
       }},
       any_8: {value: function ($receiver, predicate) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             if (predicate(element))
               return true;
           }
         }
         return false;
       }},
-      count_10: {value: function ($receiver, predicate) {
+      count_8: {value: function ($receiver, predicate) {
         var count = 0;
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             if (predicate(element))
               count++;
           }
@@ -6596,11 +6931,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return count;
       }},
       find_8: {value: function ($receiver, predicate) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             if (predicate(element))
               return element;
           }
@@ -6611,42 +6945,25 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return _.kotlin.filterTo_8($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterTo_8: {value: function ($receiver, result, predicate) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             if (predicate(element))
               result.add(element);
           }
         }
         return result;
       }},
-      filterNot_8: {value: function ($receiver, predicate) {
+      filterNot_9: {value: function ($receiver, predicate) {
         return _.kotlin.filterNotTo_8($receiver, Kotlin.ArrayList(0), predicate);
       }},
       filterNotTo_8: {value: function ($receiver, result, predicate) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             if (!predicate(element))
-              result.add(element);
-          }
-        }
-        return result;
-      }},
-      filterNotNull_0: {value: function ($receiver) {
-        return _.kotlin.filterNotNullTo_0($receiver, Kotlin.ArrayList(0));
-      }},
-      filterNotNullTo_0: {value: function ($receiver, result) {
-        var tmp$0, tmp$1, tmp$2;
-        {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
-            if (element != null)
               result.add(element);
           }
         }
@@ -6655,18 +6972,15 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       partition_8: {value: function ($receiver, predicate) {
         var first = Kotlin.ArrayList(0);
         var second = Kotlin.ArrayList(0);
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
-            {
-              if (predicate(element)) {
-                first.add(element);
-              }
-               else {
-                second.add(element);
-              }
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            if (predicate(element)) {
+              first.add(element);
+            }
+             else {
+              second.add(element);
             }
           }
         }
@@ -6676,33 +6990,29 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return _.kotlin.mapTo_9($receiver, Kotlin.ArrayList(0), transform);
       }},
       mapTo_9: {value: function ($receiver, result, transform) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var item = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var item = tmp$0.next();
             result.add(transform(item));
           }
         }
         return result;
       }},
-      flatMap_8: {value: function ($receiver, transform) {
+      flatMap_9: {value: function ($receiver, transform) {
         return _.kotlin.flatMapTo_8($receiver, Kotlin.ArrayList(0), transform);
       }},
       flatMapTo_8: {value: function ($receiver, result, transform) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            var list = transform(element);
             {
-              var list = transform(element);
-              {
-                var tmp$3 = list.iterator();
-                while (tmp$3.hasNext()) {
-                  var r = tmp$3.next();
-                  result.add(r);
-                }
+              var tmp$1 = list.iterator();
+              while (tmp$1.hasNext()) {
+                var r = tmp$1.next();
+                result.add(r);
               }
             }
           }
@@ -6710,22 +7020,20 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       forEach_8: {value: function ($receiver, operation) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             operation(element);
           }
         }
       }},
       fold_8: {value: function ($receiver, initial, operation) {
         var answer = initial;
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             answer = operation(answer, element);
           }
         }
@@ -6764,20 +7072,17 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       groupBy_8: {value: function ($receiver, toKey) {
         return _.kotlin.groupByTo_8($receiver, Kotlin.ComplexHashMap(0), toKey);
       }},
-      fm: {value: function () {
+      fl: {value: function () {
         return Kotlin.ArrayList(0);
       }},
       groupByTo_8: {value: function ($receiver, result, toKey) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
-            {
-              var key = toKey(element);
-              var list = _.kotlin.getOrPut(result, key, _.kotlin.fm);
-              list.add(element);
-            }
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            var key = toKey(element);
+            var list = _.kotlin.getOrPut(result, key, _.kotlin.fl);
+            list.add(element);
           }
         }
         return result;
@@ -6790,35 +7095,31 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       dropWhileTo_8: {value: function ($receiver, result, predicate) {
         var start = true;
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
-            {
-              if (start && predicate(element)) {
-              }
-               else {
-                start = false;
-                result.add(element);
-              }
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            if (start && predicate(element)) {
+            }
+             else {
+              start = false;
+              result.add(element);
             }
           }
         }
         return result;
       }},
-      take_8: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_8($receiver, _.kotlin.countTo(n));
+      take_9: {value: function ($receiver, n) {
+        return _.kotlin.takeWhile_9($receiver, _.kotlin.countTo(n));
       }},
-      takeWhile_8: {value: function ($receiver, predicate) {
+      takeWhile_9: {value: function ($receiver, predicate) {
         return _.kotlin.takeWhileTo_8($receiver, Kotlin.ArrayList(0), predicate);
       }},
       takeWhileTo_8: {value: function ($receiver, result, predicate) {
-        var tmp$0, tmp$1, tmp$2;
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             if (predicate(element))
               result.add(element);
             else
@@ -6827,155 +7128,42 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_9: {value: function ($receiver, result) {
-        var tmp$0, tmp$1, tmp$2;
+      toCollection_8: {value: function ($receiver, result) {
         {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
             result.add(element);
           }
         }
         return result;
       }},
       reverse_8: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_9($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_8($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_8: {value: function ($receiver) {
-        return _.kotlin.toCollection_9($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_8($receiver, Kotlin.LinkedList());
       }},
       toList_8: {value: function ($receiver) {
-        return _.kotlin.toCollection_9($receiver, Kotlin.ArrayList(0));
+        return _.kotlin.toCollection_8($receiver, Kotlin.ArrayList(0));
       }},
       toSet_8: {value: function ($receiver) {
-        return _.kotlin.toCollection_9($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_8($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_8: {value: function ($receiver) {
-        return _.kotlin.toCollection_9($receiver, Kotlin.TreeSet());
-      }},
-      requireNoNulls_0: {value: function ($receiver) {
-        var tmp$0, tmp$1, tmp$2;
-        {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
-            {
-              if (element == null) {
-                throw Kotlin.IllegalArgumentException('null element found in ' + $receiver.toString());
-              }
-            }
-          }
-        }
-        return $receiver != null ? $receiver : Kotlin.throwNPE();
-      }},
-      plus_26: {value: function ($receiver, element) {
-        var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_9($receiver, answer);
-        answer.add(element);
-        return answer;
-      }},
-      plus_27: {value: function ($receiver, iterator) {
-        var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_9($receiver, answer);
-        {
-          var tmp$0 = iterator;
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            answer.add(element);
-          }
-        }
-        return answer;
-      }},
-      plus_28: {value: function ($receiver, collection) {
-        return _.kotlin.plus_27($receiver, collection.iterator());
-      }},
-      withIndices_8: {value: function ($receiver) {
-        return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
-      }},
-      fn: {value: function (f, x, y) {
-        var xr = f(x);
-        var yr = f(y);
-        return xr.compareTo(yr);
-      }},
-      sortBy_8: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_9($receiver, Kotlin.ArrayList(0));
-        var sortBy = Kotlin.comparator(_.kotlin.fn.bind(null, f));
-        Kotlin.collectionsSort(sortedList, sortBy);
-        return sortedList;
-      }},
-      appendString_8: {value: function ($receiver, buffer, separator, prefix, postfix, limit, truncated) {
-        buffer.append(prefix);
-        var count = 0;
-        var tmp$0, tmp$1, tmp$2;
-        {
-          tmp$0 = $receiver, tmp$1 = tmp$0.length;
-          for (var tmp$2 = 0; tmp$2 !== tmp$1; ++tmp$2) {
-            var element = tmp$0[tmp$2];
-            {
-              if (++count > 1)
-                buffer.append(separator);
-              if (limit < 0 || count <= limit) {
-                var text = element == null ? 'null' : Kotlin.toString(element);
-                buffer.append(text);
-              }
-               else
-                break;
-            }
-          }
-        }
-        if (limit >= 0 && count > limit)
-          buffer.append(truncated);
-        buffer.append(postfix);
-      }},
-      makeString_8: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
-        var buffer = Kotlin.StringBuilder();
-        _.kotlin.appendString_8($receiver, buffer, separator, prefix, postfix, limit, truncated);
-        return buffer.toString();
-      }},
-      filter_2: {value: function ($receiver, predicate) {
-        return _.kotlin.filterTo_7($receiver, Kotlin.ArrayList(0), predicate);
-      }},
-      filterNot_9: {value: function ($receiver, predicate) {
-        return _.kotlin.filterNotTo_7($receiver, Kotlin.ArrayList(0), predicate);
-      }},
-      filterNotNull_1: {value: function ($receiver) {
-        return _.kotlin.filterNotNullTo($receiver, Kotlin.ArrayList(0));
-      }},
-      map_3: {value: function ($receiver, transform) {
-        return _.kotlin.mapTo_8($receiver, Kotlin.ArrayList(0), transform);
-      }},
-      flatMap_9: {value: function ($receiver, transform) {
-        return _.kotlin.flatMapTo_7($receiver, Kotlin.ArrayList(0), transform);
-      }},
-      take_9: {value: function ($receiver, n) {
-        return _.kotlin.takeWhile_9($receiver, _.kotlin.countTo(n));
-      }},
-      takeWhile_9: {value: function ($receiver, predicate) {
-        return _.kotlin.takeWhileTo_7($receiver, Kotlin.ArrayList(0), predicate);
-      }},
-      requireNoNulls_1: {value: function ($receiver) {
-        {
-          var tmp$0 = $receiver.iterator();
-          while (tmp$0.hasNext()) {
-            var element = tmp$0.next();
-            if (element == null) {
-              throw Kotlin.IllegalArgumentException('null element found in ' + $receiver.toString());
-            }
-          }
-        }
-        return $receiver != null ? $receiver : Kotlin.throwNPE();
+        return _.kotlin.toCollection_8($receiver, Kotlin.TreeSet());
       }},
       plus_29: {value: function ($receiver, element) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_5($receiver, answer);
+        _.kotlin.toCollection_8($receiver, answer);
         answer.add(element);
         return answer;
       }},
       plus_30: {value: function ($receiver, iterator) {
         var answer = Kotlin.ArrayList(0);
-        _.kotlin.toCollection_5($receiver, answer);
+        _.kotlin.toCollection_8($receiver, answer);
         {
           var tmp$0 = iterator;
           while (tmp$0.hasNext()) {
@@ -6987,6 +7175,155 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       }},
       plus_31: {value: function ($receiver, collection) {
         return _.kotlin.plus_30($receiver, collection.iterator());
+      }},
+      withIndices_8: {value: function ($receiver) {
+        return _.kotlin.IndexIterator(Kotlin.arrayIterator($receiver));
+      }},
+      fm: {value: function (f, x, y) {
+        var xr = f(x);
+        var yr = f(y);
+        return xr.compareTo(yr);
+      }},
+      sortBy_8: {value: function ($receiver, f) {
+        var sortedList = _.kotlin.toCollection_8($receiver, Kotlin.ArrayList(0));
+        var sortBy = Kotlin.comparator(_.kotlin.fm.bind(null, f));
+        Kotlin.collectionsSort(sortedList, sortBy);
+        return sortedList;
+      }},
+      appendString_8: {value: function ($receiver, buffer, separator, prefix, postfix, limit, truncated) {
+        buffer.append(prefix);
+        var count = 0;
+        {
+          var tmp$0 = Kotlin.arrayIterator($receiver);
+          while (tmp$0.hasNext()) {
+            var element = tmp$0.next();
+            if (++count > 1)
+              buffer.append(separator);
+            if (limit < 0 || count <= limit) {
+              var text = element == null ? 'null' : Kotlin.toString(element);
+              buffer.append(text);
+            }
+             else
+              break;
+          }
+        }
+        if (limit >= 0 && count > limit)
+          buffer.append(truncated);
+        buffer.append(postfix);
+      }},
+      makeString_8: {value: function ($receiver, separator, prefix, postfix, limit, truncated) {
+        var buffer = Kotlin.StringBuilder();
+        _.kotlin.appendString_8($receiver, buffer, separator, prefix, postfix, limit, truncated);
+        return buffer.toString();
+      }},
+      trim: {value: function ($receiver, text) {
+        return _.kotlin.trimTrailing(_.kotlin.trimLeading($receiver, text), text);
+      }},
+      trim_0: {value: function ($receiver, prefix, postfix) {
+        return _.kotlin.trimTrailing(_.kotlin.trimLeading($receiver, prefix), postfix);
+      }},
+      trimLeading: {value: function ($receiver, prefix) {
+        var answer = $receiver;
+        if (answer.startsWith(prefix)) {
+          answer = answer.substring(prefix.length);
+        }
+        return answer;
+      }},
+      trimTrailing: {value: function ($receiver, postfix) {
+        var answer = $receiver;
+        if (answer.endsWith(postfix)) {
+          answer = answer.substring(0, $receiver.length - postfix.length);
+        }
+        return answer;
+      }},
+      isNotEmpty: {value: function ($receiver) {
+        return $receiver != null && $receiver.length > 0;
+      }},
+      iterator_0: {value: function ($receiver) {
+        return Kotlin.createObject(_.jet.CharIterator, function $fun() {
+          $fun.baseInitializer.call(this);
+          Object.defineProperty(this, 'index', {value: 0, writable: true, enumerable: true});
+        }, {
+          nextChar: {value: function () {
+            var tmp$0, tmp$1;
+            return $receiver.get((tmp$0 = this.index, tmp$1 = tmp$0, this.index = tmp$0 + 1, tmp$1));
+          }, writable: true, enumerable: true},
+          hasNext: {value: function () {
+            return this.index < $receiver.length;
+          }, writable: true, enumerable: true}
+        });
+      }},
+      orEmpty_2: {value: function ($receiver) {
+        return $receiver !== null ? $receiver : '';
+      }},
+      get_size: {value: function ($receiver) {
+        return $receiver.length;
+      }},
+      count_9: {value: function ($receiver, predicate) {
+        var answer = 0;
+        {
+          var tmp$0 = _.kotlin.iterator_0($receiver);
+          while (tmp$0.hasNext()) {
+            var c = tmp$0.next();
+            if (predicate(c)) {
+              answer++;
+            }
+          }
+        }
+        return answer;
+      }},
+      count_10: {value: function ($receiver) {
+        if (Kotlin.isType($receiver, _.jet.Collection)) {
+          return $receiver.size();
+        }
+        var number = 0;
+        {
+          var tmp$0 = $receiver.iterator();
+          while (tmp$0.hasNext()) {
+            var elem = tmp$0.next();
+            ++number;
+          }
+        }
+        return number;
+      }},
+      fn: {value: function (count, n, it) {
+        ++count.v;
+        return count.v <= n;
+      }},
+      countTo: {value: function (n) {
+        var count = {v: 0};
+        return _.kotlin.fn.bind(null, count, n);
+      }},
+      first: {value: function ($receiver) {
+        if (Kotlin.isType($receiver, _.jet.List)) {
+          return _.kotlin.first($receiver);
+        }
+        return $receiver.iterator().next();
+      }},
+      containsItem: {value: function ($receiver, item) {
+        if (Kotlin.isType($receiver, Kotlin.AbstractCollection)) {
+          return $receiver.contains(item);
+        }
+        {
+          var tmp$0 = $receiver.iterator();
+          while (tmp$0.hasNext()) {
+            var elem = tmp$0.next();
+            if (Kotlin.equals(elem, item)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }},
+      sort: {value: function ($receiver) {
+        var list = _.kotlin.toCollection($receiver, Kotlin.ArrayList(0));
+        Kotlin.collectionsSort(list);
+        return list;
+      }},
+      sort_0: {value: function ($receiver, comparator) {
+        var list = _.kotlin.toCollection($receiver, Kotlin.ArrayList(0));
+        Kotlin.collectionsSort(list, comparator);
+        return list;
       }},
       all_9: {value: function ($receiver, predicate) {
         {
@@ -7194,7 +7531,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         }
         return result;
       }},
-      toCollection_1: {value: function ($receiver, result) {
+      toCollection_9: {value: function ($receiver, result) {
         {
           var tmp$0 = $receiver;
           while (tmp$0.hasNext()) {
@@ -7205,21 +7542,21 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return result;
       }},
       reverse_9: {value: function ($receiver) {
-        var list = _.kotlin.toCollection_1($receiver, Kotlin.ArrayList(0));
+        var list = _.kotlin.toCollection_9($receiver, Kotlin.ArrayList(0));
         Kotlin.reverse(list);
         return list;
       }},
       toLinkedList_9: {value: function ($receiver) {
-        return _.kotlin.toCollection_1($receiver, Kotlin.LinkedList());
+        return _.kotlin.toCollection_9($receiver, Kotlin.LinkedList());
       }},
       toList_9: {value: function ($receiver) {
-        return _.kotlin.toCollection_1($receiver, Kotlin.ArrayList(0));
+        return _.kotlin.toCollection_9($receiver, Kotlin.ArrayList(0));
       }},
       toSet_9: {value: function ($receiver) {
-        return _.kotlin.toCollection_1($receiver, Kotlin.LinkedHashSet());
+        return _.kotlin.toCollection_9($receiver, Kotlin.LinkedHashSet());
       }},
       toSortedSet_9: {value: function ($receiver) {
-        return _.kotlin.toCollection_1($receiver, Kotlin.TreeSet());
+        return _.kotlin.toCollection_9($receiver, Kotlin.TreeSet());
       }},
       withIndices_9: {value: function ($receiver) {
         return _.kotlin.IndexIterator($receiver);
@@ -7230,7 +7567,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         return xr.compareTo(yr);
       }},
       sortBy_9: {value: function ($receiver, f) {
-        var sortedList = _.kotlin.toCollection_1($receiver, Kotlin.ArrayList(0));
+        var sortedList = _.kotlin.toCollection_9($receiver, Kotlin.ArrayList(0));
         var sortBy = Kotlin.comparator(_.kotlin.fp.bind(null, f));
         Kotlin.collectionsSort(sortedList, sortBy);
         return sortedList;
@@ -7261,6 +7598,70 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         _.kotlin.appendString_9($receiver, buffer, separator, prefix, postfix, limit, truncated);
         return buffer.toString();
       }},
+      isNotEmpty_1: {value: function ($receiver) {
+        return !_.kotlin.isEmpty($receiver);
+      }},
+      isEmpty: {value: function ($receiver) {
+        return $receiver.length === 0;
+      }},
+      orEmpty_3: {value: function ($receiver) {
+        return $receiver != null ? $receiver : [];
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      get_lastIndex: {value: function ($receiver) {
+        return $receiver.length - 1;
+      }},
+      iterator_1: {value: function ($receiver) {
+        return Kotlin.createObject(Kotlin.Iterator, null, {
+          hasNext: {value: function () {
+            return $receiver.hasMoreElements();
+          }, writable: true, enumerable: true},
+          next: {value: function () {
+            return $receiver.nextElement();
+          }, writable: true, enumerable: true}
+        });
+      }},
+      toArrayList: {value: function ($receiver) {
+        return _.kotlin.toCollection_9($receiver, Kotlin.ArrayList(0));
+      }},
+      toHashSet: {value: function ($receiver) {
+        return _.kotlin.toCollection_9($receiver, Kotlin.ComplexHashSet());
+      }},
+      to: {value: function ($receiver, that) {
+        return _.kotlin.Pair($receiver, that);
+      }},
+      run: {value: function (f) {
+        return f();
+      }},
+      with: {value: function (receiver, f) {
+        return f(receiver);
+      }},
+      let: {value: function ($receiver, f) {
+        return f($receiver);
+      }},
       support: Kotlin.definePackage(function () {
         Object.defineProperty(this, 'State', {value: Kotlin.createObject(null, function () {
           Object.defineProperty(this, 'Ready', {value: 0});
@@ -7269,13 +7670,21 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           Object.defineProperty(this, 'Failed', {value: 3});
         })});
       }, {
-        AbstractIterator: {value: classes.co}
+        AbstractIterator: {value: classes.cq}
       })
     }),
     java: Kotlin.definePackage(null, {
       io: Kotlin.definePackage(null, {
         InputStream: {value: classes.c0},
         OutputStream: {value: classes.c1},
+        BufferedOutputStream: {value: Kotlin.createClass(classes.c1, function (oo) {
+          Object.defineProperty(this, 'oo', {value: oo});
+        }, /** @lends _.java.io.BufferedOutputStream.prototype */ {
+          write: {value: function (s) {
+            var tmp$0;
+            ((tmp$0 = this.oo) != null ? tmp$0 : Kotlin.throwNPE()).result = s;
+          }}
+        })},
         ByteArrayInputStream: {value: Kotlin.createClass(classes.c0, function (inputBytes) {
           Object.defineProperty(this, 'inputBytes', {value: inputBytes});
         }, /** @lends _.java.io.ByteArrayInputStream.prototype */ {
@@ -7294,7 +7703,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             return this.result;
           }}
         })},
-        PrintStream: {value: Kotlin.createClass(null, function (oo) {
+        PrintStream: {value: Kotlin.createClass(null, function (oo, autoflush) {
           Object.defineProperty(this, 'oo', {value: oo});
           Object.defineProperty(this, 'result', {value: '', writable: true});
         }, /** @lends _.java.io.PrintStream.prototype */ {
@@ -7331,7 +7740,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           }},
           flush: {value: function () {
             var tmp$0;
-            ((tmp$0 = this.oo) != null ? tmp$0 : Kotlin.throwNPE()).result = this.result;
+            ((tmp$0 = this.oo) != null ? tmp$0 : Kotlin.throwNPE()).write(this.result);
           }},
           close: {value: function () {
           }}
@@ -7347,6 +7756,12 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           append_0: {value: function (sub) {
             this.content = this.content + sub;
           }},
+          delete: {value: function (startIndex, endIndex) {
+            this.content = '';
+          }},
+          length: {value: function () {
+            return this.content.length;
+          }},
           toString: {value: function () {
             return this.content;
           }}
@@ -7356,6 +7771,33 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
         Collections: Kotlin.definePackage(null, {
         })
       })
+    }),
+    js: Kotlin.definePackage(null, {
+      toChar: {value: function ($receiver) {
+        return $receiver != null ? $receiver : Kotlin.throwNPE();
+      }},
+      lastIndexOf: {value: function ($receiver, ch, fromIndex) {
+        return $receiver.lastIndexOf(Kotlin.toString(ch), fromIndex);
+      }},
+      lastIndexOf_0: {value: function ($receiver, ch) {
+        return $receiver.lastIndexOf(Kotlin.toString(ch));
+      }},
+      indexOf: {value: function ($receiver, ch) {
+        return $receiver.indexOf(Kotlin.toString(ch));
+      }},
+      indexOf_0: {value: function ($receiver, ch, fromIndex) {
+        return $receiver.indexOf(Kotlin.toString(ch), fromIndex);
+      }},
+      matches: {value: function ($receiver, regex) {
+        var result = $receiver.match(regex);
+        return result != null && result.length > 0;
+      }},
+      capitalize: {value: function ($receiver) {
+        return _.kotlin.isNotEmpty($receiver) ? $receiver.substring(0, 1).toUpperCase() + $receiver.substring(1) : $receiver;
+      }},
+      decapitalize: {value: function ($receiver) {
+        return _.kotlin.isNotEmpty($receiver) ? $receiver.substring(0, 1).toLowerCase() + $receiver.substring(1) : $receiver;
+      }}
     }),
     org: Kotlin.definePackage(null, {
       cloud: Kotlin.definePackage(null, {
@@ -7388,7 +7830,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             Object.defineProperty(this, 'element', {value: element});
           }, /** @lends _.org.cloud.container.RemoveFromContainerCommand.prototype */ {
             run: {value: function () {
-              this.target.reflexiveMutator(this.mutatorType, this.refName, this.element, false);
+              this.target.reflexiveMutator(this.mutatorType, this.refName, this.element, true, true);
             }}
           })}
         }),
@@ -7450,8 +7892,12 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             Object.defineProperty(this, 'internal_unsetCmd', {value: null, writable: true});
             Object.defineProperty(this, 'internal_readOnlyElem', {value: false, writable: true});
             Object.defineProperty(this, 'internal_recursive_readOnlyElem', {value: false, writable: true});
+            Object.defineProperty(this, 'internal_modelElementListeners', {value: null, writable: true});
+            Object.defineProperty(this, 'internal_modelTreeListeners', {value: null, writable: true});
+            Object.defineProperty(this, 'path_cache', {value: null, writable: true});
             Object.defineProperty(this, '$generated_KMF_ID', {value: '' + Math.random() + (new Date()).getTime(), writable: true});
             Object.defineProperty(this, '_nodes', {value: Kotlin.PrimitiveHashMap(0)});
+            Object.defineProperty(this, 'removeAllNodesCurrentlyProcessing', {value: false, writable: true});
           }, /** @lends _.org.cloud.impl.CloudImpl.prototype */ {
             delete: {value: function () {
               var tmp$0;
@@ -7462,23 +7908,33 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 return this.$generated_KMF_ID;
               },
               set: function (iP) {
-                if (this.isReadOnly()) {
-                  throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
-                }
-                if (!Kotlin.equals(iP, this.generated_KMF_ID)) {
-                  var oldId = this.internalGetKey();
-                  var previousParent = this.eContainer();
-                  var previousRefNameInParent = this.getRefInParent();
-                  this.$generated_KMF_ID = iP;
-                  if (previousParent != null) {
-                    previousParent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent != null ? previousRefNameInParent : Kotlin.throwNPE(), oldId, false);
-                  }
-                }
+                this.internal_generated_KMF_ID(iP, true);
               }
             },
+            internal_generated_KMF_ID: {value: function (iP, fireEvents) {
+              if (this.isReadOnly()) {
+                throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
+              }
+              if (!Kotlin.equals(iP, this.generated_KMF_ID)) {
+                var oldPath = this.path();
+                var oldId = this.internalGetKey();
+                var previousParent = this.eContainer();
+                var previousRefNameInParent = this.getRefInParent();
+                this.$generated_KMF_ID = iP;
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(oldPath, _.org.kevoree.modeling.api.util.ActionType.SET, _.org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, _.org.cloud.util.Constants.Att_generated_KMF_ID, this.generated_KMF_ID));
+                }
+                if (previousParent != null) {
+                  previousParent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent != null ? previousRefNameInParent : Kotlin.throwNPE(), oldId, false, false);
+                }
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(oldPath, _.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, _.org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, _.org.cloud.util.Constants.Att_generated_KMF_ID, this.path()));
+                }
+              }
+            }},
             nodes: {
               get: function () {
-                return _.kotlin.toList_2(this._nodes.values());
+                return _.kotlin.toList(this._nodes.values());
               },
               set: function (nodesP) {
                 if (this.isReadOnly()) {
@@ -7487,23 +7943,29 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 if (nodesP == null) {
                   throw Kotlin.IllegalArgumentException(_.org.cloud.util.Constants.LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION);
                 }
-                if (!Kotlin.equals(this._nodes.values(), nodesP)) {
-                  this._nodes.clear();
-                  {
-                    var tmp$0 = nodesP.iterator();
-                    while (tmp$0.hasNext()) {
-                      var el = tmp$0.next();
-                      var elKey = (el != null ? el : Kotlin.throwNPE()).internalGetKey();
-                      if (elKey == null) {
-                        throw new Error(_.org.cloud.util.Constants.ELEMENT_HAS_NO_KEY_IN_COLLECTION);
-                      }
-                      this._nodes.put(elKey != null ? elKey : Kotlin.throwNPE(), el);
-                      (el != null ? el : Kotlin.throwNPE()).setEContainer(this, _.org.cloud.container.RemoveFromContainerCommand(this, _.org.kevoree.modeling.api.util.ActionType.REMOVE, _.org.cloud.util.Constants.Ref_nodes, el), _.org.cloud.util.Constants.Ref_nodes);
-                    }
-                  }
-                }
+                this.internal_nodes(nodesP, true, true);
               }
             },
+            internal_nodes: {value: function (nodesP, setOpposite, fireEvents) {
+              if (!Kotlin.equals(this._nodes.values(), nodesP)) {
+                this._nodes.clear();
+                {
+                  var tmp$0 = nodesP.iterator();
+                  while (tmp$0.hasNext()) {
+                    var el = tmp$0.next();
+                    var elKey = (el != null ? el : Kotlin.throwNPE()).internalGetKey();
+                    if (elKey == null) {
+                      throw new Error(_.org.cloud.util.Constants.ELEMENT_HAS_NO_KEY_IN_COLLECTION);
+                    }
+                    this._nodes.put(elKey != null ? elKey : Kotlin.throwNPE(), el);
+                    (el != null ? el : Kotlin.throwNPE()).setEContainer(this, _.org.cloud.container.RemoveFromContainerCommand(this, _.org.kevoree.modeling.api.util.ActionType.REMOVE, _.org.cloud.util.Constants.Ref_nodes, el), _.org.cloud.util.Constants.Ref_nodes);
+                  }
+                }
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.SET, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_nodes, nodesP));
+                }
+              }
+            }},
             doAddNodes: {value: function (nodesP) {
               var _key_ = (nodesP != null ? nodesP : Kotlin.throwNPE()).internalGetKey();
               if (Kotlin.equals(_key_, '') || _key_ == null) {
@@ -7515,60 +7977,92 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               }
             }},
             addNodes: {value: function (nodesP) {
+              this.internal_addNodes(nodesP, true, true);
+            }, writable: true},
+            addAllNodes: {value: function (nodesP) {
+              this.internal_addAllNodes(nodesP, true, true);
+            }, writable: true},
+            internal_addNodes: {value: function (nodesP, setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
               this.doAddNodes(nodesP);
-            }, writable: true},
-            addAllNodes: {value: function (nodesP) {
+              if (fireEvents) {
+                this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.ADD, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_nodes, nodesP));
+              }
+            }},
+            internal_addAllNodes: {value: function (nodesP, setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
-              {
-                var tmp$0 = nodesP.iterator();
-                while (tmp$0.hasNext()) {
-                  var el = tmp$0.next();
-                  this.doAddNodes(el);
+              if (setOpposite) {
+                {
+                  var tmp$0 = nodesP.iterator();
+                  while (tmp$0.hasNext()) {
+                    var el = tmp$0.next();
+                    this.doAddNodes(el);
+                  }
                 }
               }
-            }, writable: true},
+               else {
+                {
+                  var tmp$1 = nodesP.iterator();
+                  while (tmp$1.hasNext()) {
+                    var el_0 = tmp$1.next();
+                    this.doAddNodes(el_0);
+                  }
+                }
+              }
+              if (fireEvents) {
+                this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.ADD_ALL, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_nodes, nodesP));
+              }
+            }},
             removeNodes: {value: function (nodesP) {
+              this.internal_removeNodes(nodesP, true, true);
+            }, writable: true},
+            removeAllNodes: {value: function () {
+              this.internal_removeAllNodes(true, true);
+            }, writable: true},
+            internal_removeNodes: {value: function (nodesP, setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
               if (this._nodes.size() !== 0 && this._nodes.containsKey((nodesP != null ? nodesP : Kotlin.throwNPE()).internalGetKey())) {
                 this._nodes.remove((nodesP != null ? nodesP : Kotlin.throwNPE()).internalGetKey());
                 ((nodesP != null ? nodesP : Kotlin.throwNPE()) != null ? nodesP : Kotlin.throwNPE()).setEContainer(null, null, null);
+                if (!this.removeAllNodesCurrentlyProcessing && fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.REMOVE, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_nodes, nodesP));
+                }
               }
-            }, writable: true},
-            removeAllNodes: {value: function () {
+            }},
+            internal_removeAllNodes: {value: function (setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
+              if (fireEvents) {
+                this.removeAllNodesCurrentlyProcessing = true;
+              }
               var tmp$0;
               var temp_els = (tmp$0 = this.nodes) != null ? tmp$0 : Kotlin.throwNPE();
-              {
-                var tmp$1 = (temp_els != null ? temp_els : Kotlin.throwNPE()).iterator();
-                while (tmp$1.hasNext()) {
-                  var el = tmp$1.next();
-                  (el != null ? el : Kotlin.throwNPE()).setEContainer(null, null, null);
-                }
-              }
               this._nodes.clear();
-            }, writable: true},
-            reflexiveMutator: {value: function (mutationType, refName, value, noOpposite) {
+              if (fireEvents) {
+                this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_nodes, temp_els));
+                this.removeAllNodesCurrentlyProcessing = false;
+              }
+            }},
+            reflexiveMutator: {value: function (mutationType, refName, value, setOpposite, fireEvents) {
               if (refName === _.org.cloud.util.Constants.Att_generated_KMF_ID) {
-                this.generated_KMF_ID = value;
+                this.internal_generated_KMF_ID(value, fireEvents);
               }
                else if (refName === _.org.cloud.util.Constants.Ref_nodes) {
                 if (mutationType === _.org.kevoree.modeling.api.util.ActionType.ADD) {
-                  this.addNodes(value != null ? value : Kotlin.throwNPE());
+                  this.internal_addNodes(value != null ? value : Kotlin.throwNPE(), setOpposite, fireEvents);
                 }
                  else if (mutationType === _.org.kevoree.modeling.api.util.ActionType.ADD_ALL) {
-                  this.addAllNodes(value != null ? value : Kotlin.throwNPE());
+                  this.internal_addAllNodes(value != null ? value : Kotlin.throwNPE(), setOpposite, fireEvents);
                 }
                  else if (mutationType === _.org.kevoree.modeling.api.util.ActionType.REMOVE) {
-                  this.removeNodes(value != null ? value : Kotlin.throwNPE());
+                  this.internal_removeNodes(value != null ? value : Kotlin.throwNPE(), setOpposite, fireEvents);
                 }
                  else if (mutationType === _.org.kevoree.modeling.api.util.ActionType.REMOVE_ALL) {
                   this.removeAllNodes();
@@ -7671,8 +8165,12 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             Object.defineProperty(this, 'internal_unsetCmd', {value: null, writable: true});
             Object.defineProperty(this, 'internal_readOnlyElem', {value: false, writable: true});
             Object.defineProperty(this, 'internal_recursive_readOnlyElem', {value: false, writable: true});
+            Object.defineProperty(this, 'internal_modelElementListeners', {value: null, writable: true});
+            Object.defineProperty(this, 'internal_modelTreeListeners', {value: null, writable: true});
+            Object.defineProperty(this, 'path_cache', {value: null, writable: true});
             Object.defineProperty(this, '$id', {value: null, writable: true});
             Object.defineProperty(this, '_softwares', {value: Kotlin.PrimitiveHashMap(0)});
+            Object.defineProperty(this, 'removeAllSoftwaresCurrentlyProcessing', {value: false, writable: true});
           }, /** @lends _.org.cloud.impl.NodeImpl.prototype */ {
             delete: {value: function () {
               var tmp$0;
@@ -7683,23 +8181,33 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 return this.$id;
               },
               set: function (iP) {
-                if (this.isReadOnly()) {
-                  throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
-                }
-                if (!Kotlin.equals(iP, this.id)) {
-                  var oldId = this.internalGetKey();
-                  var previousParent = this.eContainer();
-                  var previousRefNameInParent = this.getRefInParent();
-                  this.$id = iP;
-                  if (previousParent != null) {
-                    previousParent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent != null ? previousRefNameInParent : Kotlin.throwNPE(), oldId, false);
-                  }
-                }
+                this.internal_id(iP, true);
               }
             },
+            internal_id: {value: function (iP, fireEvents) {
+              if (this.isReadOnly()) {
+                throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
+              }
+              if (!Kotlin.equals(iP, this.id)) {
+                var oldPath = this.path();
+                var oldId = this.internalGetKey();
+                var previousParent = this.eContainer();
+                var previousRefNameInParent = this.getRefInParent();
+                this.$id = iP;
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(oldPath, _.org.kevoree.modeling.api.util.ActionType.SET, _.org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, _.org.cloud.util.Constants.Att_id, this.id));
+                }
+                if (previousParent != null) {
+                  previousParent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent != null ? previousRefNameInParent : Kotlin.throwNPE(), oldId, false, false);
+                }
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(oldPath, _.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, _.org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, _.org.cloud.util.Constants.Att_id, this.path()));
+                }
+              }
+            }},
             softwares: {
               get: function () {
-                return _.kotlin.toList_2(this._softwares.values());
+                return _.kotlin.toList(this._softwares.values());
               },
               set: function (softwaresP) {
                 if (this.isReadOnly()) {
@@ -7708,23 +8216,29 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 if (softwaresP == null) {
                   throw Kotlin.IllegalArgumentException(_.org.cloud.util.Constants.LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION);
                 }
-                if (!Kotlin.equals(this._softwares.values(), softwaresP)) {
-                  this._softwares.clear();
-                  {
-                    var tmp$0 = softwaresP.iterator();
-                    while (tmp$0.hasNext()) {
-                      var el = tmp$0.next();
-                      var elKey = (el != null ? el : Kotlin.throwNPE()).internalGetKey();
-                      if (elKey == null) {
-                        throw new Error(_.org.cloud.util.Constants.ELEMENT_HAS_NO_KEY_IN_COLLECTION);
-                      }
-                      this._softwares.put(elKey != null ? elKey : Kotlin.throwNPE(), el);
-                      (el != null ? el : Kotlin.throwNPE()).setEContainer(this, _.org.cloud.container.RemoveFromContainerCommand(this, _.org.kevoree.modeling.api.util.ActionType.REMOVE, _.org.cloud.util.Constants.Ref_softwares, el), _.org.cloud.util.Constants.Ref_softwares);
-                    }
-                  }
-                }
+                this.internal_softwares(softwaresP, true, true);
               }
             },
+            internal_softwares: {value: function (softwaresP, setOpposite, fireEvents) {
+              if (!Kotlin.equals(this._softwares.values(), softwaresP)) {
+                this._softwares.clear();
+                {
+                  var tmp$0 = softwaresP.iterator();
+                  while (tmp$0.hasNext()) {
+                    var el = tmp$0.next();
+                    var elKey = (el != null ? el : Kotlin.throwNPE()).internalGetKey();
+                    if (elKey == null) {
+                      throw new Error(_.org.cloud.util.Constants.ELEMENT_HAS_NO_KEY_IN_COLLECTION);
+                    }
+                    this._softwares.put(elKey != null ? elKey : Kotlin.throwNPE(), el);
+                    (el != null ? el : Kotlin.throwNPE()).setEContainer(this, _.org.cloud.container.RemoveFromContainerCommand(this, _.org.kevoree.modeling.api.util.ActionType.REMOVE, _.org.cloud.util.Constants.Ref_softwares, el), _.org.cloud.util.Constants.Ref_softwares);
+                  }
+                }
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.SET, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_softwares, softwaresP));
+                }
+              }
+            }},
             doAddSoftwares: {value: function (softwaresP) {
               var _key_ = (softwaresP != null ? softwaresP : Kotlin.throwNPE()).internalGetKey();
               if (Kotlin.equals(_key_, '') || _key_ == null) {
@@ -7736,60 +8250,92 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
               }
             }},
             addSoftwares: {value: function (softwaresP) {
+              this.internal_addSoftwares(softwaresP, true, true);
+            }, writable: true},
+            addAllSoftwares: {value: function (softwaresP) {
+              this.internal_addAllSoftwares(softwaresP, true, true);
+            }, writable: true},
+            internal_addSoftwares: {value: function (softwaresP, setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
               this.doAddSoftwares(softwaresP);
-            }, writable: true},
-            addAllSoftwares: {value: function (softwaresP) {
+              if (fireEvents) {
+                this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.ADD, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_softwares, softwaresP));
+              }
+            }},
+            internal_addAllSoftwares: {value: function (softwaresP, setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
-              {
-                var tmp$0 = softwaresP.iterator();
-                while (tmp$0.hasNext()) {
-                  var el = tmp$0.next();
-                  this.doAddSoftwares(el);
+              if (setOpposite) {
+                {
+                  var tmp$0 = softwaresP.iterator();
+                  while (tmp$0.hasNext()) {
+                    var el = tmp$0.next();
+                    this.doAddSoftwares(el);
+                  }
                 }
               }
-            }, writable: true},
+               else {
+                {
+                  var tmp$1 = softwaresP.iterator();
+                  while (tmp$1.hasNext()) {
+                    var el_0 = tmp$1.next();
+                    this.doAddSoftwares(el_0);
+                  }
+                }
+              }
+              if (fireEvents) {
+                this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.ADD_ALL, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_softwares, softwaresP));
+              }
+            }},
             removeSoftwares: {value: function (softwaresP) {
+              this.internal_removeSoftwares(softwaresP, true, true);
+            }, writable: true},
+            removeAllSoftwares: {value: function () {
+              this.internal_removeAllSoftwares(true, true);
+            }, writable: true},
+            internal_removeSoftwares: {value: function (softwaresP, setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
               if (this._softwares.size() !== 0 && this._softwares.containsKey((softwaresP != null ? softwaresP : Kotlin.throwNPE()).internalGetKey())) {
                 this._softwares.remove((softwaresP != null ? softwaresP : Kotlin.throwNPE()).internalGetKey());
                 ((softwaresP != null ? softwaresP : Kotlin.throwNPE()) != null ? softwaresP : Kotlin.throwNPE()).setEContainer(null, null, null);
+                if (!this.removeAllSoftwaresCurrentlyProcessing && fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.REMOVE, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_softwares, softwaresP));
+                }
               }
-            }, writable: true},
-            removeAllSoftwares: {value: function () {
+            }},
+            internal_removeAllSoftwares: {value: function (setOpposite, fireEvents) {
               if (this.isReadOnly()) {
                 throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
               }
+              if (fireEvents) {
+                this.removeAllSoftwaresCurrentlyProcessing = true;
+              }
               var tmp$0;
               var temp_els = (tmp$0 = this.softwares) != null ? tmp$0 : Kotlin.throwNPE();
-              {
-                var tmp$1 = (temp_els != null ? temp_els : Kotlin.throwNPE()).iterator();
-                while (tmp$1.hasNext()) {
-                  var el = tmp$1.next();
-                  (el != null ? el : Kotlin.throwNPE()).setEContainer(null, null, null);
-                }
-              }
               this._softwares.clear();
-            }, writable: true},
-            reflexiveMutator: {value: function (mutationType, refName, value, noOpposite) {
+              if (fireEvents) {
+                this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(this.path(), _.org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, _.org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, _.org.cloud.util.Constants.Ref_softwares, temp_els));
+                this.removeAllSoftwaresCurrentlyProcessing = false;
+              }
+            }},
+            reflexiveMutator: {value: function (mutationType, refName, value, setOpposite, fireEvents) {
               if (refName === _.org.cloud.util.Constants.Att_id) {
-                this.id = value;
+                this.internal_id(value, fireEvents);
               }
                else if (refName === _.org.cloud.util.Constants.Ref_softwares) {
                 if (mutationType === _.org.kevoree.modeling.api.util.ActionType.ADD) {
-                  this.addSoftwares(value != null ? value : Kotlin.throwNPE());
+                  this.internal_addSoftwares(value != null ? value : Kotlin.throwNPE(), setOpposite, fireEvents);
                 }
                  else if (mutationType === _.org.kevoree.modeling.api.util.ActionType.ADD_ALL) {
-                  this.addAllSoftwares(value != null ? value : Kotlin.throwNPE());
+                  this.internal_addAllSoftwares(value != null ? value : Kotlin.throwNPE(), setOpposite, fireEvents);
                 }
                  else if (mutationType === _.org.kevoree.modeling.api.util.ActionType.REMOVE) {
-                  this.removeSoftwares(value != null ? value : Kotlin.throwNPE());
+                  this.internal_removeSoftwares(value != null ? value : Kotlin.throwNPE(), setOpposite, fireEvents);
                 }
                  else if (mutationType === _.org.kevoree.modeling.api.util.ActionType.REMOVE_ALL) {
                   this.removeAllSoftwares();
@@ -7855,6 +8401,9 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             Object.defineProperty(this, 'internal_unsetCmd', {value: null, writable: true});
             Object.defineProperty(this, 'internal_readOnlyElem', {value: false, writable: true});
             Object.defineProperty(this, 'internal_recursive_readOnlyElem', {value: false, writable: true});
+            Object.defineProperty(this, 'internal_modelElementListeners', {value: null, writable: true});
+            Object.defineProperty(this, 'internal_modelTreeListeners', {value: null, writable: true});
+            Object.defineProperty(this, 'path_cache', {value: null, writable: true});
             Object.defineProperty(this, '$name', {value: null, writable: true});
           }, /** @lends _.org.cloud.impl.SoftwareImpl.prototype */ {
             delete: {value: function () {
@@ -7864,23 +8413,33 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 return this.$name;
               },
               set: function (iP) {
-                if (this.isReadOnly()) {
-                  throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
-                }
-                if (!Kotlin.equals(iP, this.name)) {
-                  var oldId = this.internalGetKey();
-                  var previousParent = this.eContainer();
-                  var previousRefNameInParent = this.getRefInParent();
-                  this.$name = iP;
-                  if (previousParent != null) {
-                    previousParent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent != null ? previousRefNameInParent : Kotlin.throwNPE(), oldId, false);
-                  }
-                }
+                this.internal_name(iP, true);
               }
             },
-            reflexiveMutator: {value: function (mutationType, refName, value, noOpposite) {
+            internal_name: {value: function (iP, fireEvents) {
+              if (this.isReadOnly()) {
+                throw new Error(_.org.cloud.util.Constants.READ_ONLY_EXCEPTION);
+              }
+              if (!Kotlin.equals(iP, this.name)) {
+                var oldPath = this.path();
+                var oldId = this.internalGetKey();
+                var previousParent = this.eContainer();
+                var previousRefNameInParent = this.getRefInParent();
+                this.$name = iP;
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(oldPath, _.org.kevoree.modeling.api.util.ActionType.SET, _.org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, _.org.cloud.util.Constants.Att_name, this.name));
+                }
+                if (previousParent != null) {
+                  previousParent.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent != null ? previousRefNameInParent : Kotlin.throwNPE(), oldId, false, false);
+                }
+                if (fireEvents) {
+                  this.fireModelEvent(_.org.kevoree.modeling.api.events.ModelEvent(oldPath, _.org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, _.org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, _.org.cloud.util.Constants.Att_name, this.path()));
+                }
+              }
+            }},
+            reflexiveMutator: {value: function (mutationType, refName, value, setOpposite, fireEvents) {
               if (refName === _.org.cloud.util.Constants.Att_name) {
-                this.name = value;
+                this.internal_name(value, fireEvents);
               }
                else {
                 throw new Error('Can reflexively ' + mutationType + ' for ' + refName + ' on ' + this);
@@ -7910,10 +8469,17 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
           JSONModelLoader: {value: Kotlin.createClass(classes.ca, function $fun() {
             $fun.baseInitializer.call(this);
             Object.defineProperty(this, 'factory', {value: _.org.cloud.factory.MainFactory(), writable: true});
+          })},
+          XMIModelLoader: {value: Kotlin.createClass(classes.cm, function $fun() {
+            $fun.baseInitializer.call(this);
+            Object.defineProperty(this, 'factory', {value: _.org.cloud.factory.MainFactory(), writable: true});
           })}
         }),
         serializer: Kotlin.definePackage(null, {
           JSONModelSerializer: {value: Kotlin.createClass(classes.cb, function $fun() {
+            $fun.baseInitializer.call(this);
+          })},
+          XMIModelSerializer: {value: Kotlin.createClass(classes.cn, function $fun() {
             $fun.baseInitializer.call(this);
           })}
         }),
@@ -8055,295 +8621,70 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 return message;
               }
             }},
-            error: {value: function (message) {
-              if (this.ERROR)
-                this.logger.log(this.LEVEL_ERROR, message, null);
-            }},
-            error_0: {value: function (message, ex) {
-              if (this.ERROR)
-                this.logger.log(this.LEVEL_ERROR, message, ex);
-            }},
-            error_1: {value: function (message, ex, p1) {
+            error: {value: function (message, ex, p1, p2, p3, p4, p5) {
               if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, null, null, null, null), ex);
+                this.internal_error(this.processMessage(message, p1, p2, p3, p4, p5), ex);
               }
             }},
-            error_2: {value: function (message, ex, p1, p2) {
+            error_0: {value: function (message, p1, p2, p3, p4, p5) {
               if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, null, null, null), ex);
+                this.internal_error(this.processMessage(message, p1, p2, p3, p4, p5), null);
               }
             }},
-            error_3: {value: function (message, ex, p1, p2, p3) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, p3, null, null), ex);
-              }
+            internal_error: {value: function (message, ex) {
+              this.logger.log(this.LEVEL_ERROR, message, ex);
             }},
-            error_4: {value: function (message, ex, p1, p2, p3, p4) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, p3, p4, null), ex);
-              }
-            }},
-            error_5: {value: function (message, ex, p1, p2, p3, p4, p5) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, p3, p4, p5), ex);
-              }
-            }},
-            error_6: {value: function (message, p1) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, null, null, null, null), null);
-              }
-            }},
-            error_7: {value: function (message, p1, p2) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, null, null, null), null);
-              }
-            }},
-            error_8: {value: function (message, p1, p2, p3) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, p3, null, null), null);
-              }
-            }},
-            error_9: {value: function (message, p1, p2, p3, p4) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, p3, p4, null), null);
-              }
-            }},
-            error_10: {value: function (message, p1, p2, p3, p4, p5) {
-              if (this.ERROR) {
-                this.error_0(this.processMessage(message, p1, p2, p3, p4, p5), null);
-              }
-            }},
-            warn: {value: function (message, ex) {
-              if (this.WARN)
-                this.logger.log(this.LEVEL_WARN, message, ex);
-            }},
-            warn_0: {value: function (message) {
-              if (this.WARN)
-                this.logger.log(this.LEVEL_WARN, message, null);
-            }},
-            warn_1: {value: function (message, ex, p1) {
+            warn: {value: function (message, ex, p1, p2, p3, p4, p5) {
               if (this.WARN) {
-                this.warn(this.processMessage(message, p1, null, null, null, null), ex);
+                this.internal_warn(this.processMessage(message, p1, p2, p3, p4, p5), ex);
               }
             }},
-            warn_2: {value: function (message, ex, p1, p2) {
+            warn_0: {value: function (message, p1, p2, p3, p4, p5) {
               if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, null, null, null), ex);
+                this.internal_warn(this.processMessage(message, p1, p2, p3, p4, p5), null);
               }
             }},
-            warn_3: {value: function (message, ex, p1, p2, p3) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, p3, null, null), ex);
-              }
+            internal_warn: {value: function (message, ex) {
+              this.logger.log(this.LEVEL_WARN, message, ex);
             }},
-            warn_4: {value: function (message, ex, p1, p2, p3, p4) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, p3, p4, null), ex);
-              }
-            }},
-            warn_5: {value: function (message, ex, p1, p2, p3, p4, p5) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, p3, p4, p5), ex);
-              }
-            }},
-            warn_6: {value: function (message, p1) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, null, null, null, null), null);
-              }
-            }},
-            warn_7: {value: function (message, p1, p2) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, null, null, null), null);
-              }
-            }},
-            warn_8: {value: function (message, p1, p2, p3) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, p3, null, null), null);
-              }
-            }},
-            warn_9: {value: function (message, p1, p2, p3, p4) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, p3, p4, null), null);
-              }
-            }},
-            warn_10: {value: function (message, p1, p2, p3, p4, p5) {
-              if (this.WARN) {
-                this.warn(this.processMessage(message, p1, p2, p3, p4, p5), null);
-              }
-            }},
-            info: {value: function (message, ex) {
-              if (this.INFO)
-                this.logger.log(this.LEVEL_INFO, message, ex);
-            }},
-            info_0: {value: function (message) {
-              if (this.INFO)
-                this.logger.log(this.LEVEL_INFO, message, null);
-            }},
-            info_1: {value: function (message, ex, p1) {
+            info: {value: function (message, ex, p1, p2, p3, p4, p5) {
               if (this.INFO) {
-                this.info(this.processMessage(message, p1, null, null, null, null), ex);
+                this.internal_info(this.processMessage(message, p1, p2, p3, p4, p5), ex);
               }
             }},
-            info_2: {value: function (message, ex, p1, p2) {
+            info_0: {value: function (message, p1, p2, p3, p4, p5) {
               if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, null, null, null), ex);
+                this.internal_info(this.processMessage(message, p1, p2, p3, p4, p5), null);
               }
             }},
-            info_3: {value: function (message, ex, p1, p2, p3) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, p3, null, null), ex);
-              }
+            internal_info: {value: function (message, ex) {
+              this.logger.log(this.LEVEL_INFO, message, ex);
             }},
-            info_4: {value: function (message, ex, p1, p2, p3, p4) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, p3, p4, null), ex);
-              }
-            }},
-            info_5: {value: function (message, ex, p1, p2, p3, p4, p5) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, p3, p4, p5), ex);
-              }
-            }},
-            info_6: {value: function (message, p1) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, null, null, null, null), null);
-              }
-            }},
-            info_7: {value: function (message, p1, p2) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, null, null, null), null);
-              }
-            }},
-            info_8: {value: function (message, p1, p2, p3) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, p3, null, null), null);
-              }
-            }},
-            info_9: {value: function (message, p1, p2, p3, p4) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, p3, p4, null), null);
-              }
-            }},
-            info_10: {value: function (message, p1, p2, p3, p4, p5) {
-              if (this.INFO) {
-                this.info(this.processMessage(message, p1, p2, p3, p4, p5), null);
-              }
-            }},
-            debug: {value: function (message, ex) {
-              if (this.DEBUG)
-                this.logger.log(this.LEVEL_DEBUG, message, ex);
-            }},
-            debug_0: {value: function (message) {
-              if (this.DEBUG)
-                this.logger.log(this.LEVEL_DEBUG, message, null);
-            }},
-            debug_1: {value: function (message, ex, p1) {
+            debug: {value: function (message, ex, p1, p2, p3, p4, p5) {
               if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, null, null, null, null), ex);
+                this.internal_debug(this.processMessage(message, p1, p2, p3, p4, p5), ex);
               }
             }},
-            debug_2: {value: function (message, ex, p1, p2) {
+            debug_0: {value: function (message, p1, p2, p3, p4, p5) {
               if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, null, null, null), ex);
+                this.internal_debug(this.processMessage(message, p1, p2, p3, p4, p5), null);
               }
             }},
-            debug_3: {value: function (message, ex, p1, p2, p3) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, p3, null, null), ex);
-              }
+            internal_debug: {value: function (message, ex) {
+              this.logger.log(this.LEVEL_DEBUG, message, ex);
             }},
-            debug_4: {value: function (message, ex, p1, p2, p3, p4) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, p3, p4, null), ex);
-              }
-            }},
-            debug_5: {value: function (message, ex, p1, p2, p3, p4, p5) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, p3, p4, p5), ex);
-              }
-            }},
-            debug_6: {value: function (message, p1) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, null, null, null, null), null);
-              }
-            }},
-            debug_7: {value: function (message, p1, p2) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, null, null, null), null);
-              }
-            }},
-            debug_8: {value: function (message, p1, p2, p3) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, p3, null, null), null);
-              }
-            }},
-            debug_9: {value: function (message, p1, p2, p3, p4) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, p3, p4, null), null);
-              }
-            }},
-            debug_10: {value: function (message, p1, p2, p3, p4, p5) {
-              if (this.DEBUG) {
-                this.debug(this.processMessage(message, p1, p2, p3, p4, p5), null);
-              }
-            }},
-            trace: {value: function (message, ex) {
-              if (this.TRACE)
-                this.logger.log(this.LEVEL_TRACE, message, ex);
-            }},
-            trace_0: {value: function (message) {
-              if (this.TRACE)
-                this.logger.log(this.LEVEL_TRACE, message, null);
-            }},
-            trace_1: {value: function (message, ex, p1) {
+            trace: {value: function (message, ex, p1, p2, p3, p4, p5) {
               if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, null, null, null, null), ex);
+                this.internal_trace(this.processMessage(message, p1, p2, p3, p4, p5), ex);
               }
             }},
-            trace_2: {value: function (message, ex, p1, p2) {
+            trace_0: {value: function (message, p1, p2, p3, p4, p5) {
               if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, null, null, null), ex);
+                this.internal_trace(this.processMessage(message, p1, p2, p3, p4, p5), null);
               }
             }},
-            trace_3: {value: function (message, ex, p1, p2, p3) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, p3, null, null), ex);
-              }
-            }},
-            trace_4: {value: function (message, ex, p1, p2, p3, p4) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, p3, p4, null), ex);
-              }
-            }},
-            trace_5: {value: function (message, ex, p1, p2, p3, p4, p5) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, p3, p4, p5), ex);
-              }
-            }},
-            trace_6: {value: function (message, p1) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, null, null, null, null), null);
-              }
-            }},
-            trace_7: {value: function (message, p1, p2) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, null, null, null), null);
-              }
-            }},
-            trace_8: {value: function (message, p1, p2, p3) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, p3, null, null), null);
-              }
-            }},
-            trace_9: {value: function (message, p1, p2, p3, p4) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, p3, p4, null), null);
-              }
-            }},
-            trace_10: {value: function (message, p1, p2, p3, p4, p5) {
-              if (this.TRACE) {
-                this.trace(this.processMessage(message, p1, p2, p3, p4, p5), null);
-              }
+            internal_trace: {value: function (message, ex) {
+              this.logger.log(this.LEVEL_TRACE, message, ex);
             }}
           })});
         }, {
@@ -8466,7 +8807,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                     referencedElement = this.roots.get(i++).findByPath(this.ref);
                   }
                   if (referencedElement != null) {
-                    this.currentRootElem.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, this.refName, referencedElement, false);
+                    this.currentRootElem.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, this.refName, referencedElement, false, false);
+                  }
+                   else {
+                    throw new Error('Unresolved ' + this.ref);
                   }
                 }}
               })},
@@ -8522,12 +8866,11 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                   return c === ' ' || c === '\r' || c === '\n' || c === '\t';
                 }},
                 nextChar: {value: function () {
-                  var tmp$0, tmp$1, tmp$2;
-                  return (tmp$2 = this.bytes[tmp$0 = this.index, tmp$1 = tmp$0, this.index = tmp$0 + 1, tmp$1]) != null ? tmp$2 : Kotlin.throwNPE();
+                  var tmp$0, tmp$1;
+                  return _.org.kevoree.modeling.api.util.ByteConverter.toChar(this.bytes[tmp$0 = this.index, tmp$1 = tmp$0, this.index = tmp$0 + 1, tmp$1]);
                 }},
                 peekChar: {value: function () {
-                  var tmp$0;
-                  return (tmp$0 = this.bytes[this.index]) != null ? tmp$0 : Kotlin.throwNPE();
+                  return _.org.kevoree.modeling.api.util.ByteConverter.toChar(this.bytes[this.index]);
                 }},
                 isDone: {value: function () {
                   return this.index >= this.bytes.length;
@@ -8881,7 +9224,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 tryClosePending: {value: function (srcPath) {
                   if (this.pendingObj != null && !Kotlin.equals(this.pendingObjPath, srcPath)) {
                     var tmp$0, tmp$1;
-                    ((tmp$0 = this.pendingParent) != null ? tmp$0 : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, (tmp$1 = this.pendingParentRefName) != null ? tmp$1 : Kotlin.throwNPE(), this.pendingObj, false);
+                    ((tmp$0 = this.pendingParent) != null ? tmp$0 : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, (tmp$1 = this.pendingParentRefName) != null ? tmp$1 : Kotlin.throwNPE(), this.pendingObj, true, true);
                     this.pendingObj = null;
                     this.pendingObjPath = null;
                     this.pendingParentRefName = null;
@@ -8898,7 +9241,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                   }
                   var targetElem = tmp$0;
                   if (targetElem != null) {
-                    target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, refName, targetElem, false);
+                    target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.ADD, refName, targetElem, true, true);
                   }
                    else {
                     this.pendingObj = this.factory.create(potentialTypeName != null ? potentialTypeName : Kotlin.throwNPE());
@@ -8945,7 +9288,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                           tempTarget = this.targetModel.findByPath(castedTrace_1.srcPath);
                         }
                         if (tempTarget != null) {
-                          (tempTarget != null ? tempTarget : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.REMOVE, castedTrace_1.refName, this.targetModel.findByPath(castedTrace_1.objPath), false);
+                          (tempTarget != null ? tempTarget : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.REMOVE, castedTrace_1.refName, this.targetModel.findByPath(castedTrace_1.objPath), true, true);
                         }
                       }
                       if (Kotlin.isType(trace, _.org.kevoree.modeling.api.trace.ModelRemoveAllTrace)) {
@@ -8956,7 +9299,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                           tempTarget_0 = this.targetModel.findByPath(castedTrace_2.srcPath);
                         }
                         if (tempTarget_0 != null) {
-                          (tempTarget_0 != null ? tempTarget_0 : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, castedTrace_2.refName, null, false);
+                          (tempTarget_0 != null ? tempTarget_0 : Kotlin.throwNPE()).reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, castedTrace_2.refName, null, true, true);
                         }
                       }
                       if (Kotlin.isType(trace, _.org.kevoree.modeling.api.trace.ModelSetTrace)) {
@@ -8976,7 +9319,7 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                           }
                         }
                         if (castedTrace_3.content != null) {
-                          target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, castedTrace_3.refName, castedTrace_3.content, false);
+                          target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, castedTrace_3.refName, castedTrace_3.content, true, true);
                         }
                          else {
                           var tmp$7;
@@ -8989,14 +9332,14 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                           }
                           var targetContentPath = tmp$7;
                           if (targetContentPath != null) {
-                            target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, castedTrace_3.refName, targetContentPath, false);
+                            target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, castedTrace_3.refName, targetContentPath, true, true);
                           }
                            else {
                             if (castedTrace_3.typeName != null && !Kotlin.equals(castedTrace_3.typeName, '')) {
                               this.createOrAdd(castedTrace_3.objPath, target, castedTrace_3.refName, castedTrace_3.typeName);
                             }
                              else {
-                              target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, castedTrace_3.refName, targetContentPath, false);
+                              target.reflexiveMutator(_.org.kevoree.modeling.api.util.ActionType.SET, castedTrace_3.refName, targetContentPath, true, true);
                             }
                           }
                         }
@@ -9018,6 +9361,24 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
                 Object.defineProperty(this, 'REMOVE_ALL', {value: 4});
                 Object.defineProperty(this, 'RENEW_INDEX', {value: 5});
               })});
+              Object.defineProperty(this, 'ByteConverter', {value: Kotlin.createObject(null, null, {
+                toChar: {value: function (b) {
+                  return b != null ? b : Kotlin.throwNPE();
+                }},
+                fromChar: {value: function (b) {
+                  return b != null ? b : Kotlin.throwNPE();
+                }},
+                byteArrayInputStreamFromString: {value: function (str) {
+                  var bytes = Kotlin.numberArrayOfSize(str.length);
+                  var i = 0;
+                  while (i < str.length) {
+                    var tmp$0;
+                    bytes[i] = (tmp$0 = str.charAt(i)) != null ? tmp$0 : Kotlin.throwNPE();
+                    i = i + 1;
+                  }
+                  return _.java.io.ByteArrayInputStream(bytes);
+                }}
+              })});
               Object.defineProperty(this, 'ElementAttributeType', {value: Kotlin.createObject(null, function () {
                 Object.defineProperty(this, 'ATTRIBUTE', {value: 0});
                 Object.defineProperty(this, 'REFERENCE', {value: 1});
@@ -9026,6 +9387,350 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
             }, {
               ModelAttributeVisitor: {value: classes.ck},
               ModelVisitor: {value: classes.cl}
+            }),
+            xmi: Kotlin.definePackage(function () {
+              Object.defineProperty(this, 'Token', {value: Kotlin.createObject(null, function () {
+                Object.defineProperty(this, 'XML_HEADER', {value: 0});
+                Object.defineProperty(this, 'END_DOCUMENT', {value: 1});
+                Object.defineProperty(this, 'START_TAG', {value: 2});
+                Object.defineProperty(this, 'END_TAG', {value: 3});
+                Object.defineProperty(this, 'COMMENT', {value: 4});
+                Object.defineProperty(this, 'SINGLETON_TAG', {value: 5});
+              })});
+            }, {
+              XMIModelLoader: {value: classes.cm},
+              LoadingContext: {value: Kotlin.createClass(null, function () {
+                Object.defineProperty(this, 'xmiReader', {value: null, writable: true});
+                Object.defineProperty(this, 'loadedRoots', {value: Kotlin.ArrayList(0), writable: true});
+                Object.defineProperty(this, 'map', {value: Kotlin.PrimitiveHashMap(0)});
+                Object.defineProperty(this, 'elementsCount', {value: Kotlin.PrimitiveHashMap(0)});
+                Object.defineProperty(this, 'resolvers', {value: Kotlin.ArrayList(0)});
+                Object.defineProperty(this, 'stats', {value: Kotlin.PrimitiveHashMap(0)});
+                Object.defineProperty(this, 'oppositesAlreadySet', {value: Kotlin.PrimitiveHashMap(0)});
+              }, /** @lends _.org.kevoree.modeling.api.xmi.LoadingContext.prototype */ {
+                isOppositeAlreadySet: {value: function (localRef, oppositeRef) {
+                  var res = this.oppositesAlreadySet.get(oppositeRef + '_' + localRef) != null || this.oppositesAlreadySet.get(localRef + '_' + oppositeRef) != null;
+                  return res;
+                }},
+                storeOppositeRelation: {value: function (localRef, oppositeRef) {
+                  this.oppositesAlreadySet.put(localRef + '_' + oppositeRef, true);
+                }}
+              })},
+              XMIResolveCommand: {value: Kotlin.createClass(null, function (context, target, mutatorType, refName, ref) {
+                Object.defineProperty(this, 'context', {value: context});
+                Object.defineProperty(this, 'target', {value: target});
+                Object.defineProperty(this, 'mutatorType', {value: mutatorType});
+                Object.defineProperty(this, 'refName', {value: refName});
+                Object.defineProperty(this, 'ref', {value: ref});
+              }, /** @lends _.org.kevoree.modeling.api.xmi.XMIResolveCommand.prototype */ {
+                run: {value: function () {
+                  var referencedElement = this.context.map.get(this.ref);
+                  if (referencedElement != null) {
+                    this.target.reflexiveMutator(this.mutatorType, this.refName, referencedElement, false, false);
+                    return;
+                  }
+                  if (Kotlin.equals(this.ref, '/0/') || Kotlin.equals(this.ref, '/')) {
+                    referencedElement = this.context.map.get('/0');
+                    if (referencedElement != null) {
+                      this.target.reflexiveMutator(this.mutatorType, this.refName, referencedElement, false, false);
+                      return;
+                    }
+                  }
+                  throw new Error('KMF Load error : reference ' + this.ref + ' not found in map when trying to  ' + this.mutatorType + ' ' + this.refName + '  on ' + Kotlin.toString(this.target));
+                }}
+              })},
+              ReferencesVisitor: {value: Kotlin.createClass(classes.cl, function $fun(ostream, addressTable, elementsCount) {
+                Object.defineProperty(this, 'ostream', {value: ostream});
+                Object.defineProperty(this, 'addressTable', {value: addressTable});
+                Object.defineProperty(this, 'elementsCount', {value: elementsCount});
+                $fun.baseInitializer.call(this);
+                Object.defineProperty(this, 'value', {value: null, writable: true});
+              }, /** @lends _.org.kevoree.modeling.api.xmi.ReferencesVisitor.prototype */ {
+                beginVisitElem: {value: function (elem) {
+                }, writable: true},
+                endVisitElem: {value: function (elem) {
+                }, writable: true},
+                beginVisitRef: {value: function (refName, refType) {
+                }, writable: true},
+                endVisitRef: {value: function (refName) {
+                  if (this.value != null) {
+                    this.ostream.print(' ' + refName + '="' + Kotlin.toString(this.value) + '"');
+                    this.value = null;
+                  }
+                }, writable: true},
+                visit: {value: function (elem, refNameInParent, parent) {
+                  var adjustedAddress = this.addressTable.get(elem);
+                  if (this.value == null) {
+                    this.value = adjustedAddress;
+                  }
+                   else {
+                    this.value = _.jet.plus(this.value, ' ' + adjustedAddress);
+                  }
+                }, writable: true}
+              })},
+              AttributesVisitor: {value: Kotlin.createClass(classes.ck, function (ostream) {
+                Object.defineProperty(this, 'ostream', {value: ostream});
+              }, /** @lends _.org.kevoree.modeling.api.xmi.AttributesVisitor.prototype */ {
+                visit: {value: function (value, name, parent) {
+                  if (value != null) {
+                    this.ostream.print(' ' + name + '="');
+                    this.escapeXml(this.ostream, Kotlin.toString(value));
+                    this.ostream.print('"');
+                  }
+                }, writable: true},
+                escapeXml: {value: function (ostream, chain) {
+                  if (chain == null) {
+                    return;
+                  }
+                  var i = 0;
+                  var max = chain.length;
+                  while (i < max) {
+                    var c = chain.charAt(i);
+                    if (c === '"') {
+                      ostream.print('&quot;');
+                    }
+                     else if (c === '&') {
+                      ostream.print('&amp;');
+                    }
+                     else if (c === "'") {
+                      ostream.print('&apos;');
+                    }
+                     else if (c === '<') {
+                      ostream.print('&lt;');
+                    }
+                     else if (c === '>') {
+                      ostream.print('&gt;');
+                    }
+                     else {
+                      ostream.print_0(c);
+                    }
+                    i = i + 1;
+                  }
+                }}
+              })},
+              ModelSerializationVisitor: {value: Kotlin.createClass(classes.cl, function $fun(ostream, addressTable, elementsCount) {
+                Object.defineProperty(this, 'ostream', {value: ostream});
+                Object.defineProperty(this, 'addressTable', {value: addressTable});
+                Object.defineProperty(this, 'elementsCount', {value: elementsCount});
+                $fun.baseInitializer.call(this);
+                Object.defineProperty(this, 'attributeVisitor', {value: _.org.kevoree.modeling.api.xmi.AttributesVisitor(this.ostream)});
+                Object.defineProperty(this, 'referenceVisitor', {value: _.org.kevoree.modeling.api.xmi.ReferencesVisitor(this.ostream, this.addressTable, this.elementsCount)});
+              }, /** @lends _.org.kevoree.modeling.api.xmi.ModelSerializationVisitor.prototype */ {
+                beginVisitElem: {value: function (elem) {
+                }, writable: true},
+                endVisitElem: {value: function (elem) {
+                }, writable: true},
+                beginVisitRef: {value: function (refName, refType) {
+                }, writable: true},
+                endVisitRef: {value: function (refName) {
+                }, writable: true},
+                visit: {value: function (elem, refNameInParent, parent) {
+                  this.ostream.print_0('<');
+                  this.ostream.print(refNameInParent);
+                  this.ostream.print(' xsi:type="' + this.formatMetaClassName(elem.metaClassName()) + '"');
+                  elem.visitAttributes(this.attributeVisitor);
+                  elem.visit(this.referenceVisitor, false, false, true);
+                  this.ostream.println_1('>');
+                  elem.visit(this, false, true, false);
+                  this.ostream.print('<\/');
+                  this.ostream.print(refNameInParent);
+                  this.ostream.print_0('>');
+                  this.ostream.println_0();
+                }, writable: true},
+                formatMetaClassName: {value: function (metaClassName) {
+                  var lastPoint = _.js.lastIndexOf_0(metaClassName, '.');
+                  var pack = metaClassName.substring(0, lastPoint);
+                  var cls = metaClassName.substring(lastPoint + 1);
+                  return pack + ':' + cls;
+                }}
+              })},
+              ModelAddressVisitor: {value: Kotlin.createClass(classes.cl, function $fun(addressTable, elementsCount, packageList) {
+                Object.defineProperty(this, 'addressTable', {value: addressTable});
+                Object.defineProperty(this, 'elementsCount', {value: elementsCount});
+                Object.defineProperty(this, 'packageList', {value: packageList});
+                $fun.baseInitializer.call(this);
+              }, /** @lends _.org.kevoree.modeling.api.xmi.ModelAddressVisitor.prototype */ {
+                beginVisitElem: {value: function (elem) {
+                }, writable: true},
+                endVisitElem: {value: function (elem) {
+                }, writable: true},
+                beginVisitRef: {value: function (refName, refType) {
+                }, writable: true},
+                endVisitRef: {value: function (refName) {
+                }, writable: true},
+                visit: {value: function (elem, refNameInParent, parent) {
+                  var tmp$0;
+                  var parentXmiAddress = (tmp$0 = this.addressTable.get(parent)) != null ? tmp$0 : Kotlin.throwNPE();
+                  var i = this.elementsCount.get(parentXmiAddress + '/@' + refNameInParent) !== null ? this.elementsCount.get(parentXmiAddress + '/@' + refNameInParent) : 0;
+                  this.addressTable.put(elem, parentXmiAddress + '/@' + refNameInParent + '.' + i);
+                  this.elementsCount.put(parentXmiAddress + '/@' + refNameInParent, i + 1);
+                  var pack = elem.metaClassName().substring(0, _.js.lastIndexOf_0(elem.metaClassName(), '.'));
+                  if (!this.packageList.contains(pack))
+                    this.packageList.add(pack);
+                }, writable: true}
+              })},
+              XMIModelSerializer: {value: classes.cn},
+              XmlParser: {value: Kotlin.createClass(null, function (inputStream) {
+                Object.defineProperty(this, 'inputStream', {value: inputStream});
+                Object.defineProperty(this, 'bytes', {value: this.inputStream.readBytes()});
+                Object.defineProperty(this, 'index', {value: -1, writable: true});
+                Object.defineProperty(this, 'currentChar', {value: null, writable: true});
+                Object.defineProperty(this, 'xmlVersion', {value: null, writable: true});
+                Object.defineProperty(this, 'xmlCharset', {value: null, writable: true});
+                Object.defineProperty(this, 'tagName', {value: '', writable: true});
+                Object.defineProperty(this, 'tagPrefix', {value: null, writable: true});
+                Object.defineProperty(this, 'attributesNames', {value: Kotlin.ArrayList(0), writable: true});
+                Object.defineProperty(this, 'attributesPrefixes', {value: Kotlin.ArrayList(0), writable: true});
+                Object.defineProperty(this, 'attributesValues', {value: Kotlin.ArrayList(0), writable: true});
+                Object.defineProperty(this, 'attributeName', {value: _.java.lang.StringBuilder(), writable: true});
+                Object.defineProperty(this, 'attributePrefix', {value: null, writable: true});
+                Object.defineProperty(this, 'attributeValue', {value: _.java.lang.StringBuilder(), writable: true});
+                Object.defineProperty(this, 'readSingleton', {value: false, writable: true});
+              }, /** @lends _.org.kevoree.modeling.api.xmi.XmlParser.prototype */ {
+                hasNext: {value: function () {
+                  return this.bytes.length - this.index > 2;
+                }},
+                getLocalName: {value: function () {
+                  return this.tagName;
+                }},
+                getAttributeCount: {value: function () {
+                  return this.attributesNames.size();
+                }},
+                getAttributeLocalName: {value: function (i) {
+                  return this.attributesNames.get(i);
+                }},
+                getAttributePrefix: {value: function (i) {
+                  return this.attributesPrefixes.get(i);
+                }},
+                getAttributeValue: {value: function (i) {
+                  return this.attributesValues.get(i);
+                }},
+                readChar: {value: function () {
+                  return _.org.kevoree.modeling.api.util.ByteConverter.toChar(this.bytes[this.index = this.index + 1, this.index]);
+                }},
+                next: {value: function () {
+                  if (this.readSingleton) {
+                    this.readSingleton = false;
+                    return _.org.kevoree.modeling.api.xmi.Token.END_TAG;
+                  }
+                  if (!this.hasNext()) {
+                    return _.org.kevoree.modeling.api.xmi.Token.END_DOCUMENT;
+                  }
+                  this.attributesNames.clear();
+                  this.attributesPrefixes.clear();
+                  this.attributesValues.clear();
+                  this.read_lessThan();
+                  this.currentChar = this.readChar();
+                  if (this.currentChar === '?') {
+                    this.currentChar = this.readChar();
+                    this.read_xmlHeader();
+                    return _.org.kevoree.modeling.api.xmi.Token.XML_HEADER;
+                  }
+                   else if (this.currentChar === '!') {
+                    do {
+                      this.currentChar = this.readChar();
+                    }
+                     while (this.currentChar !== '>');
+                    return _.org.kevoree.modeling.api.xmi.Token.COMMENT;
+                  }
+                   else if (this.currentChar === '/') {
+                    this.currentChar = this.readChar();
+                    this.read_closingTag();
+                    return _.org.kevoree.modeling.api.xmi.Token.END_TAG;
+                  }
+                   else {
+                    this.read_openTag();
+                    if (this.currentChar === '/') {
+                      this.read_upperThan();
+                      this.readSingleton = true;
+                    }
+                    return _.org.kevoree.modeling.api.xmi.Token.START_TAG;
+                  }
+                }},
+                read_lessThan: {value: function () {
+                  do {
+                    this.currentChar = this.readChar();
+                  }
+                   while (this.currentChar !== '<');
+                }},
+                read_upperThan: {value: function () {
+                  while (this.currentChar !== '>') {
+                    this.currentChar = this.readChar();
+                  }
+                }},
+                read_xmlHeader: {value: function () {
+                  this.read_tagName();
+                  this.read_attributes();
+                  this.read_upperThan();
+                }},
+                read_closingTag: {value: function () {
+                  this.read_tagName();
+                  this.read_upperThan();
+                }},
+                read_openTag: {value: function () {
+                  this.read_tagName();
+                  if (this.currentChar !== '>') {
+                    this.read_attributes();
+                  }
+                }},
+                read_tagName: {value: function () {
+                  this.tagName = '' + this.currentChar;
+                  this.tagPrefix = null;
+                  this.currentChar = this.readChar();
+                  while (this.currentChar !== ' ' && this.currentChar !== '>') {
+                    if (this.currentChar === ':') {
+                      this.tagPrefix = this.tagName;
+                      this.tagName = '';
+                    }
+                     else {
+                      this.tagName = this.tagName + this.currentChar;
+                    }
+                    this.currentChar = this.readChar();
+                  }
+                }},
+                read_attributes: {value: function () {
+                  var end_of_tag = false;
+                  while (this.currentChar === ' ') {
+                    this.currentChar = this.readChar();
+                  }
+                  while (!end_of_tag) {
+                    while (this.currentChar !== '=') {
+                      if (this.currentChar === ':') {
+                        this.attributePrefix = this.attributeName.toString();
+                        this.attributeName.delete(0, this.attributeName.length());
+                      }
+                       else {
+                        var tmp$0;
+                        this.attributeName.append_0((tmp$0 = this.currentChar) != null ? tmp$0 : Kotlin.throwNPE());
+                      }
+                      this.currentChar = this.readChar();
+                    }
+                    do {
+                      this.currentChar = this.readChar();
+                    }
+                     while (this.currentChar !== '"');
+                    this.currentChar = this.readChar();
+                    while (this.currentChar !== '"') {
+                      var tmp$1;
+                      this.attributeValue.append_0((tmp$1 = this.currentChar) != null ? tmp$1 : Kotlin.throwNPE());
+                      this.currentChar = this.readChar();
+                    }
+                    this.attributesNames.add(this.attributeName.toString());
+                    this.attributesPrefixes.add(this.attributePrefix);
+                    this.attributesValues.add(this.attributeValue.toString());
+                    this.attributeName.delete(0, this.attributeName.length());
+                    this.attributePrefix = null;
+                    this.attributeValue.delete(0, this.attributeValue.length());
+                    do {
+                      this.currentChar = this.readChar();
+                      if (this.currentChar === '?' || this.currentChar === '/' || this.currentChar === '-' || this.currentChar === '>') {
+                        end_of_tag = true;
+                      }
+                    }
+                     while (!end_of_tag && this.currentChar === ' ');
+                  }
+                }}
+              })}
             })
           })
         })
@@ -9033,34 +9738,10 @@ Kotlin.PrimitiveHashSet = Kotlin.$createClass(Kotlin.AbstractCollection, {
       w3c: Kotlin.definePackage(null, {
         dom: Kotlin.definePackage(null, {
           events: Kotlin.definePackage(null, {
-            EventListener: {value: classes.cm}
+            EventListener: {value: classes.co}
           })
         })
       })
-    }),
-    js: Kotlin.definePackage(null, {
-      lastIndexOf: {value: function ($receiver, ch, fromIndex) {
-        return $receiver.lastIndexOf(Kotlin.toString(ch), fromIndex);
-      }},
-      lastIndexOf_0: {value: function ($receiver, ch) {
-        return $receiver.lastIndexOf(Kotlin.toString(ch));
-      }},
-      indexOf: {value: function ($receiver, ch) {
-        return $receiver.indexOf(Kotlin.toString(ch));
-      }},
-      indexOf_0: {value: function ($receiver, ch, fromIndex) {
-        return $receiver.indexOf(Kotlin.toString(ch), fromIndex);
-      }},
-      matches: {value: function ($receiver, regex) {
-        var result = $receiver.match(regex);
-        return result != null && result.length > 0;
-      }},
-      capitalize: {value: function ($receiver) {
-        return _.kotlin.notEmpty($receiver) ? $receiver.substring(0, 1).toUpperCase() + $receiver.substring(1) : $receiver;
-      }},
-      decapitalize: {value: function ($receiver) {
-        return _.kotlin.notEmpty($receiver) ? $receiver.substring(0, 1).toLowerCase() + $receiver.substring(1) : $receiver;
-      }}
     })
   });
   Kotlin.defineModule('org.kevoree.modeling.sample.cloud.js', _);

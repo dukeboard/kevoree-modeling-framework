@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api.xmi
 
+import org.kevoree.modeling.api.util.ByteConverter
+
 /*
 * Author : Gregory Nain (developer.name@uni.lu)
 * Date : 04/09/13
@@ -13,6 +15,7 @@ public object Token {
     public val COMMENT : Int = 4
     public val SINGLETON_TAG : Int = 5
 }
+
 
 public class XmlParser(val inputStream : java.io.InputStream) {
 
@@ -62,7 +65,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
     }
 
     private fun readChar() : Char {
-        return bytes.get(++index).toChar()
+        return ByteConverter.toChar(bytes[++index])
     }
 
     public fun next() : Int {

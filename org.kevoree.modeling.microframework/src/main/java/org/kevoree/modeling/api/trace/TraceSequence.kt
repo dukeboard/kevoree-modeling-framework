@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.KMFFactory
 import org.kevoree.modeling.api.util.ActionType
 import org.kevoree.modeling.api.json.Lexer
 import org.kevoree.modeling.api.json.Type
+import org.kevoree.modeling.api.util.ByteConverter
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,7 +26,7 @@ public trait TraceSequence {
     }
 
     fun populateFromString(addtracesTxt : String) : org.kevoree.modeling.api.trace.TraceSequence{
-        return populateFromStream(java.io.ByteArrayInputStream(addtracesTxt.toByteArray()))
+        return populateFromStream(ByteConverter.byteArrayInputStreamFromString(addtracesTxt))
     }
 
     fun populateFromStream(inputStream : java.io.InputStream) : org.kevoree.modeling.api.trace.TraceSequence {
@@ -70,7 +71,7 @@ public trait TraceSequence {
                     ActionType.RENEW_INDEX.toString() -> {
                     }
                     else -> {
-                        System.out.println("Trace lost !!!" )
+                        println("Trace lost !!!" )
                     }
                 }
             }
