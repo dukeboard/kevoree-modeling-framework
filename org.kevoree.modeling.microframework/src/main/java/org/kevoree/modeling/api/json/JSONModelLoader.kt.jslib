@@ -19,7 +19,13 @@ public open class JSONModelLoader : ModelLoader {
     open var factory : KMFFactory? = null
 
     override fun loadModelFromString(str: String): List<KMFContainer>? {
-        return deserialize(ByteArrayInputStream(str.getBytes()))
+        val bytes = ByteArray(str.length)
+        var i = 0
+        while(i < str.length){
+            bytes.set(i,str.get(i) as Byte)
+            i = i +1
+        }
+        return deserialize(ByteArrayInputStream(bytes))
     }
 
     override fun loadModelFromStream(inputStream: InputStream): List<KMFContainer>? {
