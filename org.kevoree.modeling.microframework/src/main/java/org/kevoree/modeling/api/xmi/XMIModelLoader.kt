@@ -10,14 +10,12 @@ import java.io.FileInputStream
 import java.io.StringReader
 import java.io.InputStreamReader
 import java.io.InputStream
-import javax.xml.stream.XMLStreamConstants
-import javax.xml.stream.XMLStreamReader
-import javax.xml.stream.XMLInputFactory
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.KMFFactory
+import java.io.ByteArrayInputStream
 
 public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
@@ -97,26 +95,26 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
     }
 
     override fun loadModelFromString(str: String) : List<KMFContainer>? {
-        val stringReader = StringReader(str)
-        val factory = XMLInputFactory.newInstance()
-        val reader = factory?.createXMLStreamReader(stringReader)
-        factory?.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false)
-        factory?.setProperty(XMLInputFactory.IS_VALIDATING, false)
-        if(reader != null && reader.hasNext()) {
+
+        val bytes = ByteArray(str.length)
+        var i = 0
+        while(i < str.length){
+            bytes.set(i,str.get(i) as Byte)
+            i = i +1
+        }
+        val reader = XmlParser(ByteArrayInputStream(bytes))
+        if(reader.hasNext()) {
             return deserialize(reader)
         } else {
             System.out.println("Loader::Noting in the String !")
             return null
         }
+
     }
 
     override fun loadModelFromStream(inputStream: InputStream) : List<KMFContainer>? {
-        val isReader = java.io.BufferedReader(InputStreamReader(inputStream))
-        val factory = XMLInputFactory.newInstance()
-        val reader = factory?.createXMLStreamReader(isReader)
-        factory?.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false)
-        factory?.setProperty(XMLInputFactory.IS_VALIDATING, false)
-        if(reader != null && reader.hasNext()) {
+        val reader = XmlParser(inputStream)
+        if(reader.hasNext()) {
             return deserialize(reader)
         } else {
             System.out.println("Loader::Noting in the file !")
@@ -194,8 +192,8 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
         var done = false
         while(!done) {
-            when(ctx.xmiReader!!.nextTag()){
-                XMLStreamConstants.START_ELEMENT -> {
+            when(ctx.xmiReader!!.next()){
+                Token.START_TAG -> {
                     val subElemName = ctx.xmiReader!!.getLocalName()
                     val i = ctx.elementsCount.get(xmiAddress + "/@" + subElemName) ?: 0
                     val subElementId = xmiAddress + "/@"+subElemName + (if(i != 0){"." + i} else {""})
@@ -203,7 +201,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                     modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, subElemName!!, containedElement,false,false)
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName,i+1)
                 }
-                XMLStreamConstants.END_ELEMENT -> {
+                Token.END_TAG -> {
                     if(ctx.xmiReader!!.getLocalName().equals(elementTagName)){done = true}
                 }
                 else -> {}
@@ -215,13 +213,13 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
 
 
-    private fun deserialize(reader : XMLStreamReader): List<KMFContainer> {
+    private fun deserialize(reader : XmlParser): List<KMFContainer> {
         val context = LoadingContext()
         context.xmiReader = reader
         while(reader.hasNext()) {
             val nextTag = reader.next()
             when(nextTag) {
-                XMLStreamConstants.START_ELEMENT -> {
+                Token.START_TAG -> {
                     val localName = reader.getLocalName()
                     if(localName != null) {
                         val loadedRootsSize = context.loadedRoots.size()
@@ -231,8 +229,8 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                         System.out.println("Tried to read a tag with null tag_name.")
                     }
                 }
-                XMLStreamConstants.END_ELEMENT -> {break}
-                XMLStreamConstants.END_DOCUMENT -> {break}
+                Token.END_TAG -> {break}
+                Token.END_DOCUMENT -> {break}
                 else ->{ /*println("Default case :" + nextTag.toString())*/ }
             }
         }
@@ -245,7 +243,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
 public class LoadingContext() {
 
-    var xmiReader : XMLStreamReader? = null
+    var xmiReader : XmlParser? = null
 
     var loadedRoots : java.util.ArrayList<KMFContainer> = java.util.ArrayList<KMFContainer>()
 
