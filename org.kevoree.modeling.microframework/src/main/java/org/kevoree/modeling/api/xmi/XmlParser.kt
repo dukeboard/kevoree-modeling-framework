@@ -31,6 +31,10 @@ public class XmlParser(val inputStream : java.io.InputStream) {
     private var attributesPrefixes : java.util.ArrayList<String?> = java.util.ArrayList<String?>()
     private var attributesValues : java.util.ArrayList<String> = java.util.ArrayList<String>()
 
+    private var attributeName = StringBuilder()
+    private var attributePrefix : String? = null
+    private var attributeValue = StringBuilder()
+
     private var readSingleton = false
 
     public fun hasNext() : Boolean {
@@ -148,9 +152,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
     }
 
     private fun read_attributes() {
-        var attributeName : String = ""
-        var attributePrefix : String? = null
-        var attributeValue : String = ""
+
         var end_of_tag = false
 
         while(currentChar == ' ') {
@@ -159,10 +161,10 @@ public class XmlParser(val inputStream : java.io.InputStream) {
         while(!end_of_tag) {
             while(currentChar != '=') { // read attributeName and/or prefix
                 if(currentChar == ':') {
-                    attributePrefix = attributeName
-                    attributeName = ""
+                    attributePrefix = attributeName.toString()
+                    attributeName.delete(0, attributeName.length)
                 } else {
-                    attributeName += currentChar
+                    attributeName.append(currentChar)
                 }
                 currentChar = readChar()
             }
@@ -171,16 +173,16 @@ public class XmlParser(val inputStream : java.io.InputStream) {
             }while(currentChar != '"')
             currentChar = readChar()
             while(currentChar != '"') { // reading value
-                attributeValue += currentChar
+                attributeValue.append(currentChar)
                 currentChar = readChar()
             }
 
-            attributesNames.add(attributeName)
+            attributesNames.add(attributeName.toString())
             attributesPrefixes.add(attributePrefix)
-            attributesValues.add(attributeValue)
-            attributeName = ""
+            attributesValues.add(attributeValue.toString())
+            attributeName.delete(0, attributeName.length)
             attributePrefix = null
-            attributeValue = ""
+            attributeValue.delete(0, attributeValue.length)
 
             do{//Trim to next attribute
                 currentChar = readChar()
