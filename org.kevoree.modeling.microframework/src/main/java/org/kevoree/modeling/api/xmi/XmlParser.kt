@@ -16,6 +16,9 @@ public object Token {
 
 public class XmlParser(val inputStream : java.io.InputStream) {
 
+    private val bytes = inputStream.readBytes()
+    private var index = -1
+
     private var currentChar : Char? = null
 
     private var xmlVersion : String? = null
@@ -28,8 +31,10 @@ public class XmlParser(val inputStream : java.io.InputStream) {
     private var attributesPrefixes : java.util.ArrayList<String?> = java.util.ArrayList<String?>()
     private var attributesValues : java.util.ArrayList<String> = java.util.ArrayList<String>()
 
+    private var readSingleton = false
+
     public fun hasNext() : Boolean {
-        return inputStream.available() > 2
+        return bytes.size - index > 2
     }
 
     public fun getLocalName() : String {
@@ -52,7 +57,17 @@ public class XmlParser(val inputStream : java.io.InputStream) {
         return attributesValues.get(i)
     }
 
+    private fun readChar() : Char {
+        return bytes.get(++index).toChar()
+    }
+
     public fun next() : Int {
+
+        if(readSingleton) {
+            readSingleton = false;
+            return Token.END_TAG
+        }
+
         if(!hasNext()){return Token.END_DOCUMENT}
 
         attributesNames.clear()
@@ -60,39 +75,39 @@ public class XmlParser(val inputStream : java.io.InputStream) {
         attributesValues.clear()
 
         read_lessThan() // trim to the begin of a tag
-        currentChar = inputStream.read().toChar()
+        currentChar = readChar()//inputStream.read().toChar()
 
         if(currentChar == '?') { // XML header <?xml version="1.0" encoding="UTF-8"?>
-            currentChar = inputStream.read().toChar()
+            currentChar = readChar()
             read_xmlHeader()
             return Token.XML_HEADER
 
         } else if(currentChar == '!') { // XML comment <!-- xml version="1.0" encoding="UTF-8" -->
             do{
-                currentChar = inputStream.read().toChar()
+                currentChar = readChar()
             }while(currentChar != '>')
             return Token.COMMENT
 
         } else  if(currentChar == '/') { // XML closing tag </tagname>
-            currentChar = inputStream.read().toChar()
+            currentChar = readChar()
             read_closingTag()
             return Token.END_TAG
         } else {
             read_openTag()
             if(currentChar == '/') {
                 read_upperThan()
-                return Token.SINGLETON_TAG
+                readSingleton = true;
             }
             return Token.START_TAG
         }
     }
 
     private fun read_lessThan() {
-        do{ currentChar = inputStream.read().toChar() }while(currentChar!= '<')
+        do{ currentChar = readChar() }while(currentChar!= '<')
     }
 
     private fun read_upperThan() {
-        while(currentChar!= '>') { currentChar = inputStream.read().toChar() }
+        while(currentChar!= '>') { currentChar = readChar() }
     }
 
     /**
@@ -120,7 +135,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
     private fun read_tagName() {
         tagName = "" + currentChar
         tagPrefix = null
-        currentChar = inputStream.read().toChar()
+        currentChar = readChar()
         while(currentChar != ' ' && currentChar != '>') {
             if(currentChar == ':') {
                 tagPrefix = tagName
@@ -128,7 +143,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
             } else {
                 tagName += currentChar
             }
-            currentChar = inputStream.read().toChar()
+            currentChar = readChar()
         }
     }
 
@@ -139,7 +154,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
         var end_of_tag = false
 
         while(currentChar == ' ') {
-            currentChar = inputStream.read().toChar()
+            currentChar = readChar()
         }
         while(!end_of_tag) {
             while(currentChar != '=') { // read attributeName and/or prefix
@@ -149,15 +164,15 @@ public class XmlParser(val inputStream : java.io.InputStream) {
                 } else {
                     attributeName += currentChar
                 }
-                currentChar = inputStream.read().toChar()
+                currentChar = readChar()
             }
             do{
-                currentChar = inputStream.read().toChar()
+                currentChar = readChar()
             }while(currentChar != '"')
-            currentChar = inputStream.read().toChar()
+            currentChar = readChar()
             while(currentChar != '"') { // reading value
                 attributeValue += currentChar
-                currentChar = inputStream.read().toChar()
+                currentChar = readChar()
             }
 
             attributesNames.add(attributeName)
@@ -168,7 +183,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
             attributeValue = ""
 
             do{//Trim to next attribute
-                currentChar = inputStream.read().toChar()
+                currentChar = readChar()
                 if(currentChar== '?' || currentChar == '/' || currentChar == '-' || currentChar == '>') {
                     end_of_tag = true
                 }
