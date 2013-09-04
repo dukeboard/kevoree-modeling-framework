@@ -19,6 +19,14 @@ package java.lang
          content = content + sub
      }
 
+     fun delete(startIndex : Int, endIndex : Int) {
+        content = ""
+     }
+
+     fun length() : Int {
+        return content.length
+     }
+
      public fun toString():String{
          return content
      }
