@@ -363,7 +363,7 @@ generateDiffMethod(pr, cls, ctx)
     }
     if (att.isID()) {
       pr.println("if(previousParent!=null){")
-      pr.println("previousParent.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId);")
+      pr.println("previousParent.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId,false,false);")
       pr.println("}")
       if (ctx.generateEvents) {
         pr.println("if(fireEvents) {")
@@ -422,7 +422,7 @@ generateDiffMethod(pr, cls, ctx)
             }
             if (att.isID()) {
               pr.println("if(previousParent!=null){")
-              pr.println("previousParent.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId);")
+              pr.println("previousParent.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId,false,false);")
               pr.println("}")
               if (ctx.generateEvents) {
                 pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path()))")

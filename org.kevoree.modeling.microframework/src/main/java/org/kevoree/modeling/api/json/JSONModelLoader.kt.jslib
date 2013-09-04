@@ -80,7 +80,7 @@ public open class JSONModelLoader : ModelLoader {
                             if(refModel){
                                 commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
                             } else {
-                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unescapeJSON(currentToken.value.toString()))
+                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unescapeJSON(currentToken.value.toString()),false,false)
                                 currentNameAttOrRef = null //unpop
                             }
                         }
@@ -102,7 +102,7 @@ public open class JSONModelLoader : ModelLoader {
                     }
                     if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACE){
                         if(parent != null){
-                            parent.reflexiveMutator(ActionType.ADD, nameInParent!!, currentObject)
+                            parent.reflexiveMutator(ActionType.ADD, nameInParent!!, currentObject,false,false)
                         }
                         return //go out
                     }
@@ -160,10 +160,9 @@ class ResolveCommand(val roots: ArrayList<KMFContainer>, val ref: String, val cu
             referencedElement = roots.get(i++).findByPath(ref)
         }
         if(referencedElement != null) {
-            currentRootElem.reflexiveMutator(ActionType.ADD, refName, referencedElement)
+            currentRootElem.reflexiveMutator(ActionType.ADD, refName, referencedElement,false,false)
         } else {
             throw Exception("Unresolved "+ref)
         }
     }
 }
-

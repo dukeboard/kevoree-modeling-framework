@@ -19,7 +19,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
 
     private fun tryClosePending(srcPath: String?) {
         if(pendingObj != null && pendingObjPath != srcPath){
-            pendingParent!!.reflexiveMutator(ActionType.ADD, pendingParentRefName!!, pendingObj)
+            pendingParent!!.reflexiveMutator(ActionType.ADD, pendingParentRefName!!, pendingObj,true,true)
             pendingObj = null
             pendingObjPath = null
             pendingParentRefName = null
@@ -34,7 +34,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             null
         }
         if(targetElem != null){
-            target.reflexiveMutator(ActionType.ADD, refName, targetElem)
+            target.reflexiveMutator(ActionType.ADD, refName, targetElem,true,true)
         } else {
             //add to pending
             pendingObj = factory.create(potentialTypeName!!)
@@ -74,7 +74,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                 }
                 if(tempTarget != null){
                     //Potentially null if top tree already dropped
-                    tempTarget!!.reflexiveMutator(ActionType.REMOVE, castedTrace.refName, targetModel.findByPath(castedTrace.objPath))
+                    tempTarget!!.reflexiveMutator(ActionType.REMOVE, castedTrace.refName, targetModel.findByPath(castedTrace.objPath),true,true)
                 }
             }
             if(trace is ModelRemoveAllTrace){
@@ -85,7 +85,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                     tempTarget = targetModel.findByPath(castedTrace.srcPath) as? KMFContainer;
                 }
                 if(tempTarget != null){
-                    tempTarget!!.reflexiveMutator(ActionType.REMOVE_ALL, castedTrace.refName, null)
+                    tempTarget!!.reflexiveMutator(ActionType.REMOVE_ALL, castedTrace.refName, null,true,true)
                 }
             }
             if(trace is ModelSetTrace){
@@ -104,7 +104,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                     }
                 }
                 if(castedTrace.content != null){
-                    target.reflexiveMutator(ActionType.SET, castedTrace.refName, castedTrace.content)
+                    target.reflexiveMutator(ActionType.SET, castedTrace.refName, castedTrace.content,true,true)
                 } else {
                     var targetContentPath: Any? = if(castedTrace.objPath != null){
                         targetModel.findByPath(castedTrace.objPath!!)
@@ -112,12 +112,12 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                         null
                     };
                     if(targetContentPath != null){
-                        target.reflexiveMutator(ActionType.SET, castedTrace.refName, targetContentPath)
+                        target.reflexiveMutator(ActionType.SET, castedTrace.refName, targetContentPath,true,true)
                     } else {
                         if(castedTrace.typeName != null && castedTrace.typeName != ""){
                             createOrAdd(castedTrace.objPath, target, castedTrace.refName, castedTrace.typeName) //must create the pending element
                         } else {
-                            target.reflexiveMutator(ActionType.SET, castedTrace.refName, targetContentPath) //case real null content
+                            target.reflexiveMutator(ActionType.SET, castedTrace.refName, targetContentPath,true,true) //case real null content
                         }
                     }
                 }

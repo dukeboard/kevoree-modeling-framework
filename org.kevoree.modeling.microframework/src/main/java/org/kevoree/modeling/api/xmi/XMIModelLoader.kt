@@ -174,7 +174,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                 val valueAtt = ctx.xmiReader!!.getAttributeValue(i)
                 if( valueAtt != null) {
                     if(elemAttributesMap.containsKey(attrName)) {
-                        modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, (unescapeXml(valueAtt)))
+                        modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, (unescapeXml(valueAtt)),false,false)
                     } else {
                         for(xmiRef in valueAtt.split(" ")) {
                             var adjustedRef = if(xmiRef.startsWith("#")){xmiRef.substring(1)}else{xmiRef}
@@ -182,7 +182,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                             adjustedRef = adjustedRef.replace(".0","")
                             val ref = ctx.map.get(adjustedRef)
                             if( ref != null) {
-                                modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, ref)
+                                modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, ref,false,false)
                             } else {
                                 ctx.resolvers.add(XMIResolveCommand(ctx, modelElem!!, org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, adjustedRef))
                             }
@@ -200,7 +200,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                     val i = ctx.elementsCount.get(xmiAddress + "/@" + subElemName) ?: 0
                     val subElementId = xmiAddress + "/@"+subElemName + (if(i != 0){"." + i} else {""})
                     val containedElement = loadObject(ctx, subElementId, elemReferencesMap.get(subElemName))
-                    modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, subElemName!!, containedElement)
+                    modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, subElemName!!, containedElement,false,false)
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName,i+1)
                 }
                 XMLStreamConstants.END_ELEMENT -> {
@@ -275,13 +275,13 @@ public class XMIResolveCommand(val context : LoadingContext, val target : org.ke
     fun run() {
         var referencedElement = context.map.get(ref)
         if(referencedElement != null) {
-            target.reflexiveMutator(mutatorType,refName, referencedElement)
+            target.reflexiveMutator(mutatorType,refName, referencedElement,false,false)
             return
         }
         if(ref.equals("/0/") || ref.equals("/")) {
             referencedElement = context.map.get("/0")
             if(referencedElement != null)   {
-                target.reflexiveMutator(mutatorType,refName, referencedElement)
+                target.reflexiveMutator(mutatorType,refName, referencedElement,false,false)
                 return
             }
         }

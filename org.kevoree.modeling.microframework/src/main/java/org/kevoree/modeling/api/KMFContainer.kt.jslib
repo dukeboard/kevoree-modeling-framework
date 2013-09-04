@@ -17,7 +17,7 @@ trait KMFContainer {
     fun findByID(relationName : String,idP : String) : KMFContainer?
     fun path(): String?
     fun metaClassName(): String
-    fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?, setOpposite : Boolean = true, fireEvent : Boolean = true)
+    fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?, setOpposite : Boolean, fireEvent : Boolean)
     fun selectByQuery(query : String) : List<Any>
     fun addModelElementListener(lst : ModelElementListener)
     fun removeModelElementListener(lst : ModelElementListener )
