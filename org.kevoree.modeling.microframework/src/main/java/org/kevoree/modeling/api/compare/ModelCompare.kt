@@ -34,7 +34,7 @@ trait ModelCompare {
         traces.addAll(origin.createTraces(target, inter,merge, false,true))
         tracesRef.addAll(origin.createTraces(target, inter,merge, true,false))
 
-        objectsMap.put(origin.path()!!, origin)
+
         val visitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
             override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
                 val childPath = elem.path();
@@ -71,11 +71,14 @@ trait ModelCompare {
             }
         }
         target.visit(visitor2, true, true, false)
+
         if(!inter){
             //if diff
             if(!merge){
                 for(diffChild in objectsMap.values()){
-                    traces.add(ModelRemoveTrace(diffChild.eContainer()?.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path()!!))
+                    val src = (if(diffChild.eContainer() != null){diffChild.eContainer()!!.path()!!}else{"null"})
+                    val refNameInParent = (if(diffChild.getRefInParent() != null){diffChild.getRefInParent()!!}else{"null"})
+                    traces.add(ModelRemoveTrace(src, refNameInParent, (diffChild as KMFContainer).path()!!))
                 }
             }
         }
