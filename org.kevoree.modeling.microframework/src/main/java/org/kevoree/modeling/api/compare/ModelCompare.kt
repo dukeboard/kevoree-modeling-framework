@@ -34,6 +34,7 @@ trait ModelCompare {
         traces.addAll(origin.createTraces(target, inter,merge, false,true))
         tracesRef.addAll(origin.createTraces(target, inter,merge, true,false))
 
+        objectsMap.put(origin.path()!!, origin)
         val visitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
             override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
                 val childPath = elem.path();
