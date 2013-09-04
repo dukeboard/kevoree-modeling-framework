@@ -16,8 +16,6 @@ public object Token {
 
 public class XmlParser(val inputStream : java.io.InputStream) {
 
-
-
     private var currentChar : Char? = null
 
     private var xmlVersion : String? = null
@@ -56,6 +54,11 @@ public class XmlParser(val inputStream : java.io.InputStream) {
 
     public fun next() : Int {
         if(!hasNext()){return Token.END_DOCUMENT}
+
+        attributesNames.clear()
+        attributesPrefixes.clear()
+        attributesValues.clear()
+
         read_lessThan() // trim to the begin of a tag
         currentChar = inputStream.read().toChar()
 
@@ -134,10 +137,6 @@ public class XmlParser(val inputStream : java.io.InputStream) {
         var attributePrefix : String? = null
         var attributeValue : String = ""
         var end_of_tag = false
-        attributesNames.clear()
-        attributesPrefixes.clear()
-        attributesValues.clear()
-
 
         while(currentChar == ' ') {
             currentChar = inputStream.read().toChar()
