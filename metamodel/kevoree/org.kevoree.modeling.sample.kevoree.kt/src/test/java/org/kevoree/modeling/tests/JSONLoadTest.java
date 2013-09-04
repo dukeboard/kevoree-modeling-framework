@@ -32,8 +32,11 @@ public class JSONLoadTest {
         }
 
         String fakeDomoModelStr = jsonSerializer.serialize(fakeDomoModel);
-        ByteArrayInputStream bais = new ByteArrayInputStream(fakeDomoModelStr.getBytes());
-        ContainerRoot reloadedFakeDomoModel = (ContainerRoot) jsonLoader.loadModelFromStream(bais).get(0);
+
+        //System.out.println(fakeDomoModelStr);
+
+        //ByteArrayInputStream bais = new ByteArrayInputStream(fakeDomoModelStr.getBytes());
+        ContainerRoot reloadedFakeDomoModel = (ContainerRoot) jsonLoader.loadModelFromString(fakeDomoModelStr).get(0);
 
         TypeDefinition fakeConsoleTDfromJSON = reloadedFakeDomoModel.findTypeDefinitionsByID("FakeConsole");
         for (DictionaryValue dv : fakeConsoleTDfromJSON.getDictionaryType().getDefaultValues()) {

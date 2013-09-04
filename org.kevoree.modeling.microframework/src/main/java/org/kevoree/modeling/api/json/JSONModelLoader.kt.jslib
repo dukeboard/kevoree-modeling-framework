@@ -91,6 +91,9 @@ public open class JSONModelLoader : ModelLoader {
                             loadObject(lexer, currentNameAttOrRef!!, currentObject, roots, commands)
                         } else {
                             refModel = true //wait for all ref to be found
+                            if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE){
+                                commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
+                            }
                         }
                     }
                     if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACKET){
@@ -158,6 +161,8 @@ class ResolveCommand(val roots: ArrayList<KMFContainer>, val ref: String, val cu
         }
         if(referencedElement != null) {
             currentRootElem.reflexiveMutator(ActionType.ADD, refName, referencedElement)
+        } else {
+            throw Exception("Unresolved "+ref)
         }
     }
 }
