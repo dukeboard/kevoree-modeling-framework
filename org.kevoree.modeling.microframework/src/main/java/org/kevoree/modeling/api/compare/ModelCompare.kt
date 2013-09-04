@@ -75,7 +75,7 @@ trait ModelCompare {
             //if diff
             if(!merge){
                 for(diffChild in objectsMap.values()){
-                    traces.add(ModelRemoveTrace(diffChild.eContainer()!!.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path()!!))
+                    traces.add(ModelRemoveTrace(diffChild.eContainer()?.path()!!, diffChild.getRefInParent()!!, (diffChild as KMFContainer).path()!!))
                 }
             }
         }
