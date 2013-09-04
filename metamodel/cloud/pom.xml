@@ -52,7 +52,8 @@
                             <packagePrefix>org</packagePrefix>
                             <clearOutput>false</clearOutput>
                             <js>true</js>
-                            <ecma5>true</ecma5>
+                            <ecma5>false</ecma5>
+							<events>true</events>
                         </configuration>
                     </execution>
                 </executions>
