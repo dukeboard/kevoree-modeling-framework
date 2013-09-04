@@ -2,7 +2,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.sample.kevoree.kt</artifactId>
     <packaging>jar</packaging>
     <name>Kevoree :: Modeling :: Sample :: Kevoree :: Kotlin</name>
@@ -68,10 +67,7 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
 							<events>true</events>
-                            <json>true</json>
-                            <xmi>true</xmi>
                             <selector>true</selector>
-                            <trace>true</trace>
                         </configuration>
                     </execution>
                 </executions>
