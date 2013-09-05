@@ -460,14 +460,7 @@ generateDiffMethod(pr, cls, ctx)
   }
 
   private def generateSetter(ctx: GenerationContext, cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean): String = {
-    val oppositRef = ref.getEOpposite
-    var res = ""
-    res = res + generateSetterOp(ctx, cls, ref, typeRefName)
-    if (oppositRef != null || ctx.generateEvents) {
-      //Generates the NoOpposite_Set method only the local reference is a single ref. (opposite managed on the * side)
-      res = res + generateInternalSetter(ctx, cls, ref, typeRefName)
-    }
-    res
+    generateSetterOp(ctx, cls, ref, typeRefName) + generateInternalSetter(ctx, cls, ref, typeRefName)
   }
 
   private def generateInternalSetter(ctx: GenerationContext, cls: EClass, ref: EReference, typeRefName: String): String = {
@@ -597,71 +590,8 @@ generateDiffMethod(pr, cls, ctx)
     if (ref.isMany) {
       res += "if(" + ref.getName + param_suf + " == null){ throw IllegalArgumentException(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LIST_PARAMETER_OF_SET_IS_NULL_EXCEPTION) }\n"
     }
-    if(ref.getEOpposite != null || ctx.generateEvents) {
-      res += "internal_" + ref.getName + "(" + ref.getName + param_suf + ", true, true)"
-    } else {
-      if (!ref.isMany) {
-        res += "if($" + ref.getName + "!= " + ref.getName + param_suf + "){\n"
-      } else {
-        res += "if(_" + ref.getName + ".values()!= " + ref.getName + param_suf + "){\n"
-      }
 
-      if (!ref.isMany) {
-        // containment relation in noOpposite Method
-
-        res += "if($" + ProcessorHelper.protectReservedWords(ref.getName) + " != null){\n"
-        res += "($" + ProcessorHelper.protectReservedWords(ref.getName) + "!! as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n"
-        res += "}\n"
-        res += "if(" + ref.getName + param_suf + " != null){\n"
-        if (ref.isRequired) {
-          res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", null)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
-        } else {
-          res += "(" + ref.getName + param_suf + " as " + ctx.getKevoreeContainerImplFQN + " ).setEContainer(this,null," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
-        }
-        res += "}\n"
-
-
-        //Setting of local reference
-        res += "$" + ProcessorHelper.protectReservedWords(ref.getName) + " = " + ref.getName + param_suf + "\n"
-
-
-      } else {
-        // -> Collection ref : * or +
-        res += "_" + ref.getName + ".clear()\n"
-
-        res += "for(el in " + ref.getName + param_suf + "){\n"
-        res += "val elKey = (el as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n"
-        res += "if(elKey == null){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.ELEMENT_HAS_NO_KEY_IN_COLLECTION)}\n"
-        res += "_" + ref.getName + ".put(elKey!!,el)\n"
-
-        if (ref.isContainment) {
-          res += "(el as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", el)," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ")\n"
-        }
-
-        res += "}\n"
-
-      }
-
-      res += "}\n" //END IF newRef != localRef
-    }
-
-    /*
-    if (noOpposite && oppositRef != null && oppositRef.isMany) {
-      res += "else {\n"
-      //DUPLICATE CASE OF SET / ONLY IN LOADER RUN
-      // 0,1 or 1  -- *
-      if (ref.isRequired) {
-        // Single Ref  1
-        res += "if(" + ProcessorHelper.protectReservedWords(ref.getName) + " != null){\n"
-        res += ProcessorHelper.protectReservedWords(ref.getName) + "!!.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)\n"
-        res += "}\n"
-      } else {
-        // Single Ref  0,1
-        res += "if(" + ProcessorHelper.protectReservedWords(ref.getName) + "!=null){ " + ProcessorHelper.protectReservedWords(ref.getName) + "!!.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + oppositRef.getName + ", this, true)}\n"
-      }
-      res += "}\n"
-    }
-    */
+    res += "internal_" + ref.getName + "(" + ref.getName + param_suf + ", true, true)"
 
     res += "\n}" //END Method
     res

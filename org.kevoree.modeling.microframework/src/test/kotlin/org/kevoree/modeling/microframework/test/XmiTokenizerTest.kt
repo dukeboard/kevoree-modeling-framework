@@ -8,12 +8,12 @@ import org.junit.Test
 import org.kevoree.modeling.api.xmi.XmlParser
 import org.kevoree.modeling.api.xmi.XMIModelLoader
 
-public class XmiTokenizerTets {
+public class XmiTokenizerTest {
 
 
     Test fun tokenizerTest() {
 
-        val inputStream = this.javaClass.getClassLoader()?.getResourceAsStream("unomas2.kev")
+        val inputStream = this.javaClass.getClassLoader()?.getResourceAsStream("unomas.kev")
 
         val xmiTokeniser : XmlParser = XmlParser(inputStream!!)
 

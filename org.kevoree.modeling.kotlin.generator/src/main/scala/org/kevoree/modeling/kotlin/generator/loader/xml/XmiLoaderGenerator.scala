@@ -52,7 +52,7 @@ class XmiLoaderGenerator(ctx: GenerationContext) {
 
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "loader"
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
-    val localFile = new File(loaderGenBaseDir + "/XmiModelLoader.kt")
+    val localFile = new File(loaderGenBaseDir + "/XMIModelLoader.kt")
     val pr = new PrintWriter(localFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".loader")
     pr.println("class XMIModelLoader : org.kevoree.modeling.api.xmi.XMIModelLoader() {")
