@@ -12,6 +12,16 @@ object Constants {
 
     public val KMFQL_CONTAINED : String = "contained"
 
+    public val STRING_DEFAULTVAL : String = ""
+    public val INT_DEFAULTVAL : Int = 0
+    public val BOOLEAN_DEFAULTVAL : Boolean = false
+    public val CHAR_DEFAULTVAL : Char = 'a'
+    public val SHORT_DEFAULTVAL : Short = 0
+    public val LONG_DEFAULTVAL : Long = 0
+    public val DOUBLE_DEFAULTVAL : Double = 0.0
+    public val FLOAT_DEFAULTVAL : Float = 0.0
+    public val BYTE_DEFAULTVAL : Byte = 0
+
 #foreach($key in $names.keySet())
     public val $key.replace(".","_") : String = "$names.get($key)"
 #end

@@ -17,7 +17,7 @@
  */
 package org.kevoree.modeling.kotlin.generator
 
-import java.io.File
+import java.io.{FileOutputStream, InputStream, File}
 import java.text.SimpleDateFormat
 import java.util.Date
 import org.eclipse.emf.common.util.EList
@@ -122,6 +122,29 @@ class ProcessorHelperClass {
       case _ => /*System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'");*/ "Any"
     }
   }
+
+  def getDefaultValue(ctx : GenerationContext, att : EAttribute) : String = {
+    val dataType = EDataTypes.dataTypes.get(att.getEAttributeType)
+    if(dataType != null) {
+      dataType match {
+        case "java.math.BigDecimal" =>{"null"}
+        case "java.math.BigInteger" =>{"null"}
+        case "Boolean" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BOOLEAN_DEFAULTVAL"}
+        case "Byte" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BYTE_DEFAULTVAL"}
+        case "Char" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.CHAR_DEFAULTVAL"}
+        case "Double" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.DOUBLE_DEFAULTVAL"}
+        case "Float" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.FLOAT_DEFAULTVAL"}
+        case "Int" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.INT_DEFAULTVAL"}
+        case "Long" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LONG_DEFAULTVAL"}
+        case "Short" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.SHORT_DEFAULTVAL"}
+        case "String" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL"}
+        case _ => "null"
+      }
+    } else {
+      att.getDefaultValueLiteral
+    }
+  }
+
 
   def protectReservedWords(word: String): String = {
     word match {
@@ -407,6 +430,38 @@ class ProcessorHelperClass {
     }
 
     (containedClassifiers, notContainedClassifiers)
+  }
+
+  def copyFromStream(intputStream: InputStream,name: String, target: String) {
+    val targetFile = new File(new File(target.replace("/",File.separator)), name.replace("/",File.separator))
+    targetFile.getParentFile.mkdirs()
+    val out = new FileOutputStream(targetFile)
+    val src = intputStream
+    val buffer = new Array[Byte](1024)
+    var len = src.read(buffer)
+    while (len != -1) {
+      out.write(buffer, 0, len)
+      len = src.read(buffer)
+      if (Thread.interrupted()) {
+        throw new InterruptedException()
+      }
+    }
+  }
+
+  def copyFromStream(name: String, target: String) {
+    val targetFile = new File(new File(target.replace("/",File.separator)), name.replace("/",File.separator))
+    targetFile.getParentFile.mkdirs()
+    val out = new FileOutputStream(targetFile)
+    val src = ProcessorHelper.getClass.getClassLoader.getResourceAsStream(name)
+    val buffer = new Array[Byte](1024)
+    var len = src.read(buffer)
+    while (len != -1) {
+      out.write(buffer, 0, len)
+      len = src.read(buffer)
+      if (Thread.interrupted()) {
+        throw new InterruptedException()
+      }
+    }
   }
 
 }

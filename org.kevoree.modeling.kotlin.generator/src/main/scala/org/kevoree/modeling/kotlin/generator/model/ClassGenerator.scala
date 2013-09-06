@@ -258,7 +258,7 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("override internal var internal_modelTreeListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>? = null")
     }
 
-    pr.println("override var path_cache : String? = null")
+    pr.println("override var path_cache : String? = " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL")
 
     generateDeleteMethod(pr, cls, ctx, pack)
     // Getters and Setters Generation
@@ -383,7 +383,7 @@ generateDiffMethod(pr, cls, ctx)
       att =>
         if (!alreadyGeneratedAttributes.contains(att.getName)) {
           alreadyGeneratedAttributes.add(att.getName)
-          var defaultValue = att.getDefaultValueLiteral
+          var defaultValue = ProcessorHelper.getDefaultValue(ctx, att)
           if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
             if (ctx.getJS()) {
               defaultValue = "\"\"+Math.random() + java.util.Date().getTime()"
