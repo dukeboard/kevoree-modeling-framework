@@ -8,6 +8,7 @@ import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.{AspectMatcher, ProcessorHelper, GenerationContext}
 import scala.collection.mutable
+import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,7 +43,7 @@ trait ClassGenerator extends ClonerGenerator {
     cls.getEAllAttributes.foreach {
       att =>
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
-        if(att.isMany) {
+        if (att.isMany) {
           pr.println("if(mutationType == org.kevoree.modeling.api.util.ActionType.SET) {")
         }
 
@@ -56,7 +57,7 @@ trait ClassGenerator extends ClonerGenerator {
         if (ctx.getJS()) {
           valueType match {
             case "Boolean" => {
-              if(ctx.generateEvents) {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((\"true\" == value || true == value), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (\"true\" == value || true == value)")
@@ -64,7 +65,7 @@ trait ClassGenerator extends ClonerGenerator {
 
             }
             case _ => {
-              if(ctx.generateEvents) {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
@@ -74,42 +75,42 @@ trait ClassGenerator extends ClonerGenerator {
         } else {
           valueType match {
             case "String" => {
-              if(ctx.generateEvents) {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
               }
             }
-            case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short"  => {
-              if(ctx.generateEvents) {
+            case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short" => {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((value.toString().to" + valueType + "()), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().to" + valueType + "())")
               }
             }
             case "Byte" => {
-              if(ctx.generateEvents) {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((value.toString().toInt().to" + valueType + "()), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toInt().to" + valueType + "())")
               }
             }
             case "ByteArray" => {
-              if(ctx.generateEvents) {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((value.toString().toByteArray(java.nio.charset.Charset.defaultCharset())), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
               }
             }
             case "Any" => {
-              if(ctx.generateEvents) {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((value.toString() as? " + valueType + "), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value.toString() as? " + valueType + ")")
               }
             }
             case _ => {
-              if(ctx.generateEvents) {
+              if (ctx.generateEvents) {
                 pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
@@ -117,7 +118,7 @@ trait ClassGenerator extends ClonerGenerator {
             }
           }
         }
-        if(att.isMany) {
+        if (att.isMany) {
           pr.println("} else {")
           //ADD INTO LIST
 
@@ -134,7 +135,7 @@ trait ClassGenerator extends ClonerGenerator {
         if (ref.isMany) {
           pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {")
           val methodNameClean = "add" + toCamelCase(ref)
-          if(ref.getEOpposite != null || ctx.generateEvents) {
+          if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("this.internal_" + methodNameClean + "(value as " + valueType + ", setOpposite, fireEvents)")
           } else {
             pr.println("this." + methodNameClean + "(value as " + valueType + ")")
@@ -142,7 +143,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
           pr.println("org.kevoree.modeling.api.util.ActionType.ADD_ALL -> {")
           val methodNameClean2 = "addAll" + toCamelCase(ref)
-          if(ref.getEOpposite != null || ctx.generateEvents) {
+          if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("this.internal_" + methodNameClean2 + "(value as List<" + valueType + ">, setOpposite, fireEvents)")
           } else {
             pr.println("this." + methodNameClean2 + "(value as List<" + valueType + ">)")
@@ -150,7 +151,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE -> {")
           val methodNameClean3 = "remove" + toCamelCase(ref)
-          if(ref.getEOpposite != null || ctx.generateEvents) {
+          if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("        this.internal_" + methodNameClean3 + "(value as " + valueType + ", setOpposite, fireEvents)")
           } else {
             pr.println("        this." + methodNameClean3 + "(value as " + valueType + ")")
@@ -158,7 +159,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE_ALL -> {")
           val methodNameClean4 = "removeAll" + toCamelCase(ref)
-          if(ref.getEOpposite != null) {
+          if (ref.getEOpposite != null) {
             pr.println("        this.internal_" + methodNameClean4 + "(setOpposite, fireEvents)")
           } else {
             pr.println("        this." + methodNameClean4 + "()")
@@ -168,7 +169,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("org.kevoree.modeling.api.util.ActionType.SET -> {")
           val methodNameClean = ProcessorHelper.protectReservedWords(ref.getName)
           val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-          if(ref.getEOpposite != null || ctx.generateEvents) {
+          if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("      this.internal_" + ref.getName + "(value as? " + valueType + ", setOpposite, fireEvents)")
           } else {
             pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
@@ -177,7 +178,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
 
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE -> {")
-          if(ref.getEOpposite != null || ctx.generateEvents) {
+          if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("        this.internal_" + ref.getName + "(null, setOpposite, fireEvents)")
           } else {
             pr.println("      this." + methodNameClean + " = null")
@@ -185,7 +186,7 @@ trait ClassGenerator extends ClonerGenerator {
           pr.println("}")
 
           pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {")
-          if(ref.getEOpposite != null || ctx.generateEvents) {
+          if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("        this.internal_" + ref.getName + "(value as? " + valueType + ", setOpposite, fireEvents)")
           } else {
             pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
@@ -200,7 +201,7 @@ trait ClassGenerator extends ClonerGenerator {
 
 
           //pr.println("val objNewKey = (obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n")
-          pr.println("val objNewKey = (obj as " + ctx.getKevoreeContainerImplFQN +").internalGetKey()\n")
+          pr.println("val objNewKey = (obj as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n")
           pr.println("if(objNewKey == null){throw Exception(\"Key newed to null \"+obj)}\n")
           pr.println("_" + ref.getName + ".remove(value)")
           pr.println("_" + ref.getName + ".put(objNewKey,obj)")
@@ -234,7 +235,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.print("class " + cls.getName + "Impl")
 
     // val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
-    val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx,v,cls))
+    val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx, v, cls))
     var aspectsName = List[String]()
     aspects.foreach {
       a =>
@@ -281,26 +282,102 @@ generateDiffMethod(pr, cls, ctx)
 
 
     //Kotlin workaround // Why prop are not generated properly ?
-    if(ctx.getJS() && !ctx.ecma5){
+    if (ctx.getJS() && !ctx.ecma5) {
 
-      ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach { att =>
-        if(att.isMany){
-          pr.println("override public fun get"+toCamelCase(att)+"()"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">"+"{ return "+ProcessorHelper.protectReservedWords(att.getName)+"}")
-          pr.println("override public fun set"+toCamelCase(att)+"(internal_p"+" : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)"+"{ "+ProcessorHelper.protectReservedWords(att.getName)+" = internal_p }")
-        } else {
-          pr.println("override public fun get"+toCamelCase(att)+"() : "+ProcessorHelper.convertType(att.getEAttributeType, ctx)+"? { return "+ProcessorHelper.protectReservedWords(att.getName)+"}")
-          pr.println("override public fun set"+toCamelCase(att)+"(internal_p : "+ProcessorHelper.convertType(att.getEAttributeType, ctx)+"?) { "+ProcessorHelper.protectReservedWords(att.getName)+" = internal_p }")
-        }
+      ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach {
+        att =>
+          if (att.isMany) {
+            pr.println("override public fun get" + toCamelCase(att) + "()" + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">" + "{ return " + ProcessorHelper.protectReservedWords(att.getName) + "}")
+            pr.println("override public fun set" + toCamelCase(att) + "(internal_p" + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)" + "{ " + ProcessorHelper.protectReservedWords(att.getName) + " = internal_p }")
+          } else {
+            pr.println("override public fun get" + toCamelCase(att) + "() : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "? { return " + ProcessorHelper.protectReservedWords(att.getName) + "}")
+            pr.println("override public fun set" + toCamelCase(att) + "(internal_p : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?) { " + ProcessorHelper.protectReservedWords(att.getName) + " = internal_p }")
+          }
       }
-      cls.getEAllReferences.foreach { ref =>
-        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if(ref.isMany){
-          pr.println("override public fun get"+toCamelCase(ref)+"()"+" : List<" + typeRefName + ">"+"{ return "+ProcessorHelper.protectReservedWords(ref.getName)+"}")
-          pr.println("override public fun set"+toCamelCase(ref)+"(internal_p"+" : List<" + typeRefName + ">){ "+ProcessorHelper.protectReservedWords(ref.getName)+" = internal_p }")
-        } else {
-          pr.println("override public fun get"+toCamelCase(ref)+"() : "+typeRefName+"?"+"{ return "+ProcessorHelper.protectReservedWords(ref.getName)+"}")
-          pr.println("override public fun set"+toCamelCase(ref)+"(internal_p : "+typeRefName+"?){ "+ProcessorHelper.protectReservedWords(ref.getName)+" = internal_p }")
-        }
+      cls.getEAllReferences.foreach {
+        ref =>
+          val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+          if (ref.isMany) {
+            pr.println("override public fun get" + toCamelCase(ref) + "()" + " : List<" + typeRefName + ">" + "{ return " + ProcessorHelper.protectReservedWords(ref.getName) + "}")
+            pr.println("override public fun set" + toCamelCase(ref) + "(internal_p" + " : List<" + typeRefName + ">){ " + ProcessorHelper.protectReservedWords(ref.getName) + " = internal_p }")
+          } else {
+            pr.println("override public fun get" + toCamelCase(ref) + "() : " + typeRefName + "?" + "{ return " + ProcessorHelper.protectReservedWords(ref.getName) + "}")
+            pr.println("override public fun set" + toCamelCase(ref) + "(internal_p : " + typeRefName + "?){ " + ProcessorHelper.protectReservedWords(ref.getName) + " = internal_p }")
+          }
+      }
+    }
+
+
+    if (aspects.size > 1) {
+      val methodUsage = new util.HashMap[String, java.util.List[String]]() //todo not only on method name
+      aspects.foreach {
+        aspect =>
+          aspect.methods.foreach {
+            method =>
+              if (!methodUsage.containsKey(method.name)) {
+                methodUsage.put(method.name, new util.ArrayList[String]())
+              }
+              methodUsage.get(method.name).add(aspect.packageName + "." + aspect.name)
+          }
+      }
+      methodUsage.foreach {
+        t =>
+          if (t._2.size() > 1) {
+
+            cls.getEAllOperations.find(eop => eop.getName == t._1) match {
+              //better match
+              case Some(op) => {
+                pr.print("override fun " + op.getName + "(")
+                var isFirst = true
+                op.getEParameters.foreach {
+                  p =>
+                    if (!isFirst) {
+                      pr.println(",")
+                    }
+                    val returnTypeP = if (p.getEType.isInstanceOf[EDataType]) {
+                      ProcessorHelper.convertType(p.getEType.getName)
+                    } else {
+                      ProcessorHelper.fqn(ctx, p.getEType)
+                    }
+                    pr.print(p.getName() + "P :" + returnTypeP)
+                    isFirst = false
+                }
+                if (op.getEType != null) {
+
+                  val returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
+                    ProcessorHelper.convertType(op.getEType.getName)
+                  } else {
+                    ProcessorHelper.fqn(ctx, op.getEType)
+                  }
+
+                  pr.println("):" + returnTypeOP + "{")
+                } else {
+                  pr.println("):Unit{")
+                }
+
+                t._2.foreach {
+                  superTrait =>
+                    pr.print("super<" + superTrait + ">." + op.getName + "(")
+                    var isFirst = true
+                    op.getEParameters.foreach { param  =>
+                      if (!isFirst) {
+                        pr.println(",")
+                      }
+                      pr.print(param.getName+"P")
+                      isFirst = false
+                    }
+                    pr.println(")")
+                }
+
+
+                pr.println("}")
+
+              }
+              case _ => {
+                System.err.println("Not Found " + t._1)
+              }
+            }
+          }
       }
     }
     pr.println("}")
@@ -311,7 +388,7 @@ generateDiffMethod(pr, cls, ctx)
 
   private def generateMetaClassName(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
     pr.println("override fun metaClassName() : String {")
-    pr.println("return " +  ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants." + ProcessorHelper.fqn(ctx, cls).replace('.','_') + ";")
+    pr.println("return " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants." + ProcessorHelper.fqn(ctx, cls).replace('.', '_') + ";")
     pr.println("}")
   }
 
@@ -329,7 +406,7 @@ generateDiffMethod(pr, cls, ctx)
   }
 
 
-  private def generateAttributeSetterWithParameter(pr: PrintWriter, att: EAttribute, ctx: GenerationContext, pack: String, idAttributes : mutable.Buffer[EAttribute]) {
+  private def generateAttributeSetterWithParameter(pr: PrintWriter, att: EAttribute, ctx: GenerationContext, pack: String, idAttributes: mutable.Buffer[EAttribute]) {
 
     var defaultValue = att.getDefaultValueLiteral
     if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
@@ -341,12 +418,12 @@ generateDiffMethod(pr, cls, ctx)
     }
 
     if (att.isMany) {
-      pr.println("\tprivate fun internal_"+att.getName+"(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?, fireEvents : Boolean = true){")
+      pr.println("\tprivate fun internal_" + att.getName + "(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?, fireEvents : Boolean = true){")
     } else {
-      pr.println("\tprivate fun internal_"+att.getName+"(iP : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?, fireEvents : Boolean = true){")
+      pr.println("\tprivate fun internal_" + att.getName + "(iP : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?, fireEvents : Boolean = true){")
     }
     pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
-    pr.println("if(iP != "+ProcessorHelper.protectReservedWords(att.getName)+"){")
+    pr.println("if(iP != " + ProcessorHelper.protectReservedWords(att.getName) + "){")
     if (ctx.generateEvents) {
       pr.println("val oldPath = path()")
     }
@@ -403,11 +480,11 @@ generateDiffMethod(pr, cls, ctx)
             }
             pr.println("\t set(iP : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?){")
           }
-          if(ctx.generateEvents) {
-            pr.println("internal_"+att.getName+"(iP, true)")
+          if (ctx.generateEvents) {
+            pr.println("internal_" + att.getName + "(iP, true)")
           } else {
             pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}")
-            pr.println("if(iP != "+ProcessorHelper.protectReservedWords(att.getName)+"){")
+            pr.println("if(iP != " + ProcessorHelper.protectReservedWords(att.getName) + "){")
             if (ctx.generateEvents) {
               pr.println("val oldPath = path()")
             }
@@ -432,7 +509,7 @@ generateDiffMethod(pr, cls, ctx)
           }
           pr.println("\t}//end of setter")
           pr.println()
-          if(ctx.generateEvents) {
+          if (ctx.generateEvents) {
             generateAttributeSetterWithParameter(pr, att, ctx, pack, idAttributes)
           }
 
@@ -484,8 +561,8 @@ generateDiffMethod(pr, cls, ctx)
 
     if (!ref.isMany) {
 
-      if(ref.getEOpposite != null) {
-        res +="if(setOpposite) {\n"
+      if (ref.getEOpposite != null) {
+        res += "if(setOpposite) {\n"
         if (ref.getEOpposite.isMany) {
           // 0,1 or 1  -- *
           res += "if($" + ref.getName + " != null) {\n"
@@ -503,7 +580,7 @@ generateDiffMethod(pr, cls, ctx)
           res += ref.getName + param_suf + ".reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getEOpposite.getName + ", this, false, fireEvents)\n"
           res += "}\n"
         }
-        res +="}\n"
+        res += "}\n"
       }
 
       if (ref.isContainment) {
@@ -598,17 +675,19 @@ generateDiffMethod(pr, cls, ctx)
   }
 
 
-  private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext) : String = {
+  private def generateAddMethod(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     generateDoAdd(cls, ref, typeRefName, ctx) +
       generateAdd(cls, ref, typeRefName, ctx) +
       generateAddAll(cls, ref, typeRefName, ctx) +
       (if (ref.getEOpposite != null || ctx.generateEvents) {
         generateAddWithParameter(cls, ref, typeRefName, ctx) +
           generateAddAllWithParameter(cls, ref, typeRefName, ctx)
-      } else {""})
+      } else {
+        ""
+      })
   }
 
-  private def generateDoAdd(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext) : String = {
+  private def generateDoAdd(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
     res += "\nprivate fun doAdd" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
 
@@ -626,11 +705,11 @@ generateDiffMethod(pr, cls, ctx)
     res
   }
 
-  private def generateAddWithParameter(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext) : String = {
+  private def generateAddWithParameter(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
     res += "\nprivate fun internal_add" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
-    res += "doAdd" + toCamelCase(ref) +"("+ ref.getName + param_suf +")\n"
+    res += "doAdd" + toCamelCase(ref) + "(" + ref.getName + param_suf + ")\n"
 
     if (ref.getEOpposite != null) {
       res += "if(setOpposite){\n"
@@ -656,7 +735,7 @@ generateDiffMethod(pr, cls, ctx)
     res
   }
 
-  private def generateAdd(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext) : String = {
+  private def generateAdd(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
     res += "\noverride fun add" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
 
@@ -664,7 +743,7 @@ generateDiffMethod(pr, cls, ctx)
       res += "internal_add" + toCamelCase(ref) + "(" + ref.getName + param_suf + ", true, true)\n"
     } else {
       res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
-      res += "doAdd" + toCamelCase(ref) +"("+ ref.getName + param_suf +")\n"
+      res += "doAdd" + toCamelCase(ref) + "(" + ref.getName + param_suf + ")\n"
 
       if (ref.getEOpposite != null) {
         val opposite = ref.getEOpposite
@@ -688,13 +767,13 @@ generateDiffMethod(pr, cls, ctx)
     res
   }
 
-  private def generateAddAllWithParameter(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext) : String = {
+  private def generateAddAllWithParameter(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
     res += "\nprivate fun internal_addAll" + toCamelCase(ref) + "(" + ref.getName + param_suf + " :List<" + typeRefName + ">, setOpposite : Boolean, fireEvents : Boolean) {\n"
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     res += "if (setOpposite) {\n"
     res += "for(el in " + ref.getName + param_suf + "){\n"
-    res += "doAdd" + toCamelCase(ref) +"(el)\n"
+    res += "doAdd" + toCamelCase(ref) + "(el)\n"
     if (ref.getEOpposite != null) {
       val opposite = ref.getEOpposite
       if (!opposite.isMany) {
@@ -706,7 +785,7 @@ generateDiffMethod(pr, cls, ctx)
     res += "}\n"
     res += "} else {\n"
     res += "for(el in " + ref.getName + param_suf + "){\n"
-    res += "doAdd" + toCamelCase(ref) +"(el)\n"
+    res += "doAdd" + toCamelCase(ref) + "(el)\n"
     res += "}\n"
     res += "}\n"
 
@@ -723,7 +802,7 @@ generateDiffMethod(pr, cls, ctx)
     res
   }
 
-  private def generateAddAll(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext) : String = {
+  private def generateAddAll(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
     res += "\noverride fun addAll" + toCamelCase(ref) + "(" + ref.getName + param_suf + " :List<" + typeRefName + ">) {\n"
     if (ref.getEOpposite != null || ctx.generateEvents) {
@@ -731,7 +810,7 @@ generateDiffMethod(pr, cls, ctx)
     } else {
       res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
       res += "for(el in " + ref.getName + param_suf + "){\n"
-      res += "doAdd" + toCamelCase(ref) +"(el)\n"
+      res += "doAdd" + toCamelCase(ref) + "(el)\n"
       if (ref.getEOpposite != null) {
         val opposite = ref.getEOpposite
         if (!opposite.isMany) {
@@ -755,7 +834,6 @@ generateDiffMethod(pr, cls, ctx)
     res += "}\n"
     res
   }
-
 
 
   private def generateRemoveMethod(cls: EClass, ref: EReference, typeRefName: String, isOptional: Boolean, ctx: GenerationContext): String = {
@@ -800,7 +878,7 @@ generateDiffMethod(pr, cls, ctx)
       }
     }
 
-    if(ref.getEOpposite != null) {
+    if (ref.getEOpposite != null) {
       res += "if(setOpposite){\n"
       if (ref.getEOpposite.isMany) {
         res += "(" + ref.getName + param_suf + " as " + typeRefName + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getEOpposite.getName + ", this, false, fireEvents)\n"
@@ -826,7 +904,7 @@ generateDiffMethod(pr, cls, ctx)
     }
     res += "val temp_els = " + ProcessorHelper.protectReservedWords(ref.getName) + "!!\n"
 
-    if(ref.getEOpposite != null) {
+    if (ref.getEOpposite != null) {
       if (ref.isContainment) {
         res += "if(setOpposite){\n"
         res += "for(el in temp_els!!){\n"
