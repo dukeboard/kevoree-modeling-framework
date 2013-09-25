@@ -167,10 +167,13 @@ trait APIGenerator extends ClassGenerator {
         }
         if (op.getEType != null) {
 
-          val returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
+          var returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
             ProcessorHelper.convertType(op.getEType.getName)
           } else {
             ProcessorHelper.fqn(ctx, op.getEType)
+          }
+          if(returnTypeOP == null || returnTypeOP == "null"){
+            returnTypeOP = "Unit"
           }
 
           pr.println("):" + returnTypeOP + ";")
