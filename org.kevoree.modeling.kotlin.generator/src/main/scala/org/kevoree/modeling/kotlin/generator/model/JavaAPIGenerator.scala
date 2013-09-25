@@ -95,7 +95,7 @@ trait JavaAPIGenerator extends ClassGenerator {
       jwriter.beginType(cls.getName, "interface", Modifier.PUBLIC | Modifier.ABSTRACT, superTypes.mkString(", "), new Array[String](0): _*)
     }
 
-    generateJAllGetterSetterMethod(pr, jwriter, cls, ctx, packName)
+   // generateJAllGetterSetterMethod(pr, jwriter, cls, ctx, packName)
     jwriter.endType()
     pr.flush()
     pr.close()
@@ -107,7 +107,7 @@ trait JavaAPIGenerator extends ClassGenerator {
     name.substring(0, 1).toUpperCase + name.substring(1)
   }
 
-
+       /*
   private def generateJAllGetterSetterMethod(pr: PrintWriter, jwriter: JavaWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     cls.getEAttributes.foreach {
       att =>
@@ -228,7 +228,7 @@ trait JavaAPIGenerator extends ClassGenerator {
         }
     }
 
-  }
+  }   */
 
   private def generateJGetter(ref: EReference, typeRefName: String, isOptional: Boolean, isSingleRef: Boolean): String = {
     //Generate getter
@@ -284,7 +284,7 @@ trait JavaAPIGenerator extends ClassGenerator {
       res += "List<"
     }
 
-    res += ProcessorHelper.convertJType(typeRefName)
+    res += ProcessorHelper.convertType(typeRefName)
     if (!isSingleRef) {
       res += ">"
     }
