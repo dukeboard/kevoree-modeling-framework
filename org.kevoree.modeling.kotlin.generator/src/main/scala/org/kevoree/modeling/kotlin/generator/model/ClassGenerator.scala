@@ -355,16 +355,22 @@ generateDiffMethod(pr, cls, ctx)
                   pr.println("):Unit{")
                 }
 
+                var currentT = t._2.size()
                 t._2.foreach {
                   superTrait =>
+                    currentT = currentT - 1
+                    if (currentT == 0) {
+                      pr.print("return ")
+                    }
                     pr.print("super<" + superTrait + ">." + op.getName + "(")
                     var isFirst = true
-                    op.getEParameters.foreach { param  =>
-                      if (!isFirst) {
-                        pr.println(",")
-                      }
-                      pr.print(param.getName+"P")
-                      isFirst = false
+                    op.getEParameters.foreach {
+                      param =>
+                        if (!isFirst) {
+                          pr.println(",")
+                        }
+                        pr.print(param.getName + "P")
+                        isFirst = false
                     }
                     pr.println(")")
                 }
