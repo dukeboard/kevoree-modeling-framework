@@ -693,14 +693,14 @@ public class GenModelPlugin extends AbstractMojo {
 
                     //Cleanup ECMA5 strict mode
                     File ecm5merged = null;
-                    if(ecma5){
+                    if (ecma5) {
                         ecm5merged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged2.js");
                         FileOutputStream mergedStream2 = new FileOutputStream(ecm5merged);
                         //kotlin workaround
                         BufferedReader buffered = new BufferedReader(new FileReader(outputMerged));
                         String line;
                         while ((line = buffered.readLine()) != null) {
-                            mergedStream2.write(line.replace("\"use strict\";","").replace("'use strict';","").getBytes());
+                            mergedStream2.write(line.replace("\"use strict\";", "").replace("'use strict';", "").getBytes());
                             //mergedStream2.write(line.replaceFirst("get_size.*get_size","get_size").getBytes());
                             mergedStream2.write("\n".getBytes());
                         }
@@ -714,7 +714,7 @@ public class GenModelPlugin extends AbstractMojo {
                     WarningLevel.QUIET.setOptionsForWarningLevel(options);
                     CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
                     options.setCheckUnreachableCode(CheckLevel.OFF);
-                    if(ecma5){
+                    if (ecma5) {
                         compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(ecm5merged)), options);
                     } else {
                         compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(outputMerged)), options);
