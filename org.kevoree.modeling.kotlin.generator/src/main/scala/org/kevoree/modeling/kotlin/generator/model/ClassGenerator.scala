@@ -259,7 +259,7 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("override internal var internal_modelTreeListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>? = null")
     }
 
-    pr.println("override var path_cache : String? = " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL")
+    pr.println("override var path_cache : String? = null")
 
     generateDeleteMethod(pr, cls, ctx, pack)
     // Getters and Setters Generation
@@ -355,26 +355,27 @@ generateDiffMethod(pr, cls, ctx)
                   pr.println("):Unit{")
                 }
 
-                var currentT = t._2.size()
-                t._2.foreach {
-                  superTrait =>
-                    currentT = currentT - 1
-                    if (currentT == 0) {
-                      pr.print("return ")
-                    }
-                    pr.print("super<" + superTrait + ">." + op.getName + "(")
-                    var isFirst = true
-                    op.getEParameters.foreach {
-                      param =>
-                        if (!isFirst) {
-                          pr.println(",")
-                        }
-                        pr.print(param.getName + "P")
-                        isFirst = false
-                    }
-                    pr.println(")")
+                if(!ctx.getJS()){
+                  var currentT = t._2.size()
+                  t._2.foreach {
+                    superTrait =>
+                      currentT = currentT - 1
+                      if (currentT == 0) {
+                        pr.print("return ")
+                      }
+                      pr.print("super<" + superTrait + ">." + op.getName + "(")
+                      var isFirst = true
+                      op.getEParameters.foreach {
+                        param =>
+                          if (!isFirst) {
+                            pr.println(",")
+                          }
+                          pr.print(param.getName + "P")
+                          isFirst = false
+                      }
+                      pr.println(")")
+                  }
                 }
-
 
                 pr.println("}")
 

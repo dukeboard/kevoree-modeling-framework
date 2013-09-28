@@ -59,6 +59,7 @@ import org.jetbrains.jet.cli.js.K2JSCompiler;
 import org.jetbrains.jet.cli.js.K2JSCompilerArguments;
 import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
+import org.jetbrains.jet.lexer.JetLexer;
 import org.jetbrains.k2js.config.EcmaVersion;
 import org.jetbrains.k2js.config.MetaInfServices;
 import org.kevoree.modeling.aspect.*;
@@ -252,6 +253,10 @@ public class GenModelPlugin extends AbstractMojo {
         if (clearOutput) {
             deleteDirectory(output);
         }
+
+
+        //JetLexer jetLexer = new JetLexer();
+
 
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
         List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
