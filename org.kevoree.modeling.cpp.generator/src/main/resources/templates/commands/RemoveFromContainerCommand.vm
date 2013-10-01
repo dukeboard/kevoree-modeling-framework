@@ -1,0 +1,9 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+package ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container
+
+class RemoveFromContainerCommand(val target : org.kevoree.modeling.api.KMFContainer, val mutatorType : Int, val refName : String, val element : Any?) {
+    fun run() {
+        target.reflexiveMutator(mutatorType,refName, element,true,true)
+    }
+}

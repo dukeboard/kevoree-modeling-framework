@@ -1,0 +1,21 @@
+#* @vtlvariable name="packageName" type="java.lang.String" *#
+#* @vtlvariable name="potentialRoots" type="java.util.ArrayList<org.eclipse.emf.ecore.EClassifier>" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="packages" type="java.util.Collection<java.lang.String>" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+
+package ${packageName}.cloner
+
+class DefaultModelCloner() : org.kevoree.modeling.api.ModelCloner {
+
+override fun createContext(): MutableMap<org.kevoree.modeling.api.KMFContainer, org.kevoree.modeling.api.KMFContainer> {
+        #if($ctx.getJS())
+        return java.util.HashMap<org.kevoree.modeling.api.KMFContainer,org.kevoree.modeling.api.KMFContainer>()
+        #else
+        return java.util.IdentityHashMap<org.kevoree.modeling.api.KMFContainer,org.kevoree.modeling.api.KMFContainer>()
+        #end
+    }
+
+    override var mainFactory : org.kevoree.modeling.api.KMFFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
+
+}

@@ -254,16 +254,10 @@ public class GenModelPlugin extends AbstractMojo {
             deleteDirectory(output);
         }
 
-        KotlinLexerModule analyzer = new KotlinLexerModule();
-        if (sourceFile.isDirectory() && sourceFile.exists()) {
-            try {
-                analyzer.analyze(sourceFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
-        /*
+        //JetLexer jetLexer = new JetLexer();
+
+
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
         List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
 
@@ -393,16 +387,15 @@ public class GenModelPlugin extends AbstractMojo {
                 }
             }
         }
-        */
 
         System.out.println("Collected Aspects : ");
-        for (AspectClass aspect : analyzer.cacheAspects.values()) {
+        for (AspectClass aspect : cacheAspects.values()) {
             System.out.println(aspect.toString());
         }
         GenerationContext ctx = new GenerationContext();
         ctx.setRootSrcDirectory(sourceFile);
-        ctx.aspects_$eq(analyzer.cacheAspects);
-        ctx.newMetaClasses_$eq(analyzer.newMetaClass);
+        ctx.aspects_$eq(cacheAspects);
+        ctx.newMetaClasses_$eq(newMetaClass);
         try {
             for (String path : project.getCompileClasspathElements()) {
                 if (path.contains("org.kevoree.modeling.microframework")) {
@@ -410,7 +403,7 @@ public class GenModelPlugin extends AbstractMojo {
                 }
             }
         } catch (DependencyResolutionRequiredException e) {
-            e.printStackTrace();
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
         ctx.setPackagePrefix(scala.Option.apply(packagePrefix));

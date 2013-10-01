@@ -1,0 +1,56 @@
+#* @vtlvariable name="packElem" type="java.lang.String" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+
+package ${packElem}.util;
+
+#set($mutableOrNot="Mutable")
+
+public class DeepIterator(val root : ${ctx.getKevoreeContainer().get()}) : ${mutableOrNot}Iterator<${ctx.getKevoreeContainer().get()}> {
+
+    private var currentObjSubIt : Iterator<${ctx.getKevoreeContainer().get()}>? = null;
+    private var currentObj : ${ctx.getKevoreeContainer().get()}?  = null;
+    private var rootElems : Iterator<${ctx.getKevoreeContainer().get()}> = root.containedElements().iterator()
+   // private var rootElems : List<Any> = root.containedElementsList()
+   // private var rootElemsIndice = 0
+
+    override fun hasNext() : Boolean {
+        /* case 1..1 dep */
+        if(currentObj != null){return true;}
+        if (currentObjSubIt != null && currentObjSubIt!!.hasNext()) {return true;}
+        //case next step root low level
+        //if(rootElemsIndice < rootElems.size()){
+        if(rootElems.hasNext()){
+            currentObj = rootElems.next();
+            //currentObj = rootElems.get(rootElemsIndice) as ${ctx.getKevoreeContainer().get()}?;
+            //rootElemsIndice = rootElemsIndice + 1;
+            currentObjSubIt = null;
+        } else {
+            return false
+        }
+        return hasNext();
+    }
+
+    override fun next() : ${ctx.getKevoreeContainer().get()} {
+        if(hasNext()){
+            if(currentObj != null){
+                var result : ${ctx.getKevoreeContainer().get()} = currentObj!!
+                currentObj = null;
+                currentObjSubIt = DeepIterator(result) //go down
+                return result;
+            } else {
+                if (currentObjSubIt != null && currentObjSubIt!!.hasNext()) {
+                    return currentObjSubIt!!.next();
+                } else {
+                    throw Exception();
+                }
+            }
+        } else {
+            throw Exception();
+        }
+    }
+
+#if(!$ctx.jS)override#end public fun remove() {
+        throw java.lang.UnsupportedOperationException();
+}
+
+}

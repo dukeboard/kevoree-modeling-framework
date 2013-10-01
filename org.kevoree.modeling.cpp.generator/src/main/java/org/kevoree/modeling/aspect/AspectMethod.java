@@ -17,12 +17,6 @@ public class AspectMethod {
 
     public String returnType;
 
-    public Integer startOffset = -1;
-
-    public Integer endOffset = -1;
-
-    public Boolean privateMethod = false;
-
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -36,8 +30,8 @@ public class AspectMethod {
             isFirst = false;
         }
         buffer.append(")");
-        if (returnType != null) {
-            buffer.append(":" + returnType);
+        if(returnType != null){
+            buffer.append(":"+returnType);
         }
         return buffer.toString();
     }

@@ -1,8 +1,5 @@
 package org.kevoree.modeling.aspect;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +19,10 @@ public class AspectClass {
 
     public List<AspectMethod> methods = new ArrayList<AspectMethod>();
 
-    public File from = null;
-
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Aspect " + packageName + "." + name + " for " + aspectedClass + " [");
+        buffer.append("Aspect " + packageName + "." + name +" for "+ aspectedClass + " [");
         boolean isFirst = true;
         for (AspectMethod me : methods) {
             if (!isFirst) {
@@ -39,16 +34,5 @@ public class AspectClass {
         buffer.append("]");
         return buffer.toString();
     }
-
-    public String getContent(AspectMethod method) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(from.getAbsolutePath(), "r");
-        raf.seek(method.startOffset);
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < (method.endOffset - method.startOffset); i++) {
-            buffer.append((char) raf.read());
-        }
-        return buffer.toString();
-    }
-
 
 }

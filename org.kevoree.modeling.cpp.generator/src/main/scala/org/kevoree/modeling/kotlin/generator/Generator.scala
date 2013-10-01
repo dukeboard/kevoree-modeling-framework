@@ -210,7 +210,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                   //aspect match
                   aspect.methods.foreach {
                     method =>
-                      operationList.find(op => isMethodEquel(op, method, ctx) && !method.privateMethod) match {
+                      operationList.find(op => isMethodEquel(op, method, ctx)) match {
                         case Some(foundOp) => {
                           operationList.remove(foundOp)
                         }
@@ -332,7 +332,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                       }
                       isFirst = false
                   }
-                  if (operation.getEType != null){
+                  if (operation.getEType != null) {
                     if (operation.getEType.isInstanceOf[EDataType]) {
                       var operationReturnType = ProcessorHelper.convertType(operation.getEType.getName)
                       if (operationReturnType.startsWith("List") && !ctx.getJS()) {

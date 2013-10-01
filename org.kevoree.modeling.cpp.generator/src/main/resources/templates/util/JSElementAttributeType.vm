@@ -1,0 +1,11 @@
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+package ${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util;
+
+object ElementAttributeType {
+
+public val ATTRIBUTE : Int = 0;
+public val REFERENCE : Int = 1;
+public val CONTAINMENT : Int = 2;
+
+}
