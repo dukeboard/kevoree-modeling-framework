@@ -407,7 +407,10 @@ generateDiffMethod(pr, cls, ctx)
                       if (currentT == 0) {
                         pr.println(aspect.getContent(method))
                       } else {
-                        pr.println(aspect.getContent(method).replace("return", ""))
+                        val content = aspect.getContent(method).trim
+                        if(!content.startsWith("throw ")){
+                          pr.println(content.replace("return", ""))
+                        }
                       }
                   }
                 }
