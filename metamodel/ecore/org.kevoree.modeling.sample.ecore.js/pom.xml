@@ -50,7 +50,6 @@
                             <packagePrefix>kmf</packagePrefix>
                             <clearOutput>false</clearOutput>
                             <js>true</js>
-                            <json>true</json>
                         </configuration>
                     </execution>
                 </executions>

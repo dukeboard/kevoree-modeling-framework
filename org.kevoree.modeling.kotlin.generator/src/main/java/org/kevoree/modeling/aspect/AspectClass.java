@@ -24,6 +24,8 @@ public class AspectClass {
 
     public File from = null;
 
+    public List<String> imports = new ArrayList<String>();
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();

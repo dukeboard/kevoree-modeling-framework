@@ -228,19 +228,39 @@ trait ClassGenerator extends ClonerGenerator {
     val pr = new PrintWriter(localFile, "utf-8")
     val pack = ProcessorHelper.fqn(ctx, packElement)
     pr.println("package " + pack + ".impl")
+
     pr.println()
+
+    val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx, v, cls))
+    var aspectsName = List[String]()
+    //if (!ctx.getJS()) {
+      aspects.foreach {
+        a =>
+          aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
+      }
+    /*} else {
+      aspects.foreach {
+        a =>
+          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i!= "org.kevoree.modeling.api.metaclass").foreach {
+            i =>
+              pr.println("import " + i + ";")
+          }
+      }
+    }
+     */
+
+    aspects.foreach {
+      a =>
+        pr.println("import "+a.packageName+".*")
+    }
+
+
     pr.println(generateHeader(packElement))
     //case class name
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
     pr.print("class " + cls.getName + "Impl")
 
-    // val aspects = ctx.aspects.values().filter(v => v.aspectedClass == cls.getName || v.aspectedClass == pack + "." + cls.getName)
-    val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx, v, cls))
-    var aspectsName = List[String]()
-    aspects.foreach {
-      a =>
-        aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
-    }
+
     val resultAspectName = if (!aspectsName.isEmpty) {
       "," + aspectsName.mkString(",")
     } else {
@@ -355,7 +375,7 @@ generateDiffMethod(pr, cls, ctx)
                   pr.println("):Unit{")
                 }
 
-                if(!ctx.getJS()){
+                if (!ctx.getJS()) {
                   var currentT = t._2.size()
                   t._2.foreach {
                     superTrait =>
@@ -375,8 +395,22 @@ generateDiffMethod(pr, cls, ctx)
                       }
                       pr.println(")")
                   }
-                }
+                } else {
+                  //JS generate plain method code inside method body
 
+                  var currentT = t._2.size()
+                  t._2.foreach {
+                    superTrait =>
+                      currentT = currentT - 1
+                      val aspect = aspects.find(a => a.packageName + "." + a.name == superTrait).get
+                      val method = aspect.methods.find(m => m.name == op.getName).get
+                      if (currentT == 0) {
+                        pr.println(aspect.getContent(method))
+                      } else {
+                        pr.println(aspect.getContent(method).replace("return", ""))
+                      }
+                  }
+                }
                 pr.println("}")
 
               }

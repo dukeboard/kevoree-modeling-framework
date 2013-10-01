@@ -96,7 +96,7 @@ class ProcessorHelperClass {
       case "byte[]" => "Array<Byte>"
       case "char" | "Char" | "java.lang.Character" => "Char"
       case "java.math.BigInteger" => "java.math.BigInteger"
-      case "java.lang.Class" | "EJavaClass" => "Class<out jet.Any?>"
+      case "java.lang.Class" | "EJavaClass" => "Any"
       case "java.util.Map" => "Map<out jet.Any,out jet.Any>"
       case _ => theType
      // case _ => /*System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'");*/ "Any"
