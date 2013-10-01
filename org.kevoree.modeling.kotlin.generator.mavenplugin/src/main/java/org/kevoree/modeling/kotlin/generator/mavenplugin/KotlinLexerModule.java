@@ -40,7 +40,7 @@ public class KotlinLexerModule {
             }
         }
         for (NewMetaClassCreation key : analyzer.newMetaClass) {
-            System.out.println("MetaClass "+key.packageName+"."+key.name+"-"+key.parentName);
+            System.out.println("MetaClass " + key.packageName + "." + key.name + "-" + key.parentName);
         }
     }
 
@@ -55,33 +55,44 @@ public class KotlinLexerModule {
             collectFiles(sourceFile, sourceKotlinFileList, ".kt");
         }
         for (File currentFile : sourceKotlinFileList) {
-            System.err.println(currentFile.getAbsolutePath());
+
+            List<String> imports = new ArrayList<String>();
 
             JetLexer baseLexer = new JetLexer();
             baseLexer.start(fromFile(currentFile));
             FlexLexer lexer = baseLexer.getFlex();
             IElementType token = lexer.advance();
             while (token != null) {
-                if (token.getIndex() == JetTokens.PACKAGE_KEYWORD.getIndex()) {
-                    baseLexer.getTokenText();
-                    token = lexer.advance();
-                    StringBuffer packageName = new StringBuffer();
+                if (token.getIndex() == JetTokens.IMPORT_KEYWORD.getIndex() || (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("import"))) {
+                    token = readUntil(baseLexer, JetTokens.IDENTIFIER.getIndex());
+                    StringBuffer name = new StringBuffer();
                     while (token.getIndex() == JetTokens.IDENTIFIER.getIndex() || token.getIndex() == JetTokens.DOT.getIndex()) {
-                        packageName.append(baseLexer.getTokenText());
-                        token = baseLexer.getFlex().advance();
+                        name.append(baseLexer.getTokenText());
+                        token = lexer.advance();
                     }
-                    currentPackageName = packageName.toString().trim();
+                    imports.add(name.toString());
                 } else {
-                    if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("metaclass")) {
-                        token = readBlank(baseLexer);
-                        if (token.getIndex() == JetTokens.LPAR.getIndex() && baseLexer.getTokenText().equals("(")) {
-                            readMetaClassUntilOpenDeclaration(baseLexer, currentFile);
+                    if (token.getIndex() == JetTokens.PACKAGE_KEYWORD.getIndex()) {
+                        baseLexer.getTokenText();
+                        token = lexer.advance();
+                        StringBuffer packageName = new StringBuffer();
+                        while (token.getIndex() == JetTokens.IDENTIFIER.getIndex() || token.getIndex() == JetTokens.DOT.getIndex()) {
+                            packageName.append(baseLexer.getTokenText());
+                            token = baseLexer.getFlex().advance();
                         }
+                        currentPackageName = packageName.toString().trim();
                     } else {
-                        if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("aspect")) {
+                        if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("metaclass")) {
                             token = readBlank(baseLexer);
-                            if (token.getIndex() == JetTokens.TRAIT_KEYWORD.getIndex()) {
-                                readAspectClassUntilOpenDeclaration(baseLexer, currentFile);
+                            if (token.getIndex() == JetTokens.LPAR.getIndex() && baseLexer.getTokenText().equals("(")) {
+                                readMetaClassUntilOpenDeclaration(baseLexer, currentFile, imports);
+                            }
+                        } else {
+                            if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("aspect")) {
+                                token = readBlank(baseLexer);
+                                if (token.getIndex() == JetTokens.TRAIT_KEYWORD.getIndex()) {
+                                    readAspectClassUntilOpenDeclaration(baseLexer, currentFile, imports);
+                                }
                             }
                         }
                     }
@@ -103,12 +114,14 @@ public class KotlinLexerModule {
     }
 
 
-    public void readAspectClassUntilOpenDeclaration(JetLexer lexer, File from) throws IOException {
+    public void readAspectClassUntilOpenDeclaration(JetLexer lexer, File from, List<String> imports) throws IOException {
         readUntil(lexer, JetTokens.IDENTIFIER.getIndex());
         String aspectName = lexer.getTokenText();
         AspectClass aspectClass = new AspectClass();
         aspectClass.name = aspectName;
         aspectClass.from = from;
+        aspectClass.imports = imports;
+
         aspectClass.packageName = currentPackageName;
         readUntil(lexer, JetTokens.COLON.getIndex());
         IElementType token = lexer.getFlex().advance();
@@ -142,7 +155,7 @@ public class KotlinLexerModule {
             }
             if (token.getIndex() == JetTokens.CLASS_KEYWORD.getIndex()) {
                 //ignore nested class
-                readUntil(lexer,JetTokens.LBRACE.getIndex());
+                readUntil(lexer, JetTokens.LBRACE.getIndex());
                 int nestedDeep = 0;
                 token = lexer.getFlex().advance();
                 while (!(token.getIndex() == JetTokens.RBRACE.getIndex() && nestedDeep == 0)) {
@@ -199,7 +212,7 @@ public class KotlinLexerModule {
                 token = lexer.getFlex().advance();
             }
             param.name = paramName;
-            if(typeDef.length() > 0){
+            if (typeDef.length() > 0) {
                 param.type = typeDef.toString().trim();
             }
             method.params.add(param);
@@ -244,7 +257,7 @@ public class KotlinLexerModule {
     }
 
 
-    public void readMetaClassUntilOpenDeclaration(JetLexer lexer, File from) throws IOException {
+    public void readMetaClassUntilOpenDeclaration(JetLexer lexer, File from, List<String> imports) throws IOException {
 
         readUntil(lexer, JetTokens.REGULAR_STRING_PART.getIndex());
         String newMetaClassName = lexer.getTokenText();
@@ -278,6 +291,7 @@ public class KotlinLexerModule {
         currentAspect.packageName = currentPackageName;
         currentAspect.aspectedClass = newMetaClassName;
         currentAspect.from = from;
+        currentAspect.imports = imports;
         token = lexer.getFlex().advance(); //read {
         int deep = 0;
         Boolean isPrivate = false;
@@ -307,7 +321,7 @@ public class KotlinLexerModule {
             }
             if (token.getIndex() == JetTokens.CLASS_KEYWORD.getIndex()) {
                 //ignore nested class
-                readUntil(lexer,JetTokens.LBRACE.getIndex());
+                readUntil(lexer, JetTokens.LBRACE.getIndex());
                 int nestedDeep = 0;
                 token = lexer.getFlex().advance();
                 while (!(token.getIndex() == JetTokens.RBRACE.getIndex() && nestedDeep == 0)) {

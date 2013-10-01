@@ -7,7 +7,7 @@ public aspect trait GeneratedAspect_EAttribute : kmf.ecore.EAttribute {
 	override fun getFeatureID() : Int {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getContainerClass() : Class<out jet.Any?> {
+	override fun getContainerClass() : Any {
 		throw Exception("Not implemented yet !");
 	}
 }

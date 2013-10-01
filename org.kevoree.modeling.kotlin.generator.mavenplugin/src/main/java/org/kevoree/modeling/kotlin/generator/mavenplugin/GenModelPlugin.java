@@ -49,32 +49,27 @@ import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.jetbrains.jet.cli.common.CLICompiler;
 import org.jetbrains.jet.cli.common.ExitCode;
 import org.jetbrains.jet.cli.js.K2JSCompiler;
 import org.jetbrains.jet.cli.js.K2JSCompilerArguments;
 import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
-import org.jetbrains.jet.lexer.JetLexer;
 import org.jetbrains.k2js.config.EcmaVersion;
 import org.jetbrains.k2js.config.MetaInfServices;
-import org.kevoree.modeling.aspect.*;
+import org.kevoree.modeling.aspect.AspectClass;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
-import javax.tools.*;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
+import javax.tools.ToolProvider;
 import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author <a href="mailto:ffouquet@irisa.fr">Fouquet François</a>
@@ -267,11 +262,7 @@ public class GenModelPlugin extends AbstractMojo {
         HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
         List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
 
-        List<File> sourceKotlinFileList = new ArrayList<File>();
 
-        if (sourceFile.isDirectory() && sourceFile.exists()) {
-            collectFiles(sourceFile, sourceKotlinFileList, ".kt");
-        }
 
         Pattern metaAspect = Pattern.compile(".*metaclass[(]\"([a-zA-Z_]*)\"[)]\\s*trait\\s*([a-zA-Z_]*)(\\s*:\\s*[.a-zA-Z_]*)?.*");
         Pattern p = Pattern.compile(".*aspect\\s*trait\\s*([a-zA-Z_]*)\\s*:\\s*([.a-zA-Z_]*).*");
@@ -361,6 +352,16 @@ public class GenModelPlugin extends AbstractMojo {
             }
 
 
+
+        }
+        */
+
+        List<File> sourceKotlinFileList = new ArrayList<File>();
+        if (sourceFile.isDirectory() && sourceFile.exists()) {
+            collectFiles(sourceFile, sourceKotlinFileList, ".kt");
+        }
+        for (File kotlinFile : sourceKotlinFileList) {
+
             if (js) {
                 //copy file to util
                 if (!outputUtil.exists()) {
@@ -370,30 +371,28 @@ public class GenModelPlugin extends AbstractMojo {
                 File newFileTarget = new File(outputUtil + File.separator + relativeURI);
                 newFileTarget.getParentFile().mkdirs();
                 try {
-                    if (cacheAspects == null) {
-                        Files.copy(kotlinFile, newFileTarget);
-                    } else {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(newFileTarget));
-                        br = new BufferedReader(new FileReader(kotlinFile));
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            writer.write(line
-                                    .replaceAll("(metaclass.*trait)", "trait")
-                                    .replace("aspect trait", "trait")
-                                    .replace("import org.kevoree.modeling.api.aspect;", "")
-                                    .replace("import org.kevoree.modeling.api.aspect", "")
-                                    .replace("import org.kevoree.modeling.api.metaclass;", "")
-                                    .replace("import org.kevoree.modeling.api.metaclass", ""));
-                            writer.write("\n");
-                        }
-                        writer.close();
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(newFileTarget));
+                    BufferedReader br = new BufferedReader(new FileReader(kotlinFile));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        writer.write(line
+                                .replaceAll("(metaclass.*trait)", "trait")
+                                .replace("aspect trait", "trait")
+                                .replace("import org.kevoree.modeling.api.aspect;", "")
+                                .replace("import org.kevoree.modeling.api.aspect", "")
+                                .replace("import org.kevoree.modeling.api.metaclass;", "")
+                                .replace("import org.kevoree.modeling.api.metaclass", ""));
+                        writer.write("\n");
                     }
+                    writer.close();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
         }
-        */
+
 
         System.out.println("Collected Aspects : ");
         for (AspectClass aspect : analyzer.cacheAspects.values()) {
@@ -461,7 +460,7 @@ public class GenModelPlugin extends AbstractMojo {
             }
             List<File> sourceFileList = new ArrayList<File>();
             collectFiles(ctx.getRootGenerationDirectory(), sourceFileList, ".java");
-
+             /*
             try {
                 File localFileDir = new File(outputUtil + File.separator + "org" + File.separator + "jetbrains" + File.separator + "annotations");
                 localFileDir.mkdirs();
@@ -480,7 +479,8 @@ public class GenModelPlugin extends AbstractMojo {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+              */
+            /*
             File microfxlpath = new File(ctx.getRootGenerationDirectory().getAbsolutePath() + File.separator + "org" + File.separator + "kevoree" + File.separator + "modeling" + File.separator + "api");
             if (microfxlpath.exists()) {
 
@@ -521,7 +521,8 @@ public class GenModelPlugin extends AbstractMojo {
                 }
 
             }
-
+            */
+            /*
             List<String> optionList = new ArrayList<String>();
             try {
                 StringBuffer cpath = new StringBuffer();
@@ -566,11 +567,8 @@ public class GenModelPlugin extends AbstractMojo {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
             System.out.println("Java API compilation : " + result);
-
-            //TODO delete Jetbrains NotNull class file
+             */
 
         }
 
