@@ -296,7 +296,7 @@ class GenerationContext {
     val packages = new util.ArrayList[EPackage]()
     metamodel.getAllContents.foreach {
       content =>
-        if (content.isInstanceOf[EPackage]) {
+        if (content.isInstanceOf[EPackage] && content.asInstanceOf[EPackage].getESuperPackage == null) { // Root package
           packages.add(content.asInstanceOf[EPackage])
         }
     }
@@ -305,9 +305,9 @@ class GenerationContext {
       basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage()
       basePackageForUtilitiesGeneration.setName("kmf")
       if (getPackagePrefix.isDefined) {
-        baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator))
+        baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator) + File.separator + basePackageForUtilitiesGeneration.getName)
       } else {
-        baseLocationForUtilitiesGeneration = getRootGenerationDirectory
+        baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + basePackageForUtilitiesGeneration.getName)
       }
 
     } else if (packages.size == 1) {
