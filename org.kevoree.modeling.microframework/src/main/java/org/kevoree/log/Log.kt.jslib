@@ -306,13 +306,25 @@ public object Log {
                 builder.append(writer.toString().trim());*/
                 builder.append(ex.getMessage().toString());
             }
-            print(builder.toString());
+            when (level) {
+                Log.LEVEL_ERROR -> {
+                    js.debug.console.error(error_msg);
+                }
+                Log.LEVEL_WARN -> {
+                    js.debug.console.warn(warn_msg);
+                }
+                Log.LEVEL_INFO -> {
+                    js.debug.console.info(info_msg);
+                }
+                Log.LEVEL_DEBUG -> {
+                    js.debug.console.log(debug_msg);
+                }
+                Log.LEVEL_TRACE -> {
+                    js.debug.console.log(trace_msg);
+                }
+                else -> {
+                }
+            }
         }
 
-        /**
-         * Prints the message to System.out. Called by the default implementation of {@link #log(int, String, Throwable)}.
-         */
-        protected fun print(message:String) {
-            println(message);
-        }
     }
