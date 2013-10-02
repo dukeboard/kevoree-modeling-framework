@@ -22,7 +22,7 @@ package org.kevoree.modeling.kotlin.generator.model
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,8 +31,8 @@ package org.kevoree.modeling.kotlin.generator.model
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 
 import org.eclipse.emf.ecore.{EPackage, EEnum}
@@ -51,16 +51,12 @@ import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper
 trait EnumGenerator {
 
 
-  def generateEnum(ctx : GenerationContext, currentPackageDir: String, packElement: EPackage, en: EEnum) {
+  def generateEnum(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, en: EEnum) {
     var formattedEnumName: String = en.getName.substring(0, 1).toUpperCase
     formattedEnumName += en.getName.substring(1)
 
-    var localFile : File = null;
-    if(ctx.getJS()){
-      localFile = new File(currentPackageDir + "/" + formattedEnumName + ".kt")
-    } else {
-      localFile = new File(currentPackageDir + "/" + formattedEnumName + ".java")
-    }
+    var localFile: File = null;
+    localFile = new File(currentPackageDir + "/" + formattedEnumName + ".kt")
 
     val pr = new PrintWriter(localFile, "utf-8")
 
@@ -74,46 +70,32 @@ trait EnumGenerator {
     pr.println(ProcessorHelper.generateHeader(packElement))
 
     //Class core
-
-    if(ctx.getJS()){
-      pr.println("enum class " + formattedEnumName + " {")
-    } else {
-      pr.println("public enum " + formattedEnumName + " {")
-    }
-
+    pr.println("enum class " + formattedEnumName + " {")
 
     import scala.collection.JavaConversions._
-    var i = 0
     en.getELiterals.foreach {
       enumLit =>
-        if(i!=0){
-          if(!ctx.getJS()){
-             pr.println(",")
-          }
-        }
-
         pr.println(enumLit.getName.toUpperCase)
-        i = i + 1
     }
-pr.println("}")
+    pr.println("}")
 
     pr.flush()
     pr.close()
   }
 
 
-  def generateActionTypeClass(ctx : GenerationContext) {
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ActionType.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+  def generateActionTypeClass(ctx: GenerationContext) {
+    if (!ctx.microframework) {
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ActionType.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    if (!ctx.microframework) {
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
     }
   }
 
-  def generateElementAttributeTypeClass(ctx : GenerationContext) {
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ElementAttributeType.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+  def generateElementAttributeTypeClass(ctx: GenerationContext) {
+    if (!ctx.microframework) {
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ElementAttributeType.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
     }
   }
 
