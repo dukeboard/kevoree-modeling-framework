@@ -40,11 +40,11 @@ public object Log {
     var level = LEVEL_INFO;
         set(newLevel){
               $level = newLevel;
-              ERROR = newLevel <= LEVEL_ERROR;
-              WARN = newLevel <= LEVEL_WARN;
-              INFO = newLevel <= LEVEL_INFO;
-              DEBUG = newLevel <= LEVEL_DEBUG;
-              TRACE = newLevel <= LEVEL_TRACE;
+              _ERROR = newLevel <= LEVEL_ERROR;
+              _WARN = newLevel <= LEVEL_WARN;
+              _INFO = newLevel <= LEVEL_INFO;
+              _DEBUG = newLevel <= LEVEL_DEBUG;
+              _TRACE = newLevel <= LEVEL_TRACE;
         }
 
     private var _ERROR = level <= LEVEL_ERROR;
@@ -58,27 +58,27 @@ public object Log {
     private var _TRACE = level <= LEVEL_TRACE;
 
     fun NONE() {
-        set(LEVEL_NONE);
+        level = LEVEL_NONE;
     }
 
     fun ERROR() {
-        set(LEVEL_ERROR);
+        level = LEVEL_ERROR;
     }
 
     fun WARN() {
-        set(LEVEL_WARN);
+        level = LEVEL_WARN;
     }
 
     fun INFO() {
-        set(LEVEL_INFO);
+        level = LEVEL_INFO;
     }
 
     fun DEBUG() {
-        set(LEVEL_DEBUG);
+        level = LEVEL_DEBUG;
     }
 
     fun TRACE() {
-        set(LEVEL_TRACE);
+        level = LEVEL_TRACE;
     }
 
     var logger = Logger();
@@ -147,12 +147,12 @@ public object Log {
     }
 
     public fun error(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (ERROR) {
+        if (_ERROR) {
             internal_error(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
     public fun error(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (ERROR) {
+        if (_ERROR) {
             internal_error(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
@@ -161,12 +161,12 @@ public object Log {
     }
 
     public fun warn(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (WARN) {
+        if (_WARN) {
             internal_warn(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
     public fun warn(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (WARN) {
+        if (_WARN) {
             internal_warn(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
@@ -176,12 +176,12 @@ public object Log {
 
 
     public fun info(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (INFO) {
+        if (_INFO) {
             internal_info(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
     public fun info(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (INFO) {
+        if (_INFO) {
             internal_info(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
@@ -190,12 +190,12 @@ public object Log {
     }
 
     public fun debug(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (DEBUG) {
+        if (_DEBUG) {
             internal_debug(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
     public fun debug(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (DEBUG) {
+        if (_DEBUG) {
             internal_debug(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
@@ -204,12 +204,12 @@ public object Log {
     }
 
     public fun trace(message:String, ex:Throwable?,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (TRACE) {
+        if (_TRACE) {
             internal_trace(processMessage(message, p1, p2, p3, p4, p5), ex);
         }
     }
     public fun trace(message:String,p1:Any?=null, p2:Any?=null, p3:Any?=null, p4:Any?=null, p5:Any?=null) {
-        if (TRACE) {
+        if (_TRACE) {
             internal_trace(processMessage(message, p1, p2, p3, p4, p5), null);
         }
     }
@@ -220,10 +220,6 @@ public object Log {
 
 }
 
-    /**
-     * Performs the actual logging. Default implementation logs to System.out. Extended and use {@link Log#logger} set to handle
-     * logging differently.
-     */
     public class Logger {
         val firstLogTime = Date().getTime();
         val error_msg = " ERROR: ";
