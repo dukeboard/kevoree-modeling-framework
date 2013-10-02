@@ -103,6 +103,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     val equivalentMap = new java.util.HashMap[String, String]
     equivalentMap.put("List<*>", "MutableList");
     equivalentMap.put("List<Any?>", "MutableList");
+    equivalentMap.put("List<Any?>", "MutableList<Any?>");
     equivalentMap.put("MutableIterator<*>", "MutableIterator");
     equivalentMap.put("MutableIterator<Any?>", "MutableIterator");
     equivalentMap.put("Class<out jet.Any?>", "Class");
