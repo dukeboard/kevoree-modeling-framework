@@ -75,7 +75,7 @@ import java.util.logging.Level;
  * @author <a href="mailto:ffouquet@irisa.fr">Fouquet François</a>
  * @version $Id$
  * @goal generate
- * @phase generate-sources
+ * @phase compile
  * @requiresDependencyResolution compile
  */
 public class GenModelPlugin extends AbstractMojo {

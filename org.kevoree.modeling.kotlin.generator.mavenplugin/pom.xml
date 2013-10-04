@@ -14,11 +14,7 @@
     </parent>
 
     <dependencies>
-        <dependency>
-            <groupId>com.google.javascript</groupId>
-            <artifactId>closure-compiler</artifactId>
-            <version>v20130722</version>
-        </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -61,6 +57,20 @@
             <artifactId>kotlin-js-library</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.javascript</groupId>
+            <artifactId>closure-compiler</artifactId>
+            <version>v20130722</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobufr</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+
+        </dependency>
+
     </dependencies>
 
 
