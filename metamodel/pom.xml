@@ -45,8 +45,7 @@
 		
 		<module>ecore/org.kevoree.modeling.sample.ecore.kt</module>
 		<!--><module>ecore/org.kevoree.modeling.sample.ecore.js</module>-->
-		
-		
+
 	</modules>
 
     <repositories>
