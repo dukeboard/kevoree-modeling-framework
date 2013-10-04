@@ -8,6 +8,7 @@ import java.io.OutputStream
 import java.util.HashMap
 import org.kevoree.modeling.api.ModelSerializer
 import java.io.ByteArrayOutputStream
+import java.util.Date
 
 /**
  * Created with IntelliJ IDEA.
@@ -86,7 +87,12 @@ public open class JSONModelSerializer : ModelSerializer {
             public override fun visit(value: Any?, name: String, parent: KMFContainer) {
                 if(value != null){
                     out.print(",\"" + name + "\":\"")
-                    escapeJson(out,value.toString())
+                    if(value is java.util.Date) {
+                        escapeJson(out,"" + value.getTime())
+                    } else{
+                        escapeJson(out,value.toString())
+                    }
+
                     out.print("\"")
                 }
             }

@@ -39,7 +39,11 @@ class AttributesVisitor(val ostream : java.io.PrintStream) : ModelAttributeVisit
     public override fun visit(value: Any?, name: String, parent: KMFContainer) {
         if(value != null) {
             ostream.print(" "+name+"=\"")
-            escapeXml(ostream, value.toString())
+            if(value is java.util.Date) {
+                escapeXml(ostream, "" + value.getTime())
+            } else {
+                escapeXml(ostream, value.toString())
+            }
             ostream.print("\"")
         }
     }

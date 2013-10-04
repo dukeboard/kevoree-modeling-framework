@@ -62,7 +62,21 @@ trait ClassGenerator extends ClonerGenerator {
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (\"true\" == value || true == value)")
               }
-
+            }
+            case "java.util.Date" => {
+              pr.println("if(value is java.util.Date){")
+              if (ctx.generateEvents) {
+                pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
+              } else {
+                pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+              }
+              pr.println("} else {")
+              if (ctx.generateEvents) {
+                pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
+              } else {
+                pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+              }
+              pr.println("}")
             }
             case _ => {
               if (ctx.generateEvents) {
@@ -101,6 +115,21 @@ trait ClassGenerator extends ClonerGenerator {
               } else {
                 pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
               }
+            }
+            case "java.util.Date" => {
+              pr.println("if(value is java.util.Date){")
+              if (ctx.generateEvents) {
+                pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
+              } else {
+                pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+              }
+              pr.println("} else {")
+              if (ctx.generateEvents) {
+                pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
+              } else {
+                pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+              }
+              pr.println("}")
             }
             case "Any" => {
               if (ctx.generateEvents) {
@@ -234,10 +263,10 @@ trait ClassGenerator extends ClonerGenerator {
     val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx, v, cls))
     var aspectsName = List[String]()
     //if (!ctx.getJS()) {
-      aspects.foreach {
-        a =>
-          aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
-      }
+    aspects.foreach {
+      a =>
+        aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
+    }
     /*} else {
       aspects.foreach {
         a =>
