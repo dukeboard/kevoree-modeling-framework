@@ -1,5 +1,6 @@
 package org.ecore.tester;
 
+
 import kmf.ecore.loader.XMIModelLoader;
 
 /**
@@ -14,7 +15,6 @@ public class Tester {
 
         XMIModelLoader loader = new XMIModelLoader();
         loader.loadModelFromStream(Tester.class.getClassLoader().getResourceAsStream("kevoree.ecore"));
-
 
     }
 

@@ -28,7 +28,7 @@ public class LoadSaveTest {
             System.out.println(tempFile.getAbsolutePath());
             FileOutputStream pr = new FileOutputStream(tempFile);
 
-            serializer.serialize(container,pr);
+            serializer.serializeToStream(container,pr);
             pr.close();
             System.out.println("Model Saved to: " + tempFile.getAbsolutePath());
 
