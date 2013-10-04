@@ -85,7 +85,7 @@ public class GenModelPlugin extends AbstractMojo {
      *
      * @parameter
      */
-    private Boolean ecma5 = false;
+    private Boolean ecma5 = true;
 
     /**
      * Ecore file
@@ -700,36 +700,14 @@ public class GenModelPlugin extends AbstractMojo {
                     mergedStream.flush();
                     mergedStream.close();
 
-
-                    //Cleanup ECMA5 strict mode
-                    File ecm5merged = null;
-                    if (ecma5) {
-                        ecm5merged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged2.js");
-                        FileOutputStream mergedStream2 = new FileOutputStream(ecm5merged);
-                        //kotlin workaround
-                        BufferedReader buffered = new BufferedReader(new FileReader(outputMerged));
-                        String line;
-                        while ((line = buffered.readLine()) != null) {
-                            mergedStream2.write(line.replace("\"use strict\";", "").replace("'use strict';", "").getBytes());
-                            //mergedStream2.write(line.replaceFirst("get_size.*get_size","get_size").getBytes());
-                            mergedStream2.write("\n".getBytes());
-                        }
-                        buffered.close();
-                        mergedStream2.close();
-                    }
-
                     com.google.javascript.jscomp.Compiler.setLoggingLevel(Level.WARNING);
                     com.google.javascript.jscomp.Compiler compiler = new com.google.javascript.jscomp.Compiler();
                     CompilerOptions options = new CompilerOptions();
                     WarningLevel.QUIET.setOptionsForWarningLevel(options);
                     CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
                     options.setCheckUnreachableCode(CheckLevel.OFF);
-                    if (ecma5) {
-                        compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(ecm5merged)), options);
-                    } else {
-                        compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(outputMerged)), options);
-                    }
 
+                    compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(outputMerged)), options);
 
                     File outputMin = new File(outputKotlinJSDir, project.getArtifactId() + ".min.js");
                     FileWriter outputFile = new FileWriter(outputMin);

@@ -6,7 +6,7 @@
 <body>
 <h1>Kotlin Kevoree JS Event tester</h1>
 
-<script src="target/js/kotlin-lib-ecma3.js"></script>
+<script src="target/js/kotlin-lib-ecma5.js"></script>
 <script src="target/js/kotlin-lib.js"></script>
 <script src="target/js/kotlin-maps.js"></script>
 <script type="text/javascript" src="target/js/org.kevoree.modeling.sample.kevoree.event.js.js"></script>
@@ -28,13 +28,13 @@ var model2 = factory.createContainerRoot();
 
 var listener = { elementChanged : function(event){
     switch(event.getType()){
-        case actionTypes.$ADD:
+        case actionTypes.ADD:
               console.log("Add event ! "+event);
               break;
-        case actionTypes.$SET:
+        case actionTypes.SET:
             console.log("Set event ! "+event);
             break;
-        case actionTypes.$RENEW_INDEX:
+        case actionTypes.RENEW_INDEX:
             console.log("RenewIndex event ! "+event);
             break;
     }
@@ -48,13 +48,13 @@ var listener = { elementChanged : function(event){
 model.addModelTreeListener(listener);
 
 var node = factory.createContainerNode();
-node.setName("hello");
+node.name = "hello";
 model.addNodes(node);
 /* Force rename */
-node.setName("helloRename");
+node.name = "helloRename";
 /* Check reindex */
-console.log("model1="+model.findNodesByID("helloRename").getName());
-console.log("model2="+model2.findNodesByID("helloRename").getName());
+console.log("model1="+model.findNodesByID("helloRename").name);
+console.log("model2="+model2.findNodesByID("helloRename").name);
 
 </script>
 
