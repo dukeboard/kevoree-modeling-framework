@@ -77,7 +77,7 @@ class ProcessorHelperClass {
   def convertType(theType: String): String = {
     theType match {
       case "short"|"java.lang.Short" => "Short"
-      case "byte" | "java.lang.Byte" => "Byte"
+      case "byte" | "EByte" |"java.lang.Byte" => "Byte"
       case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"
       case "EString" | "java.lang.String" | "String" => "String"
       case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" | "EInt" => "Int"
