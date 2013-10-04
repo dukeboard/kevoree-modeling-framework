@@ -41,12 +41,12 @@ public open class JSONModelSerializer : ModelSerializer {
 
     override fun serialize(model: KMFContainer): String? {
         val outstream = ByteArrayOutputStream()
-        serialize(model,outstream)
+        serializeToStream(model,outstream)
         outstream.close()
         return outstream.toString()
     }
 
-    override public fun serialize(model: KMFContainer, raw: OutputStream) {
+    override public fun serializeToStream(model: KMFContainer, raw: OutputStream) {
         val out = PrintStream(java.io.BufferedOutputStream(raw), false)
         //visitor for printing reference
         val internalReferenceVisitor = ModelReferenceVisitor(out)

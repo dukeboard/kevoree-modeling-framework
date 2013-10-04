@@ -135,11 +135,11 @@ public open class XMIModelSerializer : org.kevoree.modeling.api.ModelSerializer 
 
     override fun serialize(oMS : org.kevoree.modeling.api.KMFContainer) : String? {
         val oo = java.io.ByteArrayOutputStream()
-        serialize(oMS,oo)
+        serializeToStream(oMS,oo)
         oo.flush()
         return oo.toString()
     }
-    override fun serialize(oMS : org.kevoree.modeling.api.KMFContainer,ostream : java.io.OutputStream) {
+    override fun serializeToStream(oMS : org.kevoree.modeling.api.KMFContainer,ostream : java.io.OutputStream) {
 
         val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream),false)
 

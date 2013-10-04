@@ -24,7 +24,7 @@ var node = factory.createContainerNode();
 node.name  = "hello";
 model.addNodes(node);
 
-saver.serialize_0(model);
+saver.serialize(model);
 
 console.log(model.findNodesByID("hello").name);
 

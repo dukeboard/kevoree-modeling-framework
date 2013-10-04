@@ -118,8 +118,8 @@ public class ClonerTest {
 
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         JSONModelSerializer saverJson = new JSONModelSerializer();
-        saverJson.serialize(modelCloned2, new ByteArrayOutputStream());
-        saver.serialize(modelCloned2, s);
+        saverJson.serializeToStream(modelCloned2, new ByteArrayOutputStream());
+        saver.serializeToStream(modelCloned2, s);
 
         ContainerNode newNode = factory.createContainerNode();
         newNode.setTypeDefinition(modelCloned2.findTypeDefinitionsByID("JavaSENode"));

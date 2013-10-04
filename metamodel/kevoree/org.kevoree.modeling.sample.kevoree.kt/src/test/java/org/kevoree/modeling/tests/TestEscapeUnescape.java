@@ -39,7 +39,7 @@ public class TestEscapeUnescape {
             JSONModelSerializer serializer = new JSONModelSerializer();
             File jsonModel = File.createTempFile("all", ".json");
 			jsonModel.deleteOnExit();
-            serializer.serialize(root, new FileOutputStream(jsonModel));
+            serializer.serializeToStream(root, new FileOutputStream(jsonModel));
 
             JSONModelLoader loader = new JSONModelLoader();
             ContainerRoot loadedModel = (ContainerRoot) loader.loadModelFromStream(new FileInputStream(jsonModel)).get(0);

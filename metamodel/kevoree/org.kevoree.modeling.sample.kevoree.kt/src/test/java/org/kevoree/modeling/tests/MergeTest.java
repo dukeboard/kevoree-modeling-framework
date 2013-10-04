@@ -105,18 +105,18 @@ public class MergeTest {
                         try {
                             mergeSeq.applyOn(fullModel);
                             JSONModelSerializer saver = new JSONModelSerializer();
-                            saver.serialize(clonedModel, new ByteArrayOutputStream());
+                            saver.serializeToStream(clonedModel, new ByteArrayOutputStream());
                         } catch (Exception e) {
                             e.printStackTrace();
                             JSONModelSerializer saver = new JSONModelSerializer();
                             File tempF = File.createTempFile("tempDebug", "tempDebug");
                             FileOutputStream tempout = new FileOutputStream(tempF);
-                            saver.serialize(clonedModel, tempout);
+                            saver.serializeToStream(clonedModel, tempout);
                             tempout.flush();
 
                             File tempF2 = File.createTempFile("tempDebug2", "tempDebug2");
                             FileOutputStream tempout2 = new FileOutputStream(tempF2);
-                            saver.serialize(model, tempout2);
+                            saver.serializeToStream(model, tempout2);
                             tempout2.flush();
 
                             System.out.println("-"+model.findByPath("dataTypes[{Array[Byte]}]"));

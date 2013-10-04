@@ -22,7 +22,7 @@ public class JSONSaverTest {
         KMFContainer model = loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("complexModel.kev")).get(0);
 
         JSONModelSerializer saver = new JSONModelSerializer();
-        saver.serialize(model, System.out);
+        saver.serializeToStream(model, System.out);
 
         KMFContainer typeDef = model.findByID("typeDefinitions", "org.kevoree.library.javase.fileSystem.api.FileService");
         Operation ope = (Operation) typeDef.findByID("operations","getFileContent");

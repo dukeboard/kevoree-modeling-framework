@@ -75,7 +75,7 @@ public class KMFLoadTest {
             FileOutputStream pr = new FileOutputStream(tempFile);
             ModelSerializer ms = new XMIModelSerializer();
 
-            ms.serialize(localModel,pr);
+            ms.serializeToStream(localModel,pr);
             pr.close();
             System.out.println("Model Saved to: " + tempFile.getAbsolutePath());
             tempFile.deleteOnExit();
@@ -101,7 +101,7 @@ public class KMFLoadTest {
             ModelSerializer ms = new XMIModelSerializer();
 
 
-            ms.serialize(localModel,pr);
+            ms.serializeToStream(localModel,pr);
             pr.close();
             System.out.println("Loading saved model " + tempFile.getAbsolutePath());
             ModelLoader loader2 = new XMIModelLoader();
