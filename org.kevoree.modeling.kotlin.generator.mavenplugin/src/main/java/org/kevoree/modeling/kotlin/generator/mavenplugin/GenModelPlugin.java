@@ -137,13 +137,6 @@ public class GenModelPlugin extends AbstractMojo {
     private Boolean js = false;
 
     /**
-     * Generate NoAPI version
-     *
-     * @parameter
-     */
-    private Boolean noapi = false;
-
-    /**
      * Generate JS version
      *
      * @parameter
@@ -247,6 +240,8 @@ public class GenModelPlugin extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         if (clearOutput) {
             deleteDirectory(output);
+            deleteDirectory(outputUtil);
+            deleteDirectory(outputClasses);
         }
 
         KotlinLexerModule analyzer = new KotlinLexerModule();
@@ -715,6 +710,7 @@ public class GenModelPlugin extends AbstractMojo {
                     outputFile.close();
 
                     if (outputUtil.exists()) {
+                        FileUtils.deleteDirectory(output);
                         FileUtils.deleteDirectory(outputUtil);
                     }
 
