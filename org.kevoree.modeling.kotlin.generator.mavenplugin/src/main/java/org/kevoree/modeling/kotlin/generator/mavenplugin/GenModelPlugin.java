@@ -714,6 +714,7 @@ public class GenModelPlugin extends AbstractMojo {
                         FileUtils.deleteDirectory(outputUtil);
                     }
 
+                    FileUtils.copyDirectory(outputKotlinJSDir,outputClasses);
 
                 }
 
