@@ -15,7 +15,7 @@ object AspectMatcher {
 
   def aspectMatcher(ctx: GenerationContext,aspect : AspectClass, eClass : EClass) : Boolean = {
     val localMatch = aspect.aspectedClass == eClass.getName || ProcessorHelper.fqn(ctx, eClass) == aspect.aspectedClass
-    localMatch || eClass.getESuperTypes.exists(superEClass => aspectMatcher(ctx,aspect,superEClass) )
+    localMatch || eClass.getEAllSuperTypes.exists(superEClass => aspectMatcher(ctx,aspect,superEClass) )
   }
 
 }

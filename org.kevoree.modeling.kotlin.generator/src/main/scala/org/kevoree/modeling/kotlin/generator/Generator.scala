@@ -63,7 +63,7 @@ import java.util
  * @param ctx the generation context
  * @param ecoreFile the ecore model that implementation will be generated
  */
-class Generator(ctx: GenerationContext, ecoreFile: File) {
+class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
   preProcess()
 
   def preProcess() {
@@ -85,69 +85,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
     }
   }
 
-
-  def isMethodEquel(eop: EOperation, aop: AspectMethod, ctx: GenerationContext): Boolean = {
-    if (eop.getName != aop.name) {
-      return false
-    }
-    var methodReturnTypeTxt = ""
-    if (eop.getEType != null) {
-      if (eop.getEType.isInstanceOf[EDataType]) {
-        methodReturnTypeTxt = ProcessorHelper.convertType(eop.getEType.getName)
-      } else {
-        methodReturnTypeTxt = ProcessorHelper.fqn(ctx, eop.getEType)
-      }
-    }
-
-    var returnTypeCheck = false
-    val equivalentMap = new java.util.HashMap[String, String]
-    equivalentMap.put("List<*>", "MutableList");
-    equivalentMap.put("List<Any?>", "MutableList");
-    equivalentMap.put("List<Any?>", "MutableList<Any?>");
-    equivalentMap.put("MutableIterator<*>", "MutableIterator");
-    equivalentMap.put("MutableIterator<Any?>", "MutableIterator");
-    equivalentMap.put("Class<out jet.Any?>", "Class");
-    if (equivalentMap.get(methodReturnTypeTxt) == aop.returnType || (eop.getEType != null && eop.getEType.getName == aop.returnType)) {
-      returnTypeCheck = true
-    } else {
-      if (methodReturnTypeTxt == aop.returnType) {
-        returnTypeCheck = true
-      }
-    }
-    if (!returnTypeCheck) {
-      System.err.println(methodReturnTypeTxt + "<->" + aop.returnType);
-      return false
-    }
-    if (eop.getEParameters.size() != aop.params.size()) {
-      //System.out.println(aop.name+"-"+eop.getEParameters.size()+"<?>"+aop.params.size());
-      return false
-    } else {
-      var i = 0;
-      eop.getEParameters.foreach {
-        eparam =>
-          i = i + 1
-          val methodReturnTypeTxt = if (eparam.getEType.isInstanceOf[EDataType]) {
-            ProcessorHelper.convertType(eparam.getEType.getName)
-          } else {
-            ProcessorHelper.fqn(ctx, eparam.getEType)
-          }
-          var returnTypeCheck = false
-          if (equivalentMap.get(methodReturnTypeTxt) == aop.params.get(i - 1).`type` || (eparam.getEType != null && eparam.getEType.getName == aop.params.get(i - 1).`type`)) {
-            returnTypeCheck = true
-          } else {
-            if (methodReturnTypeTxt == aop.params.get(i - 1).`type`) {
-              returnTypeCheck = true
-            }
-          }
-
-          if (!returnTypeCheck) {
-            System.err.println(methodReturnTypeTxt + "<=>" + aop.params.get(i - 1).`type` + "/" + returnTypeCheck)
-            return false
-          }
-      }
-    }
-    return true
-  }
 
 
   /**
@@ -198,12 +135,14 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
 
     }
 
+    mixin(model,ctx)
+
     model.getAllContents.foreach {
       content =>
         content match {
           case eclass: EClass => {
             //Should have aspect covered all method
-            val operationList = new util.ArrayList[EOperation]()
+            val operationList = new util.HashSet[EOperation]()
             operationList.addAll(eclass.getEAllOperations.filter(op => op.getName != "eContainer"))
             ctx.aspects.values().foreach {
               aspect =>
@@ -211,67 +150,16 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
                   //aspect match
                   aspect.methods.foreach {
                     method =>
-                      operationList.find(op => isMethodEquel(op, method, ctx) && !method.privateMethod) match {
+                      operationList.find(op => AspectMethodMatcher.isMethodEquel(op, method, ctx) && !method.privateMethod) match {
                         case Some(foundOp) => {
+                          operationList.toList.foreach{opLoop =>
+                             if(AspectMethodMatcher.isMethodEquel(opLoop, method, ctx)){
+                               operationList.remove(opLoop)
+                             }
+                          }
                           operationList.remove(foundOp)
                         }
                         case None => {
-                          //is it a new method
-                          if (!eclass.getEAllOperations.exists(op => isMethodEquel(op, method, ctx))) {
-
-                            System.err.println("Add aspect Method to Ecore " + method.name + ":" + method.returnType + "/" + aspect.aspectedClass);
-
-                            val newEOperation = EcoreFactory.eINSTANCE.createEOperation();
-                            newEOperation.setName(method.name)
-
-                            model.getAllContents.foreach {
-                              c =>
-                                if (c.isInstanceOf[EClass]) {
-                                  val cc = c.asInstanceOf[EClass]
-                                  if (cc.getName == method.returnType) { //TODO add FQN of class aspect
-                                    newEOperation.setEType(cc)
-                                  }
-                                }
-                            }
-                            if (newEOperation.getEType == null) {
-                              val dataType = EcoreFactory.eINSTANCE.createEDataType();
-                              dataType.setName(method.returnType)
-                              newEOperation.setEType(dataType)
-                            }
-
-                            method.params.foreach {
-                              p =>
-                                val newEParam = EcoreFactory.eINSTANCE.createEParameter();
-                                newEParam.setName(p.name)
-                                model.getAllContents.foreach {
-                                  c =>
-                                    if (c.isInstanceOf[EClass]) {
-                                      val cc = c.asInstanceOf[EClass]
-                                      if (cc.getName == p.`type`) { //TODO add FQN of class aspect
-                                        newEParam.setEType(cc)
-                                      }
-                                    }
-                                }
-                                if (newEParam.getEType == null) {
-                                  val dataTypeParam = EcoreFactory.eINSTANCE.createEDataType();
-                                  dataTypeParam.setName(p.`type`)
-                                  newEParam.setEType(dataTypeParam)
-                                }
-                                newEOperation.getEParameters.add(newEParam)
-                            }
-                            eclass.getEOperations.add(newEOperation)
-
-                          } else {
-                            eclass.getEAllOperations.filter(op => isMethodEquel(op, method, ctx)).foreach {
-                              op =>
-                                if (op.getEContainingClass == eclass) {
-                                  var errMsg = "Duplicated Method In conflicting aspect on " + eclass.getName + "\n";
-                                  errMsg = errMsg + method.toString
-                                  throw new Exception(errMsg)
-                                }
-                            }
-
-                          }
                         }
                       }
                   }
@@ -304,7 +192,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
               newAspectClass.aspectedClass = eclass.getName
               newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
               ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass)
-              eclass.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
+              operationList.filter(op => op.getName != "eContainer").foreach {
                 operation =>
                   writer.write("\toverride fun " + operation.getName + "(")
                   var isFirst = true
@@ -353,19 +241,11 @@ class Generator(ctx: GenerationContext, ecoreFile: File) {
               writer.write("}\n")
               writer.close()
               //create aspect to be able to be included by the factory
-
-
             }
-
           }
           case _ =>
         }
     }
-
-
-
-
-
 
 
     val modelGen = new ModelGenerator(ctx)

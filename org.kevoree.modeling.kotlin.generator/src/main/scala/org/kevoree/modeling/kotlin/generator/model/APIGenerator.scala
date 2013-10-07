@@ -53,10 +53,11 @@ package org.kevoree.modeling.kotlin.generator.model
 
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{AspectMethodMatcher, ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
 import scala.Some
+import java.util
 
 /**
  * Created with IntelliJ IDEA.
@@ -64,7 +65,7 @@ import scala.Some
  * Date: 14/02/13
  * Time: 10:37
  */
-trait APIGenerator extends ClassGenerator {
+trait APIGenerator extends ClassGenerator  {
 
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
@@ -144,42 +145,51 @@ trait APIGenerator extends ClassGenerator {
     }
     /* Then generated user method */
     /* next we generated custom method */
+
+    val alreadyGenerated = new util.ArrayList[EOperation]()
+
     cls.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
       op =>
 
-        if (op.getEContainingClass != cls) {
-          pr.print("override ")
-        }
-        pr.print("fun " + op.getName + "(")
-        var isFirst = true
-        op.getEParameters.foreach {
-          p =>
-            if (!isFirst) {
-              pr.println(",")
-            }
-            val returnTypeP = if (p.getEType.isInstanceOf[EDataType]) {
-              ProcessorHelper.convertType(p.getEType.getName)
+        if(!alreadyGenerated.exists(preOp => preOp.getName == op.getName)){
+          alreadyGenerated.add(op)
+
+          if (op.getEContainingClass != cls) {
+            pr.print("override ")
+          }
+          pr.print("fun " + op.getName + "(")
+          var isFirst = true
+          op.getEParameters.foreach {
+            p =>
+              if (!isFirst) {
+                pr.println(",")
+              }
+              val returnTypeP = if (p.getEType.isInstanceOf[EDataType]) {
+                ProcessorHelper.convertType(p.getEType.getName)
+              } else {
+                ProcessorHelper.fqn(ctx, p.getEType)
+              }
+              pr.print(p.getName() + "P :" + returnTypeP)
+              isFirst = false
+          }
+          if (op.getEType != null) {
+
+            var returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
+              ProcessorHelper.convertType(op.getEType.getName)
             } else {
-              ProcessorHelper.fqn(ctx, p.getEType)
+              ProcessorHelper.fqn(ctx, op.getEType)
             }
-            pr.print(p.getName() + "P :" + returnTypeP)
-            isFirst = false
-        }
-        if (op.getEType != null) {
+            if(returnTypeOP == null || returnTypeOP == "null"){
+              returnTypeOP = "Unit"
+            }
 
-          var returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
-            ProcessorHelper.convertType(op.getEType.getName)
+            pr.println("):" + returnTypeOP + ";")
           } else {
-            ProcessorHelper.fqn(ctx, op.getEType)
+            pr.println("):Unit;")
           }
-          if(returnTypeOP == null || returnTypeOP == "null"){
-            returnTypeOP = "Unit"
-          }
-
-          pr.println("):" + returnTypeOP + ";")
-        } else {
-          pr.println("):Unit;")
         }
+
+
     }
     pr.println("}")
     pr.flush()

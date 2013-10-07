@@ -281,6 +281,13 @@ trait ClassGenerator extends ClonerGenerator {
     aspects.foreach {
       a =>
         pr.println("import "+a.packageName+".*")
+        if(ctx.getJS()){
+          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i!= "org.kevoree.modeling.api.metaclass").foreach {
+            i =>
+              pr.println("import " + i + ";")
+          }
+        }
+
     }
 
 
