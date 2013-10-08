@@ -1,10 +1,8 @@
 package org.kevoree.modeling.kotlin.generator
 
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.{EDataType, EcoreFactory, EOperation, EClass}
+import org.eclipse.emf.ecore.{EcoreFactory, EOperation, EClass}
 import java.util
-import java.io.{FileWriter, File}
-import org.kevoree.modeling.aspect.{AspectParam, AspectMethod, AspectClass}
 import scala.collection.JavaConversions._
 
 /**
@@ -15,7 +13,7 @@ import scala.collection.JavaConversions._
  */
 trait AspectMixin {
 
-  def mixin(model : ResourceSet,ctx : GenerationContext){
+  def mixin(model: ResourceSet, ctx: GenerationContext) {
 
     model.getAllContents.foreach {
       content =>
@@ -32,10 +30,11 @@ trait AspectMixin {
                     method =>
                       operationList.find(op => AspectMethodMatcher.isMethodEquel(op, method, ctx) && !method.privateMethod) match {
                         case Some(foundOp) => {
-                          operationList.toList.foreach{opLoop =>
-                            if(AspectMethodMatcher.isMethodEquel(opLoop, method, ctx)){
-                              operationList.remove(opLoop)
-                            }
+                          operationList.toList.foreach {
+                            opLoop =>
+                              if (AspectMethodMatcher.isMethodEquel(opLoop, method, ctx)) {
+                                operationList.remove(opLoop)
+                              }
                           }
                           operationList.remove(foundOp)
                         }
@@ -52,8 +51,14 @@ trait AspectMixin {
                               c =>
                                 if (c.isInstanceOf[EClass]) {
                                   val cc = c.asInstanceOf[EClass]
-                                  if (cc.getName == method.returnType) { //TODO add FQN of class aspect
+                                  if (cc.getName == method.returnType || (method.returnType != null && cc.getName == method.returnType.replace("?", ""))) {
+                                    //TODO add FQN of class aspect
                                     newEOperation.setEType(cc)
+                                    if (method.returnType.trim.endsWith("?")) {
+                                      newEOperation.setLowerBound(0)
+                                    } else {
+                                      newEOperation.setLowerBound(1)
+                                    }
                                   }
                                 }
                             }
@@ -71,7 +76,8 @@ trait AspectMixin {
                                   c =>
                                     if (c.isInstanceOf[EClass]) {
                                       val cc = c.asInstanceOf[EClass]
-                                      if (cc.getName == p.`type`) { //TODO add FQN of class aspect
+                                      if (cc.getName == p.`type`) {
+                                        //TODO add FQN of class aspect
                                         newEParam.setEType(cc)
                                       }
                                     }

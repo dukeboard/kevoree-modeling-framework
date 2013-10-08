@@ -81,6 +81,14 @@ import java.util.logging.Level;
 public class GenModelPlugin extends AbstractMojo {
 
     /**
+     *
+     * @parameter
+     */
+    private String autoBasePackage = "kmf";
+
+
+
+    /**
      * Generate JS for ECMA5
      *
      * @parameter
@@ -415,6 +423,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setGenerateEvents(events);
         ctx.flyweightFactory_$eq(flyweightFactory);
         ctx.ecma5_$eq(ecma5);
+        ctx.autoBasePackage_$eq(autoBasePackage);
 
 
         Generator gen = new Generator(ctx, ecore);//, getLog());

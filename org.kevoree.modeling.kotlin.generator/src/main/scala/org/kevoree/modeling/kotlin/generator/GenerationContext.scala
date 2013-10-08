@@ -38,6 +38,8 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 
 class GenerationContext {
 
+  var autoBasePackage : String = "kmf"
+
   var ecma5 = false;
 
   var microframework: Boolean = false
@@ -146,12 +148,13 @@ class GenerationContext {
           val resource = rs.createResource(EmfUri.createFileURI(eFile.getCanonicalPath)).asInstanceOf[XMIResource]
           resource.load(null)
           EcoreUtil.resolveAll(resource)
+          rs.getResources.add(resource)
+          EcoreUtil.resolveAll(rs)
           /* select all root */
-          resource.getAllContents.filter(cls => cls.isInstanceOf[EClass]).foreach {
+          rs.getAllContents.filter(cls => cls.isInstanceOf[EClass]).foreach {
             modelElm =>
               checkEID(modelElm.asInstanceOf[EClass])
           }
-          rs.getResources.add(resource)
       }
     } else {
       System.out.println("[INFO] Loading model file " + ecorefile.getAbsolutePath)
@@ -159,13 +162,14 @@ class GenerationContext {
       val resource = rs.createResource(fileUri).asInstanceOf[XMIResource]
       resource.load(null)
       EcoreUtil.resolveAll(resource)
+      rs.getResources.add(resource)
+      EcoreUtil.resolveAll(rs)
       /* select all root */
-      resource.getAllContents.filter(cls => cls.isInstanceOf[EClass]).foreach {
+
+      rs.getAllContents.filter(cls => cls.isInstanceOf[EClass]).foreach {
         modelElm =>
           checkEID(modelElm.asInstanceOf[EClass])
       }
-      rs.getResources.add(resource)
-      EcoreUtil.resolveAll(rs)
     }
     cacheEcore.put(ecorefile,rs)
     rs
@@ -303,7 +307,7 @@ class GenerationContext {
     if (packages.size > 1) {
       // Many packages at the root.
       basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage()
-      basePackageForUtilitiesGeneration.setName("kmf")
+      basePackageForUtilitiesGeneration.setName(autoBasePackage)
       if (getPackagePrefix.isDefined) {
         baseLocationForUtilitiesGeneration = new File(getRootGenerationDirectory.getAbsolutePath + File.separator + getPackagePrefix.get.replace(".", File.separator) + File.separator + basePackageForUtilitiesGeneration.getName)
       } else {

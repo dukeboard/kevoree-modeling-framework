@@ -400,10 +400,14 @@ generateDiffMethod(pr, cls, ctx)
                 }
                 if (op.getEType != null) {
 
-                  val returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
+                  var returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
                     ProcessorHelper.convertType(op.getEType.getName)
                   } else {
                     ProcessorHelper.fqn(ctx, op.getEType)
+                  }
+
+                  if(op.getLowerBound == 0){
+                    returnTypeOP = returnTypeOP +"?"
                   }
 
                   pr.println("):" + returnTypeOP + "{")

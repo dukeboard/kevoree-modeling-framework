@@ -32,7 +32,13 @@ object AspectMethodMatcher {
     equivalentMap.put("MutableIterator<*>", "MutableIterator");
     equivalentMap.put("MutableIterator<Any?>", "MutableIterator");
     equivalentMap.put("Class<out jet.Any?>", "Class");
-    if (equivalentMap.get(methodReturnTypeTxt) == aop.returnType || (eop.getEType != null && eop.getEType.getName == aop.returnType)) {
+    if (
+      equivalentMap.get(methodReturnTypeTxt) == aop.returnType
+        || (eop.getEType != null && eop.getEType.getName == aop.returnType)
+        || (eop.getEType != null && eop.getLowerBound == 0 && eop.getEType.getName+"?" == aop.returnType)
+        || (eop.getEType != null && ProcessorHelper.fqn(eop.getEType) == aop.returnType)
+        || (eop.getEType != null && eop.getLowerBound == 0 && ProcessorHelper.fqn(eop.getEType)+"?" == aop.returnType)
+    ) {
       returnTypeCheck = true
     } else {
       if (methodReturnTypeTxt == aop.returnType) {

@@ -182,6 +182,9 @@ trait APIGenerator extends ClassGenerator  {
             if(returnTypeOP == null || returnTypeOP == "null"){
               returnTypeOP = "Unit"
             }
+            if(op.getLowerBound == 0){
+              returnTypeOP = returnTypeOP +"?"
+            }
 
             pr.println("):" + returnTypeOP + ";")
           } else {
