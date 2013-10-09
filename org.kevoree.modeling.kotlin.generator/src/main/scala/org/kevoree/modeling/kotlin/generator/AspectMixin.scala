@@ -40,11 +40,11 @@ trait AspectMixin {
                         }
                         case None => {
                           //is it a new method
-                          if (!eclass.getEAllOperations.exists(op => AspectMethodMatcher.isMethodEquel(op, method, ctx))) {
+                          if (!method.privateMethod && !eclass.getEAllOperations.exists(op => AspectMethodMatcher.isMethodEquel(op, method, ctx))) {
 
                             val returnT = if(method.returnType!=null){method.returnType}else{"Unit"}
 
-                            System.err.println("Add aspect Method to Ecore " + method.name + ":" + returnT + "/" + aspect.aspectedClass);
+                            System.err.println("Add aspect Method ("+method.privateMethod+") to Ecore " + method.name + ":" + returnT + "/" + aspect.aspectedClass);
 
                             val newEOperation = EcoreFactory.eINSTANCE.createEOperation();
                             newEOperation.setName(method.name)

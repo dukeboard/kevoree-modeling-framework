@@ -30,12 +30,13 @@ public class KotlinLexerModule {
 
     public static void main(String[] args) throws Exception {
         KotlinLexerModule analyzer = new KotlinLexerModule();
-        analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java"));//TODO
+        analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java/smartgrid/fsm/FsmFragmentAspect.kt"));
+        //analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java"));//TODO
         for (String key : analyzer.cacheAspects.keySet()) {
             System.out.println("<<<<< " + key + " >>>>>");
             AspectClass clazz = analyzer.cacheAspects.get(key);
             for (AspectMethod method : clazz.methods) {
-                System.out.println("MET : <<<<< " + method.name + " >>>>>");
+                System.out.println("MET : <<<<< " + method.name + " >>>>> , private : " + (method.privateMethod));
                 System.out.println(clazz.getContent(method));
             }
         }
@@ -53,6 +54,10 @@ public class KotlinLexerModule {
         List<File> sourceKotlinFileList = new ArrayList<File>();
         if (sourceFile.isDirectory() && sourceFile.exists()) {
             collectFiles(sourceFile, sourceKotlinFileList, ".kt");
+        } else {
+            if (sourceFile.isFile() && !sourceFile.isDirectory() && sourceFile.getName().endsWith(".kt")) {
+                sourceKotlinFileList.add(sourceFile);
+            }
         }
         for (File currentFile : sourceKotlinFileList) {
 
@@ -136,7 +141,11 @@ public class KotlinLexerModule {
         int deep = 0;
         Boolean isPrivate = false;
         while (!(token.getIndex() == JetTokens.RBRACE.getIndex() && deep == 0)) {
-            if (token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex() || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
+            if (
+                    (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("private"))
+                            || (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("protected"))
+                            || token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex()
+                            || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
                 isPrivate = true;
             }
             if (token.getIndex() == JetTokens.LBRACE.getIndex()) {
@@ -296,7 +305,11 @@ public class KotlinLexerModule {
         int deep = 0;
         Boolean isPrivate = false;
         while (!(token.getIndex() == JetTokens.RBRACE.getIndex() && deep == 0)) {
-            if (token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex() || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
+            if (
+                    (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("private"))
+                            || (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("protected"))
+                            || token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex()
+                            || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
                 isPrivate = true;
             }
             if (token.getIndex() == JetTokens.LBRACE.getIndex()) {
