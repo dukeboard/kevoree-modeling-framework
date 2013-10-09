@@ -66,6 +66,11 @@ trait AspectMixin {
                               val dataType = EcoreFactory.eINSTANCE.createEDataType();
                               dataType.setName(method.returnType)
                               newEOperation.setEType(dataType)
+                              if (method.returnType!=null && method.returnType.trim.endsWith("?")) {
+                                newEOperation.setLowerBound(0)
+                              } else {
+                                newEOperation.setLowerBound(1)
+                              }
                             }
 
                             method.params.foreach {
