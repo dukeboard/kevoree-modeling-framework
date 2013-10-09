@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class KotlinLexerModule {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         KotlinLexerModule analyzer = new KotlinLexerModule();
         analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java"));//TODO
         for (String key : analyzer.cacheAspects.keySet()) {
