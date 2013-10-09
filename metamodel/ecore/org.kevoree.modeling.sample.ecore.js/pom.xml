@@ -43,7 +43,6 @@
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>kmf</packagePrefix>
-                            <clearOutput>false</clearOutput>
                             <js>true</js>
                         </configuration>
                     </execution>

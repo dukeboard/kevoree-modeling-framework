@@ -35,9 +35,9 @@ object AspectMethodMatcher {
     if (
       equivalentMap.get(methodReturnTypeTxt) == aop.returnType
         || (eop.getEType != null && eop.getEType.getName == aop.returnType)
-        || (eop.getEType != null && eop.getLowerBound == 0 && eop.getEType.getName+"?" == aop.returnType)
-        || (eop.getEType != null && ProcessorHelper.fqn(eop.getEType) == aop.returnType)
-        || (eop.getEType != null && eop.getLowerBound == 0 && ProcessorHelper.fqn(eop.getEType)+"?" == aop.returnType)
+        || (eop.getEType != null && eop.getLowerBound == 0 && (eop.getEType.getName+"?") == aop.returnType)
+        || (eop.getEType != null && ProcessorHelper.fqn(ctx,eop.getEType) == aop.returnType)
+        || (eop.getEType != null && eop.getLowerBound == 0 && (ProcessorHelper.fqn(ctx,eop.getEType)+"?") == aop.returnType)
     ) {
       returnTypeCheck = true
     } else {
@@ -46,7 +46,7 @@ object AspectMethodMatcher {
       }
     }
     if (!returnTypeCheck) {
-      System.err.println(methodReturnTypeTxt + "<->" + aop.returnType);
+      System.err.println(methodReturnTypeTxt + "<->" + aop.returnType+"-"+(eop.getLowerBound == 0)+"-"+(eop.getEType != null && eop.getLowerBound == 0 && (ProcessorHelper.fqn(ctx,eop.getEType)+"?") == aop.returnType)+"-"+(ProcessorHelper.fqn(ctx,eop.getEType)+"?"));
       return false
     }
     if (eop.getEParameters.size() != aop.params.size()) {

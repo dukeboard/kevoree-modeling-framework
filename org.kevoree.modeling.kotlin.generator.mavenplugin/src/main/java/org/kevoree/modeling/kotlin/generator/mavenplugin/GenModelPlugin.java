@@ -127,7 +127,7 @@ public class GenModelPlugin extends AbstractMojo {
      *
      * @parameter
      */
-    private Boolean clearOutput = true;
+   // private Boolean clearOutput = true;
 
     /**
      * Generate also selector
@@ -246,11 +246,12 @@ public class GenModelPlugin extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        if (clearOutput) {
+        //if (clearOutput) {
             deleteDirectory(output);
             deleteDirectory(outputUtil);
             deleteDirectory(outputClasses);
-        }
+            deleteDirectory(outputClasses);
+        //}
 
         KotlinLexerModule analyzer = new KotlinLexerModule();
         if (sourceFile.isDirectory() && sourceFile.exists()) {

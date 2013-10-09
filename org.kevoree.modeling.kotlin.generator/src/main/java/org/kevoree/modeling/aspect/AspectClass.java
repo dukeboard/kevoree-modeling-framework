@@ -42,14 +42,18 @@ public class AspectClass {
         return buffer.toString();
     }
 
-    public String getContent(AspectMethod method) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(from.getAbsolutePath(), "r");
-        raf.seek(method.startOffset);
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < (method.endOffset - method.startOffset); i++) {
-            buffer.append((char) raf.read());
+    public String getContent(AspectMethod method) throws Exception {
+        if(from == null){
+            return "throw Exception(\"not implemented yet!\")";
+        } else {
+            RandomAccessFile raf = new RandomAccessFile(from.getAbsolutePath(), "r");
+            raf.seek(method.startOffset);
+            StringBuffer buffer = new StringBuffer();
+            for (int i = 0; i < (method.endOffset - method.startOffset); i++) {
+                buffer.append((char) raf.read());
+            }
+            return buffer.toString();
         }
-        return buffer.toString();
     }
 
 

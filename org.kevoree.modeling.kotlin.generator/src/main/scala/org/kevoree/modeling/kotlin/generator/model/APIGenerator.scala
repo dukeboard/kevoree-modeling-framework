@@ -53,11 +53,11 @@ package org.kevoree.modeling.kotlin.generator.model
 
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
-import org.kevoree.modeling.kotlin.generator.{AspectMethodMatcher, ProcessorHelper, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
-import scala.Some
 import java.util
+import scala.Some
 
 /**
  * Created with IntelliJ IDEA.
@@ -65,7 +65,7 @@ import java.util
  * Date: 14/02/13
  * Time: 10:37
  */
-trait APIGenerator extends ClassGenerator  {
+trait APIGenerator extends ClassGenerator {
 
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
     val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
@@ -146,12 +146,35 @@ trait APIGenerator extends ClassGenerator  {
     /* Then generated user method */
     /* next we generated custom method */
 
+    def matchEOperation(op1: EOperation, op2: EOperation): Boolean = {
+      if (op1.getName != op2.getName) {
+        return false
+      }
+      op1.getEParameters.foreach {
+        opP =>
+          if (!op2.getEParameters.exists(op2P => {
+            opP.getName == op2P.getName && ProcessorHelper.fqn(opP.getEType) == ProcessorHelper.fqn(op2P.getEType)
+          })) {
+            return false
+          }
+      }
+      op2.getEParameters.foreach {
+        opP =>
+          if (!op1.getEParameters.exists(op2P => {
+            opP.getName == op2P.getName && ProcessorHelper.fqn(opP.getEType) == ProcessorHelper.fqn(op2P.getEType)
+          })) {
+            return false
+          }
+      }
+      true
+    }
+
     val alreadyGenerated = new util.ArrayList[EOperation]()
 
     cls.getEAllOperations.filter(op => op.getName != "eContainer").foreach {
       op =>
 
-        if(!alreadyGenerated.exists(preOp => preOp.getName == op.getName)){
+        if (!alreadyGenerated.exists(preOp => matchEOperation(preOp, op))) {
           alreadyGenerated.add(op)
 
           if (op.getEContainingClass != cls) {
@@ -179,11 +202,11 @@ trait APIGenerator extends ClassGenerator  {
             } else {
               ProcessorHelper.fqn(ctx, op.getEType)
             }
-            if(returnTypeOP == null || returnTypeOP == "null"){
+            if (returnTypeOP == null || returnTypeOP == "null") {
               returnTypeOP = "Unit"
             }
-            if(op.getLowerBound == 0){
-              returnTypeOP = returnTypeOP +"?"
+            if (op.getLowerBound == 0) {
+              returnTypeOP = returnTypeOP + "?"
             }
 
             pr.println("):" + returnTypeOP + ";")
