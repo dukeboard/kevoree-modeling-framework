@@ -326,7 +326,11 @@ class ProcessorHelperClass {
    * @return the Fully Qualified Class name
    */
   def fqn(cls: EClassifier): String = {
-    fqn(cls.getEPackage) + "." + cls.getName
+    if(cls.getEPackage == null){
+      cls.getName
+    } else {
+      fqn(cls.getEPackage) + "." + cls.getName
+    }
   }
 
   /**

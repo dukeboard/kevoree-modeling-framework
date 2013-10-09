@@ -36,7 +36,7 @@ public class AspectMethod {
             isFirst = false;
         }
         buffer.append(")");
-        if (returnType != null) {
+        if (returnType != null && returnType != "null") {
             buffer.append(":" + returnType);
         }
         return buffer.toString();
