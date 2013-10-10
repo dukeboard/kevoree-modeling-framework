@@ -18,7 +18,7 @@ class Event2Trace(val compare: ModelCompare) {
             ActionType.REMOVE -> {
                 result.add(ModelRemoveTrace(event.getSourcePath()!!, event.getElementAttributeName()!!, (event.getValue() as KMFContainer).path()!!));
             }
-            ActionType.REMOVE -> {
+            ActionType.REMOVE_ALL -> {
                 result.add(ModelRemoveAllTrace(event.getSourcePath()!!, event.getElementAttributeName()!!));
             }
             ActionType.ADD -> {
