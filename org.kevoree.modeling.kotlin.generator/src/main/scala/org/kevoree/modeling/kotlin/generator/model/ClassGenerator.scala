@@ -267,17 +267,6 @@ trait ClassGenerator extends ClonerGenerator {
       a =>
         aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
     }
-    /*} else {
-      aspects.foreach {
-        a =>
-          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i!= "org.kevoree.modeling.api.metaclass").foreach {
-            i =>
-              pr.println("import " + i + ";")
-          }
-      }
-    }
-     */
-
     aspects.foreach {
       a =>
         pr.println("import "+a.packageName+".*")
@@ -297,7 +286,7 @@ trait ClassGenerator extends ClonerGenerator {
     pr.print("class " + cls.getName + "Impl")
 
 
-    val resultAspectName = if (!aspectsName.isEmpty) {
+    val resultAspectName = if (!aspectsName.isEmpty && !ctx.newMetaClasses.exists(m => m.packageName+"."+m.name == ProcessorHelper.fqn(ctx,cls))) {
       "," + aspectsName.mkString(",")
     } else {
       ""

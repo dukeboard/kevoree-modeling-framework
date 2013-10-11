@@ -10,6 +10,4 @@ import java.lang.annotation.RetentionPolicy;
  * Time: 13:23
  */
 @Retention(RetentionPolicy.SOURCE)
-public @interface metaclass {
-    String value();
-}
+public @interface meta {}

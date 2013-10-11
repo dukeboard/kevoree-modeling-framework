@@ -30,7 +30,7 @@ public class KotlinLexerModule {
 
     public static void main(String[] args) throws Exception {
         KotlinLexerModule analyzer = new KotlinLexerModule();
-        analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java/smartgrid/fsm/FsmFragmentAspect.kt"));
+        analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java/smartgrid/core/HubAspect.kt"));
         //analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java"));//TODO
         for (String key : analyzer.cacheAspects.keySet()) {
             System.out.println("<<<<< " + key + " >>>>>");
@@ -87,9 +87,9 @@ public class KotlinLexerModule {
                         }
                         currentPackageName = packageName.toString().trim();
                     } else {
-                        if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("metaclass")) {
+                        if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("meta")) {
                             token = readBlank(baseLexer);
-                            if (token.getIndex() == JetTokens.LPAR.getIndex() && baseLexer.getTokenText().equals("(")) {
+                            if (token.getIndex() == JetTokens.TRAIT_KEYWORD.getIndex()) {
                                 readMetaClassUntilOpenDeclaration(baseLexer, currentFile, imports);
                             }
                         } else {
@@ -268,11 +268,9 @@ public class KotlinLexerModule {
 
     public void readMetaClassUntilOpenDeclaration(JetLexer lexer, File from, List<String> imports) throws IOException {
 
-        readUntil(lexer, JetTokens.REGULAR_STRING_PART.getIndex());
-        String newMetaClassName = lexer.getTokenText();
-        readUntil(lexer, JetTokens.TRAIT_KEYWORD.getIndex());
         readUntil(lexer, JetTokens.IDENTIFIER.getIndex());
-        String aspectName = lexer.getTokenText();
+        String newMetaClassName = lexer.getTokenText();
+
         NewMetaClassCreation newMeta = new NewMetaClassCreation();
         newMeta.name = newMetaClassName;
         newMeta.originFile = from;
@@ -296,7 +294,7 @@ public class KotlinLexerModule {
         }
         newMetaClass.add(newMeta);
         AspectClass currentAspect = new AspectClass();
-        currentAspect.name = aspectName;
+        currentAspect.name = newMetaClassName;
         currentAspect.packageName = currentPackageName;
         currentAspect.aspectedClass = newMetaClassName;
         currentAspect.from = from;
