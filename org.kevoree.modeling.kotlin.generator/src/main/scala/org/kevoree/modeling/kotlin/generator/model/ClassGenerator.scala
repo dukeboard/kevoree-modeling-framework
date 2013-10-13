@@ -271,7 +271,7 @@ trait ClassGenerator extends ClonerGenerator {
       a =>
         pr.println("import " + a.packageName + ".*")
         if (ctx.getJS()) {
-          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i != "org.kevoree.modeling.api.metaclass").foreach {
+          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i != "org.kevoree.modeling.api.meta").foreach {
             i =>
               pr.println("import " + i + ";")
           }
@@ -452,7 +452,7 @@ generateDiffMethod(pr, cls, ctx)
           }
       }
     }
-     /*
+
     val hashSetVar = mutable.HashSet[String]()
     aspects.foreach {
       aspect =>
@@ -467,7 +467,7 @@ generateDiffMethod(pr, cls, ctx)
               hashSetVar.add(varD.name)
             }
         }
-    }  */
+    }
 
     pr.println("}")
     pr.flush()

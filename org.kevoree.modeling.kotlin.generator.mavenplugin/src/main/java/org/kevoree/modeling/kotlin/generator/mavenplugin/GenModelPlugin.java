@@ -87,14 +87,6 @@ public class GenModelPlugin extends AbstractMojo {
     private String autoBasePackage = "kmf";
 
 
-
-    /**
-     * Generate JS for ECMA5
-     *
-     * @parameter
-     */
-    private Boolean ecma5 = true;
-
     /**
      * Ecore file
      *
@@ -257,7 +249,7 @@ public class GenModelPlugin extends AbstractMojo {
         if (sourceFile.isDirectory() && sourceFile.exists()) {
             try {
                 analyzer.analyze(sourceFile);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -380,12 +372,12 @@ public class GenModelPlugin extends AbstractMojo {
                     String line;
                     while ((line = br.readLine()) != null) {
                         writer.write(line
-                                .replaceAll("(metaclass.*trait)", "trait")
+                                .replaceAll("(meta.*trait)", "trait")
                                 .replace("aspect trait", "trait")
                                 .replace("import org.kevoree.modeling.api.aspect;", "")
                                 .replace("import org.kevoree.modeling.api.aspect", "")
-                                .replace("import org.kevoree.modeling.api.metaclass;", "")
-                                .replace("import org.kevoree.modeling.api.metaclass", ""));
+                                .replace("import org.kevoree.modeling.api.meta;", "")
+                                .replace("import org.kevoree.modeling.api.meta", ""));
                         writer.write("\n");
                     }
                     writer.close();
@@ -423,7 +415,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
         ctx.flyweightFactory_$eq(flyweightFactory);
-        ctx.ecma5_$eq(ecma5);
+        ctx.ecma5_$eq(true);
         ctx.autoBasePackage_$eq(autoBasePackage);
 
 
@@ -444,6 +436,7 @@ public class GenModelPlugin extends AbstractMojo {
 
         //call Java compiler
         if (!ctx.getJS()) {
+            /*
             javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
             try {
@@ -465,6 +458,8 @@ public class GenModelPlugin extends AbstractMojo {
             }
             List<File> sourceFileList = new ArrayList<File>();
             collectFiles(ctx.getRootGenerationDirectory(), sourceFileList, ".java");
+             */
+
              /*
             try {
                 File localFileDir = new File(outputUtil + File.separator + "org" + File.separator + "jetbrains" + File.separator + "annotations");
@@ -584,6 +579,11 @@ public class GenModelPlugin extends AbstractMojo {
         exclusions.add("KMFContainer.kt");
         exclusions.add("ByteConverter.kt");
 
+        if(ctx.js()){
+            exclusions.add("meta.kt");
+            exclusions.add("aspect.kt");
+        }
+
         try {
             StringBuffer cpath = new StringBuffer();
             boolean firstBUF = true;
@@ -660,9 +660,7 @@ public class GenModelPlugin extends AbstractMojo {
                 args.sourceFiles = sources.toArray(new String[sources.size()]);
                 args.outputFile = outputJS;
                 args.verbose = false;
-                if (ecma5) {
-                    args.target = EcmaVersion.v5.name();
-                }
+                args.target = EcmaVersion.v5.name();
                 e = KotlinCompilerJS.exec(new PrintStream(System.err) {
                     @Override
                     public void println(String x) {
@@ -688,11 +686,11 @@ public class GenModelPlugin extends AbstractMojo {
                     File outputMerged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged.js");
                     FileOutputStream mergedStream = new FileOutputStream(outputMerged);
 
-                    if (ecma5) {
+                   // if (ecma5) {
                         IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
-                    } else {
-                        IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
-                    }
+                   // } else {
+                   //     IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
+                   // }
 
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB), mergedStream);
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);

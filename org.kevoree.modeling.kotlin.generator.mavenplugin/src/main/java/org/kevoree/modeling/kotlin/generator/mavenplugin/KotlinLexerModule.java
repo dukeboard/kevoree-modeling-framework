@@ -156,8 +156,17 @@ public class KotlinLexerModule {
                 //I detect a val
                 isPrivate = false;
             }
+            if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("meta")) {
+                token = readBlank(lexer);
+                if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
+                    aspectClass.vars.add(readVar(lexer,false));
+                    isPrivate = false;
+                } else {
+                    throw new Exception("Format error "+token.getIndex()+"-"+lexer.getTokenText());
+                }
+            }
             if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
-                aspectClass.vars.add(readVar(lexer,isPrivate));
+                aspectClass.vars.add(readVar(lexer,true));
                 isPrivate = false;
             }
             if (token.getIndex() == JetTokens.CLASS_KEYWORD.getIndex()) {
@@ -266,13 +275,15 @@ public class KotlinLexerModule {
     public AspectVar readVar(JetLexer lexer, Boolean isPrivate) throws Exception {
 
         AspectVar varRes = new AspectVar();
-        varRes.isPrivate = isPrivate;
+        //varRes.isPrivate = isPrivate;
+        //kotlin workaround
 
         readUntil(lexer, JetTokens.IDENTIFIER.getIndex());
         varRes.name = lexer.getTokenText();
+        varRes.isPrivate = varRes.name.startsWith("_");
 
 
-        readUntil(lexer, JetTokens.COLON.getIndex());
+                readUntil(lexer, JetTokens.COLON.getIndex());
         IElementType token = lexer.getFlex().advance();
         token = readBlank(lexer);
         StringBuffer typeDef = new StringBuffer();
@@ -357,8 +368,17 @@ public class KotlinLexerModule {
                 //I detect a val
                 isPrivate = false;
             }
+            if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("meta")) {
+                token = readBlank(lexer);
+                if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
+                    currentAspect.vars.add(readVar(lexer,false));
+                    isPrivate = false;
+                } else {
+                    throw new Exception("Format error");
+                }
+            }
             if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
-                currentAspect.vars.add(readVar(lexer,isPrivate));
+                currentAspect.vars.add(readVar(lexer,true));
                 //I detect a var
                 isPrivate = false;
             }
