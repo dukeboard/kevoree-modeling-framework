@@ -26,19 +26,26 @@ public class AspectClass {
 
     public List<String> imports = new ArrayList<String>();
 
+    public List<AspectVar> vars = new ArrayList<AspectVar>();
+
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Aspect " + packageName + "." + name + " for " + aspectedClass + " [");
+        buffer.append("Aspect " + packageName + "." + name + " for " + aspectedClass + " [\n");
         boolean isFirst = true;
         for (AspectMethod me : methods) {
             if (!isFirst) {
                 buffer.append(",");
             }
-            buffer.append(me.toString());
+            buffer.append(me.toString()+"\n");
             isFirst = false;
         }
-        buffer.append("]");
+
+        for (AspectVar me : vars) {
+            buffer.append("var "+me.name+" : "+me.typeName+"\n");
+        }
+        buffer.append("]\n");
         return buffer.toString();
     }
 

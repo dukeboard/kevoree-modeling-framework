@@ -26,6 +26,45 @@ trait AspectMixin {
               aspect =>
                 if (AspectMatcher.aspectMatcher(ctx, aspect, eclass)) {
                   //aspect match
+
+                  aspect.vars.filter(v => !v.isPrivate).foreach { varD =>
+                      if(!eclass.getEAllAttributes.exists(pAtt => pAtt.getName == varD.name)){
+
+                        val newAtt = EcoreFactory.eINSTANCE.createEAttribute()
+                        newAtt.setName(varD.name)
+                        model.getAllContents.foreach {
+                          c =>
+                            if (c.isInstanceOf[EClass]) {
+                              val cc = c.asInstanceOf[EClass]
+                              if (cc.getName == varD.typeName || (varD.typeName != null && cc.getName == varD.typeName.replace("?", ""))) {
+                                //TODO add FQN of class aspect
+                                newAtt.setEType(cc)
+                                if (varD.typeName.trim.endsWith("?")) {
+                                  newAtt.setLowerBound(0)
+                                } else {
+                                  newAtt.setLowerBound(1)
+                                }
+                              }
+                            }
+                        }
+                        if (newAtt.getEType == null) {
+                          val dataType = EcoreFactory.eINSTANCE.createEDataType()
+                          dataType.setName(varD.typeName.replace("?",""))
+                          dataType.setInstanceClassName(varD.typeName.replace("?",""))
+                          //dataType.setInstanceTypeName(varD.typeName)
+
+                          newAtt.setEType(dataType)
+
+                          if (varD.typeName!=null && varD.typeName.trim.endsWith("?")) {
+                            newAtt.setLowerBound(0)
+                          } else {
+                            newAtt.setLowerBound(1)
+                          }
+                        }
+                        eclass.getEStructuralFeatures.add(newAtt)
+                      }
+                  }
+
                   aspect.methods.foreach {
                     method =>
                       operationList.find(op => AspectMethodMatcher.isMethodEquel(op, method, ctx) && !method.privateMethod) match {
@@ -67,6 +106,10 @@ trait AspectMixin {
                             if (newEOperation.getEType == null) {
                               val dataType = EcoreFactory.eINSTANCE.createEDataType();
                               dataType.setName(method.returnType)
+                              dataType.setInstanceClassName(method.returnType)
+                             // dataType.setInstanceTypeName(method.returnType)
+
+
                               newEOperation.setEType(dataType)
                               if (method.returnType!=null && method.returnType.trim.endsWith("?")) {
                                 newEOperation.setLowerBound(0)

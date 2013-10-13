@@ -269,9 +269,9 @@ trait ClassGenerator extends ClonerGenerator {
     }
     aspects.foreach {
       a =>
-        pr.println("import "+a.packageName+".*")
-        if(ctx.getJS()){
-          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i!= "org.kevoree.modeling.api.metaclass").foreach {
+        pr.println("import " + a.packageName + ".*")
+        if (ctx.getJS()) {
+          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i != "org.kevoree.modeling.api.metaclass").foreach {
             i =>
               pr.println("import " + i + ";")
           }
@@ -285,8 +285,7 @@ trait ClassGenerator extends ClonerGenerator {
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
     pr.print("class " + cls.getName + "Impl")
 
-
-    val resultAspectName = if (!aspectsName.isEmpty && !ctx.newMetaClasses.exists(m => m.packageName+"."+m.name == ProcessorHelper.fqn(ctx,cls))) {
+    val resultAspectName = if (!aspectsName.isEmpty && !ctx.newMetaClasses.exists(m => m.packageName + "." + m.name == ProcessorHelper.fqn(ctx, cls))) {
       "," + aspectsName.mkString(",")
     } else {
       ""
@@ -395,8 +394,8 @@ generateDiffMethod(pr, cls, ctx)
                     ProcessorHelper.fqn(ctx, op.getEType)
                   }
 
-                  if(op.getLowerBound == 0){
-                    returnTypeOP = returnTypeOP +"?"
+                  if (op.getLowerBound == 0) {
+                    returnTypeOP = returnTypeOP + "?"
                   }
 
                   pr.println("):" + returnTypeOP + "{")
@@ -437,7 +436,7 @@ generateDiffMethod(pr, cls, ctx)
                         pr.println(aspect.getContent(method))
                       } else {
                         val content = aspect.getContent(method).trim
-                        if(!content.startsWith("throw ")){
+                        if (!content.startsWith("throw ")) {
                           pr.println(content.replace("return", ""))
                         }
                       }
@@ -453,6 +452,23 @@ generateDiffMethod(pr, cls, ctx)
           }
       }
     }
+     /*
+    val hashSetVar = mutable.HashSet[String]()
+    aspects.foreach {
+      aspect =>
+        aspect.vars.foreach {
+          varD =>
+            if (!hashSetVar.contains(varD.name) && varD.isPrivate) {
+              var initString = "null"
+              if(!varD.typeName.trim.endsWith("?")){
+                initString = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants." + varD.typeName.toUpperCase+"_DEFAULTVAL"
+              }
+              pr.println("override var "+varD.name+" : "+varD.typeName+" = "+initString)
+              hashSetVar.add(varD.name)
+            }
+        }
+    }  */
+
     pr.println("}")
     pr.flush()
     pr.close()
