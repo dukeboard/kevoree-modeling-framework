@@ -96,7 +96,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         if(reader.hasNext()) {
             return deserialize(reader)
         } else {
-            println("Loader::Noting in the String !")
+            println("Loader::Nothing in the String !")
             return null
         }
 
@@ -107,7 +107,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         if(reader.hasNext()) {
             return deserialize(reader)
         } else {
-            println("Loader::Noting in the file !")
+            println("Loader::Nothing in the file !")
             return null
         }
     }
@@ -144,17 +144,21 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         //ctx.map.put(xmiAddress.replace(".0",""), modelElem!!)
         //println("Registering " + xmiAddress)
 
+
+
+        /* Preparation of maps */
         if(!attributesHashmap.containsKey(modelElem!!.metaClassName())) {
             modelElem?.visitAttributes(attributeVisitor)
         }
         val elemAttributesMap = attributesHashmap.get(modelElem!!.metaClassName())!!
-
 
         if(!referencesHashmap.containsKey(modelElem!!.metaClassName())) {
             modelElem?.visit(referencesVisitor, false, true, false)
         }
         val elemReferencesMap = referencesHashmap.get(modelElem!!.metaClassName())!!
 
+
+        /* Read attributes and References */
         for(i in 0.rangeTo(ctx.xmiReader!!.getAttributeCount()-1)) {
             val prefix = ctx.xmiReader!!.getAttributePrefix(i)
             if(prefix==null || prefix.equals("")) {
@@ -163,6 +167,17 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                 if( valueAtt != null) {
                     if(elemAttributesMap.containsKey(attrName)) {
                         modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, (unescapeXml(valueAtt)),false,false)
+                        if(attrName.equals("name")){
+
+                            val parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")))
+                            for(entry in ctx.map.entrySet().copyToArray()) {
+                                if(entry.value == parent) {
+                                    ctx.map.put(entry.key + "/" + unescapeXml(valueAtt), modelElem!!)
+                                }
+                            }
+
+
+                        }
                     } else {
                         for(xmiRef in valueAtt.split(" ")) {
                             var adjustedRef = if(xmiRef.startsWith("#")){xmiRef.substring(1)}else{xmiRef}
@@ -273,6 +288,6 @@ public class XMIResolveCommand(val context : LoadingContext, val target : org.ke
                 return
             }
         }
-        throw Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " "+refName+"  on " + target.toString())
+        throw Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " "+refName+"  on " + target.metaClassName() + "(path:" + target.path() + ")")
     }
 }
