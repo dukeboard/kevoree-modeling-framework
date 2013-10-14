@@ -158,8 +158,8 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         for(i in 0.rangeTo(ctx.xmiReader!!.getAttributeCount()-1)) {
             val prefix = ctx.xmiReader!!.getAttributePrefix(i)
             if(prefix==null || prefix.equals("")) {
-                val attrName = ctx.xmiReader!!.getAttributeLocalName(i)
-                val valueAtt = ctx.xmiReader!!.getAttributeValue(i)
+                val attrName = ctx.xmiReader!!.getAttributeLocalName(i).trim()
+                val valueAtt = ctx.xmiReader!!.getAttributeValue(i).trim()
                 if( valueAtt != null) {
                     if(elemAttributesMap.containsKey(attrName)) {
                         modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, (unescapeXml(valueAtt)),false,false)
@@ -261,9 +261,6 @@ public class LoadingContext() {
 
 public class XMIResolveCommand(val context : LoadingContext, val target : org.kevoree.modeling.api.KMFContainer, val mutatorType : Int, val refName : String, val ref : String){
     fun run() {
-
-
-
         var referencedElement = context.map.get(ref)
         if(referencedElement != null) {
             target.reflexiveMutator(mutatorType,refName, referencedElement,true,false)
