@@ -23,6 +23,12 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
     private val attributesHashmap = java.util.HashMap<String, java.util.HashMap<String, Boolean>>()
     private val referencesHashmap = java.util.HashMap<String, java.util.HashMap<String, String>>()
 
+    private var namedElementSupportActivated : Boolean = false
+
+    public fun activateSupportForNamedElements(activate : Boolean){
+        namedElementSupportActivated = activate
+    }
+
     private val attributeVisitor = object : ModelAttributeVisitor {
         public override fun visit(value: Any?, name: String, parent: KMFContainer) {
             attributesHashmap.getOrPut(parent.metaClassName()){java.util.HashMap<String, Boolean>()}.put(name, true)
@@ -167,7 +173,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                 if( valueAtt != null) {
                     if(elemAttributesMap.containsKey(attrName)) {
                         modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName!!, (unescapeXml(valueAtt)),false,false)
-                        if(attrName.equals("name")){
+                        if(namedElementSupportActivated && attrName.equals("name")){
 
                             val parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")))
                             for(entry in ctx.map.entrySet().copyToArray()) {
