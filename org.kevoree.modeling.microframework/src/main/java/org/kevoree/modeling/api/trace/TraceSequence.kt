@@ -16,13 +16,17 @@ import org.kevoree.modeling.api.util.ByteConverter
 
 public trait TraceSequence {
 
-    var traces : java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>
+    var traces : MutableList<org.kevoree.modeling.api.trace.ModelTrace>
 
     var factory : KMFFactory?
 
     fun populate(addtraces : List<org.kevoree.modeling.api.trace.ModelTrace>) : org.kevoree.modeling.api.trace.TraceSequence {
         traces.addAll(addtraces);
         return this;
+    }
+
+    fun append(seq : TraceSequence){
+        traces.addAll(seq.traces)
     }
 
     fun populateFromString(addtracesTxt : String) : org.kevoree.modeling.api.trace.TraceSequence{
@@ -95,10 +99,19 @@ public trait TraceSequence {
         return buffer.toString()
     }
 
+    fun toString() : String {
+        return exportToString()
+    }
+
     fun applyOn(target : org.kevoree.modeling.api.KMFContainer) : Boolean {
         val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target,factory!!)
         traceApplicator.applyTraceOnModel(this)
         //TODO implements the result
         return true
     }
+
+    fun reverse(){
+        traces = traces.reverse() as MutableList
+    }
+
 }

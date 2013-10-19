@@ -46,7 +46,7 @@ public class TraceSyncTest {
         final ContainerRoot modelM1 = cloner.clone(modelM0);
 
 
-        modelM0.addModelTreeListener(new ModelTreeListener() {
+        modelM0.addModelTreeListener(new ModelElementListener() {
             org.kevoree.compare.DefaultModelCompare comparator = new org.kevoree.compare.DefaultModelCompare();
 
             Event2Trace converter = new Event2Trace(new org.kevoree.compare.DefaultModelCompare());

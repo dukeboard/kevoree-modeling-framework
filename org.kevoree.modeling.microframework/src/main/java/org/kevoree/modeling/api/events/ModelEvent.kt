@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.events
 
-class ModelEvent(val internal_sourcePath: String?, val internal_etype: Int, val internal_elementAttributeType: Int, val internal_elementAttributeName: String, val internal_value: Any?) {
+class ModelEvent(val internal_sourcePath: String?, val internal_etype: Int, val internal_elementAttributeType: Int, val internal_elementAttributeName: String, val internal_value: Any?,val internal_previous_value: Any?) {
 
     fun getSourcePath(): String? {
         return internal_sourcePath;
@@ -20,6 +20,10 @@ class ModelEvent(val internal_sourcePath: String?, val internal_etype: Int, val 
 
     fun getValue(): Any? {
         return internal_value;
+    }
+
+    fun getPreviousValue(): Any? {
+        return internal_previous_value;
     }
 
     fun toString(): String {

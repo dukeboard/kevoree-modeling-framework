@@ -36,7 +36,7 @@ import java.util.jar.JarFile;
  * Time: 1:34 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MergeTest {
+public class MergeTest_unactivated {
 
     @Test
     public void test() throws Exception {

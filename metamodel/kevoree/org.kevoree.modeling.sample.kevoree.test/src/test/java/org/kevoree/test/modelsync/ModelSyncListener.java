@@ -9,7 +9,7 @@ import org.kevoree.serializer.JSONModelSerializer;
 /**
  * Created by duke on 24/07/13.
  */
-public class ModelSyncListener implements ModelTreeListener {
+public class ModelSyncListener implements ModelElementListener {
 
     private KMFContainer currentModel = null;
     final ModelCloner cloner = new org.kevoree.cloner.DefaultModelCloner();
