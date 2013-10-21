@@ -39,9 +39,9 @@ class Event2Trace(val compare: ModelCompare) {
             }
             ActionType.SET -> {
                 if(event.getElementAttributeType() == ElementAttributeType.ATTRIBUTE){
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, event.getValue().toString(), null));
+                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, event.getValue()?.toString(), null));
                 } else {
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), (event.getValue() as KMFContainer).path(), null, null));
+                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), (event.getValue() as? KMFContainer)?.path(), null, null));
                 }
             }
             ActionType.RENEW_INDEX -> {
