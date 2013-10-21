@@ -267,22 +267,11 @@ trait ClassGenerator extends ClonerGenerator {
       a =>
         aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
     }
-    /*} else {
-      aspects.foreach {
-        a =>
-          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i!= "org.kevoree.modeling.api.metaclass").foreach {
-            i =>
-              pr.println("import " + i + ";")
-          }
-      }
-    }
-     */
-
     aspects.foreach {
       a =>
-        pr.println("import "+a.packageName+".*")
-        if(ctx.getJS()){
-          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i!= "org.kevoree.modeling.api.metaclass").foreach {
+        pr.println("import " + a.packageName + ".*")
+        if (ctx.getJS()) {
+          a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i != "org.kevoree.modeling.api.meta").foreach {
             i =>
               pr.println("import " + i + ";")
           }
@@ -296,8 +285,7 @@ trait ClassGenerator extends ClonerGenerator {
     ctx.classFactoryMap.put(pack + "." + cls.getName, ctx.packageFactoryMap.get(pack))
     pr.print("class " + cls.getName + "Impl")
 
-
-    val resultAspectName = if (!aspectsName.isEmpty) {
+    val resultAspectName = if (!aspectsName.isEmpty && !ctx.newMetaClasses.exists(m => m.packageName + "." + m.name == ProcessorHelper.fqn(ctx, cls))) {
       "," + aspectsName.mkString(",")
     } else {
       ""
@@ -406,8 +394,8 @@ generateDiffMethod(pr, cls, ctx)
                     ProcessorHelper.fqn(ctx, op.getEType)
                   }
 
-                  if(op.getLowerBound == 0){
-                    returnTypeOP = returnTypeOP +"?"
+                  if (op.getLowerBound == 0) {
+                    returnTypeOP = returnTypeOP + "?"
                   }
 
                   pr.println("):" + returnTypeOP + "{")
@@ -448,7 +436,7 @@ generateDiffMethod(pr, cls, ctx)
                         pr.println(aspect.getContent(method))
                       } else {
                         val content = aspect.getContent(method).trim
-                        if(!content.startsWith("throw ")){
+                        if (!content.startsWith("throw ")) {
                           pr.println(content.replace("return", ""))
                         }
                       }
@@ -464,6 +452,23 @@ generateDiffMethod(pr, cls, ctx)
           }
       }
     }
+
+    val hashSetVar = mutable.HashSet[String]()
+    aspects.foreach {
+      aspect =>
+        aspect.vars.foreach {
+          varD =>
+            if (!hashSetVar.contains(varD.name) && varD.isPrivate) {
+              var initString = "null"
+              if(!varD.typeName.trim.endsWith("?")){
+                initString = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants." + varD.typeName.toUpperCase+"_DEFAULTVAL"
+              }
+              pr.println("override var "+varD.name+" : "+varD.typeName+" = "+initString)
+              hashSetVar.add(varD.name)
+            }
+        }
+    }
+
     pr.println("}")
     pr.flush()
     pr.close()
@@ -516,10 +521,11 @@ generateDiffMethod(pr, cls, ctx)
       pr.println("val previousParent = eContainer();")
       pr.println("val previousRefNameInParent = getRefInParent();")
     }
+    pr.println("val kmf_previousVal = $"+protectReservedWords(att.getName))
     pr.println("$" + protectReservedWords(att.getName) + " = iP")
     if (ctx.generateEvents) {
       pr.println("if(fireEvents) {")
-      pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + ProcessorHelper.protectReservedWords(att.getName) + "))")
+      pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + ProcessorHelper.protectReservedWords(att.getName) + ",kmf_previousVal))")
       pr.println("}")
     }
     if (att.isID()) {
@@ -528,7 +534,7 @@ generateDiffMethod(pr, cls, ctx)
       pr.println("}")
       if (ctx.generateEvents) {
         pr.println("if(fireEvents) {")
-        pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path()))")
+        pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path(),null))")
         pr.println("}")
       }
     }
@@ -577,16 +583,17 @@ generateDiffMethod(pr, cls, ctx)
               pr.println("val previousParent = eContainer();")
               pr.println("val previousRefNameInParent = getRefInParent();")
             }
+            pr.println("val kmf_previousVal = $"+protectReservedWords(att.getName))
             pr.println("$" + protectReservedWords(att.getName) + " = iP")
             if (ctx.generateEvents) {
-              pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + ProcessorHelper.protectReservedWords(att.getName) + "))")
+              pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + ProcessorHelper.protectReservedWords(att.getName) + ",kmf_previousVal))")
             }
             if (att.isID()) {
               pr.println("if(previousParent!=null){")
               pr.println("previousParent.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId,false,false);")
               pr.println("}")
               if (ctx.generateEvents) {
-                pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path()))")
+                pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path(),null))")
               }
             }
             pr.println("}")
@@ -689,10 +696,16 @@ generateDiffMethod(pr, cls, ctx)
       }
 
       //Setting of local reference
+
+      res += "val kmf_previousVal = $"+ProcessorHelper.protectReservedWords(ref.getName)+"\n"
+
       res += "$" + ProcessorHelper.protectReservedWords(ref.getName) + " = " + ref.getName + param_suf + "\n"
 
     } else {
       // -> Collection ref : * or +
+
+      res += "val kmf_previousVal = _"+ref.getName+"\n"
+
       if (ref.getEOpposite == null) {
         res += "_" + ref.getName + ".clear()\n"
       } else {
@@ -730,9 +743,9 @@ generateDiffMethod(pr, cls, ctx)
     if (ctx.generateEvents) {
       res += "if(fireEvents) {\n"
       if (ref.isContainment) {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",kmf_previousVal))\n"
       } else {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",kmf_previousVal))\n"
       }
       res += "}\n"
     }
@@ -809,9 +822,9 @@ generateDiffMethod(pr, cls, ctx)
     if (ctx.generateEvents) {
       res += "if(fireEvents){\n"
       if (ref.isContainment) {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",null))\n"
       } else {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",null))\n"
       }
       res += "}\n"
     }
@@ -876,9 +889,9 @@ generateDiffMethod(pr, cls, ctx)
     if (ctx.generateEvents) {
       res += "if (fireEvents) {\n"
       if (ref.isContainment) {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",null))\n"
       } else {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",null))\n"
       }
       res += "}\n"
     }
@@ -953,11 +966,11 @@ generateDiffMethod(pr, cls, ctx)
     if (ctx.generateEvents) {
       if (ref.isContainment) {
         res += "if(!removeAll" + toCamelCase(ref) + "CurrentlyProcessing && fireEvents) {\n"
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",null))\n"
         res += "}\n"
       } else {
         res += "if(fireEvents) {\n"
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",null))\n"
         res += "}\n"
       }
     }
@@ -1023,10 +1036,10 @@ generateDiffMethod(pr, cls, ctx)
     if (ctx.generateEvents) {
       res += "if(fireEvents){\n"
       if (ref.isContainment) {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els,null))\n"
         res += "\nremoveAll" + ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1) + "CurrentlyProcessing=false\n"
       } else {
-        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
+        res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els,null))\n"
       }
       res += "}\n"
     }

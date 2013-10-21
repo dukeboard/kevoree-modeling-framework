@@ -4,10 +4,7 @@ import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.jet.lexer.JetLexer;
 import org.jetbrains.jet.lexer.JetTokens;
-import org.kevoree.modeling.aspect.AspectClass;
-import org.kevoree.modeling.aspect.AspectMethod;
-import org.kevoree.modeling.aspect.AspectParam;
-import org.kevoree.modeling.aspect.NewMetaClassCreation;
+import org.kevoree.modeling.aspect.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,16 +25,18 @@ import java.util.List;
  */
 public class KotlinLexerModule {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         KotlinLexerModule analyzer = new KotlinLexerModule();
-        analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java"));//TODO
+        analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java/smartgrid/core/HubAspect.kt"));
+        //analyzer.analyze(new File("/Users/duke/Documents/dev/smartgrid/lu.snt.smartgrid.model/src/main/java"));//TODO
         for (String key : analyzer.cacheAspects.keySet()) {
             System.out.println("<<<<< " + key + " >>>>>");
             AspectClass clazz = analyzer.cacheAspects.get(key);
             for (AspectMethod method : clazz.methods) {
-                System.out.println("MET : <<<<< " + method.name + " >>>>>");
+                System.out.println("MET : <<<<< " + method.name + " >>>>> , private : " + (method.privateMethod));
                 System.out.println(clazz.getContent(method));
             }
+            System.out.println(clazz.toString());
         }
         for (NewMetaClassCreation key : analyzer.newMetaClass) {
             System.out.println("MetaClass " + key.packageName + "." + key.name + "-" + key.parentName);
@@ -49,10 +48,14 @@ public class KotlinLexerModule {
 
     private String currentPackageName = "";
 
-    public void analyze(File sourceFile) throws IOException {
+    public void analyze(File sourceFile) throws Exception {
         List<File> sourceKotlinFileList = new ArrayList<File>();
         if (sourceFile.isDirectory() && sourceFile.exists()) {
             collectFiles(sourceFile, sourceKotlinFileList, ".kt");
+        } else {
+            if (sourceFile.isFile() && !sourceFile.isDirectory() && sourceFile.getName().endsWith(".kt")) {
+                sourceKotlinFileList.add(sourceFile);
+            }
         }
         for (File currentFile : sourceKotlinFileList) {
 
@@ -82,9 +85,9 @@ public class KotlinLexerModule {
                         }
                         currentPackageName = packageName.toString().trim();
                     } else {
-                        if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("metaclass")) {
+                        if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && baseLexer.getTokenText().equals("meta")) {
                             token = readBlank(baseLexer);
-                            if (token.getIndex() == JetTokens.LPAR.getIndex() && baseLexer.getTokenText().equals("(")) {
+                            if (token.getIndex() == JetTokens.TRAIT_KEYWORD.getIndex()) {
                                 readMetaClassUntilOpenDeclaration(baseLexer, currentFile, imports);
                             }
                         } else {
@@ -114,7 +117,7 @@ public class KotlinLexerModule {
     }
 
 
-    public void readAspectClassUntilOpenDeclaration(JetLexer lexer, File from, List<String> imports) throws IOException {
+    public void readAspectClassUntilOpenDeclaration(JetLexer lexer, File from, List<String> imports) throws Exception {
         readUntil(lexer, JetTokens.IDENTIFIER.getIndex());
         String aspectName = lexer.getTokenText();
         AspectClass aspectClass = new AspectClass();
@@ -136,7 +139,11 @@ public class KotlinLexerModule {
         int deep = 0;
         Boolean isPrivate = false;
         while (!(token.getIndex() == JetTokens.RBRACE.getIndex() && deep == 0)) {
-            if (token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex() || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
+            if (
+                    (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("private"))
+                            || (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("protected"))
+                            || token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex()
+                            || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
                 isPrivate = true;
             }
             if (token.getIndex() == JetTokens.LBRACE.getIndex()) {
@@ -149,8 +156,17 @@ public class KotlinLexerModule {
                 //I detect a val
                 isPrivate = false;
             }
+            if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("meta")) {
+                token = readBlank(lexer);
+                if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
+                    aspectClass.vars.add(readVar(lexer,false));
+                    isPrivate = false;
+                } else {
+                    throw new Exception("Format error "+token.getIndex()+"-"+lexer.getTokenText());
+                }
+            }
             if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
-                //I detect a var
+                aspectClass.vars.add(readVar(lexer,true));
                 isPrivate = false;
             }
             if (token.getIndex() == JetTokens.CLASS_KEYWORD.getIndex()) {
@@ -256,14 +272,53 @@ public class KotlinLexerModule {
 
     }
 
+    public AspectVar readVar(JetLexer lexer, Boolean isPrivate) throws Exception {
 
-    public void readMetaClassUntilOpenDeclaration(JetLexer lexer, File from, List<String> imports) throws IOException {
+        AspectVar varRes = new AspectVar();
+        //varRes.isPrivate = isPrivate;
+        //kotlin workaround
 
-        readUntil(lexer, JetTokens.REGULAR_STRING_PART.getIndex());
-        String newMetaClassName = lexer.getTokenText();
-        readUntil(lexer, JetTokens.TRAIT_KEYWORD.getIndex());
         readUntil(lexer, JetTokens.IDENTIFIER.getIndex());
-        String aspectName = lexer.getTokenText();
+        varRes.name = lexer.getTokenText();
+        varRes.isPrivate = varRes.name.startsWith("_");
+
+
+                readUntil(lexer, JetTokens.COLON.getIndex());
+        IElementType token = lexer.getFlex().advance();
+        token = readBlank(lexer);
+        StringBuffer typeDef = new StringBuffer();
+        while (token.getIndex() != JetTokens.WHITE_SPACE.getIndex()) {
+            typeDef.append(lexer.getTokenText());
+            token = lexer.getFlex().advance();
+        }
+        varRes.typeName = typeDef.toString().trim();
+
+        if(!varRes.typeName.trim().endsWith("?")){
+            /*if(
+                    varRes.typeName.trim() == "String"
+                    || varRes.typeName.trim() == "Int"
+                            || varRes.typeName.trim() == "Boolean"
+                            || varRes.typeName.trim() == "Char"
+                            || varRes.typeName.trim() == "Short"
+                            || varRes.typeName.trim() == "Long"
+                            || varRes.typeName.trim() == "Double"
+                            || varRes.typeName.trim() == "Float"
+                            || varRes.typeName.trim() == "Byte"
+                    ){    */
+                  throw new Exception("Only nullable type accepted for statfull aspect, var "+varRes.name);
+           // }
+        }
+
+
+        return varRes;
+    }
+
+
+    public void readMetaClassUntilOpenDeclaration(JetLexer lexer, File from, List<String> imports) throws Exception {
+
+        readUntil(lexer, JetTokens.IDENTIFIER.getIndex());
+        String newMetaClassName = lexer.getTokenText();
+
         NewMetaClassCreation newMeta = new NewMetaClassCreation();
         newMeta.name = newMetaClassName;
         newMeta.originFile = from;
@@ -287,7 +342,7 @@ public class KotlinLexerModule {
         }
         newMetaClass.add(newMeta);
         AspectClass currentAspect = new AspectClass();
-        currentAspect.name = aspectName;
+        currentAspect.name = newMetaClassName;
         currentAspect.packageName = currentPackageName;
         currentAspect.aspectedClass = newMetaClassName;
         currentAspect.from = from;
@@ -296,7 +351,11 @@ public class KotlinLexerModule {
         int deep = 0;
         Boolean isPrivate = false;
         while (!(token.getIndex() == JetTokens.RBRACE.getIndex() && deep == 0)) {
-            if (token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex() || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
+            if (
+                    (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("private"))
+                            || (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("protected"))
+                            || token.getIndex() == JetTokens.PRIVATE_KEYWORD.getIndex()
+                            || token.getIndex() == JetTokens.PROTECTED_KEYWORD.getIndex()) {
                 isPrivate = true;
             }
             if (token.getIndex() == JetTokens.LBRACE.getIndex()) {
@@ -309,7 +368,17 @@ public class KotlinLexerModule {
                 //I detect a val
                 isPrivate = false;
             }
+            if (token.getIndex() == JetTokens.IDENTIFIER.getIndex() && lexer.getTokenText().equals("meta")) {
+                token = readBlank(lexer);
+                if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
+                    currentAspect.vars.add(readVar(lexer,false));
+                    isPrivate = false;
+                } else {
+                    throw new Exception("Format error");
+                }
+            }
             if (token.getIndex() == JetTokens.VAR_KEYWORD.getIndex()) {
+                currentAspect.vars.add(readVar(lexer,true));
                 //I detect a var
                 isPrivate = false;
             }

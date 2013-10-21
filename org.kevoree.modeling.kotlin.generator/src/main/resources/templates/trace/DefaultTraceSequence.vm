@@ -13,6 +13,6 @@ import org.kevoree.modeling.api.trace.*
  */
 
 class DefaultTraceSequence() : org.kevoree.modeling.api.trace.TraceSequence {
-override var traces : java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace> = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
+override var traces : MutableList<org.kevoree.modeling.api.trace.ModelTrace> = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
 override var factory : org.kevoree.modeling.api.KMFFactory? = ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
 }

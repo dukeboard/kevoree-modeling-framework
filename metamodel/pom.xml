@@ -9,7 +9,7 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-		<kmf.version>1.6.1-SNAPSHOT</kmf.version>
+		<kmf.version>1.7.1-SNAPSHOT</kmf.version>
         <emf.version>2.7.0</emf.version>
     </properties>
 

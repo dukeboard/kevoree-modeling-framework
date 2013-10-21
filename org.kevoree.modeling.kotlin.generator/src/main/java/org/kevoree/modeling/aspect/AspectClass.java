@@ -26,30 +26,41 @@ public class AspectClass {
 
     public List<String> imports = new ArrayList<String>();
 
+    public List<AspectVar> vars = new ArrayList<AspectVar>();
+
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Aspect " + packageName + "." + name + " for " + aspectedClass + " [");
+        buffer.append("Aspect " + packageName + "." + name + " for " + aspectedClass + " [\n");
         boolean isFirst = true;
         for (AspectMethod me : methods) {
             if (!isFirst) {
                 buffer.append(",");
             }
-            buffer.append(me.toString());
+            buffer.append(me.toString()+"\n");
             isFirst = false;
         }
-        buffer.append("]");
+
+        for (AspectVar me : vars) {
+            buffer.append("var "+me.name+" : "+me.typeName+"\n");
+        }
+        buffer.append("]\n");
         return buffer.toString();
     }
 
-    public String getContent(AspectMethod method) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(from.getAbsolutePath(), "r");
-        raf.seek(method.startOffset);
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < (method.endOffset - method.startOffset); i++) {
-            buffer.append((char) raf.read());
+    public String getContent(AspectMethod method) throws Exception {
+        if(from == null){
+            return "throw Exception(\"not implemented yet!\")";
+        } else {
+            RandomAccessFile raf = new RandomAccessFile(from.getAbsolutePath(), "r");
+            raf.seek(method.startOffset);
+            StringBuffer buffer = new StringBuffer();
+            for (int i = 0; i < (method.endOffset - method.startOffset); i++) {
+                buffer.append((char) raf.read());
+            }
+            return buffer.toString();
         }
-        return buffer.toString();
     }
 
 

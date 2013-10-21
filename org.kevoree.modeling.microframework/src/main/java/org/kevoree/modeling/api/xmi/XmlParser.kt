@@ -134,7 +134,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
 
     private fun read_openTag() {
         read_tagName()
-        if(currentChar != '>') {
+        if(currentChar != '>' && currentChar != '/') {
             read_attributes()
         }
     }
@@ -143,7 +143,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
         tagName = "" + currentChar
         tagPrefix = null
         currentChar = readChar()
-        while(currentChar != ' ' && currentChar != '>') {
+        while(currentChar != ' ' && currentChar != '>' && currentChar != '/') {
             if(currentChar == ':') {
                 tagPrefix = tagName
                 tagName = ""

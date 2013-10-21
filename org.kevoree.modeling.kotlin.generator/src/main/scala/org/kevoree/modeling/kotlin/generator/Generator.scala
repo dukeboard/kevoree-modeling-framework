@@ -229,7 +229,10 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
                       }
                       writer.write(") : " + operationReturnType + " {\n")
                     } else {
-                      val operationReturnType = ProcessorHelper.fqn(ctx, operation.getEType)
+                      var operationReturnType = ProcessorHelper.fqn(ctx, operation.getEType)
+                      if(operation.getLowerBound == 0){
+                        operationReturnType = operationReturnType + "?"
+                      }
                       writer.write(") : " + operationReturnType + " {\n")
                     }
                   } else {

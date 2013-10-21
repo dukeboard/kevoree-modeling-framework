@@ -8,10 +8,12 @@ import org.kevoree.modeling.api.util.ActionType
  */
 
 trait ModelTrace {
+    val srcPath: String
+    val refName: String
     fun toString(): String
 }
 
-class ModelAddTrace(val srcPath: String, val refName: String, val previousPath: String?, val typeName: String?): ModelTrace {
+class ModelAddTrace(override val srcPath: String, override val refName: String, val previousPath: String?, val typeName: String?): ModelTrace {
     override fun toString(): String {
         val buffer = StringBuilder()
         buffer.append("{ \"traceType\" : " + ActionType.ADD + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\"")
@@ -26,7 +28,7 @@ class ModelAddTrace(val srcPath: String, val refName: String, val previousPath: 
     }
 }
 
-class ModelAddAllTrace(val srcPath: String, val refName: String, val previousPath: List<String>?, val typeName: List<String>?): ModelTrace {
+class ModelAddAllTrace(override val srcPath: String, override val refName: String, val previousPath: List<String>?, val typeName: List<String>?): ModelTrace {
 
     private fun mkString(ss: List<String>?): String? {
         if(ss == null){
@@ -58,19 +60,19 @@ class ModelAddAllTrace(val srcPath: String, val refName: String, val previousPat
     }
 }
 
-class ModelRemoveTrace(val srcPath: String, val refName: String, val objPath: String): ModelTrace {
+class ModelRemoveTrace(override val srcPath: String, override val refName: String, val objPath: String): ModelTrace {
     override fun toString(): String {
         return "{ \"traceType\" : " + ActionType.REMOVE + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\", \"objpath\" : \"" + objPath + "\" }"
     }
 }
 
-class ModelRemoveAllTrace(val srcPath: String, val refName: String): ModelTrace {
+class ModelRemoveAllTrace(override val srcPath: String, override val refName: String): ModelTrace {
     override fun toString(): String {
         return "{ \"traceType\" : " + ActionType.REMOVE_ALL + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\" }"
     }
 }
 
-class ModelSetTrace(val srcPath: String, val refName: String, val objPath: String?, val content: String?, val typeName: String?): ModelTrace {
+class ModelSetTrace(override val srcPath: String, override val refName: String, val objPath: String?, val content: String?, val typeName: String?): ModelTrace {
     override fun toString(): String {
         val buffer = StringBuilder()
         buffer.append("{ \"traceType\" : " + ActionType.SET + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\"")

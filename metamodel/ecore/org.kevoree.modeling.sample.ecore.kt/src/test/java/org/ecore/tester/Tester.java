@@ -14,6 +14,7 @@ public class Tester {
     public static void main(String[] args) {
 
         XMIModelLoader loader = new XMIModelLoader();
+        loader.activateSupportForNamedElements(true);
         loader.loadModelFromStream(Tester.class.getClassLoader().getResourceAsStream("kevoree.ecore"));
 
     }

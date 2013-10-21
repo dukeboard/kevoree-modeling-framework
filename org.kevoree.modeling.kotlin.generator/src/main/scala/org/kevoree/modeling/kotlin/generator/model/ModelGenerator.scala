@@ -135,18 +135,20 @@ with ConstantsGenerator {
             generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion)
           }
         }
-        process(currentPackageDir, currentPackage, potentialRoot, userPackageDir)
+        process(currentPackageDir, currentPackage, potentialRoot, userPackageDir,ctx.newMetaClasses.exists(m => m.packageName+"."+m.name == ProcessorHelper.fqn(ctx,potentialRoot)))
     }
   }
 
 
-  private def process(currentPackageDir: String, packElement: EPackage, cls: EClassifier, userPackageDir: String) {
+  private def process(currentPackageDir: String, packElement: EPackage, cls: EClassifier, userPackageDir: String, isHiddenMetaClass : Boolean) {
     cls match {
       case cl: EClass => {
         if (!cl.isAbstract && !cl.isInterface) {
           generateFlatClass(ctx, currentPackageDir, packElement, cl)
         }
-        generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        if(!isHiddenMetaClass){
+          generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)
+        }
       }
       case dt: EDataType => {
         dt match {
