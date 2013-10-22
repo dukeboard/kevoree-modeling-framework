@@ -11,6 +11,13 @@ add_executable(
 
     org/kevoree/modeling/api/KMFFactory.cpp
     org/kevoree/modeling/api/KMFContainer.cpp
+    org/kevoree/modeling/api/ModelSerializer.cpp
+    org/kevoree/modeling/api/ModelCloner.cpp
+    org/kevoree/modeling/api/ModelLoader.cpp
+    
+    org/kevoree/modeling/api/compare/ModelCompare.cpp
+    
+    org/kevoree/modeling/api/json/Lexer.cpp
     
 
     org/kevoree/modeling/api/events/ModelEvent.cpp
@@ -18,13 +25,14 @@ add_executable(
     org/kevoree/modeling/api/events/ModelTreeListener.cpp
     
     
-    org/kevoree/modeling/api/compare/ModelCompare.cpp
+
 
    
     org/kevoree/modeling/api/trace/TraceSequence.cpp
     org/kevoree/modeling/api/trace/ModelTrace.cpp
     org/kevoree/modeling/api/trace/TraceConverter.cpp
     org/kevoree/modeling/api/trace/DefaultTraceConverter.cpp
+    
        
   
 
