@@ -1,3 +1,6 @@
+#ifndef KMFFactory_H
+#define KMFFactory_H
+
 #include "KMFContainer.h"
 #include <string>
 class KMFFactory 
@@ -10,3 +13,4 @@ KMFContainer create(std::string metaClassName);
 };
 
 
+#endif

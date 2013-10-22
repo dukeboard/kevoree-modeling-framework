@@ -1,3 +1,5 @@
+#ifndef KMFContainer_H
+#define KMFContainer_H
 
 #include <string>
 using namespace std;
@@ -47,3 +49,5 @@ public:
     list<ModelTrace> createTraces(KMFContainer similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes );
 
 };
+
+#endif

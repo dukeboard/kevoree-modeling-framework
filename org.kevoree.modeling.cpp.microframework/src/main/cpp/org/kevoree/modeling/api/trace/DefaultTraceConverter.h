@@ -6,7 +6,8 @@
 #include "TraceConverter.h"
 #include "ModelTrace.h"
 #include <typeinfo>
-#include <stdio.h>
+#include <iostream>
+
 
 using namespace std;
 
@@ -22,16 +23,18 @@ string tryConvertAttName(string previousAttName);
 
  virtual ModelTrace* convert(ModelTrace *trace) {
 	 
+	 		  std::cout << "DefaultTraceConverter convert" <<endl;
 	if(typeid(trace) == typeid(ModelAddTrace))
 	{
 		  ModelAddTrace *addTrace =(ModelAddTrace*)trace;
-
+		  std::cout << "ModelAddTrace" <<endl;
 		  ModelAddTrace *newTrace = new ModelAddTrace( addTrace->srcPath,addTrace->refName, addTrace->previousPath,tryConvertClassName(addTrace->typeName));
 		  return newTrace;
 
 	}else if(typeid(trace) == typeid(ModelSetTrace))
 	{
 	      ModelSetTrace *setTrace =(ModelSetTrace*)trace;
+	      		  std::cout << "ModelAddTrace" <<endl;
 		  ModelSetTrace *newTrace = new ModelSetTrace( 
                             setTrace->srcPath,
                             setTrace->refName, //TODO need the origin type of the src // (workaround, try to solve directly on model => bad idea)

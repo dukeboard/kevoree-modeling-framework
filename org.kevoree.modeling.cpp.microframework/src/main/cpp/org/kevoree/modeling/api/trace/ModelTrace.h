@@ -10,7 +10,6 @@ class ModelTrace
 {
   public:	
 	virtual string toString () {};
-
 };
 
 
@@ -18,7 +17,12 @@ class ModelAddTrace : public ModelTrace
 {
 	
 public:
-  ModelAddTrace(string _srcPath, string _refName, string _previousPath,string _typeName){
+  ModelAddTrace(string _srcPath, string _refName, string _previousPath,string _typeName)
+  {
+	 srcPath  =_srcPath;
+	 refName=_refName;
+	 previousPath =_previousPath;
+	 typeName=_typeName;
   }
   string srcPath;
   string refName;

@@ -1,4 +1,6 @@
 
+#ifndef ModelCompare_H
+#define ModelCompare_H
 
 #include "../trace/TraceSequence.h"
 #include "../KMFContainer.h"
@@ -13,3 +15,5 @@ public:
 	TraceSequence inter(KMFContainer origin,KMFContainer target);
 
 };
+
+#endif
