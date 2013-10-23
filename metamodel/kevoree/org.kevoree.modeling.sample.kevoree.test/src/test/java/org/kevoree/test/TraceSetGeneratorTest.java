@@ -21,28 +21,28 @@ public class TraceSetGeneratorTest {
         KevoreeFactory factory = new DefaultKevoreeFactory();
 
         DeployUnitImpl du0 = (DeployUnitImpl) factory.createDeployUnit();
-        du0.setUnitName("model");
+        du0.setName("model");
         du0.setGroupName("modelGroup");
         du0.setVersion("v1");
 
         DeployUnitImpl du1 = (DeployUnitImpl) factory.createDeployUnit();
-        du1.setUnitName("model");
+        du1.setName("model");
         du1.setGroupName("modelGroup");
         du1.setVersion("v2");
 
         List<ModelTrace> traces = du0.createTraces(null,false, false,false,true);
-        assertTrue(traces.toString(), lookupForTrace(traces, "unitName"));
+        assertTrue(traces.toString(), lookupForTrace(traces, "name"));
         assert(lookupForTrace(traces,"groupName"));
         assert(lookupForTrace(traces,"version"));
 
         List<ModelTrace> traces2 = du0.createTraces(du1, false,false,false,true);
         assert(lookupForTrace(traces2,"version"));
-        assert(!lookupForTrace(traces2,"unitName"));
+        assert(!lookupForTrace(traces2,"name"));
         assert(!lookupForTrace(traces2,"groupName"));
 
         List<ModelTrace> traces3 = du0.createTraces(du1, true,false,false,true);
         assert(!lookupForTrace(traces3,"version"));
-        assert(lookupForTrace(traces3,"unitName"));
+        assert(lookupForTrace(traces3,"name"));
         assert(lookupForTrace(traces3,"groupName"));
 
 
