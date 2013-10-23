@@ -1,5 +1,6 @@
 #include "Entry.h"
 #include <string>
+#include "any.h"
 using std::string;
 
 template <typename V>
@@ -27,3 +28,4 @@ void Entry<V>::setValue(V v) {
 template class Entry<int>;
 template class Entry<double>;
 template class Entry<string>;
+template class Entry<any>;

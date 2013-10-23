@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string>
 #include <list>
+#include "any.h"
 using std::string;
 using std::list;
 
@@ -79,3 +80,5 @@ void Hashmap<V>::remove(string k) {
 template class Hashmap<int>;
 template class Hashmap<double>;
 template class Hashmap<string>;
+template class Hashmap<any>;
+
