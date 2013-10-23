@@ -7,7 +7,7 @@
 #include "ModelTrace.h"
 #include <typeinfo>
 #include <iostream>
-
+#include "../utils/Hashmap.h"
 
 using namespace std;
 
@@ -15,15 +15,16 @@ class DefaultTraceConverter : public TraceConverter
 {
 
 public:
-  DefaultTraceConverter() : TraceConverter(){}
-void addAttEquivalence(string name1,string name2);
-
-string tryConvertClassName(string previousClassName);
-string tryConvertAttName(string previousAttName);
+	DefaultTraceConverter();
+	~DefaultTraceConverter();
+	
+	void addAttEquivalence(string name1,string name2);
+	string tryConvertClassName(string previousClassName);
+	string tryConvertAttName(string previousAttName);
 
  virtual ModelTrace* convert(ModelTrace *trace) {
 	 
-	 		  std::cout << "DefaultTraceConverter convert" <<endl;
+	 //  std::cout << "DefaultTraceConverter convert" <<endl;
 	if(typeid(trace) == typeid(ModelAddTrace))
 	{
 		  ModelAddTrace *addTrace =(ModelAddTrace*)trace;
@@ -51,14 +52,11 @@ string tryConvertAttName(string previousAttName);
 
 
 private:
- std::map<std::string, std::string> metaClassNameEquivalence_1;
- std::map<std::string, std::string> metaClassNameEquivalence_2;
-  
- std::map<std::string, std::string> attNameEquivalence_1;
- std::map<std::string, std::string> attNameEquivalence_2;
-  
-  
- 
+  Hashmap<string> *metaClassNameEquivalence_1;
+  Hashmap<string> *metaClassNameEquivalence_2;
+  Hashmap<string> *attNameEquivalence_1;
+  Hashmap<string> *attNameEquivalence_2;
+
 
 };
 

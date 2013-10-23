@@ -3,12 +3,24 @@
 #include "DefaultTraceConverter.h"
 
 
+DefaultTraceConverter::DefaultTraceConverter(){
+  metaClassNameEquivalence_1 = new Hashmap<string>();
+  metaClassNameEquivalence_2 = new Hashmap<string>();
+  attNameEquivalence_1 = new Hashmap<string>();
+  attNameEquivalence_2 = new Hashmap<string>();
+}
 
+DefaultTraceConverter::~DefaultTraceConverter(){
+	delete metaClassNameEquivalence_1;
+	delete metaClassNameEquivalence_2;
+	delete attNameEquivalence_1;
+	delete attNameEquivalence_2;
+}
 
 void DefaultTraceConverter::addAttEquivalence (string name1, string name2)
 {
-  attNameEquivalence_1.insert (std::pair < std::string,std::string > (name1, name2));
-  attNameEquivalence_2.insert (std::pair < std::string,std::string > (name2, name2));
+  attNameEquivalence_1->insert (name1, name2);
+  attNameEquivalence_2->insert (name2, name2);
 }
 
 
@@ -18,27 +30,15 @@ string DefaultTraceConverter::tryConvertClassName(string previousClassName){
 	if(!previousClassName.empty ()){
 		return result;
 	}
-	
-    if(metaClassNameEquivalence_1.count(previousClassName) == 1){
-		  map<string, string>::iterator p;
-			p =  metaClassNameEquivalence_1.find(previousClassName);
-			if(p != metaClassNameEquivalence_1.end()) 
-				return p->second;
-     }
-     
-     if(metaClassNameEquivalence_2.count(previousClassName) == 1){
-		  map<string, string>::iterator p;
-			p =  metaClassNameEquivalence_2.find(previousClassName);
-			if(p != metaClassNameEquivalence_2.end()) 
-				return p->second;
-     }
-     
-     
- 
+	if(metaClassNameEquivalence_1->find(previousClassName) != 0){
+		return *(metaClassNameEquivalence_1->find(previousClassName));
+	}
+		
+	if(metaClassNameEquivalence_2->find(previousClassName) != 0){
+		return *(metaClassNameEquivalence_2->find(previousClassName));
+	}						
 	return previousClassName;
 }
-
-
 
 string DefaultTraceConverter::tryConvertAttName(string previousAttName){
 	string result;
@@ -46,19 +46,12 @@ string DefaultTraceConverter::tryConvertAttName(string previousAttName){
 		return result;
 	}
 	 string FQNattName = previousAttName; // TODO build FQN att Name using parent Type
-	 
-    if(metaClassNameEquivalence_1.count(FQNattName) == 1){
-		  map<string, string>::iterator p;
-			p =  metaClassNameEquivalence_1.find(FQNattName);
-			if(p != metaClassNameEquivalence_1.end()) 
-				return p->second;
-     }
-     
-     if(metaClassNameEquivalence_2.count(FQNattName) == 1){
-		  map<string, string>::iterator p;
-			p =  metaClassNameEquivalence_2.find(FQNattName);
-			if(p != metaClassNameEquivalence_2.end()) 
-				return p->second;
-     }
+
+    if(metaClassNameEquivalence_1->find(FQNattName) != 0){
+		return *(metaClassNameEquivalence_1->find(FQNattName));
+	}
 	
+	if(metaClassNameEquivalence_2->find(FQNattName) != 0){
+		return *(metaClassNameEquivalence_2->find(FQNattName));
+	}	
 }
