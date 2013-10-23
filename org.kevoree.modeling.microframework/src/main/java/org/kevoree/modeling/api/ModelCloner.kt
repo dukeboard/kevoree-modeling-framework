@@ -64,11 +64,12 @@ trait ModelCloner {
                 }
             }
         }
+        //clone the entire object graph (i.e. object+attributes)
         o.visit(cloneGraphVisitor, true, true, false)
         val resolveGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
             override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
                 if(mutableOnly && elem.isRecursiveReadOnly()){
-
+                    //noChildrenVisit(); TODO check this behavior on partial clone
                 } else {
                     val clonedObj = context.get(elem)!!
                     resolveModelElem(elem, clonedObj, context, mutableOnly)
@@ -78,8 +79,10 @@ trait ModelCloner {
                 }
             }
         }
-        o.visit(resolveGraphVisitor, true, true, false)
+        //resolve root references first
         resolveModelElem(o, clonedObject, context, mutableOnly)
+        //copy graph references
+        o.visit(resolveGraphVisitor, true, true, false)
         if(readOnly){
             clonedObject.setInternalReadOnly()
         }

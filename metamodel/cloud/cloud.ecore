@@ -12,5 +12,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Software">
     <eStructuralFeatures xsi:type="ecore:EAttribute" iD="true" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+
+    <eStructuralFeatures xsi:type="ecore:EAttribute" iD="false" upperBound="-1" name="data" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+
   </eClassifiers>
 </ecore:EPackage>

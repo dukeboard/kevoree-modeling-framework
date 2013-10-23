@@ -42,18 +42,33 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("when(refName) {")
     cls.getEAllAttributes.foreach {
       att =>
+
+
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
         if (att.isMany) {
           pr.println("if(mutationType == org.kevoree.modeling.api.util.ActionType.SET) {")
         }
-
-        //hu ? TODO refactoring this craps
         var valueType: String = ""
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
           valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
         } else {
           valueType = ProcessorHelper.convertType(att.getEAttributeType, ctx)
         }
+        if (att.isMany) {
+          pr.println("if(value is List<" + valueType + ">){")
+          if (ctx.generateEvents) {
+            pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
+          } else {
+            pr.println("this." + protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
+          }
+          pr.println("}else {")
+
+          //TODO
+          pr.println("}")
+        }
+
+
+
         if (ctx.getJS()) {
           valueType match {
             case "Boolean" => {
@@ -149,6 +164,12 @@ trait ClassGenerator extends ClonerGenerator {
         }
         if (att.isMany) {
           pr.println("} else {")
+
+          pr.println("if(mutationType == org.kevoree.modeling.api.util.ActionType.ADD) {")
+
+          pr.println("}")
+
+
           //ADD INTO LIST
 
           pr.println("}") //END MUTATION TYPE
@@ -460,10 +481,10 @@ generateDiffMethod(pr, cls, ctx)
           varD =>
             if (!hashSetVar.contains(varD.name) && varD.isPrivate) {
               var initString = "null"
-              if(!varD.typeName.trim.endsWith("?")){
-                initString = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants." + varD.typeName.toUpperCase+"_DEFAULTVAL"
+              if (!varD.typeName.trim.endsWith("?")) {
+                initString = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants." + varD.typeName.toUpperCase + "_DEFAULTVAL"
               }
-              pr.println("override var "+varD.name+" : "+varD.typeName+" = "+initString)
+              pr.println("override var " + varD.name + " : " + varD.typeName + " = " + initString)
               hashSetVar.add(varD.name)
             }
         }
@@ -521,7 +542,7 @@ generateDiffMethod(pr, cls, ctx)
       pr.println("val previousParent = eContainer();")
       pr.println("val previousRefNameInParent = getRefInParent();")
     }
-    pr.println("val kmf_previousVal = $"+protectReservedWords(att.getName))
+    pr.println("val kmf_previousVal = $" + protectReservedWords(att.getName))
     pr.println("$" + protectReservedWords(att.getName) + " = iP")
     if (ctx.generateEvents) {
       pr.println("if(fireEvents) {")
@@ -583,7 +604,7 @@ generateDiffMethod(pr, cls, ctx)
               pr.println("val previousParent = eContainer();")
               pr.println("val previousRefNameInParent = getRefInParent();")
             }
-            pr.println("val kmf_previousVal = $"+protectReservedWords(att.getName))
+            pr.println("val kmf_previousVal = $" + protectReservedWords(att.getName))
             pr.println("$" + protectReservedWords(att.getName) + " = iP")
             if (ctx.generateEvents) {
               pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", " + ProcessorHelper.protectReservedWords(att.getName) + ",kmf_previousVal))")
@@ -697,14 +718,14 @@ generateDiffMethod(pr, cls, ctx)
 
       //Setting of local reference
 
-      res += "val kmf_previousVal = $"+ProcessorHelper.protectReservedWords(ref.getName)+"\n"
+      res += "val kmf_previousVal = $" + ProcessorHelper.protectReservedWords(ref.getName) + "\n"
 
       res += "$" + ProcessorHelper.protectReservedWords(ref.getName) + " = " + ref.getName + param_suf + "\n"
 
     } else {
       // -> Collection ref : * or +
 
-      res += "val kmf_previousVal = _"+ref.getName+"\n"
+      res += "val kmf_previousVal = _" + ref.getName + "\n"
 
       if (ref.getEOpposite == null) {
         res += "_" + ref.getName + ".clear()\n"
