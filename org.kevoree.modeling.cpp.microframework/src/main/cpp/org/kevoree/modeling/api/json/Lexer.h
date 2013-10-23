@@ -6,24 +6,7 @@
 
 using namespace std;
 
-enum  lexer_types {VALUE,LEFT_BRACE,RIGHT_BRACE,LEFT_BRACKET,RIGHT_BRACKET,COMMA,COLON,END_OF_FILE}; // replace EOF by END_OF_FILE langague keyword
-static int LexerType(lexer_types e)
-{
-	  switch(e)
-	  {
-		  case VALUE: return 0;
-		  case LEFT_BRACE: return 1;
-		  case RIGHT_BRACE: return 2;
-		  case LEFT_BRACKET: return 3;
-		  case RIGHT_BRACKET: return 4;
-		  case COMMA: return 5;
-		  case COLON: return 6;
-          case END_OF_FILE: return 42;
-		  default: return -1;
-	  }
-}
-
-
+enum  lexer_types {VALUE=0,LEFT_BRACE=1,RIGHT_BRACE=2,LEFT_BRACKET=3,RIGHT_BRACKET=4,COMMA=5,COLON=6,END_OF_FILE=42}; // replace EOF by END_OF_FILE langague keyword
 
 class Token 
 {
@@ -62,6 +45,7 @@ class Lexer
 	public:
 
 	Lexer(istream &inputstream);
+	~Lexer();
 	bool isSpace(char c);
 	char nextChar();
 	bool isDone();

@@ -11,13 +11,18 @@ Lexer::Lexer(istream &inputstream)
 		inputstream.seekg (0, inputstream.end);
 		length = inputstream.tellg();
 		inputstream.seekg (0, inputstream.beg);
-		bytes = new char [length];
+		bytes = new char [length]; 
 		//std::cout << "Reading " << length << " characters... "  << endl;
 		inputstream.read (bytes,length);	
 	}
 	
-	finish_token = new Token(LexerType(END_OF_FILE),"");
+	finish_token = new Token(END_OF_FILE,"");
 	index =0;
+}
+
+Lexer::~Lexer() 
+{
+	delete bytes;
 }
 
 
@@ -44,10 +49,11 @@ bool Lexer::isDone()
 
 
 bool Lexer::isBooleanLetter(char c){
-	if(c  == 'f' || c == 'a' || c == 'l' || c == 's' || c == 'e' || c == 't' || c== 'r' || c== 'u'){
+	if(c  == 'f' || c == 'a' || c == 'l' || c == 's' || c == 'e' || c == 't' || c == 'r' || c == 'u'){
 		return true;
 	}else {
 		return false;
+
 	}
 }
 
@@ -68,72 +74,69 @@ bool Lexer::isDigit(char c)
  }
 
 
-Token Lexer::nextToken()  {
-	
+Token Lexer::nextToken() {
 	    if (isDone()) {
             return *finish_token;
         }
-        int  tokenType = LexerType(END_OF_FILE);
-        
+        int  tokenType = END_OF_FILE;
         char c = nextChar();
-
-        std::ostringstream currentValue;
+        string currentValue="";
         string jsonValue ="";
-        while (!isDone() && isSpace(c)) {
+        while (isDone() != true && isSpace(c)==true) {
             c = nextChar();   
         }
-        
         if ('"' == c) {
-            tokenType = LexerType(VALUE);
-            if (! isDone()) {
+            tokenType = VALUE;
+            if (isDone() != true) {
                 c = nextChar();
                 while (index < length && c != '"') {
-                  currentValue << c;
+                  currentValue += c;
                     if (c == '\\' && index < length) {
                         c = nextChar();
-                        currentValue << c;
+                        currentValue += c;
                     }
                     c = nextChar();
                 }
-                jsonValue = currentValue.str();
+                jsonValue = currentValue;
             } else {
                    throw  "Unterminated string";
             }
         }else if ('{' == c) {
-            tokenType = LexerType(LEFT_BRACE);
+            tokenType = LEFT_BRACE;
         } else if ('}' == c) {
-            tokenType = LexerType(RIGHT_BRACE);
+            tokenType = RIGHT_BRACE;
         } else if ('[' == c) {
-            tokenType = LexerType(LEFT_BRACKET);
+            tokenType = LEFT_BRACKET;
         } else if (']' == c) {
-            tokenType = LexerType(RIGHT_BRACKET);
+            tokenType = RIGHT_BRACKET;
         } else if (':' == c) {
-            tokenType = LexerType(COLON);
+            tokenType = COLON;
         } else if (',' == c) {
-            tokenType = LexerType(COMMA);
+            tokenType = COMMA;
         } else if (! isDone()) {
-            while (isValueLetter(c)) {
-            currentValue << c;
-                if (! isValueLetter(peekChar())) {
+			
+            while (isValueLetter(tolower(c)) == true) 
+            {
+				currentValue += c;
+                if (isValueLetter(tolower(peekChar())) != true) {
                     break;
                 } else {
-                    c = nextChar();
+                    c = nextChar();                   
                 }
             }
-            string v = currentValue.str();
+            string v = currentValue;
             std::transform(v.begin(), v.end(), v.begin(), ::tolower);
-            if (v.compare("true")) {
+            if (v.compare("true") == true) {
                 jsonValue = "true";
-            } else if (v.compare("false")) {
+            } else if (v.compare("false") == true) {
                 jsonValue = "false";
             } else {
                 jsonValue = v;
             }
-            tokenType = LexerType(VALUE);
+            tokenType = VALUE;
         } else {
-            tokenType = LexerType(END_OF_FILE);
+            tokenType = END_OF_FILE;
         }
-     
-              return Token(tokenType, jsonValue);
+		return Token(tokenType, jsonValue);
 }
 
