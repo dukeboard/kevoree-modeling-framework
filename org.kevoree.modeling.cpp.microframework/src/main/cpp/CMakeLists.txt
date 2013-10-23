@@ -25,7 +25,8 @@ add_executable(
     org/kevoree/modeling/api/events/ModelTreeListener.cpp
     
     
-
+    org/kevoree/modeling/api/utils/Entry.cpp
+    org/kevoree/modeling/api/utils/Hashmap.cpp
 
    
     org/kevoree/modeling/api/trace/TraceSequence.cpp
