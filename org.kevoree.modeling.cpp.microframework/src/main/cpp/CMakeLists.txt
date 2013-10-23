@@ -8,6 +8,13 @@ SET( CMAKE_CXX_COMPILER "g++" )
 add_executable(
     main
     org/kevoree/modeling/api/main.cpp
+    
+    org/kevoree/modeling/api/utils/Entry.cpp
+    org/kevoree/modeling/api/utils/Hashmap.cpp
+    org/kevoree/modeling/api/utils/ModelAttributeVisitor.cpp
+    org/kevoree/modeling/api/utils/ModelVisitor.cpp
+    org/kevoree/modeling/api/utils/ModelTracker.cpp
+    org/kevoree/modeling/api/utils/Event2Trace.cpp
 
     org/kevoree/modeling/api/KMFFactory.cpp
     org/kevoree/modeling/api/KMFContainer.cpp
@@ -25,8 +32,8 @@ add_executable(
     org/kevoree/modeling/api/events/ModelTreeListener.cpp
     
     
-    org/kevoree/modeling/api/utils/Entry.cpp
-    org/kevoree/modeling/api/utils/Hashmap.cpp
+
+    
 
    
     org/kevoree/modeling/api/trace/TraceSequence.cpp

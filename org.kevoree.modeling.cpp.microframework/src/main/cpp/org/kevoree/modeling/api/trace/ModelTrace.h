@@ -5,8 +5,8 @@
 #include <iostream>
 #include "../utils/ActionType.h"
 
-
-using namespace std;
+using std::string;
+using std::list;
 
 class ModelTrace
 {

@@ -6,9 +6,8 @@
 #include "../json/Lexer.h"
 #include "../utils/Hashmap.h"
 #include <stdlib.h>
-using namespace std;
-
-
+using std::string;
+using std::list;
 
 TraceSequence::TraceSequence(){
 

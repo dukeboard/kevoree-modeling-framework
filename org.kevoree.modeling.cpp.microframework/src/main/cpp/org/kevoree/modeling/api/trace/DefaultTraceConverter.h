@@ -9,7 +9,10 @@
 #include <iostream>
 #include "../utils/Hashmap.h"
 
-using namespace std;
+using std::string;
+using std::list;
+using std::cout;
+using std::endl;
 
 class DefaultTraceConverter : public TraceConverter
 {
