@@ -16,7 +16,7 @@ public:
     bool isReadOnly();
     bool isRecursiveReadOnly();
     void setInternalReadOnly();
-	void _delete(); // can't use delete 
+	void deleteContainer(); // can't use delete reserve c++ 
 	
 	
 	
@@ -32,7 +32,7 @@ public:
 
     string metaClassName();
     void reflexiveMutator(int mutatorType,string refName, void *value, bool setOpposite,bool fireEvent );
-   // fun selectByQuery(query : String) : list<Any>
+   //  selectByQuery(query : String) : list<Any>
    
     void addModelElementListener(ModelElementListener lst);
     void removeModelElementListener(ModelElementListener lst);
