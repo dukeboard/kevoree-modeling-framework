@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import java.io.OutputStream
 import org.kevoree.modeling.api.ModelSerializer
 import java.io.ByteArrayOutputStream
+import java.util.ArrayList
 
 /**
  * Created with IntelliJ IDEA.
@@ -88,13 +89,13 @@ public open class JSONModelSerializer : ModelSerializer {
                     if(value is java.util.Date) {
                         escapeJson(out, "" + value.getTime())
                     } else{
-                        if(value is List<*>){
+                        if(value is ArrayList<*>){
                             var isF = true
                             for(v in value){
                                 if(!isF){
-                                    out.print('$'.toInt())
+                                    out.print("$")
                                 }
-                                escapeJson(out, value.toString())
+                                escapeJson(out, v.toString())
                                 isF = false
                             }
                         } else {

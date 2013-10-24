@@ -50,7 +50,7 @@ trait ClassGenerator extends ClonerGenerator {
           valueType = ProcessorHelper.convertType(att.getEAttributeType, ctx)
         }
         if (att.isMany) {
-          pr.println("if(value is List<*>){")
+          pr.println("if(value is java.util.ArrayList<*>){")
           if (ctx.generateEvents) {
             pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
           } else {
@@ -542,6 +542,10 @@ generateDiffMethod(pr, cls, ctx)
       } else {
         defaultValue = "\"\"+hashCode() + java.util.Date().getTime()"
       }
+    } else {
+      if(att.isMany){
+           defaultValue = "java.util.ArrayList<"+ProcessorHelper.convertType(att.getEAttributeType, ctx)+">()"
+      }
     }
 
     if (att.isMany) {
@@ -595,10 +599,18 @@ generateDiffMethod(pr, cls, ctx)
             } else {
               defaultValue = "\"\"+hashCode() + java.util.Date().getTime()"
             }
+          } else {
+            if(att.isMany){
+              defaultValue = "java.util.ArrayList<"+ProcessorHelper.convertType(att.getEAttributeType, ctx)+">()"
+            }
           }
           //Generate getter
           if (att.isMany) {
-            pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = null")
+            if (defaultValue == null || defaultValue == "") {
+              pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = null")
+            } else {
+              pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = "+defaultValue)
+            }
             pr.println("\t set(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?){")
           } else {
             if (defaultValue == null || defaultValue == "") {
