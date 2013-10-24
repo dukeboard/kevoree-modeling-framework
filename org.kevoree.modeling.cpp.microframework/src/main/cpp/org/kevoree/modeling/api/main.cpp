@@ -4,10 +4,30 @@
 #include "json/Lexer.h"
 #include "trace/TraceSequence.h"
 
+
 #include <iostream>
 #include <fstream>
 
+
+
 int main(int argc,char **argv){
+/*
+
+google::dense_hash_map<string,any> dmap;
+
+  dmap.set_empty_key("");
+
+
+
+any powet =    new ModelAddTrace("","nodes","nodes[server-node]","org.kevoree.ContainerNode");
+
+   dmap["efef"] = powet;
+
+  any efef =  dmap["efef"]   ;
+
+  ModelAddTrace *tdefef =AnyCast<ModelAddTrace*>(efef);
+
+            	std::cout << tdefef->toString() << endl;    */
 
 
 ModelTrace *model_trace = new ModelAddTrace("","nodes","nodes[server-node]","org.kevoree.ContainerNode");
@@ -17,43 +37,43 @@ if(model_trace->toString().compare("{ \"traceType\" : 1 , \"src\" : \"\", \"refn
 }
 /*
 list<ModelTrace*> traces;
-  
+
   traces.push_back(model_trace);
-  
-   	for (std::list<ModelTrace*>::iterator iterator = traces.begin(), end = traces.end(); iterator != end; ++iterator) 
+
+   	for (std::list<ModelTrace*>::iterator iterator = traces.begin(), end = traces.end(); iterator != end; ++iterator)
         {
 			ModelTrace * t = *iterator;
-			
+
 			cout << t->toString() <<endl;
 		}*/
-  
+
 /* *********************************Test DefaultTraceConverter ************************ */
 DefaultTraceConverter *defaultTraceConvert = new DefaultTraceConverter();
 
 
 ModelAddTrace *t2 = (ModelAddTrace*)defaultTraceConvert->convert(model_trace);
 
-delete model_trace;
+//delete model_trace;
 
 
-/* ********************************************************************* */ 
+/* ********************************************************************* */
 
 
 
 /* *********************************Test Lexer ************************ */
 ifstream myfile;
  myfile.open ("trace.example");
-  
+
 Lexer *lexer = new Lexer(myfile);
 int count = 0;
-Token token = lexer->nextToken(); 
+Token token = lexer->nextToken();
 
 //cout << lexer->isValueLetter('r') << endl;
 
 
  while(token.tokenType != END_OF_FILE){
 	 	//std::cout  <<token.tokenType << " - " <<token.value<< endl;
-	 	token =lexer->nextToken(); 
+	 	token =lexer->nextToken();
 	 	count++;
  }
 if(count != 41){
@@ -63,31 +83,47 @@ if(count != 41){
  if(lexer->isDigit('0') != true){
 	 	std::cout << "Error Lexer isDigit" << endl;
  }
- 
- 
+
+
   myfile.close();
 
-/* ********************************************************************* */ 
- 
- /* ********************************* TraceSequence ************************ */ 
- 
+/* ********************************************************************* */
+
+ /* ********************************* TraceSequence ************************ */
+
 fstream file_TraceSequence;
  file_TraceSequence.open ("trace.example");
   TraceSequence *tracesequence = new TraceSequence();
 
   tracesequence->populateFromStream(file_TraceSequence);
-   tracesequence->exportToString();
-  //cout << <<endl;
-  
+if(tracesequence->exportToString().compare("[{ \"traceType\" : 0 , \"src\" : \"\", \"refname\" : \"generated_KMF_ID\", \"content\" : \"0.168778813909739261382348563259\"},{ \"traceType\" : 1 , \"src\" : \"\", \"refname\" : \"nodes\", \"previouspath\" : \"nodes[server-node]\"}]") == -1){
+            	std::cout << "Error file_TraceSequence toString()" << endl;
+}
+
     file_TraceSequence.close();
      delete tracesequence;
-     
-     
-    cout << "FINISH" << endl;
-    
-    
 
-/* ********************************************************************* */ 
+
+
+ /* ********************************* any ************************ */
+     any t  = new ModelAddTrace("","nodes","nodes[server-node]","org.kevoree.ContainerNode");
+	if(!t.empty()){
+		if(t.type() == typeid(ModelAddTrace*)){
+			ModelAddTrace *td =AnyCast<ModelAddTrace*>(t);
+			if(td->toString().compare("{ \"traceType\" : 1 , \"src\" : \"\", \"refname\" : \"nodes\", \"previouspath\" : \"nodes[server-node]\"}") == -1){
+			   	std::cout << "Error ModelAddTrace AnyCast toString()" << endl;
+			}
+
+		}
+	}
+/* ******************************************************************* */
+
+
+    cout << "FINISH" << endl;
+
+
+
+/* ********************************************************************* */
 
 
 
