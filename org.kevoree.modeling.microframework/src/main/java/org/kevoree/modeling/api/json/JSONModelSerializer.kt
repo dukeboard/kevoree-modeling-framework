@@ -5,10 +5,9 @@ import java.io.PrintStream
 import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import java.io.OutputStream
-import java.util.HashMap
 import org.kevoree.modeling.api.ModelSerializer
 import java.io.ByteArrayOutputStream
-import java.util.Date
+import java.util.ArrayList
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,8 +17,8 @@ import java.util.Date
  */
 
 
-class ModelReferenceVisitor(val out : PrintStream) : ModelVisitor() {
-    override fun beginVisitRef(refName: String, refType : String) {
+class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
+    override fun beginVisitRef(refName: String, refType: String) {
         out.print(",\"" + refName + "\":[")
         isFirst = true
     }
@@ -41,7 +40,7 @@ public open class JSONModelSerializer : ModelSerializer {
 
     override fun serialize(model: KMFContainer): String? {
         val outstream = ByteArrayOutputStream()
-        serializeToStream(model,outstream)
+        serializeToStream(model, outstream)
         outstream.close()
         return outstream.toString()
     }
@@ -53,7 +52,7 @@ public open class JSONModelSerializer : ModelSerializer {
         //Visitor for Model naviguation
         var masterVisitor = object : ModelVisitor() {
             var isFirstInRef = true
-            override public fun beginVisitElem(elem: KMFContainer){
+            override public fun beginVisitElem(elem: KMFContainer) {
                 if(!isFirstInRef){
                     out.print(",")
                     isFirstInRef = false
@@ -62,11 +61,11 @@ public open class JSONModelSerializer : ModelSerializer {
                 internalReferenceVisitor.alreadyVisited?.clear()
                 elem.visit(internalReferenceVisitor, false, false, true)
             }
-            override public fun endVisitElem(elem: KMFContainer){
+            override public fun endVisitElem(elem: KMFContainer) {
                 out.println("}")
                 isFirstInRef = false
             }
-            override fun beginVisitRef(refName: String, refType : String) {
+            override fun beginVisitRef(refName: String, refType: String) {
                 out.print(",\"" + refName + "\":[")
                 isFirstInRef = true
             }
@@ -88,11 +87,21 @@ public open class JSONModelSerializer : ModelSerializer {
                 if(value != null){
                     out.print(",\"" + name + "\":\"")
                     if(value is java.util.Date) {
-                        escapeJson(out,"" + value.getTime())
+                        escapeJson(out, "" + value.getTime())
                     } else{
-                        escapeJson(out,value.toString())
+                        if(value is ArrayList<*>){
+                            var isF = true
+                            for(v in value){
+                                if(!isF){
+                                    out.print("$")
+                                }
+                                escapeJson(out, v.toString())
+                                isF = false
+                            }
+                        } else {
+                            escapeJson(out, value.toString())
+                        }
                     }
-
                     out.print("\"")
                 }
             }
@@ -100,8 +109,10 @@ public open class JSONModelSerializer : ModelSerializer {
         elem.visitAttributes(attributeVisitor)
     }
 
-    private fun escapeJson(ostream : java.io.PrintStream, chain : String?) {
-        if(chain == null){return;}
+    private fun escapeJson(ostream: java.io.PrintStream, chain: String?) {
+        if(chain == null){
+            return;
+        }
         var i = 0
         while(i < chain.size){
             val c = chain.get(i)

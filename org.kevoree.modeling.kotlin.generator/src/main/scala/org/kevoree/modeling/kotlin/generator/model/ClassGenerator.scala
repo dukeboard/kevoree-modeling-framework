@@ -42,137 +42,154 @@ trait ClassGenerator extends ClonerGenerator {
     pr.println("when(refName) {")
     cls.getEAllAttributes.foreach {
       att =>
-
-
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
-        if (att.isMany) {
-          pr.println("if(mutationType == org.kevoree.modeling.api.util.ActionType.SET) {")
-        }
-        var valueType: String = ""
+      var valueType: String = ""
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
           valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
         } else {
           valueType = ProcessorHelper.convertType(att.getEAttributeType, ctx)
         }
         if (att.isMany) {
-          pr.println("if(value is List<" + valueType + ">){")
+          pr.println("if(value is java.util.ArrayList<*>){")
           if (ctx.generateEvents) {
             pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
           } else {
             pr.println("this." + protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
           }
           pr.println("}else {")
-
-          //TODO
-          pr.println("}")
-        }
-
-
-
-        if (ctx.getJS()) {
-          valueType match {
-            case "Boolean" => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((\"true\" == value || true == value), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (\"true\" == value || true == value)")
+          pr.println("if(value is String){")
+          pr.println("val splitted = value.toString().split(\"$\")")
+          pr.println("var tempArrayValues : MutableList<" + valueType + "> = java.util.ArrayList<" + valueType + ">()")
+          pr.println("for(eachV in splitted){")
+          if (ctx.getJS()) {
+            valueType match {
+              case "Boolean" => {
+                pr.println("tempArrayValues.add(\"true\" == eachV || true == eachV)")
+              }
+              case _ => {
+                pr.println("tempArrayValues.add(eachV as " + valueType + ")")
               }
             }
-            case "java.util.Date" => {
-              pr.println("if(value is java.util.Date){")
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+          } else {
+            valueType match {
+              case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short" => {
+                pr.println("tempArrayValues.add(eachV.toString().to" + valueType + "())")
               }
-              pr.println("} else {")
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+              case "Byte" => {
+                pr.println("tempArrayValues.add(eachV.toString().toInt().to" + valueType + "())")
               }
-              pr.println("}")
-            }
-            case _ => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+              case "ByteArray" => {
+                pr.println("tempArrayValues.add(value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
+              }
+              case _ => {
+                pr.println("tempArrayValues.add(eachV as " + valueType + ")")
               }
             }
           }
+          pr.println("}")
+          if (ctx.generateEvents) {
+            pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
+          } else {
+            pr.println("this." + protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
+          }
+          pr.println("}")
+          pr.println("}")
         } else {
-          valueType match {
-            case "String" => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+
+
+          if (ctx.getJS()) {
+            valueType match {
+              case "Boolean" => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((\"true\" == value || true == value), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (\"true\" == value || true == value)")
+                }
+              }
+              case "java.util.Date" => {
+                pr.println("if(value is java.util.Date){")
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                }
+                pr.println("} else {")
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+                }
+                pr.println("}")
+              }
+              case _ => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                }
               }
             }
-            case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short" => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value.toString().to" + valueType + "()), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().to" + valueType + "())")
+          } else {
+            valueType match {
+              case "String" => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                }
               }
-            }
-            case "Byte" => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value.toString().toInt().to" + valueType + "()), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toInt().to" + valueType + "())")
+              case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short" => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value.toString().to" + valueType + "()), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().to" + valueType + "())")
+                }
               }
-            }
-            case "ByteArray" => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value.toString().toByteArray(java.nio.charset.Charset.defaultCharset())), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
+              case "Byte" => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value.toString().toInt().to" + valueType + "()), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toInt().to" + valueType + "())")
+                }
               }
-            }
-            case "java.util.Date" => {
-              pr.println("if(value is java.util.Date){")
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+              case "ByteArray" => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value.toString().toByteArray(java.nio.charset.Charset.defaultCharset())), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
+                }
               }
-              pr.println("} else {")
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+              case "java.util.Date" => {
+                pr.println("if(value is java.util.Date){")
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                }
+                pr.println("} else {")
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+                }
+                pr.println("}")
               }
-              pr.println("}")
-            }
-            case "Any" => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value.toString() as? " + valueType + "), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value.toString() as? " + valueType + ")")
+              case "Any" => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value.toString() as? " + valueType + "), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString() as? " + valueType + ")")
+                }
               }
-            }
-            case _ => {
-              if (ctx.generateEvents) {
-                pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-              } else {
-                pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+              case _ => {
+                if (ctx.generateEvents) {
+                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
+                } else {
+                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                }
               }
             }
           }
-        }
-        if (att.isMany) {
-          pr.println("} else {")
-
-          pr.println("if(mutationType == org.kevoree.modeling.api.util.ActionType.ADD) {")
-
-          pr.println("}")
-
-
-          //ADD INTO LIST
-
-          pr.println("}") //END MUTATION TYPE
         }
         pr.println("}") //END ATTR
     }
@@ -518,15 +535,6 @@ generateDiffMethod(pr, cls, ctx)
 
   private def generateAttributeSetterWithParameter(pr: PrintWriter, att: EAttribute, ctx: GenerationContext, pack: String, idAttributes: mutable.Buffer[EAttribute]) {
 
-    var defaultValue = att.getDefaultValueLiteral
-    if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
-      if (ctx.getJS()) {
-        defaultValue = "\"\"+Math.random() + java.util.Date().getTime()"
-      } else {
-        defaultValue = "\"\"+hashCode() + java.util.Date().getTime()"
-      }
-    }
-
     if (att.isMany) {
       pr.println("\tprivate fun internal_" + att.getName + "(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?, fireEvents : Boolean = true){")
     } else {
@@ -578,10 +586,18 @@ generateDiffMethod(pr, cls, ctx)
             } else {
               defaultValue = "\"\"+hashCode() + java.util.Date().getTime()"
             }
+          } else {
+            if(att.isMany){
+              defaultValue = "java.util.ArrayList<"+ProcessorHelper.convertType(att.getEAttributeType, ctx)+">()"
+            }
           }
           //Generate getter
           if (att.isMany) {
-            pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = null")
+            if (defaultValue == null || defaultValue == "") {
+              pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = null")
+            } else {
+              pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = "+defaultValue)
+            }
             pr.println("\t set(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?){")
           } else {
             if (defaultValue == null || defaultValue == "") {

@@ -8,12 +8,12 @@ package org.kevoree.modeling.api.xmi
 import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
+import java.util.ArrayList
 
 
 class ReferencesVisitor(val ostream : java.io.PrintStream, val addressTable : java.util.HashMap<KMFContainer, String>, val elementsCount : java.util.HashMap<String, Int>) : ModelVisitor() {
 
     var value : String? = null
-
     override public fun beginVisitElem(elem: KMFContainer){}
     override public fun endVisitElem(elem: KMFContainer){}
     override fun beginVisitRef(refName: String, refType : String) {}
@@ -23,15 +23,15 @@ class ReferencesVisitor(val ostream : java.io.PrintStream, val addressTable : ja
             value = null
         }
     }
+
     public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
         var adjustedAddress = addressTable.get(elem)
         if(value == null) {
             value = adjustedAddress
         } else {
-            value += " " + adjustedAddress
+            value += " "+adjustedAddress
         }
     }
-
 }
 
 
@@ -42,7 +42,19 @@ class AttributesVisitor(val ostream : java.io.PrintStream) : ModelAttributeVisit
             if(value is java.util.Date) {
                 escapeXml(ostream, "" + value.getTime())
             } else {
-                escapeXml(ostream, value.toString())
+                if(value is ArrayList<*>){
+                    var isF = true
+                    for(v in value){
+                        if(!isF){
+                            ostream.print("$")
+                        }
+                        escapeXml(ostream, v.toString())
+                        isF = false
+                    }
+                } else {
+                    escapeXml(ostream, value.toString())
+                }
+
             }
             ostream.print("\"")
         }

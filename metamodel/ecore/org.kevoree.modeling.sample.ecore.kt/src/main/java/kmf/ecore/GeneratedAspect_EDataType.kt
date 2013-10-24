@@ -4,10 +4,10 @@ public aspect trait GeneratedAspect_EDataType : kmf.ecore.EDataType {
 	override fun getClassifierID() : Int {
 		throw Exception("Not implemented yet !");
 	}
-	override fun getEAnnotation(_source:String) : kmf.ecore.EAnnotation? {
+	override fun isInstance(_object:Any) : Boolean {
 		throw Exception("Not implemented yet !");
 	}
-	override fun isInstance(_object:Any) : Boolean {
+	override fun getEAnnotation(_source:String) : kmf.ecore.EAnnotation? {
 		throw Exception("Not implemented yet !");
 	}
 }

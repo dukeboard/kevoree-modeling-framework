@@ -320,25 +320,19 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
         }
     }
 
-
     override fun createTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, isInter : Boolean, isMerge : Boolean, onlyReferences : Boolean, onlyAttributes : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
         val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
         val values = java.util.HashMap<String,String?>()
         if(onlyAttributes){
             val attVisitorFill = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
                 public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
-                    values.put(name,value?.toString())
+                    values.put(name,org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value))
                 }
             }
             this.visitAttributes(attVisitorFill)
             val attVisitor = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
                 public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
-                        var attVal2 : String?
-                        if(value != null){
-                            attVal2 = value.toString()
-                        } else {
-                            attVal2 = null
-                        }
+                        var attVal2 : String? = org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value)
                         if(values.get(name) == attVal2){
                             if(isInter) {
                                 traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,attVal2,null))
