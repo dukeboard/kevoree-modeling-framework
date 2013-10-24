@@ -2,6 +2,7 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.events.*
 import org.kevoree.modeling.api.util.ModelVisitor
+import org.kevoree.modeling.api.util.ActionType
 
 trait KMFContainer {
 
@@ -19,7 +20,7 @@ trait KMFContainer {
 
     fun path(): String?
     fun metaClassName(): String
-    fun reflexiveMutator(mutatorType: Int, refName: String, value: Any?, setOpposite : Boolean, fireEvent : Boolean)
+    fun reflexiveMutator(mutatorType: ActionType, refName: String, value: Any?, setOpposite : Boolean, fireEvent : Boolean)
     fun selectByQuery(query : String) : List<Any>
     fun addModelElementListener(lst : ModelElementListener)
     fun removeModelElementListener(lst : ModelElementListener )

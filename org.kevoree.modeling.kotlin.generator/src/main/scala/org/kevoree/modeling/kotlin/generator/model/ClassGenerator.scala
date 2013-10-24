@@ -38,7 +38,7 @@ trait ClassGenerator extends ClonerGenerator {
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
   def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
-    pr.println("override fun reflexiveMutator(mutationType : Int, refName : String, value : Any?, setOpposite : Boolean, fireEvents : Boolean) {")
+    pr.println("override fun reflexiveMutator(mutationType : org.kevoree.modeling.api.util.ActionType, refName : String, value : Any?, setOpposite : Boolean, fireEvents : Boolean) {")
     pr.println("when(refName) {")
     cls.getEAllAttributes.foreach {
       att =>

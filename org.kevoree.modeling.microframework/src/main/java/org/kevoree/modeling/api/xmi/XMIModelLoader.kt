@@ -12,6 +12,7 @@ import org.kevoree.modeling.api.KMFFactory
 import java.io.InputStream
 import java.io.ByteArrayInputStream
 import org.kevoree.modeling.api.util.ByteConverter
+import org.kevoree.modeling.api.util.ActionType
 
 public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
@@ -280,7 +281,7 @@ public class LoadingContext() {
 }
 
 
-public class XMIResolveCommand(val context : LoadingContext, val target : org.kevoree.modeling.api.KMFContainer, val mutatorType : Int, val refName : String, val ref : String){
+public class XMIResolveCommand(val context : LoadingContext, val target : org.kevoree.modeling.api.KMFContainer, val mutatorType : ActionType, val refName : String, val ref : String){
     fun run() {
         var referencedElement = context.map.get(ref)
         if(referencedElement != null) {
