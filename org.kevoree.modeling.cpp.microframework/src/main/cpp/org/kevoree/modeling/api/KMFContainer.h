@@ -41,11 +41,11 @@ public:
     template <class A> // http://www.cplusplus.com/doc/tutorial/templates
 	A* findByPath(string query,A clazz);
  
-   virtual void visit(ModelVisitor visitor,bool recursive,bool containedReference ,bool nonContainedReference){}
+    virtual void visit(ModelVisitor visitor,bool recursive,bool containedReference ,bool nonContainedReference){}
     virtual void visitAttributes(ModelAttributeVisitor visitor ){}
 
     virtual list<ModelTrace*> createTraces(KMFContainer similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {}
-ModelVisitor t;
+
 };
 
 #endif
