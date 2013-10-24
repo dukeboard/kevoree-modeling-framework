@@ -38,6 +38,11 @@ console.log(savedModel2);
 console.log("After Clone");
 
 
+var traceSeq = compare.inter(clonedModel,clonedModel);
+
+console.log(traceSeq.toString());
+
+
 /*
 String.prototype.repeat = function( num ){return new Array( num + 1 ).join(this);}
 function prettyPrint(indice){
