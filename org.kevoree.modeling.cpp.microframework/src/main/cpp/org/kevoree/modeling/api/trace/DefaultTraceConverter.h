@@ -7,7 +7,7 @@
 #include "ModelTrace.h"
 #include <typeinfo>
 #include <iostream>
-#include "../utils/Hashmap.h"
+#include <google/dense_hash_map>
 
 using std::string;
 using std::list;
@@ -55,10 +55,12 @@ public:
 
 
 private:
-  Hashmap<string> *metaClassNameEquivalence_1;
-  Hashmap<string> *metaClassNameEquivalence_2;
-  Hashmap<string> *attNameEquivalence_1;
-  Hashmap<string> *attNameEquivalence_2;
+  google::dense_hash_map<string, string> metaClassNameEquivalence_1;
+  google::dense_hash_map<string, string> metaClassNameEquivalence_2;
+
+  google::dense_hash_map<string, string> attNameEquivalence_1;
+  google::dense_hash_map<string, string> attNameEquivalence_2;
+
 
 
 };

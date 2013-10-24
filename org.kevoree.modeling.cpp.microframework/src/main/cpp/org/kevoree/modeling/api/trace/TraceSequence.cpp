@@ -4,7 +4,6 @@
 #include <list>
 #include <sstream>
 #include "../json/Lexer.h"
-#include "../utils/Hashmap.h"
 #include <stdlib.h>
 using std::string;
 using std::list;
@@ -51,20 +50,21 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
         }
         
       currentToken = lexer->nextToken();
-      Hashmap<string> *keys = new Hashmap<string>();
+
+      google::dense_hash_map<string, string> keys;
+      keys.set_empty_key("");
       string previousName;
       ModelTrace *modeltrace;
       
       while (currentToken.tokenType != END_OF_FILE && currentToken.tokenType != RIGHT_BRACKET) {
 				
 	      if(currentToken.tokenType == LEFT_BRACE){
-				delete keys;
-				keys = new Hashmap<string>();
+				keys.clear();
           }
           
           if(currentToken.tokenType == VALUE){
                 if(!previousName.empty()){
-                    keys->insert(previousName,currentToken.value);
+                    keys[previousName] = currentToken.value;
                     previousName.clear();
                 }   else {
                     previousName = currentToken.value;
@@ -72,10 +72,10 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
             }
             
              if(currentToken.tokenType == RIGHT_BRACE){
-			
-					if(keys->find("traceType") != 0){
-						
-						string traceType = *(keys->find("traceType"));
+
+	            if(keys.find("traceType") != keys.end()){
+
+						string traceType = keys["traceType"];
 						string _src = "";
 						string _refname = "";
 						string _objpath = "";
@@ -89,24 +89,22 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
 							
 							case SET:
 					
-								if(keys->find("src") != 0){
-									_src =*(keys->find("src"));
+					            if(keys.find("src") != keys.end()){
+									_src =keys["src"];
 								}
-								if(keys->find("src") != 0){
-									_src =*(keys->find("src"));
+					            if(keys.find("refname") != keys.end()){
+									_refname =keys["refname"];
 								}
-								if(keys->find("refname") != 0){
-									_refname =*(keys->find("refname"));
-								}		
-								if(keys->find("objpath") != 0){
-									_objpath =*(keys->find("objpath"));
-								}	
-								if(keys->find("content") != 0){
-									_content =*(keys->find("content"));
+					            if(keys.find("objpath") != keys.end()){
+									_objpath =keys["objpath"];
 								}
-								if(keys->find("typename") != 0){
-									_typename =*(keys->find("typename"));
-								}	
+					            if(keys.find("content") != keys.end()){
+									_content =keys["content"];
+								}
+					            if(keys.find("typename") != keys.end()){
+									_typename =keys["typename"];
+								}
+
 								modeltrace = new ModelSetTrace(_src,_refname,_objpath,_content,_typename);
 		
 								traces.push_back(modeltrace);
@@ -114,17 +112,18 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
 							break;
 							
 							case ADD:
-								if(keys->find("src") != 0){
-									_src =*(keys->find("src"));
+					            if(keys.find("src") != keys.end()){
+									_src =keys["src"];
 								}
-								if(keys->find("refname") != 0){
-									_refname =*(keys->find("refname"));
-								}	
-								if(keys->find("previouspath") != 0){
-									_previouspath =*(keys->find("previouspath"));
-								}	
-								if(keys->find("typename") != 0){
-									_typename =*(keys->find("typename"));
+					            if(keys.find("refname") != keys.end()){
+									_refname =keys["refname"];
+								}
+					            if(keys.find("previouspath") != keys.end()){
+									_previouspath =keys["previouspath"];
+								}
+
+					            if(keys.find("typename") != keys.end()){
+									_typename =keys["typename"];
 								}
 								modeltrace =new ModelAddTrace(_src,_refname,_previouspath,_typename);
 								traces.push_back(modeltrace);					
@@ -132,15 +131,15 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
 							
 							case REMOVE:
 							
-								if(keys->find("src") != 0){
-									_src =*(keys->find("src"));
+					            if(keys.find("src") != keys.end()){
+									_src =keys["src"];
 								}
-								if(keys->find("refname") != 0){
-									_refname =*(keys->find("refname"));
-								}		
-								if(keys->find("objpath") != 0){
-									_objpath =*(keys->find("objpath"));
-								}	
+					            if(keys.find("refname") != keys.end()){
+									_refname =keys["refname"];
+								}
+					            if(keys.find("objpath") != keys.end()){
+									_objpath =keys["objpath"];
+								}
 								modeltrace= new ModelRemoveTrace(_src,_refname,_objpath);
 								traces.push_back(modeltrace);
 							break;
@@ -177,7 +176,7 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
 			 }			
                currentToken = lexer->nextToken(); 
     }
-    delete keys;
+
     return this;        
 }
 

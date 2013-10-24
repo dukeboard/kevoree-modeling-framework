@@ -1,9 +1,10 @@
 #ifndef __ModelVisitor_H
 #define __ModelVisitor_H
 
-#include "Hashmap.h"
+
 #include "any.h"
 #include <string>
+#include <google/dense_hash_map>
 
 using std::string;
 class KMFContainer;
@@ -14,12 +15,11 @@ class ModelVisitor {
   ModelVisitor(){
 	  visitStopped = false;
 	  visitChildren = true;
-	  alreadyVisited = new Hashmap<any>;
   }
 
   bool visitStopped; // false
   bool visitChildren; // true
-  Hashmap<any> *alreadyVisited;
+  google::dense_hash_map<string,any> alreadyVisited;
   
   
 	void stopVisit(){
