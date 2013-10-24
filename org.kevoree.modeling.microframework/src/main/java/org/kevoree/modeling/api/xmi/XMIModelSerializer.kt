@@ -28,7 +28,7 @@ class ReferencesVisitor(val ostream : java.io.PrintStream, val addressTable : ja
         if(value == null) {
             value = adjustedAddress
         } else {
-            value += " " + adjustedAddress
+            value += " "+adjustedAddress
         }
     }
 
@@ -42,7 +42,19 @@ class AttributesVisitor(val ostream : java.io.PrintStream) : ModelAttributeVisit
             if(value is java.util.Date) {
                 escapeXml(ostream, "" + value.getTime())
             } else {
-                escapeXml(ostream, value.toString())
+                if(value is List<*>){
+                    var isF = true
+                    for(v in value){
+                        if(!isF){
+                            ostream.print('$'.toInt())
+                        }
+                        escapeXml(ostream, value.toString())
+                        isF = false
+                    }
+                } else {
+                    escapeXml(ostream, value.toString())
+                }
+
             }
             ostream.print("\"")
         }
