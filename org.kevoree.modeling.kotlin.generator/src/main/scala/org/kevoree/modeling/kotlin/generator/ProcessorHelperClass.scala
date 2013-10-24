@@ -104,6 +104,12 @@ class ProcessorHelperClass {
   }
 
   def getDefaultValue(ctx : GenerationContext, att : EAttribute) : String = {
+
+    val defaultLit = att.getDefaultValueLiteral
+    if(defaultLit != null && defaultLit != ""){
+      return defaultLit
+    }
+
     var dataType = EDataTypes.dataTypes.get(att.getEAttributeType)
     if(dataType == null){
       dataType = convertType(att.getEAttributeType,ctx)

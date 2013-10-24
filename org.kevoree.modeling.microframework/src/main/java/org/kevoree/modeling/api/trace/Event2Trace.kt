@@ -39,7 +39,7 @@ class Event2Trace(val compare: ModelCompare) {
             }
             ActionType.SET -> {
                 if(event.getElementAttributeType() == ElementAttributeType.ATTRIBUTE){
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, event.getValue()?.toString(), null));
+                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, org.kevoree.modeling.api.util.AttConverter.convFlatAtt(event.getValue()), null));
                 } else {
                     result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), (event.getValue() as? KMFContainer)?.path(), null, null));
                 }
@@ -85,7 +85,7 @@ class Event2Trace(val compare: ModelCompare) {
             }
             ActionType.SET -> {
                 if(event.getElementAttributeType() == ElementAttributeType.ATTRIBUTE){
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, event.getPreviousValue()?.toString(), null));
+                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, org.kevoree.modeling.api.util.AttConverter.convFlatAtt(event.getPreviousValue()), null));
                 } else {
                     result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), (event.getPreviousValue() as? KMFContainer)?.path(), null, null));
                 }
