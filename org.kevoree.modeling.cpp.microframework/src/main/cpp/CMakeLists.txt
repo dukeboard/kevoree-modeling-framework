@@ -1,16 +1,12 @@
-# Nom du projet
 project(microframework)
 
 
 
-SET( CMAKE_CXX_COMPILER "g++" )
 # Déclaration de l'exécutable
 add_executable(
     main
     org/kevoree/modeling/api/main.cpp
-    
-    org/kevoree/modeling/api/utils/Entry.cpp
-    org/kevoree/modeling/api/utils/Hashmap.cpp
+
     org/kevoree/modeling/api/utils/ModelAttributeVisitor.cpp
     org/kevoree/modeling/api/utils/ModelVisitor.cpp
     org/kevoree/modeling/api/utils/ModelTracker.cpp
