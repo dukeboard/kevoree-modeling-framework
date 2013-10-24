@@ -1,0 +1,1 @@
+enum  ElementAttributeType {ATTRIBUTE=0,REFERENCE=1,CONTAINMENT=2};

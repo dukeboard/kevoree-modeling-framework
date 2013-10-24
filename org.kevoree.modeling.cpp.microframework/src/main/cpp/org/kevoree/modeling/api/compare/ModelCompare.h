@@ -8,7 +8,6 @@
 
 #include <list>
 
-
 class ModelCompare
 {
 
@@ -19,7 +18,6 @@ class ModelCompare
     TraceSequence *inter (KMFContainer origin, KMFContainer target);
   private:
       std::list < ModelTrace * >internal_diff (KMFContainer origin,KMFContainer target,bool inter, bool merge);
-
 
 };
 

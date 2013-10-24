@@ -6,14 +6,16 @@
 #include <list>
 #include "KMFContainer.h"
 #include "KMFFactory.h"
-#include <map>
+
 
 class ModelCloner 
 {
 
 public:
     KMFFactory mainFactory;
-   // virtual map<KMFContainer, KMFContainer> createContext(): 
+
+
+    //virtual map<KMFContainer, KMFContainer> createContext():
     
     
     
