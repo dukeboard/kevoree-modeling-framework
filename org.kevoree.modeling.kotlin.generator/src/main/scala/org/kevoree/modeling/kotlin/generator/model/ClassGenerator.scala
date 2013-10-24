@@ -535,19 +535,6 @@ generateDiffMethod(pr, cls, ctx)
 
   private def generateAttributeSetterWithParameter(pr: PrintWriter, att: EAttribute, ctx: GenerationContext, pack: String, idAttributes: mutable.Buffer[EAttribute]) {
 
-    var defaultValue = att.getDefaultValueLiteral
-    if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
-      if (ctx.getJS()) {
-        defaultValue = "\"\"+Math.random() + java.util.Date().getTime()"
-      } else {
-        defaultValue = "\"\"+hashCode() + java.util.Date().getTime()"
-      }
-    } else {
-      if(att.isMany){
-           defaultValue = "java.util.ArrayList<"+ProcessorHelper.convertType(att.getEAttributeType, ctx)+">()"
-      }
-    }
-
     if (att.isMany) {
       pr.println("\tprivate fun internal_" + att.getName + "(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?, fireEvents : Boolean = true){")
     } else {

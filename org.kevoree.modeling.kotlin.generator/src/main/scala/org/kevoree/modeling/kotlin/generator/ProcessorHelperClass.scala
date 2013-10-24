@@ -104,7 +104,11 @@ class ProcessorHelperClass {
   }
 
   def getDefaultValue(ctx : GenerationContext, att : EAttribute) : String = {
-    val dataType = EDataTypes.dataTypes.get(att.getEAttributeType)
+    var dataType = EDataTypes.dataTypes.get(att.getEAttributeType)
+    if(dataType == null){
+      dataType = convertType(att.getEAttributeType,ctx)
+    }
+
     if(dataType != null) {
       dataType match {
         case "java.math.BigDecimal" =>{"null"}
