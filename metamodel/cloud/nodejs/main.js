@@ -29,9 +29,13 @@ for(var nodeI=0;nodeI<5;nodeI++){
 var savedModel = saver.serialize(cloud);
 
 var loadedModel = loader.loadModelFromString(savedModel).get(0);
-var savedModel2 = saver.serialize(loadedModel);
 console.log("After Load");
+
+var clonedModel = cloner.clone(loadedModel);
+var savedModel2 = saver.serialize(loadedModel);
 console.log(savedModel2);
+
+console.log("After Clone");
 
 
 /*

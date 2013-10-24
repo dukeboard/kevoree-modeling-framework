@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api
 
+import java.util.ArrayList
+
 /**
  * Created with IntelliJ IDEA.
  * User: duke
@@ -30,7 +32,13 @@ trait ModelCloner {
         val attributesCloner = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer) {
                 if(value != null){
-                    clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, value, false, false)
+                    if(value is ArrayList<*>){
+                        val clonedList = ArrayList<Any>()
+                        clonedList.addAll(value as Collection<Any>);
+                        clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, clonedList, false, false)
+                    } else {
+                        clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, value, false, false)
+                    }
                 }
             }
         }
