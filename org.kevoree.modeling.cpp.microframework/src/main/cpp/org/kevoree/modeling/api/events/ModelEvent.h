@@ -1,9 +1,12 @@
-
 #include <string>
 #include "../utils/any.h"
 using namespace std;
 
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 
 
 class ModelEvent 

@@ -1,8 +1,10 @@
 #include "ModelTrace.h"
 
-
-
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 ModelSetTrace::ModelSetTrace (string _srcPath, string _refName, string _objPath, string _content, string _typeName)
 {
     srcPath = _srcPath;

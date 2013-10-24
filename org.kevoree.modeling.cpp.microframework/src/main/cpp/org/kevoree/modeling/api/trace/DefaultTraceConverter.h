@@ -1,6 +1,10 @@
 #ifndef DefaultTraceConverter_H
 #define DefaultTraceConverter_H
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 #include <map>
 #include <vector>
 #include "TraceConverter.h"

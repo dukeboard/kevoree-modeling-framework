@@ -1,7 +1,10 @@
-
 #ifndef ModelCompare_H
 #define ModelCompare_H
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 #include "../trace/TraceSequence.h"
 #include "../KMFContainer.h"
 #include <google/dense_hash_map>

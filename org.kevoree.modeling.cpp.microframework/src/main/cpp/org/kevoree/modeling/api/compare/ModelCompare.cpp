@@ -1,7 +1,10 @@
 #include "ModelCompare.h"
 #include "../utils/ModelVisitor.h"
-
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 class ModelCompareVisitor:public ModelVisitor
 {
 

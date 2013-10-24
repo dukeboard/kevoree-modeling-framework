@@ -7,7 +7,11 @@
 #include <stdlib.h>
 using std::string;
 using std::list;
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 TraceSequence::TraceSequence(){
 
 }

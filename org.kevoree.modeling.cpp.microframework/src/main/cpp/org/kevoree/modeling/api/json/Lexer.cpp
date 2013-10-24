@@ -1,9 +1,13 @@
 #include "Lexer.h"
-
 #include <algorithm>
 #include <string> 
 #include <sstream>
 
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 Lexer::Lexer(istream &inputstream)
 {
 	if(inputstream)

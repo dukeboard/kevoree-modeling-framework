@@ -1,6 +1,9 @@
 #include "ModelEvent.h"
-
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
  ModelEvent::ModelEvent(string _internal_sourcePath, int _internal_etype, int _internal_elementAttributeType, string _internal_elementAttributeName, any _internal_value,any _internal_previous_value){
  
  internal_sourcePath = _internal_sourcePath;

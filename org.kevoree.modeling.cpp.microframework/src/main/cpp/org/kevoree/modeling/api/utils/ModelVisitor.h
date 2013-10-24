@@ -8,7 +8,11 @@
 
 using std::string;
 class KMFContainer;
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 class ModelVisitor {
 
   public:

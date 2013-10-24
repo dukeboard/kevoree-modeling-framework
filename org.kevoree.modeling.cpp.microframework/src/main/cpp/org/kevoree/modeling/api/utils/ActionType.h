@@ -1,12 +1,9 @@
-
-
 #include <string>
-
-
-
-
-
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 enum  actions {SET=0,ADD=1,REMOVE=2,ADD_ALL=3,REMOVE_ALL=4,RENEW_INDEX=5};
 static std::string ActionType(actions e)
 {

@@ -2,7 +2,11 @@
 #include "TraceConverter.h"
 #include "DefaultTraceConverter.h"
 
-
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 DefaultTraceConverter::DefaultTraceConverter(){
 
   metaClassNameEquivalence_1.set_empty_key("");

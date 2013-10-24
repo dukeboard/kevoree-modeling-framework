@@ -7,6 +7,11 @@
 using namespace std;
 
 enum  lexer_types {VALUE=0,LEFT_BRACE=1,RIGHT_BRACE=2,LEFT_BRACKET=3,RIGHT_BRACKET=4,COMMA=5,COLON=6,END_OF_FILE=42}; // replace EOF by END_OF_FILE langague keyword
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
 
 class Token 
 {
