@@ -2,12 +2,12 @@
 #define KMFContainer_H
 
 #include <string>
-#include "events/ModelElementListener.h"
-#include "trace/ModelTrace.h"
+#include <events/ModelElementListener.h>
+#include <trace/ModelTrace.h>
 #include <list>
-#include "utils/any.h"
-#include "utils/ModelVisitor.h"
-#include "utils/ModelAttributeVisitor.h"
+#include <utils/any.h>
+#include <utils/ModelVisitor.h>
+#include <utils/ModelAttributeVisitor.h>
 
 using std::string;
 using std::list;
@@ -34,7 +34,7 @@ public:
     virtual KMFContainer findByID(string relationName,string idP){}
 	virtual string path(){}
     virtual string metaClassName(){}
-    virtual void reflexiveMutator(int mutatorType,string refName, void *value, bool setOpposite,bool fireEvent ){}
+    virtual void reflexiveMutator(int mutatorType,string refName, any value, bool setOpposite,bool fireEvent ){}
     virtual list<any>  selectByQuery(string query){}
     virtual void addModelElementListener(ModelElementListener lst){}
     virtual void removeModelElementListener(ModelElementListener lst){}
@@ -42,7 +42,7 @@ public:
     virtual void addModelTreeListener(ModelElementListener lst){}
     virtual void removeModelTreeListener(ModelElementListener lst){}
     virtual void removeAllModelTreeListeners(){}
-    
+
     template <class A> // http://www.cplusplus.com/doc/tutorial/templates
 	A* findByPath(string query,A clazz);
  

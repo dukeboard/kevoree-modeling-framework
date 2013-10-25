@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <list>
-#include "KMFContainer.h"
+#include <KMFContainer.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13
@@ -13,8 +13,8 @@ class ModelLoader
 {
 
 public:
-    list<KMFContainer> loadModelFromString(string str); 
-    list<KMFContainer> loadModelFromStream(iostream inputStream);
+    list<KMFContainer*> loadModelFromString(string str);
+    list<KMFContainer*> loadModelFromStream(istream inputStream);
 };
 
 

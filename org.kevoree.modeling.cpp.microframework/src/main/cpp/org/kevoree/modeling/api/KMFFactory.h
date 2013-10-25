@@ -1,7 +1,7 @@
 #ifndef KMFFactory_H
 #define KMFFactory_H
 
-#include "KMFContainer.h"
+#include <KMFContainer.h>
 #include <string>
 /**
  * Author: jedartois@gmail.com
@@ -12,7 +12,7 @@ class KMFFactory
 {
 
 public:
-KMFContainer create(std::string metaClassName);
+virtual KMFContainer* create(std::string metaClassName){}
 
 
 };
