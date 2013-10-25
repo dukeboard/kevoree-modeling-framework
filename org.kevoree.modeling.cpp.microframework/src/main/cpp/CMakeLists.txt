@@ -13,6 +13,7 @@ include_directories(${SRC_PATH}/utils)
 include_directories("src_tests")
 
 include_directories(${SRC_PATH_UTIL}/google)
+include_directories(${SRC_PATH_UTIL}/sparsehash)
 
 file(GLOB_RECURSE files ${SRC_PATH}/*)
 file(GLOB_RECURSE files_tests src_tests/*)
