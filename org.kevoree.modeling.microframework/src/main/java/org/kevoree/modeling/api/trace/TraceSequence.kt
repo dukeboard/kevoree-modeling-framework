@@ -90,7 +90,7 @@ public trait TraceSequence {
         var isFirst = true
         for(trace in traces){
             if(!isFirst){
-                buffer.append(",")
+                buffer.append(",\n")
             }
             buffer.append(trace.toString())
             isFirst = false

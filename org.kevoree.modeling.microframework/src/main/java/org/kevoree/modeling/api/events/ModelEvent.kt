@@ -1,16 +1,19 @@
 package org.kevoree.modeling.api.events
 
-class ModelEvent(val internal_sourcePath: String?, val internal_etype: Int, val internal_elementAttributeType: Int, val internal_elementAttributeName: String, val internal_value: Any?,val internal_previous_value: Any?) {
+import org.kevoree.modeling.api.util.ActionType
+import org.kevoree.modeling.api.util.ElementAttributeType
+
+class ModelEvent(val internal_sourcePath: String?, val internal_etype: ActionType, val internal_elementAttributeType: ElementAttributeType, val internal_elementAttributeName: String, val internal_value: Any?,val internal_previous_value: Any?) {
 
     fun getSourcePath(): String? {
         return internal_sourcePath;
     }
 
-    fun getType(): Int {
+    fun getType(): ActionType {
         return internal_etype;
     }
 
-    fun getElementAttributeType(): Int {
+    fun getElementAttributeType(): ElementAttributeType {
         return internal_elementAttributeType;
     }
 

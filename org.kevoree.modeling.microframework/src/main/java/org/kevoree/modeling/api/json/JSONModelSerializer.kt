@@ -8,6 +8,7 @@ import java.io.OutputStream
 import org.kevoree.modeling.api.ModelSerializer
 import java.io.ByteArrayOutputStream
 import java.util.ArrayList
+import org.kevoree.modeling.api.util.AttConverter
 
 /**
  * Created with IntelliJ IDEA.
@@ -89,18 +90,7 @@ public open class JSONModelSerializer : ModelSerializer {
                     if(value is java.util.Date) {
                         escapeJson(out, "" + value.getTime())
                     } else{
-                        if(value is ArrayList<*>){
-                            var isF = true
-                            for(v in value){
-                                if(!isF){
-                                    out.print("$")
-                                }
-                                escapeJson(out, v.toString())
-                                isF = false
-                            }
-                        } else {
-                            escapeJson(out, value.toString())
-                        }
+                        escapeJson(out, AttConverter.convFlatAtt(value))
                     }
                     out.print("\"")
                 }

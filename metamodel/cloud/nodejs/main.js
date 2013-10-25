@@ -27,20 +27,16 @@ for(var nodeI=0;nodeI<5;nodeI++){
 
 //save in JSON
 var savedModel = saver.serialize(cloud);
-
 var loadedModel = loader.loadModelFromString(savedModel).get(0);
-console.log("After Load");
-
 var clonedModel = cloner.clone(loadedModel);
 var savedModel2 = saver.serialize(loadedModel);
-console.log(savedModel2);
-
-console.log("After Clone");
-
-
 var traceSeq = compare.inter(clonedModel,clonedModel);
+var traceSeqString = traceSeq.toString();
+var newTraceSeq = compare.createSequence();
+newTraceSeq.populateFromString(traceSeqString);
+console.log(newTraceSeq.toString());
 
-console.log(traceSeq.toString());
+
 
 
 /*
