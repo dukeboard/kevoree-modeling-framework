@@ -6,6 +6,7 @@
 #include <list>
 #include <KMFContainer.h>
 #include <KMFFactory.h>
+#include <google/dense_hash_map>
 
 /**
  * Author: jedartois@gmail.com
@@ -19,8 +20,10 @@ public:
     KMFFactory mainFactory;
 
 
-    //virtual map<KMFContainer, KMFContainer> createContext():
-    
+     virtual google::dense_hash_map<KMFContainer, KMFContainer> createContext(){}
+
+     template <class A>
+     A clone(A o,bool readOnly,bool mutableOnly);
     
     
 };
