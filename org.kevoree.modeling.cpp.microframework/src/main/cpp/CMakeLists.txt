@@ -23,7 +23,6 @@ file(GLOB_RECURSE files_tests src_tests/*)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
 
-FIND_PACKAGE(CPPUNIT REQUIRED)
 FIND_PACKAGE(Sparsehash REQUIRED)
 
 
