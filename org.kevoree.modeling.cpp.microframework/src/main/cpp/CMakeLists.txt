@@ -1,46 +1,40 @@
+cmake_minimum_required(VERSION 2.8)
 project(microframework)
 
 
+set(SRC_PATH org/kevoree/modeling/api)
 
-# Déclaration de l'exécutable
+include_directories(${SRC_PATH})
+include_directories(${SRC_PATH}/compare)
+include_directories(${SRC_PATH}/events)
+include_directories(${SRC_PATH}/json)
+include_directories(${SRC_PATH}/trace)
+include_directories(${SRC_PATH}/utils)
+include_directories("src_tests")
+
+
+
+
+
+
+file(GLOB_RECURSE files ${SRC_PATH}/*)
+file(GLOB_RECURSE files_tests src_tests/*)
+
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
+
+FIND_PACKAGE(CPPUNIT REQUIRED)
+FIND_PACKAGE(Sparsehash REQUIRED)
+
+
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+
+
+
+
 add_executable(
-    main
-    org/kevoree/modeling/api/main.cpp
-
-    org/kevoree/modeling/api/utils/ModelAttributeVisitor.cpp
-    org/kevoree/modeling/api/utils/ModelVisitor.cpp
-    org/kevoree/modeling/api/utils/ModelTracker.cpp
-    org/kevoree/modeling/api/utils/Event2Trace.cpp
-
-    org/kevoree/modeling/api/KMFFactory.cpp
-    org/kevoree/modeling/api/KMFContainer.cpp
-    org/kevoree/modeling/api/ModelSerializer.cpp
-    org/kevoree/modeling/api/ModelCloner.cpp
-    org/kevoree/modeling/api/ModelLoader.cpp
-    
-    org/kevoree/modeling/api/compare/ModelCompare.cpp
-    
-    org/kevoree/modeling/api/json/Lexer.cpp
-    
-
-    org/kevoree/modeling/api/events/ModelEvent.cpp
-    org/kevoree/modeling/api/events/ModelElementListener.cpp
-    org/kevoree/modeling/api/events/ModelTreeListener.cpp
-    
-    
-
-    
-
-   
-    org/kevoree/modeling/api/trace/TraceSequence.cpp
-    org/kevoree/modeling/api/trace/ModelTrace.cpp
-    org/kevoree/modeling/api/trace/TraceConverter.cpp
-    org/kevoree/modeling/api/trace/DefaultTraceConverter.cpp
-    
-       
-  
-
-
-
-
+        src_tests/tests
+        ${files}
+        ${files_tests}
 )
