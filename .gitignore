@@ -32,3 +32,4 @@ keystore
 **/node_modules/**
 **/*.jar
 /release.properties
+build/
