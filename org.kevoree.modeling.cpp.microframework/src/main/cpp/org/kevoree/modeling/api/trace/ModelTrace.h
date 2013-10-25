@@ -3,7 +3,7 @@
 #include <string>
 #include <list>
 #include <iostream>
-#include "../utils/ActionType.h"
+#include <utils/ActionType.h>
 
 using std::string;
 using std::list;

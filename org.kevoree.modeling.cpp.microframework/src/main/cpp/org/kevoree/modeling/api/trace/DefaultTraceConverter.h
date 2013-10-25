@@ -7,8 +7,8 @@
  */
 #include <map>
 #include <vector>
-#include "TraceConverter.h"
-#include "ModelTrace.h"
+#include <trace/TraceConverter.h>
+#include <trace/ModelTrace.h>
 #include <typeinfo>
 #include <iostream>
 #include <google/dense_hash_map>

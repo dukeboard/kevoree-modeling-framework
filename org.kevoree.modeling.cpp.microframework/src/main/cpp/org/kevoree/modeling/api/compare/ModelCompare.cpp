@@ -1,5 +1,5 @@
-#include "ModelCompare.h"
-#include "../utils/ModelVisitor.h"
+#include <ModelCompare.h>
+#include <utils/ModelVisitor.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13

@@ -1,4 +1,4 @@
-#include "Event2Trace.h"
+#include <trace/Event2Trace.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13

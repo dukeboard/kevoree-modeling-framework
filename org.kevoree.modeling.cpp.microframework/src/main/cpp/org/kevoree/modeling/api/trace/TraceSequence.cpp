@@ -3,7 +3,7 @@
 #include <map>
 #include <list>
 #include <sstream>
-#include "../json/Lexer.h"
+#include <json/Lexer.h>
 #include <stdlib.h>
 using std::string;
 using std::list;

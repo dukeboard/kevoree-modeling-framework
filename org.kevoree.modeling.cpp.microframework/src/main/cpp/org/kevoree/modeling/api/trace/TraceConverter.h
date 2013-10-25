@@ -1,6 +1,6 @@
 #ifndef TraceConverter_H
 #define TraceConverter_H
-#include "ModelTrace.h"
+#include <trace/ModelTrace.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13

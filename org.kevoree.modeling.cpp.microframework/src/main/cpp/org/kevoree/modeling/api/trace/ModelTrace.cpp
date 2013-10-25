@@ -1,4 +1,4 @@
-#include "ModelTrace.h"
+#include <trace/ModelTrace.h>
 
 /**
  * Author: jedartois@gmail.com

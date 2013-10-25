@@ -3,8 +3,8 @@
 
 #include <list>
 #include <iostream>
-#include "../trace/ModelTrace.h"
-#include "../KMFFactory.h"
+#include <trace/ModelTrace.h>
+#include <KMFFactory.h>
 #include <google/dense_hash_map>
 
 /**

@@ -1,4 +1,4 @@
-#include "ModelEvent.h"
+#include <events/ModelEvent.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13

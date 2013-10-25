@@ -1,5 +1,9 @@
+#ifndef __ModelEvent_H
+#define __ModelEvent_H
+
 #include <string>
-#include "../utils/any.h"
+#include <utils/any.h>
+
 using namespace std;
 
 /**
@@ -31,4 +35,5 @@ public:
  any internal_previous_value;
 
 };
+#endif
 

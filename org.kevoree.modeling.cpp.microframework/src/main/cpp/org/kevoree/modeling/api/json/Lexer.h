@@ -49,7 +49,8 @@ class Lexer
 	
 	public:
 
-	Lexer(istream &inputstream);
+	Lexer(istream
+	 &inputstream);
 	~Lexer();
 	bool isSpace(char c);
 	char nextChar();

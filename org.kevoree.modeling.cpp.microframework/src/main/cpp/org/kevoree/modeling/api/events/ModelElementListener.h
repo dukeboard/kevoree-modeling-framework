@@ -1,4 +1,7 @@
-#include "ModelEvent.h"
+#ifndef __ModelElementListener_H
+#define __ModelElementListener_H
+
+#include <events/ModelEvent.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13
@@ -13,3 +16,4 @@ void elementChanged(ModelEvent evt);
 };
 
 
+#endif

@@ -1,5 +1,7 @@
+#ifndef __ModelTreeListener_H
+#define __ModelTreeListener_H
 
-#include "ModelElementListener.h"
+#include <events/ModelElementListener.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13
@@ -14,3 +16,4 @@ class ModelTreeListener : public ModelElementListener
 };
 
 
+#endif
