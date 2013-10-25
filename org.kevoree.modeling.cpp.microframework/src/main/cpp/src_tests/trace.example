@@ -1,0 +1,10 @@
+[ { "traceType": "0",
+    "src": "",
+    "refname": "generated_KMF_ID",
+    "content": "0.168778813909739261382348563259" },
+  { "traceType": "1",
+    "src": "",
+    "refname": "nodes",
+    "previouspath": "nodes[server-node]",
+    "typename": "org.kevoree.ContainerNode" }
+  ]
