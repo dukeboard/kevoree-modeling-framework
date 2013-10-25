@@ -10,15 +10,20 @@
 
 JSONModelLoader::JSONModelLoader()
 {
-      factory = new KMFFactory();
+factory = NULL;
+
 }
 
 
 JSONModelLoader::~JSONModelLoader()
 {
-       delete factory;
+
 }
 
+
+void JSONModelLoader::setFactory(KMFFactory *_factory){
+ factory = _factory;
+ }
 
 vector<KMFContainer*>& JSONModelLoader::loadModelFromString(string str){
 		 std::istringstream ss( str); // convert string to istream
@@ -34,19 +39,22 @@ vector<KMFContainer*>& JSONModelLoader::deserialize(istream &inputStream){
              vector<KMFContainer*> *roots= new  vector<KMFContainer*>;
              Lexer *lexer =new Lexer(inputStream);
              Token currentToken = lexer->nextToken();
-             if(currentToken.tokenType == LEFT_BRACE){
+             if(currentToken.tokenType == LEFT_BRACE)
+             {
                   loadObject(lexer,"",NULL,roots,resolverCommands);
+
+                                for (std::vector<ResolveCommand*>::iterator it = resolverCommands->begin() ; it != resolverCommands->end(); ++it)
+                                {
+                                      ResolveCommand *cmd = *it;
+                                      cmd->run();
+
+                                }
               } else
               {
-                        throw "Bad Format / { expected";
+                        cout << "ERROR JSONModelLoader::deserializeBad Format / { expected" << endl;
               }
 
-              for (std::vector<ResolveCommand*>::iterator it = resolverCommands->begin() ; it != resolverCommands->end(); ++it)
-              {
-                    ResolveCommand *cmd = *it;
-                    cmd->run();
 
-              }
 
        return *roots;
 }
@@ -54,21 +62,106 @@ vector<KMFContainer*>& JSONModelLoader::deserialize(istream &inputStream){
 
 void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *parent,vector<KMFContainer*> *roots ,vector<ResolveCommand*> *commands)
 {
-      Token currentToken = lexer->nextToken();
 
+      Token currentToken = lexer->nextToken();
+      KMFContainer  *currentObject=NULL;
       if(currentToken.tokenType == VALUE){
 
-            if(currentToken.value.compare("eClass")){
+            if(currentToken.value.compare("eClass") == 0){
+
                     lexer->nextToken(); //unpop :
                     currentToken = lexer->nextToken(); //Two step for having the name
                     string name = currentToken.value;
+                    if(factory == NULL)
+                    {
+                             cout << "ERROR JSONModelLoader Factory is NULL " << endl;
+                             return;
+                    }
+                    currentObject = factory->create(name);
+                    if(currentObject == NULL){
+                        cout << "ERROR JSONModelLoader Factory create  " << name << endl;
+                    }
+
+                    if(parent == NULL){
+                        roots->push_back(currentObject);
+                    }
+                    string currentNameAttOrRef;
+                    bool refModel = false;
+                    currentToken = lexer->nextToken();
+
+                    while(currentToken.tokenType != EOF){
+                          if(currentToken.tokenType == LEFT_BRACE)
+                          {
+                                  loadObject(lexer, currentNameAttOrRef, currentObject, roots, commands);
+                          }
+                              /*
+                       if(currentToken.tokenType == COMMA){
+                        //ignore
+                         }      */
+                           if(currentToken.tokenType == VALUE){
+                                       if(currentNameAttOrRef.empty())
+                                       {
+                                             currentNameAttOrRef = currentToken.value;
+                                        } else
+                                        {
+                                                 if(refModel)
+                                                 {
+
+                                                      ResolveCommand *resolvecommand = new ResolveCommand(*roots, currentToken.value, currentObject, currentNameAttOrRef);
+                                                      commands->push_back(resolvecommand);
+                                                 } else
+                                                 {
+                                                    any  json =new string (unescapeJSON(currentToken.value));
+                                                    currentObject->reflexiveMutator(SET, currentNameAttOrRef,json ,false,false)   ;
+                                                    currentNameAttOrRef.clear(); //unpop
+                                                 }
+                                       }
+
+                           }
+
+                          if(currentToken.tokenType == LEFT_BRACKET){
+                            currentToken = lexer->nextToken();
+                            if(currentToken.tokenType == LEFT_BRACE){
+                                loadObject(lexer, currentNameAttOrRef, currentObject, roots, commands) ;
+                            } else {
+                                refModel = true; //wait for all ref to be found
+                                if(currentToken.tokenType == VALUE){
+                                     ResolveCommand *resolvecommand = new ResolveCommand(*roots, currentToken.value, currentObject, currentNameAttOrRef);
+                                     commands->push_back(resolvecommand);
+                                }
+                            }
+                        }
+
+                         if(currentToken.tokenType == RIGHT_BRACKET){
+                                        currentNameAttOrRef.clear(); //unpop
+                                                refModel = false ;
+                          }
 
 
-            }
+                    if(currentToken.tokenType == RIGHT_BRACE){
+                        if(parent != NULL){
+                                  any  json =currentObject;
+
+                                      currentObject->reflexiveMutator(ADD, currentNameAttOrRef,json ,false,false)   ;
+                        }
+                        return; //go out
+                    }
+
+                          currentToken = lexer->nextToken();
+
+                     }
+
+
+            }   else {
+                               cout << ("Bad Format / eClass att must be first") <<endl;
+                               //TODO save temp att
+             }
 
 
 
-      }
+      }  else {
+                        cout <<  ("Bad Format") <<endl;
+       }
 
 }
 

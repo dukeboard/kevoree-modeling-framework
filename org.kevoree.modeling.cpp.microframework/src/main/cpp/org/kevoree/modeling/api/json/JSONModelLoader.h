@@ -34,6 +34,7 @@ public:
   JSONModelLoader();
   ~JSONModelLoader();
   KMFFactory *factory;
+  void setFactory(KMFFactory *factory);
   virtual vector<KMFContainer*>& loadModelFromString(string str);
   virtual vector<KMFContainer*>& loadModelFromStream(istream &inputStream);
 
