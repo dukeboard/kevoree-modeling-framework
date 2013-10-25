@@ -58,7 +58,7 @@ trait ClassGenerator extends ClonerGenerator {
           }
           pr.println("}else {")
           pr.println("if(value is String){")
-          pr.println("val splitted = value.toString().split(\"$\")")
+          pr.println("val splitted = org.kevoree.modeling.api.util.AttConverter.convAttFlat(value)")
           pr.println("var tempArrayValues : MutableList<" + valueType + "> = java.util.ArrayList<" + valueType + ">()")
           pr.println("for(eachV in splitted){")
           if (ctx.getJS()) {

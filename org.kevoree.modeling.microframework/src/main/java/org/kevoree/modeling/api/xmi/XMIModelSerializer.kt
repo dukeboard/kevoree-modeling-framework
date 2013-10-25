@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import java.util.ArrayList
+import org.kevoree.modeling.api.util.AttConverter
 
 
 class ReferencesVisitor(val ostream : java.io.PrintStream, val addressTable : java.util.HashMap<KMFContainer, String>, val elementsCount : java.util.HashMap<String, Int>) : ModelVisitor() {
@@ -42,19 +43,7 @@ class AttributesVisitor(val ostream : java.io.PrintStream) : ModelAttributeVisit
             if(value is java.util.Date) {
                 escapeXml(ostream, "" + value.getTime())
             } else {
-                if(value is ArrayList<*>){
-                    var isF = true
-                    for(v in value){
-                        if(!isF){
-                            ostream.print("$")
-                        }
-                        escapeXml(ostream, v.toString())
-                        isF = false
-                    }
-                } else {
-                    escapeXml(ostream, value.toString())
-                }
-
+                escapeXml(ostream, AttConverter.convFlatAtt(value))
             }
             ostream.print("\"")
         }

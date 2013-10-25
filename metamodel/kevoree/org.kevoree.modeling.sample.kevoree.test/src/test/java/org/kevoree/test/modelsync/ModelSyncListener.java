@@ -39,7 +39,7 @@ public class ModelSyncListener implements ModelElementListener {
         }
         //reflexive apply
 
-        if (modelEvent.getElementAttributeType() == ElementAttributeType.instance$.getCONTAINMENT()) {
+        if (modelEvent.getElementAttributeType() == ElementAttributeType.CONTAINMENT) {
             target.reflexiveMutator(modelEvent.getType(), modelEvent.getElementAttributeName(), cloner.clone((KMFContainer)modelEvent.getValue()), false, true);
         } else {
             if (modelEvent.getValue() instanceof KMFContainer) {

@@ -23,8 +23,13 @@ object AttConverter {
             }
             return buffer.toString()
         } else {
-            return value!!.toString()
+            return value.toString()
         }
     }
+
+    public fun convAttFlat(value : String) : Array<String> {
+        return value.toString().split("$")
+    }
+
 
 }
