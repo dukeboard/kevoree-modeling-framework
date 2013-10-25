@@ -27,7 +27,8 @@ var event2trace = new kevmod.org.kevoree.modeling.api.trace.Event2Trace(compare)
 var model2 = factory.createContainerRoot();
 
 var listener = { elementChanged : function(event){
-    switch(event.type){
+
+    switch(event.getType()){
         case actionTypes.object.ADD:
               console.log("Add event ! "+event);
               break;
