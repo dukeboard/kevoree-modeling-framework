@@ -20,7 +20,7 @@ public:
 	~TraceSequence();
 	list<ModelTrace*> traces;
 	KMFFactory factory;
-	TraceSequence* populate(list<ModelTrace*> addtraces);
+	TraceSequence* populate(list<ModelTrace*> *addtraces);
 	void append(TraceSequence seq);
 	TraceSequence* populateFromString(string addtracesTxt);
 	TraceSequence* populateFromStream(istream &inputStream );

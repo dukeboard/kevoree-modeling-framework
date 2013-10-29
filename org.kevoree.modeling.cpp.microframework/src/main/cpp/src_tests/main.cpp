@@ -134,9 +134,11 @@ ifstream myfile_json;
  }
 
 
-	JSONModelLoader jsonloader;
 
-	jsonloader.loadModelFromStream(myfile_json);
+
+	JSONModelLoader * jsonloader = new  JSONModelLoader();
+
+	//jsonloader->loadModelFromStream(myfile_json);
 
 
 

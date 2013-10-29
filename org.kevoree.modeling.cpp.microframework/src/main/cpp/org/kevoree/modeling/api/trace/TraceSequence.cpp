@@ -26,8 +26,8 @@ TraceSequence::~TraceSequence(){
 }
 
 
-TraceSequence* TraceSequence::populate(std::list<ModelTrace*> addtraces){  
-	     std::copy(addtraces.begin(), addtraces.end(), std::back_insert_iterator<std::list<ModelTrace*> >(traces)); // addAll
+TraceSequence* TraceSequence::populate(std::list<ModelTrace*> *addtraces){
+	     std::copy(addtraces->begin(), addtraces->end(), std::back_insert_iterator<std::list<ModelTrace*> >(traces)); // addAll
         return this;	
 }
 
