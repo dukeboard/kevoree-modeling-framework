@@ -1,11 +1,15 @@
 package org.kevoree.modeling.cpp.generator.model;
 
+import org.apache.velocity.Template;
+import org.apache.velocity.app.VelocityEngine;
+import org.eclipse.emf.ecore.EClass;
+
 /**
  * Created with IntelliJ IDEA.
  * User: jed
  * Date: 29/10/13
  * Time: 10:23
- * To change this template use File | Settings | File Templates.
+ * To change this templates use File | Settings | File Templates.
  */
 public abstract  class AClassGenerator {
 
@@ -19,8 +23,12 @@ public abstract  class AClassGenerator {
     protected StringBuilder constructor;
     protected StringBuilder destructor;
 
+    protected VelocityEngine ve = new VelocityEngine();
 
-   protected void add_CONSTRUCTOR(String source){
+
+
+
+    protected void add_CONSTRUCTOR(String source){
        constructor.append(source+"\n");
    }
 
@@ -29,7 +37,7 @@ public abstract  class AClassGenerator {
     }
 
     protected void add_CPP(String source){
-        class_result.append(source);
+        class_result.append(source+"\n");
     }
     protected void add_H(String s){
         body.append(s);
@@ -56,6 +64,25 @@ public abstract  class AClassGenerator {
         class_result = new StringBuilder() ;
         constructor = new StringBuilder();
         destructor = new StringBuilder();
+
+    }
+
+
+
+    protected void generateDestructor(EClass cls) {
+        add_H("~"+cls.getName()+"();\n");
+        add_CPP(cls.getName()+"::~"+cls.getName()+"(){\n");
+        add_CPP(destructor.toString());
+        add_CPP("}\n");
+    }
+
+    protected void generateConstructor(EClass cls) {
+
+        add_H(cls.getName()+"();\n");
+        add_CPP(cls.getName()+"::"+cls.getName()+"(){\n");
+        add_CPP(constructor.toString());
+        add_CPP("}\n");
+
 
     }
 

@@ -1,13 +1,15 @@
 package org.kevoree.modeling.cpp.generator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
  * User: jed
  * Date: 09/10/13
  * Time: 11:47
- * To change this template use File | Settings | File Templates.
+ * To change this templates use File | Settings | File Templates.
  */
 public class ConverterDataTypes {
 
@@ -22,19 +24,21 @@ public class ConverterDataTypes {
     }
 
 
-
+     public List<String>  cpp_reserve = new ArrayList<String>();
 
      public  HashMap dataTypes = new HashMap<String, String>() ;
 
      public ConverterDataTypes(){
 
 
+         cpp_reserve.add("namespace");
+         cpp_reserve.add("Namespace");
 
          dataTypes.put("EBigDecimal", "bigint")    ;
          dataTypes.put("EBigInteger", "bigint") ;
          dataTypes.put("EBoolean", "short")    ;
          dataTypes.put("EBooleanObject", "short") ;
-         dataTypes.put("EByte", "unsigned char")                  ;
+         dataTypes.put("EByte", "unsigned char")     ;
          dataTypes.put("EByteArray", "unsigned char[]");
 
          dataTypes.put("EChar", "char")   ;
@@ -69,6 +73,16 @@ public class ConverterDataTypes {
 
     public String getType(String t){
         return dataTypes.get(t).toString() ;
+    }
+
+
+    public String check_class(String name){
+        if(cpp_reserve.contains(name)){
+            return "_"+name;
+        }  else {
+            return name;
+
+        }
     }
 
 

@@ -7,7 +7,7 @@ import java.io.File;
  * User: jed
  * Date: 28/10/13
  * Time: 11:26
- * To change this template use File | Settings | File Templates.
+ * To change this templates use File | Settings | File Templates.
  */
 public class GenerationContext {
     private String rootGenerationDirectory = "";

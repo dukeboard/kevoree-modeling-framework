@@ -7,7 +7,7 @@ package org.kevoree.modeling.cpp.generator.utils;
  * User: jed
  * Date: 09/10/13
  * Time: 13:29
- * To change this template use File | Settings | File Templates.
+ * To change this templates use File | Settings | File Templates.
  */
 public class HelperGenerator {
 

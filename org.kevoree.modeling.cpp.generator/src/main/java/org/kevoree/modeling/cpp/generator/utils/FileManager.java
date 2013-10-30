@@ -22,7 +22,7 @@ import java.util.List;
  * User: jed
  * Date: 03/10/12
  * Time: 17:21
- * To change this template use File | Settings | File Templates.
+ * To change this templates use File | Settings | File Templates.
  */
 public class FileManager {
 
