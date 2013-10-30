@@ -8,4 +8,6 @@ package org.kevoree.modeling.cpp.generator.cmake;
  * To change this templates use File | Settings | File Templates.
  */
 public class CmakeGenerator {
+
+    //TODO
 }

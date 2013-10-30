@@ -25,9 +25,6 @@ public abstract  class AClassGenerator {
 
     protected VelocityEngine ve = new VelocityEngine();
 
-
-
-
     protected void add_CONSTRUCTOR(String source){
        constructor.append(source+"\n");
    }
@@ -40,7 +37,7 @@ public abstract  class AClassGenerator {
         class_result.append(source+"\n");
     }
     protected void add_H(String s){
-        body.append(s);
+        body.append(s+"\n");
     }
 
     protected void add_HEADER(String source){

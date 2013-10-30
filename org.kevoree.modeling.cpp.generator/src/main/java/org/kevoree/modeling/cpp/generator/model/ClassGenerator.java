@@ -47,9 +47,10 @@ public class ClassGenerator extends AClassGenerator {
         initGeneration();
         generateBeginClassHeader(cls);
         generateAttributes(cls);
-        generateFlatReflexiveSetters(ctx,cls);
+        generateFlatReflexiveSetters(cls);
         generateFindById(cls);
-        generateVisitor(ctx, cls);
+        generateVisitor( cls);
+        generateVisitorAttribute(cls);
         generateConstructor(cls);
         generateDestructor(cls);
         link_generation();
@@ -58,6 +59,8 @@ public class ClassGenerator extends AClassGenerator {
         writeFiles(cls);
 
     }
+
+
 
     private void generateFindById(EClass cls)
     {
@@ -73,7 +76,7 @@ public class ClassGenerator extends AClassGenerator {
                 if(add)
                 {
                     add_H("KMFContainer* findByID(string relationName,string idP);");
-                    add_CPP("KMFContainer* "+cls.getName()+"::findByID(string relationName,string idP){");
+                    add_CPP("KMFContainer* " + cls.getName() + "::findByID(string relationName,string idP){");
                     add=false;
                     end = true;
 
@@ -95,20 +98,20 @@ public class ClassGenerator extends AClassGenerator {
     }
 
 
-    private void generateFlatReflexiveSetters(GenerationContext ctx,EClass eClass) {
+    private void generateFlatReflexiveSetters(EClass eClass) {
 
         add_H("void reflexiveMutator(int mutatorType,string refName, any value, bool setOpposite,bool fireEvent );");
 
 
-        add_CPP("void "+eClass.getName()+"::reflexiveMutator(int mutatorType,string refName, any value, bool setOpposite,bool fireEvent){");
+        add_CPP("void " + eClass.getName() + "::reflexiveMutator(int mutatorType,string refName, any value, bool setOpposite,bool fireEvent){");
 
         add_CPP("}\n");
     }
 
 
-    private void generateVisitor(GenerationContext ctx, EClass cls){
+    private void generateVisitor(EClass cls){
 
-        add_H("void visit(ModelVisitor visitor,bool recursive,bool containedReference ,bool nonContainedReference);");
+        add_H("void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference);");
 
 
 
@@ -119,11 +122,11 @@ public class ClassGenerator extends AClassGenerator {
             {
 
 
-            VelocityContext context_visitor_ref = new VelocityContext();
-            context_visitor_ref.put("refname",ref.getName());
-            context_visitor_ref.put("type",ref.getEReferenceType().getName());
+                VelocityContext context_visitor_ref = new VelocityContext();
+                context_visitor_ref.put("refname",ref.getName());
+                context_visitor_ref.put("type",ref.getEReferenceType().getName());
 
-            gen_visitor_ref.merge(context_visitor_ref,result_visitor_ref);
+                gen_visitor_ref.merge(context_visitor_ref,result_visitor_ref);
             }
         }
 
@@ -136,8 +139,25 @@ public class ClassGenerator extends AClassGenerator {
         add_CPP(result_visitor.toString());
     }
 
+    private void generateVisitorAttribute(EClass cls)
+    {
+        add_H("void visitAttributes(ModelAttributeVisitor *visitor);");
 
-       //  (agentsP as org.kevoree.planrouge.container.KMFContainerImpl).setEContainer(this,org.kevoree.planrouge.container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.planrouge.util.Constants.Ref_agents, agentsP),org.kevoree.planrouge.util.Constants.Ref_agents)
+        add_CPP("void "+cls.getName()+"::visitAttributes(ModelAttributeVisitor *visitor){");
+
+        for(EAttribute a: cls.getEAllAttributes() )
+        {
+
+         add_CPP("visitor->visit(any("+a.getName()+"),\""+a.getName()+"\",this);");
+        }
+
+        add_CPP("}");
+
+
+    }
+
+
+    //  (agentsP as org.kevoree.planrouge.container.KMFContainerImpl).setEContainer(this,org.kevoree.planrouge.container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.planrouge.util.Constants.Ref_agents, agentsP),org.kevoree.planrouge.util.Constants.Ref_agents)
 
     public void generateMethodAdd(EClass cls,EReference ref,String type)
     {
@@ -163,7 +183,7 @@ public class ClassGenerator extends AClassGenerator {
 
                 StringWriter result = new StringWriter();
                 gen_method_add.merge(context, result);
-               add_CPP(result.toString());
+                add_CPP(result.toString());
             }
 
         }  else
@@ -181,7 +201,7 @@ public class ClassGenerator extends AClassGenerator {
         if(eAttribute.size() >0){
             String type = ConverterDataTypes.getInstance().getType(eAttribute.get(0).getEAttributeType().getName());
             add_H(type+" internalGetKey();");
-            add_CPP(type+" "+cls.getName()+"::internalGetKey(){");
+            add_CPP(type + " " + cls.getName() + "::internalGetKey(){");
             add_CPP("return ");
 
             for(int i=0;i<eAttribute.size();i++){
@@ -296,17 +316,17 @@ public class ClassGenerator extends AClassGenerator {
         for(EClass super_eclass : cls.getESuperTypes() )
         {
             /*
-            TODO FIX ME CHECK DIAMANT ISSUE  ADD VIRTUAL ON ONE CLASS
+            TODO FIX ME CHECK DIAMANT ISSUE  ADD VIRTUAL ON ONE C++ CLASS
              */
 
-                 add_HEADER(HelperGenerator.genIncludeLocal(super_eclass.getName()));
+            add_HEADER(HelperGenerator.genIncludeLocal(super_eclass.getName()));
 
-                 // implements
-                 gen_class.append("public "+super_eclass.getName());
+            // implements
+            gen_class.append("public "+super_eclass.getName());
 
-                 if(first && i <cls.getESuperTypes().size()-1 ) {
-                     gen_class.append(",");
-                 }
+            if(first && i <cls.getESuperTypes().size()-1 ) {
+                gen_class.append(",");
+            }
 
 
             i++;
