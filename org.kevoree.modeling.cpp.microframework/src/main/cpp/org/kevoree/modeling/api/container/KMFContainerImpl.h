@@ -4,6 +4,7 @@
 #include <KMFContainer.h>
 #include <container/RemoveFromContainerCommand.h>
 
+
 using std::string;
 using std::list;
 
@@ -25,7 +26,7 @@ class VisitorFiller:public ModelAttributeVisitor
     void  visit(any val,string name,KMFContainer *parent)
     {
     	    string data;
-            if (!val.empty () && val.type () == typeid (KMFContainer *) )
+            if (!val.empty () && val.type () == typeid (string) )
     		{
     		    data =AnyCast < string>(val);
     		    (*objectsMap)[name] = data;
@@ -39,56 +40,131 @@ class VisitorFiller:public ModelAttributeVisitor
     google::dense_hash_map<string,string> *objectsMap;
 };
 
+class VisitorFillRef:public ModelVisitor
+{
+  public:
+    VisitorFillRef (google::dense_hash_map<string,string> *_objectsMap)
+    {
+	    objectsMap = _objectsMap;
+    }
+
+    void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
+    {
+        string concatedKey = refNameInParent +"_"+elem->path() ;
+        (*objectsMap)[concatedKey] = "";
+
+    }
+    google::dense_hash_map<string,string> *objectsMap;
+};
+
+
+
+class VisitorRef:public ModelVisitor
+{
+  public:
+    VisitorRef (google::dense_hash_map<string,string> *_objectsMap,list <ModelTrace*> *_traces,string _path,bool _isInter)
+    {
+	    values = _objectsMap;
+	    isInter =_isInter;
+	    traces = _traces;
+	    path = _path;
+    }
+
+    void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
+    {
+        string concatedKey = refNameInParent +"_"+elem->path();
+
+       if((*values).find(concatedKey) !=     (*values).end()){
+           if(isInter)
+           {
+                ModelAddTrace *modeltrace = new ModelAddTrace(path,refNameInParent,elem->path(),"");
+                traces->push_back(modeltrace);
+           }
+
+       }  else
+       {
+                if(!isInter)
+                {
+                         ModelAddTrace *modeltrace = new ModelAddTrace(path,refNameInParent,elem->path(),"");
+                       traces->push_back(modeltrace);
+                }
+
+       }
+
+     values->erase(concatedKey);
+
+    }
+private:
+    google::dense_hash_map<string,string> *values;
+    bool isInter;
+    list <ModelTrace*> *traces;
+    string path;
+};
+
+
+
 
 class VisitorAtt : public ModelAttributeVisitor
 {
 
   public:
-    VisitorAtt (list < ModelTrace * > *_traces)
+    VisitorAtt (google::dense_hash_map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter)
     {
 	    traces = _traces;
+	     values = _values;
+	     path =_path;
+	     isInter = _isInter;
     }
 
     void  visit(any val,string name,KMFContainer *parent)
     {
-	    cout << "TODO" << endl;    /*
-	          var attVal2 : String?
-                                if(value != null){
-                                    attVal2 = value.toString()
-                                } else {
-                                    attVal2 = null
-                                }
-                                if(values.get(name) == attVal2){
-                                    if(isInter) {
-                                        traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,attVal2,null))
-                                    }
-                                } else {
-                                    if(!isInter) {
-                                        traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,attVal2,null))
-                                    }
-                                }
-                                values.remove(name)*/
+
+	      string attVal2 ;
+	      if(!val.empty())
+	      {
+	       attVal2  =AnyCast<string>(val);
+	      }
+
+        string data = (*values)[name];
+	      if(data.compare(attVal2) == true)
+	      {
+	            if(isInter)
+	            {
+                    ModelSetTrace *settrace = new ModelSetTrace(path,name,"",attVal2,"");
+                    traces->push_back(settrace);
+
+                }
+
+	      } else {
+	              if(!isInter)
+            	            {
+                                ModelSetTrace *settrace = new ModelSetTrace(path,name,"",attVal2,"");
+                                traces->push_back(settrace);
+
+                            }
+
+	      }
+	           values->erase(name);
+
     }
 private:
   list < ModelTrace * > *traces;
+   google::dense_hash_map<string,string> *values;
+   string path;
+   bool isInter;
 };
 
 class CacheVisitorCleaner :public ModelVisitor
 {
-
   public:
-    CacheVisitorCleaner ()
-    {
-
-    }
-
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
        elem->clean_path_cache();
-       cout << "visiting" << endl;
+       cout << "CacheVisitorCleaner " << endl;
     }
-
 };
+
+
 
 class KMFContainerImpl : public KMFContainer
 {
@@ -121,62 +197,59 @@ KMFContainerImpl(){
     }
   }
 
-//    internal_visit(visitor,current,recursive,"interventions");
-  void  internal_visit(ModelVisitor visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName){
+  string getRefInParent()
+  {
+          return internal_containmentRefName;
+  }
+
+  void  internal_visit(ModelVisitor *visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName)
+  {
+     //cout << "internal_visit path = "<< internalElem->path() << endl;
       if(internalElem)
       {
              if(nonContainedReference && recursive)
              {
                    string elemPath = internalElem->path();
-                   //   if(visitor.alreadyVisited != null && visitor.alreadyVisited!!.containsKey(elemPath)){return}
 
+                   	if(visitor->alreadyVisited.find(elemPath) != visitor->alreadyVisited.end()){
+
+                   	           return;
+                   	}
+                     visitor->alreadyVisited[elemPath] =internalElem;
              }
-
-             visitor.visit(internalElem,refName,this);
+             visitor->visit(internalElem,refName,this);
+             if(!visitor->visitStopped)
+             {
+                 if(recursive && visitor->visitChildren){
+                      internalElem->visit(visitor,recursive,containedReference,nonContainedReference) ;
+                  }
+                  visitor->visitChildren = true;
+             }
     }
-
   }
-  /*
-      fun internal_visit(visitor : org.kevoree.modeling.api.util.ModelVisitor,internalElem : org.kevoree.modeling.api.KMFContainer?,recursive:Boolean,containedReference : Boolean,nonContainedReference : Boolean, refName : String){
-          if(internalElem != null){
-              if(nonContainedReference && recursive){
-                  var elemPath = internalElem.path()!!
-                  if(visitor.alreadyVisited != null && visitor.alreadyVisited!!.containsKey(elemPath)){return}
-                  if(visitor.alreadyVisited == null){
-                      visitor.alreadyVisited = java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>()
-                  }
-                  visitor.alreadyVisited!!.put(elemPath,internalElem)
-              }
-              visitor.visit(internalElem,refName,this)
-              if(!visitor.visitStopped){
-                  if(recursive && visitor.visitChildren){
-                      internalElem.visit(visitor,recursive,containedReference,nonContainedReference)
-                  }
-                  visitor.visitChildren = true
-              }
-          }
-      }
-           */
 
   void setEContainer(KMFContainer *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
      if(!internal_readOnlyElem)
      {
+
         RemoveFromContainerCommand *tempUnsetCmd = internal_unsetCmd;
         internal_unsetCmd = NULL;
-        if(tempUnsetCmd != NULL){
+        if(tempUnsetCmd != NULL)
+        {
             tempUnsetCmd->run();
         }
         internal_eContainer = container;
         internal_unsetCmd = unsetCmd;
         internal_containmentRefName = refNameInParent;
         path_cache = "";
-        CacheVisitorCleaner cleanCacheVisitor;
-        visit(cleanCacheVisitor,true,true,false) ;
+        CacheVisitorCleaner *cleanCacheVisitor = new CacheVisitorCleaner();
+        visit(cleanCacheVisitor,true,true,false);
      }
   }
 
-   string path() {
+   string path()
+   {
         if(!path_cache.empty())
         {
               return path_cache;
@@ -184,18 +257,14 @@ KMFContainerImpl(){
         KMFContainer *container = eContainer();
         if(container != NULL) {
             string parentPath = container->path();
-            if(parentPath.empty()){
-                return "";
-            } else
-            {
-                if(parentPath == "")
-                {
-                    path_cache = "";
-                }else{
+            if(parentPath == "")
+             {
+                 path_cache = "";
+             }else
+             {
                 parentPath += "/";
-                }
-                parentPath += internal_containmentRefName + "[" + internalGetKey() + "]";
-            }
+             }
+             path_cache = parentPath + internal_containmentRefName + "[" + internalGetKey() + "]";
         } else
         {
             path_cache =  "";
@@ -248,7 +317,7 @@ KMFContainerImpl(){
             {
                 subquery = subquery.substr(subquery.find('/',0) + 1, subquery.size()-subquery.find('/',0));
             }
-            cout << "findByID -> " << relationName << " " << queryID  << endl;
+          //  cout << "findByID -> " << relationName << " " << queryID  << endl;
             KMFContainer *objFound = findByID(relationName,queryID) ;
             if(!subquery.empty() && objFound != NULL)
             {
@@ -258,17 +327,36 @@ KMFContainerImpl(){
                  return objFound;
             }
         }
+            // TODO FIX ME PUT AWAY
+vector<string> split(string str, string delim)
+{
+      unsigned start = 0;
+      unsigned end;
+      vector<string> v;
 
-       list<ModelTrace*>* createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {
-             list < ModelTrace * > *traces= new   list < ModelTrace * >;
+      while( (end = str.find(delim, start)) != string::npos )
+      {
+            v.push_back(str.substr(start, end-start));
+            start = end + delim.length();
+      }
+      v.push_back(str.substr(start));
+      return v;
+}
+
+       list<ModelTrace*>* createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes )
+       {
+
+             list <ModelTrace*> *traces= new   list <ModelTrace *>;
 
              google::dense_hash_map<string,string> *values = new google::dense_hash_map<string,string>;
+             values->set_empty_key("");
 
              if(onlyAttributes)
              {
-                    VisitorFiller attVisitorFill (values);
+                    VisitorFiller *attVisitorFill= new VisitorFiller (values);
                     visitAttributes(attVisitorFill);
-                    VisitorAtt  attVisitor(traces);
+
+                    VisitorAtt  *attVisitor= new VisitorAtt(values,traces,path(),isInter);
                     if(similarObj!=NULL)
                     {
                        similarObj->visitAttributes(attVisitor);
@@ -285,38 +373,35 @@ KMFContainerImpl(){
                     }
              }
 
-                if(onlyReferences){
-                cout << "TODO "<< endl;
-                        /*       val payload = "";
-                                      val refVisitorFill = object : org.kevoree.modeling.api.util.ModelVisitor() {
-                                          public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
-                                              val concatedKey = refNameInParent+"_"+elem.path()
-                                              values.put(concatedKey,payload)
-                                          }
-                                      }
-                                      this.visit(refVisitorFill,false,false,true)
-                                      val refVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
-                                          public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
-                                              val concatedKey = refNameInParent+"_"+elem.path()
-                                              if(values.get(concatedKey) != null){
-                                                  if(isInter){
-                                                      traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,refNameInParent,elem.path()!!,null))
-                                                  }
-                                              } else {
-                                                 if(!isInter){
-                                                      traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,refNameInParent,elem.path()!!,null))
-                                                 }
-                                              }
-                                              values.remove(concatedKey)
-                                          }
-                                      }
-                                      if(similarObj!=null){similarObj.visit(refVisitor,false,false,true)}
-                                      if(!isInter && !isMerge && values.size!= 0){
-                                          for(hashLoopRes in values.keySet()){
-                                              val splittedVal = hashLoopRes.split("_");
-                                              traces.add(org.kevoree.modeling.api.trace.ModelRemoveTrace(path()!!,splittedVal.get(0),splittedVal.get(1)))
-                                          }
-                                      }*/
+                if(onlyReferences)
+                {
+                    string payload ="";
+                    VisitorFillRef *refVisitorFill = new VisitorFillRef(values);         // TODO FIXE ME ? payload
+                    visit(refVisitorFill,false,false,true);
+
+                    VisitorRef *refvisitor = new VisitorRef(values,traces,path(),isInter);
+                    if(similarObj)
+                    {
+                       similarObj->visit(refvisitor,false,false,true);
+
+                    }
+
+                    if(!isInter && !isMerge && (values->size() != 0))
+                    {
+
+                    for ( google::dense_hash_map<string,string>::const_iterator it = (*values).begin();  it != (*values).end(); ++it)
+                    {
+                        string hashLoopRes =  it->second;
+
+                        vector<string> result =   split(hashLoopRes,"_");
+                        ModelRemoveTrace *removetrace = new ModelRemoveTrace(path(),result.at(0),result.at(1));
+                        traces->push_back(removetrace);
+                    }
+
+                    }
+
+
+
                 }
 
           return traces;

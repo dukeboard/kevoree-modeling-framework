@@ -20,7 +20,8 @@ public:
           element = _element;
     }
 
-    void run(){
+    void run()
+    {
             target->reflexiveMutator(mutatorType,refName, element,true,true);
     }
 private:
