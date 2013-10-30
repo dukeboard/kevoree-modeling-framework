@@ -9,7 +9,7 @@ class ModelCompareVisitor:public ModelVisitor
 {
 
   public:
-    ModelCompareVisitor (google::dense_hash_map<string,any> *_objectsMap)
+    ModelCompareVisitor (google::dense_hash_map<string,KMFContainer*> *_objectsMap)
     {
 	objectsMap = _objectsMap;
     }
@@ -20,15 +20,16 @@ class ModelCompareVisitor:public ModelVisitor
 
 	if (!childPath.empty ())
 	  {
-	    (*objectsMap)[childPath] = any (elem);
+	    (*objectsMap)[childPath] = elem;
+	 //   cout <<   "INSERT " << childPath << " " << refNameInParent <<  endl;
 	  }
 	else
 	  {
-	      throw "Null child path ";
+	      cout << "Null child path "<< endl;
 	  }
-
     }
-    google::dense_hash_map<string,any> *objectsMap;
+private:
+    google::dense_hash_map<string,KMFContainer*> *objectsMap;
 };
 
 
@@ -36,7 +37,7 @@ class ModelCompareVisitor2:public ModelVisitor
 {
 
   public:
-    ModelCompareVisitor2 (google::dense_hash_map<string,any> *_objectsMap, bool _inter,bool _merge,list<ModelTrace *> *_traces,list<ModelTrace *> *_tracesRef)
+    ModelCompareVisitor2 (google::dense_hash_map<string,KMFContainer*> *_objectsMap, bool _inter,bool _merge,list<ModelTrace *> *_traces,list<ModelTrace *> *_tracesRef)
     {
 		objectsMap = _objectsMap;
 		inter = _inter;
@@ -60,24 +61,16 @@ class ModelCompareVisitor2:public ModelVisitor
 				  traces->push_back (modeladdtrace);
 				}
 
-		    any val = (*objectsMap)[childPath];
-		    KMFContainer *ptr_elem;
 
-			  if (!val.empty () && val.type () == typeid (KMFContainer *) )
-		      {
-				 ptr_elem =AnyCast < KMFContainer * >(val);
-		      }else 
-		      {
-				  	      throw "AnyCast KMFContainer *";
-			  }
-				
+		        KMFContainer *ptr_elem= (*objectsMap)[childPath];
+
 				 // traces attributes
 				  list<ModelTrace*> *result_atttributes = ptr_elem->createTraces (elem, inter, merge,false, true);
 				 std::copy(result_atttributes->begin(), result_atttributes->end(), std::back_insert_iterator<std::list<ModelTrace*> >(*traces));
 				 // traces references
 				 list<ModelTrace*> *result_references = ptr_elem->createTraces (elem, inter, merge,true, false);
 				 std::copy(result_references->begin(), result_references->end(), std::back_insert_iterator<std::list<ModelTrace*> >(*tracesRef));
-				 (*objectsMap).erase(childPath); //drop from to process elements
+				 (*objectsMap).erase(childPath); //drop from to process elements   FIX ME ERASE ALL
 
 		}
 	      else
@@ -98,11 +91,11 @@ class ModelCompareVisitor2:public ModelVisitor
 	  }
 	else
 	  {
-	      throw "Null child path ";
+	      cout << "Null child path " << endl;
 	  }
 
     }
-    google::dense_hash_map<string,any> *objectsMap;
+    google::dense_hash_map<string,KMFContainer*> *objectsMap;
     list < ModelTrace * > *traces;
     list < ModelTrace * > *tracesRef;
     bool inter;
@@ -115,69 +108,66 @@ TraceSequence *ModelCompare::createSequence ()
     return new TraceSequence ();
 }
 
-TraceSequence *ModelCompare::diff (KMFContainer origin, KMFContainer target)
+TraceSequence* ModelCompare::diff (KMFContainer *origin, KMFContainer *target)
 {
     return	createSequence ()->populate (internal_diff(origin, target, false, false));
 }
 
 
-TraceSequence *ModelCompare::merge (KMFContainer origin, KMFContainer target)
+TraceSequence *ModelCompare::merge (KMFContainer *origin, KMFContainer *target)
 {
     return	createSequence ()->populate(internal_diff(origin, target, false, false));
 }
 
 
-TraceSequence *ModelCompare::inter (KMFContainer origin, KMFContainer target)
+TraceSequence *ModelCompare::inter (KMFContainer *origin, KMFContainer *target)
 {
     return 	createSequence ()->populate (internal_diff(origin, target, false, false));
 }
 
 
-std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer origin,KMFContainer target,bool inter, bool merge)
+std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KMFContainer *target,bool inter, bool merge)
 {
 
     list < ModelTrace * > *traces = new    list < ModelTrace * >;
     list < ModelTrace * > *tracesRef= new    list < ModelTrace * >;
-    google::dense_hash_map<string,any> *objectsMap = new           google::dense_hash_map<string,any>;
 
-    traces = origin.createTraces (&target, inter, merge, false, true);
-    tracesRef = origin.createTraces (&target, inter, merge, true, false);
+    google::dense_hash_map<string,KMFContainer*> *objectsMap = new  google::dense_hash_map<string,KMFContainer*>;
+    objectsMap->set_empty_key("");
+
+    traces = origin->createTraces (target, inter, merge, false, true);
+    tracesRef = origin->createTraces (target, inter, merge, true, false);
 
 	// visitors 
-    ModelCompareVisitor visitor (objectsMap);
-    ModelCompareVisitor2 visitor2(objectsMap,inter,merge,traces,tracesRef);
+    ModelCompareVisitor *visitor = new ModelCompareVisitor(objectsMap);
+    origin->visit(visitor, true, true, false);
 
-    origin.visit(visitor, true, true, false);
-    target.visit(visitor2, true, true, false);
+
+
+
+    ModelCompareVisitor2 *visitor2= new ModelCompareVisitor2(objectsMap,inter,merge,traces,tracesRef);
+    target->visit(visitor2, true, true, false);
 
 
         if(!inter){
             //if diff
             if(!merge)
             {
-                for ( google::dense_hash_map<string,any>::const_iterator it = (*objectsMap).begin();  it != (*objectsMap).end(); ++it) {
+                for ( google::dense_hash_map<string,KMFContainer*>::const_iterator it = (*objectsMap).begin();  it != (*objectsMap).end(); ++it) {
 
                       KMFContainer *diffChild;
                       string src;
-                      string refNameInParent;
-                      if (!it->second.empty () && it->second.type () == typeid (KMFContainer *) )
-                      {
-                         diffChild =AnyCast < KMFContainer * >(it->second);
-                      }else
-                      {
-                                  throw "AnyCast KMFContainer *";
-                      }
+                      string refNameInParent="";
+                      diffChild =it->second;
 
                        if( diffChild-> eContainer())
                        {
                         src =   diffChild-> eContainer()->path();
                        }
                        refNameInParent = diffChild-> getRefInParent();
-
+                        cout <<  src <<     refNameInParent << endl;
                        ModelRemoveTrace *modelremovetrace= new ModelRemoveTrace(src,refNameInParent,diffChild->path());
-
                        traces->push_back(modelremovetrace);
-
                 }
             }
         }
