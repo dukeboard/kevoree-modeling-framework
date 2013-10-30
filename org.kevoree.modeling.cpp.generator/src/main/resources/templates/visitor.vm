@@ -1,0 +1,13 @@
+#* @vtlvariable name="classname" type="java.lang.String" *#
+#* @vtlvariable name="refname" type="java.lang.String" *#
+
+void ${classname}::visit(ModelVisitor visitor,bool recursive,bool containedReference ,bool nonContainedReference)
+{
+    visitor.beginVisitElem(this);
+    if(containedReference)
+    {
+${visitor_refs}
+    }
+    visitor.endVisitElem(this);
+}
+

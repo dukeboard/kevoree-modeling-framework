@@ -1,0 +1,9 @@
+#* @vtlvariable name="type" type="java.lang.String" *#
+#* @vtlvariable name="refname" type="java.lang.String" *#
+
+for ( google::dense_hash_map<string,${type}*>::iterator it = ${refname}.begin();  it != ${refname}.end(); ++it) {
+
+    KMFContainer * current =(KMFContainer*) it->second;
+
+    internal_visit(visitor,current,recursive,containedReference,nonContainedReference,"${refname}");
+}
