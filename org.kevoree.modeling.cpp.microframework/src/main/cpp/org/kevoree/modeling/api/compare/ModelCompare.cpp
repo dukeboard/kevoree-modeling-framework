@@ -49,12 +49,11 @@ class ModelCompareVisitor2:public ModelVisitor
     {
 	string childPath = elem->path ();
 
-	if (!childPath.empty ())
+	  if (!childPath.empty ())
 	  {
 
 	    if((*objectsMap).find(childPath) !=     (*objectsMap).end())
 		{
-
 				if (inter)
 		      {
 				  ModelAddTrace *modeladdtrace = new ModelAddTrace (parent->path (), refNameInParent,elem->path (), elem->metaClassName ());

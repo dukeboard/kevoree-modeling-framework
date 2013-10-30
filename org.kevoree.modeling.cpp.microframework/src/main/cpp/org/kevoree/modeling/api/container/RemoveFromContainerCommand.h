@@ -13,7 +13,7 @@ class RemoveFromContainerCommand
 {
 
 public:
-    RemoveFromContainerCommand(KMFContainer _target,int _mutatorType,string _refName,any _element) {
+    RemoveFromContainerCommand(KMFContainer *_target,int _mutatorType,string _refName,any _element) {
           target = _target;
           mutatorType = _mutatorType;
           refName = _refName;
@@ -21,10 +21,10 @@ public:
     }
 
     void run(){
-            target.reflexiveMutator(mutatorType,refName, element,true,true);
+            target->reflexiveMutator(mutatorType,refName, element,true,true);
     }
 private:
-KMFContainer target;
+KMFContainer *target;
 int mutatorType;
 string refName;
 any element;

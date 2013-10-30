@@ -8,7 +8,7 @@
 #include <utils/any.h>
 #include <utils/ModelVisitor.h>
 #include <utils/ModelAttributeVisitor.h>
-
+#include <utils/Constants.h>
 using std::string;
 using std::list;
 
@@ -50,7 +50,7 @@ public:
     virtual void visitAttributes(ModelAttributeVisitor visitor ){}
 
     virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {}
-
+    virtual void clean_path_cache(){}
 
 };
 

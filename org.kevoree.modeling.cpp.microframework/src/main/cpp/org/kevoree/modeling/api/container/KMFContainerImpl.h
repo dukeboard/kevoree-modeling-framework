@@ -73,14 +73,33 @@ private:
   list < ModelTrace * > *traces;
 };
 
+class CacheVisitorCleaner :public ModelVisitor
+{
 
+  public:
+    CacheVisitorCleaner ()
+    {
 
+    }
 
+    void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
+    {
+       elem->clean_path_cache();
+       cout << "visiting" << endl;
+    }
+
+};
 
 class KMFContainerImpl : public KMFContainer
 {
 
 public:
+
+
+KMFContainerImpl(){
+    internal_readOnlyElem = false;
+    internal_recursive_readOnlyElem=false;
+}
 
   KMFContainer* eContainer()
   {
@@ -102,6 +121,42 @@ public:
     }
   }
 
+//    internal_visit(visitor,current,recursive,"interventions");
+  void  internal_visit(ModelVisitor visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName){
+      if(internalElem)
+      {
+             if(nonContainedReference && recursive)
+             {
+                   string elemPath = internalElem->path();
+                   //   if(visitor.alreadyVisited != null && visitor.alreadyVisited!!.containsKey(elemPath)){return}
+
+             }
+
+             visitor.visit(internalElem,refName,this);
+    }
+
+  }
+  /*
+      fun internal_visit(visitor : org.kevoree.modeling.api.util.ModelVisitor,internalElem : org.kevoree.modeling.api.KMFContainer?,recursive:Boolean,containedReference : Boolean,nonContainedReference : Boolean, refName : String){
+          if(internalElem != null){
+              if(nonContainedReference && recursive){
+                  var elemPath = internalElem.path()!!
+                  if(visitor.alreadyVisited != null && visitor.alreadyVisited!!.containsKey(elemPath)){return}
+                  if(visitor.alreadyVisited == null){
+                      visitor.alreadyVisited = java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>()
+                  }
+                  visitor.alreadyVisited!!.put(elemPath,internalElem)
+              }
+              visitor.visit(internalElem,refName,this)
+              if(!visitor.visitStopped){
+                  if(recursive && visitor.visitChildren){
+                      internalElem.visit(visitor,recursive,containedReference,nonContainedReference)
+                  }
+                  visitor.visitChildren = true
+              }
+          }
+      }
+           */
 
   void setEContainer(KMFContainer *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
@@ -116,8 +171,9 @@ public:
         internal_unsetCmd = unsetCmd;
         internal_containmentRefName = refNameInParent;
         path_cache = "";
-       // visit(cleanCacheVisitor,true,true,false)    TODO
-        }
+        CacheVisitorCleaner cleanCacheVisitor;
+        visit(cleanCacheVisitor,true,true,false) ;
+     }
   }
 
    string path() {
@@ -163,8 +219,6 @@ public:
                   return NULL;
                 }
             }
-
-
             string queryID = "";
             int extraReadChar = 2;
             string relationName = query.substr(0,query.find('[',0)) ;
@@ -175,16 +229,26 @@ public:
             } else
             {
                 int indexFirstClose = query.find(']',0);
-                while( indexFirstClose + 1 < query.length() && query.at(indexFirstClose + 1) != '/'){
-                    indexFirstClose = query.find(']',indexFirstClose + 1)    ;
+
+                while( indexFirstClose + 1 < query.size() && query.at(indexFirstClose + 1) != '/')
+                {
+                    indexFirstClose = query.find(']',indexFirstClose + 1);
                 }
-                queryID = query.substr(query.find('[',0) + 1, indexFirstClose);
+
+                int id_size =   indexFirstClose - query.find('[',0)-1;
+                queryID = query.substr(query.find('[',0) + 1, id_size);
             }
-            string subquery = query.substr(relationName.length() + queryID.length() + extraReadChar, query.length());
+            int v =    (relationName.size() + queryID.size() + extraReadChar);
+            int size = query.size() -v;
+
+
+            string subquery = query.substr(relationName.size() + queryID.size() + extraReadChar, size);
+
             if (subquery.find('/',0) != -1)
             {
-                subquery = subquery.substr(subquery.find('/',0) + 1, subquery.length());
+                subquery = subquery.substr(subquery.find('/',0) + 1, subquery.size()-subquery.find('/',0));
             }
+            cout << "findByID -> " << relationName << " " << queryID  << endl;
             KMFContainer *objFound = findByID(relationName,queryID) ;
             if(!subquery.empty() && objFound != NULL)
             {
@@ -194,8 +258,6 @@ public:
                  return objFound;
             }
         }
-
-
 
        list<ModelTrace*>* createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {
              list < ModelTrace * > *traces= new   list < ModelTrace * >;
@@ -264,7 +326,9 @@ public:
 
 
 
-
+void clean_path_cache(){
+ path_cache = "";
+}
 
 
 protected :
