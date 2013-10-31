@@ -46,9 +46,8 @@ public:
 	A* findByPath(string query,A clazz);
 	virtual string internalGetKey(){};
  
-    virtual void visit(ModelVisitor visitor,bool recursive,bool containedReference ,bool nonContainedReference){}
-    virtual void visitAttributes(ModelAttributeVisitor visitor ){}
-
+    virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){}
+    virtual void visitAttributes(ModelAttributeVisitor *visitor ){}
     virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {}
     virtual void clean_path_cache(){}
 

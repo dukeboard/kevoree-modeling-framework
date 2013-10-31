@@ -17,7 +17,7 @@ TraceSequence::TraceSequence(){
 }
 	
 TraceSequence::~TraceSequence(){
-		for (std::list<ModelTrace*>::iterator iterator = traces.begin(), end = traces.end(); iterator != end; ++iterator) 
+		for (std::list<ModelTrace*>::iterator iterator = traces.begin(), end = traces.end(); iterator != end; ++iterator)
         {
 			   ModelTrace * t = *iterator;
 			   delete t;
@@ -26,7 +26,8 @@ TraceSequence::~TraceSequence(){
 }
 
 
-TraceSequence* TraceSequence::populate(std::list<ModelTrace*> *addtraces){
+TraceSequence* TraceSequence::populate(std::list<ModelTrace*> *addtraces)
+{
 	     std::copy(addtraces->begin(), addtraces->end(), std::back_insert_iterator<std::list<ModelTrace*> >(traces)); // addAll
         return this;	
 }
@@ -130,7 +131,7 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
 									_typename =keys["typename"];
 								}
 								modeltrace =new ModelAddTrace(_src,_refname,_previouspath,_typename);
-								traces.push_back(modeltrace);					
+								traces.push_back(modeltrace);
 							break;
 							
 							case REMOVE:
@@ -188,7 +189,7 @@ string TraceSequence::exportToString(){
 		string buffer;
 		buffer.append("[");
         bool isFirst = true;
-     	for (std::list<ModelTrace*>::const_iterator iterator = traces.begin(), end = traces.end(); iterator != end; ++iterator) 
+     	for (std::list<ModelTrace*>::const_iterator iterator = traces.begin(), end = traces.end(); iterator != end; ++iterator)
         {
 			if(!isFirst){
                 buffer.append(",");

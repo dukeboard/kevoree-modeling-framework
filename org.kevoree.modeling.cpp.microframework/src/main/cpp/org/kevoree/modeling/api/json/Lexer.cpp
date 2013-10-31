@@ -130,9 +130,9 @@ Token Lexer::nextToken() {
             }
             string v = currentValue;
             std::transform(v.begin(), v.end(), v.begin(), ::tolower);
-            if (v.compare("true") == true) {
+            if (v.compare("true") == 0) {
                 jsonValue = "true";
-            } else if (v.compare("false") == true) {
+            } else if (v.compare("false") == 0) {
                 jsonValue = "false";
             } else {
                 jsonValue = v;
