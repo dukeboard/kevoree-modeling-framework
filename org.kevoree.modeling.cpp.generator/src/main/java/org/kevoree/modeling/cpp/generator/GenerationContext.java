@@ -14,7 +14,7 @@ public class GenerationContext {
     private File ecore=null;
     private String name_package ="";
     private String root ="";
-
+   private boolean debug_model = false;
     public String getRootGenerationDirectory() {
         return rootGenerationDirectory;
     }
@@ -49,5 +49,13 @@ public class GenerationContext {
 
     public void setRoot(String root) {
         this.root = root;
+    }
+
+    public boolean isDebug_model() {
+        return debug_model;
+    }
+
+    public void setDebug_model(boolean debug_model) {
+        this.debug_model = debug_model;
     }
 }

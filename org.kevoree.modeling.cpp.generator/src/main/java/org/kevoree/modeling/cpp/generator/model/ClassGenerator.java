@@ -6,7 +6,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
-import org.kevoree.modeling.cpp.generator.ConverterDataTypes;
+import org.kevoree.modeling.cpp.generator.utils.ConverterDataTypes;
 import org.kevoree.modeling.cpp.generator.GenerationContext;
 import org.kevoree.modeling.cpp.generator.utils.HelperGenerator;
 import org.kevoree.modeling.cpp.generator.utils.FileManager;
@@ -24,7 +24,7 @@ import java.util.List;
  * Time: 11:26
  * To change this templates use File | Settings | File Templates.
  */
-public class ClassGenerator extends AClassGenerator {
+public class ClassGenerator extends AGenerator {
 
     private GenerationContext ctx;
     private Template gen_method_add;
@@ -113,8 +113,6 @@ public class ClassGenerator extends AClassGenerator {
 
         add_H("void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference);");
 
-
-
         StringWriter result_visitor_ref = new StringWriter();
         for(EReference ref :cls.getEAllReferences())
         {
@@ -125,6 +123,12 @@ public class ClassGenerator extends AClassGenerator {
                 VelocityContext context_visitor_ref = new VelocityContext();
                 context_visitor_ref.put("refname",ref.getName());
                 context_visitor_ref.put("type",ref.getEReferenceType().getName());
+                if(ctx.isDebug_model()){
+                    context_visitor_ref.put("debug","");
+                }else {
+                    context_visitor_ref.put("debug","");
+                }
+
 
                 gen_visitor_ref.merge(context_visitor_ref,result_visitor_ref);
             }
@@ -134,6 +138,11 @@ public class ClassGenerator extends AClassGenerator {
         StringWriter result_visitor = new StringWriter();
         context_visitor.put("classname",cls.getName());
         context_visitor.put("visitor_refs",result_visitor_ref) ;
+        if(ctx.isDebug_model()){
+            context_visitor.put("debug","");
+        }else {
+            context_visitor.put("debug","");
+        }
         gen_visitor.merge(context_visitor, result_visitor);
 
         add_CPP(result_visitor.toString());
@@ -147,7 +156,7 @@ public class ClassGenerator extends AClassGenerator {
 
         for(EAttribute a: cls.getEAllAttributes() )
         {
-
+            ADD_DEBUG(cls,"Visiting attribute -> "+a.getName());
          add_CPP("visitor->visit(any("+a.getName()+"),\""+a.getName()+"\",this);");
         }
 

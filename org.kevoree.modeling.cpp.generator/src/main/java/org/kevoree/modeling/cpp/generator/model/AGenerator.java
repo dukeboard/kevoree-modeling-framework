@@ -11,7 +11,7 @@ import org.eclipse.emf.ecore.EClass;
  * Time: 10:23
  * To change this templates use File | Settings | File Templates.
  */
-public abstract  class AClassGenerator {
+public abstract  class AGenerator {
 
     protected StringBuilder header;
     protected StringBuilder gen_class;
@@ -35,6 +35,10 @@ public abstract  class AClassGenerator {
 
     protected void add_CPP(String source){
         class_result.append(source+"\n");
+    }
+
+    protected void ADD_DEBUG(EClass cls,String msg){
+        add_CPP("cout << \"DEBUG : class <"+cls.getName()+">  "+msg+"\" << endl;");
     }
     protected void add_H(String s){
         body.append(s+"\n");
