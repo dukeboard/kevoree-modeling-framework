@@ -1,7 +1,0 @@
-#* @vtlvariable name="customerList" type="java.util.List<java.lang.String>" *#
-#foreach( $customer in $customerList )
-    #if( $velocityCount > 5 )
-        #break
-    #end
-    $customer
-#end

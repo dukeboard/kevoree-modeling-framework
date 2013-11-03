@@ -61,12 +61,12 @@ import org.kevoree.modeling.aspect.AspectClass;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
 
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 import java.io.*;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -81,7 +81,6 @@ import java.util.logging.Level;
 public class GenModelPlugin extends AbstractMojo {
 
     /**
-     *
      * @parameter
      */
     private String autoBasePackage = "kmf";
@@ -115,13 +114,6 @@ public class GenModelPlugin extends AbstractMojo {
     private String packagePrefix;
 
     /**
-     * Clear output dir
-     *
-     * @parameter
-     */
-   // private Boolean clearOutput = true;
-
-    /**
      * Generate also selector
      *
      * @parameter
@@ -150,6 +142,12 @@ public class GenModelPlugin extends AbstractMojo {
      * @parameter
      */
     private Boolean events = false;
+
+
+    /**
+     * @parameter
+     */
+    private Boolean ecma3compat = false;
 
 
     /**
@@ -238,12 +236,10 @@ public class GenModelPlugin extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        //if (clearOutput) {
-            deleteDirectory(output);
-            deleteDirectory(outputUtil);
-            deleteDirectory(outputClasses);
-            deleteDirectory(outputClasses);
-        //}
+        deleteDirectory(output);
+        deleteDirectory(outputUtil);
+        deleteDirectory(outputClasses);
+        deleteDirectory(outputClasses);
 
         KotlinLexerModule analyzer = new KotlinLexerModule();
         if (sourceFile.isDirectory() && sourceFile.exists()) {
@@ -253,104 +249,6 @@ public class GenModelPlugin extends AbstractMojo {
                 e.printStackTrace();
             }
         }
-
-        /*
-        HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
-        List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
-
-
-
-        Pattern metaAspect = Pattern.compile(".*metaclass[(]\"([a-zA-Z_]*)\"[)]\\s*trait\\s*([a-zA-Z_]*)(\\s*:\\s*[.a-zA-Z_]*)?.*");
-        Pattern p = Pattern.compile(".*aspect\\s*trait\\s*([a-zA-Z_]*)\\s*:\\s*([.a-zA-Z_]*).*");
-        Pattern pfun = Pattern.compile(".*fun\\s*([a-zA-Z_]*)\\s*[(](.*)[)](\\s*:\\s*[.a-zA-Z_]*)?.*");
-        Pattern packagePattern = Pattern.compile(".*package ([.a-zA-Z_]*).*");
-        CommentCleaner cleaner = new CommentCleaner();
-        for (File kotlinFile : sourceKotlinFileList) {
-            BufferedReader br;
-            String packageName = null;
-            try {
-                br = new BufferedReader(new StringReader(cleaner.cleanComment(kotlinFile)));
-                String line;
-                AspectClass currentAspect = null;
-                while ((line = br.readLine()) != null) {
-                    Matcher funMatch = pfun.matcher(line);
-                    if (funMatch.matches() && !line.contains(" private ")) {
-                        if (currentAspect != null) {
-                            AspectMethod method = new AspectMethod();
-                            method.name = funMatch.group(1).trim();
-                            if (funMatch.groupCount() == 3) {
-                                method.returnType = funMatch.group(3);
-                                if (method.returnType != null) {
-                                    method.returnType = method.returnType.replace(":", "").trim();
-                                }
-                            }
-                            String params = funMatch.group(2);
-                            String[] paramsArray = params.split(",");
-                            for (int i = 0; i < paramsArray.length; i++) {
-                                String[] paramType = paramsArray[i].split(":");
-                                if (paramType.length == 2) {
-                                    AspectParam param = new AspectParam();
-                                    param.name = paramType[0].trim();
-                                    param.type = paramType[1].trim();
-                                    method.params.add(param);
-                                }
-                            }
-                            currentAspect.methods.add(method);
-                        }
-                    }
-                    Matcher newMeta = metaAspect.matcher(line);
-                    Matcher m = p.matcher(line);
-                    if (m.matches() || newMeta.matches()) {
-                        if (currentAspect != null) {
-                            cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
-                        }
-                        if (newMeta.matches()) {
-                            NewMetaClassCreation newMetaObject = new NewMetaClassCreation();
-                            newMetaObject.originFile = kotlinFile;
-                            newMetaObject.name = newMeta.group(1).trim();
-                            newMetaObject.packageName = packageName.trim();
-                            if (newMeta.groupCount() == 3) {
-                                newMetaObject.parentName = newMeta.group(3);
-                                if (newMetaObject.parentName != null) {
-                                    newMetaObject.parentName = newMetaObject.parentName.replace(":", "").trim();
-                                }
-                            }
-                            newMetaClass.add(newMetaObject);
-                            currentAspect = new AspectClass();
-                            currentAspect.name = newMeta.group(2);
-                            //same name than the aspected class
-                            currentAspect.aspectedClass = newMetaObject.name;
-                            currentAspect.packageName = packageName.trim();
-                        } else {
-                            currentAspect = new AspectClass();
-                            currentAspect.name = m.group(1).trim();
-                            currentAspect.aspectedClass = m.group(2).trim();
-                            currentAspect.packageName = packageName.trim();
-                        }
-                    } else {
-                        if (line.contains(" trait ") || line.contains(" class ")) {
-                            if (currentAspect != null) {
-                                cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
-                            }
-                            currentAspect = null;
-                        }
-                    }
-                    Matcher packageP = packagePattern.matcher(line);
-                    if (packageP.matches()) {
-                        packageName = packageP.group(1);
-                    }
-                }
-                if (currentAspect != null) {
-                    cacheAspects.put(packageName + "." + currentAspect.name, currentAspect);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-
-        }
-        */
 
         List<File> sourceKotlinFileList = new ArrayList<File>();
         if (sourceFile.isDirectory() && sourceFile.exists()) {
@@ -415,9 +313,8 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setJS(js);
         ctx.setGenerateEvents(events);
         ctx.flyweightFactory_$eq(flyweightFactory);
-        ctx.ecma5_$eq(true);
         ctx.autoBasePackage_$eq(autoBasePackage);
-
+        ctx.ecma3compat_$eq(ecma3compat);
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
 
@@ -579,7 +476,7 @@ public class GenModelPlugin extends AbstractMojo {
         exclusions.add("KMFContainer.kt");
         exclusions.add("ByteConverter.kt");
 
-        if(ctx.js()){
+        if (ctx.js()) {
             exclusions.add("meta.kt");
             exclusions.add("aspect.kt");
         }
@@ -686,11 +583,11 @@ public class GenModelPlugin extends AbstractMojo {
                     File outputMerged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged.js");
                     FileOutputStream mergedStream = new FileOutputStream(outputMerged);
 
-                   // if (ecma5) {
-                        IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
-                   // } else {
-                   //     IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
-                   // }
+                    // if (ecma5) {
+                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
+                    // } else {
+                    //     IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
+                    // }
 
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB), mergedStream);
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
@@ -722,7 +619,7 @@ public class GenModelPlugin extends AbstractMojo {
                         FileUtils.deleteDirectory(outputUtil);
                     }
 
-                    FileUtils.copyDirectory(outputKotlinJSDir,outputClasses);
+                    FileUtils.copyDirectory(outputKotlinJSDir, outputClasses);
 
                 }
 

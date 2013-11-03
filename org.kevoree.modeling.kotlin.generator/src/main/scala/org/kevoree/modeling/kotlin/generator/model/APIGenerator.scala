@@ -92,7 +92,7 @@ trait APIGenerator extends ClassGenerator {
     }
 
     //Kotlin workaround // Why prop are not generated properly ?
-    if (ctx.getJS() && !ctx.ecma5) {
+    if (ctx.getJS() && ctx.ecma3compat) {
       ProcessorHelper.noduplicate(cls.getEAttributes).foreach {
         att =>
 

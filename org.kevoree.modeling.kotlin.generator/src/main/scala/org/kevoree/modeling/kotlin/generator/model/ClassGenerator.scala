@@ -364,8 +364,7 @@ generateDiffMethod(pr, cls, ctx)
 
 
     //Kotlin workaround // Why prop are not generated properly ?
-    if (ctx.getJS() && !ctx.ecma5) {
-
+    if (ctx.getJS() && ctx.ecma3compat) {
       ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach {
         att =>
           if (att.isMany) {

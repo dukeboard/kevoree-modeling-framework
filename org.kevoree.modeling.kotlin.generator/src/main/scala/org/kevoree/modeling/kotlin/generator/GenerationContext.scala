@@ -40,7 +40,7 @@ class GenerationContext {
 
   var autoBasePackage : String = "kmf"
 
-  var ecma5 = false;
+  var ecma3compat = false
 
   var microframework: Boolean = false
 
