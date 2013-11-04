@@ -30,7 +30,7 @@ class ReferencesVisitor(val ostream : java.io.PrintStream, val addressTable : ja
         if(value == null) {
             value = adjustedAddress
         } else {
-            value = value + ""
+            value = value + " "
             value = value + adjustedAddress.toString()
         }
     }
