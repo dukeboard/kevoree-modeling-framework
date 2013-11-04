@@ -26,7 +26,7 @@ KMFContainer* eContainer();
 string getRefInParent();
 string path();
 KMFContainer* findByPath(string query);
-void setEContainer(KMFContainer *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent);
+void setEContainer(KMFContainerImpl *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent);
 list<ModelTrace*>* createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes );
 void clean_path_cache();
 template <class A>

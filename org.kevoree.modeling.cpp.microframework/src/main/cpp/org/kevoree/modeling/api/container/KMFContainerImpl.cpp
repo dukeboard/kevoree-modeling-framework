@@ -6,15 +6,19 @@
  * Time: 8:45
  */
 
-KMFContainerImpl::KMFContainerImpl(){
+KMFContainerImpl::KMFContainerImpl()
+{
     internal_readOnlyElem = false;
     internal_recursive_readOnlyElem=false;
     internal_unsetCmd=NULL;
     internal_eContainer=NULL;
 }
 
-KMFContainerImpl::~KMFContainerImpl(){
-// TODO
+KMFContainerImpl::~KMFContainerImpl()
+{
+        if(internal_unsetCmd){
+          delete internal_unsetCmd;
+        }
 }
 
 KMFContainer* KMFContainerImpl::eContainer()
@@ -28,19 +32,25 @@ string KMFContainerImpl::getRefInParent()
 }
 
 
-  void KMFContainerImpl::setEContainer(KMFContainer *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
+  void KMFContainerImpl::setEContainer(KMFContainerImpl *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
-     if(!internal_readOnlyElem)
+     if(!container->internal_readOnlyElem)
      {
 
         RemoveFromContainerCommand *tempUnsetCmd = internal_unsetCmd;
-        internal_unsetCmd = NULL;
+        if(internal_unsetCmd !=NULL){
+         delete  internal_unsetCmd;
+         internal_unsetCmd = NULL;
+        }
+
         if(tempUnsetCmd != NULL)
         {
             tempUnsetCmd->run();
+            delete  tempUnsetCmd;
         }
-        internal_eContainer = container;
-        internal_unsetCmd = unsetCmd;
+       internal_eContainer = container;
+       internal_unsetCmd = unsetCmd;
+       // cout << "setEContainer" << container->internal_unsetCmd << endl;
         internal_containmentRefName = refNameInParent;
         path_cache = "";
         CacheVisitorCleaner *cleanCacheVisitor = new CacheVisitorCleaner();
@@ -51,8 +61,9 @@ string KMFContainerImpl::getRefInParent()
 
   void  KMFContainerImpl::internal_visit(ModelVisitor *visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName)
   {
-     //cout << "internal_visit path = "<< internalElem->path() << endl;
-      if(internalElem)
+
+      PRINTF("internal_visit path = "<< internalElem->path() << " nonContainedReference " << nonContainedReference<< " recursive " << recursive);
+      if(internalElem != NULL)
       {
              if(nonContainedReference && recursive)
              {
@@ -164,26 +175,26 @@ void KMFContainerImpl::clean_path_cache(){
 
                      list <ModelTrace*> *traces= new   list <ModelTrace *>;
 
-                     google::dense_hash_map<string,string> *values = new google::dense_hash_map<string,string>;
-                     values->set_empty_key("");
+                     google::dense_hash_map<string,string> values;
+                     values.set_empty_key("");
 
                      if(onlyAttributes)
                      {
-                            VisitorFiller *attVisitorFill= new VisitorFiller (values);
+                            VisitorFiller *attVisitorFill= new VisitorFiller (&values);
                             visitAttributes(attVisitorFill);
                             delete   attVisitorFill;
 
 
                             if(similarObj!=NULL)
                             {
-                               VisitorAtt  *attVisitor= new VisitorAtt(values,traces,path(),isInter);
+                               VisitorAtt  *attVisitor= new VisitorAtt(&values,traces,path(),isInter);
                                similarObj->visitAttributes(attVisitor);
                                delete attVisitor;
                             }
 
-                            if(!isInter && !isMerge && values->size() != 0){
+                            if(!isInter && !isMerge && values.size() != 0){
 
-                              for ( google::dense_hash_map<string,string>::const_iterator it = (*values).begin();  it != (*values).end(); ++it) {
+                              for ( google::dense_hash_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it) {
 
                                     string  hashLoopRes= it->second;
                                      ModelSetTrace *modelsettrace = new ModelSetTrace(path(),hashLoopRes,"","","");
@@ -196,21 +207,21 @@ void KMFContainerImpl::clean_path_cache(){
                         if(onlyReferences)
                         {
                             string payload ="";
-                            VisitorFillRef *refVisitorFill = new VisitorFillRef(values);         // TODO FIXE ME ? payload
+                            VisitorFillRef *refVisitorFill = new VisitorFillRef(&values);         // TODO FIXE ME ? payload
                             visit(refVisitorFill,false,false,true);
                             delete refVisitorFill;
                             if(similarObj)
                             {
-                               VisitorRef *refvisitor = new VisitorRef(values,traces,path(),isInter);
+                               VisitorRef *refvisitor = new VisitorRef(&values,traces,path(),isInter);
                                similarObj->visit(refvisitor,false,false,true);
                                delete refvisitor;
                             }
 
 
-                            if(!isInter && !isMerge && (values->size() != 0))
+                            if(!isInter && !isMerge && (values.size() != 0))
                             {
 
-                            for ( google::dense_hash_map<string,string>::const_iterator it = (*values).begin();  it != (*values).end(); ++it)
+                            for ( google::dense_hash_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it)
                             {
                                 string hashLoopRes =  it->second;
                                 vector<string> result =   Utils::split(hashLoopRes,"_");
@@ -223,7 +234,8 @@ void KMFContainerImpl::clean_path_cache(){
 
 
                         }
-                  delete values;
+                        values.clear();
+
                   return traces;
                }
 template <class A>

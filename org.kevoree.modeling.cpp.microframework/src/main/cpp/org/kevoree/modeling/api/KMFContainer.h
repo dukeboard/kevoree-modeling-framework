@@ -17,6 +17,14 @@ using std::list;
  * Date: 24/10/13
  * Time: 18:36
  */
+
+
+
+ //#define PRINTF(...) printf(__VA_ARGS__)
+
+ #define PRINTF(...)
+
+
 class KMFContainer 
 {
 

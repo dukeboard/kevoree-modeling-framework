@@ -16,7 +16,7 @@ ModelSetTrace::ModelSetTrace (string _srcPath, string _refName, string _objPath,
   
   
  ModelSetTrace::~ModelSetTrace(){
-		
+
 }
 std::string ModelSetTrace::toString ()
 {
@@ -44,7 +44,7 @@ std::string ModelSetTrace::toString ()
 
 
  ModelAddTrace::~ModelAddTrace(){
-		
+
 }
 ModelAddTrace::ModelAddTrace(string _srcPath, string _refName, string _previousPath,string _typeName)
 {
@@ -75,7 +75,7 @@ ModelAddTrace::ModelAddTrace(string _srcPath, string _refName, string _previousP
   
   
    ModelAddAllTrace::~ModelAddAllTrace(){
-		
+
 }
   
 ModelAddAllTrace::ModelAddAllTrace (string _srcPath, string _refName,list < string > &_previousPath, list < string > &_typeName)

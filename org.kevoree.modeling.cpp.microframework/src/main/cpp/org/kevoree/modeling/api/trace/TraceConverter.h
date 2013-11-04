@@ -9,6 +9,7 @@
 class TraceConverter
 {
 public:
+     virtual ~TraceConverter(){}
      virtual ModelTrace* convert(ModelTrace *input)= 0;   
 };
 

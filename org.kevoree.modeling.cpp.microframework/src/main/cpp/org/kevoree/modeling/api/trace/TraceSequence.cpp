@@ -19,8 +19,7 @@ TraceSequence::TraceSequence(){
 TraceSequence::~TraceSequence(){
 		for (std::list<ModelTrace*>::iterator iterator = traces.begin(), end = traces.end(); iterator != end; ++iterator)
         {
-			   ModelTrace * t = *iterator;
-			   delete t;
+			   delete *iterator;
 		}	
 		traces.clear();
 }
@@ -29,6 +28,7 @@ TraceSequence::~TraceSequence(){
 TraceSequence* TraceSequence::populate(std::list<ModelTrace*> *addtraces)
 {
 	     std::copy(addtraces->begin(), addtraces->end(), std::back_insert_iterator<std::list<ModelTrace*> >(traces)); // addAll
+	     delete addtraces;
         return this;	
 }
 
@@ -181,6 +181,7 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
 			 }			
                currentToken = lexer->nextToken(); 
     }
+    delete lexer;
 
     return this;        
 }

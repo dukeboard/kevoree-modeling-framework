@@ -33,30 +33,28 @@ TraceSequence *ModelCompare::inter (KMFContainer *origin, KMFContainer *target)
 
 std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KMFContainer *target,bool inter, bool merge)
 {
-
-    list < ModelTrace * > *traces = new    list < ModelTrace * >;
-    list < ModelTrace * > *tracesRef= new    list < ModelTrace * >;
-    google::dense_hash_map<string,KMFContainer*> *values = new  google::dense_hash_map<string,KMFContainer*>;
-    values->set_empty_key("");
+    list < ModelTrace * > *traces ;
+    list < ModelTrace * > *tracesRef;
+    google::dense_hash_map<string,KMFContainer*> values;
+    values.set_empty_key("");
 
     traces = origin->createTraces (target, inter, merge, false, true);
     tracesRef = origin->createTraces (target, inter, merge, true, false);
 
 	// visitors 
-    ModelCompareVisitorFiller *filler = new ModelCompareVisitorFiller(values);
+    ModelCompareVisitorFiller *filler = new ModelCompareVisitorFiller(&values);
     origin->visit(filler, true, true, false);
     delete filler;
 
-    ModelCompareVisitorCreateTraces *visitorTraces= new ModelCompareVisitorCreateTraces(values,inter,merge,traces,tracesRef);
+    ModelCompareVisitorCreateTraces *visitorTraces= new ModelCompareVisitorCreateTraces(&values,inter,merge,traces,tracesRef);
     target->visit(visitorTraces, true, true, false);
-    delete visitorTraces;
-
+     delete visitorTraces;
 
         if(!inter){
             //if diff
             if(!merge)
             {
-                for ( google::dense_hash_map<string,KMFContainer*>::const_iterator it = values->begin();  it != values->end(); ++it) {
+                for ( google::dense_hash_map<string,KMFContainer*>::const_iterator it = values.begin();  it != values.end(); ++it) {
 
                       KMFContainer *diffChild;
                       string src;
@@ -75,7 +73,9 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
             }
         }
         std::copy(tracesRef->begin(), tracesRef->end(), std::back_insert_iterator<std::list<ModelTrace*> >(*traces));
-        delete values;
-        delete  tracesRef;
+
+         values.clear();
+        delete tracesRef;
+
 return traces;
 }

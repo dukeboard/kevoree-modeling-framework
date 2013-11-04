@@ -15,6 +15,7 @@ class ModelCompare
 {
 
   public:
+    ~ModelCompare(){ }
     TraceSequence* createSequence ();
     TraceSequence* diff (KMFContainer *origin, KMFContainer *target);
     TraceSequence* merge (KMFContainer *origin, KMFContainer *target);

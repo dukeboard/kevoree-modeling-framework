@@ -14,7 +14,9 @@ using std::list;
  */
 class ModelTrace
 {
-  public:	
+
+  public:
+    virtual ~ModelTrace(){}
 	virtual string toString ()
 	{
 	}
