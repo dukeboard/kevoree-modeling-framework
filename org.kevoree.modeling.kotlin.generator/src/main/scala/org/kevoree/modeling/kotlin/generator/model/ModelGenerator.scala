@@ -120,8 +120,12 @@ with ConstantsGenerator {
     generateModelTraceApply(ctx, loaderGenBaseDir)
 
 
-    ProcessorHelper.collectAllClassifiersInModel(model).foreach {
-      potentialRoot =>
+    model.getAllContents.filter(c => c.isInstanceOf[EClassifier]).foreach{ potentialRoot2 =>
+
+      val potentialRoot = potentialRoot2.asInstanceOf[EClassifier]
+    //}
+    //ProcessorHelper.collectAllClassifiersInModel(model).foreach {
+     // potentialRoot =>
         val currentPackage = potentialRoot.getEPackage
         val currentPackageDir = ProcessorHelper.getPackageGenDir(ctx, currentPackage)
         val userPackageDir = ProcessorHelper.getPackageUserDir(ctx, currentPackage)

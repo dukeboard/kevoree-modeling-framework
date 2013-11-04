@@ -54,7 +54,7 @@ package org.kevoree.modeling.kotlin.generator.model
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
-import java.io.{PrintWriter, File}
+import java.io.{FileOutputStream, PrintWriter, File}
 import scala.collection.JavaConversions._
 import java.util
 import scala.Some
@@ -68,12 +68,22 @@ import scala.Some
 trait APIGenerator extends ClassGenerator {
 
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
-    val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
-    val pr = new PrintWriter(localFile, "utf-8")
+
+
+
+    //val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
+    val localFile = new File(currentPackageDir + "/api.kt")
+    val first = !localFile.exists()
+
+
+    val localFileS = new FileOutputStream(localFile,true)
+    val pr = new PrintWriter(localFileS)
     val pack = ProcessorHelper.fqn(ctx, packElement)
-    pr.println("package " + pack + "")
-    pr.println()
-    pr.println(generateHeader(packElement))
+
+    if(first){
+      pr.println("package " + pack + "")
+      pr.println()
+    }
     pr.print("trait " + cls.getName)
     pr.println((generateSuperTypes(ctx, cls, packElement) match {
       case None => "{"
@@ -92,7 +102,7 @@ trait APIGenerator extends ClassGenerator {
     }
 
     //Kotlin workaround // Why prop are not generated properly ?
-    if (ctx.getJS() && !ctx.ecma5) {
+    if (ctx.getJS() && ctx.ecma3compat) {
       ProcessorHelper.noduplicate(cls.getEAttributes).foreach {
         att =>
 
