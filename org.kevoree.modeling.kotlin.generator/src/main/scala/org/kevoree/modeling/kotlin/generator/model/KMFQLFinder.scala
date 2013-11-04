@@ -73,6 +73,8 @@ trait KMFQLFinder {
     val idAttributes = cls.getEAllAttributes.filter(att => att.isID && !att.getName.equals("generated_KMF_ID"))
 
     if (idAttributes.size > 0) {
+
+      pr.print("\"")
       //gets all IDs
       idAttributes.sortWith {
         (att1, att2) => att1.getName.toLowerCase < att2.getName.toLowerCase
@@ -80,11 +82,14 @@ trait KMFQLFinder {
         .foreach {
         att =>
           if (!first) {
-            pr.print("+\"/\"+")
+            //pr.print("+\"/\"+")
+            pr.print("/")
           }
-          pr.print(" " + protectReservedWords(att.getName))
+          pr.print("$" + protectReservedWords(att.getName))
           first = false
       }
+      pr.print("\"")
+
     } else {
       pr.print(" generated_KMF_ID")
     }
@@ -116,8 +121,8 @@ trait KMFQLFinder {
       }
       if (ref.getUpperBound == 1) {
         pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
-        pr.println("val objFound = "+ProcessorHelper.protectReservedWords(ref.getName))
-        pr.println("if(objFound!=null && (objFound as "+ctx.getKevoreeContainerImplFQN+").internalGetKey() == idP){")
+        pr.println("val objFound = " + ProcessorHelper.protectReservedWords(ref.getName))
+        pr.println("if(objFound!=null && (objFound as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey() == idP){")
         pr.println("return objFound")
         pr.println("}else{return null}")
         pr.println("}")

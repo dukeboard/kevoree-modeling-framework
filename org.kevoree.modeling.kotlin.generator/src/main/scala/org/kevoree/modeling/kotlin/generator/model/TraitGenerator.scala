@@ -96,41 +96,6 @@ trait TraitGenerator {
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelAttributeVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
       ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
     }
-
-    /*
-    val formatedFactoryName = "KMFContainer"
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
-
-    val extension = if (ctx.getJS()) {
-      ".kt"
-    } else {
-      ".java"
-    }
-
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + extension)
-    val pr = new PrintWriter(localFile, "utf-8")
-    val ve = new VelocityEngine()
-    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
-    ve.init()
-
-    val tName = if (ctx.getJS()) {
-      "templates/ContainerAPI.vm"
-    } else {
-      "templates/ContainerJAPI.vm"
-    }
-
-    val template = ve.getTemplate(tName)
-    val ctxV = new VelocityContext()
-
-
-    ctxV.put("formatedFactoryName", formatedFactoryName)
-    ctxV.put("packElem", ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")
-    ctxV.put("FQNHelper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
-    ctxV.put("ctx", ctx)
-    template.merge(ctxV, pr)
-    pr.flush()
-    pr.close()
-    */
   }
 
   def generateContainerTrait(ctx: GenerationContext) {
@@ -151,13 +116,8 @@ trait TraitGenerator {
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
-
-
     ctx.setKevoreeContainer(Some("org.kevoree.modeling.api.KMFContainer"))
-
-    //ctx.setKevoreeContainer(Some(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName))
     ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "Impl")
-
   }
 
   def generateRemoveFromContainerCommand(ctx: GenerationContext) {
