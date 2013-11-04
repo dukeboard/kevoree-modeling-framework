@@ -15,6 +15,8 @@ public class GenerationContext {
     private String name_package ="";
     private String root ="";
    private boolean debug_model = false;
+
+    private String version="";
     public String getRootGenerationDirectory() {
         return rootGenerationDirectory;
     }
@@ -64,5 +66,11 @@ public class GenerationContext {
         return getRootGenerationDirectory()+File.separatorChar+getName_package()+File.separatorChar;
     }
 
+    public String getVersion() {
+        return version;
+    }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

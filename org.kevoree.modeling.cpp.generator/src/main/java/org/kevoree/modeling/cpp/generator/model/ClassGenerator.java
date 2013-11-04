@@ -454,13 +454,7 @@ public class ClassGenerator extends AGenerator {
     }
 
 
-    public void link_generation(){
-        api_result.append(header);
-        api_result.append(gen_class);
-        api_result.append(private_attributes);
-        api_result.append(public_attributes);
-        api_result.append(body);
-    }
+
 
 
     public void writeHeader(EClass cls) throws IOException {

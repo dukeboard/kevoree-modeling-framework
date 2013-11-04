@@ -40,7 +40,8 @@ public class Generator {
         this.ecoreFile = ctx.getEcore();
     }
 
-    public void generateModel(String version) throws IOException {
+    public void generateModel() throws IOException {
+
         URI fileUri =  URI.createFileURI(ecoreFile.getAbsolutePath());
         Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl());
         ResourceSetImpl rs = new ResourceSetImpl();
@@ -51,7 +52,7 @@ public class Generator {
         StringBuilder   list_file_h = new StringBuilder();
 
         ClassGenerator classGenerator =new ClassGenerator(context);
-        FactoryGenerator factoryGenerator = new FactoryGenerator(context);
+        FactoryGenerator factoryGenerator=null;
 
 
         for (Iterator i = resource.getAllContents(); i.hasNext();) {
@@ -75,6 +76,9 @@ public class Generator {
                 FileManager.writeFile(context.getPackageGenerationDirectory()+"classes.cpp", curent,true);
                 classes.append(HelperGenerator.genIncludeLocal(((EClass) eo).getName()));
 
+
+                factoryGenerator.generateFactory((EClass) eo);
+
             }  else if(eo instanceof EPackage)
             {
 
@@ -86,16 +90,23 @@ public class Generator {
                 }   catch (Exception e){
 
                 }
-                System.out.println(context.getName_package());
+
                 FileManager.writeFile(context.getPackageGenerationDirectory()+"classes.cpp", HelperGenerator.genIncludeLocal(context.getName_package()),false);
+                factoryGenerator= new FactoryGenerator(context);
             }
 
 
 
         }
-
+        factoryGenerator.write();
         String output =   context.getRootGenerationDirectory()+File.separatorChar+context.getName_package()+File.separatorChar;
 
         FileManager.writeFile(output + context.getName_package() + ".h", classes.toString(), false);
     }
+
+
+
+
+
+
 }

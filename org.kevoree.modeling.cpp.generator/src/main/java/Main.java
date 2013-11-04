@@ -31,12 +31,13 @@ public class Main {
 
         GenerationContext context = new GenerationContext();
         context.setRootGenerationDirectory("src/main/resources/gen/src");
-        context.setEcore("src/main/resources/metamodel/planrouge.ecore");
-
+        context.setEcore("src/main/resources/metamodel/kevoree.ecore");
+        context.setDebug_model(false);
+        context.setVersion("1.0");
 
 
        Generator gen = new Generator(context);
-        gen.generateModel("1.0");
+        gen.generateModel();
 
 
 

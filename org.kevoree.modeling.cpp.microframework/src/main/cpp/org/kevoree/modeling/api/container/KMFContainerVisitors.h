@@ -120,6 +120,7 @@ class CacheVisitorCleaner :public ModelVisitor
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
        elem->clean_path_cache();
+       // TODO DELETE MEMORY
      //  cout << "CacheVisitorCleaner " << endl;
     }
 };
