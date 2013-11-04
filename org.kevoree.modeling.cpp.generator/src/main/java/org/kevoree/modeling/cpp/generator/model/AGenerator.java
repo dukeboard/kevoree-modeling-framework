@@ -3,6 +3,7 @@ package org.kevoree.modeling.cpp.generator.model;
 import org.apache.velocity.Template;
 import org.apache.velocity.app.VelocityEngine;
 import org.eclipse.emf.ecore.EClass;
+import org.kevoree.modeling.cpp.generator.GenerationContext;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,7 +13,7 @@ import org.eclipse.emf.ecore.EClass;
  * To change this templates use File | Settings | File Templates.
  */
 public abstract  class AGenerator {
-
+    protected GenerationContext ctx;
     protected StringBuilder header;
     protected StringBuilder gen_class;
     protected StringBuilder private_attributes;
@@ -30,15 +31,20 @@ public abstract  class AGenerator {
    }
 
     protected void add_DESTRUCTOR(String source){
-        constructor.append(source+"\n");
+        destructor.append(source+"\n");
     }
 
     protected void add_CPP(String source){
         class_result.append(source+"\n");
     }
 
+    protected String msg_DEBUG(EClass cls,String msg){
+        return "cout << \"DEBUG : class <"+cls.getName()+">  "+msg+"\" << endl;";
+    }
     protected void ADD_DEBUG(EClass cls,String msg){
-        add_CPP("cout << \"DEBUG : class <"+cls.getName()+">  "+msg+"\" << endl;");
+        if(ctx.isDebug_model()){
+            add_CPP(msg_DEBUG(cls,msg));
+        }
     }
     protected void add_H(String s){
         body.append(s+"\n");
@@ -70,14 +76,14 @@ public abstract  class AGenerator {
 
 
 
-    protected void generateDestructor(EClass cls) {
+    protected void generateDestructorMethod(EClass cls) {
         add_H("~"+cls.getName()+"();\n");
         add_CPP(cls.getName()+"::~"+cls.getName()+"(){\n");
         add_CPP(destructor.toString());
         add_CPP("}\n");
     }
 
-    protected void generateConstructor(EClass cls) {
+    protected void generateConstructorMethod(EClass cls) {
 
         add_H(cls.getName()+"();\n");
         add_CPP(cls.getName()+"::"+cls.getName()+"(){\n");

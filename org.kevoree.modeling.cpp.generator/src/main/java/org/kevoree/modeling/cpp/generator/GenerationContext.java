@@ -20,6 +20,7 @@ public class GenerationContext {
     }
 
     public void setRootGenerationDirectory(String rootGenerationDirectory) {
+
         this.rootGenerationDirectory = rootGenerationDirectory;
     }
 
@@ -58,4 +59,10 @@ public class GenerationContext {
     public void setDebug_model(boolean debug_model) {
         this.debug_model = debug_model;
     }
+
+    public String getPackageGenerationDirectory() {
+        return getRootGenerationDirectory()+File.separatorChar+getName_package()+File.separatorChar;
+    }
+
+
 }

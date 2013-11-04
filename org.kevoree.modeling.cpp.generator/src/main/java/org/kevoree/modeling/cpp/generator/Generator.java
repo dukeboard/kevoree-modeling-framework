@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.kevoree.modeling.cpp.generator.model.ClassGenerator;
+import org.kevoree.modeling.cpp.generator.model.FactoryGenerator;
 import org.kevoree.modeling.cpp.generator.utils.ConverterDataTypes;
 import org.kevoree.modeling.cpp.generator.utils.FileManager;
 import org.kevoree.modeling.cpp.generator.utils.HelperGenerator;
@@ -50,11 +51,14 @@ public class Generator {
         StringBuilder   list_file_h = new StringBuilder();
 
         ClassGenerator classGenerator =new ClassGenerator(context);
+        FactoryGenerator factoryGenerator = new FactoryGenerator(context);
+
 
         for (Iterator i = resource.getAllContents(); i.hasNext();) {
             EObject eo = (EObject)i.next();
 
             if(eo instanceof EClass){
+
                 // checker
                 EClass c = (EClass) eo;
                 c.setName(ConverterDataTypes.getInstance().check_class(c.getName()));
@@ -67,20 +71,23 @@ public class Generator {
                     a.getEReferenceType().setName(ConverterDataTypes.getInstance().check_class(a.getEReferenceType().getName()));
                 }
 
-
-                classGenerator.generateClass((EClass) eo);
+                String curent = classGenerator.generateClass((EClass) eo);
+                FileManager.writeFile(context.getPackageGenerationDirectory()+"classes.cpp", curent,true);
                 classes.append(HelperGenerator.genIncludeLocal(((EClass) eo).getName()));
 
             }  else if(eo instanceof EPackage)
             {
 
                 context.setName_package( ((EPackage) eo).getNsPrefix());
+
                 try {
                     context.setRoot(((EClassImpl)EcoreUtil.getRootContainer(eo).eContents().get(0)).getName());
 
                 }   catch (Exception e){
 
                 }
+                System.out.println(context.getName_package());
+                FileManager.writeFile(context.getPackageGenerationDirectory()+"classes.cpp", HelperGenerator.genIncludeLocal(context.getName_package()),false);
             }
 
 

@@ -72,7 +72,12 @@ public class ConverterDataTypes {
     }
 
     public String getType(String t){
-        return dataTypes.get(t).toString() ;
+        if(dataTypes.containsKey(t)){
+            return dataTypes.get(t).toString() ;
+        }   else {
+            return t;
+        }
+
     }
 
 
