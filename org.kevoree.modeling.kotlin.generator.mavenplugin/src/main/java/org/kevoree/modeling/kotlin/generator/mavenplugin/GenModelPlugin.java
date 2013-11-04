@@ -576,7 +576,6 @@ public class GenModelPlugin extends AbstractMojo {
                 } else {
                     copyJsLibraryFile(KOTLIN_JS_MAPS);
                     copyJsLibraryFile(KOTLIN_JS_LIB);
-                    copyJsLibraryFileRename("kotlin-lib-ecma3-fixed.js", KOTLIN_JS_LIB_ECMA3);
                     copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
 
                     //create a merged file
@@ -664,27 +663,6 @@ public class GenModelPlugin extends AbstractMojo {
 
         //this.project.addCompileSourceRoot(output.getAbsolutePath());
     }
-     /*
-    protected void appendFile(String jsLib, StringBuilder builder) throws MojoExecutionException {
-        // lets copy the kotlin library into the output directory
-        try {
-            final InputStream inputStream = MetaInfServices.loadClasspathResource(jsLib);
-            if (inputStream == null) {
-                System.out.println("WARNING: Could not find " + jsLib + " on the classpath!");
-            } else {
-                InputSupplier<InputStream> inputSupplier = new InputSupplier<InputStream>() {
-                    @Override
-                    public InputStream getInput() throws IOException {
-                        return inputStream;
-                    }
-                };
-                String text = "\n" + FileUtil.loadTextAndClose(inputStream);
-                builder.append(text);
-            }
-        } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
-    } */
 
     protected void copyJsLibraryFileRename(String jsLib, String newName) throws MojoExecutionException {
         // lets copy the kotlin library into the output directory
@@ -730,7 +708,6 @@ public class GenModelPlugin extends AbstractMojo {
 
     public static final String KOTLIN_JS_MAPS = "kotlin-maps.js";
     public static final String KOTLIN_JS_LIB = "kotlin-lib.js";
-    public static final String KOTLIN_JS_LIB_ECMA3 = "kotlin-lib-ecma3.js";
     public static final String KOTLIN_JS_LIB_ECMA5 = "kotlin-lib-ecma5.js";
 
 
