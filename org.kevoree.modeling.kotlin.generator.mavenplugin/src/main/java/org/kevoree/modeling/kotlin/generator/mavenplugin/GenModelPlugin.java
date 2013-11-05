@@ -324,6 +324,9 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.autoBasePackage_$eq(autoBasePackage);
         ctx.ecma3compat_$eq(ecma3compat);
         ctx.persistence_$eq(persistence);
+        if (persistence) {
+            ctx.generateEvents_$eq(true);
+        }
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
 

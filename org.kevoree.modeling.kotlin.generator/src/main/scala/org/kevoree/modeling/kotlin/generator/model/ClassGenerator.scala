@@ -17,13 +17,13 @@ import java.util
  * Time: 13:35
  */
 
-trait ClassGenerator extends ClonerGenerator {
+trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
-  private def toCamelCase(ref: EReference): String = {
+  def toCamelCase(ref: EReference): String = {
     return ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
   }
 
-  private def toCamelCase(att: EAttribute): String = {
+  def toCamelCase(att: EAttribute): String = {
     return att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
   }
 
@@ -37,257 +37,7 @@ trait ClassGenerator extends ClonerGenerator {
 
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-  def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter) {
-    pr.println("override fun reflexiveMutator(mutationType : org.kevoree.modeling.api.util.ActionType, refName : String, value : Any?, setOpposite : Boolean, fireEvents : Boolean) {")
-    pr.println("when(refName) {")
-    cls.getEAllAttributes.foreach {
-      att =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
-      var valueType: String = ""
-        if (att.getEAttributeType.isInstanceOf[EEnum]) {
-          valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
-        } else {
-          valueType = ProcessorHelper.convertType(att.getEAttributeType, ctx)
-        }
-        if (att.isMany) {
-          pr.println("if(value is java.util.ArrayList<*>){")
-          if (ctx.generateEvents) {
-            pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
-          } else {
-            pr.println("this." + protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
-          }
-          pr.println("}else {")
-          pr.println("if(value is String){")
-          pr.println("val splitted = org.kevoree.modeling.api.util.AttConverter.convAttFlat(value)")
-          pr.println("var tempArrayValues : MutableList<" + valueType + "> = java.util.ArrayList<" + valueType + ">()")
-          pr.println("for(eachV in splitted){")
-          if (ctx.getJS()) {
-            valueType match {
-              case "Boolean" => {
-                pr.println("tempArrayValues.add(\"true\" == eachV || true == eachV)")
-              }
-              case _ => {
-                pr.println("tempArrayValues.add(eachV as " + valueType + ")")
-              }
-            }
-          } else {
-            valueType match {
-              case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short" => {
-                pr.println("tempArrayValues.add(eachV.toString().to" + valueType + "())")
-              }
-              case "Byte" => {
-                pr.println("tempArrayValues.add(eachV.toString().toInt().to" + valueType + "())")
-              }
-              case "ByteArray" => {
-                pr.println("tempArrayValues.add(value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
-              }
-              case _ => {
-                pr.println("tempArrayValues.add(eachV as " + valueType + ")")
-              }
-            }
-          }
-          pr.println("}")
-          if (ctx.generateEvents) {
-            pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
-          } else {
-            pr.println("this." + protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
-          }
-          pr.println("}")
-          pr.println("}")
-        } else {
-
-
-          if (ctx.getJS()) {
-            valueType match {
-              case "Boolean" => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((\"true\" == value || true == value), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (\"true\" == value || true == value)")
-                }
-              }
-              case "java.util.Date" => {
-                pr.println("if(value is java.util.Date){")
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
-                }
-                pr.println("} else {")
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
-                }
-                pr.println("}")
-              }
-              case _ => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
-                }
-              }
-            }
-          } else {
-            valueType match {
-              case "String" => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
-                }
-              }
-              case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short" => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value.toString().to" + valueType + "()), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().to" + valueType + "())")
-                }
-              }
-              case "Byte" => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value.toString().toInt().to" + valueType + "()), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toInt().to" + valueType + "())")
-                }
-              }
-              case "ByteArray" => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value.toString().toByteArray(java.nio.charset.Charset.defaultCharset())), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
-                }
-              }
-              case "java.util.Date" => {
-                pr.println("if(value is java.util.Date){")
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
-                }
-                pr.println("} else {")
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
-                }
-                pr.println("}")
-              }
-              case "Any" => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value.toString() as? " + valueType + "), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString() as? " + valueType + ")")
-                }
-              }
-              case _ => {
-                if (ctx.generateEvents) {
-                  pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
-                } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
-                }
-              }
-            }
-          }
-        }
-        pr.println("}") //END ATTR
-    }
-
-    cls.getEAllReferences.foreach {
-      ref =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {") //START REF
-        pr.println("when(mutationType) {")
-        val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if (ref.isMany) {
-          pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {")
-          val methodNameClean = "add" + toCamelCase(ref)
-          if (ref.getEOpposite != null || ctx.generateEvents) {
-            pr.println("this.internal_" + methodNameClean + "(value as " + valueType + ", setOpposite, fireEvents)")
-          } else {
-            pr.println("this." + methodNameClean + "(value as " + valueType + ")")
-          }
-          pr.println("}")
-          pr.println("org.kevoree.modeling.api.util.ActionType.ADD_ALL -> {")
-          val methodNameClean2 = "addAll" + toCamelCase(ref)
-          if (ref.getEOpposite != null || ctx.generateEvents) {
-            pr.println("this.internal_" + methodNameClean2 + "(value as List<" + valueType + ">, setOpposite, fireEvents)")
-          } else {
-            pr.println("this." + methodNameClean2 + "(value as List<" + valueType + ">)")
-          }
-          pr.println("}")
-          pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE -> {")
-          val methodNameClean3 = "remove" + toCamelCase(ref)
-          if (ref.getEOpposite != null || ctx.generateEvents) {
-            pr.println("        this.internal_" + methodNameClean3 + "(value as " + valueType + ", setOpposite, fireEvents)")
-          } else {
-            pr.println("        this." + methodNameClean3 + "(value as " + valueType + ")")
-          }
-          pr.println("}")
-          pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE_ALL -> {")
-          val methodNameClean4 = "removeAll" + toCamelCase(ref)
-          if (ref.getEOpposite != null) {
-            pr.println("        this.internal_" + methodNameClean4 + "(setOpposite, fireEvents)")
-          } else {
-            pr.println("        this." + methodNameClean4 + "()")
-          }
-          pr.println("}")
-        } else {
-          pr.println("org.kevoree.modeling.api.util.ActionType.SET -> {")
-          val methodNameClean = ProcessorHelper.protectReservedWords(ref.getName)
-          val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-          if (ref.getEOpposite != null || ctx.generateEvents) {
-            pr.println("      this.internal_" + ref.getName + "(value as? " + valueType + ", setOpposite, fireEvents)")
-          } else {
-            pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
-          }
-
-          pr.println("}")
-
-          pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE -> {")
-          if (ref.getEOpposite != null || ctx.generateEvents) {
-            pr.println("        this.internal_" + ref.getName + "(null, setOpposite, fireEvents)")
-          } else {
-            pr.println("      this." + methodNameClean + " = null")
-          }
-          pr.println("}")
-
-          pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {")
-          if (ref.getEOpposite != null || ctx.generateEvents) {
-            pr.println("        this.internal_" + ref.getName + "(value as? " + valueType + ", setOpposite, fireEvents)")
-          } else {
-            pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
-          }
-          pr.println("}")
-
-        }
-        if (ref.isMany) {
-          pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
-          pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
-          pr.println("val obj = _" + ref.getName + ".get(value)")
-
-
-          //pr.println("val objNewKey = (obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n")
-          pr.println("val objNewKey = (obj as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n")
-          pr.println("if(objNewKey == null){throw Exception(\"Key newed to null \"+obj)}\n")
-          pr.println("_" + ref.getName + ".remove(value)")
-          pr.println("_" + ref.getName + ".put(objNewKey,obj)")
-          pr.println("}")
-          pr.println("}")
-        } else {
-          pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
-          pr.println("}")
-        }
-
-        pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
-        pr.println("}") //END MUTATION TYPE
-        pr.println("}") //END Ref When case
-    }
-    pr.println("    else -> { throw Exception(\"Can reflexively \"+mutationType+\" for \"+refName + \" on \"+ this) }")
-    pr.println("}") //END REFS NAME WHEN
-
-    pr.println("}") //END METHOD
-  }
+  def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter)
 
   def generateFlatClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
 
@@ -295,12 +45,9 @@ trait ClassGenerator extends ClonerGenerator {
     val pr = new PrintWriter(localFile, "utf-8")
     val pack = ProcessorHelper.fqn(ctx, packElement)
     pr.println("package " + pack + ".impl")
-
     pr.println()
-
     val aspects = ctx.aspects.values().filter(v => AspectMatcher.aspectMatcher(ctx, v, cls))
     var aspectsName = List[String]()
-    //if (!ctx.getJS()) {
     aspects.foreach {
       a =>
         aspectsName = aspectsName ++ List(a.packageName + "." + a.name)
@@ -340,29 +87,21 @@ trait ClassGenerator extends ClonerGenerator {
       pr.println("override internal var internal_modelElementListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>? = null")
       pr.println("override internal var internal_modelTreeListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>? = null")
     }
+    if (ctx.persistence) {
+      pr.println("override var isResolved: Boolean = true")
+      pr.println("override var originFactory: org.kevoree.modeling.api.persistence.PersistenceKMFFactory? = null")
+    }
 
     pr.println("override var path_cache : String? = null")
-
     generateDeleteMethod(pr, cls, ctx, pack)
-    // Getters and Setters Generation
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
-    //GENERATE CLONE METHOD
-
     generateFlatReflexiveSetters(ctx, cls, pr)
     generateKMFQLMethods(pr, cls, ctx, pack)
     if (ctx.genSelector) {
       generateSelectorMethods(pr, cls, ctx)
     }
-    //generateEqualsMethods(pr, cls, ctx)
     generateContainedElementsMethods(pr, cls, ctx)
-
     generateMetaClassName(pr, cls, ctx)
-    /*
-if (ctx.genTrace) {
-generateDiffMethod(pr, cls, ctx)
-}          */
-
-
     //Kotlin workaround // Why prop are not generated properly ?
     if (ctx.getJS() && ctx.ecma3compat) {
       ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach {
@@ -586,8 +325,8 @@ generateDiffMethod(pr, cls, ctx)
               defaultValue = "\"\"+hashCode() + java.util.Date().getTime()"
             }
           } else {
-            if(att.isMany){
-              defaultValue = "java.util.ArrayList<"+ProcessorHelper.convertType(att.getEAttributeType, ctx)+">()"
+            if (att.isMany) {
+              defaultValue = "java.util.ArrayList<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">()"
             }
           }
           //Generate getter
@@ -595,7 +334,7 @@ generateDiffMethod(pr, cls, ctx)
             if (defaultValue == null || defaultValue == "") {
               pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = null")
             } else {
-              pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = "+defaultValue)
+              pr.println("public override var " + protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">? = " + defaultValue)
             }
             pr.println("\t set(iP : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?){")
           } else {
@@ -605,6 +344,9 @@ generateDiffMethod(pr, cls, ctx)
               pr.println("public override var " + protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "? = " + defaultValue)
             }
             pr.println("\t set(iP : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?){")
+          }
+          if (ctx.persistence) {
+            pr.println("checkLazyLoad()")
           }
           if (ctx.generateEvents) {
             pr.println("internal_" + att.getName + "(iP, true)")
@@ -635,6 +377,14 @@ generateDiffMethod(pr, cls, ctx)
             pr.println("}")
           }
           pr.println("\t}//end of setter")
+
+          if (ctx.persistence) {
+            pr.println("get(){")
+            pr.println("checkLazyLoad()")
+            pr.println("return $" + protectReservedWords(att.getName))
+            pr.println("}")
+          }
+
           pr.println()
           if (ctx.generateEvents) {
             generateAttributeSetterWithParameter(pr, att, ctx, pack, idAttributes)
@@ -651,6 +401,9 @@ generateDiffMethod(pr, cls, ctx)
           pr.println("internal val " + "_" + ref.getName + " : java.util.HashMap<String," + typeRefName + "> = java.util.HashMap<String," + typeRefName + ">()")
           pr.println("override var " + protectReservedWords(ref.getName) + ":List<" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + ">");
           pr.println("\t  get(){")
+          if (ctx.persistence) {
+            pr.println("checkLazyLoad()")
+          }
           pr.println("\t\t  return _" + ref.getName + ".values().toList()")
           pr.println("\t  }")
           pr.println(generateSetter(ctx, cls, ref, typeRefName, false))
@@ -658,6 +411,12 @@ generateDiffMethod(pr, cls, ctx)
           pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx))
         } else {
           pr.println("override var " + protectReservedWords(ref.getName) + ":" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "?=null");
+          if(ctx.persistence){
+            pr.println("get(){")
+            pr.println("checkLazyLoad()")
+            pr.println("return $"+protectReservedWords(ref.getName))
+            pr.println("}")
+          }
           pr.println(generateSetter(ctx, cls, ref, typeRefName, true))
         }
     }
@@ -679,6 +438,9 @@ generateDiffMethod(pr, cls, ctx)
     }
     res += ", setOpposite : Boolean, fireEvents : Boolean ) {\n"
 
+    if (ctx.persistence) {
+      res += ("checkLazyLoad()\n")
+    }
 
     if (!ref.isMany) {
       res += "if($" + ref.getName + "!= " + ref.getName + param_suf + "){\n"
@@ -841,6 +603,11 @@ generateDiffMethod(pr, cls, ctx)
   private def generateAddWithParameter(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
     res += "\nprivate fun internal_add" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
+
+    if(ctx.persistence){
+      res +=("checkLazyLoad()\n")
+    }
+
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     res += "doAdd" + toCamelCase(ref) + "(" + ref.getName + param_suf + ")\n"
 
@@ -886,15 +653,6 @@ generateDiffMethod(pr, cls, ctx)
           res += "(" + ref.getName + param_suf + " as " + typeRefName + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, false, fireEvents)\n"
         }
       }
-      /*
-            if (ctx.generateEvents) {
-              if (ref.isContainment) {
-                res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-              } else {
-                res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-              }
-            }
-      */
     }
     res += "}\n"
     res
@@ -952,17 +710,7 @@ generateDiffMethod(pr, cls, ctx)
           res += "(el as " + ctx.getKevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + opposite.getName + ", this, false, fireEvents)\n"
         }
       }
-
       res += "}\n"
-      /*
-      if (ctx.generateEvents) {
-        if (ref.isContainment) {
-          res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-        } else {
-          res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.ADD_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-        }
-      }
-      */
     }
     res += "}\n"
     res
@@ -983,6 +731,10 @@ generateDiffMethod(pr, cls, ctx)
 
   private def generateRemoveMethodWithParam(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = "\nprivate fun internal_remove" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
+
+    if(ctx.persistence){
+      res +=("checkLazyLoad()\n")
+    }
 
     res += ("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n")
     if (!ref.isRequired) {
@@ -1105,17 +857,6 @@ generateDiffMethod(pr, cls, ctx)
         //TODO
         res += "(" + ref.getName + param_suf + "!! as " + ctx.getKevoreeContainerImplFQN + ").setEContainer(null,null,null)\n"
       }
-      /*
-            if (ctx.generateEvents) {
-              if (ref.isContainment) {
-                res += "if(!removeAll" + toCamelCase(ref) + "CurrentlyProcessing) {\n"
-                res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-                res += "}\n"
-              } else {
-                res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + "))\n"
-              }
-            }
-      */
       res += "}\n"
     }
     res += "}\n"
@@ -1146,18 +887,6 @@ generateDiffMethod(pr, cls, ctx)
         res += "}\n"
       }
       res += "_" + ref.getName + ".clear()\n"
-
-      /*
-      if (ctx.generateEvents) {
-        if (ref.isContainment) {
-          res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
-          res += "\nremoveAll" + toCamelCase(ref) + "CurrentlyProcessing=false\n"
-
-        } else {
-          res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE_ALL, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", temp_els))\n"
-        }
-      }
-      */
     }
     res += "}\n"
     res

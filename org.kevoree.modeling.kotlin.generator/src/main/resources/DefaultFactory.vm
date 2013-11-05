@@ -8,10 +8,11 @@
 
 package ${packageName}.impl;
 
-import ${packageName}.${formatedFactoryName};
 #foreach( $class in $classes )
 import ${packageName}.${class.getName()};
 #end
+
+import ${packageName}.${formatedFactoryName};
 
 #if(!$js)open#end class Default${formatedFactoryName} : ${formatedFactoryName} {
 
@@ -22,14 +23,22 @@ override fun create${class.getName()}() : ${class.getName()} { return ${class.ge
 #end
 
 override fun create(metaClassName : String) : ${ctx.getKevoreeContainer().get()}? {
-      when(metaClassName){
+when(metaClassName){
 #foreach( $class in $classes )
-            ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
-            ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.CN_$class.getName() -> { return create${class.getName()}() }
+    ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
+    ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.CN_$class.getName() -> { return create${class.getName()}() }
 
 #end            else -> {return null;}
-       }
 }
+}
+
+#if($ctx.persistence())
+
+    override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null
+
+    override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${packageName}.compare.DefaultModelCompare()
+
+#end
 
 
 }

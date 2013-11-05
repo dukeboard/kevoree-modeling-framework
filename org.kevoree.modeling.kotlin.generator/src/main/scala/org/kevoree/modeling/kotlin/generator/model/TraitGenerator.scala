@@ -139,7 +139,7 @@ trait TraitGenerator {
     pr.flush()
     pr.close()
     ctx.setKevoreeContainer(Some("org.kevoree.modeling.api.KMFContainer"))
-    ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "Impl")
+    ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "PersistenceImpl")
   }
 
   def generateRemoveFromContainerCommand(ctx: GenerationContext) {

@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.persistence
 
-import org.kevoree.modeling.api.persistent.PersistenceKMFFactory
+import org.kevoree.modeling.api.KMFContainer
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,11 +9,11 @@ import org.kevoree.modeling.api.persistent.PersistenceKMFFactory
  * Time: 11:28
  */
 
-public trait KMFContainerProxy {
+public trait KMFContainerProxy : KMFContainer {
 
     var isResolved: Boolean
 
-    var originFactory: PersistenceKMFFactory
+    var originFactory: PersistenceKMFFactory?
 
     fun setOriginPath(path: String)
 

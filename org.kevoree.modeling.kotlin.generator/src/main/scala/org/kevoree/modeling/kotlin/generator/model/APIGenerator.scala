@@ -248,13 +248,10 @@ trait APIGenerator extends ClassGenerator {
     pr.println("fun removeAll" + toCamelCase(ref) + "()")
   }
 
-  private def toCamelCase(ref: EReference): String = {
-    return ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-  }
+  def toCamelCase(ref: EReference): String
 
-  private def toCamelCase(att: EAttribute): String = {
-    return att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
-  }
+  def toCamelCase(att: EAttribute): String
+
 
 
 }

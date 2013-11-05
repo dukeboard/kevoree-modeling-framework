@@ -9,15 +9,12 @@ package ${packElem}
 
 trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KMFContainerProxy {
 
-    private fun lazyLoad(){
-         if(!isResolved){
-                val content = originFactory.lookup(path()!!)
-                //load as trace
-
-                //apply on myself
-
-                //be happy
-         }
+    fun checkLazyLoad(){
+        if(!isResolved){
+            val content = originFactory!!.getTraces(path()!!)
+            content?.applyOn(this)
+            isResolved = true
+        }
     }
 
     override fun setOriginPath(path: String){

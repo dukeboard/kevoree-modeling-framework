@@ -41,7 +41,19 @@ class FactoryGenerator(ctx:GenerationContext) {
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
 
-    pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {")
+    if(ctx.persistence){
+      pr.println("class MainFactory : org.kevoree.modeling.api.persistence.PersistenceKMFFactory {")
+    } else {
+      pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {")
+    }
+
+    if(ctx.persistence){
+      pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null")
+
+      pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = "+ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".compare.DefaultModelCompare()")
+
+    }
+
     pr.println("")
     pr.println("private var factories : Array<org.kevoree.modeling.api.KMFFactory?> = Array<org.kevoree.modeling.api.KMFFactory?>("+ctx.packageFactoryMap.entrySet().size()+", {i -> null});")
     pr.println("")

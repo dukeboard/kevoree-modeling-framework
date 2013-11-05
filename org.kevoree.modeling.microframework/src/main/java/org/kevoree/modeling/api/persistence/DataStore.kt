@@ -11,6 +11,6 @@ public trait DataStore {
 
     fun put(key: String, value: String)
 
-    fun get(key: String): String
+    fun get(key: String): String?
 
 }
