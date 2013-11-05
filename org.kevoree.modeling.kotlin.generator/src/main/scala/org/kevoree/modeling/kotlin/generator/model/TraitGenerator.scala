@@ -87,14 +87,14 @@ trait TraitGenerator {
 
   def generateContainerAPI(ctx: GenerationContext) {
 
-    if(!ctx.microframework){
-      if(ctx.getJS()){
-        ProcessorHelper.copyFromStream(this.getClass.getClassLoader.getResourceAsStream("org/kevoree/modeling/api/KMFContainer.kt.jslib"),"org/kevoree/modeling/api/KMFContainer.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+    if (!ctx.microframework) {
+      if (ctx.getJS()) {
+        ProcessorHelper.copyFromStream(this.getClass.getClassLoader.getResourceAsStream("org/kevoree/modeling/api/KMFContainer.kt.jslib"), "org/kevoree/modeling/api/KMFContainer.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
       } else {
-        ProcessorHelper.copyFromStream("org/kevoree/modeling/api/KMFContainer.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+        ProcessorHelper.copyFromStream("org/kevoree/modeling/api/KMFContainer.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
       }
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelAttributeVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelAttributeVisitor.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
+      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
     }
   }
 
@@ -108,6 +108,28 @@ trait TraitGenerator {
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
     val template = ve.getTemplate("templates/ContainerTrait.vm")
+    val ctxV = new VelocityContext()
+    ctxV.put("formatedFactoryName", formatedFactoryName)
+    ctxV.put("packElem", ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")
+    ctxV.put("FQNHelper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("ctx", ctx)
+    template.merge(ctxV, pr)
+    pr.flush()
+    pr.close()
+    ctx.setKevoreeContainer(Some("org.kevoree.modeling.api.KMFContainer"))
+    ctx.setKevoreeContainerImplFQN(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "Impl")
+  }
+
+  def generateContainerPersistenceTrait(ctx: GenerationContext) {
+    val formatedFactoryName = "KMFContainer"
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "PersistenceImpl.kt")
+    val pr = new PrintWriter(localFile, "utf-8")
+
+    val ve = new VelocityEngine()
+    ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
+    ve.init()
+    val template = ve.getTemplate("templates/ContainerPersistenceTrait.vm")
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName", formatedFactoryName)
     ctxV.put("packElem", ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container")

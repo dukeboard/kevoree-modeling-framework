@@ -42,7 +42,6 @@
                         </goals>
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
-                            <packagePrefix>kmf</packagePrefix>
                         </configuration>
                     </execution>
                 </executions>

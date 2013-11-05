@@ -81,6 +81,14 @@ import java.util.logging.Level;
 public class GenModelPlugin extends AbstractMojo {
 
     /**
+     * Generate Persistence Layer for Model
+     *
+     * @parameter
+     */
+    private Boolean persistence = false;
+
+
+    /**
      * @parameter
      */
     private String autoBasePackage = "kmf";
@@ -315,6 +323,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.flyweightFactory_$eq(flyweightFactory);
         ctx.autoBasePackage_$eq(autoBasePackage);
         ctx.ecma3compat_$eq(ecma3compat);
+        ctx.persistence_$eq(persistence);
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
 

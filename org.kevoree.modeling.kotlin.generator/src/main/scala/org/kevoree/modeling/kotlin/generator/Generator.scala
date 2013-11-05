@@ -86,7 +86,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
   }
 
 
-
   /**
    * Triggers the generation of the given <i>ecore</i> file implementation.
    * @param modelVersion the version of the model (will be included in headers of generated files).
@@ -135,7 +134,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
 
     }
 
-    mixin(model,ctx)
+    mixin(model, ctx)
 
     model.getAllContents.foreach {
       content =>
@@ -152,10 +151,11 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
                     method =>
                       operationList.find(op => AspectMethodMatcher.isMethodEquel(op, method, ctx) && !method.privateMethod) match {
                         case Some(foundOp) => {
-                          operationList.toList.foreach{opLoop =>
-                             if(AspectMethodMatcher.isMethodEquel(opLoop, method, ctx)){
-                               operationList.remove(opLoop)
-                             }
+                          operationList.toList.foreach {
+                            opLoop =>
+                              if (AspectMethodMatcher.isMethodEquel(opLoop, method, ctx)) {
+                                operationList.remove(opLoop)
+                              }
                           }
                           operationList.remove(foundOp)
                         }
@@ -221,7 +221,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
                       }
                       isFirst = false
                   }
-                  if (operation.getEType != null){
+                  if (operation.getEType != null) {
                     if (operation.getEType.isInstanceOf[EDataType]) {
                       var operationReturnType = ProcessorHelper.convertType(operation.getEType.getName)
                       if (operationReturnType.startsWith("List") && !ctx.getJS()) {
@@ -230,7 +230,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
                       writer.write(") : " + operationReturnType + " {\n")
                     } else {
                       var operationReturnType = ProcessorHelper.fqn(ctx, operation.getEType)
-                      if(operation.getLowerBound == 0){
+                      if (operation.getLowerBound == 0) {
                         operationReturnType = operationReturnType + "?"
                       }
                       writer.write(") : " + operationReturnType + " {\n")
@@ -254,6 +254,9 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
     val modelGen = new ModelGenerator(ctx)
     modelGen.generateContainerAPI(ctx)
     modelGen.generateContainerTrait(ctx)
+    if (ctx.persistence) {
+      modelGen.generateContainerPersistenceTrait(ctx)
+    }
     modelGen.generateRemoveFromContainerCommand(ctx)
 
 

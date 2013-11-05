@@ -32,11 +32,13 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 /**
  * Created by IntelliJ IDEA.
  * User: gregory.nain
- * Date: 21/03/12
+ * Date: 21/03/12       x
  * Time: 13:43
  */
 
 class GenerationContext {
+
+  var persistence : Boolean = false
 
   var autoBasePackage : String = "kmf"
 

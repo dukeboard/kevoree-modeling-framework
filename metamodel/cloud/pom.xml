@@ -44,7 +44,8 @@
                         <configuration>
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
-                            <js>true</js>
+                            <!--<js>true</js>-->
+                            <persistence>true</persistence>
 							<events>true</events>
                         </configuration>
                     </execution>
