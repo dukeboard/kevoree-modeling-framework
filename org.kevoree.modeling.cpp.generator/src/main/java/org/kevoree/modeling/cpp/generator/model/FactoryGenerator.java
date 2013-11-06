@@ -33,8 +33,10 @@ public class FactoryGenerator extends AGenerator
     }
 
     public void generateFactory(EClass e){
-        generateClass(e);
-        classes.add(e.getName());
+        if(!e.isAbstract() && !e.isInterface()){
+            generateClass(e);
+            classes.add(e.getName());
+        }
     }
 
 
@@ -59,10 +61,11 @@ public class FactoryGenerator extends AGenerator
     public void generateCreate(){
         add_CPP("KMFContainer* create(std::string metaClassName){");
             for (String name : classes){
-                add_CPP("if(metaClassName.compare(\""+name+"\")==0){");
+                add_CPP("if(metaClassName.compare(\"org."+ctx.getName_package()+"."+name+"\")==0){");
                 add_CPP("return create"+name+"();");
                 add_CPP("}");
             }
+        add_CPP("return NULL;");
         add_CPP("}");
     }
     public void write(){
