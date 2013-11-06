@@ -40,9 +40,13 @@ public class Tester {
         System.out.println("DataStore export");
 
         MemoryDataStore datastore = (MemoryDataStore) factory.getDatastore();
-        for (String key : datastore.getMap().keySet()) {
-            System.out.println(key + "->" + datastore.getMap().get(key));
-
+        System.out.println("Dump Traces");
+        for (String key : datastore.getMaps().get("trace").keySet()) {
+            System.out.println(key + "->" + datastore.getMaps().get("trace").get(key));
+        }
+        System.out.println("Dump Types");
+        for (String key : datastore.getMaps().get("type").keySet()) {
+            System.out.println(key + "->" + datastore.getMaps().get("type").get(key));
         }
 
         System.out.println("Lookup from DataStore");

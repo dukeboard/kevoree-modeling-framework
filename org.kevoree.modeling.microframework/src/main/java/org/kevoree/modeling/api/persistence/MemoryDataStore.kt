@@ -11,13 +11,20 @@ import java.util.HashMap
 
 public class MemoryDataStore : DataStore {
 
-    var map = HashMap<String,String>()
+    var maps = HashMap<String, HashMap<String, String>>()
 
-    override fun put(key: String, value: String) {
-        map.put(key,value)
+    private fun getOrCreateSegment(segment: String): HashMap<String, String> {
+        if(!maps.containsKey(segment)){
+            maps.put(segment, HashMap<String, String>())
+        }
+        return maps.get(segment)!!
     }
-    override fun get(key: String): String? {
-       return map.get(key)
+
+    override fun put(segment: String, key: String, value: String) {
+        getOrCreateSegment(segment).put(key, value)
+    }
+    override fun get(segment: String, key: String): String? {
+        return getOrCreateSegment(segment).get(key)
     }
 
 

@@ -42,7 +42,7 @@ trait PersistenceKMFFactory : KMFFactory {
             return elem_cache.get(path2)
         }
         if(datastore != null){
-            val typeName = datastore!!.get("type_" + path2)
+            val typeName = datastore!!.get("type",path2)
             if(typeName != null){
                 val elem = create(typeName) as KMFContainerProxy
                 elem_cache.put(path2, elem)
@@ -60,7 +60,7 @@ trait PersistenceKMFFactory : KMFFactory {
     /* potential optimisation, only load att or reference */
     fun getTraces(path: String): TraceSequence? {
         var sequence = compare.createSequence()
-        val traces = datastore?.get(path)
+        val traces = datastore?.get("trace",path)
         if(traces != null){
             sequence.populateFromString(traces)
             return sequence
@@ -77,8 +77,8 @@ trait PersistenceKMFFactory : KMFFactory {
             val traces = elem.toTraces(true,true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
-            datastore!!.put(elem.path()!!, traceSeq.exportToString())
-            datastore!!.put("type_" + elem.path()!!, elem.metaClassName())
+            datastore!!.put("trace",elem.path()!!, traceSeq.exportToString())
+            datastore!!.put("type",elem.path()!!, elem.metaClassName())
             if(elem is KMFContainerProxy){
                 elem.originFactory = this
             }
