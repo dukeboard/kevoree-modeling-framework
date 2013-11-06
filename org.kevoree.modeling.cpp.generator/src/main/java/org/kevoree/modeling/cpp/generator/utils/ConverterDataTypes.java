@@ -36,7 +36,7 @@ public class ConverterDataTypes {
 
          dataTypes.put("EBigDecimal", "bigint")    ;
          dataTypes.put("EBigInteger", "bigint") ;
-         dataTypes.put("EBoolean", "short")    ;
+         dataTypes.put("EBoolean", "bool")    ;
          dataTypes.put("EBooleanObject", "short") ;
          dataTypes.put("EByte", "unsigned char")     ;
          dataTypes.put("EByteArray", "unsigned char[]");
