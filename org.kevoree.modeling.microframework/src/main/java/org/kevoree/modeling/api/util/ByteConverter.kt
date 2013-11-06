@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.util
 
 import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
 
 /*
 * Author : Gregory Nain (developer.name@uni.lu)
@@ -8,15 +9,15 @@ import java.io.ByteArrayInputStream
 */
 
 object ByteConverter {
-    public fun toChar(b : Byte) : Char{
+    public fun toChar(b: Byte): Char {
         return b.toChar()
     }
 
-    public fun fromChar(b : Char) : Byte{
+    public fun fromChar(b: Char): Byte {
         return b.toByte()
     }
 
-    public fun byteArrayInputStreamFromString(s : String) : ByteArrayInputStream {
+    public fun byteArrayInputStreamFromString(s: String): ByteArrayInputStream {
         return ByteArrayInputStream(s.getBytes());
     }
 

@@ -148,7 +148,7 @@ trait APIGenerator extends ClassGenerator {
           generateAddAllMethod(pr, cls, ref, typeRefName)
           generateRemoveMethod(pr, cls, ref, typeRefName)
           generateRemoveAllMethod(pr, cls, ref, typeRefName)
-          pr.println("fun find" + toCamelCase(ref) + "ByID(key : String?) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
+          pr.println("fun find" + toCamelCase(ref) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
         } else {
           pr.println("open var " + protectReservedWords(ref.getName) + " : " + typeRefName + "?")
         }

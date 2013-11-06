@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.compare.ModelCompare
 import org.kevoree.modeling.api.trace.ModelSetTrace
+import java.util.HashMap
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,14 +20,38 @@ trait PersistenceKMFFactory : KMFFactory {
 
     var compare: ModelCompare
 
+    fun lookupFrom(basePath: String, relationInParent: String, key: String): KMFContainer? {
+        return lookup("$basePath/$relationInParent[$key]")
+    }
+
+    val elem_cache: HashMap<String, KMFContainer>
+
+    fun clearCache() {
+        elem_cache.clear()
+    }
+
     fun lookup(path: String): KMFContainer? {
+        var path2 = path
+        if(path2 == "/"){
+            path2 = ""
+        }
+        if(path2.startsWith("/")){
+            path2 = path2.substring(1)
+        }
+        if(elem_cache.containsKey(path2)){
+            return elem_cache.get(path2)
+        }
         if(datastore != null){
-            val typeName = datastore!!.get("type_" + path)
+            val typeName = datastore!!.get("type_" + path2)
             if(typeName != null){
                 val elem = create(typeName) as KMFContainerProxy
+                elem_cache.put(path2, elem)
                 elem.originFactory = this
-                elem.setOriginPath(path)
+                elem.isResolved = false
+                elem.setOriginPath(path2)
                 return elem
+            } else {
+                System.out.println("Empty Type Name for " + path2);
             }
         }
         return null
@@ -49,18 +74,26 @@ trait PersistenceKMFFactory : KMFFactory {
 
     fun persist(elem: KMFContainer) {
         if(datastore != null){
-            val traces = compare.inter(elem, elem)
-            for(trace in traces.traces.toList()){
-                if(trace !is ModelSetTrace){
-                    traces.traces.remove(trace)
-                }
-            }
-            datastore!!.put(elem.path()!!, traces.exportToString())
+            val traces = elem.toTraces(true,true)
+            val traceSeq = compare.createSequence()
+            traceSeq.populate(traces)
+            datastore!!.put(elem.path()!!, traceSeq.exportToString())
             datastore!!.put("type_" + elem.path()!!, elem.metaClassName())
             if(elem is KMFContainerProxy){
                 elem.originFactory = this
             }
         }
     }
+
+    fun persist(batch: Batch) {
+        for(b in batch.elements){
+            persist(b)
+        }
+    }
+
+    fun createBatch(): Batch {
+        return Batch()
+    }
+
 
 }

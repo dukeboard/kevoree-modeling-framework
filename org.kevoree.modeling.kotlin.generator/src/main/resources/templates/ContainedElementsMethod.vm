@@ -5,6 +5,9 @@
 
 ##if(!$currentClass.getEAllReferences().isEmpty())
 override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){
+            #if($ctx.persistence())
+            checkLazyLoad()
+            #end
             visitor.beginVisitElem(this)
             #set($firstGeneratedCont = true)
             #foreach( $ref in $currentClass.getEAllContainments())
@@ -52,6 +55,9 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
 
 #if(!$currentClass.getEAllAttributes().isEmpty())
 override fun visitAttributes(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){
+    #if($ctx.persistence())
+    checkLazyLoad()
+    #end
     #foreach( $att in ${FQNHelper.noduplicate($currentClass.getEAllAttributes())})
         visitor.visit(${FQNHelper.protectReservedWords($att.getName())},${FQNHelper.fqn($ctx, ${ctx.getBasePackageForUtilitiesGeneration()})}.util.Constants.Att_${att.getName()},this)
     #end

@@ -70,9 +70,9 @@ trait FlatReflexiveSetters {
           }
           pr.println("}")
           if (ctx.generateEvents) {
-            pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
+            pr.println("this.internal_" + att.getName + "(tempArrayValues as List<" + valueType + ">, fireEvents)")
           } else {
-            pr.println("this." + protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
+            pr.println("this." + protectReservedWords(att.getName) + " = (tempArrayValues as List<" + valueType + ">)")
           }
           pr.println("}")
           pr.println("}")

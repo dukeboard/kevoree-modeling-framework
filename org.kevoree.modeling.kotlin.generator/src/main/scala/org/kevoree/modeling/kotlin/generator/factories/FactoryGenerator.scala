@@ -49,7 +49,7 @@ class FactoryGenerator(ctx:GenerationContext) {
 
     if(ctx.persistence){
       pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null")
-
+      pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()")
       pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = "+ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".compare.DefaultModelCompare()")
 
     }

@@ -93,6 +93,9 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     }
 
     pr.println("override var path_cache : String? = null")
+    pr.println("override var key_cache: String? = null")
+
+
     generateDeleteMethod(pr, cls, ctx, pack)
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
     generateFlatReflexiveSetters(ctx, cls, pr)
@@ -285,6 +288,10 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     }
     if (att.isID()) {
       pr.println("val oldId = internalGetKey()")
+
+      pr.println("path_cache = null")
+      pr.println("key_cache = null")
+
       pr.println("val previousParent = eContainer();")
       pr.println("val previousRefNameInParent = getRefInParent();")
     }
@@ -411,10 +418,10 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
           pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx))
         } else {
           pr.println("override var " + protectReservedWords(ref.getName) + ":" + ProcessorHelper.fqn(ctx, ref.getEReferenceType) + "?=null");
-          if(ctx.persistence){
+          if (ctx.persistence) {
             pr.println("get(){")
             pr.println("checkLazyLoad()")
-            pr.println("return $"+protectReservedWords(ref.getName))
+            pr.println("return $" + protectReservedWords(ref.getName))
             pr.println("}")
           }
           pr.println(generateSetter(ctx, cls, ref, typeRefName, true))
@@ -604,8 +611,8 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     var res = ""
     res += "\nprivate fun internal_add" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
 
-    if(ctx.persistence){
-      res +=("checkLazyLoad()\n")
+    if (ctx.persistence) {
+      res += ("checkLazyLoad()\n")
     }
 
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
@@ -732,8 +739,8 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
   private def generateRemoveMethodWithParam(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = "\nprivate fun internal_remove" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
 
-    if(ctx.persistence){
-      res +=("checkLazyLoad()\n")
+    if (ctx.persistence) {
+      res += ("checkLazyLoad()\n")
     }
 
     res += ("if(isReadOnly()){throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n")

@@ -34,5 +34,7 @@ trait KMFContainer {
     fun visitAttributes(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor)
 
     fun createTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, isInter : Boolean, isMerge : Boolean, onlyReferences : Boolean, onlyAttributes : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
+    fun toTraces(attributes : Boolean, references : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
+
 
 }

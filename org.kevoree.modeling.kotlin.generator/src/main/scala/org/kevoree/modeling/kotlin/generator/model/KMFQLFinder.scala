@@ -68,8 +68,13 @@ trait KMFQLFinder {
 
   def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     pr.println("override fun internalGetKey() : String? {")
+
+    pr.println("if(key_cache != null){")
+    pr.println("return key_cache")
+    pr.println("} else {")
+
     var first = true
-    pr.print("return ")
+    pr.print("key_cache = ")
     val idAttributes = cls.getEAllAttributes.filter(att => att.isID && !att.getName.equals("generated_KMF_ID"))
 
     if (idAttributes.size > 0) {
@@ -95,6 +100,10 @@ trait KMFQLFinder {
     }
 
     pr.println()
+
+    pr.println("}")
+    pr.println("return key_cache")
+
     pr.println("}")
 
     //GENERATE findByID methods
@@ -102,8 +111,19 @@ trait KMFQLFinder {
     cls.getEAllReferences.foreach(ref => {
       if (ref.isMany) {
         generateReflexifMapper = true
-        pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String?) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
-        pr.println("return " + "_" + ref.getName + ".get(key)")
+        pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
+        if (ctx.persistence) {
+          pr.println("val resolved = _" + ref.getName + ".get(key)")
+          pr.println("if(resolved==null){")
+          pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!")
+          pr.println("val result = originFactory.lookupFrom(path()!!," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ",key)")
+          pr.println("return result as? " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)))
+          pr.println("} else {")
+          pr.println("return resolved")
+          pr.println("}")
+        } else {
+          pr.println("return " + "_" + ref.getName + ".get(key)")
+        }
         pr.println("}")
       }
     })
