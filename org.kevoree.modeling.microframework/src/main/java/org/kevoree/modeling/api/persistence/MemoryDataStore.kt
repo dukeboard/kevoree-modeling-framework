@@ -27,5 +27,8 @@ public class MemoryDataStore : DataStore {
         return getOrCreateSegment(segment).get(key)
     }
 
+    override fun remove(segment: String, key: String) {
+        getOrCreateSegment(segment).remove(key)
+    }
 
 }
