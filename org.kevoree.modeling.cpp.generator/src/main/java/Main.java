@@ -32,7 +32,7 @@ public class Main {
         GenerationContext context = new GenerationContext();
         context.setRootGenerationDirectory("src/main/resources/gen/src");
         context.setEcore("src/main/resources/metamodel/kevoree.ecore");
-        context.setDebug_model(false);
+        context.setDebug_model(true);
         context.setVersion("1.0");
 
 
