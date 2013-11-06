@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.KMFFactory
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.compare.ModelCompare
-import org.kevoree.modeling.api.trace.ModelSetTrace
 import java.util.HashMap
 
 /**
@@ -20,6 +19,13 @@ trait PersistenceKMFFactory : KMFFactory {
 
     var compare: ModelCompare
 
+    fun remove(elem: KMFContainer) {
+        if(datastore != null){
+            datastore!!.remove("trace", elem.path()!!);
+            datastore!!.remove("type", elem.path()!!);
+        }
+    }
+
     fun lookupFrom(basePath: String, relationInParent: String, key: String): KMFContainer? {
         return lookup("$basePath/$relationInParent[$key]")
     }
@@ -31,6 +37,9 @@ trait PersistenceKMFFactory : KMFFactory {
     }
 
     fun lookup(path: String): KMFContainer? {
+
+        //TODO protect for unContains elems
+
         var path2 = path
         if(path2 == "/"){
             path2 = ""
@@ -42,7 +51,7 @@ trait PersistenceKMFFactory : KMFFactory {
             return elem_cache.get(path2)
         }
         if(datastore != null){
-            val typeName = datastore!!.get("type",path2)
+            val typeName = datastore!!.get("type", path2)
             if(typeName != null){
                 val elem = create(typeName) as KMFContainerProxy
                 elem_cache.put(path2, elem)
@@ -51,7 +60,7 @@ trait PersistenceKMFFactory : KMFFactory {
                 elem.setOriginPath(path2)
                 return elem
             } else {
-                System.out.println("Empty Type Name for " + path2);
+                throw Exception("Empty Type Name for " + path2);
             }
         }
         return null
@@ -60,7 +69,7 @@ trait PersistenceKMFFactory : KMFFactory {
     /* potential optimisation, only load att or reference */
     fun getTraces(path: String): TraceSequence? {
         var sequence = compare.createSequence()
-        val traces = datastore?.get("trace",path)
+        val traces = datastore?.get("trace", path)
         if(traces != null){
             sequence.populateFromString(traces)
             return sequence
@@ -74,11 +83,11 @@ trait PersistenceKMFFactory : KMFFactory {
 
     fun persist(elem: KMFContainer) {
         if(datastore != null){
-            val traces = elem.toTraces(true,true)
+            val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
-            datastore!!.put("trace",elem.path()!!, traceSeq.exportToString())
-            datastore!!.put("type",elem.path()!!, elem.metaClassName())
+            datastore!!.put("trace", elem.path()!!, traceSeq.exportToString())
+            datastore!!.put("type", elem.path()!!, elem.metaClassName())
             if(elem is KMFContainerProxy){
                 elem.originFactory = this
             }

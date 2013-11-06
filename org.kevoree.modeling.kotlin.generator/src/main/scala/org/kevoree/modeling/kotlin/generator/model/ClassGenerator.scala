@@ -263,13 +263,20 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   private def generateDeleteMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String) {
     pr.println("override fun delete(){")
-    cls.getEAllReferences.foreach {
-      ref =>
-        if (ref.isMany) {
-          pr.println("_" + ref.getName + "?.clear()")
-        } else {
-          pr.println(ProcessorHelper.protectReservedWords(ref.getName) + " = null")
-        }
+
+    pr.println("if(internal_unsetCmd!=null){internal_unsetCmd!!.run()}")
+
+    if (ctx.persistence) {
+      pr.println("(this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.remove(this)")
+    } else {
+      cls.getEAllReferences.foreach {
+        ref =>
+          if (ref.isMany) {
+            pr.println("_" + ref.getName + "?.clear()")
+          } else {
+            pr.println(ProcessorHelper.protectReservedWords(ref.getName) + " = null")
+          }
+      }
     }
     pr.println("}")
   }
@@ -289,14 +296,14 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     }
     if (att.isID()) {
       pr.println("val oldId = internalGetKey()")
-      if(ctx.persistence){
+      if (ctx.persistence) {
         pr.println("if(!inResolution){")
       }
 
       pr.println("path_cache = null")
       pr.println("key_cache = null")
 
-      if(ctx.persistence){
+      if (ctx.persistence) {
         pr.println("}")
       }
 
