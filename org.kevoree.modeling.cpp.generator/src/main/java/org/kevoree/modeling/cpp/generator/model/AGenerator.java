@@ -39,7 +39,7 @@ public abstract  class AGenerator {
     }
 
     protected String msg_DEBUG(EClass cls,String msg){
-        return "cout << \"DEBUG : class <"+cls.getName()+">  "+msg+"\" << endl;";
+        return "PRINTF(\""+cls.getName()+" --> "+msg+"\");";
     }
     protected void ADD_DEBUG(EClass cls,String msg){
         if(ctx.isDebug_model()){
