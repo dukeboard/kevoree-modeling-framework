@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,7 +47,7 @@ public class ClassGenerator extends AGenerator {
 
 
 
-    public String generateClass(EClass cls) throws IOException {
+    public void generateClass(EClass cls) throws IOException {
 
         initGeneration();
         generateBeginClassHeader(cls);
@@ -64,8 +65,8 @@ public class ClassGenerator extends AGenerator {
         link_generation();
         generateEndClass(cls);
         writeHeader(cls);
+        FileManager.writeFile(ctx.getPackageGenerationDirectory()+"classes.cpp", class_result.toString(),true);
 
-        return class_result.toString();
     }
 
 
@@ -74,15 +75,26 @@ public class ClassGenerator extends AGenerator {
 
         for(EReference ref :cls.getEAllReferences())
         {
-            if(ref.getUpperBound() == -1 &&   ref.getEReferenceType().getEIDAttribute() != null)
+            if(ref.isContainment()){
+
+
+            if(ref.getUpperBound() == -1 )
             {
 
+               if(ref.getEReferenceType().getEIDAttribute() != null){
+                   VelocityContext context = new VelocityContext();
+                   context.put("refname",ref.getName());
+                   context.put("type",ref.getEReferenceType().getName());
 
-                VelocityContext context = new VelocityContext();
-                context.put("refname",ref.getName());
-                context.put("type",ref.getEReferenceType().getName());
+                   gen_destructor_ref.merge(context,result);
+               }
 
-                gen_destructor_ref.merge(context,result);            }
+
+            } else {
+             //   result.append("delete "+ref.getName()+";");
+            }
+
+            }
         }
         add_DESTRUCTOR(result.toString());
     }
@@ -103,33 +115,60 @@ public class ClassGenerator extends AGenerator {
         Boolean end = false;
         for(EReference ref :cls.getEAllReferences())
         {
-            if(ref.getUpperBound() == -1 &&   ref.getEReferenceType().getEIDAttribute() != null)
+
+
+            if(add)
             {
-
-                if(add)
+                add_H("KMFContainer* findByID(string relationName,string idP);");
+                add_CPP("KMFContainer* " + cls.getName() + "::findByID(string relationName,string idP){");
+                if(ctx.isDebug_model())
                 {
-                    add_H("KMFContainer* findByID(string relationName,string idP);");
-                    add_CPP("KMFContainer* " + cls.getName() + "::findByID(string relationName,string idP){");
-                    add=false;
-                    end = true;
-
+                    add_CPP("PRINTF(\"BEGIN -- findByID "+cls.getName()+"\" << relationName << \" \" << idP);");
                 }
+                add=false;
+                end = true;
 
+            }
+
+            if(ref.getUpperBound() == -1 )
+            {
+                if(ref.getEReferenceType().getEIDAttribute() != null)
+                {
+                    add_CPP("if(relationName.compare(\""+ref.getName()+"\")== 0){");
+
+                    add_CPP("return (KMFContainer*)find"+ref.getName()+"ByID(idP);");
+                    add_CPP("}\n");
+                }
+            } else
+            {
                 add_CPP("if(relationName.compare(\""+ref.getName()+"\")== 0){");
-                add_CPP("return (KMFContainer*)find"+ref.getName()+"ByID(idP);");
+                     // TODO MAYBE CHECK match
+                  add_CPP("return "+ref.getName()+";");
+
                 add_CPP("}\n");
             }
 
 
         }
 
+
+
         if(end){
+            if(ctx.isDebug_model()){
+                add_CPP("PRINTF(\"END -- findByID "+cls.getName()+"\");");
+            }
             add_CPP("return NULL;\n");
             add_CPP("}\n");
 
         }
     }
+    /*
+            add_CPP("switch(mutatorType){");
 
+        add_CPP("case ADD:");
+
+        add_CPP("break;");
+     */
 
     private void generateFlatReflexiveSetters(EClass eClass) {
 
@@ -137,6 +176,69 @@ public class ClassGenerator extends AGenerator {
 
 
         add_CPP("void " + eClass.getName() + "::reflexiveMutator(int mutatorType,string refName, any value, bool setOpposite,bool fireEvent){");
+        if(ctx.isDebug_model()){
+            add_CPP("PRINTF(\"BEGIN -- reflexiveMutator "+eClass.getName()+"\"<< \"  mutatorType \" << mutatorType << \" \" << refName); ");
+        }
+
+
+        int i=0;
+        for(EAttribute a :  eClass.getEAllAttributes()){
+
+            if(i==0){
+                add_CPP("if(refName.compare(\""+a.getName()+"\")==0){");
+            }else {
+                add_CPP("} else if(refName.compare(\""+a.getName()+"\")==0){");
+            }
+
+            String type = ConverterDataTypes.getInstance().getType(a.getEAttributeType().getName());
+
+            if(type.contains("string")){
+                add_CPP(a.getName()+"= AnyCast<string>(value);");
+            } else if(type.contains("short")){
+                add_CPP("short f;");
+                add_CPP("Utils::from_string<short>(f, AnyCast<string>(value), std::dec);");
+                add_CPP(a.getName()+"= f;");
+            } else if(type.contains("int")){
+                add_CPP("int f;");
+                add_CPP("Utils::from_string<int>(f, AnyCast<string>(value), std::dec);");
+                add_CPP(a.getName()+"= f;");
+            } else if(type.contains("bool")){
+
+                add_CPP("if(AnyCast<string>(value).compare(\"true\") == 0){");
+                add_CPP(a.getName()+"= true;");
+
+                add_CPP("}else { ");
+                add_CPP(a.getName()+"= false;");
+                add_CPP("}");
+
+            }
+            i++;
+        }
+        if(i> 0){
+            add_CPP("}\n");
+        }
+        int j=0;
+        for(EReference a :  eClass.getEAllReferences())
+        {
+            if(j==0){
+                add_CPP("if(refName.compare(\""+a.getName()+"\")==0){");
+            }else {
+                add_CPP("} else if(refName.compare(\""+a.getName()+"\")==0){");
+            }
+
+            add_CPP("if(mutatorType ==ADD){");
+            add_CPP("add"+a.getName()+"(("+a.getEType().getName()+"*)AnyCast<KMFContainer*>(value));");
+            add_CPP("}else if(mutatorType == REMOVE){");
+            add_CPP("remove"+a.getName()+"(("+a.getEType().getName()+"*)AnyCast<"+a.getEType().getName()+"*>(value));");
+            add_CPP("}");
+            j++;
+        }
+        if(j> 0){
+            add_CPP("}\n");
+        }
+        if(ctx.isDebug_model()){
+            add_CPP("PRINTF(\"END -- reflexiveMutator "+eClass.getName()+" \"); ");
+        }
 
         add_CPP("}\n");
     }
@@ -146,10 +248,12 @@ public class ClassGenerator extends AGenerator {
 
         add_H("void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference);");
 
-        StringWriter result_visitor_ref = new StringWriter();
+        StringWriter result_visitor_ref_contained = new StringWriter();
+        StringWriter result_visitor_ref_non_contained= new StringWriter();
         for(EReference ref :cls.getEAllReferences())
         {
-            if(ref.getUpperBound() == -1 &&   ref.getEReferenceType().getEIDAttribute() != null)
+
+            if(ref.getUpperBound() == -1  && ref.getEReferenceType().getEIDAttribute() != null)
             {
 
 
@@ -157,21 +261,27 @@ public class ClassGenerator extends AGenerator {
                 context_visitor_ref.put("refname",ref.getName());
                 context_visitor_ref.put("type",ref.getEReferenceType().getName());
                 if(ctx.isDebug_model()){
-                    context_visitor_ref.put("debug",msg_DEBUG(cls,"Visiting reference "+ref.getName()));
+                    context_visitor_ref.put("debug",msg_DEBUG(cls,"Visiting  \"<< current->path()<< \""));
                 }else {
                     context_visitor_ref.put("debug","");
                 }
+                if(ref.isContainment()){
+                    gen_visitor_ref.merge(context_visitor_ref,result_visitor_ref_contained);
+                }      else {
+                    gen_visitor_ref.merge(context_visitor_ref,result_visitor_ref_non_contained);
+                }
 
 
-                gen_visitor_ref.merge(context_visitor_ref,result_visitor_ref);
             }
+
         }
 
 
         VelocityContext context_visitor = new VelocityContext();
         StringWriter result_visitor = new StringWriter();
         context_visitor.put("classname",cls.getName());
-        context_visitor.put("visitor_refs",result_visitor_ref);
+        context_visitor.put("visitor_refs_contained",result_visitor_ref_contained);
+        context_visitor.put("visitor_refs_non_contained",result_visitor_ref_non_contained);
 
         if(ctx.isDebug_model()){
             context_visitor.put("debug",msg_DEBUG(cls,"Visiting class "+cls.getName()));
@@ -221,9 +331,16 @@ public class ClassGenerator extends AGenerator {
                     context.put("classname",cls.getName());
                     context.put("refname",ref.getName());
                     context.put("typeadd",type);
+                    if(ref.isContainment())
+                    {
+                        context.put("isContainment","delete container;");  // TODO shared ptr
+                    } else {
+                        context.put("isContainment","");
+                    }
 
                     StringWriter result = new StringWriter();
                     gen_method_remove.merge(context, result);
+
                     add_CPP(result.toString());
                 }
 
@@ -260,6 +377,20 @@ public class ClassGenerator extends AGenerator {
                     context.put("refname",ref.getName());
                     context.put("typeadd",type);
 
+
+                    if(ref.isContainment()){
+                        context.put("iscontained","");
+                    } else    {
+                        StringBuilder iscontainer = new StringBuilder();
+                        iscontainer.append("any ptr_any = container;\n");
+                        iscontainer.append("RemoveFromContainerCommand  *cmd = new  RemoveFromContainerCommand(this,REMOVE,\"" + ref.getName() + "\",ptr_any);\n");
+                        iscontainer.append("container->setEContainer(this,cmd,\"" + ref.getName() + "\");\n");
+                        context.put("iscontained", iscontainer.toString());
+                    }
+
+
+
+
                     StringWriter result = new StringWriter();
                     gen_method_add.merge(context, result);
                     add_CPP(result.toString());
@@ -278,42 +409,33 @@ public class ClassGenerator extends AGenerator {
     public void generateinternalGetKey(EClass cls)
     {
 
-        List<EAttribute> eAttribute  = new ArrayList<EAttribute>();
+        List<String> eAttribute  = new ArrayList<String>();
 
         for(EAttribute a : cls.getEAllAttributes()){
             if(a.isID()){
-                eAttribute.add(a);
+                eAttribute.add(a.getName());
             }
         }
+        // sort
+        Collections.sort(eAttribute);
 
         if(eAttribute.size() >0){
 
-            String type = ConverterDataTypes.getInstance().getType(eAttribute.get(0).getEAttributeType().getName());
-            add_H(type+" internalGetKey();");
-            add_CPP(type + " " + cls.getName() + "::internalGetKey(){");
+            // todo type
+            add_H("std::string internalGetKey();");
+            add_CPP("std::string " + cls.getName() + "::internalGetKey(){");
             class_result.append("return ");
 
             for(int i=0;i<eAttribute.size();i++){
-                class_result.append(eAttribute.get(i).getName());
+                class_result.append(eAttribute.get(i));
                 if(i < eAttribute.size()-1){
-                    class_result.append("+");
+                    class_result.append("+\"/\"+");
                 }
             }
 
             add_CPP(";");
 
             add_CPP("}");
-        }  else {
-            // generate ID
-            add_H("std::string"+" internalGetKey();");
-            add_CPP("std::string" + " " + cls.getName() + "::internalGetKey(){");
-
-            // TODO   gene
-
-
-
-            add_CPP("}");
-
         }
     }
 
@@ -326,6 +448,7 @@ public class ClassGenerator extends AGenerator {
         add_H(type + " *find" + name + "ByID(std::string id);");
 
         add_CPP(type+"* "+eClass.getName()+"::find"+name+"ByID(std::string id){");
+        add_CPP("PRINTF(\"END -- findByID \" <<"+ref.getName()+"[id] << \" \");" );
         add_CPP("return "+ref.getName()+"[id];");
         add_CPP("}");
 
@@ -385,7 +508,8 @@ public class ClassGenerator extends AGenerator {
                     generateFindbyIdAttribute(cls, ref);
                 }  else
                 {
-                    add_PUBLIC_ATTRIBUTE("std::list<"+gen_type+"*>  "+ref.getName()+"; \n") ;
+
+                    System.err.println("NO ID "+ref.getName());
                 }
 
             }else
