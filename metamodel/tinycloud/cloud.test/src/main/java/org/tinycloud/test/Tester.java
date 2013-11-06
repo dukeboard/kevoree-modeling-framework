@@ -26,7 +26,7 @@ public class Tester {
         soft0.setName("soft0");
         node0.addSoftwares(soft0);
         System.out.println("Persist " + cloud + "/" + node0 + soft0);
-        factory.persist(factory.createBatch().addElementAndRecheable(cloud));
+        factory.persistBatch(factory.createBatch().addElementAndReachable(cloud));
     }
 
     public static void main(String[] args) {

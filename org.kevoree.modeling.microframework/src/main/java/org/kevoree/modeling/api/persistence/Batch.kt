@@ -32,7 +32,7 @@ class Batch : ModelVisitor() {
         return this;
     }
 
-    fun addElementAndRecheable(e: KMFContainer): Batch {
+    fun addElementAndReachable(e: KMFContainer): Batch {
         elements.add(e)
         e.visit(this, true, true, true)
         return this;

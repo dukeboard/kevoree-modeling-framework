@@ -10,9 +10,6 @@
 
 <script  type="text/javascript">
 var kevmod = Kotlin.modules['org.kevoree.modeling.sample.kevoree.js'];
-
-console.log(Kotlin);
-
 var saver = new kevmod.org.kevoree.serializer.JSONModelSerializer();
 var loader = new kevmod.org.kevoree.loader.JSONModelLoader();
 var cloner = new kevmod.org.kevoree.cloner.DefaultModelCloner();
@@ -21,7 +18,13 @@ var factory = new kevmod.org.kevoree.impl.DefaultKevoreeFactory();
 
 var model = factory.createContainerRoot();
 var node = factory.createContainerNode();
+
+console.log("-"+node.key_cache);
+
 node.name  = "hello";
+
+console.log(">"+node.key_cache);
+
 model.addNodes(node);
 
 saver.serialize(model);

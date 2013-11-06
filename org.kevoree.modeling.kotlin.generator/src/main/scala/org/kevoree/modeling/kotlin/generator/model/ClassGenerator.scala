@@ -299,14 +299,11 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
       if (ctx.persistence) {
         pr.println("if(!inResolution){")
       }
-
       pr.println("path_cache = null")
       pr.println("key_cache = null")
-
       if (ctx.persistence) {
         pr.println("}")
       }
-
       pr.println("val previousParent = eContainer();")
       pr.println("val previousRefNameInParent = getRefInParent();")
     }
@@ -382,6 +379,16 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
               pr.println("val oldId = internalGetKey()")
               pr.println("val previousParent = eContainer();")
               pr.println("val previousRefNameInParent = getRefInParent();")
+
+              if (ctx.persistence) {
+                pr.println("if(!inResolution){")
+              }
+              pr.println("path_cache = null")
+              pr.println("key_cache = null")
+              if (ctx.persistence) {
+                pr.println("}")
+              }
+
             }
             pr.println("val kmf_previousVal = $" + protectReservedWords(att.getName))
             pr.println("$" + protectReservedWords(att.getName) + " = iP")

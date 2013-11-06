@@ -94,7 +94,7 @@ trait PersistenceKMFFactory : KMFFactory {
         }
     }
 
-    fun persist(batch: Batch) {
+    fun persistBatch(batch: Batch) {
         for(b in batch.elements){
             persist(b)
         }
