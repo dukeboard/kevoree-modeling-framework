@@ -89,6 +89,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     }
     if (ctx.persistence) {
       pr.println("override var isResolved: Boolean = true")
+      pr.println("override var inResolution: Boolean = false")
       pr.println("override var originFactory: org.kevoree.modeling.api.persistence.PersistenceKMFFactory? = null")
     }
 
@@ -288,9 +289,16 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     }
     if (att.isID()) {
       pr.println("val oldId = internalGetKey()")
+      if(ctx.persistence){
+        pr.println("if(!inResolution){")
+      }
 
       pr.println("path_cache = null")
       pr.println("key_cache = null")
+
+      if(ctx.persistence){
+        pr.println("}")
+      }
 
       pr.println("val previousParent = eContainer();")
       pr.println("val previousRefNameInParent = getRefInParent();")

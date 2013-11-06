@@ -318,6 +318,11 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
             subquery = subquery.substring(subquery.indexOf('/') + 1, subquery.size)
         }
         val objFound = findByID(relationName,queryID)
+#if($ctx.persistence())
+        if(objFound==null){
+            return (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.lookup(query)
+        }
+#end
         if(subquery != "" && objFound != null){
              return objFound.findByPath(subquery)
         } else {

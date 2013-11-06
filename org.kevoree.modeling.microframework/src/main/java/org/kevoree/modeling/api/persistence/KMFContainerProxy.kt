@@ -12,6 +12,7 @@ import org.kevoree.modeling.api.KMFContainer
 public trait KMFContainerProxy : KMFContainer {
 
     var isResolved: Boolean
+    var inResolution: Boolean
 
     var originFactory: PersistenceKMFFactory?
 

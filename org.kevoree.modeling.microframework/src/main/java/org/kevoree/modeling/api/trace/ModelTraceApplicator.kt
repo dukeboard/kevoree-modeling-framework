@@ -29,7 +29,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
     }
 
     public fun createOrAdd(previousPath: String?, target: KMFContainer, refName: String, potentialTypeName: String?) {
-        val targetElem: Any? = if(previousPath != null){
+        val targetElem: Any? = if(previousPath!=null){
             targetModel.findByPath(previousPath)
         } else {
             null
@@ -50,75 +50,69 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
         for(trace in traceSeq.traces){
             var target: KMFContainer = targetModel;
             if(trace is ModelAddTrace){
-                val castedTrace = trace as ModelAddTrace
                 tryClosePending(null);
                 if(trace.srcPath != ""){
-                    target = targetModel.findByPath(castedTrace.srcPath) as KMFContainer;
+                    target = targetModel.findByPath(trace.srcPath)!!
                 }
-                createOrAdd(castedTrace.previousPath, target, castedTrace.refName, castedTrace.typeName)
+                createOrAdd(trace.previousPath, target, trace.refName, trace.typeName)
             }
             if(trace is ModelAddAllTrace){
-                val castedTrace = trace as ModelAddAllTrace
                 tryClosePending(null);
                 var i = 0
-                for(path in castedTrace.previousPath!!){
-                    createOrAdd(path, target, castedTrace.refName, castedTrace.typeName!!.get(i))
+                for(path in trace.previousPath!!){
+                    createOrAdd(path, target, trace.refName, trace.typeName!!.get(i))
                     i++
                 }
             }
             if(trace is ModelRemoveTrace){
-                val castedTrace = trace as ModelRemoveTrace
                 tryClosePending(trace.srcPath);
                 var tempTarget: KMFContainer? = targetModel;
                 if(trace.srcPath != ""){
-                    tempTarget = targetModel.findByPath(castedTrace.srcPath) as? KMFContainer;
+                    tempTarget = targetModel.findByPath(trace.srcPath) as? KMFContainer;
                 }
                 if(tempTarget != null){
                     //Potentially null if top tree already dropped
-                    tempTarget!!.reflexiveMutator(ActionType.REMOVE, castedTrace.refName, targetModel.findByPath(castedTrace.objPath), true, fireEvents)
+                    tempTarget!!.reflexiveMutator(ActionType.REMOVE, trace.refName, targetModel.findByPath(trace.objPath), true, fireEvents)
                 }
             }
             if(trace is ModelRemoveAllTrace){
-                val castedTrace = trace as ModelRemoveAllTrace
                 tryClosePending(trace.srcPath);
                 var tempTarget: KMFContainer? = targetModel;
                 if(trace.srcPath != ""){
-                    tempTarget = targetModel.findByPath(castedTrace.srcPath) as? KMFContainer;
+                    tempTarget = targetModel.findByPath(trace.srcPath) as? KMFContainer;
                 }
                 if(tempTarget != null){
-                    tempTarget!!.reflexiveMutator(ActionType.REMOVE_ALL, castedTrace.refName, null, true, fireEvents)
+                    tempTarget!!.reflexiveMutator(ActionType.REMOVE_ALL, trace.refName, null, true, fireEvents)
                 }
             }
             if(trace is ModelSetTrace){
-                val castedTrace = trace as ModelSetTrace
                 tryClosePending(trace.srcPath);
-                if(trace.srcPath != "" && castedTrace.srcPath != pendingObjPath){
-                    var tempObject = targetModel.findByPath(castedTrace.srcPath)
+                if(trace.srcPath != "" && trace.srcPath != pendingObjPath){
+                    var tempObject = targetModel.findByPath(trace.srcPath)
                     if(tempObject == null){
-
-                        throw Exception("Set Trace source not found for path : " + castedTrace.srcPath + " pending " + pendingObjPath + "\n" + trace.toString())
+                        throw Exception("Set Trace source not found for path : " + trace.srcPath + " pending " + pendingObjPath + "\n" + trace.toString())
                     }
                     target = tempObject as KMFContainer;
                 } else {
-                    if(castedTrace.srcPath == pendingObjPath && pendingObj != null){
+                    if(trace.srcPath == pendingObjPath && pendingObj != null){
                         target = pendingObj!!;
                     }
                 }
-                if(castedTrace.content != null){
-                    target.reflexiveMutator(ActionType.SET, castedTrace.refName, castedTrace.content, true, fireEvents)
+                if(trace.content != null){
+                    target.reflexiveMutator(ActionType.SET, trace.refName, trace.content, true, fireEvents)
                 } else {
-                    var targetContentPath: Any? = if(castedTrace.objPath != null){
-                        targetModel.findByPath(castedTrace.objPath!!)
+                    var targetContentPath: Any? = if(trace.objPath != null){
+                        targetModel.findByPath(trace.objPath)
                     } else {
                         null
                     };
                     if(targetContentPath != null){
-                        target.reflexiveMutator(ActionType.SET, castedTrace.refName, targetContentPath, true, fireEvents)
+                        target.reflexiveMutator(ActionType.SET, trace.refName, targetContentPath, true, fireEvents)
                     } else {
-                        if(castedTrace.typeName != null && castedTrace.typeName != ""){
-                            createOrAdd(castedTrace.objPath, target, castedTrace.refName, castedTrace.typeName) //must create the pending element
+                        if(trace.typeName != null && trace.typeName != ""){
+                            createOrAdd(trace.objPath, target, trace.refName, trace.typeName) //must create the pending element
                         } else {
-                            target.reflexiveMutator(ActionType.SET, castedTrace.refName, targetContentPath, true, fireEvents) //case real null content
+                            target.reflexiveMutator(ActionType.SET, trace.refName, targetContentPath, true, fireEvents) //case real null content
                         }
                     }
                 }

@@ -4,8 +4,10 @@ import org.cloud.Cloud;
 import org.cloud.Node;
 import org.cloud.Software;
 import org.cloud.impl.DefaultCloudFactory;
+import org.kevoree.modeling.api.KMFContainer;
 import org.kevoree.modeling.api.persistence.KMFContainerProxy;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
+import org.kevoree.modeling.api.util.ModelVisitor;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,26 +17,27 @@ import org.kevoree.modeling.api.persistence.MemoryDataStore;
  */
 public class Tester {
 
-    public static void main(String[] args) {
+    private static void populate(DefaultCloudFactory factory) {
+        Cloud cloud = factory.createCloud();
+        Node node0 = factory.createNode();
+        node0.setId("node0");
+        cloud.addNodes(node0);
+        Software soft0 = factory.createSoftware();
+        soft0.setName("soft0");
+        node0.addSoftwares(soft0);
+        System.out.println("Persist " + cloud + "/" + node0 + soft0);
+        factory.persist(factory.createBatch().addElementAndRecheable(cloud));
+    }
 
-        System.out.println("Run");
+    public static void main(String[] args) {
 
         DefaultCloudFactory factory = new DefaultCloudFactory();
         factory.setDatastore(new MemoryDataStore());
 
-        Cloud cloud = factory.createCloud();
-
-
-        Node node0 = factory.createNode();
-        node0.setId("node0");
-        cloud.addNodes(node0);
-
-        Software soft0 = factory.createSoftware();
-        soft0.setName("soft0");
-        node0.addSoftwares(soft0);
-
-
-        factory.persist(factory.createBatch().addElementAndRecheable(cloud));
+        System.out.println("Populate");
+        populate(factory);
+        factory.clearCache();
+        System.out.println("DataStore export");
 
         MemoryDataStore datastore = (MemoryDataStore) factory.getDatastore();
         for (String key : datastore.getMap().keySet()) {
@@ -42,10 +45,13 @@ public class Tester {
 
         }
 
+        System.out.println("Lookup from DataStore");
+
         Cloud cloudLazy = (Cloud) factory.lookup("/");
-        System.out.println(cloudLazy);
+        //System.out.println(cloudLazy);
         System.out.println(cloudLazy.findNodesByID("node0"));
         System.out.println(cloudLazy.getNodes().get(0));
+
 
         System.out.println(cloudLazy.findByPath("nodes[node0]/softwares[soft0]"));
         System.out.println(factory.lookup("nodes[node0]/softwares[soft0]"));
@@ -55,7 +61,9 @@ public class Tester {
 
         System.out.println(cloudLazy.getNodes().get(0).getSoftwares().get(0));
 
-        /*
+        System.out.println(lazyNode.getIsResolved());
+
+
         KMFContainerProxy cloudLazyProxy = (KMFContainerProxy) cloudLazy;
         System.out.println(cloudLazyProxy.getIsResolved());
 
@@ -67,22 +75,11 @@ public class Tester {
         cloudLazy.visit(new ModelVisitor() {
             @Override
             public void visit(KMFContainer kmfContainer, String s, KMFContainer kmfContainer2) {
-                    System.out.println("visit="+kmfContainer);
+                System.out.println("visit=" + kmfContainer);
+                KMFContainerProxy proxy = (KMFContainerProxy) kmfContainer;
+                System.out.println(proxy.getIsResolved());
             }
         }, true, true, true);
-
-          */
-
-                /*
-        cloudLazy.getNodes();
-
-        Node node0lazy = cloudLazy.findNodesByID("node0");
-
-        System.out.println("node0->" + ((KMFContainerProxy) node0lazy).getIsResolved());
-        System.out.println("/->" + cloudLazyProxy.getIsResolved());
-        */
-
-        //System.out.println("/->" + cloudLazyProxy.getIsResolved());
 
     }
 
