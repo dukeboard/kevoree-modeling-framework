@@ -2,11 +2,15 @@
 #* @vtlvariable name="refname" type="java.lang.String" *#
 #* @vtlvariable name="debug" type="java.lang.String" *#
 
-visitor->beginVisitRef("${refname}","org.kevoree.${type}");
+
 for ( google::dense_hash_map<string,${type}*>::iterator it = ${refname}.begin();  it != ${refname}.end(); ++it)
 {
-    ${type} * current =(${type}*) it->second;
-    ${debug}
-    internal_visit(visitor,current,recursive,containedReference,nonContainedReference,"${refname}");
+${type} * current = it->second;
+if(current != NULL)
+{
+    delete current;
 }
-visitor->endVisitRef("${refname}");
+
+}
+
+${refname}.clear();

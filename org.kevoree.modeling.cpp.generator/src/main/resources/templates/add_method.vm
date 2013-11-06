@@ -4,14 +4,21 @@
 
 void ${classname}::add${refname}(${typeadd} *ptr)
 {
-    KMFContainerImpl *container = (KMFContainerImpl*)ptr;
+    PRINTF("BEGIN -- ${classname} add${refname}");
+    ${typeadd}  *container = (${typeadd} *)ptr;
     if(container->internalGetKey().empty())
     {
         cout << " KEY EMPTY add${refname} " << endl;
+    }else
+    {
+
+        if(${refname}.find(container->internalGetKey()) == ${refname}.end())
+        {
+            PRINTF("KEY -- ${classname} ${refname}  "<< container->internalGetKey() );
+            ${refname}[container->internalGetKey()]=ptr;
+            ${iscontained}
+        }
     }
-    ${refname}[container->internalGetKey()]=ptr;
-    any ptr_any = ptr;
-    RemoveFromContainerCommand  *cmd = new  RemoveFromContainerCommand(this,REMOVE,"${refname}",ptr_any);
-    container->setEContainer(this,cmd,"${refname}");
+    PRINTF("END -- ${classname}  add${refname}");
 }
 

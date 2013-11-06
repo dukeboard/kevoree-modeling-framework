@@ -1,13 +1,19 @@
 #* @vtlvariable name="classname" type="java.lang.String" *#
 #* @vtlvariable name="refname" type="java.lang.String" *#
+#* @vtlvariable name="debug" type="java.lang.String" *#
 
-void ${classname}::visit(ModelVisitor visitor,bool recursive,bool containedReference ,bool nonContainedReference)
+void ${classname}::visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference)
 {
-    visitor.beginVisitElem(this);
+    ${debug}
+      visitor->beginVisitElem(this);
     if(containedReference)
     {
-${visitor_refs}
+        ${visitor_refs_contained}
     }
-    visitor.endVisitElem(this);
+    if(nonContainedReference)
+    {
+        ${visitor_refs_non_contained}
+    }
+    visitor->endVisitElem(this);
 }
 
