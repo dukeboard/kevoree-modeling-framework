@@ -14,4 +14,7 @@ public trait DataStore {
     fun get(segment : String,key: String): String?
 
     fun remove(segment : String,key: String)
+
+    fun sync()
+
 }

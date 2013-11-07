@@ -39,7 +39,6 @@ trait PersistenceKMFFactory : KMFFactory {
     fun lookup(path: String): KMFContainer? {
 
         //TODO protect for unContains elems
-
         var path2 = path
         if(path2 == "/"){
             path2 = ""
@@ -77,10 +76,6 @@ trait PersistenceKMFFactory : KMFFactory {
         return null
     }
 
-    fun instrumentElem(elem: KMFContainer) {
-        //put listener
-    }
-
     fun persist(elem: KMFContainer) {
         if(datastore != null){
             val traces = elem.toTraces(true, true)
@@ -104,5 +99,8 @@ trait PersistenceKMFFactory : KMFFactory {
         return Batch()
     }
 
+    fun commit(){
+        datastore?.sync()
+    }
 
 }
