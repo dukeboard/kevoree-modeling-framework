@@ -70,17 +70,16 @@ trait APIGenerator extends ClassGenerator {
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
 
 
-
     //val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
     val localFile = new File(currentPackageDir + "/api.kt")
     val first = !localFile.exists()
 
 
-    val localFileS = new FileOutputStream(localFile,true)
+    val localFileS = new FileOutputStream(localFile, true)
     val pr = new PrintWriter(localFileS)
     val pack = ProcessorHelper.fqn(ctx, packElement)
 
-    if(first){
+    if (first) {
       pr.println("package " + pack + "")
       pr.println()
     }
@@ -141,16 +140,19 @@ trait APIGenerator extends ClassGenerator {
 
     cls.getEReferences.foreach {
       ref =>
-        val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
-        if (ref.isMany) {
-          pr.println("open var " + protectReservedWords(ref.getName) + " : List<" + typeRefName + ">")
-          generateAddMethod(pr, cls, ref, typeRefName)
-          generateAddAllMethod(pr, cls, ref, typeRefName)
-          generateRemoveMethod(pr, cls, ref, typeRefName)
-          generateRemoveAllMethod(pr, cls, ref, typeRefName)
-          pr.println("fun find" + toCamelCase(ref) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
+        if (cls.getEAllReferences.exists(ref2 => ref2.getName.equals(ref.getName) && ref2.getEContainingClass != cls)) {
         } else {
-          pr.println("open var " + protectReservedWords(ref.getName) + " : " + typeRefName + "?")
+          val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+          if (ref.isMany) {
+            pr.println("open var " + protectReservedWords(ref.getName) + " : List<" + typeRefName + ">")
+            generateAddMethod(pr, cls, ref, typeRefName)
+            generateAddAllMethod(pr, cls, ref, typeRefName)
+            generateRemoveMethod(pr, cls, ref, typeRefName)
+            generateRemoveAllMethod(pr, cls, ref, typeRefName)
+            pr.println("fun find" + toCamelCase(ref) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
+          } else {
+            pr.println("open var " + protectReservedWords(ref.getName) + " : " + typeRefName + "?")
+          }
         }
     }
     /* Then generated user method */
@@ -251,7 +253,6 @@ trait APIGenerator extends ClassGenerator {
   def toCamelCase(ref: EReference): String
 
   def toCamelCase(att: EAttribute): String
-
 
 
 }
