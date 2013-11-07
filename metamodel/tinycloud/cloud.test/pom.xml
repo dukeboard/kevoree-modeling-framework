@@ -26,7 +26,11 @@
             <artifactId>org.kevoree.modeling.sample.cloud.kt</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.kevoree.modeling</groupId>
+            <artifactId>org.kevoree.modeling.microframework.datastores</artifactId>
+            <version>${kmf.version}</version>
+        </dependency>
     </dependencies>
 
 
