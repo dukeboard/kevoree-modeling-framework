@@ -118,7 +118,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
             pr.println("override public fun set" + toCamelCase(att) + "(internal_p : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?) { " + ProcessorHelper.protectReservedWords(att.getName) + " = internal_p }")
           }
       }
-      cls.getEAllReferences.foreach {
+      ProcessorHelper.noduplicateRef(cls.getEAllReferences).foreach {
         ref =>
           val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
           if (ref.isMany) {
@@ -422,7 +422,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
         }
     }
 
-    cls.getEAllReferences.foreach {
+    ProcessorHelper.noduplicateRef(cls.getEAllReferences).foreach {
       ref =>
         val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.isMany) {

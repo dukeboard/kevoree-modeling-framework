@@ -46,6 +46,16 @@ class ProcessorHelperClass {
     eATTs.values().toList
   }
 
+  def noduplicateRef(allAtt : EList[EReference]) : java.util.List[EReference] = {
+    import scala.collection.JavaConversions._
+    val eATTs = new util.HashMap[String,EReference]()
+    allAtt.foreach{  at =>
+      eATTs.put(at.getName,at)
+    }
+    eATTs.values().toList
+  }
+
+
   def getLastName(name: String): String = {
     return name.substring(name.lastIndexOf(".") + 1)
   }
