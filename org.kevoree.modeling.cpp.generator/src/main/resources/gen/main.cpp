@@ -66,13 +66,13 @@ int main(int argc,char **argv){
 
  loader.setFactory(&factory);
 ifstream myfile;
- myfile.open ("/home/jed/KEVOREE_PROJECT/kevoree-modeling-framework/org.kevoree.modeling.cpp.generator/src/main/resources/gen/tests/models/model.json");
+ myfile.open ("tests/models/model.json");
  if(!myfile){
      cout << "no file trace" << endl;
  }
 
 ifstream myfile2;
- myfile2.open ("/home/jed/KEVOREE_PROJECT/kevoree-modeling-framework/org.kevoree.modeling.cpp.generator/src/main/resources/gen/tests/models/jedModel2.json");
+ myfile2.open ("tests/models/jedModel2.json");
  if(!myfile2){
      cout << "no file trace" << endl;
  }
