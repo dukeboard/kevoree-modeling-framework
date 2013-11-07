@@ -10,20 +10,25 @@ var ActionType = model.org.kevoree.modeling.api.util.ActionType;
 
 var memoryDataStore = new model.org.kevoree.modeling.api.persistence.MemoryDataStore();
 
-/* NeDB Wrapper */
-var Datastore = require('nedb')
-  , db = new Datastore();
+/* DB Wrapper */
+var levelup = require('levelup');
+var db = levelup('./db');
 var dataStoreWraper = new Object();
 dataStoreWraper.get = function(segment, key){
-    console.log("Yop");
-    return "yop";
+    var returnValue = null;
+    db.get(segment+"_"+key,function (err, value) {
+        returnValue = value;
+    });
+    while(returnValue != null){
+       //noop 
+        console.log("-----");
+    }
+    return returnValue;
 };
 dataStoreWraper.put = function(segment, key,value){
-    console.log("put");
+    db.put(segment+"_"+key, value);
 };
 dataStoreWraper.remove = function(segment, key){
-    
-    
 };
 factory.datastore = dataStoreWraper;
 

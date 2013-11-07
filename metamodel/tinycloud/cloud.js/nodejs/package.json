@@ -4,6 +4,8 @@
   "author": "Fouquet Francois <fouquet.f@gmail.com>",
   "main": "./main.js",
   "dependencies": {
-    "nedb": "~0.8.12"
+    "nedb": "~0.8.12",
+	"levelup": "*",
+	"leveldown": "*"
   }
 }
