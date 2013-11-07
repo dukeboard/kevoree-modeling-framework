@@ -51,6 +51,9 @@ class VisitorAttTester:public ModelAttributeVisitor
 
  #include <iostream>
  #include <sys/time.h>
+ double mstimer(clock_t tstart, clock_t tstop){
+ return 1000*(double)(tstop-tstart)/(double)(CLOCKS_PER_SEC);
+ }
 
    //set(CMAKE_CXX_FLAGS "-std=c++0x  ${CMAKE_CXX_FLAGS}")
 int main(int argc,char **argv){
@@ -68,25 +71,28 @@ ifstream myfile;
      cout << "no file trace" << endl;
  }
 
+ifstream myfile2;
+ myfile2.open ("/home/jed/KEVOREE_PROJECT/kevoree-modeling-framework/org.kevoree.modeling.cpp.generator/src/main/resources/gen/tests/models/jedModel2.json");
+ if(!myfile2){
+     cout << "no file trace" << endl;
+ }
 
- //while(1){
-  struct timeval tbegin,tend;
-     double texec=0.;
 
-     // Start timer
-     gettimeofday(&tbegin,NULL);
+clock_t start = clock();
+KMFContainer *model = loader.loadModelFromStream(myfile)->front();
+KMFContainer *model2 = loader.loadModelFromStream(myfile2)->front();
+clock_t finish = clock();
+std::cout << "time delta (ms) = " << mstimer(start,finish) << std::endl;
 
-vector<KMFContainer*> *models = loader.loadModelFromStream(myfile);
-ContainerRoot *root = (ContainerRoot*)models->front();
+ModelCompare *kompare = new ModelCompare();
 
-      // End timer
-       gettimeofday(&tend,NULL);
 
-       // Compute execution time
-       texec=((double)(1000*(tend.tv_sec-tbegin.tv_sec)+((tend.tv_usec-tbegin.tv_usec)/1000)))/1000.;
 
-delete root;
-delete  models;
+
+
+
+
+
 //}
             /*
 
