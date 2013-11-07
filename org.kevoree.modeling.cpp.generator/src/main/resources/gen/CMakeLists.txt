@@ -1,6 +1,6 @@
 project(kmf)
 
-set(CMAKE_CXX_FLAGS "-g -O0 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Ofast ${CMAKE_CXX_FLAGS}")
 
 
 set(SRC_SPARSEHASH sparsehash)
