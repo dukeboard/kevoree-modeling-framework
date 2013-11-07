@@ -64,7 +64,7 @@ public class LevelDbPerformanceTester {
 
         System.out.println("Commit to file system...");
         long startCommit = System.currentTimeMillis();
-        datastore.commit();
+        factory.commit();
         long endCommit = System.currentTimeMillis();
         System.out.println("Committed in " + (endCommit - startCommit) + " ms");
     }

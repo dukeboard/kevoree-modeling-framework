@@ -37,7 +37,7 @@ public class LevelDbTester {
         System.out.println("Populate");
         populate(factory);
         factory.clearCache();
-        datastore.commit();
+        factory.commit();
 
         System.out.println("DataStore export");
 
