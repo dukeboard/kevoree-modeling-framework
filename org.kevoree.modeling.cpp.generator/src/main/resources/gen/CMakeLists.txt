@@ -1,14 +1,16 @@
 project(kmf)
 
-
-set(SRC_MICROFRAMEWORK org/kevoree/modeling/api)
-
-set(SRC_PATH src/kevoree)
-
-
 set(CMAKE_CXX_FLAGS "-g -O0 ${CMAKE_CXX_FLAGS}")
 
 
+set(SRC_SPARSEHASH sparsehash)
+set(SRC_MICROFRAMEWORK org/kevoree/modeling/api)
+set(SRC_PATH src/kevoree)
+
+include_directories(${SRC_SPARSEHASH})
+include_directories(${SRC_SPARSEHASH}/google)
+include_directories(${SRC_SPARSEHASH}/sparsehash)
+include_directories(${SRC_SPARSEHASH}/sparsehash/internal)
 
 include_directories(${SRC_MICROFRAMEWORK})
 include_directories(${SRC_MICROFRAMEWORK}/compare)
@@ -23,8 +25,6 @@ include_directories(${SRC_PATH}/)
 
 file(GLOB_RECURSE microframework ${SRC_MICROFRAMEWORK}/*)
 file(GLOB_RECURSE gen_model ${SRC_PATH}/*)
-
-
 
 add_executable(
         main
