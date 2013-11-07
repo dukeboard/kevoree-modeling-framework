@@ -87,14 +87,14 @@ ModelCompareVisitorFiller:: ~ModelCompareVisitorFiller()
 
 void ModelCompareVisitorFiller::visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
 {
-	string childPath = elem->path ();
-        PRINTF("ModelCompareVisitorFiller  " << childPath << " " << refNameInParent);
+   PRINTF("ModelCompareVisitorFiller " << refNameInParent);
+   string childPath = elem->path ();
 	if (!childPath.empty ())
 	  {
 	    (*objectsMap)[childPath] = elem;
 	  }
 	else
 	  {
-	      cout << "Null child path "<< endl;
+	      PRINTF_ERROR("Null child path refNameInParent=" << refNameInParent);
 	  }
 }

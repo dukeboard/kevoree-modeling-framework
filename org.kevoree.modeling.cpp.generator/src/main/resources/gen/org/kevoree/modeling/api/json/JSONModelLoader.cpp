@@ -31,6 +31,12 @@ vector<KMFContainer*>* JSONModelLoader::loadModelFromString(string str){
 }
 
 vector<KMFContainer*>* JSONModelLoader::loadModelFromStream( istream &inputStream){
+     if(!inputStream){
+        PRINTF_ERROR("File no found");
+        return NULL;
+     }
+
+
     return deserialize(inputStream);
 }
 
