@@ -7,3 +7,18 @@
 #include <JSONModelSerializer.h>
 
 
+
+
+void JSONModelSerializer::serializeToStream(KMFContainer *model, iostream  raw)
+{
+
+
+
+}
+
+string JSONModelSerializer::serialize(KMFContainer *model)
+{
+
+
+
+}
