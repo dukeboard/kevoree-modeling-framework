@@ -1,0 +1,9 @@
+{
+  "name": "cloud",
+  "description": "TinyCloud meta model",
+  "author": "Fouquet Francois <fouquet.f@gmail.com>",
+  "main": "./main.js",
+  "dependencies": {
+    "nedb": "~0.8.12"
+  }
+}
