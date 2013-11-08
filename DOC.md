@@ -15,305 +15,268 @@ KMF give you runtime oriented features such as:
 
  * Dedicated to runtime usage of models
  * Memory and cpu efficient even for mobile devices
- * JS and JVM crosscompiled models
+ * JS and JVM cross-compiled models
  * Efficient (partial) load/save/clone operations (XMI and JSON supported)
  * Models built-in operations (namely merge, intersection, diff)
+ * Persistence model driven layers for BigData
  * Just create an Ecore file and compile it !
 
-*Current version: [1.8.1][dist]*
+*Current version: [1.9.0][dist]*
 
 Getting started
+===============
+
+The easiest way to use KMF is using Maven project description and build system.
+
+NB : standalone compiler is coming soon !
+
+Using your own maven project
+----------------------------
+
+To get started with KMF, you just have to create a Maven project folder in which you will place the pom and your EcoreMM.
+
+``` xml
+myProject
+ |-myMetaModel.ecore
+ |-pom.xml
+```
+
+Then add this in your POM:
+The plugin in the Build/Plugins section:
+
+``` xml
+<plugin>
+ <groupId>org.kevoree.modeling</groupId>
+ <artifactId>org.kevoree.modeling.kotlin.generator.mavenplugin</artifactId>
+ <version>${replace.by.last.kevoree.version}</version>
+ <extensions>true</extensions>
+ <executions>
+  <execution>
+   <id>ModelGen</id>
+   <goals>
+    <goal>generate</goal>
+   </goals>
+   <configuration>
+    <!--Optional: If true, generates the modeling framework for JavaScript platform  -->
+    <js>false</js>
+    <!--Optional: If true, generates the modeling framework with Events capability  -->
+    <events>false</events>
+    <!--Optional: If true, generates `findByQuery` methods. Only available for Java generation (no JavaScript)  -->
+    <selector>false</selector>
+   </configuration>
+  </execution>
+ </executions>
+</plugin>
+```
+
+Add the KMF MicroFramework dependency.
+
+``` xml
+        <dependency>
+            <groupId>org.kevoree.modeling</groupId>
+            <artifactId>org.kevoree.modeling.microframework</artifactId>
+            <version>${kmf.version}</version>
+        </dependency>
+```
+
+Then cd into your project folder and just `mvn clean install`.
+
+After compilation, the JAR present in target directory will contains all needed files to build your Model@Runtime platorm.
+In case of JS compilation, a JS reduced file is present in target, compatible with browser or nodejs usages. See JavaScript usage section for more details.
+
+Using a sample project
+----------------------------
+
+TODO, add download link to the sample cloud project crosscompiled in JS and JVM
+
+
+Model Events
+============
+
+Motivation
+----------
+
+Events is a way to be inform to modification into models. This low-level mechanism can be use to synchronize two different models or to synchronize a view with it's backbone model.
+
+How to use it ?
 ---------------
 
-Create a file based on the template, which has a bare DOM, link to the
-scripts, and a link to a theme. It will look something like this (not exact).
-For GitHub projects, simply place this file in your [GitHub pages] branch and
-you're all good to go.
+KMF proposes an option event in its Maven pluggin.
+If this option is set to `true`, the code generator generates all necessary methods and class to provide a listener mechanism to all the features of your Metamodel.
 
-*In short: just download this file and upload it somewhere.*
-
-[Download template >][template]
-
-``` html
-<html>
-  <head>
-    <!-- Flatdoc -->
-    <script src='http://rstacruz.github.io/flatdoc/v/0.8.0/legacy.js'></script>
-    <script src='http://rstacruz.github.io/flatdoc/v/0.8.0/flatdoc.js'></script>
-
-    <!-- Flatdoc theme (optional) -->
-    <link  href='http://rstacruz.github.io/flatdoc/v/0.8.0/theme-white/style.css' rel='stylesheet'>
-    <script src='http://rstacruz.github.io/flatdoc/v/0.8.0/theme-white/script.js'></script>
-
-    <!-- Initializer -->
-    <script>
-      Flatdoc.run({
-        fetcher: Flatdoc.github('USER/REPO')
-      });
-    </script>
-  </head>
-
-  <body role='flatdoc'>
-    <div role='flatdoc-menu'></div>
-    <div role='flatdoc-content'></div>
-  </body>
-</html>
+``` xml
+   <events>true</events>
 ```
 
-### Via GitHub
-
-To fetch a Github Repository's readme file, use the `Flatdoc.github` fetcher.
-This will fetch the Readme file of the repository's default branch.
-
-``` javascript
-Flatdoc.run({
-  fetcher: Flatdoc.github('USER/REPO')
-});
-```
-
-You may also fetch another file other than the Readme file, just specify it as
-the 2nd parameter.
-
-``` javascript
-Flatdoc.run({
-  fetcher: Flatdoc.github('USER/REPO', 'Changelog.md')
-});
-```
-
-After you've done this, you probably want to deploy it via [GitHub Pages].
-
-[GitHub Pages guide >][GitHub Pages]
-
-### Via a file
-
-You may also fetch a file. In this example, this fetches the file `Readme.md` in
-the same folder as the HTML file.
-
-``` javascript
-Flatdoc.run({
-  fetcher: Flatdoc.file('Readme.md')
-});
-```
-
-You may actually supply any URL here. It will be fetched via AJAX. This is
-useful for local testing.
-
-``` javascript
-Flatdoc.run({
-  fetcher: Flatdoc.file('http://yoursite.com/Readme.md')
-});
-```
-
-How it works
-------------
-
-Flatdoc is a hosted `.js` file (along with a theme and its assets) that you can
-add into any page hosted anywhere.
-
-#### All client-side
-
-There are no build scripts or 3rd-party services involved. Everything is done in
-the browser. Worried about performance? Oh, It's pretty fast.
-
-Flatdoc utilizes the [GitHub API] to fetch your project's Readme files. You may
-also configure it to fetch any arbitrary URL via AJAX.
-
-#### Lightning-fast parsing
-
-Next, it uses [marked], an extremely fast Markdown parser that has support for
-GitHub flavored Markdown.
-
-Flatdoc then simply renders *menu* and *content* DOM elements to your HTML
-document. Flatdoc also comes with a default theme to style your page for you, or
-you may opt to create your own styles.
-
-Markdown extras
+API description
 ---------------
 
-Flatdoc offers a few harmless, unobtrusive extras that come in handy in building
-documentation sites.
+#ModelEvent class
+Each modification in models now produce events through the API class ModelEvent. It contains the following attributes:
 
-#### Code highlighting
+Events are generated when:
+* Attributes are `set`
+* References are `set`, `added` or `removed` (the two last are only available for references with unlimited max cardinality)
+* An opposite element is modified (only if the opposite relation is set).
 
-You can use Markdown code fences to make syntax-highlighted text. Simply
-surround your text with three backticks. This works in GitHub as well.
-See [GitHub Syntax Highlighting][fences] for more info.
+NB: The `source` of an event is identified by its `path()`. As a consequence, you need to specify an `ID`attribute for, at least, the element you want to listen and all its parents (in the containment hierarchy).
 
-    ``` html
-    <strong>Hola, mundo</strong>
-    ```
+#ModelEvent listener
 
-#### Blockquotes
+There are two types of listeners you can place on any element:
+* ModelElementListener is used to get informed about changes in the attributes or in the relations of a specific model element
+* ModelTreeListener is used to get informed each time an attribute or a reference is modified or set, or if a model element is added or removed somewhere under (according to the containment hierarchy) the element you place the listener on.
 
-Blockquotes show up as side figures. This is useful for providing side
-information or non-code examples.
-
-> Blockquotes are blocks that begin with `>`.
-
-#### Smart quotes
-
-Single quotes, double quotes, and double-hyphens are automatically replaced to
-their typographically-accurate equivalent. This, of course, does not apply to
-`<code>` and `<pre>` blocks to leave code alone.
-
-> "From a certain point onward there is no longer any turning back. That is the
-> point that must be reached."  
-> --Franz Kafka
-
-#### Buttons
-
-If your link text has a `>` at the end (for instance: `Continue >`), they show
-up as buttons.
-
-> [View in GitHub >][project]
-
-Customizing
-===========
-
-Basic
------
-
-### Theme options
-
-For the default theme (*theme-white*), You can set theme options by adding
-classes to the `<body>` element. The available options are:
-
-#### big-h3
-Makes 3rd-level headings bigger.
-
-``` html
-<body class='big-h3'>
+For instance, considering a very simple Finite State Machine metamodel (FSM<>--State<>--Transition<>--Action).
+```java
+fsm.addModelTreeListener(new ModelTreeListener() {
+            @Override
+            public void elementChanged(ModelEvent evt) {
+                System.out.println("FSM-Tree::" + evt.toString());
+            }
+        });
 ```
 
-#### no-literate
-Disables "literate" mode, where code appears on the right and content text
-appear on the left.
+Would print a message each time something is set, added or removed in the entire FSM !
+But, if you want to listen to events concerning the FSM only (States added or removed, don't care about Transitions and Actions), a ModelElementListener would be sufficient.
 
-``` html
-<body class='no-literate'>
+```java
+fsm.addModelElementListener(new ModelElementListener() {
+            @Override
+            public void elementChanged(ModelEvent evt) {
+                System.out.println("FSM::" + evt.toString());
+            }
+        });
 ```
 
-#### large-brief
-Makes the opening paragraph large.
 
-``` html
-<body class='large-brief'>
+
+
+Extends model though code
+=========================
+
+Motivation
+----------
+
+MOF structure of your models like describes in .ecore files only reflect the structural way to store models.
+Indeed ecore format allows you to define operations into models, however these methods need an operation language to define it.
+
+KMF rely on Kotlin execution language to express model behaviors. Kotlin language is cross compilable to JS and JVM so such behavior can work in JVM but as well in browser or nodejs platform.
+KMF rely on a bi-directional synchronization between code and model (ecore files). As result you can define behavior in code (.kt files) to eOperation declared in .ecore files but in addition you can declare method and new meta class directly from the code.
+
+Use code or model first as needed in your project, but remains one rule, models are domain definition and technical details should be hidden in code.
+
+How to use it ?
+----------
+
+Let's take as example a simple FSM metamodel (you can found it [here](https://github.com/dukeboard/kevoree-modeling-framework/tree/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt) )
+
+In this metamodel we add an operation `run` to the metaclass `Action`
+
+Then, you can declare in your src/main/java directory several Kotlin traits implementing the generated interface
+
+An example can be found [here](https://github.com/dukeboard/kevoree-modeling-framework/blob/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt/src/main/java/org/jetbrains/annotations/MyAspect.kt).
+
+``` java
+    public aspect trait MyAspect : Action {
+        override fun run(p : Boolean): String {return "";}
+
+        private fun internalStuff(){}
+    }
 ```
 
-### Adding more markup
+Then you compile your project and the resulting Java .class or JavaScript .js files will have all your traits directly woven in the compiled code.
 
-You have full control over the HTML file, just add markup wherever you see fit.
-As long as you leave `role='flatdoc-content'` and `role='flatdoc-menu'` empty as
-they are, you'll be fine.
+Aspect keyword is an annotation meaning that the aspect must mixed with the meta class : Action.
+If you define a new operation by adding a **fun** definition, it is directly added in the MetaModel as a new operation (be careful the API will change and you will have to add the override keyword).
 
-Here are some ideas to get you started.
+Private function will remain private to the aspect and will not be pushed in the ecore model.
 
- * Add a CSS file to make your own CSS adjustments.
- * Add a 'Tweet' button on top.
- * Add Google Analytics.
- * Use CSS to style the IDs in menus (`#acknowledgements + p`).
+In short, you can now call the method run on any of your Action object, in the JVM or in the JS version.
 
-### JavaScript hooks
+You can also add a new MetaClass using the same mechanism, juste by using the **meta** keyword.
 
-Flatdoc emits the events `flatdoc:loading` and `flatdoc:ready` to help you make
-custom behavior when the document loads.
-
-``` js
-$(document).on('flatdoc:ready', function() {
-  // I don't like this section to appear
-  $("#acknowledgements").remove();
-});
+``` java
+    public meta trait MyMetaClassName : Action {
+        override fun myFct(): {return "";}
+    }
 ```
 
-Full customization
+This means that you add a new metaclass named **MyMetaClassName** with superclass **Action**.
+
+TODO
+
+Using JavaScript compiled models
+================================
+
+use in NodeJS runtime
+---------------------
+
+The KMF maven plugin generates into the target directory a file named : <artefactID>.min.js.
+This file is ready to be included as a nodeJS module.
+
+To load it, you only have to call the include directive of nodeJS:
+
+``` javascript
+    var model = require('./org.kevoree.modeling.sample.cloud.js.min.js');
+```
+
+And use all KMF generated classes as follows:
+
+``` javascript
+var saver = new model.org.cloud.serializer.JSONModelSerializer();
+var loader = new model.org.cloud.loader.JSONModelLoader();
+```
+
+Of course replace org.cloud by the generated package specified in your model.
+
+use in browsers
+---------------
+
+TODO
+
+Model based BigData
+===================
+
+What is BigModel ?
 ------------------
 
-You don't have to be restricted to the given theme. Flatdoc is just really one
-`.js` file that expects 2 HTML elements (for *menu* and *content*). Start with
-the blank template and customize as you see fit.
+TODO
 
-[Get blank template >][template]
+Persistence package API
+-----------------------
 
-``` html
-<html>
-  <head>
-    <script src='jquery.js'></script>
-    <script src='http://rstacruz.github.io/flatdoc/v/0.8.0/flatdoc.js'></script>
-    <!-- Initializer -->
-    <script>
-      Flatdoc.run({
-        fetcher: Flatdoc.github('USER/REPO')
-      });
-    </script>
-  </head>
+TODO
 
-  <body role='flatdoc'>
-    <div role='flatdoc-menu'></div>
-    <div role='flatdoc-content'></div>
-  </body>
-</html>
-```
-Misc
-====
+Available DataStores
+--------------------
 
-Inspirations
+#MemoryDataStore
+
+#MapDB
+
+For JVM Off-heap memory usage
+
+#LevelDB for performance
+
+TODO
+
+Client/Server deployment
+--------------------
+
+TODO
+
+Master/Master deployment
+------------------
+
+TODO
+
+Distributed high-performance deployment
+----------------------------------
+
+TODO
+
+Performances
 ------------
 
-The following projects have inspired Flatdoc.
-
- * [Backbone.js] - Jeremy's projects have always adopted this "one page
- documentation" approach which I really love.
-
- * [Docco] - Jeremy's Docco introduced me to the world of literate programming,
- and side-by-side documentation in general.
-
- * [Stripe] - Flatdoc took inspiration on the look of their API documentation.
-
- * [DocumentUp] - This service has the same idea but does a hosted readme 
- parsing approach.
-
-Attributions
-------------
-
-[Photo](http://www.flickr.com/photos/doug88888/2953428679/) taken from Flickr,
-licensed under Creative Commons.
-
-Changelog
----------
-
-#### v0.8.0 - May 26, 2013
-
-First version.
-
-Acknowledgements
-----------------
-
-© 2013, Rico Sta. Cruz. Released under the [MIT 
-License](http://www.opensource.org/licenses/mit-license.php).
-
-**Flatdoc** is authored and maintained by [Rico Sta. Cruz][rsc] with help from its 
-[contributors][c]. It is sponsored by my startup, [Nadarei, Inc][nd].
-
- * [My website](http://ricostacruz.com) (ricostacruz.com)
- * [Nadarei, Inc.](http://nadarei.co) (nadarei.co)
- * [Github](http://github.com/rstacruz) (@rstacruz)
- * [Twitter](http://twitter.com/rstacruz) (@rstacruz)
-
-[rsc]: http://ricostacruz.com
-[c]:   http://github.com/rstacruz/flatdoc/contributors
-[nd]:  http://nadarei.co
-
-[GitHub API]: http://github.com/api
-[marked]: https://github.com/chjj/marked
-[Backbone.js]: http://backbonejs.org
-[dox]: https://github.com/visionmedia/dox
-[Stripe]: https://stripe.com/docs/api
-[Docco]: http://jashkenas.github.com/docco
-[GitHub pages]: https://pages.github.com
-[fences]:https://help.github.com/articles/github-flavored-markdown#syntax-highlighting
-[DocumentUp]: http://documentup.com
-
-[project]: https://github.com/rstacruz/flatdoc
-[template]: https://github.com/rstacruz/flatdoc/raw/gh-pages/templates/template.html
-[blank]: https://github.com/rstacruz/flatdoc/raw/gh-pages/templates/blank.html
-[dist]: https://github.com/rstacruz/flatdoc/tree/gh-pages/v/0.8.0
+TODO
