@@ -3,11 +3,12 @@ Kevoree Modeling Framework
 
 > aka KMF
 
-> Free the code from models !
-
 Models are no longer restricted to modeling environments.
+
 The increasing use of Model@Runtime requires rich and efficient modeling frameworks.
 KMF is developed to provide efficient modeling frameworks to edit, compose and synchronize models on Java and JavaScript Virtual Machines.
+
+> Free the code from models !
 
 Why a new framework ?
 ---------------
