@@ -69,7 +69,6 @@ The plugin in the Build/Plugins section:
 ```
 
 Add the KMF MicroFramework dependency.
-
 ``` xml
         <dependency>
             <groupId>org.kevoree.modeling</groupId>
@@ -77,8 +76,10 @@ Add the KMF MicroFramework dependency.
             <version>${kmf.version}</version>
         </dependency>
 ```
-
-Then cd into your project folder and just `mvn clean install`.
+Then cd into your project folder and just
+```
+mvn clean install
+```
 
 After compilation, the JAR present in target directory will contains all needed files to build your Model@Runtime platorm.
 In case of JS compilation, a JS reduced file is present in target, compatible with browser or nodejs usages. See JavaScript usage section for more details.
