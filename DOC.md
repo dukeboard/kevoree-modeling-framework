@@ -1,7 +1,9 @@
-Kevoree Modeling Framework (aka KMF)
+Kevoree Modeling Framework
 =======
 
-Free the code from models !
+> aka KMF
+
+> Free the code from models !
 
 Models are no longer restricted to modeling environments.
 The increasing use of Model@Runtime requires rich and efficient modeling frameworks.
@@ -128,7 +130,7 @@ There are two types of listeners you can place on any element:
 * ModelTreeListener is used to get informed each time an attribute or a reference is modified or set, or if a model element is added or removed somewhere under (according to the containment hierarchy) the element you place the listener on.
 
 For instance, considering a very simple Finite State Machine metamodel (FSM<>--State<>--Transition<>--Action).
-```java
+``` java
 fsm.addModelTreeListener(new ModelTreeListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
@@ -140,7 +142,7 @@ fsm.addModelTreeListener(new ModelTreeListener() {
 Would print a message each time something is set, added or removed in the entire FSM !
 But, if you want to listen to events concerning the FSM only (States added or removed, don't care about Transitions and Actions), a ModelElementListener would be sufficient.
 
-```java
+``` java
 fsm.addModelElementListener(new ModelElementListener() {
             @Override
             public void elementChanged(ModelEvent evt) {
@@ -217,13 +219,13 @@ This file is ready to be included as a nodeJS module.
 
 To load it, you only have to call the include directive of nodeJS:
 
-``` javascript
+``` js
     var model = require('./org.kevoree.modeling.sample.cloud.js.min.js');
 ```
 
 And use all KMF generated classes as follows:
 
-``` javascript
+``` js
 var saver = new model.org.cloud.serializer.JSONModelSerializer();
 var loader = new model.org.cloud.loader.JSONModelLoader();
 ```
@@ -251,13 +253,13 @@ TODO
 Available DataStores
 --------------------
 
-#MemoryDataStore
+MemoryDataStore
 
-#MapDB
+MapDB
 
 For JVM Off-heap memory usage
 
-#LevelDB for performance
+LevelDB for performance
 
 TODO
 
