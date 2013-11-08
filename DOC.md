@@ -1,8 +1,6 @@
 Kevoree Modeling Framework
 =======
 
-> aka KMF
-
 Models are no longer restricted to modeling environments.
 
 The increasing use of Model@Runtime requires rich and efficient modeling frameworks.
@@ -24,14 +22,12 @@ KMF give you runtime oriented features such as:
  * Persistence model driven layers for BigData
  * Just create an Ecore file and compile it !
 
-*Current version: [1.9.0][dist]*
-
 Getting started
 ===============
 
 The easiest way to use KMF is using Maven project description and build system.
 
-NB : standalone compiler is coming soon !
+> NB : standalone compiler is coming soon !
 
 Using your own maven project
 ----------------------------
