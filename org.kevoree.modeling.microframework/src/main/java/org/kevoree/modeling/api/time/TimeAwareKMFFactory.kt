@@ -9,6 +9,6 @@ package org.kevoree.modeling.api.time
 
 trait TimeAwareKMFFactory {
 
-    fun lookup(timepoint: TimePoint, path: String): TimeAwareKMFContainer
+    fun lookupTimeAware(timepoint: TimePoint, path: String): TimeAwareKMFContainer
 
 }
