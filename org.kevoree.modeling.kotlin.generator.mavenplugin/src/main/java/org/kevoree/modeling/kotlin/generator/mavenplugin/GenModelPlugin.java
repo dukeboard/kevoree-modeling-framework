@@ -512,7 +512,7 @@ public class GenModelPlugin extends AbstractMojo {
                                 JarEntry entry = entries.nextElement();
                                 boolean filtered = false;
                                 for (String filter : exclusions) {
-                                    if (entry.getName() == (filter)) {
+                                    if (entry.getName().equals(filter)) {
                                         filtered = true;
                                     }
                                 }
