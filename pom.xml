@@ -68,7 +68,7 @@
         <!-- -->
         <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.grizzly</module>
+        <module>datastores/org.kevoree.modeling.microframework.datastores.http</module>
 
     </modules>
 
