@@ -13,9 +13,8 @@ class ModelSerializer
 {
 
 public:
-
-    void serializeToStream(KMFContainer model, iostream  raw);
-    string serialize(KMFContainer model);
+    void serializeToStream(KMFContainer *model, iostream  raw);
+    string serialize(KMFContainer *model);
 };
 
 

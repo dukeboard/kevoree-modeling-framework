@@ -13,6 +13,9 @@
 #include <iostream>
 #include <sstream>
 #include <KMFContainer.h>
+#include <container/KMFContainerImpl.h>
+
+
 #include <KMFFactory.h>
 #include <ModelLoader.h>
 #include <utils/any.h>
@@ -35,11 +38,11 @@ public:
   ~JSONModelLoader();
   KMFFactory *factory;
   void setFactory(KMFFactory *factory);
-  virtual vector<KMFContainer*>& loadModelFromString(string str);
-  virtual vector<KMFContainer*>& loadModelFromStream(istream &inputStream);
+  vector<KMFContainer*>* loadModelFromString(string str);
+  vector<KMFContainer*>* loadModelFromStream(istream &inputStream);
 
 private:
-vector<KMFContainer*>& deserialize(istream &inputStream);
+vector<KMFContainer*>* deserialize(istream &inputStream);
 void loadObject(Lexer *lexer,string nameInParent,KMFContainer *parent,vector<KMFContainer*> *roots ,vector<ResolveCommand*> *commands);
 string  unescapeJSON(string src);
 

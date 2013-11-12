@@ -14,13 +14,13 @@ static std::string ActionType(actions e)
 {
 	  switch(e)
 	  {
-		  case SET: return "0";
-		  case ADD: return "1";
-		  case REMOVE: return "2";
-		  case ADD_ALL: return "3";
-		  case REMOVE_ALL: return "4";
-		  case RENEW_INDEX: return "5";
-		  default: return "-1";
+		  case SET: return "SET";
+		  case ADD: return "ADD";
+		  case REMOVE: return "REMOVE";
+		  case ADD_ALL: return "ADD_ALL";
+		  case REMOVE_ALL: return "REMOVE_ALL";
+		  case RENEW_INDEX: return "RENEW_INDEX";
+		  default: return "ERROR";
 	  }
 }
 

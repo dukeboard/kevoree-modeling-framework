@@ -13,8 +13,8 @@ class ModelLoader
 {
 
 public:
-    list<KMFContainer*> loadModelFromString(string str);
-    list<KMFContainer*> loadModelFromStream(istream inputStream);
+  virtual vector<KMFContainer*>* loadModelFromString(string str){}
+  virtual vector<KMFContainer*>* loadModelFromStream(istream &inputStream){}
 };
 
 

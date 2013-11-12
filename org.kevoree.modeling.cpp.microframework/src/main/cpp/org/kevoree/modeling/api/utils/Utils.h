@@ -2,11 +2,15 @@
 #define __UTILS_H
 
 #include <vector>
+#include <sstream>
+#include <iostream>
+#include <ctime>
+#include <iostream>
+#include <sys/time.h>
 
 class Utils {
 
   public:
-
   static vector<string> split(string str, string delim)
   {
         unsigned start = 0;
@@ -35,7 +39,39 @@ class Utils {
                return result;
            }*/
 
-};
+    template <class T>
+    static bool from_string(T& t,
+                     const std::string& s,
+                     std::ios_base& (*f)(std::ios_base&))
+    {
+      std::istringstream iss(s);
+      return !(iss >> f >> t).fail();
+    }
+
+
+
+    // A time and date output manipulator.
+   static  ostream &td(ostream &stream)
+    {
+      struct tm *localt;
+      time_t t;
+
+      t = time(NULL);
+      localt = localtime(&t);
+      stream << asctime(localt) << endl;
+
+      return stream;
+    }
+
+        static double mstimer(clock_t tstart, clock_t tstop)
+        {
+                return 1000*(double)(tstop-tstart)/(double)(CLOCKS_PER_SEC);
+        }
+
+
+    };
+
+
 
 
 

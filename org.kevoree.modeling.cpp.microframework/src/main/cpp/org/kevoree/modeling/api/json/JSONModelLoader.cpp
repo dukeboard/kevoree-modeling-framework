@@ -25,16 +25,22 @@ void JSONModelLoader::setFactory(KMFFactory *_factory){
  factory = _factory;
  }
 
-vector<KMFContainer*>& JSONModelLoader::loadModelFromString(string str){
+vector<KMFContainer*>* JSONModelLoader::loadModelFromString(string str){
 		 std::istringstream ss( str); // convert string to istream
 		 return loadModelFromStream(ss);
 }
 
-vector<KMFContainer*>& JSONModelLoader::loadModelFromStream( istream &inputStream){
+vector<KMFContainer*>* JSONModelLoader::loadModelFromStream( istream &inputStream){
+     if(!inputStream){
+        PRINTF_ERROR("File no found");
+        return NULL;
+     }
+
+
     return deserialize(inputStream);
 }
 
-vector<KMFContainer*>& JSONModelLoader::deserialize(istream &inputStream){
+vector<KMFContainer*>* JSONModelLoader::deserialize(istream &inputStream){
              vector<ResolveCommand*> *resolverCommands = new vector<ResolveCommand*>;
              vector<KMFContainer*> *roots= new  vector<KMFContainer*>;
              Lexer *lexer =new Lexer(inputStream);
@@ -42,11 +48,11 @@ vector<KMFContainer*>& JSONModelLoader::deserialize(istream &inputStream){
              if(currentToken.tokenType == LEFT_BRACE)
              {
                   loadObject(lexer,"",NULL,roots,resolverCommands);
-
-                                for (std::vector<ResolveCommand*>::iterator it = resolverCommands->begin() ; it != resolverCommands->end(); ++it)
+                            for (std::vector<ResolveCommand*>::iterator it = resolverCommands->begin() ; it != resolverCommands->end(); ++it)
                                 {
-                                      ResolveCommand *cmd = *it;
-                                      cmd->run();
+                                    ResolveCommand *cmd = *it;
+                                    cmd->run();
+                                    delete cmd;
 
                                 }
               } else
@@ -55,18 +61,19 @@ vector<KMFContainer*>& JSONModelLoader::deserialize(istream &inputStream){
               }
 
 
-
-       return *roots;
+       delete resolverCommands;
+       delete lexer;
+       return roots;
 }
 
 
 void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *parent,vector<KMFContainer*> *roots ,vector<ResolveCommand*> *commands)
 {
+        //   cout <<  "loadObject " << nameInParent << " parent adr = "<< parent  << endl;
 
       Token currentToken = lexer->nextToken();
       KMFContainer  *currentObject=NULL;
       if(currentToken.tokenType == VALUE){
-
             if(currentToken.value.compare("eClass") == 0){
 
                     lexer->nextToken(); //unpop :
@@ -77,9 +84,12 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                              cout << "ERROR JSONModelLoader Factory is NULL " << endl;
                              return;
                     }
+
                     currentObject = factory->create(name);
+                             PRINTF("Create " << name << " adr =" <<currentObject);
                     if(currentObject == NULL){
                         cout << "ERROR JSONModelLoader Factory create  " << name << endl;
+                        return;
                     }
 
                     if(parent == NULL){
@@ -107,13 +117,17 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                                                  if(refModel)
                                                  {
 
-                                                      ResolveCommand *resolvecommand = new ResolveCommand(*roots, currentToken.value, currentObject, currentNameAttOrRef);
+                                                      ResolveCommand *resolvecommand = new ResolveCommand(roots, currentToken.value, currentObject, currentNameAttOrRef);
                                                       commands->push_back(resolvecommand);
                                                  } else
                                                  {
-                                                    any  json =new string (unescapeJSON(currentToken.value));
+
+                                                    any  json =string(unescapeJSON(currentToken.value));
+                                                   //         cout << << endl;
+                                                   PRINTF("BEGIN -- SET "<< currentNameAttOrRef << " "<< unescapeJSON(currentToken.value));
+
                                                     currentObject->reflexiveMutator(SET, currentNameAttOrRef,json ,false,false)   ;
-                                                    currentNameAttOrRef.clear(); //unpop
+                                                    currentNameAttOrRef.clear();
                                                  }
                                        }
 
@@ -126,14 +140,14 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                             } else {
                                 refModel = true; //wait for all ref to be found
                                 if(currentToken.tokenType == VALUE){
-                                     ResolveCommand *resolvecommand = new ResolveCommand(*roots, currentToken.value, currentObject, currentNameAttOrRef);
+                                     ResolveCommand *resolvecommand = new ResolveCommand(roots, currentToken.value, currentObject, currentNameAttOrRef);
                                      commands->push_back(resolvecommand);
                                 }
                             }
                         }
 
                          if(currentToken.tokenType == RIGHT_BRACKET){
-                                        currentNameAttOrRef.clear(); //unpop
+                                        currentNameAttOrRef.clear();
                                                 refModel = false ;
                           }
 
@@ -141,8 +155,11 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                     if(currentToken.tokenType == RIGHT_BRACE){
                         if(parent != NULL){
                                   any  json =currentObject;
+                                     //   cout << "PARENT ADD"  << " " << currentObject << " " <<  nameInParent << endl;
 
-                                      currentObject->reflexiveMutator(ADD, currentNameAttOrRef,json ,false,false)   ;
+
+                                      parent->reflexiveMutator(ADD, nameInParent,json ,false,false)   ;
+
                         }
                         return; //go out
                     }

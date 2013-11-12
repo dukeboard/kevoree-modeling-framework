@@ -9,6 +9,7 @@
 #include <utils/ModelVisitor.h>
 #include <utils/ModelAttributeVisitor.h>
 #include <utils/Constants.h>
+#include <ctime>
 using std::string;
 using std::list;
 
@@ -19,17 +20,20 @@ using std::list;
  */
 
 
+#define PRINTF_ERROR(...) cout << "ERROR " <<   __VA_ARGS__ << endl;
 
- //#define PRINTF(...) printf(__VA_ARGS__)
+#ifdef DEBUG
+    #define PRINTF(...) cout << "DEBUG " <<   __VA_ARGS__ << endl;
+#else
+    #define PRINTF(...)
+#endif
 
- #define PRINTF(...)
 
 
 class KMFContainer 
 {
-
 public:
-
+    virtual ~KMFContainer(){}
     virtual KMFContainer* eContainer(){}
     virtual bool isReadOnly(){}
     virtual bool isRecursiveReadOnly(){}
@@ -54,7 +58,7 @@ public:
 	A* findByPath(string query,A clazz);
 	virtual string internalGetKey(){};
  
-    virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){}
+    virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){ PRINTF_ERROR("no define");}
     virtual void visitAttributes(ModelAttributeVisitor *visitor ){}
     virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {}
     virtual void clean_path_cache(){}

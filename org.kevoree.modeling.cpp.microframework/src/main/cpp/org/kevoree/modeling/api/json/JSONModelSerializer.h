@@ -21,6 +21,30 @@
 
 
 
+class ModelReferenceVisitor :public ModelVisitor
+{
+public:
+ModelReferenceVisitor(){ isFirst=true;}
+     void beginVisitRef(string refName,string refType)
+     {
+        //out.print(",\"" + refName + "\":[")
+              isFirst = true;
+     }
+    void visit(KMFContainer *elem,string refNameInParent, KMFContainer* parent)
+    {
+        if(!isFirst){
+           // out.print(",")
+        } else {
+            isFirst = false;
+        }
+      //  out.print("\"" + elem.path() + "\"")
+    }
+private:
+bool isFirst;
+};
+
+
+
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13
@@ -31,7 +55,8 @@ class JSONModelSerializer : public ModelSerializer
 {
 
 public:
-
+    void serializeToStream(KMFContainer *model, iostream  raw);
+    string serialize(KMFContainer *model);
 
 };
 

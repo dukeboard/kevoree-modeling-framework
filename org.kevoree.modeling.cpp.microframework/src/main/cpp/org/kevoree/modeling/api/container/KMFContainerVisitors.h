@@ -20,15 +20,38 @@ class VisitorFiller:public ModelAttributeVisitor
 
     void  visit(any val,string name,KMFContainer *parent)
     {
+        PRINTF("BEGIN -- VisitorFiller") ;
     	    string data;
             if (!val.empty () && val.type () == typeid (string) )
     		{
     		    data =AnyCast < string>(val);
     		    (*objectsMap)[name] = data;
-    		}else
-    	    {
-    		    cout << "AnyCast KMFContainer " << endl;
+    		}else  if(!val.empty () && val.type () == typeid (int))
+    		{
+    		    data =AnyCast < int>(val);;
+              (*objectsMap)[name] =  data;
+
+    		}else  if(!val.empty () && val.type () == typeid (short))
+    		{
+        	    data =AnyCast <short>(val);;
+                (*objectsMap)[name] =  data;
+
+            } else  if(!val.empty () && val.type () == typeid (bool))
+            {
+
+                if(AnyCast<bool>(val) == true)
+                {
+                    data ="true";
+                } else
+                {
+                    data  ="false";
+                }
+                (*objectsMap)[name] =  data;
     		}
+    	    else{
+    		   PRINTF_ERROR("VisitorFiller AnyCast");
+    		}
+            PRINTF("END -- VisitorFiller") ;
 
 
     }
@@ -67,6 +90,7 @@ class VisitorRef:public ModelVisitor
 
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
+        PRINTF("BEGIN -- VisitorRef") ;
         string concatedKey = refNameInParent +"_"+elem->path();
 
        if((*values).find(concatedKey) !=     (*values).end()){
@@ -87,7 +111,8 @@ class VisitorRef:public ModelVisitor
        }
      values->set_deleted_key(concatedKey);
      values->erase(values->find(concatedKey));
-
+     values->clear_deleted_key();
+     PRINTF("END -- VisitorRef") ;
     }
 private:
     google::dense_hash_map<string,string> *values;
@@ -119,9 +144,11 @@ class CacheVisitorCleaner :public ModelVisitor
   public:
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
-       elem->clean_path_cache();
-       // TODO DELETE MEMORY
-     //  cout << "CacheVisitorCleaner " << endl;
+       PRINTF("BEGIN --CacheVisitorCleaner ");
+       if(elem !=NULL){
+               elem->clean_path_cache();
+       }
+       PRINTF("END --CacheVisitorCleaner");
     }
 };
 

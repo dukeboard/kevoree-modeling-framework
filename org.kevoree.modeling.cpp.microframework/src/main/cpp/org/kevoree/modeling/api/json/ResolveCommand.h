@@ -10,7 +10,7 @@ class ResolveCommand
 {
 
 public:
-      ResolveCommand(vector<KMFContainer*> &_roots,string _ref,KMFContainer *_currentRootElem,const string _refName)  {
+      ResolveCommand(vector<KMFContainer*> *_roots,string _ref,KMFContainer *_currentRootElem,const string _refName)  {
           roots  = _roots;
           ref = _ref;
           currentRootElem = _currentRootElem;
@@ -18,26 +18,30 @@ public:
       }
 
       void run(){
-              any  referencedElement;
-              int i=0;
 
-              do {
 
-                  referencedElement = roots[i]->findByPath(ref);
-               i++;
-              }while(referencedElement.empty() &&  i < roots.size())    ;
-
-              if(!referencedElement.empty())
+              KMFContainer  *referencedElement=NULL;
+               int i=0;
+               while(referencedElement == NULL &&  i < roots->size())
+               {
+                       referencedElement = (*roots)[i]->findByPath(ref);
+                       i++;
+               }
+              if(referencedElement != NULL)
               {
-                        currentRootElem->reflexiveMutator(ADD, refName, referencedElement,false,false);
+
+                any value =  referencedElement;
+                currentRootElem->reflexiveMutator(ADD, refName, value,false,false);
+
               } else
               {
-                 throw "Unresolved "; //ref imrpove expection
+                 PRINTF_ERROR("Unresolved " << ref); //ref imrpove expection
               }
+
       }
 
 private:
-      vector<KMFContainer*> roots;
+      vector<KMFContainer*> *roots;
       string ref;
       KMFContainer *currentRootElem;
       string refName;

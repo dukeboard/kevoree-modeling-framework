@@ -36,7 +36,7 @@ std::string ModelSetTrace::toString ()
       {
 	buffer.append (", \"typename\" : \"" + typeName + "\"");
       }
-    buffer.append ("}");
+    buffer.append ("}\n");
 
     return buffer;
 
@@ -65,11 +65,11 @@ ModelAddTrace::ModelAddTrace(string _srcPath, string _refName, string _previousP
       {
 	buffer.append (", \"previouspath\" : \"" + previousPath + "\"");
       }
-    if (typeName.empty ())
+    if (!typeName.empty ())
       {
 	buffer.append (", \"typename\" : \"" + typeName + "\"");
       }
-    buffer.append ("}");
+    buffer.append ("}\n");
     return buffer;
   }
   
@@ -102,7 +102,7 @@ ModelAddAllTrace::ModelAddAllTrace (string _srcPath, string _refName,list < stri
       {
 	buffer.append (", \"typename\" : \"" + mkString (typeName) + "\"");
       }
-    buffer.append ("}");
+    buffer.append ("}\n");
     return buffer;
   }
   
@@ -141,7 +141,7 @@ ModelRemoveTrace::~ModelRemoveTrace(){
 }
 std::string ModelRemoveTrace::toString ()
 {
-    return "{ \"traceType\" : " + ActionType (REMOVE) + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\", \"objpath\" : \"" + objPath + "\" }";
+    return "{ \"traceType\" : " + ActionType (REMOVE) + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\", \"objpath\" : \"" + objPath + "\" }\n";
 }
 
 ModelRemoveAllTrace::~ModelRemoveAllTrace(){
@@ -158,5 +158,5 @@ ModelRemoveAllTrace::ModelRemoveAllTrace (string _srcPath, string _refName)
 
 std::string ModelRemoveAllTrace::toString ()
 {
-    return "{ \"traceType\" : " + ActionType (REMOVE_ALL) + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\" }";
+    return "{ \"traceType\" : " + ActionType (REMOVE_ALL) + " , \"src\" : \"" + srcPath + "\", \"refname\" : \"" + refName + "\" }\n";
 }

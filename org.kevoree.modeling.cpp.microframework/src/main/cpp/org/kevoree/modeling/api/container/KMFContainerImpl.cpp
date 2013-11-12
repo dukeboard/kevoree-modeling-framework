@@ -6,6 +6,8 @@
  * Time: 8:45
  */
 
+
+
 KMFContainerImpl::KMFContainerImpl()
 {
     internal_readOnlyElem = false;
@@ -34,12 +36,11 @@ string KMFContainerImpl::getRefInParent()
 
   void KMFContainerImpl::setEContainer(KMFContainerImpl *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
-     if(!container->internal_readOnlyElem)
+     PRINTF("BEGIN --  setEContainer " << this << " "<<  internal_unsetCmd  <<" " << container << " " << unsetCmd  << " " << refNameInParent );
+     if(!internal_readOnlyElem)
      {
-
         RemoveFromContainerCommand *tempUnsetCmd = internal_unsetCmd;
         if(internal_unsetCmd !=NULL){
-         delete  internal_unsetCmd;
          internal_unsetCmd = NULL;
         }
 
@@ -48,29 +49,33 @@ string KMFContainerImpl::getRefInParent()
             tempUnsetCmd->run();
             delete  tempUnsetCmd;
         }
+
        internal_eContainer = container;
        internal_unsetCmd = unsetCmd;
-       // cout << "setEContainer" << container->internal_unsetCmd << endl;
-        internal_containmentRefName = refNameInParent;
-        path_cache = "";
-        CacheVisitorCleaner *cleanCacheVisitor = new CacheVisitorCleaner();
-        visit(cleanCacheVisitor,true,true,false);
-        delete  cleanCacheVisitor;
+       internal_containmentRefName = refNameInParent;
+
+       path_cache.clear();
+
+       CacheVisitorCleaner *cleanCacheVisitor = new CacheVisitorCleaner();
+       visit(cleanCacheVisitor,true,true,false);
+       delete  cleanCacheVisitor;
+
      }
+
+     PRINTF("END --  setEContainer " << this);
   }
 
   void  KMFContainerImpl::internal_visit(ModelVisitor *visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName)
   {
 
-      PRINTF("internal_visit path = "<< internalElem->path() << " nonContainedReference " << nonContainedReference<< " recursive " << recursive);
+      PRINTF("BEGIN -- internal_visit path nonContainedReference " << nonContainedReference<< " recursive " << recursive);
       if(internalElem != NULL)
       {
              if(nonContainedReference && recursive)
              {
-                   string elemPath = internalElem->path();
-
-                   	if(visitor->alreadyVisited.find(elemPath) != visitor->alreadyVisited.end()){
-
+                    string elemPath = internalElem->path();
+                   	if(visitor->alreadyVisited.find(elemPath) != visitor->alreadyVisited.end())
+                   	{
                    	           return;
                    	}
                      visitor->alreadyVisited[elemPath] =internalElem;
@@ -78,24 +83,29 @@ string KMFContainerImpl::getRefInParent()
              visitor->visit(internalElem,refName,this);
              if(!visitor->visitStopped)
              {
-                 if(recursive && visitor->visitChildren){
+                 if(recursive && visitor->visitChildren)
+                 {
                       internalElem->visit(visitor,recursive,containedReference,nonContainedReference) ;
-                  }
+                 }
                   visitor->visitChildren = true;
              }
     }
+        PRINTF("END -- internal_visit");
   }
 
 
    string KMFContainerImpl::path()
      {
+          PRINTF("BEGIN path "<< this);
           if(!path_cache.empty())
           {
+
                 return path_cache;
           }
           KMFContainer *container = eContainer();
           if(container != NULL) {
               string parentPath = container->path();
+
               if(parentPath == "")
                {
                    path_cache = "";
@@ -104,10 +114,12 @@ string KMFContainerImpl::getRefInParent()
                   parentPath += "/";
                }
                path_cache = parentPath + internal_containmentRefName + "[" + internalGetKey() + "]";
+
           } else
           {
               path_cache =  "";
           }
+           PRINTF("END path");
           return path_cache;
       }
 
@@ -122,7 +134,8 @@ string KMFContainerImpl::getRefInParent()
                 }
                 else
                 {
-                  return NULL;
+               //   return this->findByID(query,"");
+                    return NULL;
                 }
             }
             string queryID = "";
@@ -154,7 +167,8 @@ string KMFContainerImpl::getRefInParent()
             {
                 subquery = subquery.substr(subquery.find('/',0) + 1, subquery.size()-subquery.find('/',0));
             }
-          //  cout << "findByID -> " << relationName << " " << queryID  << endl;
+
+
             KMFContainer *objFound = findByID(relationName,queryID) ;
             if(!subquery.empty() && objFound != NULL)
             {
@@ -167,7 +181,7 @@ string KMFContainerImpl::getRefInParent()
 
 
 void KMFContainerImpl::clean_path_cache(){
- path_cache = "";
+ path_cache.clear();
 }
 
                list<ModelTrace*>* KMFContainerImpl::createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes )
