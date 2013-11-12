@@ -7,9 +7,9 @@ package org.kevoree.modeling.api.time
  * Time: 16:02
  */
 
-public data class TimePoint(val timestamp: Long, val sequenceNumber: Long) : Comparable<TimePoint> {
+public data class TimePoint(val timestamp: Long, val sequenceNumber: Long) /*: Comparable<TimePoint>*/ {
 
-    override fun compareTo(other: TimePoint): Int {
+    /*override*/ fun compareTo(other: TimePoint): Int {
         if(this == other){
             return 0
         }
