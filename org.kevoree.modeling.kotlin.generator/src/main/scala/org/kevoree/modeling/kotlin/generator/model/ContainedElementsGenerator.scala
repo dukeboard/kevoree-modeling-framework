@@ -20,7 +20,7 @@ trait ContainedElementsGenerator {
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate("templates/ContainedElementsMethod.vm")
+    val template = ve.getTemplate("templates/VisitMethods.vm")
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
     ctxV.put("currentClass", cls)

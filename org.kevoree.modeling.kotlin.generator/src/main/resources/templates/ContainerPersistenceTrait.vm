@@ -37,7 +37,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
                 currentParentRelationName = currentParentRelationName.substring(0, currentParentRelationName.lastIndexOf("["))
             }
             val parentElem = originFactory!!.lookup(parentPath)!!
-            internal_unsetCmd = org.cloud.container.RemoveFromContainerCommand(parentElem, org.kevoree.modeling.api.util.ActionType.REMOVE, currentParentRelationName, this)
+            internal_unsetCmd = ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.RemoveFromContainerCommand(parentElem, org.kevoree.modeling.api.util.ActionType.REMOVE, currentParentRelationName, this)
             internal_eContainer = parentElem
             internal_containmentRefName = currentParentRelationName
 

@@ -11,6 +11,9 @@ import java.util.HashMap
 
 public class MemoryDataStore : DataStore {
 
+    override fun sync() {
+    }
+
     var maps = HashMap<String, HashMap<String, String>>()
 
     private fun getOrCreateSegment(segment: String): HashMap<String, String> {

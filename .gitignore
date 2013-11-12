@@ -3,6 +3,7 @@
 **/bin/*
 /.svn/
 target/
+CMakeFiles/
 .DS_Store
 .classpath
 .project
@@ -33,3 +34,5 @@ keystore
 **/*.jar
 /release.properties
 build/
+CMakeCache.txt
+cmake_install.cmake

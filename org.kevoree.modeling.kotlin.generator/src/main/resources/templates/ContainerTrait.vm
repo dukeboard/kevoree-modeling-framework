@@ -192,10 +192,13 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
             }
             visitor.visit(internalElem,refName,this)
             if(!visitor.visitStopped){
-                if(recursive && visitor.visitChildren){
-                    internalElem.visit(visitor,recursive,containedReference,nonContainedReference)
+                if(recursive && (visitor.visitChildren || visitor.visitReferences)){
+                    val visitSubReferences = nonContainedReference && visitor.visitReferences
+                    val visitSubChilds = containedReference && visitor.visitChildren
+                    internalElem.visit(visitor,recursive,visitSubChilds,visitSubReferences)
                 }
                 visitor.visitChildren = true
+                visitor.visitReferences = true
             }
         }
     }

@@ -113,14 +113,22 @@ trait KMFQLFinder {
         generateReflexifMapper = true
         pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
         if (ctx.persistence) {
-          pr.println("val resolved = _" + ref.getName + ".get(key)")
-          pr.println("if(resolved==null){")
-          pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!")
-          pr.println("val result = originFactory.lookupFrom(path()!!," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ",key)")
-          pr.println("return result as? " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)))
-          pr.println("} else {")
-          pr.println("return resolved")
-          pr.println("}")
+
+          if(ref.isContainment){
+            pr.println("val resolved = _" + ref.getName + ".get(key)")
+            pr.println("if(resolved==null){")
+            pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!")
+            pr.println("val result = originFactory.lookupFrom(path()!!," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ",key)")
+            pr.println("return result as? " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)))
+            pr.println("} else {")
+            pr.println("return resolved")
+            pr.println("}")
+          } else {
+            pr.println("checkLazyLoad()")
+            pr.println("return " + "_" + ref.getName + ".get(key)")
+          }
+
+
         } else {
           pr.println("return " + "_" + ref.getName + ".get(key)")
         }

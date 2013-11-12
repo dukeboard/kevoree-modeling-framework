@@ -16,7 +16,8 @@ class Batch : ModelVisitor() {
     override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
         if(elem is KMFContainerProxy){
             if(!elem.isResolved){
-                noChildrenVisit() //TODO check with the nex API to stop non containeds visit as well
+                noChildrenVisit()
+                noReferencesVisit()
             } else {
                 elements.add(elem)
             }
