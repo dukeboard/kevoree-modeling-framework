@@ -1,6 +1,0 @@
-{ "eClass":"org.kevoree.planrouge:ContainerRoot" ,
-    "agents": [
-        { "eClass":"org.kevoree.planrouge:Agent" ,
-            "nom":"hefe"}
-    ]
-}
