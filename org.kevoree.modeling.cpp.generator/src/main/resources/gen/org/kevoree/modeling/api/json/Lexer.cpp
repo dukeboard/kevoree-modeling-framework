@@ -26,7 +26,8 @@ Lexer::Lexer(istream &inputstream)
 
 Lexer::~Lexer() 
 {
-	delete bytes;
+	delete[] bytes;
+	delete finish_token;
 }
 
 

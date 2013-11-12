@@ -5,10 +5,12 @@
 #include <sstream>
 #include <iostream>
 #include <ctime>
+#include <iostream>
+#include <sys/time.h>
+
 class Utils {
 
   public:
-
   static vector<string> split(string str, string delim)
   {
         unsigned start = 0;
@@ -60,7 +62,15 @@ class Utils {
 
       return stream;
     }
+
+        static double mstimer(clock_t tstart, clock_t tstop)
+        {
+                return 1000*(double)(tstop-tstart)/(double)(CLOCKS_PER_SEC);
+        }
+
+
     };
+
 
 
 

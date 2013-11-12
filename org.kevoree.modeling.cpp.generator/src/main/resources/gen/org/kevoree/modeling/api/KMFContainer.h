@@ -20,10 +20,7 @@ using std::list;
  */
 
 
-
-
 #define PRINTF_ERROR(...) cout << "ERROR " <<   __VA_ARGS__ << endl;
-
 
 #ifdef DEBUG
     #define PRINTF(...) cout << "DEBUG " <<   __VA_ARGS__ << endl;
@@ -61,7 +58,7 @@ public:
 	A* findByPath(string query,A clazz);
 	virtual string internalGetKey(){};
  
-    virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){}
+    virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){ PRINTF_ERROR("no define");}
     virtual void visitAttributes(ModelAttributeVisitor *visitor ){}
     virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {}
     virtual void clean_path_cache(){}

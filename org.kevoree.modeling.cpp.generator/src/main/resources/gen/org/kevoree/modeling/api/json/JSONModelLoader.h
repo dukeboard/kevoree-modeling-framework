@@ -38,8 +38,8 @@ public:
   ~JSONModelLoader();
   KMFFactory *factory;
   void setFactory(KMFFactory *factory);
-  virtual vector<KMFContainer*>* loadModelFromString(string str);
-  virtual vector<KMFContainer*>* loadModelFromStream(istream &inputStream);
+  vector<KMFContainer*>* loadModelFromString(string str);
+  vector<KMFContainer*>* loadModelFromStream(istream &inputStream);
 
 private:
 vector<KMFContainer*>* deserialize(istream &inputStream);

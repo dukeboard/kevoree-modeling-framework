@@ -18,11 +18,9 @@ KMFContainerImpl::KMFContainerImpl()
 
 KMFContainerImpl::~KMFContainerImpl()
 {
-/*
         if(internal_unsetCmd){
           delete internal_unsetCmd;
         }
-        */
 }
 
 KMFContainer* KMFContainerImpl::eContainer()
@@ -75,9 +73,9 @@ string KMFContainerImpl::getRefInParent()
       {
              if(nonContainedReference && recursive)
              {
-                   string elemPath = internalElem->path();
-
-                   	if(visitor->alreadyVisited.find(elemPath) != visitor->alreadyVisited.end()){
+                    string elemPath = internalElem->path();
+                   	if(visitor->alreadyVisited.find(elemPath) != visitor->alreadyVisited.end())
+                   	{
                    	           return;
                    	}
                      visitor->alreadyVisited[elemPath] =internalElem;
@@ -85,9 +83,10 @@ string KMFContainerImpl::getRefInParent()
              visitor->visit(internalElem,refName,this);
              if(!visitor->visitStopped)
              {
-                 if(recursive && visitor->visitChildren){
+                 if(recursive && visitor->visitChildren)
+                 {
                       internalElem->visit(visitor,recursive,containedReference,nonContainedReference) ;
-                  }
+                 }
                   visitor->visitChildren = true;
              }
     }
@@ -135,7 +134,8 @@ string KMFContainerImpl::getRefInParent()
                 }
                 else
                 {
-                  return NULL;
+               //   return this->findByID(query,"");
+               return NULL;
                 }
             }
             string queryID = "";
@@ -167,7 +167,8 @@ string KMFContainerImpl::getRefInParent()
             {
                 subquery = subquery.substr(subquery.find('/',0) + 1, subquery.size()-subquery.find('/',0));
             }
-            //cout << "findByID -> " << relationName << " " << queryID  << endl;
+
+
             KMFContainer *objFound = findByID(relationName,queryID) ;
             if(!subquery.empty() && objFound != NULL)
             {

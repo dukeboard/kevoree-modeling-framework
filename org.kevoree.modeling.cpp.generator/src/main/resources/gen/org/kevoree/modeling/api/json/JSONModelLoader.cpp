@@ -52,6 +52,7 @@ vector<KMFContainer*>* JSONModelLoader::deserialize(istream &inputStream){
                                 {
                                     ResolveCommand *cmd = *it;
                                     cmd->run();
+                                    delete cmd;
 
                                 }
               } else
@@ -122,7 +123,9 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                                                  {
 
                                                     any  json =string(unescapeJSON(currentToken.value));
-                                                   //         cout << "SET "<< currentNameAttOrRef << " "<< unescapeJSON(currentToken.value)<< endl;
+                                                   //         cout << << endl;
+                                                   PRINTF("BEGIN -- SET "<< currentNameAttOrRef << " "<< unescapeJSON(currentToken.value));
+
                                                     currentObject->reflexiveMutator(SET, currentNameAttOrRef,json ,false,false)   ;
                                                     currentNameAttOrRef.clear();
                                                  }

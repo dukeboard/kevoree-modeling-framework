@@ -19,7 +19,7 @@ class ModelVisitor
   ModelVisitor();
   void stopVisit();
   void noChildrenVisit();
-  virtual void visit(KMFContainer *elem,string refNameInParent, KMFContainer* parent){}
+  virtual void visit(KMFContainer *elem,string refNameInParent, KMFContainer* parent)=0;
   virtual void beginVisitElem(KMFContainer *elem){}
   virtual void endVisitElem(KMFContainer *elem){}
   virtual void beginVisitRef(string refName,string refType){}

@@ -18,16 +18,30 @@ VisitorAtt::VisitorAtt (google::dense_hash_map<string,string> *_values,list < Mo
 void  VisitorAtt::visit(any val,string name,KMFContainer *parent)
 {
 	      string attVal2 ;
-	      if(!val.empty())
+	      if(!val.empty() && val.type() == typeid(string))
 	      {
 	       attVal2  =AnyCast<string>(val);
+	      } else if(!val.empty() && val.type() == typeid(int)){
+	       attVal2  =AnyCast<int>(val);
+	      }else if(!val.empty() && val.type() == typeid(short)){
+	             attVal2  =AnyCast<short>(val);
+	      }else if(!val.empty () && val.type () == typeid (bool)){
+              if(AnyCast<bool>(val) == true)
+              {
+                       attVal2 ="true";
+              } else {
+                      attVal2  ="false";
+              }
+	      }else
+	      {
+	        PRINTF_ERROR("VisitorAtt AnyCast no managed") ;
 	      }
 
           string data = (*values)[name];
 
 	      if(data.compare(attVal2) == 0)
 	      {
-	           //       cout << data.compare(attVal2) << "  "  << name << " " << data << " " << attVal2  << endl;
+
 	            if(isInter)
 	            {
                     ModelSetTrace *settrace = new ModelSetTrace(path,name,"",attVal2,"");
@@ -38,11 +52,12 @@ void  VisitorAtt::visit(any val,string name,KMFContainer *parent)
 	      } else
 	      {
 	              if(!isInter)
-            	            {
+            	  {
+            	                cout << data.compare(attVal2) << "  "  << name << " " << data << " " << attVal2  << endl;
                                 ModelSetTrace *settrace = new ModelSetTrace(path,name,"",attVal2,"");
                                 traces->push_back(settrace);
 
-                            }
+                  }
 
 	      }
           if(values->find(name) !=    values->end())

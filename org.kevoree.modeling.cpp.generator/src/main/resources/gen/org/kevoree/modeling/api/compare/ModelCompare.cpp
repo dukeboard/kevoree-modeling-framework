@@ -1,5 +1,6 @@
 #include <ModelCompare.h>
 #include <utils/ModelVisitor.h>
+#include <utils/Utils.h>
 #include <compare/ModelCompareVisitors.h>
 /**
  * Author: jedartois@gmail.com
@@ -46,9 +47,10 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
     origin->visit(filler, true, true, false);
     delete filler;
 
+
     ModelCompareVisitorCreateTraces *visitorTraces= new ModelCompareVisitorCreateTraces(&values,inter,merge,traces,tracesRef);
     target->visit(visitorTraces, true, true, false);
-     delete visitorTraces;
+    delete visitorTraces;
 
         if(!inter){
             //if diff
@@ -73,8 +75,7 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
             }
         }
         std::copy(tracesRef->begin(), tracesRef->end(), std::back_insert_iterator<std::list<ModelTrace*> >(*traces));
-
-         values.clear();
+        values.clear();
         delete tracesRef;
 
 return traces;
