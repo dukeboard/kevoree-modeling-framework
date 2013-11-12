@@ -75,26 +75,34 @@ public class ClassGenerator extends AGenerator {
 
         for(EReference ref :cls.getEAllReferences())
         {
-            if(ref.isContainment()){
+
 
 
             if(ref.getUpperBound() == -1 )
             {
+                if(ref.isContainment()){
+                    if(ref.getEReferenceType().getEIDAttribute() != null){
+                        VelocityContext context = new VelocityContext();
+                        context.put("refname",ref.getName());
+                        context.put("type",ref.getEReferenceType().getName());
 
-               if(ref.getEReferenceType().getEIDAttribute() != null){
-                   VelocityContext context = new VelocityContext();
-                   context.put("refname",ref.getName());
-                   context.put("type",ref.getEReferenceType().getName());
-
-                   gen_destructor_ref.merge(context,result);
-               }
-
+                        gen_destructor_ref.merge(context,result);
+                    }
+                }else {
+                    add_DESTRUCTOR(ref.getName()+".clear();");
+                }
 
             } else {
-             //   result.append("delete "+ref.getName()+";");
-            }
+                if(ref.isContainment()){
+                    result.append("if("+ref.getName()+" != NULL){\n")  ;
+                    result.append("delete "+ref.getName()+";\n");
+                    result.append(ref.getName()+"= NULL;");
+                    result.append("}\n");
+                }
 
             }
+
+
         }
         add_DESTRUCTOR(result.toString());
     }
@@ -142,8 +150,8 @@ public class ClassGenerator extends AGenerator {
             } else
             {
                 add_CPP("if(relationName.compare(\""+ref.getName()+"\")== 0){");
-                     // TODO MAYBE CHECK match
-                  add_CPP("return "+ref.getName()+";");
+                // TODO MAYBE CHECK match
+                add_CPP("return "+ref.getName()+";");
 
                 add_CPP("}\n");
             }
@@ -203,7 +211,6 @@ public class ClassGenerator extends AGenerator {
                 add_CPP("Utils::from_string<int>(f, AnyCast<string>(value), std::dec);");
                 add_CPP(a.getName()+"= f;");
             } else if(type.contains("bool")){
-
                 add_CPP("if(AnyCast<string>(value).compare(\"true\") == 0){");
                 add_CPP(a.getName()+"= true;");
 
@@ -215,7 +222,7 @@ public class ClassGenerator extends AGenerator {
             i++;
         }
         if(i> 0){
-            add_CPP("}\n");
+            add_CPP("}else {\n");
         }
         int j=0;
         for(EReference a :  eClass.getEAllReferences())
@@ -236,6 +243,9 @@ public class ClassGenerator extends AGenerator {
         if(j> 0){
             add_CPP("}\n");
         }
+        if(i> 0){
+            add_CPP("}\n");
+        }
         if(ctx.isDebug_model()){
             add_CPP("PRINTF(\"END -- reflexiveMutator "+eClass.getName()+" \"); ");
         }
@@ -250,21 +260,27 @@ public class ClassGenerator extends AGenerator {
 
         StringWriter result_visitor_ref_contained = new StringWriter();
         StringWriter result_visitor_ref_non_contained= new StringWriter();
+
         for(EReference ref :cls.getEAllReferences())
         {
+            String type = ref.getEReferenceType().getName();
+            String refname =   ref.getName();
 
-            if(ref.getUpperBound() == -1  && ref.getEReferenceType().getEIDAttribute() != null)
+
+            if((ref.getUpperBound() == -1  | ref.getUpperBound() == 0 )&& ref.getEReferenceType().getEIDAttribute() != null)
             {
 
 
                 VelocityContext context_visitor_ref = new VelocityContext();
-                context_visitor_ref.put("refname",ref.getName());
-                context_visitor_ref.put("type",ref.getEReferenceType().getName());
+                context_visitor_ref.put("refname",refname);
+                context_visitor_ref.put("type",type);
                 if(ctx.isDebug_model()){
                     context_visitor_ref.put("debug",msg_DEBUG(cls,"Visiting  \"<< current->path()<< \""));
                 }else {
                     context_visitor_ref.put("debug","");
                 }
+
+
                 if(ref.isContainment()){
                     gen_visitor_ref.merge(context_visitor_ref,result_visitor_ref_contained);
                 }      else {
@@ -272,9 +288,28 @@ public class ClassGenerator extends AGenerator {
                 }
 
 
+            } else if(ref.getUpperBound() == 1){
+                //
+                System.out.println(cls.getName()+" "+ref.getName()+" "+ref.getUpperBound());
+                if(ref.isContainment()){
+                    result_visitor_ref_contained.append("visitor->beginVisitRef(\""+refname+"\",\"org.kevoree."+type+"\");\n");
+                    result_visitor_ref_contained.append("internal_visit(visitor,"+refname+",recursive,containedReference,nonContainedReference,\""+refname+"\");\n");
+                    result_visitor_ref_contained.append("visitor->endVisitRef(\""+refname+"\");\n");
+
+
+                }      else {
+                    //result_visitor_ref_non_contained
+                    result_visitor_ref_non_contained.append("visitor->beginVisitRef(\""+refname+"\",\"org.kevoree."+type+"\");\n");
+                    result_visitor_ref_non_contained.append("internal_visit(visitor,"+refname+",recursive,containedReference,nonContainedReference,\""+refname+"\");\n");
+                    result_visitor_ref_non_contained.append("visitor->endVisitRef(\""+refname+"\");\n");
+
+
+                }
             }
 
         }
+
+
 
 
         VelocityContext context_visitor = new VelocityContext();
@@ -299,7 +334,7 @@ public class ClassGenerator extends AGenerator {
 
         add_CPP("void "+cls.getName()+"::visitAttributes(ModelAttributeVisitor *visitor){");
 
-        for(EAttribute a: cls.getEAttributes() )
+        for(EAttribute a: cls.getEAllAttributes())
         {
             ADD_DEBUG(cls,"Visiting attribute -> "+a.getName());
             add_CPP("visitor->visit(any("+a.getName()+"),\""+a.getName()+"\",this);");
@@ -378,7 +413,7 @@ public class ClassGenerator extends AGenerator {
                     context.put("typeadd",type);
 
 
-                    if(ref.isContainment()){
+                    if(!ref.isContainment()){
                         context.put("iscontained","");
                     } else    {
                         StringBuilder iscontainer = new StringBuilder();
@@ -399,7 +434,31 @@ public class ClassGenerator extends AGenerator {
             }  else
             {
                 add_CPP("void " + cls.getName() + "::add" + ref.getName() + "(" + type + " *ptr){");
-                add_CPP(ref.getName()+" =ptr;");
+
+                if(ref.isContainment()){
+
+                    StringBuilder iscontainer = new StringBuilder();
+                    iscontainer.append("if("+ref.getName()+" != ptr ){\n");
+                    iscontainer.append("if("+ref.getName()+" != NULL ){\n");
+                    iscontainer.append(ref.getName()+"->setEContainer(NULL,NULL,\"\");\n");
+                    /*
+                    iscontainer.append("any ptr_any = ptr;\n");
+                    iscontainer.append("RemoveFromContainerCommand  *cmd = new  RemoveFromContainerCommand(this,REMOVE,\"" + ref.getName() + "\",ptr_any);\n");
+                    iscontainer.append(ref.getName()+"->setEContainer(this,cmd,\"" + ref.getName() + "\");\n");
+                     */
+                    iscontainer.append("}\n");
+                    iscontainer.append("if(ptr != NULL ){\n");
+                    iscontainer.append("ptr->setEContainer(this,NULL,\"" + ref.getName() + "\");\n");
+                    iscontainer.append("}\n");
+
+
+                    iscontainer.append(ref.getName()+" =ptr;\n");
+                    iscontainer.append("}\n");
+                    add_CPP(iscontainer.toString());
+                }   else
+                {
+                    add_CPP(ref.getName()+" =ptr;\n");
+                }
                 add_CPP("}\n");
             }
 
@@ -516,6 +575,7 @@ public class ClassGenerator extends AGenerator {
             {
                 // TODO implements shared_ptr to fix delete from other class
                 add_PUBLIC_ATTRIBUTE(gen_type+" *"+ref.getName()+"; \n");
+                add_CONSTRUCTOR(ref.getName()+"=NULL;");
             }
 
         }
