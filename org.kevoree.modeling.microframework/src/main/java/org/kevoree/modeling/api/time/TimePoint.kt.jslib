@@ -31,7 +31,7 @@ public data class TimePoint(val timestamp: Long, val sequenceNumber: Long) : Com
     class object {
         fun create(v: String): TimePoint {
             val vv = v.split(":")
-            return TimePoint(java.lang.Long.parseLong(vv.get(0)), java.lang.Long.parseLong(vv.get(1)))
+            return TimePoint(vv.get(0) as Long, vv.get(1) as Long)
         }
     }
 

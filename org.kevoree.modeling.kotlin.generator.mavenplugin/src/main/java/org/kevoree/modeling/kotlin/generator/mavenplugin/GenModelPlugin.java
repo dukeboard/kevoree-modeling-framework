@@ -486,6 +486,7 @@ public class GenModelPlugin extends AbstractMojo {
 
         List<String> exclusions = new ArrayList<String>();
         exclusions.add("KMFContainer.kt");
+        exclusions.add("TimePoint.kt");
         exclusions.add("ByteConverter.kt");
 
         if (ctx.js()) {
@@ -509,10 +510,9 @@ public class GenModelPlugin extends AbstractMojo {
                             Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 JarEntry entry = entries.nextElement();
-
                                 boolean filtered = false;
                                 for (String filter : exclusions) {
-                                    if (entry.getName().contains(filter)) {
+                                    if (entry.getName() == (filter)) {
                                         filtered = true;
                                     }
                                 }
