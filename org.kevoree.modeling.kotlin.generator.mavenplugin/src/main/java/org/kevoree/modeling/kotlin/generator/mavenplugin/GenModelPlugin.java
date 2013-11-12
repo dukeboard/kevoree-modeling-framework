@@ -485,13 +485,13 @@ public class GenModelPlugin extends AbstractMojo {
 
 
         List<String> exclusions = new ArrayList<String>();
-        exclusions.add("KMFContainer.kt");
-        exclusions.add("TimePoint.kt");
-        exclusions.add("ByteConverter.kt");
+        exclusions.add("org/kevoree/modeling/api/KMFContainer.kt");
+        exclusions.add("org/kevoree/modeling/time/TimePoint.kt");
+        exclusions.add("org/kevoree/modeling/util/ByteConverter.kt");
 
         if (ctx.js()) {
-            exclusions.add("meta.kt");
-            exclusions.add("aspect.kt");
+            exclusions.add("org/kevoree/modeling/meta.kt");
+            exclusions.add("org/kevoree/modeling/aspect.kt");
         }
 
         try {

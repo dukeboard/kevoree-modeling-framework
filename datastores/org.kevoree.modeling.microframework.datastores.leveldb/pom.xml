@@ -3,16 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.kevoree.modeling.microframework.datastores</artifactId>
-    <name>Kevoree :: Modeling :: DataStores</name>
+    <artifactId>org.kevoree.modeling.microframework.datastores.leveldb</artifactId>
+    <name>Kevoree :: Modeling :: DataStores :: LevelDB</name>
 
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
         <version>1.9.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-
 
     <dependencies>
         <dependency>
@@ -30,7 +29,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -43,7 +41,6 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
-
                     <execution>
                         <id>test-compile</id>
                         <phase>test-compile</phase>
@@ -53,7 +50,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -66,7 +62,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

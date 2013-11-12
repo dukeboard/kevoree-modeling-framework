@@ -64,7 +64,11 @@
         <module>org.kevoree.modeling.microframework</module>
         <module>org.kevoree.modeling.kotlin.generator</module>
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
-        <module>org.kevoree.modeling.microframework.datastores</module>
+
+        <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
+        <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>
+
+
     </modules>
 
     <dependencies>
