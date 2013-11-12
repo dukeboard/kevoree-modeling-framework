@@ -490,8 +490,8 @@ public class GenModelPlugin extends AbstractMojo {
         exclusions.add("org/kevoree/modeling/util/ByteConverter.kt");
 
         if (ctx.js()) {
-            exclusions.add("org/kevoree/modeling/meta.kt");
-            exclusions.add("org/kevoree/modeling/aspect.kt");
+            exclusions.add("org/kevoree/modeling/api/meta.kt");
+            exclusions.add("org/kevoree/modeling/api/aspect.kt");
         }
 
         try {
