@@ -1,21 +1,21 @@
 Kevoree Modeling
 =======
 
-The increasing use of Model@Runtime requires rich and efficient modeling frameworks.
-KMF is developed to provide efficient modeling frameworks to edit, compose and synchronize models on Java and JavaScript Virtual Machines.
+The increasing use of Model@Runtime calls for rich and efficient modeling frameworks.
+The Kevoree Modeling Framework(KMF) is developed to provide efficient domain-specific modeling frameworks to author, compose and synchronize models on Java and JavaScript Virtual Machines.
 
 > Free the code from models !
 
 ### Why a new framework?
 
-KMF was originally developped to support the Kevoree platform.
-After years of developing Model@Run.time platforms we have now a strong expertise on runtime needed tools for models manipulation, distribution, synchronization... KMF is a generalisation of this expertise in a generic modeling framework. Based on a cross-compiled tools chain for JS and JVM platform from a domain metamodel, it also offers models efficient operators tuned for Runtime usage. It generate for you a powerful API for server-side storage but as well for building a presentation layer in a simple browser. In short, KMF generate business specific API and Tools from a metamodel, ready for distributed modeling activities.
+KMF has originally been developped to support the Kevoree Model@Run.time platform.
+After years of development for this platform, we have now acquired a strong expertise on tools needed for authoring, ditribution and synchronization of models. KMF is a generalisation of this expertise in an open and generic tool. From any domain-specific meta-model, KMF creates a specific modeling environmnent natively supplied with modeling operators compiled for JVM and JS and tuned for an efficient use at Runtime. It can be used simply host the configuration of a Software, rationalize and store data or help in the management of complex distributed Software systems. To this end, it offers the same powerful API in plain Java, and JavaScript, to ease the development of, for instance, a server-side storage in Java and its  presentation layer in a simple browser. In short, KMF generates business specific API and Tools from a metamodel, ready for distributed modeling activities.
 
-> KMF is framework dedicated for runtime usages
+> KMF helps you creating modeling frameworks dedicated for runtime usages
 
 ### Features
 
-KMF give you runtime oriented features such as:
+KMF supplies runtime-oriented features such as:
 ```
 most important feature, a very simple and comprehensive API
 ```
@@ -23,19 +23,20 @@ most important feature, a very simple and comprehensive API
  * Memory optimized object oriented modeling API
  * JS (Browser, NodeJS) and JVM cross-compiled models
  * Efficient visitors for models traversal
- * Unique path for each model elements
+ * Unique path for each model element
  * Optimized query language to lookup model elements
- * Traces operators for models low-levels operations
+ * Trace operators to atomize model operations into low-level primitive sequences 
  * Built-in load/save operation in JSON/XMI format
- * Built-in different clone strategy (mutable only, copy on write)
- * Built-in models merge and diff operators
- * Persistence layers for BigModel with lazy load
+ * Built-in clone strategies (mutable elements only, copy on write)
+ * Built-in merge and diff operators
+ * Persistence layer for BigModels with lazy load policy
  * Distributed datastore for BigData models
  
 Getting started
 ---------------
 
-The easiest way to start using KMF is though Maven build system. To leverages Maven you can use you own (certainly already existing) project or use a sample to kick-off.
+The Apache Maven dependencies and plugin management system is probably the easiest way to start using KMF.
+You can complete one of your existing project with the configuration that comes next, or simply follow the kick-off sample project provided here.
 
 > NB : standalone compiler and NetBeans/Eclipse/IntelliJ plugins are coming soon !
 
@@ -78,20 +79,20 @@ In addition, add the KMF MicroFramework dependency
 
 ### Using a sample project
 
-If you don't have an existing project, perhaps the best simpliest way is to use a sample project. You can download one by clicking on the button.
+If you don't have an existing project you can download one by clicking on the button.
 
 > [Download sample project >](https://github.com/dukeboard/kevoree-modeling-framework/tree/master/metamodel/tinycloud
 )
 
 ### Compile models
 
-When your Maven project is ready, juste type into a terminal the following command.
+When your Maven project is ready, just open a terminak, cd into the folder containing the pom file and type in the following command.
 
 ```
 mvn clean install
 ```
 
-After compilation, the target directly will contains a JAR or a JS files which contains all needed file to use your generated API at runtime.
+After compilation, the target folder contains a JAR or a JS file of the modeling API. The next step is to include the .js file into a web page (or NodeJS) or add the project as a dependency of your application to start Modeling@Runtime using the concepts you defined in the MetaModel.
 
 
 
@@ -262,12 +263,11 @@ What for?
 
 ### Events motivation
 
-Events is a way to be informed from models modifications. This low-level mechanism can be use to synchronize two different models or to synchronize a view with it's backbone model. Basically an event listener can be register on a model element or recursivelly on all sub-contained elements *(tree listener)*.
+Events are handy to be informed about changes in models each time they occur. This mechanism can be used to synchronize models or to synchronize a view with it's backbone model. Basically an event listener can be registerd on a specific model element or recursively on all sub-contained elements *(tree listener)*.
 
-### How to use it ?
+### How to uses it ?
 
-KMF proposes an option event in its Maven pluggin.
-If this option is set to `true`, the code generator generates all necessary methods and class to provide a listener mechanism to all the features of your Metamodel.
+Events are optionaly included in the generated API. To activate events, simply set the `event` option of the KMF Maven pluggin to `true`. The generator includes all necessary methods and classes to provide a listener mechanism to all the features of your Metamodel.
 
 ``` xml
    <events>true</events>
@@ -278,18 +278,18 @@ API description
 
 ### ModelEvent
 
-Each modification in models now produce events through the send of an object ModelEvent. 
+Each modification of a model now produces and propagates a ModelEvent. 
 Events are generated when:
 
 * Attributes are `set`
-* References are `set`, `added` or `removed` (the two last are only available for references with unlimited max cardinality)
+* References are `set`, `added` or `removed` (the two last are only available for references with unbound max cardinality)
 * An opposite element is modified (only if the opposite relation is set).
 
-The `source` of an event is identified by its `path()`. As a consequence, you need to specify an `ID` attribute for, at least, the element you want to listen.
+The `source` of an event is the model element on which the modification applied, and is identified by its `path()`.
 
 ### Events listeners
 
-A model listener is an object which can receive model events. This is realized by a call on elementChanged method.
+A ModeListener is an object that receives ModelEvents. Once registered on a model element, the method `elementChanged` of the ModelListener is called for each modification of the model element.
 
 ```
 trait ModelElementListener {
@@ -297,9 +297,9 @@ trait ModelElementListener {
 }
 ```
 
-Model listener can be placed on any elements. They can be registered as ModelElement listener or ModelTreeListener. The first one will receive only events from the unique model element where the listener is the target. The second one will recursivelly reeive events from all modifications (reference or attribute modified) on all sub elements (according to the containment hierarchy).
+Model listeners can be registered on any model element. They can be registered as ModelElement listener or ModelTreeListener. The first one only receives events from the model element it registers on. The second receives any modification(reference or attribute modified) that occures on any sub-element in the containment hierarchy.
 
-On right, please find the extract of the KMFContainer API. Model listeners can be added or dropped through this. *removeModelTreeListener* method recursivelly delete it on child elements.
+On the right, please find the extract of the KMFContainer API. Model listeners can be registered or unregistered using these methods on any model element. *removeModelTreeListener* method recursively unregisters a listener on child elements.
 
 ```
 trait KMFContainer {
@@ -343,17 +343,17 @@ Model visitors
 Visitor motivation
 ------------------
 
-Model is basically a graph of objects organized around relationship. Many models case study need to naviguate through these relationships to perform operations. We can cite as an exemple a pretty print process which need to traverse the whole graph following containements relationship. 
+A model is basically a graph of objects organized around relationship. Many model case study need to navigate through these relationships to perform operations. As an exemple a pretty print process needs to traverse the whole graph following the containement relationships.
 
 ### Efficient visit
-The classic approach in model object oriented API is based on iteration on list to perform this naviguation. This lead to serious perform drawback due to the number of temporary object created. For this reason KMF generated built a very efficient way to use a visitor pattern on objects relationship and attributes.
+The classical approach in model object oriented API is based on iterations on lists to perform this naviguation. This leads to serious performance drawbacks due to potentially huge number of temporary object created during this iterative process. For this reason KMF generates a built-in very efficient visitor pattern to go through all modelelements, relationships and attributes.
 
 Visitor usage
------
+-------------
 
 ### Visitors API
 
-The KMF visitor API is based on the ModelVisitor interface. It is mainly based on a visit method called each time a visitor (custom process) found a new element.
+The KMF visitor API is based on the ModelVisitor interface. It is mainly based on a visit method called each time a visitor (custom process) finds a new element to visit.
 
 ``` java
 package org.kevoree.modeling.api.util;
@@ -362,7 +362,7 @@ trait ModelVisitor {
 }
 ```
 
-In addition a visitor can optionally define additional methods to have feedback during the visit. The beginVisitElem method is called when a visit of an element start, the end respective method endVisitElem will be called when this object and all is sub childs elements will be visited. In addition beginVisitRef and endVisitRef is triggered when a reference of an object is visited. The end method is called when all elements of a reference is already visited by this visitor.
+In addition, a visitor can optionaly define additional methods to have feedback during the visit. The beginVisitElem method is called just before the visit of an element starts, respectively the endVisitElem method is called just after the visit of an element is completed (i.e.: when this object and all its child elements have been visited). Also, beginVisitRef and endVisitRef are called when a reference of an element is visited. The endVisitRef method is called when all elements of a reference have been visited.
 
 
 ``` java
@@ -372,7 +372,7 @@ fun beginVisitRef(refName : String, refType : String){}
 fun endVisitRef(refName : String){}
 ```
 
-Despite the visitor traverse efficient the graph, for performance optimization it is often necessary to control the recursivity of visit. In short this allows to control and stop the visitor. To control visit process, ModelVisitor is extended with stopVisit method to completely stop a visitor. The noChildrenVisit and the noReferencesVisit respectivelly allows to not visit children or referenced model elements.
+Despite its efficiency to traverse a model, the recursion of the visitor sometimes needs to be controled to optimize the visitor's performance. For this purpose, the ModelVisitor is decorated with a `stopVisit` method, to abort the visit, and a `noChildrenVisit` and `noReferencesVisit` to respectivelly avoid the visit of the contained elements and the visit of referenced model elements.
 
 ``` java
 fun stopVisit()
@@ -380,7 +380,7 @@ fun noChildrenVisit()
 fun noReferencesVisit()
 ```
 
-To visit attributes of a model element, KMF use a dedicated model visitor named ModelAttributeVisitor. This visitor rely on the triggering of a method visit which is called with the content (value) and the name of the attribute.
+To visit the attributes of a model element, KMF provides a dedicated model visitor named ModelAttributeVisitor. The `visit`method of this visitor is called for each attribute of a model elements, with the content (value) and the name of the attribute.
 
 ```
 trait ModelAttributeVisitor {
@@ -390,7 +390,8 @@ trait ModelAttributeVisitor {
 
 ### How to use?
 
-Any kmf model element as built-in two method to start a process visitor. The visit method take as parameter your custom visitor. In addition the first parameter allows to define if the visit is recursive, if it should include contained referenced objects and the last parameter if non contained reference object should be reached. In addition the visitAttributes allows to call a visit of attributes on this model element.
+Any KMF model element as two built-in methods to start a visit. The `visit` method takes your custom visitor as first parameter. The second parameter allows to define if the visit is recursive; the third specifies if it should include the contained elements and the last parameter if not-contained references has to be visited.
+Finally, the visitAttributes allows to trigger a visit of attributes on a model element.
 
 ``` java
 trait KMFContainer {
@@ -404,12 +405,12 @@ trait KMFContainer {
 Model operators
 ===============
 
-Traces concepts
+Trace concept
 ---------------
 
 ### What is a trace?
 
-A trace is an atomic model modification. In short it define a change of a model element identified by a path. A trace is then the backup of an action which as been or will be done on a model. It is a low-level tool to interact with model. Trace is atomic and serializable, because of identified elements on a trace use KMF path. Due to that a trace can be extracted from a model and apply an a mirror of it remotely, because path contains the semantic of unique element identification. Here is the following kind of potential trace for KMF models.
+A trace is an atomic model modification/operation. It defines a change executed on a model element identified by a path. The atomicity of a trace makes it an ideal candidate to store an action realized or planned to be executed on a model. Traces are serializable thanks to the use of the KMF path to identify the model elements. A trace can be extracted from a model and applied on a remote mirror model, because the path contains the semantic of unique element identification. A trace has a type and here is the complete list of trace types.
 
 ```
 TraceType {
@@ -422,15 +423,15 @@ TraceType {
 }
 ```
 
-Need an example ? This a trace of the modification of the param att of node0 with the content newVal.
+Need an example ? This is a trace to set the attribute `param` of the `node0` element of the `nodes` relation to `newVal`. This trace is also generated when the attribute is set.
 
 > {type:"SET",path:"nodes[node0]/param",content:"newVal"}
 
 ### Trace sequence
 
-A trace sequence is basically an ordered set of atomic traces. A trace sequence can be applied on a model to sequencially perform a model transformation. A trace sequence can be view a patch.
+A trace sequence is basically an ordered list of atomic traces. A trace sequence can be applied on a model to sequencially perform a model transformation, step-by-step replay or a synchronization. A trace sequence can be view a patch.
 
-Set operation of models
+Set operations on models
 -----------------------
 
 ### ModelCompare
@@ -485,13 +486,13 @@ Model tracker
 
 ### Undo/Redo for models
 
-KMF framework offers a ModelTracker utility. In short this tool allows to follow event on an object and register as a trace sequence all modifications. In addition the tracker also maintains a reversed trace sequence to perform reversed modifications.
+KMF framework offers a ModelTracker utility. This tool tracks all changes(events) that occur on a model and stores these changes in a trace sequence. In addition, the tracker maintains a reversed trace sequence that allows to reverse the modifications.
 
-The API of model tracker rely on a track activation with the **track** method. A model tracker can be unregistred through **untrack** method. The **reset** method allows to define a breack point in the tracker. User can then perform any modifications on models. Then the call on **undo** will apply a reversed trace sequence an revert all modifications. After that a call on **redo** method will reapply the modifications.
+Once create, a Model tracker is activated by calling the **track** method with the element you wanna track in parameter. To stop the tracking, a simple call to **untrack** method is required. The **reset** method allows to define a break point in the tracker. User can then perform any modifications on models. A call of the **undo** method applies the reversed trace sequence, which reverts all modifications. After that, a call to **redo** method applies again the modifications.
 
 
 ``` java
-trait ModelTracker {
+class ModelTracker {
 	fun track(model: KMFContainer)
 	fun untrack()
 	fun reset()
@@ -506,20 +507,19 @@ Model Aspects
 Modeling through code
 ----------
 
-MOF structure of your models like describes in .ecore files only reflect the structural way to store models.
-Indeed ecore format allows you to define operations into models, however these methods need an operation language to define it.
+The MOF structure of your models like described in .ecore files only reflects the structural way to store models. Though Ecore allows you to define operations into models, the core of these operations can not be properly described directly in the model, because it depends on the target language of the generation.
 
-KMF rely on Kotlin execution language to express model behaviors. Kotlin language is cross compilable to JS and JVM so such behavior can work in JVM but as well in browser or nodejs platform.
-KMF rely on a bi-directional synchronization between code and model (ecore files). As result you can define behavior in code (.kt files) to eOperation declared in .ecore files but in addition you can declare method and new meta class directly from the code.
+KMF relies on the Kotlin language to express the core of operations. Kotlin language can be cross-compiled to JS and JVM, making the method core seemlessly working in Java and JavaScript (for browser or nodejs platforms).
+In KMF, the synchronization between code and model (ecore files) is partially bi-directional. The skeletons of methods are generated from the operations declared in the model, which eases the completion of the behavioral code of operations. In the other way, any method added next to a generated method and any new class declared in the code, is automatically added in the meta-model.
 
-Use code or model first as needed in your project, but remains one rule, models are domain definition and technical details should be hidden in code.
+Use code or model first as needed in your project, but please remind that models are made to abstract and define the domain concepts; technical details should be hidden in code.
 
 Kotlin API
 ----------
 
 ### Aspect API
 
-Let's take as example a simple FSM metamodel (you can found it [here](https://github.com/dukeboard/kevoree-modeling-framework/tree/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt) ). In this metamodel we add an operation `run` to the metaclass `Action`. Then, you can declare in your src/main/java directory several Kotlin traits implementing the generated interface. An example can be found [here](https://github.com/dukeboard/kevoree-modeling-framework/blob/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt/src/main/java/org/jetbrains/annotations/MyAspect.kt).
+Let's take as example a simple FSM metamodel (you can find it [here](https://github.com/dukeboard/kevoree-modeling-framework/tree/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt) ). In this metamodel we add an operation `run` to the metaclass `Action`. Then, you can declare in your src/main/java directory several Kotlin traits implementing the generated interface. An example can be found [here](https://github.com/dukeboard/kevoree-modeling-framework/blob/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt/src/main/java/org/jetbrains/annotations/MyAspect.kt).
 
 ``` kotlin
 aspect trait MyAspect : Action {
@@ -528,14 +528,14 @@ aspect trait MyAspect : Action {
     }
 ```
 
-Then you compile your project and the resulting Java .class or JavaScript .js files will have all your traits directly woven in the compiled code. Aspect keyword is an annotation meaning that the aspect must mixed with the meta class : Action. If you define a new operation by adding a **fun** definition, it is directly added in the MetaModel as a new operation (be careful the API will change and you will have to add the override keyword). Private function will remain private to the aspect and will not be pushed in the ecore model. In short, you can now call the method run on any of your Action object, in the JVM or in the JS version.
+After a compilation of your project, the resulting Java .class or JavaScript .js files will have all your traits directly woven in the compiled code. The `Aspect` keyword is an annotation meaning that the aspect must be mixed with the meta class : Action. If you define a new operation by adding a **fun** definition, it is directly added in the MetaModel as a new operation (be careful the API will change and you will have to add the override keyword). Private function will remain private to the aspect and will not be pushed in the ecore model. In short, you can now call the method run on any of your Action object, in the JVM or in the JS version.
 
 ### Metaclass API
 
-You can also add a new pure code meta class using the same mechanism, juste by using the **meta** keyword. This means that you add a new metaclass named **MyMetaClassName** with superclass **Action**. This meta class will be generated in the API as any method class defined in the based ecore file.
+You can also add a new pure code meta class using the same mechanism, just by using the **meta** keyword. This means that you add a new metaclass named **MyMetaClassName** with superclass **Action**. This meta class will be generated in the API as any method class defined in the based ecore file.
 
 
-``` java
+``` kotlin
     public meta trait MyMetaClassName : Action {
         override fun myFct(): {return "";}
     }
@@ -548,7 +548,7 @@ in NodeJS
 ---------
 
 The KMF maven plugin generates into the target directory a file named : <artefactID>.min.js.
-This file is ready to be included as a nodeJS module. To load it, you only have to call the include directive of nodeJS. Of course replace org.cloud by the generated package specified in your model.
+This file is ready to be included as a nodeJS module. To load it, you only have to call the include directive of nodeJS. Of course replace `org.cloud` by the generated package specified in your model.
 
 ``` js
 var model = require('./org.kevoree.modeling.sample.cloud.js.min.js');
@@ -567,15 +567,15 @@ BigModel
 What is BigModel ?
 ------------------
 
-Model can reach a huge size, especially when considering it a an history of monitoring system or while modeling a use domain like all the topology of a cluster. In such case study, model can fit in the memory and we need a better way to interact with informations. Similarly to BigData we speak of BigModel in such cases.
+Models can reach a huge size, especially when using it to store the monitored history of a system or while modeling a domain of use such as all the possible topologies of a cluster of machines. In such case study, models can not fit in memory anymore and we need a better way to interact with informations. Similarly to BigData we speak of BigModel in such cases.
 
 ### Concept overview
 
-KMF Persistence API is based on the following asumption: despite a model not fit in memory, or is stored on a remote server, it's manipulation must be seamless to memory storage. The global concept behind KMF persistence if lazy load, in short when naviguating into model we will load seamlessly the model element we need. If a model element is created in memory or already load, a cache will optimize the load. In addition we try to limit the lazy while retriving an object through is path, in short a lookup of an element with is path only load one model element. This concept allows to go directly in deep in the graph object without any extra-cost like a select in a database.
+KMF Persistence API is based on the following asumption: despite a model does not fit in memory, or is stored on a remote server, its authoring must be exactly identical to the in memory authoring. The main concept behind the KMF persistence layer is the lazy load. In short, the model seamlessly loads model elements on demand, when required by the navigation in the model. If a model element is created in memory or already loaded, a cache will optimizes the load. To reduce the space in memory, an element is loaded only if its path is looked for. Moreover, the attributes and referenced elements are loaded only if a get or a set is performed on one of them. This concept allows to go directly in deep in the graph object without any extra-cost like a select in a database.
 
 ### PersistenceFactory
 
-The main entry point for the persistence KMF API is a special factory : PersistenceKMFFactory. This factory allows to interact with the BigModel through the lookup of an element using is path, and the save of an element thourgh persist method. A simple batch concept allows to save several elements shortly. All modification is only written to the remote storage or disk when a call on **commit** method is performed. Finally the **clearCache** method allows to close the factory and free the memory.
+The main entry point for the persistence KMF API is a special factory : PersistenceKMFFactory. This factory allows to interact with the BigModel through the lookup of elements using their path, and the save of elements using the persist method. A simple batch concept allows to save several elements shortly. All modifications are actually written to the remote storage or disk only when a call on **commit** method is performed. Finally the **clearCache** method allows to close the factory and free the memory.
 
 ``` java
 trait PersistenceKMFFactory {
@@ -605,7 +605,7 @@ Available DataStores
 
 ### DataStore API
 
-To perform low level storage, KMF rely on a very simple DataStore API. Basically it rely on interface which can perform get, put, and remove operation.The KMF framework already offer these mapping on existing API to realize this storage.
+To perform the actual storage, KMF relies on a very simple DataStore API. Basically it defines an interface with get, put and remove operations. The KMF framework already offers several DataStorage solutions.
 
 * MemoryDataStore
 * Redis (in progress)
