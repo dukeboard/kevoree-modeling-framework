@@ -7,7 +7,7 @@
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
         <groupId>org.kevoree.modeling</groupId>
-        <version>1.8.2-SNAPSHOT</version>
+        <version>1.9.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -32,6 +32,12 @@
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.kevoree</groupId>
+            <artifactId>org.kevoree.maven.resolver</artifactId>
+            <version>2</version>
+        </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
@@ -70,51 +76,7 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <testFailureIgnore>false</testFailureIgnore>
-                </configuration>
-            </plugin>
 
-
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/classes</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../org.kevoree.modeling.microframework/src/main/java
-                                    </directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-
-        </plugins>
-    </build>
 
     <!-- Kotlin repositories -->
     <repositories>
