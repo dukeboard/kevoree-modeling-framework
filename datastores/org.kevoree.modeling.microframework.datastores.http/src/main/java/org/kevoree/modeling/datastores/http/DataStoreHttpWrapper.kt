@@ -18,21 +18,22 @@ import org.eclipse.jetty.server.Server
 public class DataStoreHttpWrapper(val wrapped: DataStore, val port: Int) : AbstractHandler(), DataStore {
 
     override fun handle(target: String?, baseRequest: Request?, request: HttpServletRequest?, response: HttpServletResponse?) {
-        response!!.setContentType("text/plain;charset=utf-8");
+        response!!.setContentType("text/plain;charset=utf-8")
         response.setStatus(HttpServletResponse.SC_OK);
-        baseRequest!!.setHandled(true);
-        val segmentName = target!!.substring(0, target.toString().indexOf("/"));
+        baseRequest!!.setHandled(true)
+        val elemPath = baseRequest.getHeader("elemPath")
+        val segmentName = baseRequest.getHeader("segmentName")
         if(HttpMethod.GET.`is`(request?.getMethod())){
-            val result = get(segmentName, target)
+            val result = get(segmentName!!, elemPath!!)
             if(result != null){
                 response.getWriter()!!.write(result)
             }
         } else {
             if(HttpMethod.PUT.`is`(request?.getMethod())){
-                put(segmentName, target, baseRequest.getReader()!!.readText())
+                put(segmentName!!, elemPath!!, baseRequest.getReader()!!.readText())
             } else {
                 if(HttpMethod.DELETE.`is`(request?.getMethod())){
-                    remove(segmentName, target)
+                    remove(segmentName!!, elemPath!!)
                 } else {
                     if(HttpMethod.POST.`is`(request?.getMethod())){
                         wrapped.sync()

@@ -3,6 +3,7 @@ package org.kevoree.modeling.datastores.http
 import org.kevoree.modeling.api.persistence.DataStore
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.http.HttpMethod
+import org.eclipse.jetty.client.util.StringContentProvider
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,16 +22,29 @@ public class DataStoreHttpClient(val ip: String, val port: Int) : DataStore {
     }
 
     override fun get(segment: String, key: String): String? {
-        return client.GET("http://$ip:$port/$segment/$key")!!.getContentAsString()
+        val request = client.newRequest("http://$ip:$port")!!
+        request.getHeaders()?.put("elemPath", key)
+        request.getHeaders()?.put("segmentName", segment)
+        return request.send()!!.getContentAsString()
     }
     override fun remove(segment: String, key: String) {
-        client.newRequest("http://$ip:$port/$segment/$key")!!.method(HttpMethod.DELETE)!!.send()
+        val request = client.newRequest("http://$ip:$port")!!
+        request.method(HttpMethod.DELETE)!!
+        request.getHeaders()?.put("elemPath", key)
+        request.getHeaders()?.put("segmentName", segment)
+        request.send()!!
     }
     override fun sync() {
-        client.newRequest("http://$ip:$port")!!.method(HttpMethod.POST)!!.send()
+        val request = client.newRequest("http://$ip:$port")!!
+        request.method(HttpMethod.POST)!!
+        request.send()!!
     }
     override fun put(segment: String, key: String, value: String) {
-        client.newRequest("http://$ip:$port")!!.method(HttpMethod.PUT)!!.send()
+        val request = client.newRequest("http://$ip:$port")!!
+        request.method(HttpMethod.PUT)!!
+        request.getHeaders()?.put("elemPath", key)
+        request.getHeaders()?.put("segmentName", segment)
+        request.content(StringContentProvider(value))!!.send()
     }
 
 }
