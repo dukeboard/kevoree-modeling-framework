@@ -1,7 +1,11 @@
 package org.kevoree.test;
 
 import org.junit.Test;
+import org.kevoree.compare.DefaultModelCompare;
 import org.kevoree.loader.JSONModelLoader;
+import org.kevoree.modeling.api.KMFContainer;
+import org.kevoree.modeling.api.compare.ModelCompare;
+import org.kevoree.modeling.api.trace.TraceSequence;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,22 +20,24 @@ public class LoadJSonTest {
     @Test
     public void bench() {
 
-        loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("jedModel.json"));
+        ModelCompare compare  = new DefaultModelCompare();
+        long before = System.currentTimeMillis();
+        KMFContainer root =   loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("jedModel.json")).get(0);
+        KMFContainer root2 =  loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("jedModel2.json")).get(0);
 
-        //end warmup
+        long after = System.currentTimeMillis();
 
-        int nbLoad = 100;
-        long timeAvg = 0;
 
-        for(int i=0;i<nbLoad;i++){
-            long before = System.currentTimeMillis();
-            loader.loadModelFromStream(this.getClass().getClassLoader().getResourceAsStream("jedModel.json"));
-            long after = System.currentTimeMillis();
-            timeAvg = timeAvg + (after-before);
-        }
+        System.out.println(after - before);
+        before = System.currentTimeMillis();
+        TraceSequence sequence =  compare.merge(root,root2);
+        after = System.currentTimeMillis();
+        System.out.println(after - before);
 
-        System.out.println(timeAvg / nbLoad);
 
+        System.out.println(sequence.exportToString());
     }
+
+
 
 }
