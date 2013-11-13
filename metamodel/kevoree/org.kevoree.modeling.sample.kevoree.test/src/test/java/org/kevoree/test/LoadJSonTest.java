@@ -30,7 +30,7 @@ public class LoadJSonTest {
 
         System.out.println(after - before);
         before = System.currentTimeMillis();
-        TraceSequence sequence =  compare.merge(root,root2);
+        TraceSequence sequence =  compare.diff(root,root2);
         after = System.currentTimeMillis();
         System.out.println(after - before);
 
