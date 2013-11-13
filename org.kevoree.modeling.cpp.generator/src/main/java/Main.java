@@ -30,15 +30,15 @@ public class Main {
     public static void main(String argv[]) throws IOException {
 
         GenerationContext context = new GenerationContext();
-        context.setRootGenerationDirectory("src/main/resources/gen/src");
+        context.setRootGenerationDirectory("target/generated-sources");
         context.setEcore("src/main/resources/metamodel/kevoree.ecore");
-        context.setDebug_model(true);
+        context.setDebug_model(false);
         context.setVersion("1.0");
 
 
        Generator gen = new Generator(context);
         gen.generateModel();
-
+        gen.generateEnvironnement();
 
 
 

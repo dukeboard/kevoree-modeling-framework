@@ -13,7 +13,6 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.kevoree.modeling.cpp.generator.model.ClassGenerator;
 import org.kevoree.modeling.cpp.generator.model.FactoryGenerator;
 import org.kevoree.modeling.cpp.generator.utils.CheckerConstraint;
-import org.kevoree.modeling.cpp.generator.utils.ConverterDataTypes;
 import org.kevoree.modeling.cpp.generator.utils.FileManager;
 import org.kevoree.modeling.cpp.generator.utils.HelperGenerator;
 
@@ -33,12 +32,14 @@ public class Generator {
     private GenerationContext context;
     private File ecoreFile;
     private StringBuilder classes = new StringBuilder();
+    private EnvironnementBuilder cmakeGenerator;
 
 
     public Generator(GenerationContext ctx)
     {
         this.context =ctx;
         this.ecoreFile = ctx.getEcore();
+        cmakeGenerator = new EnvironnementBuilder(ctx);
     }
 
     public void generateModel() throws IOException {
@@ -100,6 +101,10 @@ public class Generator {
         FileManager.writeFile(output + context.getName_package() + ".h", classes.toString(), false);
     }
 
+
+    public void generateEnvironnement() throws IOException {
+        cmakeGenerator.execute();
+    }
 
 
 

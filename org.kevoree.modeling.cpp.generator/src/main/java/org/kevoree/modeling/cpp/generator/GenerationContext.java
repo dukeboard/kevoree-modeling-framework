@@ -14,7 +14,8 @@ public class GenerationContext {
     private File ecore=null;
     private String name_package ="";
     private String root ="";
-   private boolean debug_model = false;
+    private boolean debug_model = false;
+    private String versionmicroframework = "";
 
     private String version="";
     public String getRootGenerationDirectory() {
@@ -44,6 +45,14 @@ public class GenerationContext {
 
     public void setName_package(String name_package) {
         this.name_package = name_package;
+    }
+
+    public String getVersionmicroframework() {
+        return versionmicroframework;
+    }
+
+    public void setVersionmicroframework(String versionmicroframework) {
+        this.versionmicroframework = versionmicroframework;
     }
 
     public String getRoot() {

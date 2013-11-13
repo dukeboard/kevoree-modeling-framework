@@ -46,7 +46,10 @@ public class ClassGenerator extends AGenerator {
     }
 
 
+    /*
+        GLOBAL GENERATION METHOD
 
+     */
     public void generateClass(EClass cls) throws IOException {
 
         initGeneration();
@@ -290,7 +293,7 @@ public class ClassGenerator extends AGenerator {
 
             } else if(ref.getUpperBound() == 1){
                 //
-                System.out.println(cls.getName()+" "+ref.getName()+" "+ref.getUpperBound());
+                //System.out.println(cls.getName()+" "+ref.getName()+" "+ref.getUpperBound());
                 if(ref.isContainment()){
                     result_visitor_ref_contained.append("visitor->beginVisitRef(\""+refname+"\",\"org.kevoree."+type+"\");\n");
                     result_visitor_ref_contained.append("internal_visit(visitor,"+refname+",recursive,containedReference,nonContainedReference,\""+refname+"\");\n");
@@ -478,6 +481,7 @@ public class ClassGenerator extends AGenerator {
         // sort
         Collections.sort(eAttribute);
 
+
         if(eAttribute.size() >0){
 
             // todo type
@@ -495,6 +499,20 @@ public class ClassGenerator extends AGenerator {
             add_CPP(";");
 
             add_CPP("}");
+        }else {
+
+            System.err.println("KMF NEED ID");
+        }
+
+        if(eAttribute.size() == 1){
+            if (eAttribute.get(0).equals("generated_KMF_ID")){
+                System.out.println("INTERNAL "+cls.getName());
+                   add_HEADER(HelperGenerator.genInclude("utils/Uuid.h"));
+                    add_CONSTRUCTOR("generated_KMF_ID= Uuid::getSingleton().generateUUID();");
+
+
+            }
+
         }
     }
 

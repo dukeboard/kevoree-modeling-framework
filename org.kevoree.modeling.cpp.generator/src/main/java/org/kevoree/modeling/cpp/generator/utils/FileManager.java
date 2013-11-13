@@ -15,7 +15,10 @@ package org.kevoree.modeling.cpp.generator.utils;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Created with IntelliJ IDEA.
@@ -38,9 +41,80 @@ public class FileManager {
         return toByteArray(tab);
     }
 
+
+    public static void copyDirectory(File sourceLocation , File targetLocation) throws IOException {
+        if (sourceLocation.isDirectory()) {
+            if (!targetLocation.exists()) {
+                targetLocation.mkdir();
+            }
+
+            String[] children = sourceLocation.list();
+            for (int i=0; i<children.length; i++)
+            {
+                copyDirectory(new File(sourceLocation, children[i]),  new File(targetLocation, children[i]));
+            }
+        } else {
+
+            InputStream in = new FileInputStream(sourceLocation);
+            OutputStream out = new FileOutputStream(targetLocation);
+
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        }
+    }
+
+    public static void unzipJar( String jarPath,String destinationDir) throws IOException {
+        File file = new File(jarPath);
+        JarFile jar = new JarFile(file);
+
+        // fist get all directories,
+        // then make those directory on the destination Path
+        for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements();) {
+            JarEntry entry = (JarEntry) enums.nextElement();
+
+            String fileName = destinationDir + File.separator + entry.getName();
+            File f = new File(fileName);
+
+            if (fileName.endsWith("/")) {
+                f.mkdirs();
+            }
+
+        }
+
+        //now create all files
+        for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements();) {
+            JarEntry entry = (JarEntry) enums.nextElement();
+
+            String fileName = destinationDir + File.separator + entry.getName();
+            File f = new File(fileName);
+            if(f.getName().contains(".sh")){
+                f.setExecutable(true);
+            }
+
+            if (!fileName.endsWith("/")) {
+                InputStream is = jar.getInputStream(entry);
+                FileOutputStream fos = new FileOutputStream(f);
+
+                // write contents of 'is' to 'fos'
+                while (is.available() > 0) {
+                    fos.write(is.read());
+                }
+
+                fos.close();
+                is.close();
+            }
+        }
+    }
+
     public static void writeFile(String path,String data,Boolean append) throws IOException
     {
-        File file = new File(path.substring(0,path.lastIndexOf("/")));
+        File file = new File(path.substring(0,path.lastIndexOf(File.separatorChar)));
         file.mkdirs();
 
         FileWriter fileWriter = new FileWriter(path,append);
