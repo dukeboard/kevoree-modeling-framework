@@ -1,11 +1,11 @@
+cmake_minimum_required(VERSION 2.8)
 project(kmf)
-
 set(CMAKE_CXX_FLAGS "-Ofast ${CMAKE_CXX_FLAGS}")
 
 
 set(SRC_SPARSEHASH sparsehash)
-set(SRC_MICROFRAMEWORK org/kevoree/modeling/api)
-set(SRC_PATH src/kevoree)
+set(SRC_MICROFRAMEWORK microframework/api)
+set(SRC_PATH ${libraryName})
 
 include_directories(${SRC_SPARSEHASH})
 include_directories(${SRC_SPARSEHASH}/google)
@@ -26,9 +26,5 @@ include_directories(${SRC_PATH}/)
 file(GLOB_RECURSE microframework ${SRC_MICROFRAMEWORK}/*)
 file(GLOB_RECURSE gen_model ${SRC_PATH}/*)
 
-add_executable(
-        main
-        main.cpp
-        ${microframework}
-        ${gen_model}
-)
+
+ADD_LIBRARY(${libraryName}  STATIC    ${microframework} ${gen_model}  )

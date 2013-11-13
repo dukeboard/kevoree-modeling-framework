@@ -12,6 +12,7 @@
 #include <json/JSONModelLoader.h>
 #include <compare/ModelCompare.h>
   #include <utils/Utils.h>
+    #include <utils/Uuid.h>
 #include <iostream>
 #include <fstream>
 
@@ -82,7 +83,7 @@ std::cout << "time delta (ms) = " << Utils::mstimer(start,finish) << std::endl;
 
 ModelCompare *kompare = new ModelCompare();
 start = clock();
-TraceSequence *seq = kompare->diff(model,model2);
+TraceSequence *seq = kompare->merge(model,model2);
 finish = clock();
 std::cout << "time delta (ms) = " << Utils::mstimer(start,finish) << std::endl;
 
