@@ -13,23 +13,24 @@ fun main(args: Array<String>) {
     println("Hello, world!")
     val server = DataStoreHttpWrapper(StubDataStore(), 8080)
     server.startServer()
-    val client = DataStoreHttpClient("localhost",8080)
-    println(client.get("types","/"))
-    println(client.put("types","/","yop"))
-    println(client.remove("types","/"))
+    val client = DataStoreHttpClient("localhost", 8080)
+    println(client.get("types", "/"))
+    println(client.put("types", "/", "yop"))
+    println(client.remove("types", "/"))
     println(client.sync())
+    println(client.get("types", "nodes[n0]"))
 }
 
 class StubDataStore : DataStore {
     override fun get(segment: String, key: String): String? {
-        println("get -> $segment/$key")
-        return "askGet"
+        println("get -> $segment,$key")
+        return ""
     }
     override fun put(segment: String, key: String, value: String) {
-        println("put -> $segment/$key | $value")
+        println("put -> $segment,$key | $value")
     }
     override fun remove(segment: String, key: String) {
-        println("remove -> $segment/$key")
+        println("remove -> $segment,$key")
     }
     override fun sync() {
         println("sync")
