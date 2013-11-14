@@ -11,7 +11,6 @@ import org.kevoree.modeling.cpp.generator.GenerationContext;
 import org.kevoree.modeling.cpp.generator.utils.HelperGenerator;
 import org.kevoree.modeling.cpp.generator.utils.FileManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;

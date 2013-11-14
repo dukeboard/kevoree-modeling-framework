@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <sys/time.h>
-//#include "src/planrouge/planrouge.h"
+
 #include "src/kevoree/DefaultkevoreeFactory.h"
 
 #include <trace/ModelTrace.h>
@@ -11,8 +11,8 @@
 #include <trace/TraceSequence.h>
 #include <json/JSONModelLoader.h>
 #include <compare/ModelCompare.h>
-  #include <utils/Utils.h>
-    #include <utils/Uuid.h>
+#include <utils/Utils.h>
+#include <utils/Uuid.h>
 #include <iostream>
 #include <fstream>
 

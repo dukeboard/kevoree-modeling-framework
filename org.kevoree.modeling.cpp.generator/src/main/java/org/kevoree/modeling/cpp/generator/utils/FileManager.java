@@ -93,10 +93,6 @@ public class FileManager {
 
             String fileName = destinationDir + File.separator + entry.getName();
             File f = new File(fileName);
-            if(f.getName().contains(".sh")){
-                f.setExecutable(true);
-            }
-
             if (!fileName.endsWith("/")) {
                 InputStream is = jar.getInputStream(entry);
                 FileOutputStream fos = new FileOutputStream(f);

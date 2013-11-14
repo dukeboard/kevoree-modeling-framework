@@ -4,15 +4,15 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.kevoree.modeling.cpp.generator.GenerationContext;
 import org.kevoree.modeling.cpp.generator.utils.FileManager;
 import org.kevoree.resolver.MavenResolver;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.Scanner;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,6 +29,7 @@ public class EnvironnementBuilder
 
     public EnvironnementBuilder(GenerationContext ctx){
         this.ctx = ctx;
+        System.out.println( ClasspathResourceLoader.class.getName());
         ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName()) ;
         ve.init();
         gen_cmake = ve.getTemplate("templates/cmake.vm");
@@ -41,33 +42,34 @@ public class EnvironnementBuilder
         context.put("libraryName",ctx.getName_package());
         gen_cmake.merge(context, result);
         FileManager.writeFile(ctx.getRootGenerationDirectory()+ File.separatorChar+ "CMakeLists.txt", result.toString(), false);
-
     }
 
-    public void copyMicroFramework() throws IOException {
+    public void downloadMicroframework(){
+
         MavenResolver resolver = new MavenResolver();
+
 
         String group = "org.kevoree.modeling";
         String artifactid = "org.kevoree.modeling.cpp.microframework";
 
-        String version = ctx.getVersionmicroframework();
+        String version = ctx.getVersionmicroframework()  ;
 
+        // FIX ME       project.getRepositories();
         File jar = resolver.resolve("mvn:"+group+":"+artifactid+":"+version+":jar", Arrays.asList("https://oss.sonatype.org/content/groups/public/"));
 
         if(jar.exists())
         {
-            FileManager.unzipJar(jar.getAbsolutePath(),ctx.getRootGenerationDirectory()+ File.separatorChar);
+            try {
+                FileManager.unzipJar(jar.getAbsolutePath(),ctx.getRootGenerationDirectory()+ File.separatorChar);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
-        File script =   new File(ctx.getRootGenerationDirectory()+ File.separatorChar+"compile.sh");
-        script.setExecutable(true);
-
-
     }
-
     public void execute() throws IOException
     {
-
-        copyMicroFramework();
+        downloadMicroframework();
         generateCmakeFile();
     }
 }
