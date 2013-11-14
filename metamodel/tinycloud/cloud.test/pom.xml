@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.kevoree.modeling</groupId>
-            <artifactId>org.kevoree.modeling.microframework.datastores</artifactId>
+            <artifactId>org.kevoree.modeling.microframework.datastores.leveldb</artifactId>
             <version>${kmf.version}</version>
         </dependency>
     </dependencies>

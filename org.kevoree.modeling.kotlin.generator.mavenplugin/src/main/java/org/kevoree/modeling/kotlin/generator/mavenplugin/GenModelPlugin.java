@@ -87,6 +87,12 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private Boolean persistence = false;
 
+    /**
+     * Generate Timed-Aware persistence Layer for Model
+     *
+     * @parameter
+     */
+    private Boolean timeAware = false;
 
     /**
      * @parameter
@@ -314,6 +320,9 @@ public class GenModelPlugin extends AbstractMojo {
             e.printStackTrace();
         }
 
+        if (timeAware) {
+            persistence = true;
+        }
         ctx.setPackagePrefix(scala.Option.apply(packagePrefix));
         ctx.setRootGenerationDirectory(output);
         ctx.setRootUserDirectory(sourceFile);
@@ -324,6 +333,7 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.autoBasePackage_$eq(autoBasePackage);
         ctx.ecma3compat_$eq(ecma3compat);
         ctx.persistence_$eq(persistence);
+        ctx.timeAware_$eq(timeAware);
         if (persistence) {
             ctx.generateEvents_$eq(true);
         }
@@ -408,7 +418,6 @@ public class GenModelPlugin extends AbstractMojo {
                                     jos.flush();
                                 }
                             }
-
 
 
                         }

@@ -41,17 +41,27 @@ class FactoryGenerator(ctx:GenerationContext) {
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
 
-    if(ctx.persistence){
+    if(ctx.persistence && !ctx.timeAware){
       pr.println("class MainFactory : org.kevoree.modeling.api.persistence.PersistenceKMFFactory {")
     } else {
-      pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {")
+      if(ctx.timeAware){
+        pr.println("class MainFactory : org.kevoree.modeling.api.time.TimeAwareKMFFactory {")
+      } else {
+        pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {")
+      }
     }
 
     if(ctx.persistence){
       pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null")
       pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()")
       pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = "+ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".compare.DefaultModelCompare()")
+    }
 
+    if(ctx.timeAware){
+      pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(0,0)")
+      pr.println("override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()")
+      pr.println("override var timedElement: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()")
+      pr.println("override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE_FIRST")
     }
 
     pr.println("")

@@ -26,10 +26,6 @@ trait PersistenceKMFFactory : KMFFactory {
         }
     }
 
-    fun lookupFrom(basePath: String, relationInParent: String, key: String): KMFContainer? {
-        return lookup("$basePath/$relationInParent[$key]")
-    }
-
     val elem_cache: HashMap<String, KMFContainer>
 
     fun clearCache() {
@@ -37,6 +33,10 @@ trait PersistenceKMFFactory : KMFFactory {
     }
 
     fun lookup(path: String): KMFContainer? {
+        return lookupFrom(path, null)
+    }
+
+    fun lookupFrom(path: String, origin: KMFContainer?): KMFContainer? {
 
         //TODO protect for unContains elems
         var path2 = path
@@ -66,9 +66,9 @@ trait PersistenceKMFFactory : KMFFactory {
     }
 
     /* potential optimisation, only load att or reference */
-    fun getTraces(path: String): TraceSequence? {
+    fun getTraces(origin : KMFContainer): TraceSequence? {
         var sequence = compare.createSequence()
-        val traces = datastore?.get("trace", path)
+        val traces = datastore?.get("trace", origin.path()!!)
         if(traces != null){
             sequence.populateFromString(traces)
             return sequence
@@ -99,7 +99,7 @@ trait PersistenceKMFFactory : KMFFactory {
         return Batch()
     }
 
-    fun commit(){
+    fun commit() {
         datastore?.sync()
     }
 

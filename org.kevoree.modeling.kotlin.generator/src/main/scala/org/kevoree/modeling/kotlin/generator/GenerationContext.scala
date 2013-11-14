@@ -38,6 +38,8 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 
 class GenerationContext {
 
+  var timeAware : Boolean = false
+
   var persistence : Boolean = false
 
   var autoBasePackage : String = "kmf"

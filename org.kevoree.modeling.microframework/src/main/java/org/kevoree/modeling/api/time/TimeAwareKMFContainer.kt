@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.time
 
 import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.persistence.KMFContainerProxy
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,16 +10,24 @@ import org.kevoree.modeling.api.KMFContainer
  * Time: 16:01
  */
 
-public trait TimeAwareKMFContainer : KMFContainer {
+public trait TimeAwareKMFContainer : KMFContainerProxy {
 
-    fun shift(timePoint : TimePoint)
+    fun shift(timePoint: TimePoint){
 
-    fun deepShift(timePoint : TimePoint)
+    }
 
-    var now : TimePoint
+    fun deepShift(timePoint: TimePoint){
 
-    fun previous() : KMFContainer
+    }
 
-    fun next() : KMFContainer
+    var now: TimePoint?
+
+    fun previous(): KMFContainer {
+       return this
+    }
+
+    fun next(): KMFContainer {
+        return this
+    }
 
 }

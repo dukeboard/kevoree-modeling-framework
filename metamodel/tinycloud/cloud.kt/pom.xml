@@ -43,6 +43,7 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
                             <persistence>true</persistence>
+                            <timeAware>true</timeAware>
 							<events>true</events>
                         </configuration>
                     </execution>
