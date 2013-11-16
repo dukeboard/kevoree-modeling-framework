@@ -7,9 +7,9 @@ package org.kevoree.modeling.api.time
  * Time: 16:02
  */
 
-public data class TimePoint(val timestamp: Long, val sequenceNumber: Long) : Comparable<TimePoint> {
+public data class TimePoint2(val timestamp: Long, val sequenceNumber: Long) : Comparable<TimePoint2> {
 
-    override fun compareTo(other: TimePoint): Int {
+    override fun compareTo(other: TimePoint2): Int {
         if(this == other){
             return 0
         }
@@ -20,8 +20,8 @@ public data class TimePoint(val timestamp: Long, val sequenceNumber: Long) : Com
         }
     }
 
-    public fun shift(timeOffset: Long): TimePoint {
-        return TimePoint(timestamp + timeOffset, 0)
+    public fun shift(timeOffset: Long): TimePoint2 {
+        return TimePoint2(timestamp + timeOffset, 0)
     }
 
     fun toString(): String {
@@ -29,9 +29,9 @@ public data class TimePoint(val timestamp: Long, val sequenceNumber: Long) : Com
     }
 
     class object {
-        fun create(v: String): TimePoint {
+        fun create(v: String): TimePoint2 {
             val vv = v.split(":")
-            return TimePoint(java.lang.Long.parseLong(vv.get(0)), java.lang.Long.parseLong(vv.get(1)))
+            return TimePoint2(java.lang.Long.parseLong(vv.get(0)), java.lang.Long.parseLong(vv.get(1)))
         }
     }
 
