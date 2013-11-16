@@ -348,10 +348,6 @@ public class GenModelPlugin extends AbstractMojo {
 
 
         List<String> exclusions = new ArrayList<String>();
-        //exclusions.add("KMFContainer.kt");
-        // exclusions.add("TimePoint.kt");
-        // exclusions.add("ByteConverter.kt");
-
         if (ctx.js()) {
             exclusions.add("meta.kt");
             exclusions.add("aspect.kt");
@@ -407,7 +403,10 @@ public class GenModelPlugin extends AbstractMojo {
                                     if (!parent.exists() && !parent.mkdirs()) {
                                         throw new IllegalStateException("Couldn't create dir: " + parent);
                                     }
-                                    FileOutputStream jos = new FileOutputStream(destFile);
+
+
+
+                                    FileOutputStream jos = new FileOutputStream(destFile,false);
                                     InputStream is = jarFile.getInputStream(entry);
                                     byte[] buffer = new byte[4096];
                                     int bytesRead = 0;
