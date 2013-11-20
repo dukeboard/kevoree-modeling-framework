@@ -1,15 +1,15 @@
 #ifndef KMFContainer_H
 #define KMFContainer_H
 
-#include <string>
-#include <events/ModelElementListener.h>
-#include <trace/ModelTrace.h>
-#include <list>
-#include <utils/any.h>
-#include <utils/ModelVisitor.h>
-#include <utils/ModelAttributeVisitor.h>
-#include <utils/Constants.h>
+#include <microframework/api/events/ModelElementListener.h>
+#include <microframework/api/trace/ModelTrace.h>
+#include <microframework/api/utils/any.h>
+#include <microframework/api/utils/ModelVisitor.h>
+#include <microframework/api/utils/ModelAttributeVisitor.h>
+#include <microframework/api/utils/Constants.h>
 #include <ctime>
+#include <list>
+#include <string>
 using std::string;
 using std::list;
 

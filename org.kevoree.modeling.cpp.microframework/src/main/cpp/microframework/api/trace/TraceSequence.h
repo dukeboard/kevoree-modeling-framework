@@ -3,9 +3,9 @@
 
 #include <list>
 #include <iostream>
-#include <trace/ModelTrace.h>
-#include <KMFFactory.h>
-#include <google/dense_hash_map>
+#include <microframework/api/trace/ModelTrace.h>
+#include <microframework/api/KMFFactory.h>
+#include <unordered_map>
 
 /**
  * Author: jedartois@gmail.com

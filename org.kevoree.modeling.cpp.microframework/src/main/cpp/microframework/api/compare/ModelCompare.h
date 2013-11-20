@@ -5,9 +5,9 @@
  * Date: 24/10/13
  * Time: 18:36
  */
-#include <trace/TraceSequence.h>
-#include <KMFContainer.h>
-#include <google/dense_hash_map>
+#include <microframework/api/trace/TraceSequence.h>
+#include <microframework/api/KMFContainer.h>
+#include <unordered_map>
 
 #include <list>
 

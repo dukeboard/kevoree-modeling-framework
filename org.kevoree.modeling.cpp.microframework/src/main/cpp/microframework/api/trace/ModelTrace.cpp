@@ -1,4 +1,4 @@
-#include <trace/ModelTrace.h>
+#include <microframework/api/trace/ModelTrace.h>
 
 /**
  * Author: jedartois@gmail.com

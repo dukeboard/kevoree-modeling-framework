@@ -1,7 +1,7 @@
-#include <ModelCompare.h>
-#include <utils/ModelVisitor.h>
-#include <utils/Utils.h>
-#include <compare/ModelCompareVisitors.h>
+#include <microframework/api/compare/ModelCompare.h>
+#include <microframework/api/utils/ModelVisitor.h>
+#include <microframework/api/utils/Utils.h>
+#include <microframework/api/compare/ModelCompareVisitors.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13
@@ -36,8 +36,8 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
 {
     list < ModelTrace * > *traces ;
     list < ModelTrace * > *tracesRef;
-    google::dense_hash_map<string,KMFContainer*> values;
-    values.set_empty_key("");
+    std::unordered_map<string,KMFContainer*> values;
+  //  values.set_empty_key("");
 
     traces = origin->createTraces (target, inter, merge, false, true);
     tracesRef = origin->createTraces (target, inter, merge, true, false);
@@ -56,7 +56,7 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
             //if diff
             if(!merge)
             {
-                for ( google::dense_hash_map<string,KMFContainer*>::const_iterator it = values.begin();  it != values.end(); ++it) {
+                for ( std::unordered_map<string,KMFContainer*>::const_iterator it = values.begin();  it != values.end(); ++it) {
 
                       KMFContainer *diffChild;
                       string src;

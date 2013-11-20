@@ -1,4 +1,4 @@
-#include <KMFContainerVisitors.h>
+#include <microframework/api/container/KMFContainerVisitors.h>
 
 
 
@@ -6,7 +6,7 @@ VisitorAtt::~VisitorAtt(){
 
 
 }
-VisitorAtt::VisitorAtt (google::dense_hash_map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter)
+VisitorAtt::VisitorAtt (std::unordered_map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter)
 {
 	    traces = _traces;
 	     values = _values;
@@ -62,9 +62,9 @@ void  VisitorAtt::visit(any val,string name,KMFContainer *parent)
 	      }
           if(values->find(name) !=    values->end())
           {
-             	values->set_deleted_key(name);
+             	//values->set_deleted_key(name);
                 values->erase(values->find(name));
-                values->clear_deleted_key();
+                //values->clear_deleted_key();
 
           }else
           {

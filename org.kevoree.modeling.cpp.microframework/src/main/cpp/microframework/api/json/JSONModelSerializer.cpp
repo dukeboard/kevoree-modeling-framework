@@ -4,7 +4,7 @@
  * Time: 18:36
  */
 
-#include <JSONModelSerializer.h>
+#include <microframework/api/json/JSONModelSerializer.h>
 
 
 

@@ -2,11 +2,12 @@
 #ifndef ModelCloner_H
 #define ModelCloner_H
 
+
+#include <microframework/api/KMFContainer.h>
+#include <microframework/api/KMFFactory.h>
+#include <unordered_map>
 #include <iostream>
 #include <list>
-#include <KMFContainer.h>
-#include <KMFFactory.h>
-#include <google/dense_hash_map>
 
 /**
  * Author: jedartois@gmail.com
@@ -20,7 +21,7 @@ public:
     KMFFactory mainFactory;
 
 
-     virtual google::dense_hash_map<KMFContainer, KMFContainer> createContext(){}
+     virtual std::unordered_map<KMFContainer, KMFContainer> createContext(){}
 
      template <class A>
      A clone(A o,bool readOnly,bool mutableOnly);

@@ -3,6 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.cpp.microframework</artifactId>
     <name>Kevoree :: Modeling :: CPP :: MicroFramework</name>
+    <packaging>jar</packaging>
 
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
@@ -10,5 +11,27 @@
         <version>1.9.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+
+    <version>1.2-SNAPSHOT</version>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/cpp</directory>
+                <includes>
+                    <include> **/*</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
 
 </project>

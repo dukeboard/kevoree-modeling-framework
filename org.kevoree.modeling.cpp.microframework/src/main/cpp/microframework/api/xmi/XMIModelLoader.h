@@ -14,13 +14,13 @@
  #include <vector>
  #include <iostream>
  #include <sstream>
- #include <KMFContainer.h>
- #include <KMFFactory.h>
- #include <ModelLoader.h>
- #include <utils/any.h>
- #include <utils/ActionType.h>
- #include <json/Lexer.h>
- #include <json/ResolveCommand.h>
+ #include <microframework/api/KMFContainer.h>
+ #include <microframework/api/KMFFactory.h>
+ #include <microframework/api/ModelLoader.h>
+ #include <microframework/api/utils/any.h>
+ #include <microframework/api/utils/ActionType.h>
+ #include <microframework/api/json/Lexer.h>
+ #include <microframework/api/json/ResolveCommand.h>
 
  /**
   * Author: jedartois@gmail.com
@@ -37,9 +37,6 @@
    KMFFactory *factory;
    virtual vector<KMFContainer*>& loadModelFromString(string str);
    virtual vector<KMFContainer*>& loadModelFromStream(istream &inputStream);
-
-
-
 
  };
 

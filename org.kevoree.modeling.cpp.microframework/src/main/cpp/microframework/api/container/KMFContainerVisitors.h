@@ -2,7 +2,7 @@
 #define KMFContainerVisitors_IMPL_H
 
 #include <string>
-#include <KMFContainer.h>
+#include <microframework/api/KMFContainer.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 31/11/13
@@ -13,7 +13,7 @@ class VisitorFiller:public ModelAttributeVisitor
 {
 
   public:
-    VisitorFiller (google::dense_hash_map<string,string> *_objectsMap)
+    VisitorFiller (std::unordered_map<string,string> *_objectsMap)
     {
 	objectsMap = _objectsMap;
     }
@@ -55,13 +55,13 @@ class VisitorFiller:public ModelAttributeVisitor
 
 
     }
-    google::dense_hash_map<string,string> *objectsMap;
+    std::unordered_map<string,string> *objectsMap;
 };
 
 class VisitorFillRef:public ModelVisitor
 {
   public:
-    VisitorFillRef (google::dense_hash_map<string,string> *_objectsMap)
+    VisitorFillRef (std::unordered_map<string,string> *_objectsMap)
     {
 	    objectsMap = _objectsMap;
     }
@@ -72,7 +72,7 @@ class VisitorFillRef:public ModelVisitor
         (*objectsMap)[concatedKey] = "";
 
     }
-    google::dense_hash_map<string,string> *objectsMap;
+    std::unordered_map<string,string> *objectsMap;
 };
 
 
@@ -80,7 +80,7 @@ class VisitorFillRef:public ModelVisitor
 class VisitorRef:public ModelVisitor
 {
   public:
-    VisitorRef (google::dense_hash_map<string,string> *_objectsMap,list <ModelTrace*> *_traces,string _path,bool _isInter)
+    VisitorRef (std::unordered_map<string,string> *_objectsMap,list <ModelTrace*> *_traces,string _path,bool _isInter)
     {
 	    values = _objectsMap;
 	    isInter =_isInter;
@@ -109,13 +109,13 @@ class VisitorRef:public ModelVisitor
                 }
 
        }
-     values->set_deleted_key(concatedKey);
+   //  values->set_deleted_key(concatedKey);
      values->erase(values->find(concatedKey));
-     values->clear_deleted_key();
+     //values->clear_deleted_key();
      PRINTF("END -- VisitorRef") ;
     }
 private:
-    google::dense_hash_map<string,string> *values;
+    std::unordered_map<string,string> *values;
     bool isInter;
     list <ModelTrace*> *traces;
     string path;
@@ -128,13 +128,13 @@ class VisitorAtt : public ModelAttributeVisitor
 {
 
 public:
-    VisitorAtt (google::dense_hash_map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter);
+    VisitorAtt (std::unordered_map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter);
     ~VisitorAtt();
     void  visit(any val,string name,KMFContainer *parent);
 
 
   list < ModelTrace * > *traces;
-   google::dense_hash_map<string,string> *values;
+   std::unordered_map<string,string> *values;
    string path;
    bool isInter;
 };

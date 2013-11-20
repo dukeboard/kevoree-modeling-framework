@@ -1,6 +1,6 @@
-#include <compare/ModelCompareVisitors.h>
+#include <microframework/api/compare/ModelCompareVisitors.h>
 
-ModelCompareVisitorCreateTraces::ModelCompareVisitorCreateTraces (google::dense_hash_map<string,KMFContainer*> *_objectsMap, bool _inter,bool _merge,list<ModelTrace *> *_traces,list<ModelTrace *> *_tracesRef)
+ModelCompareVisitorCreateTraces::ModelCompareVisitorCreateTraces (std::unordered_map<string,KMFContainer*> *_objectsMap, bool _inter,bool _merge,list<ModelTrace *> *_traces,list<ModelTrace *> *_tracesRef)
 {
 		objectsMap = _objectsMap;
 		inter = _inter;
@@ -44,9 +44,9 @@ void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refName
 				 list<ModelTrace*> *result_references = ptr_elem->createTraces (elem, inter, merge,true, false);
 				 std::copy(result_references->begin(), result_references->end(), std::back_insert_iterator<std::list<ModelTrace*> >(*tracesRef));
                  delete  result_references;
-                 objectsMap->set_deleted_key(childPath);
+                 //objectsMap->set_deleted_key(childPath);
                  objectsMap->erase(objectsMap->find(childPath));
-                 objectsMap->clear_deleted_key();
+                 //objectsMap->clear_deleted_key();
 		}
 	      else
 		{
@@ -76,7 +76,7 @@ void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refName
 }
 
 
-ModelCompareVisitorFiller::ModelCompareVisitorFiller (google::dense_hash_map<string,KMFContainer*> *_objectsMap)
+ModelCompareVisitorFiller::ModelCompareVisitorFiller (std::unordered_map<string,KMFContainer*> *_objectsMap)
 {
   	objectsMap = _objectsMap;
 }

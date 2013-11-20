@@ -1,4 +1,4 @@
-#include <trace/Event2Trace.h>
+#include <microframework/api/trace/Event2Trace.h>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13

@@ -3,7 +3,7 @@
 #include <map>
 #include <list>
 #include <sstream>
-#include <json/Lexer.h>
+#include <microframework/api/json/Lexer.h>
 #include <stdlib.h>
 using std::string;
 using std::list;
@@ -56,8 +56,8 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
         
       currentToken = lexer->nextToken();
 
-      google::dense_hash_map<string, string> keys;
-      keys.set_empty_key("");
+      std::unordered_map<string, string> keys;
+     // keys.set_empty_key("");
       string previousName;
       ModelTrace *modeltrace;
       

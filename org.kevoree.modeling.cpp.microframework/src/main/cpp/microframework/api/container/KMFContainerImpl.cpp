@@ -1,4 +1,4 @@
-#include <container/KMFContainerImpl.h>
+#include <microframework/api/container/KMFContainerImpl.h>
 
 /**
  * Author: jedartois@gmail.com
@@ -189,8 +189,8 @@ void KMFContainerImpl::clean_path_cache(){
 
                      list <ModelTrace*> *traces= new   list <ModelTrace *>;
 
-                     google::dense_hash_map<string,string> values;
-                     values.set_empty_key("");
+                     std::unordered_map<string,string> values;
+                 //    values.set_empty_key("");
 
                      if(onlyAttributes)
                      {
@@ -208,7 +208,7 @@ void KMFContainerImpl::clean_path_cache(){
 
                             if(!isInter && !isMerge && values.size() != 0){
 
-                              for ( google::dense_hash_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it) {
+                              for ( std::unordered_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it) {
 
                                     string  hashLoopRes= it->second;
                                      ModelSetTrace *modelsettrace = new ModelSetTrace(path(),hashLoopRes,"","","");
@@ -235,7 +235,7 @@ void KMFContainerImpl::clean_path_cache(){
                             if(!isInter && !isMerge && (values.size() != 0))
                             {
 
-                            for ( google::dense_hash_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it)
+                            for ( std::unordered_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it)
                             {
                                 string hashLoopRes =  it->second;
                                 vector<string> result =   Utils::split(hashLoopRes,"_");

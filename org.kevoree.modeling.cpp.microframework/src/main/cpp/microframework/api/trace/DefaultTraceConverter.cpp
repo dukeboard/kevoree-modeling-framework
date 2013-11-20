@@ -1,6 +1,6 @@
 
-#include "TraceConverter.h"
-#include "DefaultTraceConverter.h"
+#include "microframework/api/trace/TraceConverter.h"
+#include "microframework/api/trace/DefaultTraceConverter.h"
 
 /**
  * Author: jedartois@gmail.com
@@ -8,11 +8,11 @@
  * Time: 18:36
  */
 DefaultTraceConverter::DefaultTraceConverter(){
-
+     /*
   metaClassNameEquivalence_1.set_empty_key("");
   metaClassNameEquivalence_2.set_empty_key("");
   attNameEquivalence_1.set_empty_key("");
-  attNameEquivalence_2.set_empty_key("");
+  attNameEquivalence_2.set_empty_key(""); */
 }
 
 DefaultTraceConverter::~DefaultTraceConverter(){

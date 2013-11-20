@@ -1,6 +1,6 @@
 #ifndef __UUID_H
 #define __UUID_H
- #include <Singleton.h>
+ #include <microframework/api/utils/Singleton.h>
 #include <iostream>
 #include <vector>
  #include <stdlib.h>

@@ -1,10 +1,10 @@
 #ifndef KMFContainer_IMPL_H
 #define KMFContainer_IMPL_H
 
-#include <KMFContainer.h>
-#include <container/RemoveFromContainerCommand.h>
-#include <container/KMFContainerVisitors.h>
-#include <utils/Utils.h>
+#include <microframework/api/KMFContainer.h>
+#include <microframework/api/container/RemoveFromContainerCommand.h>
+#include <microframework/api/container/KMFContainerVisitors.h>
+#include <microframework/api/utils/Utils.h>
 
 using std::string;
 using std::list;

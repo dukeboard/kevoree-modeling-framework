@@ -1,9 +1,9 @@
 #ifndef __ModelVisitor_H
 #define __ModelVisitor_H
 
-#include <utils/any.h>
+#include <microframework/api/utils/any.h>
 #include <string>
-#include <google/dense_hash_map>
+#include <unordered_map>
 
 using std::string;
 class KMFContainer;
@@ -27,7 +27,7 @@ class ModelVisitor
 
   bool visitStopped; // false
   bool visitChildren; // true
-  google::dense_hash_map<string,KMFContainer*> alreadyVisited;
+  std::unordered_map<string,KMFContainer*> alreadyVisited;
 };
 
 

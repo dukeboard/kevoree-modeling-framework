@@ -1,4 +1,4 @@
-#include <utils/ModelVisitor.h>
+#include <microframework/api/utils/ModelVisitor.h>
 
 void ModelVisitor::stopVisit()
 {
@@ -14,5 +14,5 @@ void ModelVisitor::noChildrenVisit()
 ModelVisitor::ModelVisitor(){
 	  visitStopped = false;
 	  visitChildren = true;
-	  alreadyVisited.set_empty_key("");
+	  //alreadyVisited.set_empty_key("");
 }

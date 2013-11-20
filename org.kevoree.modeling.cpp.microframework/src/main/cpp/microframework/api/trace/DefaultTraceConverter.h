@@ -7,11 +7,11 @@
  */
 #include <map>
 #include <vector>
-#include <trace/TraceConverter.h>
-#include <trace/ModelTrace.h>
+#include <microframework/api/trace/TraceConverter.h>
+#include <microframework/api/trace/ModelTrace.h>
 #include <typeinfo>
 #include <iostream>
-#include <google/dense_hash_map>
+#include <unordered_map>
 
 using std::string;
 using std::list;
@@ -59,11 +59,11 @@ public:
 
 
 private:
-  google::dense_hash_map<string, string> metaClassNameEquivalence_1;
-  google::dense_hash_map<string, string> metaClassNameEquivalence_2;
+  std::unordered_map<string, string> metaClassNameEquivalence_1;
+  std::unordered_map<string, string> metaClassNameEquivalence_2;
 
-  google::dense_hash_map<string, string> attNameEquivalence_1;
-  google::dense_hash_map<string, string> attNameEquivalence_2;
+  std::unordered_map<string, string> attNameEquivalence_1;
+  std::unordered_map<string, string> attNameEquivalence_2;
 
 
 
