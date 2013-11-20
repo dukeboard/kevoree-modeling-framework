@@ -34,20 +34,19 @@ class KMFContainer
 {
 public:
     virtual ~KMFContainer(){}
-    virtual KMFContainer* eContainer(){}
-    virtual bool isReadOnly(){}
-    virtual bool isRecursiveReadOnly(){}
+    virtual KMFContainer* eContainer(){return NULL;}
+    virtual bool isReadOnly(){return false;}
+    virtual bool isRecursiveReadOnly(){return false;}
     virtual void setInternalReadOnly(){}
     virtual void deleteContainer(){} // can't use delete reserve c++ 
-    virtual bool modelEquals(KMFContainer similarObj){}
-    virtual bool deepModelEquals(KMFContainer similarObj){}
-    virtual string getRefInParent(){}
-    virtual KMFContainer* findByPath(string query){}
-    virtual KMFContainer* findByID(string relationName,string idP){}
-    virtual string path(){}
-    virtual string metaClassName(){}
+    virtual bool modelEquals(KMFContainer similarObj){return false;}
+    virtual bool deepModelEquals(KMFContainer similarObj){return false;}
+    virtual string getRefInParent(){return "";}
+    virtual KMFContainer* findByPath(string query){return NULL;}
+    virtual KMFContainer* findByID(string relationName,string idP){return NULL;}
+    virtual string path(){return "";}
+    virtual string metaClassName(){return "";}
     virtual void reflexiveMutator(int mutatorType,string refName, any value, bool setOpposite,bool fireEvent ){}
-    virtual list<any>  selectByQuery(string query){}
     virtual void addModelElementListener(ModelElementListener lst){}
     virtual void removeModelElementListener(ModelElementListener lst){}
     virtual void removeAllModelElementListeners(){}
@@ -56,11 +55,11 @@ public:
     virtual void removeAllModelTreeListeners(){}
     template <class A> // http://www.cplusplus.com/doc/tutorial/templates
 	A* findByPath(string query,A clazz);
-	virtual string internalGetKey(){};
+	virtual string internalGetKey(){return "";};
  
     virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){ PRINTF_ERROR("no define");}
     virtual void visitAttributes(ModelAttributeVisitor *visitor ){}
-    virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {}
+    virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {return NULL;}
     virtual void clean_path_cache(){}
 
 };
