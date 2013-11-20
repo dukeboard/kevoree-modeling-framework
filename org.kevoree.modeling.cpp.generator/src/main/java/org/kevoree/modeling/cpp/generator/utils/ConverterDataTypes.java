@@ -33,6 +33,9 @@ public class ConverterDataTypes {
 
          cpp_reserve.add("namespace");
          cpp_reserve.add("Namespace");
+         cpp_reserve.add("typeid");
+
+
 
          dataTypes.put("EBigDecimal", "bigint")    ;
          dataTypes.put("EBigInteger", "bigint") ;
@@ -71,7 +74,7 @@ public class ConverterDataTypes {
 
     }
 
-    public String getType(String t){
+    public String check_type(String t){
         if(dataTypes.containsKey(t)){
             return dataTypes.get(t).toString() ;
         }   else {
@@ -81,12 +84,12 @@ public class ConverterDataTypes {
     }
 
 
-    public String check_class(String name){
+    public String check_class_name(String name)
+    {
         if(cpp_reserve.contains(name)){
             return "_"+name;
         }  else {
             return name;
-
         }
     }
 

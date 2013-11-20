@@ -41,8 +41,9 @@ public class FactoryGenerator extends AGenerator
 
 
     public void generateClassHeader(){
+        add_H(HelperGenerator.genIFDEF(factoryname));
         add_H(HelperGenerator.genIncludeLocal(ctx.getName_package()));
-        add_H(HelperGenerator.genInclude("KMFFactory.h"));
+        add_H(HelperGenerator.genInclude("microframework/api/KMFFactory.h"));
 
         add_H("class "+factoryname+" : public KMFFactory {");
         add_H("public:");
@@ -73,7 +74,9 @@ public class FactoryGenerator extends AGenerator
         try
         {
             generateCreate();
-            class_result.append("};"); // end class
+            class_result.append("};\n"); // end class
+            class_result.append(HelperGenerator.genENDIF());
+
             FileManager.writeFile(ctx.getPackageGenerationDirectory()+factoryname+".h", api_result.toString(),false);
             FileManager.writeFile(ctx.getPackageGenerationDirectory()+factoryname+".h", class_result.toString(),true);
 

@@ -5,7 +5,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.kevoree.modeling.cpp.generator.GenerationContext;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -23,7 +22,7 @@ public class CheckerConstraint
        this.context = context;
     }
 
-    public void verify(XMIResource resource) throws IOException {
+    public void verify(XMIResource resource) throws Exception {
 
         resource.load(null) ;
         EcoreUtil.resolveAll(resource);
@@ -34,10 +33,12 @@ public class CheckerConstraint
 
                 // checker
                 EClass c = (EClass) eo;
-                c.setName(ConverterDataTypes.getInstance().check_class(c.getName()));
+                c.setName(ConverterDataTypes.getInstance().check_class_name(c.getName()));
                 Boolean hasid= false;
                 for(EAttribute a : c.getEAllAttributes()){
-                    a.setName(ConverterDataTypes.getInstance().check_class(a.getName()));
+
+                    a.setName(ConverterDataTypes.getInstance().check_class_name(a.getName()));
+
                     if(a.isID()){
                         hasid = true;
                     }
@@ -52,8 +53,11 @@ public class CheckerConstraint
 
                 }
                 for(EReference a : c.getEAllReferences()){
-                    a.setName(ConverterDataTypes.getInstance().check_class(a.getName()));
-                    a.getEReferenceType().setName(ConverterDataTypes.getInstance().check_class(a.getEReferenceType().getName()));
+                    if(a.getEReferenceType().getName() ==null){
+                        throw new Exception("no type define for"+a.getName());
+                    }
+                    a.setName(ConverterDataTypes.getInstance().check_class_name(a.getName()));
+                    a.getEReferenceType().setName(ConverterDataTypes.getInstance().check_class_name(a.getEReferenceType().getName()));
                 }
 
 

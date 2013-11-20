@@ -79,7 +79,6 @@ public class ClassGenerator extends AGenerator {
         {
 
 
-
             if(ref.getUpperBound() == -1 )
             {
                 if(ref.isContainment()){
@@ -131,6 +130,7 @@ public class ClassGenerator extends AGenerator {
             {
                 add_H("KMFContainer* findByID(string relationName,string idP);");
                 add_CPP("KMFContainer* " + cls.getName() + "::findByID(string relationName,string idP){");
+
                 if(ctx.isDebug_model())
                 {
                     add_CPP("PRINTF(\"BEGIN -- findByID "+cls.getName()+"\" << relationName << \" \" << idP);");
@@ -172,13 +172,7 @@ public class ClassGenerator extends AGenerator {
 
         }
     }
-    /*
-            add_CPP("switch(mutatorType){");
 
-        add_CPP("case ADD:");
-
-        add_CPP("break;");
-     */
 
     private void generateFlatReflexiveSetters(EClass eClass) {
 
@@ -200,7 +194,7 @@ public class ClassGenerator extends AGenerator {
                 add_CPP("} else if(refName.compare(\""+a.getName()+"\")==0){");
             }
 
-            String type = ConverterDataTypes.getInstance().getType(a.getEAttributeType().getName());
+            String type = ConverterDataTypes.getInstance().check_type(a.getEAttributeType().getName());
 
             if(type.contains("string")){
                 add_CPP(a.getName()+"= AnyCast<string>(value);");
@@ -351,7 +345,7 @@ public class ClassGenerator extends AGenerator {
 
         for(EReference ref : cls.getEReferences()  ){
 
-            String type = ConverterDataTypes.getInstance().getType(ref.getEReferenceType().getName());
+            String type = ConverterDataTypes.getInstance().check_type(ref.getEReferenceType().getName());
             add_H("void remove"+ref.getName()+"("+type+" *ptr);");
 
 
@@ -396,7 +390,7 @@ public class ClassGenerator extends AGenerator {
     {
         for(EReference ref : cls.getEReferences()  ){
 
-            String type = ConverterDataTypes.getInstance().getType(ref.getEReferenceType().getName());
+            String type = ConverterDataTypes.getInstance().check_type(ref.getEReferenceType().getName());
             add_H("void add"+ref.getName()+"("+type+" *ptr);");
 
 
@@ -443,11 +437,6 @@ public class ClassGenerator extends AGenerator {
                     iscontainer.append("if("+ref.getName()+" != ptr ){\n");
                     iscontainer.append("if("+ref.getName()+" != NULL ){\n");
                     iscontainer.append(ref.getName()+"->setEContainer(NULL,NULL,\"\");\n");
-                    /*
-                    iscontainer.append("any ptr_any = ptr;\n");
-                    iscontainer.append("RemoveFromContainerCommand  *cmd = new  RemoveFromContainerCommand(this,REMOVE,\"" + ref.getName() + "\",ptr_any);\n");
-                    iscontainer.append(ref.getName()+"->setEContainer(this,cmd,\"" + ref.getName() + "\");\n");
-                     */
                     iscontainer.append("}\n");
                     iscontainer.append("if(ptr != NULL ){\n");
                     iscontainer.append("ptr->setEContainer(this,NULL,\"" + ref.getName() + "\");\n");
@@ -505,8 +494,8 @@ public class ClassGenerator extends AGenerator {
 
         if(eAttribute.size() == 1){
             if (eAttribute.get(0).equals("generated_KMF_ID")){
-                System.out.println("INTERNAL "+cls.getName());
-                   add_HEADER(HelperGenerator.genInclude("utils/Uuid.h"));
+               // System.out.println("INTERNAL "+cls.getName());
+                   add_HEADER(HelperGenerator.genInclude("microframework/api/utils/Uuid.h"));
                     add_CONSTRUCTOR("generated_KMF_ID= Uuid::getSingleton().generateUUID();");
 
 
@@ -524,7 +513,9 @@ public class ClassGenerator extends AGenerator {
         add_H(type + " *find" + name + "ByID(std::string id);");
 
         add_CPP(type+"* "+eClass.getName()+"::find"+name+"ByID(std::string id){");
-        add_CPP("PRINTF(\"END -- findByID \" <<"+ref.getName()+"[id] << \" \");" );
+        if(ctx.isDebug_model()){
+            add_CPP("PRINTF(\"END -- findByID \" <<"+ref.getName()+"[id] << \" \");" );
+        }
         add_CPP("return "+ref.getName()+"[id];");
         add_CPP("}");
 
@@ -539,7 +530,7 @@ public class ClassGenerator extends AGenerator {
 
         for( EAttribute eAttribute : cls.getEAttributes() )
         {
-            add_PUBLIC_ATTRIBUTE(ConverterDataTypes.getInstance().getType(eAttribute.getEAttributeType().getName()));
+            add_PUBLIC_ATTRIBUTE(ConverterDataTypes.getInstance().check_type(eAttribute.getEAttributeType().getName()));
             add_PUBLIC_ATTRIBUTE(" "+eAttribute.getName()+";\n");
 
 
@@ -560,6 +551,7 @@ public class ClassGenerator extends AGenerator {
                 }
 
             }else {
+              //  System.out.println(type_ref);
                 if(!type_ref.equals(cls.getName())){
                     //   header.append(  HelperGenerator.genIncludeLocal(type_ref));
                     header.append("class "+type_ref+";\n\n");
@@ -572,15 +564,16 @@ public class ClassGenerator extends AGenerator {
 
 
 
-            gen_type = ConverterDataTypes.getInstance().getType(ref.getEReferenceType().getName());
+            gen_type = ConverterDataTypes.getInstance().check_type(ref.getEReferenceType().getName());
 
 
             if(ref.getUpperBound() == -1)
             {
                 if(ref.getEReferenceType().getEIDAttribute() != null)
                 {
-                    add_PUBLIC_ATTRIBUTE("google::dense_hash_map<string,"+gen_type+"*> "+ref.getName()+"; \n") ;
-                    add_CONSTRUCTOR(ref.getName() + ".set_empty_key(\"\");");
+
+                    add_PUBLIC_ATTRIBUTE("std::unordered_map<string,"+gen_type+"*> "+ref.getName()+"; \n") ;
+                  //  add_CONSTRUCTOR(ref.getName() + ".set_empty_key(\"\");");
                     generateFindbyIdAttribute(cls, ref);
                 }  else
                 {
@@ -603,6 +596,8 @@ public class ClassGenerator extends AGenerator {
 
     public void generateBeginClassHeader(EClass cls)
     {
+
+
         String name =   cls.getName();
         add_HEADER(HelperGenerator.genIFDEF(name));
         //  add_CPP(HelperGenerator.genIncludeLocal(name));
@@ -610,13 +605,13 @@ public class ClassGenerator extends AGenerator {
         //
         add_HEADER(HelperGenerator.genInclude("list"));
         add_HEADER(HelperGenerator.genInclude("string"));
-        add_HEADER(HelperGenerator.genInclude("google/dense_hash_map"));
+        add_HEADER(HelperGenerator.genInclude("unordered_map"));
 
         if(cls.getESuperTypes().size() >0)
         {
             gen_class.append("class "+name+" : ");  // FIX
         } else {
-            add_HEADER(HelperGenerator.genInclude("KMFContainerImpl.h"));
+            add_HEADER(HelperGenerator.genInclude("microframework/api/container/KMFContainerImpl.h"));
             gen_class.append("class "+name+" : public KMFContainerImpl");
         }
 

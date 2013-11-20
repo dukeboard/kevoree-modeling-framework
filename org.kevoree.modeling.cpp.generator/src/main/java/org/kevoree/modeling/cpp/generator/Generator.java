@@ -42,7 +42,7 @@ public class Generator {
         cmakeGenerator = new EnvironnementBuilder(ctx);
     }
 
-    public void generateModel() throws IOException {
+    public void generateModel() throws Exception {
 
         URI fileUri =  URI.createFileURI(ecoreFile.getAbsolutePath());
         Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl());
@@ -78,8 +78,9 @@ public class Generator {
 
             }  else if(eo instanceof EPackage)
             {
+                               String name =   ((EPackage) eo).getNsPrefix();
 
-                context.setName_package( ((EPackage) eo).getNsPrefix());
+                context.setName_package( name.replace(".",""));
 
                 try {
                     context.setRoot(((EClassImpl)EcoreUtil.getRootContainer(eo).eContents().get(0)).getName());

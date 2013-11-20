@@ -4,7 +4,7 @@
 
 void ${classname}::add${refname}(${typeadd} *ptr)
 {
-    PRINTF("BEGIN -- ${classname} add${refname}");
+    //PRINTF("BEGIN -- ${classname} add${refname}");
     ${typeadd}  *container = (${typeadd} *)ptr;
     if(container->internalGetKey().empty())
     {
@@ -19,6 +19,6 @@ void ${classname}::add${refname}(${typeadd} *ptr)
             ${iscontained}
         }
     }
-    PRINTF("END -- ${classname}  add${refname}");
+    //PRINTF("END -- ${classname}  add${refname}");
 }
 

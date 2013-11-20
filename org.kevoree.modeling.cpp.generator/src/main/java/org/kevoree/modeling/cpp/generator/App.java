@@ -36,6 +36,14 @@ public class App {
                 .withLongOpt("input")
                 .create("t"));
 
+        options.addOption(OptionBuilder
+                .withArgName("debug")
+                .hasArg()
+                .withDescription("{true,false}")
+                .withLongOpt("enable")
+                .create("d"));
+
+
 
 
 
@@ -55,13 +63,15 @@ public class App {
 
             String ecore_file=    cmd.getOptionValue("i");
             String path=    cmd.getOptionValue("t");
+            Boolean debugmode=  Boolean.parseBoolean(cmd.getOptionValue("t"));
+
 
             GenerationContext context = new GenerationContext();
             context.setRootGenerationDirectory(path);
             context.setEcore(ecore_file);
             context.setDebug_model(false);
-            context.setVersion("1.0");
-            context.setVersionmicroframework("LATEST");
+            context.setVersion("1.1-SNAPSHOT");
+            context.setVersionmicroframework("1.1-SNAPSHOT");
 
 
             Generator gen = new Generator(context);

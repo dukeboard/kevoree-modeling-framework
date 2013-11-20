@@ -31,7 +31,11 @@ public class GenerationContext {
         return ecore;
     }
 
-    public void setEcore(String ecore) {
+    public void setEcore(String ecore) throws Exception {
+        if(!(new File(ecore)).exists()){
+
+            throw new Exception("The ecore file is empty");
+        }
         this.ecore = new File(ecore);
     }
 

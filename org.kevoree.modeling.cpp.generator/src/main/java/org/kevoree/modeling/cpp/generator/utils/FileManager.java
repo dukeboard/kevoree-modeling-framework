@@ -81,7 +81,7 @@ public class FileManager {
             String fileName = destinationDir + File.separator + entry.getName();
             File f = new File(fileName);
 
-            if (fileName.endsWith("/")) {
+            if (fileName.endsWith("/") && !fileName.contains("META-INF")) {
                 f.mkdirs();
             }
 
@@ -93,7 +93,7 @@ public class FileManager {
 
             String fileName = destinationDir + File.separator + entry.getName();
             File f = new File(fileName);
-            if (!fileName.endsWith("/")) {
+            if (!fileName.endsWith("/") && !fileName.contains("META-INF")) {
                 InputStream is = jar.getInputStream(entry);
                 FileOutputStream fos = new FileOutputStream(f);
 

@@ -11,7 +11,9 @@ import org.kevoree.resolver.MavenResolver;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -29,7 +31,6 @@ public class EnvironnementBuilder
 
     public EnvironnementBuilder(GenerationContext ctx){
         this.ctx = ctx;
-        System.out.println( ClasspathResourceLoader.class.getName());
         ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName()) ;
         ve.init();
         gen_cmake = ve.getTemplate("templates/cmake.vm");
@@ -48,13 +49,12 @@ public class EnvironnementBuilder
 
         MavenResolver resolver = new MavenResolver();
 
-
         String group = "org.kevoree.modeling";
         String artifactid = "org.kevoree.modeling.cpp.microframework";
 
         String version = ctx.getVersionmicroframework()  ;
 
-        // FIX ME       project.getRepositories();
+
         File jar = resolver.resolve("mvn:"+group+":"+artifactid+":"+version+":jar", Arrays.asList("https://oss.sonatype.org/content/groups/public/"));
 
         if(jar.exists())
@@ -66,10 +66,12 @@ public class EnvironnementBuilder
                 e.printStackTrace();
             }
         }
+
+
     }
     public void execute() throws IOException
     {
         downloadMicroframework();
-        generateCmakeFile();
+       // generateCmakeFile();
     }
 }
