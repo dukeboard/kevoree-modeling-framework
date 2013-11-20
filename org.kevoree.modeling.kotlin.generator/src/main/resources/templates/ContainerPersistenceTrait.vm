@@ -6,14 +6,20 @@
 
 package ${packElem}
 
+#if($ctx.timeAware())
+trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.time.TimeAwareKMFContainer {
+#else
+  trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KMFContainerProxy {
+#end
 
-trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KMFContainerProxy {
+
+
 
     fun checkLazyLoad(){
         if(!isResolved){
             isResolved = true
             inResolution = true
-            val content = originFactory!!.getTraces(path()!!)
+            val content = originFactory!!.getTraces(this)
             val previousParent = internal_eContainer
             internal_eContainer = null
             content?.silentlyApplyOn(this)
@@ -36,7 +42,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
                 currentParentRelationName = path.substring(path.lastIndexOf("/") + 1, path.size - 1)
                 currentParentRelationName = currentParentRelationName.substring(0, currentParentRelationName.lastIndexOf("["))
             }
-            val parentElem = originFactory!!.lookup(parentPath)!!
+            val parentElem = originFactory!!.lookupFrom(parentPath,this)!!
             internal_unsetCmd = ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.RemoveFromContainerCommand(parentElem, org.kevoree.modeling.api.util.ActionType.REMOVE, currentParentRelationName, this)
             internal_eContainer = parentElem
             internal_containmentRefName = currentParentRelationName

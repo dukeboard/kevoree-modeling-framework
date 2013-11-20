@@ -87,6 +87,12 @@ public class GenModelPlugin extends AbstractMojo {
      */
     private Boolean persistence = false;
 
+    /**
+     * Generate Timed-Aware persistence Layer for Model
+     *
+     * @parameter
+     */
+    private Boolean timeAware = false;
 
     /**
      * @parameter
@@ -314,6 +320,9 @@ public class GenModelPlugin extends AbstractMojo {
             e.printStackTrace();
         }
 
+        if (timeAware) {
+            persistence = true;
+        }
         ctx.setPackagePrefix(scala.Option.apply(packagePrefix));
         ctx.setRootGenerationDirectory(output);
         ctx.setRootUserDirectory(sourceFile);
@@ -324,185 +333,33 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.autoBasePackage_$eq(autoBasePackage);
         ctx.ecma3compat_$eq(ecma3compat);
         ctx.persistence_$eq(persistence);
+        ctx.timeAware_$eq(timeAware);
         if (persistence) {
             ctx.generateEvents_$eq(true);
         }
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
-
         gen.generateModel(project.getVersion());
-
-//        if (xmi) {
         gen.generateLoader();
         gen.generateSerializer();
-//        }
-
-        //       if (json) {
         gen.generateJSONSerializer();
         gen.generateJsonLoader();
-        //      }
-
-
-        //call Java compiler
-        if (!ctx.getJS()) {
-            /*
-            javax.tools.JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-            try {
-                outputClasses.mkdirs();
-                fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(outputClasses));
-                try {
-                    ArrayList<File> classPaths = new ArrayList<File>();
-                    for (String path : project.getCompileClasspathElements()) {
-                        classPaths.add(new File(path));
-                    }
-
-                    fileManager.setLocation(StandardLocation.CLASS_PATH, classPaths);
-                } catch (DependencyResolutionRequiredException e) {
-                    e.printStackTrace();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            List<File> sourceFileList = new ArrayList<File>();
-            collectFiles(ctx.getRootGenerationDirectory(), sourceFileList, ".java");
-             */
-
-             /*
-            try {
-                File localFileDir = new File(outputUtil + File.separator + "org" + File.separator + "jetbrains" + File.separator + "annotations");
-                localFileDir.mkdirs();
-                File localFile = new File(localFileDir, "NotNull.java");
-                PrintWriter pr = new PrintWriter(localFile, "utf-8");
-                VelocityEngine ve = new VelocityEngine();
-                ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-                ve.init();
-                Template template = ve.getTemplate("NotNull.vm");
-                VelocityContext ctxV = new VelocityContext();
-                template.merge(ctxV, pr);
-                pr.flush();
-                pr.close();
-                sourceFileList.add(localFile);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-              */
-            /*
-            File microfxlpath = new File(ctx.getRootGenerationDirectory().getAbsolutePath() + File.separator + "org" + File.separator + "kevoree" + File.separator + "modeling" + File.separator + "api");
-            if (microfxlpath.exists()) {
-
-
-                //Precompile Kotlin FWK
-                K2JVMCompilerArguments args = new K2JVMCompilerArguments();
-                //args.setClasspath(cpath.toString());
-
-                ArrayList<String> sources = new ArrayList<String>();
-                sources.add(microfxlpath.getAbsolutePath());
-
-                args.setSourceDirs(sources);
-                args.setOutputDir(outputClasses.getPath());
-                args.noJdkAnnotations = true;
-                args.noStdlib = true;
-                args.verbose = false;
-                ExitCode efirst = KotlinCompiler.exec(new PrintStream(System.err) {
-                    @Override
-                    public void println(String x) {
-                        if (x.startsWith("WARNING")) {
-
-                        } else {
-                            super.println(x);
-                        }
-                    }
-
-                }, args);
-                if (efirst.ordinal() != 0) {
-                    throw new MojoExecutionException("Embedded Kotlin compilation error !");
-                } else {
-
-
-                    try {
-                        FileUtils.deleteDirectory(microfxlpath);
-                    } catch (IOException e) {
-                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                    }
-                }
-
-            }
-            */
-            /*
-            List<String> optionList = new ArrayList<String>();
-            try {
-                StringBuffer cpath = new StringBuffer();
-                boolean firstBUF = true;
-                for (String path : project.getCompileClasspathElements()) {
-                    if (!firstBUF) {
-                        cpath.append(File.pathSeparator);
-                    }
-                    cpath.append(path);
-                    firstBUF = false;
-                }
-                optionList.addAll(Arrays.asList("-classpath", cpath.toString()));
-            } catch (Exception e) {
-                optionList.addAll(Arrays.asList("-classpath", System.getProperty("java.class.path")));
-            }
-
-            optionList.add("-source");
-            optionList.add("1.6");
-            optionList.add("-target");
-            optionList.add("1.6");
-
-            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
-
-            DiagnosticListener noWarningListener = new DiagnosticListener() {
-
-                @Override
-                public void report(Diagnostic diagnostic) {
-                    if (!diagnostic.getMessage(Locale.ENGLISH).contains("bootstrap class path not set in conjunction")) {
-                        if (diagnostic.getKind().equals(Diagnostic.Kind.ERROR)) {
-                            System.err.println(diagnostic);
-                        } else {
-                            System.out.println(diagnostic);
-                        }
-                    }
-                }
-            };
-
-            javax.tools.JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, noWarningListener, optionList, null, compilationUnits);
-            boolean result = task.call();
-            try {
-                fileManager.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Java API compilation : " + result);
-             */
-
-        }
-
         outputClasses.mkdirs();
 
 
         List<String> exclusions = new ArrayList<String>();
-        exclusions.add("org/kevoree/modeling/api/KMFContainer.kt");
-        exclusions.add("org/kevoree/modeling/time/TimePoint.kt");
-        exclusions.add("org/kevoree/modeling/util/ByteConverter.kt");
-
         if (ctx.js()) {
-            exclusions.add("org/kevoree/modeling/api/meta.kt");
-            exclusions.add("org/kevoree/modeling/api/aspect.kt");
+            exclusions.add("meta.kt");
+            exclusions.add("aspect.kt");
         }
 
         try {
             StringBuffer cpath = new StringBuffer();
             boolean firstBUF = true;
             for (String path : project.getCompileClasspathElements()) {
-
                 boolean JSLIB = false;
                 File file = new File(path);
                 if (file.exists()) {
-
                     if (file.isFile() && ctx.js()) {
                         JarFile jarFile = new JarFile(file);
                         if (jarFile.getJarEntry("META-INF/services/org.jetbrains.kotlin.js.librarySource") != null) {
@@ -512,18 +369,12 @@ public class GenModelPlugin extends AbstractMojo {
                                 JarEntry entry = entries.nextElement();
                                 boolean filtered = false;
                                 for (String filter : exclusions) {
-                                    if (entry.getName().equals(filter)) {
+                                    if (entry.getName().endsWith(filter)) {
                                         filtered = true;
                                     }
                                 }
-
-                                if ((entry.getName().endsWith(".kt") && !filtered) || entry.getName().endsWith(".kt.jslib")) {
-
+                                if ((entry.getName().endsWith(".kt") && !filtered)) {
                                     String fileName = entry.getName();
-                                    if (fileName.endsWith(".jslib")) {
-                                        fileName = fileName.replace(".jslib", "");
-                                    }
-
                                     File destFile = new File(output, fileName.replace("/", File.separator + ""));
                                     File parent = destFile.getParentFile();
                                     if (!parent.exists() && !parent.mkdirs()) {
@@ -540,9 +391,36 @@ public class GenModelPlugin extends AbstractMojo {
                                     jos.flush();
                                 }
                             }
+                            //override with .jslib files
+                            entries = jarFile.entries();
+                            while (entries.hasMoreElements()) {
+                                JarEntry entry = entries.nextElement();
+                                if (entry.getName().endsWith(".kt.jslib")) {
+                                    String fileName = entry.getName();
+                                    fileName = fileName.replace(".jslib", "");
+                                    File destFile = new File(output, fileName.replace("/", File.separator + ""));
+                                    File parent = destFile.getParentFile();
+                                    if (!parent.exists() && !parent.mkdirs()) {
+                                        throw new IllegalStateException("Couldn't create dir: " + parent);
+                                    }
+
+
+
+                                    FileOutputStream jos = new FileOutputStream(destFile,false);
+                                    InputStream is = jarFile.getInputStream(entry);
+                                    byte[] buffer = new byte[4096];
+                                    int bytesRead = 0;
+                                    while ((bytesRead = is.read(buffer)) != -1) {
+                                        jos.write(buffer, 0, bytesRead);
+                                    }
+                                    is.close();
+                                    jos.flush();
+                                }
+                            }
+
+
                         }
                     }
-
                     if (!JSLIB) {
                         if (!firstBUF) {
                             cpath.append(File.pathSeparator);
@@ -550,22 +428,17 @@ public class GenModelPlugin extends AbstractMojo {
                         cpath.append(path);
                         firstBUF = false;
                     }
-
                 }
             }
 
-            ExitCode e = null;
+            ExitCode e;
             if (ctx.getJS()) {
-
                 K2JSCompilerArguments args = new K2JSCompilerArguments();
                 ArrayList<String> sources = new ArrayList<String>();
                 sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
                 if (outputUtil.exists()) {
-                    //getLog().info("Add directory : " + sourceFile.getAbsolutePath());
                     sources.add(outputUtil.getAbsolutePath());
                 }
-
-
                 args.sourceFiles = sources.toArray(new String[sources.size()]);
                 args.outputFile = outputJS;
                 args.verbose = false;
@@ -574,67 +447,47 @@ public class GenModelPlugin extends AbstractMojo {
                     @Override
                     public void println(String x) {
                         if (x.startsWith("WARNING")) {
-
+                            //noop
                         } else {
                             super.println(x);
                         }
                     }
                 }, args);
-
                 if (e.ordinal() != 0) {
-
                     getLog().error("Can't compile generated code !");
                     throw new MojoExecutionException("Embedded Kotlin compilation error !");
                 } else {
                     copyJsLibraryFile(KOTLIN_JS_MAPS);
                     copyJsLibraryFile(KOTLIN_JS_LIB);
                     copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
-
-                    //create a merged file
                     File outputMerged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged.js");
                     FileOutputStream mergedStream = new FileOutputStream(outputMerged);
-
-                    // if (ecma5) {
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
-                    // } else {
-                    //     IOUtils.copy(MetaInfServices.loadClasspathResource("kotlin-lib-ecma3-fixed.js"), mergedStream);
-                    // }
-
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB), mergedStream);
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
                     Files.copy(new File(outputKotlinJSDir, project.getArtifactId() + ".js"), mergedStream);
-
                     mergedStream.write(("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['" + project.getArtifactId() + "'];}").getBytes());
                     mergedStream.write("\n".getBytes());
-
-
                     mergedStream.flush();
                     mergedStream.close();
-
                     com.google.javascript.jscomp.Compiler.setLoggingLevel(Level.WARNING);
                     com.google.javascript.jscomp.Compiler compiler = new com.google.javascript.jscomp.Compiler();
                     CompilerOptions options = new CompilerOptions();
                     WarningLevel.QUIET.setOptionsForWarningLevel(options);
                     CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
                     options.setCheckUnreachableCode(CheckLevel.OFF);
-
                     compiler.compile(Collections.<JSSourceFile>emptyList(), Collections.singletonList(JSSourceFile.fromFile(outputMerged)), options);
-
                     File outputMin = new File(outputKotlinJSDir, project.getArtifactId() + ".min.js");
                     FileWriter outputFile = new FileWriter(outputMin);
                     outputFile.write(compiler.toSource());
                     outputFile.close();
-
                     if (outputUtil.exists()) {
                         FileUtils.deleteDirectory(output);
                         FileUtils.deleteDirectory(outputUtil);
                     }
-
                     FileUtils.copyDirectory(outputKotlinJSDir, outputClasses);
 
                 }
-
-
             } else {
                 K2JVMCompilerArguments args = new K2JVMCompilerArguments();
                 args.setClasspath(cpath.toString());

@@ -55,11 +55,18 @@ public class LevelDbTester {
         Cloud cloudLazy = (Cloud) factory.lookup("/");
         //System.out.println(cloudLazy);
         System.out.println(cloudLazy.findNodesByID("node0"));
+
+
+
         System.out.println(cloudLazy.getNodes().get(0));
+        /*
+
 
 
         System.out.println(cloudLazy.findByPath("nodes[node0]/softwares[soft0]"));
         System.out.println(factory.lookup("nodes[node0]/softwares[soft0]"));
+
+
 
         KMFContainerProxy lazyNode = (KMFContainerProxy) cloudLazy.getNodes().get(0);
         System.out.println(lazyNode.getIsResolved());
@@ -71,6 +78,7 @@ public class LevelDbTester {
 
         KMFContainerProxy cloudLazyProxy = (KMFContainerProxy) cloudLazy;
         System.out.println(cloudLazyProxy.getIsResolved());
+
 
         System.out.println(cloudLazy.findByPath("nodes[node0]"));
         System.out.println(cloudLazy.findByPath("nodes[node0]").eContainer());
@@ -85,6 +93,7 @@ public class LevelDbTester {
                 System.out.println(proxy.getIsResolved());
             }
         }, true, true, true);
+*/
 
     }
 

@@ -44,5 +44,12 @@ when(metaClassName){
 
 #end
 
+#if($ctx.timeAware())
+override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(0,0)
+override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
+override var timedElement: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
+override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE_FIRST
+#end
+
 
 }

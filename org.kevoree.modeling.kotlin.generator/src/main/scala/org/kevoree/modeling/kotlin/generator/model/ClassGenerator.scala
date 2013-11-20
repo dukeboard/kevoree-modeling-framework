@@ -92,6 +92,9 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
       pr.println("override var inResolution: Boolean = false")
       pr.println("override var originFactory: org.kevoree.modeling.api.persistence.PersistenceKMFFactory? = null")
     }
+    if(ctx.timeAware){
+      pr.println("override var now: org.kevoree.modeling.api.time.TimePoint? = null")
+    }
 
     pr.println("override var path_cache : String? = null")
     pr.println("override var key_cache: String? = null")
