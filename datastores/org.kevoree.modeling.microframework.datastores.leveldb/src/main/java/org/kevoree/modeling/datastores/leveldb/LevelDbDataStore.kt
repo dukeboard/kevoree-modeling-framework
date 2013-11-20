@@ -15,8 +15,20 @@ import org.iq80.leveldb.DBIterator
  */
 public class LevelDbDataStore : DataStore {
 
-    private val options = Options().createIfMissing(true)
+    var dbStorageBasePath = ""
+    set(absolutePath) {
+        if(!absolutePath.endsWith(File.separator)) {
+            $dbStorageBasePath = absolutePath + File.separator
+        } else {
+            $dbStorageBasePath = absolutePath
+        }
+        val location = File($dbStorageBasePath)
+        if(!location.exists()) {
+            location.mkdirs()
+        }
+    }
 
+    private val options = Options().createIfMissing(true)
     private val dbs = java.util.HashMap<String, DB>()
 
     private fun internal_db(segment: String): DB {
@@ -24,7 +36,7 @@ public class LevelDbDataStore : DataStore {
         if(dbs.containsKey(segment)) {
             db = dbs.get(segment)
         } else {
-            db = JniDBFactory.factory.open(File(segment), options)
+            db = JniDBFactory.factory.open(File(dbStorageBasePath + segment), options)
             dbs.put(segment, db!!)
         }
         return db!!
@@ -97,4 +109,5 @@ public class LevelDbDataStore : DataStore {
         val db = dbs.get(segment)
         return db?.getProperty("leveldb.stats")
     }
+
 }
