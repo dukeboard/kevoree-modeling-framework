@@ -52,12 +52,17 @@ public class CheckerConstraint
                     c.getEStructuralFeatures().add(generatedKmfIdAttribute);
 
                 }
-                for(EReference a : c.getEAllReferences()){
+                for(EReference a : c.getEAllReferences())
+                {   if(a.getEReferenceType() != null){
                     if(a.getEReferenceType().getName() ==null){
                         throw new Exception("no type define for"+a.getName());
                     }
                     a.setName(ConverterDataTypes.getInstance().check_class_name(a.getName()));
                     a.getEReferenceType().setName(ConverterDataTypes.getInstance().check_class_name(a.getEReferenceType().getName()));
+                }    else {
+                    throw new Exception("TODO  type define for"+a.getName());
+
+                }
                 }
 
 
