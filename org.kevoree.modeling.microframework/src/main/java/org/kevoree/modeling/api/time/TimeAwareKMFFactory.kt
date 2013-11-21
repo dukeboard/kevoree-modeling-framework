@@ -129,7 +129,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
             val typeName = datastore!!.get(TimeSegment.TYPE.name(), path2)
             if(typeName != null){
                 val elem = create(typeName) as TimeAwareKMFContainer
-                elem_cache.put(path2, elem)
+                elem_cache.put(composedKey, elem)
                 elem.originFactory = this
                 elem.isResolved = false
                 elem.now = currentTime!!  //must before OriginPath

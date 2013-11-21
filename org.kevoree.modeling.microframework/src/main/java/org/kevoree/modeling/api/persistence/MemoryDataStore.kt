@@ -34,4 +34,14 @@ public class MemoryDataStore : DataStore {
         getOrCreateSegment(segment).remove(key)
     }
 
+    fun dump(){
+        for(k in maps){
+            println("Map ${k.key}")
+            for(t in k.value){
+                println("${t.key}->${t.value}")
+            }
+        }
+    }
+
+
 }

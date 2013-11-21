@@ -46,7 +46,6 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
     }
 
     public fun applyTraceOnModel(traceSeq: TraceSequence) {
-
         for(trace in traceSeq.traces){
             var target: KMFContainer = targetModel;
             if(trace is ModelAddTrace){
