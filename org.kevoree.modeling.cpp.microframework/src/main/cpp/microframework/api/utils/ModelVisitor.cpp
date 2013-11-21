@@ -14,5 +14,11 @@ void ModelVisitor::noChildrenVisit()
 ModelVisitor::ModelVisitor(){
 	  visitStopped = false;
 	  visitChildren = true;
+	  visitReferences=true;
 	  //alreadyVisited.set_empty_key("");
+}
+
+
+void ModelVisitor::noReferencesVisit(){
+     visitReferences = false;
 }

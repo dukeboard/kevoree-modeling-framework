@@ -33,7 +33,42 @@ string KMFContainerImpl::getRefInParent()
     return internal_containmentRefName;
 }
 
+       /*
+               override fun toTraces(attributes : Boolean, references : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
+               val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
+               if(attributes){
+                   val attVisitorFill = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+                       public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
+                           traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value),null))
+                       }
+                   }
+                   this.visitAttributes(attVisitorFill)
+               }
+               if(references){
+                   val refVisitorFill = object : org.kevoree.modeling.api.util.ModelVisitor() {
+                       public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+                           traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,refNameInParent,elem.path()!!,null))
+                       }
+                   }
+                   this.visit(refVisitorFill,false,true,true)
+               }
+               return traces
+           }*/
+list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
+       list<ModelTrace*> *traces = new  list<ModelTrace*>;
+                if(attributes)
+                {
 
+
+                }
+
+                if(references){
+
+
+                }
+
+           return traces;
+}
   void KMFContainerImpl::setEContainer(KMFContainerImpl *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
      PRINTF("BEGIN --  setEContainer " << this << " "<<  internal_unsetCmd  <<" " << container << " " << unsetCmd  << " " << refNameInParent );
@@ -83,11 +118,15 @@ string KMFContainerImpl::getRefInParent()
              visitor->visit(internalElem,refName,this);
              if(!visitor->visitStopped)
              {
-                 if(recursive && visitor->visitChildren)
+                 if(recursive && (visitor->visitChildren || visitor->visitReferences))
                  {
-                      internalElem->visit(visitor,recursive,containedReference,nonContainedReference) ;
+                       bool visitSubReferences =   nonContainedReference &&  visitor->visitReferences;
+                       bool visitSubChilds =   containedReference &&  visitor->visitChildren;
+
+                      internalElem->visit(visitor,recursive,visitSubChilds,visitSubReferences) ;
                  }
-                  visitor->visitChildren = true;
+                  visitor->visitChildren =   true;
+                  visitor->visitReferences = true;
              }
     }
         PRINTF("END -- internal_visit");

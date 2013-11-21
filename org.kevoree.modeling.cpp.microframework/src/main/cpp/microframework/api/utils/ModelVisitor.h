@@ -19,6 +19,7 @@ class ModelVisitor
   ModelVisitor();
   void stopVisit();
   void noChildrenVisit();
+  void noReferencesVisit();
   virtual void visit(KMFContainer *elem,string refNameInParent, KMFContainer* parent)=0;
   virtual void beginVisitElem(KMFContainer *elem){}
   virtual void endVisitElem(KMFContainer *elem){}
@@ -27,6 +28,7 @@ class ModelVisitor
 
   bool visitStopped; // false
   bool visitChildren; // true
+  bool visitReferences; // true;
   std::unordered_map<string,KMFContainer*> alreadyVisited;
 };
 

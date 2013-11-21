@@ -37,7 +37,6 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
     list < ModelTrace * > *traces ;
     list < ModelTrace * > *tracesRef;
     std::unordered_map<string,KMFContainer*> values;
-  //  values.set_empty_key("");
 
     traces = origin->createTraces (target, inter, merge, false, true);
     tracesRef = origin->createTraces (target, inter, merge, true, false);

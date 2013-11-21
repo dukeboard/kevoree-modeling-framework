@@ -53,6 +53,7 @@ public:
     virtual void addModelTreeListener(ModelElementListener lst){}
     virtual void removeModelTreeListener(ModelElementListener lst){}
     virtual void removeAllModelTreeListeners(){}
+    virtual list<ModelTrace*> * toTraces(bool attributes,bool references){return NULL;}
     template <class A> // http://www.cplusplus.com/doc/tutorial/templates
 	A* findByPath(string query,A clazz);
 	virtual string internalGetKey(){return "";};

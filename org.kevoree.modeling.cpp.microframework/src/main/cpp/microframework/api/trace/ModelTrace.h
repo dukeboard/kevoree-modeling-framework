@@ -20,6 +20,8 @@ class ModelTrace
 	virtual string toString ()
 	{
 	}
+  string srcPath;	
+  string refName;
 };
 
 class ModelAddTrace : public ModelTrace
@@ -29,9 +31,7 @@ public:
    ModelAddTrace(string _srcPath, string _refName, string _previousPath,string _typeName);
    ~ModelAddTrace();
    virtual std::string toString ();
-    
-  string srcPath;
-  string refName;
+  
   string previousPath;
   string typeName;
 
@@ -43,9 +43,7 @@ public:
   ModelSetTrace (string _srcPath, string _refName, string _objPath, string _content, string _typeName);
   ~ModelSetTrace();
   virtual std::string toString ();
-  
-  string srcPath;
-  string refName;
+ 
   string objPath;
   string content;
   string typeName;
@@ -61,9 +59,6 @@ public:
   ~ModelAddAllTrace();
   virtual std::string toString ();
   std::string mkString (list < string > ss);
-
-  string srcPath;
-  string refName;
   list < string > previousPath;
   list < string > typeName;
 };
@@ -77,9 +72,6 @@ public:
   ModelRemoveTrace (string _srcPath, string _refName, string _objPath);
   ~ModelRemoveTrace();
   virtual std::string toString ();
-
-  string srcPath;
-  string refName;
   string objPath;
 };
 
@@ -91,9 +83,6 @@ public:
   ModelRemoveAllTrace (string _srcPath, string _refName);
   ~ModelRemoveAllTrace();
   virtual std::string toString ();
-
-  string srcPath;
-  string refName;
 };
 
 

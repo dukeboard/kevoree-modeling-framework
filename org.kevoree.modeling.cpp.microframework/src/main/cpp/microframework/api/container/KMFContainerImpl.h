@@ -31,6 +31,7 @@ list<ModelTrace*>* createTraces(KMFContainer *similarObj ,bool isInter ,bool isM
 void clean_path_cache();
 template <class A>
 A* findByPath(string query,A clazz);
+list<ModelTrace*> * toTraces(bool attributes,bool references);
 
 protected :
 void  internal_visit(ModelVisitor *visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName);

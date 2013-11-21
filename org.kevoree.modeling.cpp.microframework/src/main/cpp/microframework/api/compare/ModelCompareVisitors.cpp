@@ -17,7 +17,7 @@ ModelCompareVisitorCreateTraces::~ModelCompareVisitorCreateTraces(){
 
 void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
  {
-    //  PRINTF("BEGIN -- ModelCompareVisitorCreateTraces  " << elem->path());
+      PRINTF("BEGIN -- ModelCompareVisitorCreateTraces  " << elem->path());
        clock_t start = clock();
 	  string childPath = elem->path ();
 	  if (!childPath.empty ())
@@ -44,9 +44,9 @@ void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refName
 				 list<ModelTrace*> *result_references = ptr_elem->createTraces (elem, inter, merge,true, false);
 				 std::copy(result_references->begin(), result_references->end(), std::back_insert_iterator<std::list<ModelTrace*> >(*tracesRef));
                  delete  result_references;
-                 //objectsMap->set_deleted_key(childPath);
+
                  objectsMap->erase(objectsMap->find(childPath));
-                 //objectsMap->clear_deleted_key();
+
 		}
 	      else
 		{
@@ -71,7 +71,7 @@ void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refName
 	  {
 	      cout << "ERROR the child path is not defined " << endl;
 	  }
-	 // PRINTF("END -- ModelCompareVisitorCreateTraces  ");
+	  PRINTF("END -- ModelCompareVisitorCreateTraces  ");
 
 }
 

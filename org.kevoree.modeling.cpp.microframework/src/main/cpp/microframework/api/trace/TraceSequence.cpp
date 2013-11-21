@@ -33,8 +33,8 @@ TraceSequence* TraceSequence::populate(std::list<ModelTrace*> *addtraces)
 }
 
     
-void TraceSequence::append(TraceSequence seq){
-	 std::copy(seq.traces.begin(), seq.traces.end(), std::back_insert_iterator<std::list<ModelTrace*> >(traces)); // addAll
+void TraceSequence::append(TraceSequence *seq){
+	 std::copy(seq->traces.begin(), seq->traces.end(), std::back_insert_iterator<std::list<ModelTrace*> >(traces)); // addAll
 }
 
 

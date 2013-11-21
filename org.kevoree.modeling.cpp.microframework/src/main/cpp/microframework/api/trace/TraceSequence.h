@@ -20,7 +20,7 @@ public:
 	~TraceSequence();
 
 	TraceSequence* populate(list<ModelTrace*> *addtraces);
-	void append(TraceSequence seq);
+	void append(TraceSequence *seq);
 	TraceSequence* populateFromString(string addtracesTxt);
 	TraceSequence* populateFromStream(istream &inputStream );
 	string exportToString();
