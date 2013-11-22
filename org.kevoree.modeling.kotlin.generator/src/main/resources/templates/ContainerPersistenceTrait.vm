@@ -30,7 +30,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
 
     override fun setOriginPath(path: String) {
         path_cache = path
-        if(path.isNotEmpty() && path != "/"){
+        if(path != "" && path != "/"){
 
             //set key_cache
             key_cache = path.substring(path.lastIndexOf("[")+1,path.lastIndexOf("]"))
