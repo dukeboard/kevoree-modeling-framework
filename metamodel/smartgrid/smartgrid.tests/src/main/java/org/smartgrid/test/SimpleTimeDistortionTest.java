@@ -6,8 +6,7 @@ import org.evaluation.SmartMeter;
 import org.evaluation.impl.DefaultEvaluationFactory;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.time.TimeAwareKMFContainer;
-
-import java.util.HashMap;
+import org.kevoree.modeling.api.time.TimePoint;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,6 +25,10 @@ public class SimpleTimeDistortionTest {
             node.setName("meter_" + i);
             smartgrid.addSmartmeters(node);
             node.setElectricLoad(new Long(100000));
+            if (i >= 2) {
+                node.addNeighbors(smartgrid.getSmartmeters().get(i - 2));
+                node.addNeighbors(smartgrid.getSmartmeters().get(i - 1));
+            }
         }
         System.out.println("Persist everything...");
         long startPersist = System.currentTimeMillis();
@@ -41,17 +44,46 @@ public class SimpleTimeDistortionTest {
         populate(factory);
         factory.commit();
         factory.clearCache();
+
+
+        //   SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
+        //   System.out.println(meter5.getNeighbors().size());
+
         SmartGrid grid = (SmartGrid) factory.lookup("/");
+
+        System.out.println(grid.getSmartmeters().size());
+
         for (SmartMeter meter : grid.getSmartmeters()) {
             TimeAwareKMFContainer tmeter = (TimeAwareKMFContainer) meter;
-            tmeter.shift(tmeter.getNow().shift(1));
-            meter.setElectricLoad(new Long(200000));
-            factory.persist(meter);
+            for (int i = 0; i < 100; i++) {
+                tmeter.shift(tmeter.getNow().shift(1));
+                meter.setElectricLoad(new Long(200000));
+                factory.persist(meter);
+            }
         }
         factory.commit();
+        //datastore.dump();
+        computeLast(factory);
 
-        datastore.dump();
 
     }
+
+
+    public static Long computeLast(DefaultEvaluationFactory factory) {
+        factory.clearCache();
+        SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
+        System.out.println(meter5.getNeighbors().size());
+        //factory.setRelativityStrategy(RelativeTimeStrategy.RELATIVE_FIRST);
+        for (int i = 100; i > 90; i--) {
+            factory.setRelativeTime(new TimePoint(i, 0));
+            //System.out.println(factory.getRelativeTime());
+            //SmartGrid grid = (SmartGrid) factory.lookup("/");
+            //System.out.println(((TimeAwareKMFContainer) grid.getSmartmeters().get(0)).getNow());
+            SmartMeter meter = (SmartMeter) factory.lookup("smartmeters[meter_5]");
+            System.out.println(meter.getNeighbors().size());
+        }
+        return Long.valueOf(0);
+    }
+
 
 }
