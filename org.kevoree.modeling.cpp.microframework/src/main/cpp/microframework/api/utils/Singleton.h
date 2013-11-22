@@ -15,7 +15,6 @@ protected:
 		i++; // for debugging purposes
 		_mInstance = this;
 		// this function never called?
-		std::cout << "created" << std::endl;
 	};
 public:
 	static T& getSingleton()

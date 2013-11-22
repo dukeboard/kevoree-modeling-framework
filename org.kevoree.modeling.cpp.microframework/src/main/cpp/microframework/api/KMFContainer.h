@@ -7,6 +7,7 @@
 #include <microframework/api/utils/ModelVisitor.h>
 #include <microframework/api/utils/ModelAttributeVisitor.h>
 #include <microframework/api/utils/Constants.h>
+#include <microframework/api/utils/Logger.h>
 #include <ctime>
 #include <list>
 #include <string>
@@ -19,6 +20,15 @@ using std::list;
  * Time: 18:36
  */
 
+#ifdef ENABLE_LOGGER
+    #define LOGGER_START(MIN_PRIORITY, FILE) Logger::Start(MIN_PRIORITY, FILE);
+    #define LOGGER_STOP() Logger::Stop();
+    #define LOGGER_WRITE(PRIORITY, MESSAGE) Logger::Write(PRIORITY, MESSAGE);
+#else
+    #define LOGGER_START(MIN_PRIORITY, FILE)
+    #define LOGGER_STOP()
+    #define LOGGER_WRITE(PRIORITY, MESSAGE)
+#endif
 
 #define PRINTF_ERROR(...) cout << "ERROR " <<   __VA_ARGS__ << endl;
 

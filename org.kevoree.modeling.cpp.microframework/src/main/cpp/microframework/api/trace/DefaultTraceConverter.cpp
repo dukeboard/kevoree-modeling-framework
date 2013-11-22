@@ -8,11 +8,7 @@
  * Time: 18:36
  */
 DefaultTraceConverter::DefaultTraceConverter(){
-     /*
-  metaClassNameEquivalence_1.set_empty_key("");
-  metaClassNameEquivalence_2.set_empty_key("");
-  attNameEquivalence_1.set_empty_key("");
-  attNameEquivalence_2.set_empty_key(""); */
+
 }
 
 DefaultTraceConverter::~DefaultTraceConverter(){

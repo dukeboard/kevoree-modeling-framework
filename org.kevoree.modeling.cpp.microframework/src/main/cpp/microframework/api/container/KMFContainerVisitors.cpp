@@ -34,7 +34,7 @@ void  VisitorAtt::visit(any val,string name,KMFContainer *parent)
               }
 	      }else
 	      {
-	        PRINTF_ERROR("VisitorAtt AnyCast no managed") ;
+	         LOGGER_WRITE(Logger::ERROR,"The KMFContainerVisitors::VisitorAtt the type is not supported of "+name+" his parent his "+parent->path());
 	      }
 
           string data = (*values)[name];
@@ -68,7 +68,7 @@ void  VisitorAtt::visit(any val,string name,KMFContainer *parent)
 
           }else
           {
-           PRINTF_ERROR("WARNING VisitorAtt failed to remove key " << name);
+           	  LOGGER_WRITE(Logger::WARNING,"The KMFContainerVisitors::VisitorAtt try to remove"+name+" but it was not available");
           }
 
 

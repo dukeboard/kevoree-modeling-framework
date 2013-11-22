@@ -71,7 +71,7 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
 }
   void KMFContainerImpl::setEContainer(KMFContainerImpl *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
-     PRINTF("BEGIN --  setEContainer " << this << " "<<  internal_unsetCmd  <<" " << container << " " << unsetCmd  << " " << refNameInParent );
+     LOGGER_WRITE(Logger::DEBUG_MODEL,"BEGIN --KMFContainerImpl::setEContainer "+refNameInParent);
      if(!internal_readOnlyElem)
      {
         RemoveFromContainerCommand *tempUnsetCmd = internal_unsetCmd;
@@ -97,13 +97,12 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
 
      }
 
-     PRINTF("END --  setEContainer " << this);
+    LOGGER_WRITE(Logger::DEBUG_MODEL,"END --KMFContainerImpl:setEContainer");
   }
 
   void  KMFContainerImpl::internal_visit(ModelVisitor *visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName)
   {
-
-      PRINTF("BEGIN -- internal_visit path nonContainedReference " << nonContainedReference<< " recursive " << recursive);
+      LOGGER_WRITE(Logger::DEBUG_MODEL,"BEGIN --KMFContainerImpl::internal_visit path nonContainedReference");
       if(internalElem != NULL)
       {
              if(nonContainedReference && recursive)
@@ -129,13 +128,13 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
                   visitor->visitReferences = true;
              }
     }
-        PRINTF("END -- internal_visit");
+   LOGGER_WRITE(Logger::DEBUG_MODEL,"END --KMFContainerImpl::internal_visit");
   }
 
 
    string KMFContainerImpl::path()
      {
-          PRINTF("BEGIN path "<< this);
+          LOGGER_WRITE(Logger::DEBUG_MODEL,"begin -- KMFContainerImpl::path");
           if(!path_cache.empty())
           {
 
@@ -158,7 +157,7 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
           {
               path_cache =  "";
           }
-           PRINTF("END path");
+          LOGGER_WRITE(Logger::DEBUG_MODEL,"END --KMFContainerImpl::path");
           return path_cache;
       }
 

@@ -31,12 +31,11 @@ vector<KMFContainer*>* JSONModelLoader::loadModelFromString(string str){
 }
 
 vector<KMFContainer*>* JSONModelLoader::loadModelFromStream( istream &inputStream){
-     if(!inputStream){
-        PRINTF_ERROR("File no found");
+     if(!inputStream)
+     {
+        LOGGER_WRITE(Logger::ERROR,"JSONModelLoader::loadModelFromStream the file is not available ");
         return NULL;
      }
-
-
     return deserialize(inputStream);
 }
 
@@ -57,7 +56,9 @@ vector<KMFContainer*>* JSONModelLoader::deserialize(istream &inputStream){
                                 }
               } else
               {
-                        cout << "ERROR JSONModelLoader::deserializeBad Format / { expected" << endl;
+                 delete roots;
+                 roots = NULL;
+                 LOGGER_WRITE(Logger::ERROR,"JSONModelLoader::deserializeBad Format / { expected");
               }
 
 
@@ -81,14 +82,14 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                     string name = currentToken.value;
                     if(factory == NULL)
                     {
-                             cout << "ERROR JSONModelLoader Factory is NULL " << endl;
+                             LOGGER_WRITE(Logger::ERROR," JSONModelLoader::loadObject the Default Factory is NULL WTF");
                              return;
                     }
 
                     currentObject = factory->create(name);
-                             PRINTF("Create " << name << " adr =" <<currentObject);
-                    if(currentObject == NULL){
-                        cout << "ERROR JSONModelLoader Factory create  " << name << endl;
+                    if(currentObject == NULL)
+                    {
+                        LOGGER_WRITE(Logger::ERROR," JSONModelLoader::loadObject the Default Factory failed to build "+name);
                         return;
                     }
 
@@ -124,7 +125,7 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
 
                                                     any  json =string(unescapeJSON(currentToken.value));
                                                    //         cout << << endl;
-                                                   PRINTF("BEGIN -- SET "<< currentNameAttOrRef << " "<< unescapeJSON(currentToken.value));
+                                                   //PRINTF("BEGIN -- SET "<< currentNameAttOrRef << " "<< unescapeJSON(currentToken.value));
 
                                                     currentObject->reflexiveMutator(SET, currentNameAttOrRef,json ,false,false)   ;
                                                     currentNameAttOrRef.clear();
@@ -169,16 +170,18 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                      }
 
 
-            }   else {
-                               cout << ("Bad Format / eClass att must be first") <<endl;
-                               //TODO save temp att
-             }
+            }else
+            {
+                LOGGER_WRITE(Logger::ERROR,"Bad Format / eClass att must be first");
+                //TODO save temp att
+            }
 
 
 
-      }  else {
-                        cout <<  ("Bad Format") <<endl;
-       }
+      }  else
+      {
+                LOGGER_WRITE(Logger::ERROR,"Bad Format");
+      }
 
 }
 
@@ -197,8 +200,9 @@ string  JSONModelLoader::unescapeJSON(string src){
                   } else if(src[i+1]=='q') {
                       builder += "\"";
                       i = i+6;
-                  } else {
-                     cout <<    "Could not unescaped chain:" + src[i] + src[i+1] << endl;
+                  } else
+                  {
+                      LOGGER_WRITE(Logger::ERROR,"JSONModelLoader::unescapeJSON Could not unescaped chain:" + src[i] + src[i+1] );
                   }
               } else {
                  if(!builder.empty()) {

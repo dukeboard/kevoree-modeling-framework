@@ -17,8 +17,7 @@ ModelCompareVisitorCreateTraces::~ModelCompareVisitorCreateTraces(){
 
 void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
  {
-      PRINTF("BEGIN -- ModelCompareVisitorCreateTraces  " << elem->path());
-       clock_t start = clock();
+      LOGGER_WRITE(Logger::DEBUG_MODEL,"BEGIN -- ModelCompareVisitorCreateTraces "+elem->path());
 	  string childPath = elem->path ();
 	  if (!childPath.empty ())
 	  {
@@ -69,9 +68,10 @@ void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refName
 	  }
 	else
 	  {
-	      cout << "ERROR the child path is not defined " << endl;
+	        // TODO THROW EXCEPTION
+	      	LOGGER_WRITE(Logger::ERROR,"ERROR the child path is not defined "+elem->path());
 	  }
-	  PRINTF("END -- ModelCompareVisitorCreateTraces  ");
+	  LOGGER_WRITE(Logger::DEBUG_MODEL,"END -- ModelCompareVisitorCreateTraces "+elem->path());
 
 }
 
@@ -88,14 +88,13 @@ ModelCompareVisitorFiller:: ~ModelCompareVisitorFiller()
 
 void ModelCompareVisitorFiller::visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
 {
-  // PRINTF("ModelCompareVisitorFiller " << refNameInParent);
-   string childPath = elem->path ();
+    string childPath = elem->path ();
 	if (!childPath.empty ())
 	  {
 	    (*objectsMap)[childPath] = elem;
 	  }
 	else
 	  {
-	      PRINTF_ERROR("Null child path refNameInParent=" << refNameInParent);
+	        LOGGER_WRITE(Logger::ERROR,"Null child path refNameInParent=" +refNameInParent);
 	  }
 }

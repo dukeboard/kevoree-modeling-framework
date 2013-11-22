@@ -35,14 +35,12 @@ public:
 	if(typeid(trace) == typeid(ModelAddTrace))
 	{
 		  ModelAddTrace *addTrace =(ModelAddTrace*)trace;
-		  std::cout << "ModelAddTrace" <<endl;
 		  ModelAddTrace *newTrace = new ModelAddTrace( addTrace->srcPath,addTrace->refName, addTrace->previousPath,tryConvertClassName(addTrace->typeName));
 		  return newTrace;
 
 	}else if(typeid(trace) == typeid(ModelSetTrace))
 	{
 	      ModelSetTrace *setTrace =(ModelSetTrace*)trace;
-	      		  std::cout << "ModelAddTrace" <<endl;
 		  ModelSetTrace *newTrace = new ModelSetTrace( 
                             setTrace->srcPath,
                             setTrace->refName, //TODO need the origin type of the src // (workaround, try to solve directly on model => bad idea)

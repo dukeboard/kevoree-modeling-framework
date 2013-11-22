@@ -11,12 +11,10 @@
 
 class ModelCompareVisitorFiller:public ModelVisitor
 {
-
   public:
-    ModelCompareVisitorFiller (std::unordered_map<string,KMFContainer*> *_objectsMap);
-    ~ModelCompareVisitorFiller();
- void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent);
-
+  ModelCompareVisitorFiller (std::unordered_map<string,KMFContainer*> *_objectsMap);
+  ~ModelCompareVisitorFiller();
+   void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent);
 private:
     std::unordered_map<string,KMFContainer*> *objectsMap;
 };

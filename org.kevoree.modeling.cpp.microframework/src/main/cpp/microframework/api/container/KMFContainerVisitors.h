@@ -20,7 +20,6 @@ class VisitorFiller:public ModelAttributeVisitor
 
     void  visit(any val,string name,KMFContainer *parent)
     {
-        PRINTF("BEGIN -- VisitorFiller") ;
     	    string data;
             if (!val.empty () && val.type () == typeid (string) )
     		{
@@ -49,10 +48,8 @@ class VisitorFiller:public ModelAttributeVisitor
                 (*objectsMap)[name] =  data;
     		}
     	    else{
-    		   PRINTF_ERROR("VisitorFiller AnyCast");
+    		  LOGGER_WRITE(Logger::ERROR,"The KMFContainerVisitors::VisitorFiller the type is not supported of "+name+" his parent his "+parent->path());
     		}
-            PRINTF("END -- VisitorFiller") ;
-
 
     }
     std::unordered_map<string,string> *objectsMap;
@@ -90,7 +87,6 @@ class VisitorRef:public ModelVisitor
 
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
-        PRINTF("BEGIN -- VisitorRef") ;
         string concatedKey = refNameInParent +"_"+elem->path();
 
        if((*values).find(concatedKey) !=     (*values).end()){
@@ -109,10 +105,7 @@ class VisitorRef:public ModelVisitor
                 }
 
        }
-   //  values->set_deleted_key(concatedKey);
      values->erase(values->find(concatedKey));
-     //values->clear_deleted_key();
-     PRINTF("END -- VisitorRef") ;
     }
 private:
     std::unordered_map<string,string> *values;
@@ -134,9 +127,9 @@ public:
 
 
   list < ModelTrace * > *traces;
-   std::unordered_map<string,string> *values;
-   string path;
-   bool isInter;
+  std::unordered_map<string,string> *values;
+  string path;
+  bool isInter;
 };
 
 class CacheVisitorCleaner :public ModelVisitor
@@ -144,11 +137,9 @@ class CacheVisitorCleaner :public ModelVisitor
   public:
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
-       PRINTF("BEGIN --CacheVisitorCleaner ");
        if(elem !=NULL){
                elem->clean_path_cache();
        }
-       PRINTF("END --CacheVisitorCleaner");
     }
 };
 

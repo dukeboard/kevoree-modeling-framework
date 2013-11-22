@@ -50,7 +50,9 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
 	  Lexer *lexer= new Lexer(inputStream);
       Token currentToken = lexer->nextToken();
   
-        if(currentToken.tokenType != LEFT_BRACKET){
+        if(currentToken.tokenType != LEFT_BRACKET)
+        {
+            LOGGER_WRITE(Logger::ERROR,"TraceSequence::populateFromStream Bad Format : expect [");
             throw ("Bad Format : expect [");
         }
         
