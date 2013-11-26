@@ -4,36 +4,73 @@
 #include <list>
 #include <microframework/api/trace/ModelTrace.h>
 
-/*
-  val attVisitorFill = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
-                       public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
-                           traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value),null))
-                       }
-                   }
-                   */
 
-class VisitoTotracesrFiller:public ModelAttributeVisitor
+class ToTracesattVisitorFill :public ModelAttributeVisitor
 {
 
   public:
-    VisitoTotracesrFiller (std::list<ModelTrace*> *_traces,std::string _path)
+    ToTracesattVisitorFill (std::string _path,list<ModelTrace*> *_traces)
     {
-       this->traces = _traces;
-       this->path = _path;
+traces = _traces;
+path = _path;
     }
 
     void  visit(any val,string name,KMFContainer *parent)
     {
-    /*
-        ModelSetTrace *modelsettraces = new ModelSetTrace(path,name,NULL,)
-        traces->insert()    */
+		
+		  string attVal2 ;
+	      if(!val.empty() && val.type() == typeid(string))
+	      {
+	       attVal2  =AnyCast<string>(val);
+	      } else if(!val.empty() && val.type() == typeid(int)){
+	       attVal2  =AnyCast<int>(val);
+	      }else if(!val.empty() && val.type() == typeid(short)){
+	             attVal2  =AnyCast<short>(val);
+	      }else if(!val.empty () && val.type () == typeid (bool)){
+              if(AnyCast<bool>(val) == true)
+              {
+                       attVal2 ="true";
+              } else {
+                      attVal2  ="false";
+              }
+	      }else
+	      {
+	         LOGGER_WRITE(Logger::ERROR,"The KMFContainerImpl::ToTracesattVisitorFill the type is not supported of "+name+" his parent his "+parent->path());
+	      }
+	      
+		ModelSetTrace *modelsettraces = new ModelSetTrace(path,name,"",attVal2,"");
+		
+    	traces->push_back(modelsettraces);
 
     }
- private:
- list<ModelTrace*> *traces;
- std::string path;
+list<ModelTrace*> *traces;
+std::string path;
 };
 
+/*
+ *        val refVisitorFill = object : org.kevoree.modeling.api.util.ModelVisitor() {
+                       public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+                           traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,refNameInParent,elem.path()!!,null))
+                       }
+                   }*/
+class ToTracesrefVisitorFill :public ModelVisitor
+{
+  public:
+    ToTracesrefVisitorFill (std::string _path,list<ModelTrace*> *_traces)
+    {
+	traces = _traces;
+	path = _path;
+    }
+
+    void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
+    {
+		ModelAddTrace *modelsettraces = new ModelAddTrace(path,refNameInParent,elem->path(),"");	
+    	traces->push_back(modelsettraces);
+    }
+private:
+list<ModelTrace*> *traces;
+std::string path;
+};
 
 
 #endif

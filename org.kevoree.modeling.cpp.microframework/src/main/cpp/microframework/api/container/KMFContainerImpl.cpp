@@ -33,41 +33,23 @@ string KMFContainerImpl::getRefInParent()
     return internal_containmentRefName;
 }
 
-       /*
-               override fun toTraces(attributes : Boolean, references : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
-               val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
-               if(attributes){
-                   val attVisitorFill = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
-                       public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer){
-                           traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,name,null,org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value),null))
-                       }
-                   }
-                   this.visitAttributes(attVisitorFill)
-               }
-               if(references){
-                   val refVisitorFill = object : org.kevoree.modeling.api.util.ModelVisitor() {
-                       public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
-                           traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,refNameInParent,elem.path()!!,null))
-                       }
-                   }
-                   this.visit(refVisitorFill,false,true,true)
-               }
-               return traces
-           }*/
+
 list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
-       list<ModelTrace*> *traces = new  list<ModelTrace*>;
-                if(attributes)
-                {
+	list<ModelTrace*> *traces = new  list<ModelTrace*>;
+    if(attributes)
+    {
+					ToTracesattVisitorFill *attVisitorFill= new ToTracesattVisitorFill(path(),traces);
+					this->visitAttributes(attVisitorFill);
+					delete attVisitorFill;
+    }
 
+   if(references){
+					ToTracesrefVisitorFill *refVisitorFill = new ToTracesrefVisitorFill(path(),traces);
+					this->visit(refVisitorFill,false,true,true);
+					delete refVisitorFill;
+   }
 
-                }
-
-                if(references){
-
-
-                }
-
-           return traces;
+     return traces;
 }
   void KMFContainerImpl::setEContainer(KMFContainerImpl *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
@@ -137,11 +119,12 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
           LOGGER_WRITE(Logger::DEBUG_MODEL,"begin -- KMFContainerImpl::path");
           if(!path_cache.empty())
           {
-
+			   	LOGGER_WRITE(Logger::DEBUG_MODEL,"path_cache "+path_cache);
                 return path_cache;
           }
           KMFContainer *container = eContainer();
           if(container != NULL) {
+		
               string parentPath = container->path();
 
               if(parentPath == "")

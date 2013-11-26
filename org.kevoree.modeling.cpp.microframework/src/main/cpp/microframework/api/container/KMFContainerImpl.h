@@ -5,6 +5,7 @@
 #include <microframework/api/container/RemoveFromContainerCommand.h>
 #include <microframework/api/container/KMFContainerVisitors.h>
 #include <microframework/api/utils/Utils.h>
+#include <microframework/api/container/TotracesVisitors.h>
 
 using std::string;
 using std::list;
@@ -45,5 +46,7 @@ list<ModelElementListener> internal_modelTreeListeners;
 std::string path_cache;
 
 };
+
+
 
 #endif
