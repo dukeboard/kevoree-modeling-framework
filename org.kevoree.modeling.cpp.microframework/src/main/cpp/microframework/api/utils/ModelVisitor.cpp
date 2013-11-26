@@ -15,7 +15,6 @@ ModelVisitor::ModelVisitor(){
 	  visitStopped = false;
 	  visitChildren = true;
 	  visitReferences=true;
-	  //alreadyVisited.set_empty_key("");
 }
 
 
