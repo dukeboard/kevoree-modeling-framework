@@ -13,12 +13,12 @@ public:
     // log priorities
     enum Priority
     {
-		DEBUG_MODEL=0,
-        DEBUG=1,
-        CONFIG=2,
-        INFO=3,
-        WARNING=4,
-        ERROR=5
+		DEBUG_MODEL,
+        DEBUG,
+        CONFIG,
+        INFO,
+        WARNING,
+        ERROR
     };
 
     // start/stop logging

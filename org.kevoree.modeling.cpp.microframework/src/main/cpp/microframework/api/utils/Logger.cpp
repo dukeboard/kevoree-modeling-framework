@@ -8,12 +8,12 @@
 
 const string Logger::PRIORITY_NAMES[] =
 {
-	"DEBUG_MODEL"
-    "DEBUG",
-    "CONFIG",
-    "INFO",
-    "WARNING",
-    "ERROR"
+		"DEBUG_MODEL",
+        "DEBUG",
+        "CONFIG",
+        "INFO",
+        "WARNING",
+        "ERROR"
 };
 
 Logger Logger::instance;
@@ -56,5 +56,11 @@ void Logger::Write(Priority priority, const string& message)
                 << ": "
                 << message
                 << endl;
+                
+          cout  << PRIORITY_NAMES[priority]
+                << ": "
+                << message
+                << endl;
     }
 }
+
