@@ -30,14 +30,16 @@ using std::list;
     #define LOGGER_WRITE(PRIORITY, MESSAGE)
 #endif
 
+/*
+ * TODO REMOVE 
+ */
 #define PRINTF_ERROR(...) cout << "ERROR " <<   __VA_ARGS__ << endl;
 
-#ifdef DEBUG
+#ifdef ENABLE_LOGGER
     #define PRINTF(...) cout << "DEBUG " <<   __VA_ARGS__ << endl;
 #else
     #define PRINTF(...)
 #endif
-
 
 
 class KMFContainer 
