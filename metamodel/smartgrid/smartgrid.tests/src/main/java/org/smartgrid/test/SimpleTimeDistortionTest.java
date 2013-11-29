@@ -4,9 +4,11 @@ package org.smartgrid.test;
 import org.evaluation.SmartGrid;
 import org.evaluation.SmartMeter;
 import org.evaluation.impl.DefaultEvaluationFactory;
+import org.kevoree.modeling.api.persistence.DataStore;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.time.TimeAwareKMFContainer;
 import org.kevoree.modeling.api.time.TimePoint;
+import org.kevoree.modeling.datastores.leveldb.LevelDbDataStore;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,9 +18,11 @@ import org.kevoree.modeling.api.time.TimePoint;
  */
 public class SimpleTimeDistortionTest {
 
-    public static final int NODES_PER_GRID = 10;
+    public static final int NODES_PER_GRID = 100;
+    private static DataStore datastore = new LevelDbDataStore("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/smartgrid/smartgrid.tests/tempTimeDistorted");
 
     private static void populate(DefaultEvaluationFactory factory) {
+
         SmartGrid smartgrid = factory.createSmartGrid();
         for (int i = 0; i < NODES_PER_GRID; i++) {
             SmartMeter node = factory.createSmartMeter();
@@ -31,23 +35,30 @@ public class SimpleTimeDistortionTest {
             }
         }
         System.out.println("Persist everything...");
-        long startPersist = System.currentTimeMillis();
         factory.persistBatch(factory.createBatch().addElementAndReachable(smartgrid));
-        long endPersist = System.currentTimeMillis();
-        System.out.println("Persisted in " + (endPersist - startPersist) + " ms");
+
+        factory.commit();
     }
 
     public static void main(String[] args) {
+
+
         DefaultEvaluationFactory factory = new DefaultEvaluationFactory();
-        MemoryDataStore datastore = new MemoryDataStore();
+
+
+
+        //MemoryDataStore datastore = new MemoryDataStore();
         factory.setDatastore(datastore);
+
+        long startPersist = System.currentTimeMillis();
+
+
         populate(factory);
-        factory.commit();
         factory.clearCache();
 
 
-        //   SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
-        //   System.out.println(meter5.getNeighbors().size());
+           SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
+           System.out.println(meter5.getNeighbors().size());
 
         SmartGrid grid = (SmartGrid) factory.lookup("/");
 
@@ -55,32 +66,39 @@ public class SimpleTimeDistortionTest {
 
         for (SmartMeter meter : grid.getSmartmeters()) {
             TimeAwareKMFContainer tmeter = (TimeAwareKMFContainer) meter;
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 10000; i++) {
                 tmeter.shift(tmeter.getNow().shift(1));
                 meter.setElectricLoad(new Long(200000));
                 factory.persist(meter);
             }
         }
         factory.commit();
+        long endPersist = System.currentTimeMillis();
+        System.out.println("Persisted in " + (endPersist - startPersist) + " ms");
+
+
+
         //datastore.dump();
-        computeLast(factory);
-
-
+        long before = System.currentTimeMillis();
+        computeLast(factory, 90, 100);
+        computeLast(factory, 20, 30);
+        System.out.println((System.currentTimeMillis()-before)+"ms");
     }
 
 
-    public static Long computeLast(DefaultEvaluationFactory factory) {
+    public static Long computeLast(DefaultEvaluationFactory factory, int begin, int end) {
         factory.clearCache();
         SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
-        System.out.println(meter5.getNeighbors().size());
+        //System.out.println(meter5.getNeighbors().size());
         //factory.setRelativityStrategy(RelativeTimeStrategy.RELATIVE_FIRST);
-        for (int i = 100; i > 90; i--) {
+        for (int i = end; i > begin; i--) {
             factory.setRelativeTime(new TimePoint(i, 0));
             //System.out.println(factory.getRelativeTime());
             //SmartGrid grid = (SmartGrid) factory.lookup("/");
             //System.out.println(((TimeAwareKMFContainer) grid.getSmartmeters().get(0)).getNow());
             SmartMeter meter = (SmartMeter) factory.lookup("smartmeters[meter_5]");
-            System.out.println(meter.getNeighbors().size());
+            //System.out.println(((TimeAwareKMFContainer) meter).getNow());
+            //System.out.println(meter.getNeighbors().size());
         }
         return Long.valueOf(0);
     }
