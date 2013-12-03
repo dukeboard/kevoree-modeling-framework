@@ -323,9 +323,12 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
       pr.println("}")
       if (ctx.generateEvents) {
         pr.println("if(fireEvents) {")
-        pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.REFERENCE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path(),null))")
+        pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + ", path(),null))")
         pr.println("}")
       }
+
+      pr.println("visit(org.kevoree.container.cleanCacheVisitor,true,true,false);")
+
     }
     pr.println("\t}")
     pr.println("\t}//end of setter")
