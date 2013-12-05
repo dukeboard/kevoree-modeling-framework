@@ -327,7 +327,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
         pr.println("}")
       }
 
-      pr.println("visit(org.kevoree.container.cleanCacheVisitor,true,true,false);")
+      pr.println("visit(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".container.cleanCacheVisitor,true,true,false);")
 
     }
     pr.println("\t}")
