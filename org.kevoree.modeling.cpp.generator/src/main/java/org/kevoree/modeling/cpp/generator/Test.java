@@ -16,7 +16,7 @@ public class Test {
         GenerationContext context = new GenerationContext();
         context.setRootGenerationDirectory("/home/jed/KEVOREE_PROJECT/kevoree-cpp/kevoree-core/model");
         context.setEcore("/home/jed/KEVOREE_PROJECT/kevoree-cpp/kevoree-core/model/metamodel/kevoree.ecore");
-        context.setDebug_model(false);
+        context.setDebug_model(true);
         context.setVersion("1.0");
         context.setVersionmicroframework("1.2-SNAPSHOT");
 
@@ -38,6 +38,6 @@ public class Test {
 
         Generator gen2 = new Generator(context2);
         gen2.generateModel();
-        gen2.generateEnvironnement();
+      //  gen2.generateEnvironnement();
     }
 }

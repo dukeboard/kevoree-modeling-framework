@@ -81,6 +81,10 @@ public:
         out->append(",\n\"" + refName + "\":[");
         isFirst = true;
      }
+     void endVisitRef(string refName)
+     {
+		 out->append("]");
+     }
     void visit(KMFContainer *elem,string refNameInParent, KMFContainer* parent)
     {
         if(!isFirst){

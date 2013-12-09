@@ -47,6 +47,8 @@ public class App {
 
 
 
+
+
         try{
 
             CommandLineParser parser = new GnuParser();
@@ -70,8 +72,8 @@ public class App {
             context.setRootGenerationDirectory(path);
             context.setEcore(ecore_file);
             context.setDebug_model(false);
-            context.setVersion("1.1-SNAPSHOT");
-            context.setVersionmicroframework("1.1-SNAPSHOT");
+            context.setVersion("1.2-SNAPSHOT");
+            context.setVersionmicroframework("1.2-SNAPSHOT");
 
 
             Generator gen = new Generator(context);
@@ -108,9 +110,7 @@ public class App {
             e.printStackTrace();
         }
     }
-         /*
 
-                */
 
 
 }

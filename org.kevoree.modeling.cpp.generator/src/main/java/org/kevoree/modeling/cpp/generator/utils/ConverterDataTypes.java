@@ -36,7 +36,7 @@ public class ConverterDataTypes {
          cpp_reserve.add("typeid");
 
 
-
+         dataTypes.put("Object", "KMFContainer *")    ;
          dataTypes.put("EBigDecimal", "bigint")    ;
          dataTypes.put("EBigInteger", "bigint") ;
          dataTypes.put("EBoolean", "bool")    ;
