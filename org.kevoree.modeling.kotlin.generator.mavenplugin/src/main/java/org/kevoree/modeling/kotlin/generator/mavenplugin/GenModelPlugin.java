@@ -51,10 +51,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.jet.cli.common.CLICompiler;
 import org.jetbrains.jet.cli.common.ExitCode;
+import org.jetbrains.jet.cli.common.arguments.K2JSCompilerArguments;
+import org.jetbrains.jet.cli.common.arguments.K2JVMCompilerArguments;
 import org.jetbrains.jet.cli.js.K2JSCompiler;
-import org.jetbrains.jet.cli.js.K2JSCompilerArguments;
 import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
-import org.jetbrains.jet.cli.jvm.K2JVMCompilerArguments;
 import org.jetbrains.k2js.config.EcmaVersion;
 import org.jetbrains.k2js.config.MetaInfServices;
 import org.kevoree.modeling.aspect.AspectClass;
@@ -405,8 +405,7 @@ public class GenModelPlugin extends AbstractMojo {
                                     }
 
 
-
-                                    FileOutputStream jos = new FileOutputStream(destFile,false);
+                                    FileOutputStream jos = new FileOutputStream(destFile, false);
                                     InputStream is = jarFile.getInputStream(entry);
                                     byte[] buffer = new byte[4096];
                                     int bytesRead = 0;
@@ -490,17 +489,15 @@ public class GenModelPlugin extends AbstractMojo {
                 }
             } else {
                 K2JVMCompilerArguments args = new K2JVMCompilerArguments();
-                args.setClasspath(cpath.toString());
-
-                ArrayList<String> sources = new ArrayList<String>();
-                sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
+                args.classpath = cpath.toString();
+                String sources = ctx.getRootGenerationDirectory().getAbsolutePath();
                 if (sourceFile.exists()) {
                     getLog().info("Add directory : " + sourceFile.getAbsolutePath());
-                    sources.add(sourceFile.getAbsolutePath());
+                    sources = sources + File.pathSeparator + sourceFile.getAbsolutePath();
                 }
-
-                args.setSourceDirs(sources);
-                args.setOutputDir(outputClasses.getPath());
+                //args.src = sources
+                args.outputDir = outputClasses.getPath();
+                args.src = (sources);
                 args.noJdkAnnotations = true;
                 args.noStdlib = true;
                 args.verbose = false;
