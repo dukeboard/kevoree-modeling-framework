@@ -1,7 +1,5 @@
 #include <microframework/api/container/KMFContainerVisitors.h>
 
-
-
 VisitorAtt::~VisitorAtt(){
 
 
@@ -41,31 +39,24 @@ void  VisitorAtt::visit(any val,string name,KMFContainer *parent)
 
 	      if(data.compare(attVal2) == 0)
 	      {
-
 	            if(isInter)
 	            {
                     ModelSetTrace *settrace = new ModelSetTrace(path,name,"",attVal2,"");
                     traces->push_back(settrace);
-
                 }
 
 	      } else
 	      {
 	              if(!isInter)
             	  {
-            	                cout << data.compare(attVal2) << "  "  << name << " " << data << " " << attVal2  << endl;
-                                ModelSetTrace *settrace = new ModelSetTrace(path,name,"",attVal2,"");
-                                traces->push_back(settrace);
-
+                       ModelSetTrace *settrace = new ModelSetTrace(path,name,"",attVal2,"");
+                       traces->push_back(settrace);
                   }
 
 	      }
           if(values->find(name) !=    values->end())
           {
-             	//values->set_deleted_key(name);
                 values->erase(values->find(name));
-                //values->clear_deleted_key();
-
           }else
           {
            	  LOGGER_WRITE(Logger::WARNING,"The KMFContainerVisitors::VisitorAtt try to remove"+name+" but it was not available");

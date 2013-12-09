@@ -35,7 +35,7 @@ using std::list;
  */
 #define PRINTF_ERROR(...) cout << "ERROR " <<   __VA_ARGS__ << endl;
 
-#ifdef ENABLE_LOGGER
+#ifdef DEBUG_MODEL
     #define PRINTF(...) cout << "DEBUG " <<   __VA_ARGS__ << endl;
 #else
     #define PRINTF(...)

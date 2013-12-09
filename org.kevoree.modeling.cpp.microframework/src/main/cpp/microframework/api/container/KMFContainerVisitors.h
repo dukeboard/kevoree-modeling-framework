@@ -15,7 +15,7 @@ class VisitorFiller:public ModelAttributeVisitor
   public:
     VisitorFiller (std::unordered_map<string,string> *_objectsMap)
     {
-	objectsMap = _objectsMap;
+		objectsMap = _objectsMap;
     }
 
     void  visit(any val,string name,KMFContainer *parent)
@@ -65,8 +65,14 @@ class VisitorFillRef:public ModelVisitor
 
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
-        string concatedKey = refNameInParent +"_"+elem->path() ;
-        (*objectsMap)[concatedKey] = "";
+		if(elem != NULL)
+		{
+			string concatedKey = refNameInParent +"_"+elem->path() ;
+			(*objectsMap)[concatedKey] = "";
+		}else 
+		{
+			LOGGER_WRITE(Logger::ERROR,"The ref visitor vist a null element "+refNameInParent);	
+		}
 
     }
     std::unordered_map<string,string> *objectsMap;
@@ -87,25 +93,30 @@ class VisitorRef:public ModelVisitor
 
     void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
     {
-        string concatedKey = refNameInParent +"_"+elem->path();
-
-       if((*values).find(concatedKey) !=     (*values).end()){
-           if(isInter)
-           {
-                ModelAddTrace *modeltrace = new ModelAddTrace(path,refNameInParent,elem->path(),"");
-                traces->push_back(modeltrace);
-           }
-
-       }  else
-       {
-                if(!isInter)
-                {
-                         ModelAddTrace *modeltrace = new ModelAddTrace(path,refNameInParent,elem->path(),"");
-                       traces->push_back(modeltrace);
-                }
-
-       }
-     values->erase(values->find(concatedKey));
+		if(elem != NULL){
+			LOGGER_WRITE(Logger::DEBUG_MODEL,"BEGIN -- VisitorRef");
+			string concatedKey = refNameInParent +"_"+elem->path();
+		   if((*values).find(concatedKey) !=  (*values).end())
+		   {
+			   if(isInter)
+			   {
+					ModelAddTrace *modeltrace = new ModelAddTrace(path,refNameInParent,elem->path(),"");
+					traces->push_back(modeltrace);
+			   }
+			   values->erase(values->find(concatedKey));
+		   }  
+		   else
+		   {
+					if(!isInter)
+					{
+							 ModelAddTrace *modeltrace = new ModelAddTrace(path,refNameInParent,elem->path(),"");
+							 traces->push_back(modeltrace);
+					}
+		   }
+		LOGGER_WRITE(Logger::DEBUG_MODEL,"END -- VisitorRef");
+	}else {
+			LOGGER_WRITE(Logger::ERROR,"The ref visitor vist a null element "+refNameInParent);	
+	}
     }
 private:
     std::unordered_map<string,string> *values;

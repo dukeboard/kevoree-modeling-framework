@@ -95,6 +95,6 @@ void ModelCompareVisitorFiller::visit (KMFContainer * elem, string refNameInPare
 	  }
 	else
 	  {
-	        LOGGER_WRITE(Logger::ERROR,"Null child path refNameInParent=" +refNameInParent);
+	        LOGGER_WRITE(Logger::ERROR,"ModelCompareVisitorFiller child path refNameInParent=" +refNameInParent+" "+parent->path()+" "+elem->metaClassName());
 	  }
 }

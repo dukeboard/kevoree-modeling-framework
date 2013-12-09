@@ -90,12 +90,15 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
              if(nonContainedReference && recursive)
              {
                     string elemPath = internalElem->path();
+               
                    	if(visitor->alreadyVisited.find(elemPath) != visitor->alreadyVisited.end())
                    	{
+							 LOGGER_WRITE(Logger::DEBUG_MODEL,"already visited "+elemPath);
                    	           return;
                    	}
                      visitor->alreadyVisited[elemPath] =internalElem;
              }
+             LOGGER_WRITE(Logger::DEBUG_MODEL,"visit "+refName);
              visitor->visit(internalElem,refName,this);
              if(!visitor->visitStopped)
              {
@@ -119,7 +122,7 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
           LOGGER_WRITE(Logger::DEBUG_MODEL,"begin -- KMFContainerImpl::path");
           if(!path_cache.empty())
           {
-			   	LOGGER_WRITE(Logger::DEBUG_MODEL,"path_cache "+path_cache);
+			   	LOGGER_WRITE(Logger::DEBUG_MODEL,"end -- KMFContainerImpl::path "+path_cache);
                 return path_cache;
           }
           KMFContainer *container = eContainer();
@@ -205,77 +208,79 @@ void KMFContainerImpl::clean_path_cache(){
  path_cache.clear();
 }
 
-               list<ModelTrace*>* KMFContainerImpl::createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes )
-               {
+list<ModelTrace*>* KMFContainerImpl::createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes )
+{
+	LOGGER_WRITE(Logger::DEBUG_MODEL,"begin -- createTraces");
+	list <ModelTrace*> *traces= new   list <ModelTrace *>;
+	std::unordered_map<string,string> values;
+    LOGGER_WRITE(Logger::DEBUG_MODEL,"begin visit attributes");
+    if(onlyAttributes)
+    {
+		
+        VisitorFiller *attVisitorFill= new VisitorFiller (&values);
+        visitAttributes(attVisitorFill);
+		delete   attVisitorFill;
+		
+		if(similarObj!=NULL)
+        {
+			VisitorAtt  *attVisitor= new VisitorAtt(&values,traces,path(),isInter);
+            similarObj->visitAttributes(attVisitor);
+            delete attVisitor;
+        }
 
-                     list <ModelTrace*> *traces= new   list <ModelTrace *>;
-
-                     std::unordered_map<string,string> values;
-                 //    values.set_empty_key("");
-
-                     if(onlyAttributes)
-                     {
-                            VisitorFiller *attVisitorFill= new VisitorFiller (&values);
-                            visitAttributes(attVisitorFill);
-                            delete   attVisitorFill;
-
-
-                            if(similarObj!=NULL)
-                            {
-                               VisitorAtt  *attVisitor= new VisitorAtt(&values,traces,path(),isInter);
-                               similarObj->visitAttributes(attVisitor);
-                               delete attVisitor;
-                            }
-
-                            if(!isInter && !isMerge && values.size() != 0){
+        if(!isInter && !isMerge && values.size() != 0)
+        {
 
                               for ( std::unordered_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it) {
 
-                                    string  hashLoopRes= it->second;
+                                    string  hashLoopRes= it->first;
                                      ModelSetTrace *modelsettrace = new ModelSetTrace(path(),hashLoopRes,"","","");
                                      traces->push_back(modelsettrace);
                               }
 
                             }
-                     }
+    }
+    LOGGER_WRITE(Logger::DEBUG_MODEL,"end visit attributes");
 
-                        if(onlyReferences)
-                        {
-                            string payload ="";
-                            VisitorFillRef *refVisitorFill = new VisitorFillRef(&values);         // TODO FIXE ME ? payload
-                            visit(refVisitorFill,false,false,true);
-                            delete refVisitorFill;
-                            if(similarObj)
-                            {
-                               VisitorRef *refvisitor = new VisitorRef(&values,traces,path(),isInter);
-                               similarObj->visit(refvisitor,false,false,true);
-                               delete refvisitor;
-                            }
+    if(onlyReferences)
+    {
+		string payload ="";
+        VisitorFillRef *refVisitorFill = new VisitorFillRef(&values);         // TODO FIXE ME ? payload
+        visit(refVisitorFill,false,false,true);
+        delete refVisitorFill;
+      
+        if(similarObj)
+        {
+           VisitorRef *refvisitor = new VisitorRef(&values,traces,path(),isInter);
+           similarObj->visit(refvisitor,false,false,true);
+           delete refvisitor;
+        }
+		
+		if(!isInter && !isMerge && (values.size() != 0))
+        {
 
-
-                            if(!isInter && !isMerge && (values.size() != 0))
-                            {
-
-                            for ( std::unordered_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it)
-                            {
-                                string hashLoopRes =  it->second;
-                                vector<string> result =   Utils::split(hashLoopRes,"_");
-                                ModelRemoveTrace *removetrace = new ModelRemoveTrace(path(),result.at(0),result.at(1));
-                                traces->push_back(removetrace);
-                            }
-
-                            }
-
-
-
-                        }
-                        values.clear();
-
-                  return traces;
-               }
+			for ( std::unordered_map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it)
+			{
+				string hashLoopRes =  it->first;
+				vector<string> result =   Utils::split(hashLoopRes,"_");		
+				if(result.size() ==2){		
+					ModelRemoveTrace *removetrace = new ModelRemoveTrace(path(),result.at(0),result.at(1));
+					traces->push_back(removetrace);
+				}
+				else
+				{
+					LOGGER_WRITE(Logger::ERROR,"hashLoopRes "+hashLoopRes);
+				}
+			}
+       }
+    }
+    values.clear();
+	LOGGER_WRITE(Logger::DEBUG_MODEL,"end -- createTraces");
+	return traces;
+}
 template <class A>
 A* KMFContainerImpl::findByPath(string query,A clazz)
-  {
+{
     KMFContainer* result= findByPath(query);
     if(result !=NULL){
         if(typeid(*result) == typeid(clazz)){
@@ -283,7 +288,9 @@ A* KMFContainerImpl::findByPath(string query,A clazz)
         }                 else {
         return NULL;
         }
-    }               else {
-    return NULL;
     }
-  }
+    else 
+    {
+		return NULL;
+    }
+}
