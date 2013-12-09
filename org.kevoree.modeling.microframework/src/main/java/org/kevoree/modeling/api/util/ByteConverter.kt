@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.util
 
 import java.io.ByteArrayInputStream
-import java.nio.charset.StandardCharsets
 
 /*
 * Author : Gregory Nain (developer.name@uni.lu)
