@@ -38,11 +38,6 @@
             <artifactId>jfilter-library</artifactId>
             <version>1.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.kevoree</groupId>
-            <artifactId>org.kevoree.maven.resolver</artifactId>
-            <version>1</version>
-        </dependency>
     </dependencies>
 
     <build>

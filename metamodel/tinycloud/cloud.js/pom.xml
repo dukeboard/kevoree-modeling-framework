@@ -43,7 +43,7 @@
                             <ecore>${metamodel.ecore}</ecore>
                             <packagePrefix>org</packagePrefix>
                             <js>true</js>
-                            <timeAware>true</timeAware>
+                          <!--  <timeAware>true</timeAware>-->
 							<events>true</events>
                         </configuration>
                     </execution>

@@ -165,7 +165,8 @@ public class XmlParser(val inputStream : java.io.InputStream) {
             while(currentChar != '=') { // read attributeName and/or prefix
                 if(currentChar == ':') {
                     attributePrefix = attributeName.toString()
-                    attributeName.delete(0, attributeName.length())
+                    attributeName = StringBuilder()
+                   // attributeName.delete(0, attributeName.length())
                 } else {
                     attributeName.append(currentChar!!)
                 }
@@ -183,9 +184,11 @@ public class XmlParser(val inputStream : java.io.InputStream) {
             attributesNames.add(attributeName.toString())
             attributesPrefixes.add(attributePrefix)
             attributesValues.add(attributeValue.toString())
-            attributeName.delete(0, attributeName.length())
+            attributeName = StringBuilder()
+            //attributeName.delete(0, attributeName.length())
             attributePrefix = null
-            attributeValue.delete(0, attributeValue.length())
+            //attributeValue.delete(0, attributeValue.length())
+            attributeValue = StringBuilder()
 
             do{//Trim to next attribute
                 currentChar = readChar()

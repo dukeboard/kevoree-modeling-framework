@@ -15,7 +15,7 @@
 
 	<modules>
 		<module>fsm/org.kevoree.modeling.sample.fsm.kt</module>
-		<module>fsm/org.kevoree.modeling.sample.fsm.emf</module>
+		<!--<module>fsm/org.kevoree.modeling.sample.fsm.emf</module>-->
 		<module>fsm/org.kevoree.modeling.sample.fsm.kt.events</module>
         <module>fsm/org.kevoree.modeling.sample.fsm.test</module>
 
@@ -25,15 +25,15 @@
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.test</module>
 		
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.js</module>
-		<module>kevoree/org.kevoree.modeling.sample.kevoree.emf</module>
+		<!--<module>kevoree/org.kevoree.modeling.sample.kevoree.emf</module>-->
 		<module>kevoree/org.kevoree.modeling.sample.kevoree.event.js</module>
 		
 		<module>thingml/org.kevoree.modeling.sample.thingml.kt</module>
-		<module>thingml/org.kevoree.modeling.sample.thingml.emf</module>
+		<!--<module>thingml/org.kevoree.modeling.sample.thingml.emf</module>-->
 		<module>diva/org.kevoree.modeling.sample.diva.kt</module>
-		<module>diva/org.kevoree.modeling.sample.diva.emf</module>
+		<!--<module>diva/org.kevoree.modeling.sample.diva.emf</module>-->
         <module>cloudml/org.kevoree.modeling.sample.cloudml.kt</module>
-        <module>cloudml/org.kevoree.modeling.sample.cloudml.emf</module>
+      <!--  <module>cloudml/org.kevoree.modeling.sample.cloudml.emf</module> -->
 		
 		
         <module>multiecore</module>
@@ -43,7 +43,7 @@
 		<module>tinycloud/cloud.js</module>
 		
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.kt</module>
-		<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>
+		<!--<module>kermeta/org.kevoree.modeling.sample.kermeta.emf</module>-->
 		<module>kermeta/org.kevoree.modeling.sample.kermeta.js</module>
 		
 		<module>ecore/org.kevoree.modeling.sample.ecore.kt</module>
