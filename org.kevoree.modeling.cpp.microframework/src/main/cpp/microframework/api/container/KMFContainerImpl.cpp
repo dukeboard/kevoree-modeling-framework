@@ -98,7 +98,7 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
                    	}
                      visitor->alreadyVisited[elemPath] =internalElem;
              }
-             LOGGER_WRITE(Logger::DEBUG_MODEL,"visit "+refName);
+             LOGGER_WRITE(Logger::DEBUG_MODEL,"Visiting "+refName);
              visitor->visit(internalElem,refName,this);
              if(!visitor->visitStopped)
              {
@@ -119,10 +119,10 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
 
    string KMFContainerImpl::path()
      {
-          LOGGER_WRITE(Logger::DEBUG_MODEL,"begin -- KMFContainerImpl::path");
+          LOGGER_WRITE(Logger::DEBUG_MODEL,"REQUEST -- KMFContainerImpl::path");
           if(!path_cache.empty())
           {
-			   	LOGGER_WRITE(Logger::DEBUG_MODEL,"end -- KMFContainerImpl::path "+path_cache);
+			   	LOGGER_WRITE(Logger::DEBUG_MODEL,"RESULT -- KMFContainerImpl::path "+path_cache);
                 return path_cache;
           }
           KMFContainer *container = eContainer();

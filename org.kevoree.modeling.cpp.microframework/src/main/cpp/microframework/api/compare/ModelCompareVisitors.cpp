@@ -1,5 +1,11 @@
 #include <microframework/api/compare/ModelCompareVisitors.h>
 
+/**
+ * Author: jedartois@gmail.com
+ * Date: 24/10/13
+ * Time: 18:36
+ */
+
 ModelCompareVisitorCreateTraces::ModelCompareVisitorCreateTraces (std::unordered_map<string,KMFContainer*> *_objectsMap, bool _inter,bool _merge,list<ModelTrace *> *_traces,list<ModelTrace *> *_tracesRef)
 {
 		objectsMap = _objectsMap;

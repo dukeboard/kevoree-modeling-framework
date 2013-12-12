@@ -14,6 +14,7 @@ public:
     enum Priority
     {
 		DEBUG_MODEL,
+		DEBUG_MICROFRAMEWORK,
         DEBUG,
         CONFIG,
         INFO,

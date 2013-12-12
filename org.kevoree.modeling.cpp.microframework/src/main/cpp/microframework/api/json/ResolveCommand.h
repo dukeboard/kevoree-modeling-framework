@@ -17,9 +17,8 @@ public:
          refName =  _refName;
       }
 
-      void run(){
-
-
+      void run()
+      {
               KMFContainer  *referencedElement=NULL;
                int i=0;
                while(referencedElement == NULL &&  i < roots->size())
@@ -29,15 +28,13 @@ public:
                }
               if(referencedElement != NULL)
               {
-
                 any value =  referencedElement;
                 currentRootElem->reflexiveMutator(ADD, refName, value,false,false);
-
-              } else
-              {
-                 PRINTF_ERROR("Unresolved " << ref); //ref imrpove expection
               }
-
+              else
+              {
+                   throw std::string( "Unresolved " + ref );
+              }
       }
 
 private:
@@ -47,8 +44,4 @@ private:
       string refName;
 
 };
-
-
-
-
 #endif

@@ -72,8 +72,8 @@ public class App {
             context.setRootGenerationDirectory(path);
             context.setEcore(ecore_file);
             context.setDebug_model(false);
-            context.setVersion("1.2-SNAPSHOT");
-            context.setVersionmicroframework("1.2-SNAPSHOT");
+            context.setVersion("1.3-SNAPSHOT");
+            context.setVersionmicroframework("1.3-SNAPSHOT");
 
 
             Generator gen = new Generator(context);

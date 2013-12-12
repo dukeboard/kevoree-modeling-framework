@@ -4,21 +4,16 @@
 
 void ${classname}::remove${refname}(${typeadd} *ptr)
 {
-    //PRINTF("BEGIN -- ${classname} remove${refname}");
     ${typeadd} *container = (${typeadd}*)ptr;
     if(container->internalGetKey().empty())
     {
-        PRINTF_ERROR("the key is empty for ${refname}");
+        LOGGER_WRITE(Logger::WARNING,"The ${typeadd} cannot be removed in ${classname} because the key is not defined");
     }
     else
     {
-        PRINTF("KEY -- ${classname} ${refname}  "<< container->internalGetKey() );
-       // ${refname}.set_deleted_key(container->internalGetKey());
         ${refname}.erase( ${refname}.find(container->internalGetKey()));
-     //   ${refname}.clear_deleted_key();
         ${isContainment}
         container->setEContainer(NULL,NULL,"");
     }
-   // PRINTF("END -- ${classname} remove${refname}");
 }
 

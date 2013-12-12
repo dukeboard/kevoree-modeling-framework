@@ -70,11 +70,11 @@ vector<KMFContainer*>* JSONModelLoader::deserialize(istream &inputStream){
 
 void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *parent,vector<KMFContainer*> *roots ,vector<ResolveCommand*> *commands)
 {
-        //   cout <<  "loadObject " << nameInParent << " parent adr = "<< parent  << endl;
-
+      LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK, "loadObject "+nameInParent);
       Token currentToken = lexer->nextToken();
       KMFContainer  *currentObject=NULL;
-      if(currentToken.tokenType == VALUE){
+      if(currentToken.tokenType == VALUE)
+      {
             if(currentToken.value.compare("eClass") == 0){
 
                     lexer->nextToken(); //unpop :
@@ -83,14 +83,14 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                     if(factory == NULL)
                     {
                              LOGGER_WRITE(Logger::ERROR," JSONModelLoader::loadObject the Default Factory is NULL WTF");
-                             return;
+                             throw std::string( " JSONModelLoader::loadObject the Default Factory is NULL WTF" );
                     }
 
                     currentObject = factory->create(name);
+                    LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK, "Create "+name);
                     if(currentObject == NULL)
                     {
-                        LOGGER_WRITE(Logger::ERROR," JSONModelLoader::loadObject the Default Factory failed to build "+name);
-                        return;
+                         throw std::string(" JSONModelLoader::loadObject the Default Factory failed to build "+name );
                     }
 
                     if(parent == NULL){
@@ -154,13 +154,11 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
 
 
                     if(currentToken.tokenType == RIGHT_BRACE){
-                        if(parent != NULL){
-                                  any  json =currentObject;
-                                     //   cout << "PARENT ADD"  << " " << currentObject << " " <<  nameInParent << endl;
-
-
-                                      parent->reflexiveMutator(ADD, nameInParent,json ,false,false)   ;
-
+                        if(parent != NULL)
+                        {
+                             any  json =currentObject;
+                             LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK, "PARENT ADD" +nameInParent);
+                             parent->reflexiveMutator(ADD, nameInParent,json ,false,false)   ;
                         }
                         return; //go out
                     }
@@ -172,7 +170,7 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
 
             }else
             {
-                LOGGER_WRITE(Logger::ERROR,"Bad Format / eClass att must be first");
+                throw std::string("Bad Format / eClass att must be first");
                 //TODO save temp att
             }
 
@@ -180,7 +178,7 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
 
       }  else
       {
-                LOGGER_WRITE(Logger::ERROR,"Bad Format");
+                throw std::string("Bad Format");
       }
 
 }

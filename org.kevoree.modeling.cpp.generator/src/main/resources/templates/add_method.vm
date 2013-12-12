@@ -4,21 +4,17 @@
 
 void ${classname}::add${refname}(${typeadd} *ptr)
 {
-    //PRINTF("BEGIN -- ${classname} add${refname}");
     ${typeadd}  *container = (${typeadd} *)ptr;
     if(container->internalGetKey().empty())
     {
-        cout << " KEY EMPTY add${refname} " << endl;
+        LOGGER_WRITE(Logger::WARNING,"The ${typeadd} cannot be added in ${classname} because the key is not defined");
     }else
     {
-
         if(${refname}.find(container->internalGetKey()) == ${refname}.end())
         {
-            PRINTF("KEY -- ${classname} ${refname}  "<< container->internalGetKey() );
             ${refname}[container->internalGetKey()]=ptr;
             ${iscontained}
         }
     }
-    //PRINTF("END -- ${classname}  add${refname}");
 }
 

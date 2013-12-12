@@ -67,7 +67,6 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
                         src =   diffChild-> eContainer()->path();
                        }
                        refNameInParent = diffChild-> getRefInParent();
-                     //   cout <<  src <<     refNameInParent << endl;
                        ModelRemoveTrace *modelremovetrace= new ModelRemoveTrace(src,refNameInParent,diffChild->path());
                        traces->push_back(modelremovetrace);
                 }

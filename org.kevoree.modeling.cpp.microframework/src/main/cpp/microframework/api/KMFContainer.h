@@ -30,17 +30,6 @@ using std::list;
     #define LOGGER_WRITE(PRIORITY, MESSAGE)
 #endif
 
-/*
- * TODO REMOVE 
- */
-#define PRINTF_ERROR(...) cout << "ERROR " <<   __VA_ARGS__ << endl;
-
-#ifdef DEBUG_MODEL
-    #define PRINTF(...) cout << "DEBUG " <<   __VA_ARGS__ << endl;
-#else
-    #define PRINTF(...)
-#endif
-
 
 class KMFContainer 
 {
@@ -70,7 +59,7 @@ public:
 	A* findByPath(string query,A clazz);
 	virtual string internalGetKey(){return "";};
  
-    virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){ PRINTF_ERROR("no define");}
+    virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){ }
     virtual void visitAttributes(ModelAttributeVisitor *visitor ){}
     virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {return NULL;}
     virtual void clean_path_cache(){}

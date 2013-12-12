@@ -8,13 +8,15 @@
 
 const string Logger::PRIORITY_NAMES[] =
 {
-		"DEBUG_MODEL",
+		"MODEL",
+		"MICROFRAMEWORK"
         "DEBUG",
         "CONFIG",
         "INFO",
         "WARNING",
         "ERROR"
 };
+
 
 Logger Logger::instance;
 
@@ -52,12 +54,12 @@ void Logger::Write(Priority priority, const string& message)
         ostream& stream
             = instance.fileStream.is_open() ? instance.fileStream : std::cout;
 
-        stream  << PRIORITY_NAMES[priority]
+        stream  << PRIORITY_NAMES[priority-1]
                 << ": "
                 << message
                 << endl;
                 
-          cout  << PRIORITY_NAMES[priority]
+          cout  << PRIORITY_NAMES[priority-1]
                 << ": "
                 << message
                 << endl;
