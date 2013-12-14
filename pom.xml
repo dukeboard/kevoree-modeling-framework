@@ -55,7 +55,6 @@
     <properties>
         <emf.version>2.7.0</emf.version>
         <scala.version>2.9.3</scala.version>
-        <releaseUrl>http://maven.kevoree.org/release</releaseUrl>
         <kotlin.version>0.6.1670</kotlin.version>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
     </properties>
@@ -64,11 +63,9 @@
         <module>org.kevoree.modeling.microframework</module>
         <module>org.kevoree.modeling.kotlin.generator</module>
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
-        <!-- -->
         <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.http</module>
-
     </modules>
 
     <dependencies>
