@@ -43,8 +43,11 @@ class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java
 
 class AttributesVisitor(val ostream: java.io.PrintStream, val ignoreGeneratedID: Boolean) : ModelAttributeVisitor {
     public override fun visit(value: Any?, name: String, parent: KMFContainer) {
-        if(value != null && value!! != "") {
+        if(value != null) {
             if(ignoreGeneratedID && name == "generated_KMF_ID"){
+                return
+            }
+            if(value is String && value == ""){
                 return
             }
             ostream.print(" " + name + "=\"")

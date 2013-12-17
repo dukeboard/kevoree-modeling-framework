@@ -29,12 +29,17 @@ for(var nodeI=0;nodeI<5;nodeI++){
 
 //save in JSON
 var savedModel = xsaver.serialize(cloud);
-//console.log(savedModel);
+console.log(savedModel);
 
+var loadedModel = xloader.loadModelFromString(savedModel).get(0);
+var clonedModel = cloner.clone(loadedModel);
+var savedModel2 = saver.serialize(loadedModel);
+
+console.log(savedModel2);
 
 //var loadedModel = loader.loadModelFromString(savedModel).get(0);
-//var clonedModel = cloner.clone(loadedModel);
-//var savedModel2 = saver.serialize(loadedModel);
+
+
 //var traceSeq = compare.inter(clonedModel,clonedModel);
 //var traceSeqString = traceSeq.toString();
 //var newTraceSeq = compare.createSequence();
