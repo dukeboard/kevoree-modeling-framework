@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.persistence
 
 import java.util.HashMap
+import java.util.HashSet
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,6 +11,17 @@ import java.util.HashMap
  */
 
 public class MemoryDataStore : DataStore {
+
+    override fun getSegmentKeys(segment: String): Set<String> {
+        if(maps.containsKey(segment)){
+            maps.get(segment)!!.keySet()
+        }
+        return HashSet<String>()
+    }
+
+    override fun getSegments(): Set<String> {
+       return maps.keySet()
+    }
 
     override fun sync() {
     }

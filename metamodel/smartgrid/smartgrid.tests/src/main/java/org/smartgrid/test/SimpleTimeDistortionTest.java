@@ -22,13 +22,12 @@ public class SimpleTimeDistortionTest {
     private static DataStore datastore = new LevelDbDataStore("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/smartgrid/smartgrid.tests/tempTimeDistorted");
 
     private static void populate(DefaultEvaluationFactory factory) {
-
         SmartGrid smartgrid = factory.createSmartGrid();
         for (int i = 0; i < NODES_PER_GRID; i++) {
             SmartMeter node = factory.createSmartMeter();
             node.setName("meter_" + i);
             smartgrid.addSmartmeters(node);
-            node.setElectricLoad(new Long(100000));
+            node.setElectricLoad(100000l);
             if (i >= 2) {
                 node.addNeighbors(smartgrid.getSmartmeters().get(i - 2));
                 node.addNeighbors(smartgrid.getSmartmeters().get(i - 1));
@@ -36,39 +35,25 @@ public class SimpleTimeDistortionTest {
         }
         System.out.println("Persist everything...");
         factory.persistBatch(factory.createBatch().addElementAndReachable(smartgrid));
-
         factory.commit();
     }
 
     public static void main(String[] args) {
-
-
         DefaultEvaluationFactory factory = new DefaultEvaluationFactory();
-
-
-
         //MemoryDataStore datastore = new MemoryDataStore();
         factory.setDatastore(datastore);
-
         long startPersist = System.currentTimeMillis();
-
-
         populate(factory);
         factory.clearCache();
-
-
-           SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
-           System.out.println(meter5.getNeighbors().size());
-
+        SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
+        System.out.println(meter5.getNeighbors().size());
         SmartGrid grid = (SmartGrid) factory.lookup("/");
-
         System.out.println(grid.getSmartmeters().size());
-
         for (SmartMeter meter : grid.getSmartmeters()) {
             TimeAwareKMFContainer tmeter = (TimeAwareKMFContainer) meter;
             for (int i = 0; i < 10000; i++) {
                 tmeter.shift(tmeter.getNow().shift(1));
-                meter.setElectricLoad(new Long(200000));
+                meter.setElectricLoad(200000l);
                 factory.persist(meter);
             }
         }
@@ -77,16 +62,15 @@ public class SimpleTimeDistortionTest {
         System.out.println("Persisted in " + (endPersist - startPersist) + " ms");
 
 
-
         //datastore.dump();
         long before = System.currentTimeMillis();
         computeLast(factory, 90, 100);
         computeLast(factory, 20, 30);
-        System.out.println((System.currentTimeMillis()-before)+"ms");
+        System.out.println("lookup two elements in " + (System.currentTimeMillis() - before) + "ms");
     }
 
 
-    public static Long computeLast(DefaultEvaluationFactory factory, int begin, int end) {
+    public static void computeLast(DefaultEvaluationFactory factory, int begin, int end) {
         factory.clearCache();
         SmartMeter meter5 = (SmartMeter) factory.lookup("smartmeters[meter_5]");
         //System.out.println(meter5.getNeighbors().size());
@@ -100,7 +84,6 @@ public class SimpleTimeDistortionTest {
             //System.out.println(((TimeAwareKMFContainer) meter).getNow());
             //System.out.println(meter.getNeighbors().size());
         }
-        return Long.valueOf(0);
     }
 
 

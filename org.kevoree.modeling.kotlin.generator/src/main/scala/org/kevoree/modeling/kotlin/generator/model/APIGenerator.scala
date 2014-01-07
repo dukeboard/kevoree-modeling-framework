@@ -84,10 +84,7 @@ trait APIGenerator extends ClassGenerator {
       pr.println()
     }
     pr.print("trait " + cls.getName)
-    pr.println((generateSuperTypes(ctx, cls, packElement) match {
-      case None => "{"
-      case Some(s) => s + " {"
-    }))
+    pr.println(generateSuperTypes(ctx, cls, packElement) + " {")
 
     cls.getEAttributes.foreach {
       att =>

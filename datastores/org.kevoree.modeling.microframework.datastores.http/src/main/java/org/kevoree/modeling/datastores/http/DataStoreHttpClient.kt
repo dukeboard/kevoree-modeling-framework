@@ -14,6 +14,13 @@ import org.eclipse.jetty.client.util.StringContentProvider
 
 public class DataStoreHttpClient(val ip: String, val port: Int) : DataStore {
 
+    override fun getSegmentKeys(segment: String): Set<String> {
+        throw UnsupportedOperationException()
+    }
+    override fun getSegments(): Set<String> {
+        throw UnsupportedOperationException()
+    }
+
     var client: HttpClient
 
     {

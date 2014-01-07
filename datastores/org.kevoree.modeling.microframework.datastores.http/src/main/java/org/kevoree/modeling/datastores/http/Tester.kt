@@ -22,6 +22,12 @@ fun main(args: Array<String>) {
 }
 
 class StubDataStore : DataStore {
+    override fun getSegmentKeys(segment: String): Set<String> {
+        throw UnsupportedOperationException()
+    }
+    override fun getSegments(): Set<String> {
+        throw UnsupportedOperationException()
+    }
     override fun get(segment: String, key: String): String? {
         println("get -> $segment,$key")
         return ""

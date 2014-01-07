@@ -17,6 +17,14 @@ import org.eclipse.jetty.server.Server
 
 public class DataStoreHttpWrapper(val wrapped: DataStore, val port: Int) : AbstractHandler(), DataStore {
 
+    override fun getSegmentKeys(segment: String): Set<String> {
+        return wrapped.getSegmentKeys(segment)
+    }
+
+    override fun getSegments(): Set<String> {
+        return wrapped.getSegments();
+    }
+
     override fun handle(target: String?, baseRequest: Request?, request: HttpServletRequest?, response: HttpServletResponse?) {
         response!!.setContentType("text/plain;charset=utf-8")
         response.setStatus(HttpServletResponse.SC_OK);

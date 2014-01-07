@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.persistence.DataStore
 import java.io.File
 import org.iq80.leveldb.Options
 import org.iq80.leveldb.DBIterator
+import java.util.HashSet
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,21 +14,41 @@ import org.iq80.leveldb.DBIterator
  * Date: 11/7/13
  * Time: 2:37 PM
  */
-public class LevelDbDataStore(val dbStorageBasePath : String) : DataStore {
-{
-    val location = File(dbStorageBasePath)
-    if(!location.exists()) {
-        location.mkdirs()
+public class LevelDbDataStore(val dbStorageBasePath: String) : DataStore {
+
+    override fun getSegments(): Set<String> {
+        val parent = File(dbStorageBasePath)
+        if (parent.exists() && parent.isDirectory()) {
+            var childs = HashSet<String>()
+            for (child in parent.listFiles()?.iterator()) {
+                if (child.isDirectory()) {
+                    childs.add(child.name)
+                }
+
+            }
+            return childs
+        }
+        return dbs.keySet();
     }
-}
+
+    override fun getSegmentKeys(segment: String): Set<String> {
+        return keys(segment).toSet();
+    }
+
+    {
+        val location = File(dbStorageBasePath)
+        if (!location.exists()) {
+            location.mkdirs()
+        }
+    }
 
 
     private val options = Options().createIfMissing(true)
     private val dbs = java.util.HashMap<String, DB>()
 
     private fun internal_db(segment: String): DB {
-        var db: DB? = null
-        if(dbs.containsKey(segment)) {
+        var db: DB?
+        if (dbs.containsKey(segment)) {
             db = dbs.get(segment)
         } else {
             db = JniDBFactory.factory.open(File(dbStorageBasePath + File.separator + segment), options)
@@ -65,10 +86,10 @@ public class LevelDbDataStore(val dbStorageBasePath : String) : DataStore {
         var it: DBIterator? = null
         try {
             val db = internal_db(segment)
-            it = db!!.iterator()
+            it = db.iterator()
             it!!.seekToFirst()
-            while(it!!.hasNext()) {
-                val key = JniDBFactory.asString(it!!.next()!!.getKey())
+            while (it!!.hasNext()) {
+                val key = JniDBFactory.asString(it!!.next().getKey())
                 keys.add(key!!)
             }
         } finally {
@@ -83,7 +104,7 @@ public class LevelDbDataStore(val dbStorageBasePath : String) : DataStore {
         var it: DBIterator? = null
         try {
             val db = internal_db(segment)
-            it = db!!.iterator()
+            it = db.iterator()
             it!!.seekToFirst()
             for (item in it) {
                 val value = JniDBFactory.asString(it!!.peekNext()!!.getValue())
@@ -93,10 +114,6 @@ public class LevelDbDataStore(val dbStorageBasePath : String) : DataStore {
             it!!.close()
         }
         return values
-    }
-
-    fun segments(): List<String> {
-        return java.util.ArrayList(dbs.keySet())
     }
 
     fun statistics(segment: String): String? {

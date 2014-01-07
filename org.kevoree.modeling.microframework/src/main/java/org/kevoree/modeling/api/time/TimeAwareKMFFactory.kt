@@ -15,11 +15,11 @@ import java.util.Date
 
 trait TimeAwareKMFFactory : PersistenceKMFFactory {
 
-    fun shiftElem(path: String, relativeNow: TimePoint){
-       //TODO
+    fun shiftElem(path: String, relativeNow: TimePoint) {
+        //TODO
     }
-    fun shiftQuery(query: String, relativeNow: TimePoint){
-       //TODO
+    fun shiftQuery(query: String, relativeNow: TimePoint) {
+        //TODO
     }
 
 
@@ -29,7 +29,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     var relativityStrategy: RelativeTimeStrategy
 
     override fun persist(elem: KMFContainer) {
-        if(datastore != null){
+        if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
@@ -38,7 +38,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
             //TODO
 
             var currentNow = (elem as? TimeAwareKMFContainer)?.now
-            if(currentNow == null){
+            if (currentNow == null) {
                 currentNow = relativeTime
             }
             val currentPath = elem.path()!!
@@ -46,18 +46,18 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
             datastore!!.put(TimeSegment.RAW.name(), "$currentNow/$currentPath", traceSeq.exportToString())
             datastore!!.put(TimeSegment.LATEST.name(), currentPath, currentNow.toString())
             val previousType = datastore!!.get(TimeSegment.TYPE.name(), elem.path()!!)
-            if(previousType == null){
+            if (previousType == null) {
                 datastore!!.put(TimeSegment.TYPE.name(), elem.path()!!, elem.metaClassName())
 
             }
-            if(elem is KMFContainerProxy){
+            if (elem is KMFContainerProxy) {
                 elem.originFactory = this
             }
         }
     }
 
     override fun remove(elem: KMFContainer) {
-        if(datastore != null){
+        if (datastore != null) {
             datastore!!.remove(TimeSegment.RAW.name(), elem.path()!!);
             datastore!!.remove(TimeSegment.TYPE.name(), elem.path()!!);
             datastore!!.remove(TimeSegment.LATEST.name(), elem.path()!!);
@@ -65,8 +65,8 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     }
 
     private fun resolvedTimeFromParams(path: String): TimePoint? {
-        for(staticPathV in timedElement){
-            if(staticPathV.key == path){
+        for (staticPathV in timedElement) {
+            if (staticPathV.key == path) {
                 return staticPathV.value
             }
         }
@@ -81,33 +81,45 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     }
 
 
+    fun lookupFromTime(path: String, time: TimePoint): KMFContainer? {
+        return internal_lookupFrom(path, null, time)
+    }
+
     override fun lookupFrom(path: String, origin: KMFContainer?): KMFContainer? {
+        return internal_lookupFrom(path, origin, null)
+    }
+
+    fun internal_lookupFrom(path: String, origin: KMFContainer?, time: TimePoint?): KMFContainer? {
 
         var path2 = path
-        if(path2 == "/"){
+        if (path2 == "/") {
             path2 = ""
         }
-        if(path2.startsWith("/")){
+        if (path2.startsWith("/")) {
             path2 = path2.substring(1)
         }
         var currentTime: TimePoint? = (origin as? TimeAwareKMFContainer)?.now
+        if (time != null) {
+            currentTime = time
+        }
+
         when(relativityStrategy) {
-            RelativeTimeStrategy.BEGINNING_OF_TIME_FIRST -> {
+            RelativeTimeStrategy.BIG_BANG_FIRST -> {
                 currentTime = relativeTime
                 val resolved = resolvedTimeFromParams(path2)
-                if(resolved != null){
+                if (resolved != null) {
                     currentTime = resolved
                 }
             }
             RelativeTimeStrategy.LATEST_FIRST -> {
                 currentTime = TimePoint.create(datastore!!.get(TimeSegment.LATEST.name(), path2)!!)
                 val resolved = resolvedTimeFromParams(path2)
-                if(resolved != null){
+                if (resolved != null) {
                     currentTime = resolved
                 }
             }
             RelativeTimeStrategy.RELATIVE_FIRST -> {
-                if(currentTime == null){
+                if (currentTime == null) {
                     currentTime = relativeTime
                 }
             }
@@ -116,18 +128,18 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
             }
         }
 
-        if(currentTime == null){
+        if (currentTime == null) {
             //try last
             currentTime = TimePoint.create(datastore!!.get(TimeSegment.LATEST.name(), path2)!!)
         }
 
         val composedKey = currentTime!!.toString() + path2
-        if(elem_cache.containsKey(composedKey)){
+        if (elem_cache.containsKey(composedKey)) {
             return elem_cache.get(composedKey)
         }
-        if(datastore != null){
+        if (datastore != null) {
             val typeName = datastore!!.get(TimeSegment.TYPE.name(), path2)
-            if(typeName != null){
+            if (typeName != null) {
                 val elem = create(typeName) as TimeAwareKMFContainer
                 elem_cache.put(composedKey, elem)
                 elem.originFactory = this
@@ -148,7 +160,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
         val composedKey = "$currentNow/$currentPath"
         var sequence = compare.createSequence()
         val traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
-        if(traces != null){
+        if (traces != null) {
             sequence.populateFromString(traces)
             return sequence
         }

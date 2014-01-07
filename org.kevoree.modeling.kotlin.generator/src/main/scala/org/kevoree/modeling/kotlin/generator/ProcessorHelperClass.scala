@@ -37,20 +37,22 @@ import java.util
 
 class ProcessorHelperClass {
 
-  def noduplicate(allAtt : EList[EAttribute]) : java.util.List[EAttribute] = {
+  def noduplicate(allAtt: EList[EAttribute]): java.util.List[EAttribute] = {
     import scala.collection.JavaConversions._
-    val eATTs = new util.HashMap[String,EAttribute]()
-    allAtt.foreach{  at =>
-      eATTs.put(at.getName,at)
+    val eATTs = new util.HashMap[String, EAttribute]()
+    allAtt.foreach {
+      at =>
+        eATTs.put(at.getName, at)
     }
     eATTs.values().toList
   }
 
-  def noduplicateRef(allAtt : EList[EReference]) : java.util.List[EReference] = {
+  def noduplicateRef(allAtt: EList[EReference]): java.util.List[EReference] = {
     import scala.collection.JavaConversions._
-    val eATTs = new util.HashMap[String,EReference]()
-    allAtt.foreach{  at =>
-      eATTs.put(at.getName,at)
+    val eATTs = new util.HashMap[String, EReference]()
+    allAtt.foreach {
+      at =>
+        eATTs.put(at.getName, at)
     }
     eATTs.values().toList
   }
@@ -77,17 +79,17 @@ class ProcessorHelperClass {
   }
 
 
-  def convertType(aType: EDataType, ctx : GenerationContext): String = {
+  def convertType(aType: EDataType, ctx: GenerationContext): String = {
     aType match {
-      case theType: EEnum => ProcessorHelper.fqn(ctx,theType.getEPackage)+"."+theType.getName
+      case theType: EEnum => ProcessorHelper.fqn(ctx, theType.getEPackage) + "." + theType.getName
       case _@theType => convertType(theType.getInstanceClassName)
     }
   }
 
   def convertType(theType: String): String = {
     theType match {
-      case "short"|"java.lang.Short" => "Short"
-      case "byte" | "EByte" |"java.lang.Byte" => "Byte"
+      case "short" | "java.lang.Short" => "Short"
+      case "byte" | "EByte" | "java.lang.Byte" => "Byte"
       case "EBooleanObject" | "EBoolean" | "bool" | "boolean" | "java.lang.Boolean" | "Boolean" => "Boolean"
       case "EString" | "java.lang.String" | "String" => "String"
       case "EIntegerObject" | "int" | "java.lang.Integer" | "Integer" | "EInt" => "Int"
@@ -109,35 +111,57 @@ class ProcessorHelperClass {
       case "java.lang.Class" | "EJavaClass" => "Any"
       case "java.util.Map" => "Map<out jet.Any,out jet.Any>"
       case _ => theType
-     // case _ => /*System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'");*/ "Any"
+      // case _ => /*System.err.println("ProcessorHelper::convertType::No matching found for type: " + theType + " replaced by 'Any'");*/ "Any"
     }
   }
 
-  def getDefaultValue(ctx : GenerationContext, att : EAttribute) : String = {
+  def getDefaultValue(ctx: GenerationContext, att: EAttribute): String = {
 
     val defaultLit = att.getDefaultValueLiteral
-    if(defaultLit != null && defaultLit != ""){
+    if (defaultLit != null && defaultLit != "") {
       return defaultLit
     }
 
     var dataType = EDataTypes.dataTypes.get(att.getEAttributeType)
-    if(dataType == null){
-      dataType = convertType(att.getEAttributeType,ctx)
+    if (dataType == null) {
+      dataType = convertType(att.getEAttributeType, ctx)
     }
 
-    if(dataType != null) {
+    if (dataType != null) {
       dataType match {
-        case "java.math.BigDecimal" =>{"null"}
-        case "java.math.BigInteger" =>{"null"}
-        case "Boolean" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BOOLEAN_DEFAULTVAL"}
-        case "Byte" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BYTE_DEFAULTVAL"}
-        case "Char" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.CHAR_DEFAULTVAL"}
-        case "Double" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.DOUBLE_DEFAULTVAL"}
-        case "Float" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.FLOAT_DEFAULTVAL"}
-        case "Int" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.INT_DEFAULTVAL"}
-        case "Long" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LONG_DEFAULTVAL"}
-        case "Short" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.SHORT_DEFAULTVAL"}
-        case "String" =>{fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL"}
+        case "java.math.BigDecimal" => {
+          "null"
+        }
+        case "java.math.BigInteger" => {
+          "null"
+        }
+        case "Boolean" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BOOLEAN_DEFAULTVAL"
+        }
+        case "Byte" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BYTE_DEFAULTVAL"
+        }
+        case "Char" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.CHAR_DEFAULTVAL"
+        }
+        case "Double" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.DOUBLE_DEFAULTVAL"
+        }
+        case "Float" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.FLOAT_DEFAULTVAL"
+        }
+        case "Int" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.INT_DEFAULTVAL"
+        }
+        case "Long" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LONG_DEFAULTVAL"
+        }
+        case "Short" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.SHORT_DEFAULTVAL"
+        }
+        case "String" => {
+          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL"
+        }
         case _ => "null"
       }
     } else {
@@ -196,12 +220,17 @@ class ProcessorHelperClass {
   }
 
 
-  def generateSuperTypes(ctx: GenerationContext, cls: EClass, packElement: EPackage): Option[String] = {
-    var superTypeList: Option[String] = None
-    superTypeList = Some(" : " + ctx.getKevoreeContainer.get)
-    // superTypeList = Some(superTypeList.get + "with " + packElement.getName.substring(0, 1).toUpperCase + packElement.getName.substring(1) + "Mutable")
+  def generateSuperTypes(ctx: GenerationContext, cls: EClass, packElement: EPackage): String = {
+    var superTypeList: String = ""
+
+    if (ctx.timeAware) {
+      superTypeList = " : org.kevoree.modeling.api.time.TimeAwareKMFContainer "
+    } else {
+      superTypeList = " : " + ctx.getKevoreeContainer.get
+    }
+
     cls.getESuperTypes.foreach {
-      superType => superTypeList = Some(superTypeList.get + " , " + fqn(ctx, superType))
+      superType => superTypeList = superTypeList + " , " + fqn(ctx, superType)
     }
     superTypeList
   }
@@ -346,7 +375,7 @@ class ProcessorHelperClass {
    * @return the Fully Qualified Class name
    */
   def fqn(cls: EClassifier): String = {
-    if(cls.getEPackage == null){
+    if (cls.getEPackage == null) {
       cls.getName
     } else {
       fqn(cls.getEPackage) + "." + cls.getName
@@ -436,8 +465,8 @@ class ProcessorHelperClass {
     (containedClassifiers, notContainedClassifiers)
   }
 
-  def copyFromStream(intputStream: InputStream,name: String, target: String) {
-    val targetFile = new File(new File(target.replace("/",File.separator)), name.replace("/",File.separator))
+  def copyFromStream(intputStream: InputStream, name: String, target: String) {
+    val targetFile = new File(new File(target.replace("/", File.separator)), name.replace("/", File.separator))
     targetFile.getParentFile.mkdirs()
     val out = new FileOutputStream(targetFile)
     val src = intputStream
@@ -453,7 +482,7 @@ class ProcessorHelperClass {
   }
 
   def copyFromStream(name: String, target: String) {
-    val targetFile = new File(new File(target.replace("/",File.separator)), name.replace("/",File.separator))
+    val targetFile = new File(new File(target.replace("/", File.separator)), name.replace("/", File.separator))
     targetFile.getParentFile.mkdirs()
     val out = new FileOutputStream(targetFile)
     val src = ProcessorHelper.getClass.getClassLoader.getResourceAsStream(name)

@@ -9,6 +9,6 @@ package org.kevoree.modeling.api.time
 
 enum class RelativeTimeStrategy {
     RELATIVE_FIRST
-    BEGINNING_OF_TIME_FIRST
+    BIG_BANG_FIRST
     LATEST_FIRST
 }

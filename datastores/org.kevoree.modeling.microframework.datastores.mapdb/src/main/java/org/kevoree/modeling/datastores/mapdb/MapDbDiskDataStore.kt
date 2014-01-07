@@ -7,6 +7,13 @@ import org.mapdb.DBMaker
 
 public class MapDbDiskDataStore(directory: File) : DataStore {
 
+    override fun getSegmentKeys(segment: String): Set<String> {
+        throw UnsupportedOperationException()
+    }
+    override fun getSegments(): Set<String> {
+        throw UnsupportedOperationException()
+    }
+
     var db: DB
 
     {

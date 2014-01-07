@@ -12,18 +12,24 @@ import org.kevoree.modeling.api.persistence.KMFContainerProxy
 
 public trait TimeAwareKMFContainer : KMFContainerProxy {
 
-    fun shift(timePoint: TimePoint){
-       now = timePoint
+    fun shift(timePoint: TimePoint): TimeAwareKMFContainer? {
+        if (originFactory != null) {
+            originFactory.l
+
+        }
+
+
+        now = timePoint
     }
 
-    fun deepShift(timePoint: TimePoint){
+    fun deepShift(timePoint: TimePoint) {
         throw Exception("WTF exception!!!")
     }
 
     var now: TimePoint?
 
     fun previous(): KMFContainer {
-       return this
+        return this
     }
 
     fun next(): KMFContainer {

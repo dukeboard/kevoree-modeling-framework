@@ -17,4 +17,8 @@ public trait DataStore {
 
     fun sync()
 
+    fun getSegments() : Set<String>
+
+    fun getSegmentKeys(segment : String) : Set<String>
+
 }
