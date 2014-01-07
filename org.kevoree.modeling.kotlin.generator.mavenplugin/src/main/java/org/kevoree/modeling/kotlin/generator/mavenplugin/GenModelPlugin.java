@@ -48,6 +48,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.jet.cli.common.CLICompiler;
 import org.jetbrains.jet.cli.common.ExitCode;
@@ -71,149 +75,110 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 
-/**
- * @author <a href="mailto:ffouquet@irisa.fr">Fouquet François</a>
- * @version $Id$
- * @goal generate
- * @phase compile
- * @requiresDependencyResolution compile
- */
+
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class GenModelPlugin extends AbstractMojo {
 
     /**
      * Generate Persistence Layer for Model
      *
-     * @parameter
      */
+    @Parameter
     private Boolean persistence = false;
 
     /**
      * Generate Timed-Aware persistence Layer for Model
-     *
-     * @parameter
      */
+    @Parameter
     private Boolean timeAware = false;
 
-    /**
-     * @parameter
-     */
+    @Parameter
     private String autoBasePackage = "kmf";
-
 
     /**
      * Ecore file
-     *
-     * @parameter
      */
+    @Parameter
     private File ecore;
+
     /**
      * Source base directory
-     *
-     * @parameter default-value="${project.build.directory}/generated-sources/kmf"
      */
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/kmf")
     private File output;
 
     /**
      * Source base directory
-     *
-     * @parameter default-value="${project.build.directory}/generated-sources/kmf-util"
      */
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/kmf-util")
     private File outputUtil;
 
     /**
      * code containerRoot package
-     *
-     * @parameter
      */
+    @Parameter
     private String packagePrefix;
 
     /**
      * Generate also selector
-     *
-     * @parameter
      */
+    @Parameter
     private Boolean selector = false;
 
 
     /**
      * Generate JS version
-     *
-     * @parameter
      */
+    @Parameter
     private Boolean js = false;
 
     /**
      * Generate JS version
-     *
-     * @parameter
      */
+    @Parameter
     private Boolean flyweightFactory = false;
-
-
     /**
      * Generate Events
-     *
-     * @parameter
      */
+    @Parameter
     private Boolean events = false;
 
-
-    /**
-     * @parameter
-     */
+    @Parameter
     private Boolean ecma3compat = false;
-
 
     /**
      * The maven project.
-     *
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
      */
+    @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject project;
 
-
-    /**
-     * @parameter default-value="${project.build.directory}/classes"
-     */
+    @Parameter(defaultValue = "${project.build.directory}/classes")
     private File outputClasses;
-
 
     /**
      * The output JS file name
-     *
-     * @required
-     * @parameter default-value="${project.build.directory}/js/${project.artifactId}.js"
      */
+    @Parameter(defaultValue = "${project.build.directory}/js/${project.artifactId}.js", required = true)
     private String outputJS;
 
 
     /**
      * The output Kotlin JS file
-     *
-     * @required
-     * @parameter default-value="${project.build.directory}/js"
-     * @parameter expression="${outputKotlinJSDir}"
      */
+    @Parameter(defaultValue = "${project.build.directory}/js", required = true)
     private File outputKotlinJSDir;
 
 
     /**
      * The output Kotlin JS file
-     *
-     * @required
-     * @parameter default-value="${basedir}/src/main/java"
      */
+    @Parameter(defaultValue = "${basedir}/src/main/java", required = true)
     private File sourceFile;
 
     /**
      * The output Kotlin JS file
-     *
-     * @required
-     * @parameter default-value="${basedir}/target/generated-source/java"
-     * @parameter expression="${sourceCleanedFile}"
      */
+    @Parameter(defaultValue = "${basedir}/target/generated-source/java", required = true)
     private File sourceCleanedFile;
 
 
