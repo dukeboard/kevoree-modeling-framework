@@ -109,14 +109,14 @@
         </plugins>
     </build>
 
-
+    <!--
     <repositories>
         <repository>
             <id>jetbrains-all</id>
             <url>http://repository.jetbrains.com/all</url>
         </repository>
     </repositories>
-
+          -->
 </project>
 
 
