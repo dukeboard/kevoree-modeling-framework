@@ -90,7 +90,6 @@ with KMFQLFinder
 with KMFQLSelectorGenerator
 with APIGenerator
 with ContainedElementsGenerator
-with JavaAPIGenerator
 with DiffGenerator
 with ConstantsGenerator {
 
@@ -104,8 +103,6 @@ with ConstantsGenerator {
     if (ctx.genSelector) {
       generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
     }
-    generateActionTypeClass(ctx)
-    generateElementAttributeTypeClass(ctx)
     generateConstants(ctx, model)
     generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
 
@@ -113,23 +110,13 @@ with ConstantsGenerator {
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
     generateModelTraceAPI(ctx, loaderGenBaseDir)
-    if (ctx.generateEvents) {
-      generateModelEvent2Trace(ctx, loaderGenBaseDir)
-    }
     generateModelTraceCompare(ctx, loaderGenBaseDir)
-    generateModelTraceApply(ctx, loaderGenBaseDir)
-
-
     model.getAllContents.filter(c => c.isInstanceOf[EClassifier]).foreach{ potentialRoot2 =>
 
       val potentialRoot = potentialRoot2.asInstanceOf[EClassifier]
-    //}
-    //ProcessorHelper.collectAllClassifiersInModel(model).foreach {
-     // potentialRoot =>
         val currentPackage = potentialRoot.getEPackage
         val currentPackageDir = ProcessorHelper.getPackageGenDir(ctx, currentPackage)
         val userPackageDir = ProcessorHelper.getPackageUserDir(ctx, currentPackage)
-
         ProcessorHelper.checkOrCreateFolder(currentPackageDir)
         if (currentPackage.getEClassifiers.size() != 0) {
           ProcessorHelper.checkOrCreateFolder(currentPackageDir + "/impl")

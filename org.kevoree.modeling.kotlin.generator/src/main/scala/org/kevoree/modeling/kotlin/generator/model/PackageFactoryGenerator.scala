@@ -20,7 +20,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.gnu.org/licenses/lgpl-3.0.txt
+ * http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@
  * limitations under the License.
  *
  * Authors:
- * 	Fouquet Francois
- * 	Nain Gregory
+ * Fouquet Francois
+ * Nain Gregory
  */
 
 
@@ -54,100 +54,93 @@ import java.util
 
 trait PackageFactoryGenerator {
 
-  def generatePackageFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
-
-    if(packElement.getName == null || packElement.getName == ""){
+  def generatePackageFactory(ctx: GenerationContext, packageGenDir: String, packElement: EPackage, modelVersion: String) {
+    if (packElement.getName == null || packElement.getName == "") {
       return
     }
-
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
     val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt")
-    val pr = new PrintWriter(localFile,"utf-8")
+    val pr = new PrintWriter(localFile, "utf-8")
     val packageName = ProcessorHelper.fqn(ctx, packElement)
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate( "FactoryAPI.vm" );
+    val template = ve.getTemplate("FactoryAPI.vm");
     val ctxV = new VelocityContext()
-    ctxV.put("packageName",packageName)
+    ctxV.put("packageName", packageName)
     ctxV.put("helper", new ProcessorHelperClass())
-    ctxV.put("ctx",ctx)
+    ctxV.put("ctx", ctx)
     import scala.collection.JavaConversions._
-    ctxV.put("formatedFactoryName",formatedFactoryName)
-    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract&& !cls.asInstanceOf[EClass].isInterface).toList
-    ctxV.put("classes",classes)
-    template.merge(ctxV,pr)
+    ctxV.put("formatedFactoryName", formatedFactoryName)
+    val classes: java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract && !cls.asInstanceOf[EClass].isInterface).toList
+    ctxV.put("classes", classes)
+    template.merge(ctxV, pr)
     pr.flush()
     pr.close()
 
   }
 
-  def generateFlyweightFactory(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
+  def generateFlyweightFactory(ctx: GenerationContext, packageGenDir: String, packElement: EPackage, modelVersion: String) {
 
-    if(packElement.getName == null || packElement.getName == ""){
+    if (packElement.getName == null || packElement.getName == "") {
       return
     }
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
     val localFile = new File(packageGenDir + "/impl/Flyweight" + formatedFactoryName + ".kt")
-    val pr = new PrintWriter(localFile,"utf-8")
+    val pr = new PrintWriter(localFile, "utf-8")
     val packageName = ProcessorHelper.fqn(ctx, packElement)
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate( "templates/FlyWeightFactory.vm" );
+    val template = ve.getTemplate("templates/FlyWeightFactory.vm");
     val ctxV = new VelocityContext()
-    ctxV.put("packageName",packageName)
+    ctxV.put("packageName", packageName)
     import scala.collection.JavaConversions._
-    ctxV.put("formatedFactoryName",formatedFactoryName)
+    ctxV.put("formatedFactoryName", formatedFactoryName)
 
-    val clzz : java.util.ArrayList[EClass] = new util.ArrayList[EClass]()
-    packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass]).foreach{ec => clzz.add(ec.asInstanceOf[EClass]) }
-    ctxV.put("classes",clzz)
-    ctxV.put("modelVersion",modelVersion)
-    template.merge(ctxV,pr)
+    val clzz: java.util.ArrayList[EClass] = new util.ArrayList[EClass]()
+    packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass]).foreach {
+      ec => clzz.add(ec.asInstanceOf[EClass])
+    }
+    ctxV.put("classes", clzz)
+    ctxV.put("modelVersion", modelVersion)
+    template.merge(ctxV, pr)
     pr.flush()
     pr.close()
   }
 
-  def generatePackageFactoryDefaultImpl(ctx:GenerationContext, packageGenDir: String, packElement: EPackage , modelVersion : String) {
-
-
-    if(packElement.getName == null || packElement.getName == ""){
+  def generatePackageFactoryDefaultImpl(ctx: GenerationContext, packageGenDir: String, packElement: EPackage, modelVersion: String) {
+    if (packElement.getName == null || packElement.getName == "") {
       return
     }
-
-
     var formatedFactoryName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedFactoryName += packElement.getName.substring(1)
     formatedFactoryName += "Factory"
     val localFile = new File(packageGenDir + "/impl/Default" + formatedFactoryName + ".kt")
-    val pr = new PrintWriter(localFile,"utf-8")
+    val pr = new PrintWriter(localFile, "utf-8")
     val packageName = ProcessorHelper.fqn(ctx, packElement)
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
-    val template = ve.getTemplate( "DefaultFactory.vm" );
+    val template = ve.getTemplate("DefaultFactory.vm");
     val ctxV = new VelocityContext()
-    ctxV.put("packageName",packageName)
+    ctxV.put("packageName", packageName)
     import scala.collection.JavaConversions._
-    ctxV.put("formatedFactoryName",formatedFactoryName)
-    ctxV.put("js",ctx.js)
+    ctxV.put("formatedFactoryName", formatedFactoryName)
+    ctxV.put("js", ctx.js)
     ctxV.put("helper", new ProcessorHelperClass())
-    ctxV.put("ctx",ctx)
-
-    val classes : java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls=>cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract && !cls.asInstanceOf[EClass].isInterface).toList
-    ctxV.put("classes",classes)
-    ctxV.put("modelVersion",modelVersion)
-    template.merge(ctxV,pr)
+    ctxV.put("ctx", ctx)
+    val classes: java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract && !cls.asInstanceOf[EClass].isInterface).toList
+    ctxV.put("classes", classes)
+    ctxV.put("modelVersion", modelVersion)
+    template.merge(ctxV, pr)
     pr.flush()
     pr.close()
   }
-
-
 
 
 }

@@ -275,15 +275,6 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setRootSrcDirectory(sourceFile);
         ctx.aspects_$eq(analyzer.cacheAspects);
         ctx.newMetaClasses_$eq(analyzer.newMetaClass);
-        try {
-            for (String path : project.getCompileClasspathElements()) {
-                if (path.contains("org.kevoree.modeling.microframework")) {
-                    ctx.microframework_$eq(true);
-                }
-            }
-        } catch (DependencyResolutionRequiredException e) {
-            e.printStackTrace();
-        }
 
         if (timeAware) {
             persistence = true;
@@ -292,8 +283,8 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.setRootGenerationDirectory(output);
         ctx.setRootUserDirectory(sourceFile);
         ctx.genSelector_$eq(selector);
-        ctx.setJS(js);
-        ctx.setGenerateEvents(events);
+        ctx.js_$eq(js);
+        ctx.generateEvents_$eq(events);
         ctx.flyweightFactory_$eq(flyweightFactory);
         ctx.autoBasePackage_$eq(autoBasePackage);
         ctx.ecma3compat_$eq(ecma3compat);
@@ -396,7 +387,7 @@ public class GenModelPlugin extends AbstractMojo {
             }
 
             ExitCode e;
-            if (ctx.getJS()) {
+            if (ctx.js()) {
                 K2JSCompilerArguments args = new K2JSCompilerArguments();
                 ArrayList<String> sources = new ArrayList<String>();
                 sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());

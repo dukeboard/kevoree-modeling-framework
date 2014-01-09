@@ -35,10 +35,6 @@ trait DiffGenerator {
 
   def generateModelTraceCompare(ctx: GenerationContext, packageGenDir: String) {
 
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/compare/ModelCompare.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-
     val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
     ProcessorHelper.checkOrCreateFolder(packageGenDir + "/compare/")
     val localFile = new File(packageGenDir + "/compare/DefaultModelCompare.kt")
@@ -58,14 +54,6 @@ trait DiffGenerator {
 
 
   def generateModelTraceAPI(ctx: GenerationContext, packageGenDir: String) {
-
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/trace/ModelTrace.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/trace/TraceSequence.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-
     ProcessorHelper.checkOrCreateFolder(packageGenDir + "/trace/")
     val localFile = new File(packageGenDir + "/trace/DefaultTraceSequence.kt")
     val pr = new PrintWriter(localFile, "utf-8")
@@ -79,19 +67,6 @@ trait DiffGenerator {
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
-  }
-
-  def generateModelTraceApply(ctx: GenerationContext, packageGenDir: String) {
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/trace/ModelTraceApplicator.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-  }
-
-
-  def generateModelEvent2Trace(ctx: GenerationContext, packageGenDir: String) {
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/trace/Event2Trace.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
   }
 
   def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {

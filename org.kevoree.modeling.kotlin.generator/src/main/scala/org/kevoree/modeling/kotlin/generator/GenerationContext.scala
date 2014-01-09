@@ -46,10 +46,6 @@ class GenerationContext {
 
   var ecma3compat = false
 
-  var microframework: Boolean = false
-
-  def usemicrofwk(): Boolean = microframework
-
   var aspects: java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
 
   var newMetaClasses: java.util.List[NewMetaClassCreation] = new java.util.ArrayList[NewMetaClassCreation]()
@@ -58,8 +54,6 @@ class GenerationContext {
    * True if selectByQuery methods have to be generated
    */
   var genSelector: Boolean = false
-
-  def getGenSelector = genSelector
 
   /**
    * Package to be added before the RootPackage of the model
@@ -271,22 +265,9 @@ class GenerationContext {
    */
   var js = false
 
-  def getJS(): Boolean = {
-    js
-  }
-
-  def setJS(isJS: Boolean) {
-    js = isJS
-  }
-
   var flyweightFactory = false
 
   var generateEvents = false
-
-  def setGenerateEvents(evt: Boolean) {
-    generateEvents = evt
-  }
-
 
   var basePackageForUtilitiesGeneration: EPackage = null
 

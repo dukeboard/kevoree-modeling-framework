@@ -69,23 +69,17 @@ trait APIGenerator extends ClassGenerator {
 
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
 
-
-    //val localFile = new File(currentPackageDir + "/" + cls.getName + ".kt")
     val localFile = new File(currentPackageDir + "/api.kt")
     val first = !localFile.exists()
-
-
     val localFileS = new FileOutputStream(localFile, true)
     val pr = new PrintWriter(localFileS)
     val pack = ProcessorHelper.fqn(ctx, packElement)
-
     if (first) {
       pr.println("package " + pack + "")
       pr.println()
     }
     pr.print("trait " + cls.getName)
     pr.println(generateSuperTypes(ctx, cls, packElement) + " {")
-
     cls.getEAttributes.foreach {
       att =>
         if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls)) {} else {
@@ -96,9 +90,8 @@ trait APIGenerator extends ClassGenerator {
           }
         }
     }
-
     //Kotlin workaround // Why prop are not generated properly ?
-    if (ctx.getJS() && ctx.ecma3compat) {
+    if (ctx.js && ctx.ecma3compat) {
       ProcessorHelper.noduplicate(cls.getEAttributes).foreach {
         att =>
 
@@ -113,8 +106,6 @@ trait APIGenerator extends ClassGenerator {
               pr.println("public fun set" + toCamelCase(att) + "(p : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?)")
             }
           }
-
-
       }
       cls.getEReferences.foreach {
         ref =>
@@ -134,7 +125,6 @@ trait APIGenerator extends ClassGenerator {
       }
     }
     //end kotlin workaround
-
     cls.getEReferences.foreach {
       ref =>
         if (cls.getEAllReferences.exists(ref2 => ref2.getName.equals(ref.getName) && ref2.getEContainingClass != cls)) {
@@ -217,7 +207,6 @@ trait APIGenerator extends ClassGenerator {
             if (op.getLowerBound == 0) {
               returnTypeOP = returnTypeOP + "?"
             }
-
             pr.println("):" + returnTypeOP + ";")
           } else {
             pr.println("):Unit;")

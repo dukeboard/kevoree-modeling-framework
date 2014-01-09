@@ -43,7 +43,7 @@ trait FlatReflexiveSetters {
           pr.println("val splitted = org.kevoree.modeling.api.util.AttConverter.convAttFlat(value)")
           pr.println("var tempArrayValues : MutableList<" + valueType + "> = java.util.ArrayList<" + valueType + ">()")
           pr.println("for(eachV in splitted){")
-          if (ctx.getJS()) {
+          if (ctx.js) {
             valueType match {
               case "Boolean" => {
                 pr.println("tempArrayValues.add(\"true\" == eachV || true == eachV)")
@@ -77,7 +77,7 @@ trait FlatReflexiveSetters {
           pr.println("}")
           pr.println("}")
         } else {
-          if (ctx.getJS()) {
+          if (ctx.js) {
             valueType match {
               case "Boolean" => {
                 if (ctx.generateEvents) {
@@ -221,9 +221,7 @@ trait FlatReflexiveSetters {
           } else {
             pr.println("      this." + methodNameClean + " = (value as? " + valueType + ")")
           }
-
           pr.println("}")
-
           pr.println("org.kevoree.modeling.api.util.ActionType.REMOVE -> {")
           if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("        this.internal_" + ref.getName + "(null, setOpposite, fireEvents)")
@@ -245,9 +243,6 @@ trait FlatReflexiveSetters {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
           pr.println("val obj = _" + ref.getName + ".get(value)")
-
-
-          //pr.println("val objNewKey = (obj as " + ProcessorHelper.fqn(ctx, ref.getEReferenceType.getEPackage) + ".impl." + ref.getEReferenceType.getName + "Impl).internalGetKey()\n")
           pr.println("val objNewKey = (obj as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n")
           pr.println("if(objNewKey == null){throw Exception(\"Key newed to null \"+obj)}\n")
           pr.println("_" + ref.getName + ".remove(value)")
@@ -258,7 +253,6 @@ trait FlatReflexiveSetters {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("}")
         }
-
         pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
         pr.println("}") //END MUTATION TYPE
         pr.println("}") //END Ref When case

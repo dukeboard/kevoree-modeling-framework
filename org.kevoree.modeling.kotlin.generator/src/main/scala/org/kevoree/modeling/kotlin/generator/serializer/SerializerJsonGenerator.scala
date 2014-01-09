@@ -35,9 +35,6 @@
 
 package org.kevoree.modeling.kotlin.generator.serializer
 
-import org.apache.velocity.app.VelocityEngine
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-import org.apache.velocity.VelocityContext
 import java.io.{File, PrintWriter}
 import org.eclipse.emf.ecore._
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -56,11 +53,7 @@ class SerializerJsonGenerator(ctx: GenerationContext) {
   def generateJsonSerializer(pack: EPackage, model: ResourceSet) {
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
     ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
-    generateDefaultSerializer(serializerGenBaseDir, model)
-  }
-
-  private def generateDefaultSerializer(genDir: String, model: ResourceSet) {
-    val genFile = new File(genDir + "JSONModelSerializer.kt")
+    val genFile = new File(serializerGenBaseDir + "JSONModelSerializer.kt")
     val pr = new PrintWriter(genFile, "utf-8")
     pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".serializer")
     pr.println("class JSONModelSerializer : org.kevoree.modeling.api.json.JSONModelSerializer() {")

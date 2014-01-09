@@ -34,13 +34,9 @@ trait ConstantsGenerator {
             cls.asInstanceOf[EClass].getEReferences.foreach{ref=> if(!names.contains(ref.getName)){names.put("Ref_"+ref.getName, ref.getName)}}
           }
         }
-        case _ => //println("BEArhhh::" + elm.getClass)
+        case _ =>
       }
     }
-
-
-
-
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + "/util/")
     val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + "/util/Constants.kt")
     val pr = new PrintWriter(localFile, "utf-8")

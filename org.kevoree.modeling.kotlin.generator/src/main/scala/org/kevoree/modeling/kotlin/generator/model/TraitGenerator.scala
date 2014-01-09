@@ -85,19 +85,6 @@ import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext
 
 trait TraitGenerator {
 
-  def generateContainerAPI(ctx: GenerationContext) {
-
-    if (!ctx.microframework) {
-      if (ctx.getJS()) {
-        ProcessorHelper.copyFromStream(this.getClass.getClassLoader.getResourceAsStream("org/kevoree/modeling/api/KMFContainer.kt.jslib"), "org/kevoree/modeling/api/KMFContainer.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-      } else {
-        ProcessorHelper.copyFromStream("org/kevoree/modeling/api/KMFContainer.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-      }
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelAttributeVisitor.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-  }
-
   def generateContainerTrait(ctx: GenerationContext) {
     val formatedFactoryName = "KMFContainer"
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")

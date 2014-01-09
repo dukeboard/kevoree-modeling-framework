@@ -38,18 +38,15 @@ package org.kevoree.modeling.kotlin.generator
 
 import factories.FactoryGenerator
 import java.io.{FileWriter, File}
-import org.kevoree.modeling.kotlin.generator.loader.xml.XmiLoaderGenerator
 import model.ModelGenerator
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore._
 import org.kevoree.modeling.aspect.{AspectParam, AspectClass, AspectMethod}
-import org.kevoree.modeling.kotlin.generator.events.EventsGenerator
-import org.kevoree.modeling.kotlin.generator.loader.json.JsonLoaderGenerator
-import org.kevoree.modeling.kotlin.generator.loader.LoaderApiGenerator
 import scala.collection.JavaConversions._
 
-import org.kevoree.modeling.kotlin.generator.serializer.{SerializerApiGenerator, SerializerJsonGenerator, SerializerGenerator}
+import org.kevoree.modeling.kotlin.generator.serializer.{SerializerJsonGenerator, SerializerGenerator}
 import java.util
+import org.kevoree.modeling.kotlin.generator.loader.LoaderGenerator
 
 /**
  * Created by IntelliJ IDEA.
@@ -94,11 +91,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
 
     val factoryGenerator = new FactoryGenerator(ctx)
     factoryGenerator.generateMainFactory()
-
-    //if(ctx.generateEvents) {
-    val eventsGenerator = new EventsGenerator(ctx)
-    eventsGenerator.generateEvents()
-    //}
 
     System.out.println("Check Aspect completeness")
     val model = ctx.getEcoreModel(ecoreFile)
@@ -224,7 +216,7 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
                   if (operation.getEType != null) {
                     if (operation.getEType.isInstanceOf[EDataType]) {
                       var operationReturnType = ProcessorHelper.convertType(operation.getEType.getName)
-                      if (operationReturnType.startsWith("List") && !ctx.getJS()) {
+                      if (operationReturnType.startsWith("List") && !ctx.js) {
                         operationReturnType = "Mutable" + operationReturnType
                       }
                       writer.write(") : " + operationReturnType + " {\n")
@@ -252,7 +244,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
 
 
     val modelGen = new ModelGenerator(ctx)
-    modelGen.generateContainerAPI(ctx)
     modelGen.generateContainerTrait(ctx)
     if (ctx.persistence) {
       modelGen.generateContainerPersistenceTrait(ctx)
@@ -290,45 +281,26 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
     }
   }
 
-
-  private def checkOrGenerateLoaderApi() {
-    val apiGenerator = new LoaderApiGenerator(ctx)
-    apiGenerator.generateLoaderAPI()
-  }
-
   def generateLoader() {
 
-    checkOrGenerateLoaderApi()
-
     val model = ctx.getEcoreModel(ecoreFile)
-
     System.out.println("Launching loader generation")
-    val loaderGenerator = new XmiLoaderGenerator(ctx)
-    loaderGenerator.generateLoader(model)
+    val loaderGenerator = new LoaderGenerator(ctx)
+    loaderGenerator.generateXMILoader(model)
     System.out.println("Done with loader generation")
   }
 
   def generateJsonLoader() {
-    checkOrGenerateLoaderApi()
     val model = ctx.getEcoreModel(ecoreFile)
     System.out.println("Launching JSON loader generation")
-    val loaderGenerator = new JsonLoaderGenerator(ctx)
-    loaderGenerator.generateLoader(model)
+    val loaderGenerator = new LoaderGenerator(ctx)
+    loaderGenerator.generateJSONLoader(model)
     System.out.println("Done with JSON loader generation")
-  }
-
-  private def checkOrGenerateSerializerApi() {
-    val apiGenerator = new SerializerApiGenerator(ctx)
-    apiGenerator.generateSerializerAPI()
   }
 
 
   def generateSerializer() {
-
-    checkOrGenerateSerializerApi()
-
     val model = ctx.getEcoreModel(ecoreFile)
-
     System.out.println("Launching serializer generation")
     val serializerGenerator = new SerializerGenerator(ctx)
     serializerGenerator.generateSerializer(model)
@@ -336,8 +308,6 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
   }
 
   def generateJSONSerializer() {
-
-    checkOrGenerateSerializerApi()
 
     val model = ctx.getEcoreModel(ecoreFile)
 

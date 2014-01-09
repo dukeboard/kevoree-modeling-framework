@@ -84,20 +84,4 @@ trait EnumGenerator {
   }
 
 
-  def generateActionTypeClass(ctx: GenerationContext) {
-    if (!ctx.microframework) {
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ActionType.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-    if (!ctx.microframework) {
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ModelVisitor.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-  }
-
-  def generateElementAttributeTypeClass(ctx: GenerationContext) {
-    if (!ctx.microframework) {
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/util/ElementAttributeType.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-  }
-
-
 }

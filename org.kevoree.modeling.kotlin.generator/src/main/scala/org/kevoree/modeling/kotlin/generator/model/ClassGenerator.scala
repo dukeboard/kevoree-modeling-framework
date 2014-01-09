@@ -55,7 +55,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     aspects.foreach {
       a =>
         pr.println("import " + a.packageName + ".*")
-        if (ctx.getJS()) {
+        if (ctx.js) {
           a.imports.filter(i => i != "org.kevoree.modeling.api.aspect" && i != "org.kevoree.modeling.api.meta").foreach {
             i =>
               pr.println("import " + i + ";")
@@ -92,7 +92,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
       pr.println("override var inResolution: Boolean = false")
       pr.println("override var originFactory: org.kevoree.modeling.api.persistence.PersistenceKMFFactory? = null")
     }
-    if(ctx.timeAware){
+    if (ctx.timeAware) {
       pr.println("override var now: org.kevoree.modeling.api.time.TimePoint? = null")
       pr.println("override var previousTimePoint: org.kevoree.modeling.api.time.TimePoint? = null")
     }
@@ -111,7 +111,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     generateContainedElementsMethods(pr, cls, ctx)
     generateMetaClassName(pr, cls, ctx)
     //Kotlin workaround // Why prop are not generated properly ?
-    if (ctx.getJS() && ctx.ecma3compat) {
+    if (ctx.js && ctx.ecma3compat) {
       ProcessorHelper.noduplicate(cls.getEAllAttributes).foreach {
         att =>
           if (att.isMany) {
@@ -187,7 +187,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
                   pr.println("):Unit{")
                 }
 
-                if (!ctx.getJS()) {
+                if (!ctx.js) {
                   var currentT = t._2.size()
                   t._2.foreach {
                     superTrait =>
@@ -345,7 +345,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
           alreadyGeneratedAttributes.add(att.getName)
           var defaultValue = ProcessorHelper.getDefaultValue(ctx, att)
           if (att.getName.equals("generated_KMF_ID") && idAttributes.size == 0) {
-            if (ctx.getJS()) {
+            if (ctx.js) {
               defaultValue = "\"\"+Math.random() + java.util.Date().getTime()"
             } else {
               defaultValue = "\"\"+hashCode() + java.util.Date().getTime()"

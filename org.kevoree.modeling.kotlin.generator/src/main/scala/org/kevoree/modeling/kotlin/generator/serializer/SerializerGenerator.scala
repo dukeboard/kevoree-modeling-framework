@@ -35,17 +35,9 @@
 
 package org.kevoree.modeling.kotlin.generator.serializer
 
-import org.apache.velocity.app.VelocityEngine
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.xmi.XMIResource
-import scala.collection.JavaConversions._
 import java.io.{File, PrintWriter}
-import org.eclipse.emf.ecore._
 import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
-import scala.Tuple2
-import java.util
 
 /**
  * Created by IntelliJ IDEA.
@@ -56,13 +48,7 @@ import java.util
 
 class SerializerGenerator(ctx: GenerationContext) {
 
-
   def generateSerializer(model: ResourceSet) {
-    /*
-    if (ctx.getJS()) {
-      return
-    }
-    */
     val serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "serializer" + File.separator
     ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir)
     val genFile = new File(serializerGenBaseDir + "XMIModelSerializer.kt")

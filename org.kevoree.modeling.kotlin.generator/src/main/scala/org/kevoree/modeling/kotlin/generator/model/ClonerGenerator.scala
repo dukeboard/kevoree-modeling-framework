@@ -42,18 +42,10 @@ trait ClonerGenerator {
 
 
   def generateCloner(ctx: GenerationContext, pack: EPackage, model: ResourceSet) {
-    //generateClonerFactories(ctx, currentPackageDir, pack, cls)
-    generateDefaultCloner(ctx, pack, model)
-  }
-
-  def generateDefaultCloner(ctx: GenerationContext, pack: EPackage, model: ResourceSet) {
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
     val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner" + File.separator + "DefaultModelCloner.kt"), "utf-8")
     val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
     ctx.clonerPackage = packageName + ".cloner"
-    if (!ctx.microframework) {
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/ModelCloner.kt", ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
     ve.init()

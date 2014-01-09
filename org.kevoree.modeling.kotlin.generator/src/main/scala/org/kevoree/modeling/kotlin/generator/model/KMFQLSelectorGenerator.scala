@@ -67,14 +67,12 @@ trait KMFQLSelectorGenerator {
     val optionalRelationShipNameGen = cls.getEAllReferences.size == 1
     ctxV.put("optionalRelationShipNameGen", optionalRelationShipNameGen)
     if (optionalRelationShipNameGen) {
-      val relationShipOptionalName = cls.getEAllReferences.get(0).getName
+      val relationShipOptionalName = cls.getEAllReferences().get(0).getName()
       ctxV.put("relationShipOptionalName", relationShipOptionalName)
     }
-    ctxV.put("eRefs",cls.getEAllReferences)
-    ctxV.put("eSub",cls.getEAllContainments)
-
+    ctxV.put("eRefs",cls.getEAllReferences())
+    ctxV.put("eSub",cls.getEAllContainments())
     ctxV.put("formatedFactoryName",ctx.getKevoreeContainer.get)
-
     template.merge(ctxV, pr)
   }
 

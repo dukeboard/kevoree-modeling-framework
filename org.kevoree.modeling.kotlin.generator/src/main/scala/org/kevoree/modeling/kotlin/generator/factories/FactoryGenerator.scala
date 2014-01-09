@@ -25,113 +25,99 @@ import scala.collection.JavaConversions._
 * Author : Gregory Nain (developer.name@uni.lu)
 * Date : 28/03/13
 */
-class FactoryGenerator(ctx:GenerationContext) {
+class FactoryGenerator(ctx: GenerationContext) {
 
   def generateMainFactory() {
-
-    if(!ctx.microframework){
-      ProcessorHelper.copyFromStream("org/kevoree/modeling/api/KMFFactory.kt",ctx.getRootGenerationDirectory.getAbsolutePath)
-    }
-
-
     ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory")
     generatePackageEnum()
-
     val genFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "MainFactory.kt")
     val pr = new PrintWriter(genFile, "utf-8")
-    pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
-
-    if(ctx.persistence && !ctx.timeAware){
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory")
+    if (ctx.persistence && !ctx.timeAware) {
       pr.println("class MainFactory : org.kevoree.modeling.api.persistence.PersistenceKMFFactory {")
     } else {
-      if(ctx.timeAware){
+      if (ctx.timeAware) {
         pr.println("class MainFactory : org.kevoree.modeling.api.time.TimeAwareKMFFactory {")
       } else {
         pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {")
       }
     }
-
-    if(ctx.persistence){
+    if (ctx.persistence) {
       pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null")
       pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()")
-      pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = "+ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration)+".compare.DefaultModelCompare()")
+      pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()")
     }
-
-    if(ctx.timeAware){
+    if (ctx.timeAware) {
       pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(0,0)")
       pr.println("override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()")
       pr.println("override var timedElement: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()")
       pr.println("override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE_FIRST")
     }
-
     pr.println("")
-    pr.println("private var factories : Array<org.kevoree.modeling.api.KMFFactory?> = Array<org.kevoree.modeling.api.KMFFactory?>("+ctx.packageFactoryMap.entrySet().size()+", {i -> null});")
+    pr.println("private var factories : Array<org.kevoree.modeling.api.KMFFactory?> = Array<org.kevoree.modeling.api.KMFFactory?>(" + ctx.packageFactoryMap.entrySet().size() + ", {i -> null});")
     pr.println("")
     pr.println("{")
-    ctx.packageFactoryMap.entrySet().foreach { entry =>
-      pr.println("factories.set(Package." + entry.getKey.toUpperCase.replace(".","_") + ", " + entry.getKey + ".impl.Default" + entry.getValue.substring(entry.getValue.lastIndexOf(".")+1, entry.getValue.length) + "())")
+    ctx.packageFactoryMap.entrySet().foreach {
+      entry =>
+        pr.println("factories.set(Package." + entry.getKey.toUpperCase.replace(".", "_") + ", " + entry.getKey + ".impl.Default" + entry.getValue.substring(entry.getValue.lastIndexOf(".") + 1, entry.getValue.length) + "())")
     }
     pr.println("}")
-
-
     pr.println("fun getFactoryForPackage( pack : Int) : org.kevoree.modeling.api.KMFFactory? {")
     pr.println("return factories.get(pack)")
     pr.println("}")
-
-    ctx.packageFactoryMap.entrySet().foreach { entry =>
-      pr.println("fun get" + entry.getValue.substring(entry.getValue.lastIndexOf(".")+1, entry.getValue.length) + "() : "+entry.getValue+" {")
-      pr.println("return factories.get(Package." + entry.getKey.toUpperCase.replace(".","_") + ") as " + entry.getValue)
-      pr.println("}")
-      pr.println("")
-      pr.println("fun set" + entry.getValue.substring(entry.getValue.lastIndexOf(".")+1, entry.getValue.length) + "( fct : "+entry.getValue+") {")
-      pr.println("factories.set(Package." + entry.getKey.toUpperCase.replace(".","_") + ",fct)")
-      pr.println("}")
-      pr.println("")
+    ctx.packageFactoryMap.entrySet().foreach {
+      entry =>
+        pr.println("fun get" + entry.getValue.substring(entry.getValue.lastIndexOf(".") + 1, entry.getValue.length) + "() : " + entry.getValue + " {")
+        pr.println("return factories.get(Package." + entry.getKey.toUpperCase.replace(".", "_") + ") as " + entry.getValue)
+        pr.println("}")
+        pr.println("")
+        pr.println("fun set" + entry.getValue.substring(entry.getValue.lastIndexOf(".") + 1, entry.getValue.length) + "( fct : " + entry.getValue + ") {")
+        pr.println("factories.set(Package." + entry.getKey.toUpperCase.replace(".", "_") + ",fct)")
+        pr.println("}")
+        pr.println("")
     }
     pr.println("")
 
     pr.print("override ")
     pr.println("fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {")
-      pr.println("val pack = Package.getPackageForName(metaClassName)")
-      pr.println("    if(pack != -1) {")
-      pr.println("        return getFactoryForPackage(pack)?.create(metaClassName)")
-      pr.println("    } else {")
-      pr.println("        for(i in factories.indices) {")
-      pr.println("            val obj = factories[i]!!.create(metaClassName)")
-      pr.println("            if(obj != null) {")
-      pr.println("                return obj;")
-      pr.println("            }")
-      pr.println("        }")
-      pr.println("        return null")
-      pr.println("    }")
-      //pr.println("return getFactoryForPackage(Package.getPackageForName(metaClassName))?.create(metaClassName)")
-      pr.println("}")
-
-
+    pr.println("val pack = Package.getPackageForName(metaClassName)")
+    pr.println("    if(pack != -1) {")
+    pr.println("        return getFactoryForPackage(pack)?.create(metaClassName)")
+    pr.println("    } else {")
+    pr.println("        for(i in factories.indices) {")
+    pr.println("            val obj = factories[i]!!.create(metaClassName)")
+    pr.println("            if(obj != null) {")
+    pr.println("                return obj;")
+    pr.println("            }")
+    pr.println("        }")
+    pr.println("        return null")
+    pr.println("    }")
+    pr.println("}")
     pr.println("}")
     pr.flush()
     pr.close()
   }
 
 
-
   private def generatePackageEnum() {
     val genFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "Package.kt")
     val pr = new PrintWriter(genFile, "utf-8")
-    pr.println("package " + ProcessorHelper.fqn(ctx,ctx.getBasePackageForUtilitiesGeneration) + ".factory")
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory")
 
     pr.println("object Package {")
     var i = 0
-    ctx.packageFactoryMap.keySet().foreach{ key=>
-      pr.println(" public val " + key.toUpperCase.replace(".","_") + " : Int = " + i)
-      i = i+1
+    ctx.packageFactoryMap.keySet().foreach {
+      key =>
+        pr.println(" public val " + key.toUpperCase.replace(".", "_") + " : Int = " + i)
+        i = i + 1
     }
 
     pr.println("fun getPackageForName(metaClassName : String) : Int {")
     i = 0
-    ctx.packageFactoryMap.keySet().foreach{ key=>
-      pr.println(" if(metaClassName.startsWith(\"" + key + "\")){return " + i+"}")
-      i = i+1
+    ctx.packageFactoryMap.keySet().foreach {
+      key =>
+        pr.println(" if(metaClassName.startsWith(\"" + key + "\")){return " + i + "}")
+        i = i + 1
     }
     pr.println("return -1")
     pr.println("}")
