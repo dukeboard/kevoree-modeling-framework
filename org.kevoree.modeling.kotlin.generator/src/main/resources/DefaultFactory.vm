@@ -25,7 +25,9 @@ override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFC
 #foreach( $class in $classes )
 override fun create${class.getName()}() : ${class.getName()} {
 val tempElem = ${class.getName()}Impl()
+    #if($ctx.persistence())
 initObject(tempElem)
+    #end
 return tempElem
 }
 #end
@@ -46,6 +48,17 @@ when(metaClassName){
 
     override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${packageName}.compare.DefaultModelCompare()
 
+    protected fun initObject(elem : org.kevoree.modeling.api.time.TimeAwareKMFContainer){
+    #if($ctx.timeAware())
+        if(relativityStrategy == org.kevoree.modeling.api.time.RelativeTimeStrategy.LATEST_FIRST){
+            elem.now = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0);
+        } else {
+            elem.now = relativeTime;
+        }
+        #end
+        elem.originFactory = this
+    }
+
 #end
 
 #if($ctx.timeAware())
@@ -54,13 +67,6 @@ override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoin
 override var timedElement: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
 override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE_FIRST
 
-protected fun initObject(elem : org.kevoree.modeling.api.time.TimeAwareKMFContainer){
-    if(relativityStrategy == org.kevoree.modeling.api.time.RelativeTimeStrategy.LATEST_FIRST){
-        elem.now = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0);
-    } else {
-        elem.now = relativeTime;
-    }
-}
 
 #end
 

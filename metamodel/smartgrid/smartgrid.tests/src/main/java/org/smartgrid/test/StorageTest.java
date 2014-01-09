@@ -21,27 +21,30 @@ public class StorageTest {
 
     public static void main(String[] args) throws IOException {
 
-        String dir = "/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/smartgrid/smartgrid.tests/tempStorage";
+        String dir = "/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/smartgrid/smartgrid.tests/target/tempStorage";
         File baseDir = new File(dir);
-        Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file,BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return CONTINUE;
-            }
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir,IOException exc) throws IOException {
-                if (exc == null) {
-                    Files.delete(dir);
+        if(baseDir.exists()){
+            Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file,BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
                     return CONTINUE;
-                } else {
-                    throw exc;
                 }
-            }
-        });
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir,IOException exc) throws IOException {
+                    if (exc == null) {
+                        Files.delete(dir);
+                        return CONTINUE;
+                    } else {
+                        throw exc;
+                    }
+                }
+            });
+        }
+
         Files.deleteIfExists(baseDir.toPath());
 
-        DataStore datastore = new LevelDbDataStore("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/metamodel/smartgrid/smartgrid.tests/tempStorage");
+        DataStore datastore = new LevelDbDataStore(dir);
         DefaultEvaluationFactory factory = new DefaultEvaluationFactory();
         factory.setDatastore(datastore);
 
@@ -59,6 +62,7 @@ public class StorageTest {
         System.out.println(meter.path());
 
         SmartMeter meter2 = (SmartMeter) meter.shiftOffset(1);
+        System.out.println(meter2);
         meter2.setElectricLoad(1l);
         factory.persist(meter2);
         factory.commit();
