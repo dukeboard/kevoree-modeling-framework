@@ -6,16 +6,6 @@
 // static members initialization
 // --------------------------------------
 
-const string Logger::PRIORITY_NAMES[] =
-{
-		"MODEL",
-		"MICROFRAMEWORK"
-        "DEBUG",
-        "CONFIG",
-        "INFO",
-        "WARNING",
-        "ERROR"
-};
 
 
 Logger Logger::instance;
@@ -53,13 +43,13 @@ void Logger::Write(Priority priority, const string& message)
         // identify current output stream
         ostream& stream
             = instance.fileStream.is_open() ? instance.fileStream : std::cout;
-
-        stream  << PRIORITY_NAMES[priority-1]
+/*
+        stream  << levelnames[priority]
                 << ": "
                 << message
                 << endl;
-                
-          cout  << PRIORITY_NAMES[priority-1]
+             */
+          cout  << levelnames[priority]
                 << ": "
                 << message
                 << endl;

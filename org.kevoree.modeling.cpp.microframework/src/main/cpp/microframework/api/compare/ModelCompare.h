@@ -7,8 +7,6 @@
  */
 #include <microframework/api/trace/TraceSequence.h>
 #include <microframework/api/KMFContainer.h>
-#include <unordered_map>
-
 #include <list>
 
 class ModelCompare
@@ -24,8 +22,6 @@ class ModelCompare
   private:
   	TraceSequence seq;
       std::list < ModelTrace * > *internal_diff (KMFContainer *origin,KMFContainer *target,bool inter, bool merge);
-};
-
-
+}; // END CLASS
 
 #endif

@@ -11,6 +11,7 @@ package org.kevoree.modeling.cpp.generator.utils;
  */
 public class HelperGenerator {
 
+    public static final String internal_id_name  = "generated_KMF_ID";
     public static String genInclude(String name){
         return   "#include <"+name+">\n";
     }

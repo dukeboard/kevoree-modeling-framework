@@ -334,7 +334,10 @@ public class ClassGenerator extends AGenerator {
         for(EAttribute a: cls.getEAllAttributes())
         {
             ADD_DEBUG(cls,"Visiting attribute -> "+a.getName());
-            add_CPP("visitor->visit(any("+a.getName()+"),\""+a.getName()+"\",this);");
+            if(!a.getName().equals("generated_KMF_ID")){
+                add_CPP("visitor->visit(any("+a.getName()+"),\""+a.getName()+"\",this);");
+            }
+
         }
 
         add_CPP("}");
@@ -462,7 +465,7 @@ public class ClassGenerator extends AGenerator {
         List<String> idsgen  = new ArrayList<String>();
 
         for(EAttribute a : cls.getEAllAttributes()){
-            if(a.isID() && !a.getName().equals("generated_KMF_ID")){
+            if(a.isID() && !a.getName().equals(HelperGenerator.internal_id_name)){
                 idsgen.add(a.getName());
             }
         }
@@ -471,11 +474,11 @@ public class ClassGenerator extends AGenerator {
 
         for(EAttribute a : cls.getEAllAttributes()){
             if(a.isID()  ){
-                if(a.getName().equals("generated_KMF_ID") && idsgen.size() ==0)
+                if(a.getName().equals(HelperGenerator.internal_id_name) && idsgen.size() ==0)
                 {
                     eAttribute.add(a.getName());
                 }
-                else  if(!a.getName().equals("generated_KMF_ID"))
+                else  if(!a.getName().equals(HelperGenerator.internal_id_name))
                  {
                         eAttribute.add(a.getName());
 
@@ -511,10 +514,10 @@ public class ClassGenerator extends AGenerator {
         }
 
         if(eAttribute.size() == 1  && idsgen.size() ==0){
-            if (eAttribute.get(0).equals("generated_KMF_ID")){
+            if (eAttribute.get(0).equals(HelperGenerator.internal_id_name)){
                // System.out.println("INTERNAL "+cls.getName());
                    add_HEADER(HelperGenerator.genInclude("microframework/api/utils/Uuid.h"));
-                    add_CONSTRUCTOR("generated_KMF_ID= Uuid::getSingleton().generateUUID();");
+                    add_CONSTRUCTOR(HelperGenerator.internal_id_name+"= Uuid::getSingleton().generateUUID();");
 
 
             }
@@ -590,7 +593,7 @@ public class ClassGenerator extends AGenerator {
                 if(ref.getEReferenceType().getEIDAttribute() != null)
                 {
 
-                    add_PUBLIC_ATTRIBUTE("std::unordered_map<string,"+gen_type+"*> "+ref.getName()+"; \n") ;
+                    add_PUBLIC_ATTRIBUTE("std::map<string,"+gen_type+"*> "+ref.getName()+"; \n") ;
                   //  add_CONSTRUCTOR(ref.getName() + ".set_empty_key(\"\");");
                     generateFindbyIdAttribute(cls, ref);
                 }  else
@@ -623,7 +626,7 @@ public class ClassGenerator extends AGenerator {
         //
         add_HEADER(HelperGenerator.genInclude("list"));
         add_HEADER(HelperGenerator.genInclude("string"));
-        add_HEADER(HelperGenerator.genInclude("unordered_map"));
+        add_HEADER(HelperGenerator.genInclude("map"));
 
         if(cls.getESuperTypes().size() >0)
         {

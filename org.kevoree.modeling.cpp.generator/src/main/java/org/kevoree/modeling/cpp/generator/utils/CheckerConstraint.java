@@ -47,7 +47,7 @@ public class CheckerConstraint
                     System.out.println("INFO : ADDING UNIQUE ID  "+c.getName());
                     EAttribute generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute();
                     generatedKmfIdAttribute.setID(true);
-                    generatedKmfIdAttribute.setName("generated_KMF_ID");
+                    generatedKmfIdAttribute.setName(HelperGenerator.internal_id_name);
                     generatedKmfIdAttribute.setEType(EcorePackage.eINSTANCE.getEString());
                     c.getEStructuralFeatures().add(generatedKmfIdAttribute);
 

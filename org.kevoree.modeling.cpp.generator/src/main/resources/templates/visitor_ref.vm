@@ -3,7 +3,7 @@
 #* @vtlvariable name="debug" type="java.lang.String" *#
 
 visitor->beginVisitRef("${refname}","org.kevoree.${type}");
-for ( std::unordered_map<string,${type}*>::iterator it = ${refname}.begin();  it != ${refname}.end(); ++it)
+for ( std::map<string,${type}*>::iterator it = ${refname}.begin();  it != ${refname}.end(); ++it)
 {
     ${type} * current =(${type}*) it->second;
     ${debug}

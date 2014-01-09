@@ -17,28 +17,27 @@ class Token
 {
 public:
 	Token(int _tokenType,string _value)
-	{
+{
 		tokenType = _tokenType;
 		value =_value;
-	}
-	
+}
+
 	std::string toString(){
-	    string v; 
-	    if (!value.empty()) 
-	    { 
+		string v;
+		if (!value.empty())
+		{
 			v =" (" + value + ")";
-	    } else 
-	    {
-			 v= "";
-	    }
-	    std::ostringstream result;
-         result << tokenType << v;
-        return result.str();
+		} else
+		{
+			v= "";
+		}
+		std::ostringstream result;
+		result << tokenType << v;
+		return result.str();
 	}
 
-int tokenType;
-string value;
-
+	int tokenType;
+	string value;
 
 };
 
@@ -46,11 +45,11 @@ string value;
 
 class Lexer 
 {
-	
-	public:
+
+public:
 
 	Lexer(istream
-	 &inputstream);
+			&inputstream);
 	~Lexer();
 	bool isSpace(char c);
 	char nextChar();
@@ -60,12 +59,12 @@ class Lexer
 	bool isDigit(char c);
 	bool isValueLetter(char c);	
 	Token nextToken();
-	
-	
+
+
 private :
-char * bytes;
-int index;
-int length;
+	char * bytes;
+	int index;
+	int length;
 	Token *finish_token;
 
 

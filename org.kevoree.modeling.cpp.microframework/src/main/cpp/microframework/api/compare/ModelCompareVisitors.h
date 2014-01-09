@@ -6,32 +6,34 @@
  * Date: 31/11/13
  * Time: 9:14
  */
- #include <string>
- #include <microframework/api/KMFContainer.h>
 
+#include <microframework/api/KMFContainer.h>
+#include <map>
+#include <list>
+#include <string>
 class ModelCompareVisitorFiller:public ModelVisitor
 {
-  public:
-  ModelCompareVisitorFiller (std::unordered_map<string,KMFContainer*> *_objectsMap);
-  ~ModelCompareVisitorFiller();
-   void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent);
+public:
+	ModelCompareVisitorFiller (std::map<std::string,KMFContainer*> *_objectsMap);
+	~ModelCompareVisitorFiller();
+	void visit (KMFContainer * elem, std::string refNameInParent,KMFContainer * parent);
 private:
-    std::unordered_map<string,KMFContainer*> *objectsMap;
+	std::map<std::string,KMFContainer*> *objectsMap;
 };
 
 
 class ModelCompareVisitorCreateTraces:public ModelVisitor
 {
 
-  public:
-  ModelCompareVisitorCreateTraces (std::unordered_map<string,KMFContainer*> *_objectsMap, bool _inter,bool _merge,list<ModelTrace *> *_traces,list<ModelTrace *> *_tracesRef);
-  ~ModelCompareVisitorCreateTraces();
-  void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent);
+public:
+	ModelCompareVisitorCreateTraces (std::map<std::string,KMFContainer*> *_objectsMap, bool _inter,bool _merge,std::list<ModelTrace *> *_traces,std::list<ModelTrace *> *_tracesRef);
+	~ModelCompareVisitorCreateTraces();
+	void visit (KMFContainer * elem, std::string refNameInParent,KMFContainer * parent);
 private:
-    std::unordered_map<string,KMFContainer*> *objectsMap;
-    list < ModelTrace * > *traces;
-    list < ModelTrace * > *tracesRef;
-    bool inter;
-    bool merge;
+	std::map<std::string,KMFContainer*> *objectsMap;
+	std::list < ModelTrace * > *traces;
+	std::list < ModelTrace * > *tracesRef;
+	bool inter;
+	bool merge;
 };
 #endif

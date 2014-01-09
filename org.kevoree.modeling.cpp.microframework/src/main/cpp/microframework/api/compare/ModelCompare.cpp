@@ -36,7 +36,7 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
 {
     list < ModelTrace * > *traces ;
     list < ModelTrace * > *tracesRef;
-    std::unordered_map<string,KMFContainer*> values;
+    std::map<string,KMFContainer*> values;
 
     traces = origin->createTraces (target, inter, merge, false, true);
     tracesRef = origin->createTraces (target, inter, merge, true, false);
@@ -55,7 +55,7 @@ std::list < ModelTrace * >* ModelCompare::internal_diff (KMFContainer *origin,KM
             //if diff
             if(!merge)
             {
-                for ( std::unordered_map<string,KMFContainer*>::const_iterator it = values.begin();  it != values.end(); ++it) {
+                for ( std::map<string,KMFContainer*>::const_iterator it = values.begin();  it != values.end(); ++it) {
 
                       KMFContainer *diffChild;
                       string src;

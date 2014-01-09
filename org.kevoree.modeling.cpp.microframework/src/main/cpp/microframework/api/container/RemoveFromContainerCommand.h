@@ -1,9 +1,9 @@
 #ifndef __RemoveFromContainerCommand_H
 #define __RemoveFromContainerCommand_H
 
-#include <iostream>
-#include <list>
+
 #include <microframework/api/KMFContainer.h>
+#include <string>
 /**
  * Author: jedartois@gmail.com
  * Date: 24/10/13
@@ -27,7 +27,7 @@ public:
 private:
 KMFContainer *target;
 int mutatorType;
-string refName;
+std::string refName;
 any element;
 
 };

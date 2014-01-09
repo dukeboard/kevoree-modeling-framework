@@ -1,8 +1,10 @@
 #ifndef KMFContainerVisitors_IMPL_H
 #define KMFContainerVisitors_IMPL_H
 
-#include <string>
+
 #include <microframework/api/KMFContainer.h>
+#include <string>
+#include <map>
 /**
  * Author: jedartois@gmail.com
  * Date: 31/11/13
@@ -13,18 +15,21 @@ class VisitorFiller:public ModelAttributeVisitor
 {
 
   public:
-    VisitorFiller (std::unordered_map<string,string> *_objectsMap)
+    VisitorFiller (std::map<string,string> *_objectsMap)
     {
 		objectsMap = _objectsMap;
     }
 
     void  visit(any val,string name,KMFContainer *parent)
     {
-    	    string data;
+    	    std::string data;
             if (!val.empty () && val.type () == typeid (string) )
     		{
     		    data =AnyCast < string>(val);
-    		    (*objectsMap)[name] = data;
+    		    if(!data.empty()){
+    		    	  (*objectsMap)[name] = data;
+    		    }
+
     		}else  if(!val.empty () && val.type () == typeid (int))
     		{
     		    data =AnyCast < int>(val);;
@@ -52,13 +57,13 @@ class VisitorFiller:public ModelAttributeVisitor
     		}
 
     }
-    std::unordered_map<string,string> *objectsMap;
+    std::map<string,string> *objectsMap;
 };
 
 class VisitorFillRef:public ModelVisitor
 {
   public:
-    VisitorFillRef (std::unordered_map<string,string> *_objectsMap)
+    VisitorFillRef (std::map<string,string> *_objectsMap)
     {
 	    objectsMap = _objectsMap;
     }
@@ -67,15 +72,15 @@ class VisitorFillRef:public ModelVisitor
     {
 		if(elem != NULL)
 		{
-			string concatedKey = refNameInParent +"_"+elem->path() ;
+			std::string concatedKey = refNameInParent +"_"+elem->path() ;
 			(*objectsMap)[concatedKey] = "";
 		}else 
 		{
-			LOGGER_WRITE(Logger::ERROR,"The ref visitor vist a null element "+refNameInParent);	
+			LOGGER_WRITE(Logger::ERROR,"The ref visitor vist a null element "+refNameInParent);
 		}
 
     }
-    std::unordered_map<string,string> *objectsMap;
+    std::map<string,string> *objectsMap;
 };
 
 
@@ -83,7 +88,7 @@ class VisitorFillRef:public ModelVisitor
 class VisitorRef:public ModelVisitor
 {
   public:
-    VisitorRef (std::unordered_map<string,string> *_objectsMap,list <ModelTrace*> *_traces,string _path,bool _isInter)
+    VisitorRef (std::map<string,string> *_objectsMap,list <ModelTrace*> *_traces,string _path,bool _isInter)
     {
 	    values = _objectsMap;
 	    isInter =_isInter;
@@ -104,7 +109,7 @@ class VisitorRef:public ModelVisitor
 					traces->push_back(modeltrace);
 			   }
 			   values->erase(values->find(concatedKey));
-		   }  
+		   }
 		   else
 		   {
 					if(!isInter)
@@ -119,7 +124,7 @@ class VisitorRef:public ModelVisitor
 	}
     }
 private:
-    std::unordered_map<string,string> *values;
+    std::map<string,string> *values;
     bool isInter;
     list <ModelTrace*> *traces;
     string path;
@@ -132,13 +137,13 @@ class VisitorAtt : public ModelAttributeVisitor
 {
 
 public:
-    VisitorAtt (std::unordered_map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter);
+    VisitorAtt (std::map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter);
     ~VisitorAtt();
     void  visit(any val,string name,KMFContainer *parent);
 
 
   list < ModelTrace * > *traces;
-  std::unordered_map<string,string> *values;
+  std::map<string,string> *values;
   string path;
   bool isInter;
 };

@@ -58,8 +58,7 @@ TraceSequence* TraceSequence::populateFromStream(istream &inputStream )
         
       currentToken = lexer->nextToken();
 
-      std::unordered_map<string, string> keys;
-     // keys.set_empty_key("");
+      std::map<string, string> keys;
       string previousName;
       ModelTrace *modeltrace;
       

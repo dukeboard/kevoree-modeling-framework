@@ -6,7 +6,13 @@
 #include <iostream>
 
 using namespace std;
-
+static const char* levelnames[] = { "DEBUG_MODEL",
+		"DEBUG_MICROFRAMEWORK",
+        "DEBUG",
+        "CONFIG",
+        "INFO",
+        "WARNING",
+        "ERROR"};
 class Logger
 {
 public:
@@ -22,6 +28,8 @@ public:
         ERROR
     };
 
+	
+	
     // start/stop logging
     // - messages with priority >= minPriority will be written in log
     // - set logFile = "" to write to standard output
@@ -43,8 +51,6 @@ private:
     ofstream    fileStream;
     Priority    minPriority;
 
-    // names describing the items in enum Priority
-    static const string PRIORITY_NAMES[];
     // the sole Logger instance (singleton)
     static Logger instance;
 };

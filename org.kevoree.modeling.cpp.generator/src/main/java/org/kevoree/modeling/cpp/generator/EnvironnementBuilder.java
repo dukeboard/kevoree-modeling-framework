@@ -5,7 +5,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.kevoree.modeling.cpp.generator.utils.FileManager;
-import org.kevoree.resolver.MavenResolver;
+//import org.kevoree.resolver.MavenResolver;
 
 
 import java.io.File;
@@ -46,7 +46,7 @@ public class EnvironnementBuilder
     }
 
     public void downloadMicroframework(){
-
+  /*
         MavenResolver resolver = new MavenResolver();
 
         String group = "org.kevoree.modeling";
@@ -57,7 +57,7 @@ public class EnvironnementBuilder
 
         File jar = resolver.resolve("mvn:"+group+":"+artifactid+":"+version+":jar", Arrays.asList("https://oss.sonatype.org/content/groups/public/"));
 
-        if(jar.exists())
+        if(jar != null && jar.exists())
         {
             try {
                 FileManager.unzipJar(jar.getAbsolutePath(),ctx.getRootGenerationDirectory()+ File.separatorChar);
@@ -66,7 +66,7 @@ public class EnvironnementBuilder
                 e.printStackTrace();
             }
         }
-
+             */
 
     }
     public void execute() throws IOException

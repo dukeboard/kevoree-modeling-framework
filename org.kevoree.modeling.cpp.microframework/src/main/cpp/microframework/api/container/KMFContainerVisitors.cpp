@@ -4,7 +4,7 @@ VisitorAtt::~VisitorAtt(){
 
 
 }
-VisitorAtt::VisitorAtt (std::unordered_map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter)
+VisitorAtt::VisitorAtt (std::map<string,string> *_values,list < ModelTrace * > *_traces,string _path,bool _isInter)
 {
 	    traces = _traces;
 	     values = _values;
