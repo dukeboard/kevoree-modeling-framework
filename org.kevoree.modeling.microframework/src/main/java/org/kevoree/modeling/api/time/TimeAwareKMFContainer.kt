@@ -12,14 +12,27 @@ import org.kevoree.modeling.api.persistence.KMFContainerProxy
 
 public trait TimeAwareKMFContainer : KMFContainerProxy {
 
+    var previousTimePoint: TimePoint?
+
+    fun shiftOffset(offset: Long): TimeAwareKMFContainer? {
+        if (now != null) {
+            return shift(now!!.shift(offset))
+        }
+        return null
+    }
+
     fun shift(timePoint: TimePoint): TimeAwareKMFContainer? {
         if (originFactory != null) {
-            originFactory.l
-
+            /* here we rely on the lazy load helped by the path concept, to ensure match in case of existing timepoint for this object path */
+            var newObject = originFactory!!.create(metaClassName()) as TimeAwareKMFContainer
+            newObject.originFactory = originFactory
+            newObject.isResolved = false
+            newObject.setOriginPath(path()!!)
+            newObject.now = timePoint
+            newObject.previousTimePoint = now
+            return newObject
         }
-
-
-        now = timePoint
+        return null
     }
 
     fun deepShift(timePoint: TimePoint) {

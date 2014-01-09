@@ -22,27 +22,25 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
         //TODO
     }
 
-
     var relativeTime: TimePoint
     var queryMap: MutableMap<String, TimePoint>
     var timedElement: MutableMap<String, TimePoint>
     var relativityStrategy: RelativeTimeStrategy
+
+    fun setPrevious(p: TimePoint) {
+        datastore!!.put(TimeSegment.PREVIOUS.name(), relativeTime.toString(), p.toString())
+    }
 
     override fun persist(elem: KMFContainer) {
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
-
-            //change the currentNow
-            //TODO
-
             var currentNow = (elem as? TimeAwareKMFContainer)?.now
             if (currentNow == null) {
                 currentNow = relativeTime
             }
             val currentPath = elem.path()!!
-
             datastore!!.put(TimeSegment.RAW.name(), "$currentNow/$currentPath", traceSeq.exportToString())
             datastore!!.put(TimeSegment.LATEST.name(), currentPath, currentNow.toString())
             val previousType = datastore!!.get(TimeSegment.TYPE.name(), elem.path()!!)
@@ -54,6 +52,11 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                 elem.originFactory = this
             }
         }
+    }
+
+    fun removeVersion(t: TimePoint) {
+        //TODO
+
     }
 
     override fun remove(elem: KMFContainer) {
@@ -157,14 +160,42 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     override fun getTraces(origin: KMFContainer): TraceSequence? {
         val currentNow = (origin as? TimeAwareKMFContainer)!!.now
         val currentPath = origin.path()!!
-        val composedKey = "$currentNow/$currentPath"
+        var composedKey = "$currentNow/$currentPath"
         var sequence = compare.createSequence()
-        val traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
+        var traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
         if (traces != null) {
-            sequence.populateFromString(traces)
+            sequence.populateFromString(traces!!)
             return sequence
         }
-        return null
+        //try with previous timepoint
+        val previousTimePoint = (origin as? TimeAwareKMFContainer)!!.previousTimePoint
+        if (previousTimePoint != null) {
+            composedKey = "$previousTimePoint/$currentPath"
+            traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
+            if (traces != null) {
+                sequence.populateFromString(traces!!)
+                return sequence
+            }
+        }
+        //try with previous version of the current version
+        return resolvePreviousGetTrace(origin, relativeTime.toString(), sequence)
     }
+
+    private fun resolvePreviousGetTrace(origin: KMFContainer, current: String, sequence: TraceSequence): TraceSequence? {
+        var previous = datastore?.get(TimeSegment.PREVIOUS.name(), current.toString())
+        if (previous == null) {
+            return null;
+        }
+        val currentPath = origin.path()!!
+        var composedKey = "$current/$currentPath"
+        var traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
+        if (traces != null) {
+            sequence.populateFromString(traces!!)
+            return sequence
+        } else {
+            return resolvePreviousGetTrace(origin, previous!!, sequence)
+        }
+    }
+
 
 }

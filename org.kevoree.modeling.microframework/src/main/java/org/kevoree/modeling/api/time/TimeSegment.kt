@@ -11,4 +11,5 @@ public enum class TimeSegment {
             LATEST
             RAW
             TYPE
+            PREVIOUS
 }

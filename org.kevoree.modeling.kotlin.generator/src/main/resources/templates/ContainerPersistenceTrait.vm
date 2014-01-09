@@ -13,8 +13,6 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
 #end
 
 
-
-
     fun checkLazyLoad(){
         if(!isResolved){
             isResolved = true
