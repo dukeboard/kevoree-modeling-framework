@@ -21,23 +21,12 @@ public class Test {
         context.setVersionmicroframework("1.3-SNAPSHOT");
 
 
-
-        GenerationContext context2 = new GenerationContext();
-        context2.setRootGenerationDirectory("/tmp/model/");
-        context2.setEcore("/home/jed/KEVOREE_PROJECT/kevoree-modeling-framework/org.kevoree.modeling.cpp.generator/src/main/resources/metamodel/kevoree.adaptation.ecore");
-        context2.setDebug_model(false);
-        context2.setVersion("1.0");
-        context2.setVersionmicroframework("1.3-SNAPSHOT");
-
-
-
         Generator gen = new Generator(context);
-        //gen.generateModel();
+        gen.generateModel();
 
 
 
-        Generator gen2 = new Generator(context2);
-        gen2.generateModel();
-        //gen2.generateEnvironnement();
+
+
     }
 }

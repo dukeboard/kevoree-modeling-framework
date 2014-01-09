@@ -182,7 +182,7 @@ public class ClassGenerator extends AGenerator {
         add_CPP("void " + eClass.getName() + "::reflexiveMutator(int ___mutatorType,string ___refName, any ___value, bool ___setOpposite,bool ___fireEvent){");
         if(ctx.isDebug_model())
         {
-             add_CPP("LOGGER_WRITE(Logger::DEBUG_MODEL,\"BEGIN -- reflexiveMutator "+eClass.getName()+" refName \" + ___refName); ");
+            add_CPP("LOGGER_WRITE(Logger::DEBUG_MODEL,\"BEGIN -- reflexiveMutator "+eClass.getName()+" refName \" + ___refName); ");
         }
 
 
@@ -334,15 +334,11 @@ public class ClassGenerator extends AGenerator {
         for(EAttribute a: cls.getEAllAttributes())
         {
             ADD_DEBUG(cls,"Visiting attribute -> "+a.getName());
-            if(!a.getName().equals("generated_KMF_ID")){
-                add_CPP("visitor->visit(any("+a.getName()+"),\""+a.getName()+"\",this);");
-            }
+            add_CPP("visitor->visit(any("+a.getName()+"),\""+a.getName()+"\",this);");
 
         }
 
         add_CPP("}");
-
-
     }
 
     private void generateMethodRemove(EClass cls) {
@@ -479,13 +475,13 @@ public class ClassGenerator extends AGenerator {
                     eAttribute.add(a.getName());
                 }
                 else  if(!a.getName().equals(HelperGenerator.internal_id_name))
-                 {
-                        eAttribute.add(a.getName());
+                {
+                    eAttribute.add(a.getName());
 
-                  }
                 }
-
             }
+
+        }
 
         // sort
         Collections.sort(eAttribute);
@@ -515,9 +511,9 @@ public class ClassGenerator extends AGenerator {
 
         if(eAttribute.size() == 1  && idsgen.size() ==0){
             if (eAttribute.get(0).equals(HelperGenerator.internal_id_name)){
-               // System.out.println("INTERNAL "+cls.getName());
-                   add_HEADER(HelperGenerator.genInclude("microframework/api/utils/Uuid.h"));
-                    add_CONSTRUCTOR(HelperGenerator.internal_id_name+"= Uuid::getSingleton().generateUUID();");
+                // System.out.println("INTERNAL "+cls.getName());
+                add_HEADER(HelperGenerator.genInclude("microframework/api/utils/Uuid.h"));
+                add_CONSTRUCTOR(HelperGenerator.internal_id_name+"= Uuid::getSingleton().generateUUID();");
 
 
             }
@@ -572,7 +568,7 @@ public class ClassGenerator extends AGenerator {
                 }
 
             }else {
-              //  System.out.println(type_ref);
+                //  System.out.println(type_ref);
                 if(!type_ref.equals(cls.getName())){
                     //   header.append(  HelperGenerator.genIncludeLocal(type_ref));
                     header.append("class "+type_ref+";\n\n");
@@ -594,7 +590,7 @@ public class ClassGenerator extends AGenerator {
                 {
 
                     add_PUBLIC_ATTRIBUTE("std::map<string,"+gen_type+"*> "+ref.getName()+"; \n") ;
-                  //  add_CONSTRUCTOR(ref.getName() + ".set_empty_key(\"\");");
+                    //  add_CONSTRUCTOR(ref.getName() + ".set_empty_key(\"\");");
                     generateFindbyIdAttribute(cls, ref);
                 }  else
                 {

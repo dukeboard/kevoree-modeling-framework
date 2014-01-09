@@ -5,6 +5,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.kevoree.modeling.cpp.generator.utils.FileManager;
+import org.kevoree.resolver.MavenResolver;
 //import org.kevoree.resolver.MavenResolver;
 
 
@@ -46,7 +47,7 @@ public class EnvironnementBuilder
     }
 
     public void downloadMicroframework(){
-  /*
+
         MavenResolver resolver = new MavenResolver();
 
         String group = "org.kevoree.modeling";
@@ -66,7 +67,7 @@ public class EnvironnementBuilder
                 e.printStackTrace();
             }
         }
-             */
+
 
     }
     public void execute() throws IOException
