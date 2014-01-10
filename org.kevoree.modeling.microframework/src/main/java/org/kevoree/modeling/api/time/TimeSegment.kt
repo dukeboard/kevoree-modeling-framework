@@ -13,4 +13,5 @@ public enum class TimeSegment {
             TYPE
             PREVIOUS
             NEXT
+            ORIGIN
 }

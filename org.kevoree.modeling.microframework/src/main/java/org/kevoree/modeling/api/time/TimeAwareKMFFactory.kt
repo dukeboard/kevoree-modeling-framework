@@ -45,7 +45,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     var relativityStrategy: RelativeTimeStrategy
 
     fun setPrevious(p: TimePoint) {
-        datastore!!.put(TimeSegment.PREVIOUS.name(), relativeTime.toString(), p.toString())
+        datastore!!.put(TimeSegment.ORIGIN.name(), relativeTime.toString(), p.toString())
     }
 
     override fun persist(elem: KMFContainer) {
@@ -84,7 +84,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                 }
             } else {
                 //costly, to optimize !!!
-                var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentLatest!!)
+                var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
                 var immediatePreviousVersionString = immediatePreviousVersion.toString()
                 var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath")
                 if (previousPrevious != null) {
@@ -99,12 +99,16 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     }
 
     //TODO optimize for ABSOLUTE / CLONE CASE
-    fun lookupImmediatePreviousVersionOf(currentNow: TimePoint, currentLatest: TimePoint): TimePoint {
-        var result: TimePoint = currentLatest
-        var currentLatestPreviousString = datastore!!.get(TimeSegment.LATEST.name(), currentLatest.toString())
+    fun lookupImmediatePreviousVersionOf(currentNow: TimePoint, path: String): TimePoint? {
+        var currentLatest = datastore!!.get(TimeSegment.LATEST.name(), path)
+        var result: TimePoint? = null
+        if (currentLatest != null) {
+            result = TimePoint.create(currentLatest!!)
+        }
+        var currentLatestPreviousString = datastore!!.get(TimeSegment.PREVIOUS.name(), "${currentLatest.toString()}/$path")
         while (currentLatestPreviousString != null && TimePoint.create(currentLatestPreviousString!!).compareTo(currentNow) > 0) {
             result = TimePoint.create(currentLatestPreviousString!!);
-            currentLatestPreviousString = datastore!!.get(TimeSegment.LATEST.name(), currentLatestPreviousString.toString())
+            currentLatestPreviousString = datastore!!.get(TimeSegment.PREVIOUS.name(), "${currentLatestPreviousString.toString()}/$path")
         }
         return result
     }
@@ -153,6 +157,11 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                 if (currentTime == null) {
                     currentTime = relativeTime
                 }
+                //check if version for current time exist
+                var existingVersion = datastore!!.get(TimeSegment.RAW.name(), "$currentTime/$path")
+                if (existingVersion == null) {
+                    currentTime = lookupImmediatePreviousVersionOf(currentTime!!, path);
+                }
             }
             else -> {
             }
@@ -185,9 +194,8 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     override fun getTraces(origin: KMFContainer): TraceSequence? {
         val currentNow = (origin as? TimeAwareKMFContainer)!!.now
         val currentPath = origin.path()!!
-        var composedKey = "$currentNow/$currentPath"
         var sequence = compare.createSequence()
-        var traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
+        var traces = datastore?.get(TimeSegment.RAW.name(), "$currentNow/$currentPath")
         if (traces != null) {
             sequence.populateFromString(traces!!)
             return sequence
@@ -195,8 +203,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
         //try with previous timepoint
         val previousTimePoint = (origin as? TimeAwareKMFContainer)!!.previousTimePoint
         if (previousTimePoint != null) {
-            composedKey = "$previousTimePoint/$currentPath"
-            traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
+            traces = datastore?.get(TimeSegment.RAW.name(), "$previousTimePoint/$currentPath")
             if (traces != null) {
                 sequence.populateFromString(traces!!)
                 return sequence
@@ -209,7 +216,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
 
     private fun resolvePreviousGetTrace(origin: KMFContainer, current: String, sequence: TraceSequence): TraceSequence? {
 
-        var previous = datastore?.get(TimeSegment.PREVIOUS.name(), current.toString())
+        var previous = datastore?.get(TimeSegment.ORIGIN.name(), current.toString())
         if (previous == null) {
             return null;
         }

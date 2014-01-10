@@ -56,7 +56,7 @@ public class LatestTest {
         DataStore datastore = new LevelDbDataStore(dir);
         DefaultEvaluationFactory factory = new DefaultEvaluationFactory();
         factory.setDatastore(datastore);
-        factory.setRelativeTime(new TimePoint(1, 0));
+        factory.setRelativeTime(new TimePoint(3, 0));
 
         SmartGrid grid = factory.createSmartGrid();
         SmartMeter meter = factory.createSmartMeter();
@@ -68,13 +68,18 @@ public class LatestTest {
         factory.persist(grid);
         factory.commit();
 
-        SmartMeter meter2 = (SmartMeter) meter.shiftOffset(-1);
+        SmartMeter meter2 = (SmartMeter) meter.shiftOffset(-2);
         assertNotNull(meter2);
         assertEquals(meter.path(), meter2.path());
         assertNotEquals(meter.getNow(), meter2.getNow());
 
         meter2.setElectricLoad(1l);
         factory.persist(meter2);
+        factory.commit();
+
+        SmartMeter meter3 = (SmartMeter) meter.shiftOffset(-1);
+        meter2.setElectricLoad(4l);
+        factory.persist(meter3);
         factory.commit();
 
         SmartMeter meter2_l = (SmartMeter) factory.lookupFromTime(meter2.path(), meter2.getNow());
@@ -88,7 +93,7 @@ public class LatestTest {
         factory.setRelativityStrategy(RelativeTimeStrategy.LATEST);
         SmartMeter meterLatest = (SmartMeter) factory.lookup(meter2.path());
         assertEquals(meter.path(), meter2_l.path());
-        assertEquals(meterLatest.getNow(), new TimePoint(1, 0));
+        assertEquals(meterLatest.getNow(), new TimePoint(3, 0));
 
         System.out.println("Dump");
         for (String segment : datastore.getSegments()) {
@@ -99,9 +104,9 @@ public class LatestTest {
         }
 
         SmartMeter meterPrevious = (SmartMeter) meterLatest.previous();
-        assertEquals(meterPrevious.getNow(), new TimePoint(0, 0));
+        assertEquals(meterPrevious.getNow(), new TimePoint(2, 0));
         SmartMeter meterAfter = (SmartMeter) meterPrevious.next();
-        assertEquals(meterAfter.getNow(), new TimePoint(1, 0));
+        assertEquals(meterAfter.getNow(), new TimePoint(3, 0));
 
     }
 
