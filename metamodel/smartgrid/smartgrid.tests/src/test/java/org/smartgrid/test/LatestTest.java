@@ -11,13 +11,6 @@ import org.kevoree.modeling.datastores.leveldb.LevelDbDataStore;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-
-import static java.nio.file.FileVisitResult.CONTINUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,29 +22,9 @@ public class LatestTest {
 
     @Test
     public void test() throws IOException {
-        String dir = "tempStorage";
+        String dir = "tempStorage"+this.getClass().getSimpleName();
         File baseDir = new File(dir);
-        if (baseDir.exists()) {
-            Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (exc == null) {
-                        Files.delete(dir);
-                        return CONTINUE;
-                    } else {
-                        throw exc;
-                    }
-                }
-            });
-        }
-
-        Files.deleteIfExists(baseDir.toPath());
+        Helper.delete(baseDir);
 
         DataStore datastore = new LevelDbDataStore(dir);
         DefaultEvaluationFactory factory = new DefaultEvaluationFactory();
@@ -107,6 +80,9 @@ public class LatestTest {
         assertEquals(meterPrevious.getNow(), new TimePoint(2, 0));
         SmartMeter meterAfter = (SmartMeter) meterPrevious.next();
         assertEquals(meterAfter.getNow(), new TimePoint(3, 0));
+
+        Helper.delete(baseDir);
+
 
     }
 

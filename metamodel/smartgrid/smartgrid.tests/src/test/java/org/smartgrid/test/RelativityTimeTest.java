@@ -28,29 +28,9 @@ public class RelativityTimeTest {
 
     @Test
     public void test() throws IOException {
-        String dir = "tempStorage";
+        String dir = "tempStorage"+this.getClass().getSimpleName();
         File baseDir = new File(dir);
-        if (baseDir.exists()) {
-            Files.walkFileTree(baseDir.toPath(), new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (exc == null) {
-                        Files.delete(dir);
-                        return CONTINUE;
-                    } else {
-                        throw exc;
-                    }
-                }
-            });
-        }
-
-        Files.deleteIfExists(baseDir.toPath());
+        Helper.delete(baseDir);
 
         DataStore datastore = new LevelDbDataStore(dir);
         DefaultEvaluationFactory factory = new DefaultEvaluationFactory();
@@ -121,6 +101,9 @@ public class RelativityTimeTest {
         assertEquals(resolved.getNeighbors().size(),1);
         assertEquals(resolved.getNeighbors().get(0).getNow(),factory.getRelativeTime());
         assertEquals(resolved.getNeighbors().get(0).getName(), "sibling");
+
+        Helper.delete(baseDir);
+
 
     }
 
