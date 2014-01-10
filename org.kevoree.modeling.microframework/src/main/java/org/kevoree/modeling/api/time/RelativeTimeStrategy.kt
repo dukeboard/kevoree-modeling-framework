@@ -8,7 +8,7 @@ package org.kevoree.modeling.api.time
  */
 
 enum class RelativeTimeStrategy {
-    RELATIVE_FIRST
-    BIG_BANG_FIRST
-    LATEST_FIRST
+    RELATIVE
+    ABSOLUTE
+    LATEST
 }

@@ -54,7 +54,6 @@ trait PersistenceKMFFactory : KMFFactory {
             if(typeName != null){
                 val elem = create(typeName) as KMFContainerProxy
                 elem_cache.put(path2, elem)
-                elem.originFactory = this
                 elem.isResolved = false
                 elem.setOriginPath(path2)
                 return elem

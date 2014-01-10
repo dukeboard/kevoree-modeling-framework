@@ -50,7 +50,7 @@ when(metaClassName){
 
     protected fun initObject(elem : org.kevoree.modeling.api.time.TimeAwareKMFContainer){
     #if($ctx.timeAware())
-        if(relativityStrategy == org.kevoree.modeling.api.time.RelativeTimeStrategy.LATEST_FIRST){
+        if(relativityStrategy == org.kevoree.modeling.api.time.RelativeTimeStrategy.LATEST){
             elem.now = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0);
         } else {
             elem.now = relativeTime;
@@ -64,8 +64,7 @@ when(metaClassName){
 #if($ctx.timeAware())
 override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0)
 override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
-override var timedElement: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
-override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE_FIRST
+override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE
 
 
 #end

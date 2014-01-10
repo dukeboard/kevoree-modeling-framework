@@ -12,4 +12,5 @@ public enum class TimeSegment {
             RAW
             TYPE
             PREVIOUS
+            NEXT
 }

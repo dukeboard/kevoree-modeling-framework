@@ -50,8 +50,7 @@ class FactoryGenerator(ctx: GenerationContext) {
     if (ctx.timeAware) {
       pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(0,0)")
       pr.println("override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()")
-      pr.println("override var timedElement: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()")
-      pr.println("override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE_FIRST")
+      pr.println("override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE")
     }
     pr.println("")
     pr.println("private var factories : Array<org.kevoree.modeling.api.KMFFactory?> = Array<org.kevoree.modeling.api.KMFFactory?>(" + ctx.packageFactoryMap.entrySet().size() + ", {i -> null});")
@@ -111,7 +110,6 @@ class FactoryGenerator(ctx: GenerationContext) {
         pr.println(" public val " + key.toUpperCase.replace(".", "_") + " : Int = " + i)
         i = i + 1
     }
-
     pr.println("fun getPackageForName(metaClassName : String) : Int {")
     i = 0
     ctx.packageFactoryMap.keySet().foreach {
@@ -121,7 +119,6 @@ class FactoryGenerator(ctx: GenerationContext) {
     }
     pr.println("return -1")
     pr.println("}")
-
     pr.println("}")
     pr.flush()
     pr.close()

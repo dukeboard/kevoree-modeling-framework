@@ -25,7 +25,6 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         if (originFactory != null) {
             /* here we rely on the lazy load helped by the path concept, to ensure match in case of existing timepoint for this object path */
             var newObject = originFactory!!.create(metaClassName()) as TimeAwareKMFContainer
-            newObject.originFactory = originFactory
             newObject.isResolved = false
             newObject.setOriginPath(path()!!)
             newObject.now = timePoint
@@ -41,12 +40,20 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     var now: TimePoint?
 
-    fun previous(): KMFContainer {
-        return this
+    fun previous(): KMFContainer? {
+        val previousTimePoint = (originFactory as TimeAwareKMFFactory).previous(now!!,path()!!)
+        if(previousTimePoint!=null){
+            return shift(previousTimePoint)
+        }
+        return null
     }
 
-    fun next(): KMFContainer {
-        return this
+    fun next(): KMFContainer? {
+        val nextTimePoint = (originFactory as TimeAwareKMFFactory).next(now!!,path()!!)
+        if(nextTimePoint!=null){
+            return shift(nextTimePoint)
+        }
+        return null
     }
 
 }

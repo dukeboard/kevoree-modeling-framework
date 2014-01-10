@@ -1,8 +1,5 @@
-package org.kevoree.modeling.kotlin.generator.loader;
+package org.kevoree.modeling.kotlin.generator;
 
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.kevoree.modeling.kotlin.generator.GenerationContext;
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +17,7 @@ public class LoaderGenerator {
         this.ctx = ctx;
     }
 
-    public void generateJSONLoader(ResourceSet model) throws FileNotFoundException, UnsupportedEncodingException {
+    public void generateJSONLoader() throws FileNotFoundException, UnsupportedEncodingException {
         String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "loader";
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir);
         File localFile = new File(loaderGenBaseDir + "/JSONModelLoader.kt");
@@ -33,7 +30,7 @@ public class LoaderGenerator {
         pr.close();
     }
 
-    public void generateXMILoader(ResourceSet model) throws FileNotFoundException, UnsupportedEncodingException {
+    public void generateXMILoader() throws FileNotFoundException, UnsupportedEncodingException {
         String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "loader";
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir);
         File localFile = new File(loaderGenBaseDir + "/XMIModelLoader.kt");
