@@ -21,9 +21,15 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
         if (previousPrevious != null) {
             return TimePoint.create(previousPrevious!!)
         }
+        previousPrevious = datastore!!.get(TimeSegment.ORIGIN.name(), "$currentNowString/$path")
+        if (previousPrevious != null) {
+            return TimePoint.create(previousPrevious!!)
+        }
         return null
     }
 
+
+    //TODO wtf if no origin
     fun next(currentNow: TimePoint, path: String): TimePoint? {
         var currentNowString = currentNow.toString()
         var previousPrevious = datastore!!.get(TimeSegment.NEXT.name(), "$currentNowString/$path")
@@ -83,18 +89,21 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                     datastore!!.put(TimeSegment.NEXT.name(), "$currentLatest/$currentPath", currentNow.toString())
                 }
             } else {
-                //costly, to optimize !!!
-                var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
-                var immediatePreviousVersionString = immediatePreviousVersion.toString()
-                var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath")
-                if (previousPrevious != null) {
-                    datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", previousPrevious.toString())
-                    datastore!!.put(TimeSegment.NEXT.name(), "$previousPrevious/$currentPath", currentNow.toString())
-                }
-                datastore!!.put(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath", currentNow.toString())
-                datastore!!.put(TimeSegment.NEXT.name(), "$currentNow/$currentPath", immediatePreviousVersionString.toString())
-            }
 
+                var previousGlobal = datastore!!.get(TimeSegment.ORIGIN.name(), currentNow.toString())
+                if (previousGlobal == null) {
+                    //costly, to optimize !!!
+                    var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
+                    var immediatePreviousVersionString = immediatePreviousVersion.toString()
+                    var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath")
+                    if (previousPrevious != null) {
+                        datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", previousPrevious.toString())
+                        datastore!!.put(TimeSegment.NEXT.name(), "$previousPrevious/$currentPath", currentNow.toString())
+                    }
+                    datastore!!.put(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath", currentNow.toString())
+                    datastore!!.put(TimeSegment.NEXT.name(), "$currentNow/$currentPath", immediatePreviousVersionString.toString())
+                }
+            }
         }
     }
 
@@ -106,9 +115,15 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
             result = TimePoint.create(currentLatest!!)
         }
         var currentLatestPreviousString = datastore!!.get(TimeSegment.PREVIOUS.name(), "${currentLatest.toString()}/$path")
+        if (currentLatestPreviousString == null) {
+            currentLatestPreviousString = datastore!!.get(TimeSegment.ORIGIN.name(), currentLatest.toString())
+        }
         while (currentLatestPreviousString != null && TimePoint.create(currentLatestPreviousString!!).compareTo(currentNow) > 0) {
             result = TimePoint.create(currentLatestPreviousString!!);
             currentLatestPreviousString = datastore!!.get(TimeSegment.PREVIOUS.name(), "${currentLatestPreviousString.toString()}/$path")
+            if (currentLatestPreviousString == null) {
+                currentLatestPreviousString = datastore!!.get(TimeSegment.ORIGIN.name(), currentLatestPreviousString.toString())
+            }
         }
         return result
     }
@@ -201,7 +216,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
             return sequence
         }
         //try with previous timepoint
-        val previousTimePoint = (origin as? TimeAwareKMFContainer)!!.previousTimePoint
+        var previousTimePoint = (origin as? TimeAwareKMFContainer)!!.previousTimePoint
         if (previousTimePoint != null) {
             traces = datastore?.get(TimeSegment.RAW.name(), "$previousTimePoint/$currentPath")
             if (traces != null) {
@@ -209,23 +224,30 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                 return sequence
             }
         }
-
         //try with previous version of the current version
-        return resolvePreviousGetTrace(origin, relativeTime.toString(), sequence)
+        var resolved = resolvePreviousGetTrace(origin, relativeTime.toString(), sequence)
+        if (resolved) {
+            return sequence
+        }
+        previousTimePoint = lookupImmediatePreviousVersionOf(previousTimePoint!!, currentPath)
+        if (traces != null) {
+            sequence.populateFromString(traces!!)
+            return sequence
+        }
+        return sequence
     }
 
-    private fun resolvePreviousGetTrace(origin: KMFContainer, current: String, sequence: TraceSequence): TraceSequence? {
-
+    private fun resolvePreviousGetTrace(origin: KMFContainer, current: String, sequence: TraceSequence): Boolean {
         var previous = datastore?.get(TimeSegment.ORIGIN.name(), current.toString())
         if (previous == null) {
-            return null;
+            return false;
         }
         val currentPath = origin.path()!!
         var composedKey = "$previous/$currentPath"
         var traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
         if (traces != null) {
             sequence.populateFromString(traces!!)
-            return sequence
+            return true
         } else {
             return resolvePreviousGetTrace(origin, previous!!, sequence)
         }
