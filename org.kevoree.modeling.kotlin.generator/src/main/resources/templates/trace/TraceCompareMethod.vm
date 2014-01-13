@@ -7,7 +7,7 @@
 override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, kmf_internal_inter : Boolean, kmf_internal_ref : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
 
     var similarObjCasted : ${FQNHelper.fqn($ctx, $currentClass)}? = null
-    #if($ctx.getJS())
+    #if($ctx.js())
         if(similarObj != null && (similarObj is ${FQNHelper.fqn($ctx, $currentClass)} || similarObj is ${FQNHelper.fqn($ctx, $currentClass.getEPackage())}.impl.${currentClass.getName()}Impl) ){
     #else
         if(similarObj != null && (similarObj is ${FQNHelper.fqn($ctx, $currentClass)})){
