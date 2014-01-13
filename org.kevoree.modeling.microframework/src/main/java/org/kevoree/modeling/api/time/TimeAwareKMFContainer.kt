@@ -34,23 +34,19 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         return null
     }
 
-    fun deepShift(timePoint: TimePoint) {
-        throw Exception("WTF exception!!!")
-    }
-
     var now: TimePoint?
 
     fun previous(): KMFContainer? {
-        val previousTimePoint = (originFactory as TimeAwareKMFFactory).previous(now!!,path()!!)
-        if(previousTimePoint!=null){
+        val previousTimePoint = (originFactory as TimeAwareKMFFactory).previous(now!!, path()!!)
+        if (previousTimePoint != null) {
             return shift(previousTimePoint)
         }
         return null
     }
 
     fun next(): KMFContainer? {
-        val nextTimePoint = (originFactory as TimeAwareKMFFactory).next(now!!,path()!!)
-        if(nextTimePoint!=null){
+        val nextTimePoint = (originFactory as TimeAwareKMFFactory).next(now!!, path()!!)
+        if (nextTimePoint != null) {
             return shift(nextTimePoint)
         }
         return null

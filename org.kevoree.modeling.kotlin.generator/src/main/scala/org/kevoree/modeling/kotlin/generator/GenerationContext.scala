@@ -32,28 +32,28 @@ import org.kevoree.modeling.aspect.{NewMetaClassCreation, AspectClass}
 /**
  * Created by IntelliJ IDEA.
  * User: gregory.nain
- * Date: 21/03/12       x
+ * Date: 21/03/12
  * Time: 13:43
  */
 
 class GenerationContext {
 
-  var timeAware : Boolean = false
+  var timeAware: Boolean = false;
 
-  var persistence : Boolean = false
+  var persistence: Boolean = false ;
 
-  var autoBasePackage : String = "kmf"
+  var autoBasePackage: String = "kmf";
 
-  var ecma3compat = false
+  var ecma3compat = false ;
 
-  var aspects: java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()
+  var aspects: java.util.HashMap[String, AspectClass] = new java.util.HashMap[String, AspectClass]()  ;
 
-  var newMetaClasses: java.util.List[NewMetaClassCreation] = new java.util.ArrayList[NewMetaClassCreation]()
+  var newMetaClasses: java.util.List[NewMetaClassCreation] = new java.util.ArrayList[NewMetaClassCreation]()  ;
 
   /**
    * True if selectByQuery methods have to be generated
    */
-  var genSelector: Boolean = false
+  var genSelector: Boolean = false ;
 
   /**
    * Package to be added before the RootPackage of the model
@@ -125,10 +125,10 @@ class GenerationContext {
     these ++ these.filter(_.isDirectory).flatMap(getRecursiveListOfFiles(_, ext))
   }
 
-  var cacheEcore = new util.HashMap[File,ResourceSet]()
+  var cacheEcore = new util.HashMap[File, ResourceSet]()
 
   def getEcoreModel(ecorefile: File): ResourceSet = {
-    if(cacheEcore.containsKey(ecorefile)){
+    if (cacheEcore.containsKey(ecorefile)) {
       return cacheEcore.get(ecorefile)
     }
 
@@ -169,7 +169,7 @@ class GenerationContext {
           checkEID(modelElm.asInstanceOf[EClass])
       }
     }
-    cacheEcore.put(ecorefile,rs)
+    cacheEcore.put(ecorefile, rs)
     rs
   }
 
@@ -285,7 +285,8 @@ class GenerationContext {
     val packages = new util.ArrayList[EPackage]()
     metamodel.getAllContents.foreach {
       content =>
-        if (content.isInstanceOf[EPackage] && content.asInstanceOf[EPackage].getESuperPackage == null) { // Root package
+        if (content.isInstanceOf[EPackage] && content.asInstanceOf[EPackage].getESuperPackage == null) {
+          // Root package
           packages.add(content.asInstanceOf[EPackage])
         }
     }
