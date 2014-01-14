@@ -89,7 +89,7 @@ public class RelativityTimeTest {
         assertEquals(resolved.getElectricLoad(), Long.valueOf(1));
         assertEquals(resolved.getNeighbors().size(),1);
         assertEquals(resolved.getNeighbors().get(0).getNow(),factory.getRelativeTime());
-        assertEquals(resolved.getNeighbors().get(0).getName(), "");
+        assertEquals(resolved.getNeighbors().get(0).getName(), "sibling");
 
         factory.setRelativityStrategy(RelativeTimeStrategy.ABSOLUTE);
         factory.clearCache();

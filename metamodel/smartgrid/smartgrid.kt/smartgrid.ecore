@@ -4,6 +4,8 @@
   <eClassifiers xsi:type="ecore:EClass" name="SmartGrid">
     <eStructuralFeatures xsi:type="ecore:EReference" name="smartmeters" upperBound="-1"
         eType="#//SmartMeter" containment="true"/>
+            <eStructuralFeatures xsi:type="ecore:EReference" name="customers" upperBound="-1"
+                eType="#//Customer" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SmartMeter">
     <eStructuralFeatures xsi:type="ecore:EReference" name="neighbors" upperBound="-1"
@@ -20,6 +22,8 @@
         eType="#//Customer"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="meters" upperBound="-1"
+                        eType="#//SmartMeter" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Event">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"

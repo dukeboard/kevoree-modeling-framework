@@ -31,7 +31,16 @@ public data class TimePoint(val timestamp: Long, val sequenceNumber: Long = 0) :
     class object {
         fun create(v: String): TimePoint {
             val vv = v.split(":")
-            return TimePoint(java.lang.Long.parseLong(vv.get(0)), java.lang.Long.parseLong(vv.get(1)))
+            if(vv.size == 2){
+                return TimePoint(java.lang.Long.parseLong(vv.get(0)), java.lang.Long.parseLong(vv.get(1)))
+            } else {
+                if(vv.size == 1){
+                    return TimePoint(java.lang.Long.parseLong(vv.get(0)), 0)
+                } else {
+                    throw Exception("Bad format "+v)
+                }
+            }
+
         }
     }
 

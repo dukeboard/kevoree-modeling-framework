@@ -64,7 +64,14 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                 currentNow = relativeTime
             }
             val currentPath = elem.path()!!
-            datastore!!.put(TimeSegment.RAW.name(), "$currentNow/$currentPath", traceSeq.exportToString())
+            datastore!!.put(TimeSegment.RAW.name(), "${currentNow.toString()}/$currentPath", traceSeq.exportToString())
+
+            //manage origin
+            if (elem is TimeAwareKMFContainer) {
+                if (elem.previousTimePoint != null) {
+                    datastore!!.put(TimeSegment.ORIGIN.name(), "${currentNow.toString()}/$currentPath", elem.previousTimePoint.toString())
+                }
+            }
 
             //manage latest
             var currentLatestString = datastore!!.get(TimeSegment.LATEST.name(), currentPath)
@@ -229,7 +236,8 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
         if (resolved) {
             return sequence
         }
-        previousTimePoint = lookupImmediatePreviousVersionOf(previousTimePoint!!, currentPath)
+        previousTimePoint = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
+        traces = datastore?.get(TimeSegment.RAW.name(), "$previousTimePoint/$currentPath")
         if (traces != null) {
             sequence.populateFromString(traces!!)
             return sequence
