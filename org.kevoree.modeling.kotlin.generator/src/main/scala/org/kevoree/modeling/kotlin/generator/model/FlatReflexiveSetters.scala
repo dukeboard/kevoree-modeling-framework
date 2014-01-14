@@ -24,7 +24,7 @@ trait FlatReflexiveSetters {
     pr.println("when(refName) {")
     cls.getEAllAttributes.foreach {
       att =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
+        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
       var valueType: String = ""
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
           valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
@@ -176,7 +176,7 @@ trait FlatReflexiveSetters {
 
     cls.getEAllReferences.foreach {
       ref =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {") //START REF
+        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {") //START REF
         pr.println("when(mutationType) {")
         val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
         if (ref.isMany) {
@@ -243,7 +243,7 @@ trait FlatReflexiveSetters {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("if(" + "_" + ref.getName + ".size() != 0 && " + "_" + ref.getName + ".containsKey(value)) {")
           pr.println("val obj = _" + ref.getName + ".get(value)")
-          pr.println("val objNewKey = (obj as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey()\n")
+          pr.println("val objNewKey = (obj as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()\n")
           pr.println("if(objNewKey == null){throw Exception(\"Key newed to null \"+obj)}\n")
           pr.println("_" + ref.getName + ".remove(value)")
           pr.println("_" + ref.getName + ".put(objNewKey,obj)")
@@ -253,7 +253,7 @@ trait FlatReflexiveSetters {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("}")
         }
-        pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
+        pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
         pr.println("}") //END MUTATION TYPE
         pr.println("}") //END Ref When case
     }

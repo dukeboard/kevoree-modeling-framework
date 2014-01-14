@@ -1,7 +1,7 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
 
-#set($packName = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
+#set($packName = ${helper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)})
 
 package ${packName}.trace
 
@@ -14,5 +14,5 @@ import org.kevoree.modeling.api.trace.*
 
 class DefaultTraceSequence() : org.kevoree.modeling.api.trace.TraceSequence {
 override var traces : MutableList<org.kevoree.modeling.api.trace.ModelTrace> = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
-override var factory : org.kevoree.modeling.api.KMFFactory? = ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
+override var factory : org.kevoree.modeling.api.KMFFactory? = ${helper.fqn($ctx,$ctx.basePackageForUtilitiesGeneration)}.factory.MainFactory()
 }

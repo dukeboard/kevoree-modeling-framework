@@ -25,7 +25,7 @@ trait ContainedElementsGenerator {
     ctxV.put("ctx", ctx)
     ctxV.put("currentClass", cls)
     ctxV.put("FQNHelper", new ProcessorHelperClass())
-    ctxV.put("packElem",ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util")
+    ctxV.put("packElem",ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util")
 
     template.merge(ctxV, pr)
   }

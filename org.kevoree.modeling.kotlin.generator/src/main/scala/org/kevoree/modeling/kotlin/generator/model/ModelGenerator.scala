@@ -101,12 +101,12 @@ with ConstantsGenerator {
   def process(model: ResourceSet, modelVersion: String) {
 
     if (ctx.genSelector) {
-      generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.getBasePackageForUtilitiesGeneration), ctx.getBasePackageForUtilitiesGeneration)
+      generateSelectorCache(ctx, ProcessorHelper.getPackageGenDir(ctx, ctx.basePackageForUtilitiesGeneration), ctx.basePackageForUtilitiesGeneration)
     }
     generateConstants(ctx, model)
-    generateCloner(ctx, ctx.getBasePackageForUtilitiesGeneration, model)
+    generateCloner(ctx, ctx.basePackageForUtilitiesGeneration, model)
 
-    val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath
+    val loaderGenBaseDir = ctx.baseLocationForUtilitiesGeneration.getAbsolutePath
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
     generateModelTraceAPI(ctx, loaderGenBaseDir)

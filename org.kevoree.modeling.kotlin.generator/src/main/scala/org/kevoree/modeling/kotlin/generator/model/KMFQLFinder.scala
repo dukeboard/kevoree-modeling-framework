@@ -118,7 +118,7 @@ trait KMFQLFinder {
             pr.println("val resolved = _" + ref.getName + ".get(key)")
             pr.println("if(resolved==null){")
             pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!")
-            pr.println("val result = relativeLookupFrom(this," + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ",key)")
+            pr.println("val result = relativeLookupFrom(this," + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ",key)")
             pr.println("return result as? " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)))
             pr.println("} else {")
             pr.println("return resolved")
@@ -144,13 +144,13 @@ trait KMFQLFinder {
     pr.println("when(relationName) {")
     cls.getEAllReferences.foreach(ref => {
       if (ref.isMany) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
+        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
         pr.println("return find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(idP)}")
       }
       if (ref.getUpperBound == 1) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
+        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
         pr.println("val objFound = " + ProcessorHelper.protectReservedWords(ref.getName))
-        pr.println("if(objFound!=null && (objFound as " + ctx.getKevoreeContainerImplFQN + ").internalGetKey() == idP){")
+        pr.println("if(objFound!=null && (objFound as " + ctx.kevoreeContainerImplFQN + ").internalGetKey() == idP){")
         pr.println("return objFound")
         pr.println("}else{return null}")
         pr.println("}")

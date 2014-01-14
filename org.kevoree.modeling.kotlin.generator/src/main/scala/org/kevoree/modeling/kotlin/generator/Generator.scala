@@ -169,18 +169,18 @@ class Generator(ctx: GenerationContext, ecoreFile: File) extends AspectMixin {
                   System.err.println()
               } */
 
-              val targetSrc = ctx.getRootSrcDirectory();
-              val targetFile = new File(targetSrc + File.separator + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName + ".kt");
+              val targetSrc = ctx.rootSrcDirectory;
+              val targetFile = new File(targetSrc + File.separator + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName + ".kt");
               targetFile.getParentFile.mkdirs();
               val writer = new FileWriter(targetFile);
-              writer.write("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ";\n")
+              writer.write("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ";\n")
               writer.write("import org.kevoree.modeling.api.aspect;\n")
               writer.write("public aspect trait " + "GeneratedAspect_" + eclass.getName + " : " + ProcessorHelper.fqn(ctx, eclass) + " {\n")
 
               val newAspectClass = new AspectClass();
               newAspectClass.name = "GeneratedAspect_" + eclass.getName
               newAspectClass.aspectedClass = eclass.getName
-              newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
+              newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration)
               ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass)
               operationList.filter(op => op.getName != "eContainer").foreach {
                 operation =>

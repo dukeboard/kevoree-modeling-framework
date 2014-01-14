@@ -136,31 +136,31 @@ class ProcessorHelperClass {
           "null"
         }
         case "Boolean" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BOOLEAN_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.BOOLEAN_DEFAULTVAL"
         }
         case "Byte" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.BYTE_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.BYTE_DEFAULTVAL"
         }
         case "Char" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.CHAR_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.CHAR_DEFAULTVAL"
         }
         case "Double" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.DOUBLE_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.DOUBLE_DEFAULTVAL"
         }
         case "Float" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.FLOAT_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.FLOAT_DEFAULTVAL"
         }
         case "Int" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.INT_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.INT_DEFAULTVAL"
         }
         case "Long" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.LONG_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.LONG_DEFAULTVAL"
         }
         case "Short" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.SHORT_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.SHORT_DEFAULTVAL"
         }
         case "String" => {
-          fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL"
+          fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL"
         }
         case _ => "null"
       }
@@ -226,7 +226,7 @@ class ProcessorHelperClass {
     if (ctx.timeAware) {
       superTypeList = " : org.kevoree.modeling.api.time.TimeAwareKMFContainer "
     } else {
-      superTypeList = " : " + ctx.getKevoreeContainer.get
+      superTypeList = " : " + ctx.kevoreeContainer
     }
 
     cls.getESuperTypes.foreach {
@@ -237,7 +237,7 @@ class ProcessorHelperClass {
 
   def generateSuperTypesPlusSuperAPI(ctx: GenerationContext, cls: EClass, packElement: EPackage): Option[String] = {
     var superTypeList: Option[String] = None
-    superTypeList = Some(" : " + ctx.getKevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName)
+    superTypeList = Some(" : " + ctx.kevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName)
     cls.getESuperTypes.foreach {
       superType =>
         val superName = fqn(ctx, superType.getEPackage) + ".impl." + superType.getName + "Internal"
@@ -293,8 +293,8 @@ class ProcessorHelperClass {
    * @return The absolute path of the folder where to generate the content of the package.
    */
   def getPackageGenDir(ctx: GenerationContext, pack: EPackage): String = {
-    var modelGenBaseDir = ctx.getRootGenerationDirectory.getAbsolutePath + "/"
-    ctx.getPackagePrefix.map(prefix => modelGenBaseDir += prefix.replace(".", "/") + "/")
+    var modelGenBaseDir = ctx.rootGenerationDirectory.getAbsolutePath + "/"
+    if(ctx.packagePrefix != null){modelGenBaseDir += ctx.packagePrefix.replace(".", "/") + "/"}
     modelGenBaseDir += fqn(pack).replace(".", "/") + "/"
     modelGenBaseDir
   }
@@ -306,9 +306,9 @@ class ProcessorHelperClass {
    * @return The absolute path of the folder where to find any implementation made by developers.
    */
   def getPackageUserDir(ctx: GenerationContext, pack: EPackage): String = {
-    if (ctx.getRootUserDirectory != null) {
-      var modelGenBaseDir = ctx.getRootUserDirectory.getAbsolutePath + "/"
-      ctx.getPackagePrefix.map(prefix => modelGenBaseDir += prefix.replace(".", "/") + "/")
+    if (ctx.rootUserDirectory != null) {
+      var modelGenBaseDir = ctx.rootUserDirectory.getAbsolutePath + "/"
+      if(ctx.packagePrefix != null){modelGenBaseDir += ctx.packagePrefix.replace(".", "/") + "/"}
       modelGenBaseDir += fqn(pack).replace(".", "/") + "/"
       modelGenBaseDir
     } else {
@@ -344,30 +344,29 @@ class ProcessorHelperClass {
    * @return the Fully Qualified package name
    */
   def fqn(ctx: GenerationContext, pack: EPackage): String = {
-
     if (pack == null) {
-      if (ctx.getPackagePrefix.isDefined) {
-        return ctx.getPackagePrefix.get
+      if (ctx.packagePrefix != null) {
+        return ctx.packagePrefix
       } else {
         return ""
       }
     }
 
-    ctx.getPackagePrefix match {
-      case Some(prefix) => {
-        if ("".equals(pack.getName)) {
-          prefix
+    if(ctx.packagePrefix != null) {
+      if ("".equals(pack.getName)) {
+        ctx.packagePrefix
+      } else {
+        if (ctx.packagePrefix.endsWith(".")) {
+          ctx.packagePrefix + fqn(pack)
         } else {
-          if (prefix.endsWith(".")) {
-            prefix + fqn(pack)
-          } else {
-            prefix + "." + fqn(pack)
-          }
+          ctx.packagePrefix + "." + fqn(pack)
         }
       }
-      case None => fqn(pack)
+    } else {
+      fqn(pack)
     }
   }
+
 
   /**
    * Computes the Fully Qualified Name of the class in the context of the model.
@@ -392,10 +391,10 @@ class ProcessorHelperClass {
     if (cls.getEPackage != null) {
       fqn(ctx, cls.getEPackage) + "." + cls.getName
     } else {
-      if (ctx.getPackagePrefix.isEmpty) {
+      if (ctx.packagePrefix == null) {
         cls.getName
       } else {
-        ctx.getPackagePrefix.get + "." + cls.getName
+        ctx.packagePrefix + "." + cls.getName
       }
     }
   }

@@ -77,7 +77,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
         visit(cleanCacheVisitor,true,true,false)
 }
 
-#if($ctx.genSelector())
+#if($ctx.genSelector)
 
 #else
     override fun selectByQuery(query : String) : List<Any> {
@@ -85,7 +85,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
     }
 #end
 
-#if($ctx.generateEvents())
+#if($ctx.generateEvents)
     internal var internal_modelElementListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>?
 
     protected fun fireModelEvent(evt : org.kevoree.modeling.api.events.ModelEvent) {
@@ -280,7 +280,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
     }
 
 
-#if(!$ctx.js())
+#if(!$ctx.js)
     override fun findByPath<A>(query: String, clazz: Class<A>): A? {
         try {
             val res = findByPath(query)
@@ -321,7 +321,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
             subquery = subquery.substring(subquery.indexOf('/') + 1, subquery.size)
         }
         val objFound = findByID(relationName,queryID)
-#if($ctx.persistence())
+#if($ctx.persistence)
         if(objFound==null){
             return (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.lookupFrom(query,this)
         }

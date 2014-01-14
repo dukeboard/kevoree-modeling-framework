@@ -6,7 +6,7 @@
 
 package ${packElem}
 
-#if($ctx.timeAware())
+#if($ctx.timeAware)
 trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.time.TimeAwareKMFContainer {
 #else
   trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KMFContainerProxy {
@@ -41,7 +41,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
                 currentParentRelationName = currentParentRelationName.substring(0, currentParentRelationName.lastIndexOf("["))
             }
             val parentElem = originFactory!!.lookupFrom(parentPath,this)!!
-            internal_unsetCmd = ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.container.RemoveFromContainerCommand(parentElem, org.kevoree.modeling.api.util.ActionType.REMOVE, currentParentRelationName, this)
+            internal_unsetCmd = ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.container.RemoveFromContainerCommand(parentElem, org.kevoree.modeling.api.util.ActionType.REMOVE, currentParentRelationName, this)
             internal_eContainer = parentElem
             internal_containmentRefName = currentParentRelationName
 

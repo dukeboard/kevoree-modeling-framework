@@ -37,8 +37,8 @@ trait ConstantsGenerator {
         case _ =>
       }
     }
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + "/util/")
-    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + "/util/Constants.kt")
+    ProcessorHelper.checkOrCreateFolder(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + "/util/")
+    val localFile = new File(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + "/util/Constants.kt")
     val pr = new PrintWriter(localFile, "utf-8")
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())

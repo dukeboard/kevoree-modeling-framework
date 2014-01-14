@@ -35,7 +35,7 @@ trait DiffGenerator {
 
   def generateModelTraceCompare(ctx: GenerationContext, packageGenDir: String) {
 
-    val packageName = ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration)
+    val packageName = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration)
     ProcessorHelper.checkOrCreateFolder(packageGenDir + "/compare/")
     val localFile = new File(packageGenDir + "/compare/DefaultModelCompare.kt")
     val pr = new PrintWriter(localFile, "utf-8")

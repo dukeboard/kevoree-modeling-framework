@@ -13,7 +13,7 @@ override fun selectByQuery(query : String) : MutableList<Any> {
         var queryID = ""
         var extraReadChar = 2
         #if($optionalRelationShipNameGen)
-        val relationName = ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_${relationShipOptionalName}
+        val relationName = ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Ref_${relationShipOptionalName}
         val optionalDetected = ( firstSepIndex != ${relationShipOptionalName.length()} )
         if(optionalDetected){ extraReadChar = extraReadChar - 2 }
         if(query.indexOf('{') == 0){
@@ -48,9 +48,9 @@ override fun selectByQuery(query : String) : MutableList<Any> {
         }
         when(relationName) {
             #foreach( $ref in $eRefs )
-                ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_${ref.getName()} -> {
+                ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Ref_${ref.getName()} -> {
                 #if(!$ref.isMany())
-                    var subResult = ${ctx.getkevoreeCacheResolver()}.filter(queryID,java.util.Collections.singleton(${FQNHelper.protectReservedWords($ref.getName())})!!)
+                    var subResult = ${ctx.kevoreeCacheResolver}.filter(queryID,java.util.Collections.singleton(${FQNHelper.protectReservedWords($ref.getName())})!!)
                     collected.add(subResult)
                 #else
                     var subResult : MutableCollection<Any>? = null
@@ -65,9 +65,9 @@ override fun selectByQuery(query : String) : MutableList<Any> {
                     #end
                     if(subResult == null){
                     #if(${ref.getEReferenceType().getEIDAttribute()})
-                        subResult = ${ctx.getkevoreeCacheResolver()}.filter(queryID,_${ref.getName()}.values()) as MutableCollection<Any>
+                        subResult = ${ctx.kevoreeCacheResolver}.filter(queryID,_${ref.getName()}.values()) as MutableCollection<Any>
                     #else
-                        subResult = ${ctx.getkevoreeCacheResolver()}.filter(queryID,_${ref.getName()}) as MutableCollection<Any>
+                        subResult = ${ctx.kevoreeCacheResolver}.filter(queryID,_${ref.getName()}) as MutableCollection<Any>
                     #end
                     }
                     if(subquery != ""){
@@ -81,15 +81,15 @@ override fun selectByQuery(query : String) : MutableList<Any> {
                     return collected
                 }
             #end
-                ${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.KMFQL_CONTAINED -> {
+                ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.KMFQL_CONTAINED -> {
                     var subResult : MutableCollection<Any> = java.util.ArrayList<Any>()
                     #foreach( $subRef in $eSub )
                         #if(!$subRef.isMany())
                             if(${FQNHelper.protectReservedWords($subRef.getName())}!=null){
-                                subResult.addAll(${ctx.getkevoreeCacheResolver()}.filter(queryID,java.util.Collections.singleton(${FQNHelper.protectReservedWords($subRef.getName())})!!)!!)
+                                subResult.addAll(${ctx.kevoreeCacheResolver}.filter(queryID,java.util.Collections.singleton(${FQNHelper.protectReservedWords($subRef.getName())})!!)!!)
                             }
                         #else
-                            subResult.addAll(${ctx.getkevoreeCacheResolver()}.filter(queryID,${FQNHelper.protectReservedWords($subRef.getName())})!!)
+                            subResult.addAll(${ctx.kevoreeCacheResolver}.filter(queryID,${FQNHelper.protectReservedWords($subRef.getName())})!!)
                         #end
 
                     #end

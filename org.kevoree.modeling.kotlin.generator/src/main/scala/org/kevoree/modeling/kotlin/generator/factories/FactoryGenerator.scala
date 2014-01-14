@@ -17,7 +17,7 @@
  */
 package org.kevoree.modeling.kotlin.generator.factories
 
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
 import java.io.{PrintWriter, File}
 import scala.collection.JavaConversions._
 
@@ -28,11 +28,11 @@ import scala.collection.JavaConversions._
 class FactoryGenerator(ctx: GenerationContext) {
 
   def generateMainFactory() {
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory")
+    ProcessorHelper.checkOrCreateFolder(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory")
     generatePackageEnum()
-    val genFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "MainFactory.kt")
+    val genFile = new File(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "MainFactory.kt")
     val pr = new PrintWriter(genFile, "utf-8")
-    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory")
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory")
     if (ctx.persistence && !ctx.timeAware) {
       pr.println("class MainFactory : org.kevoree.modeling.api.persistence.PersistenceKMFFactory {")
     } else {
@@ -45,7 +45,7 @@ class FactoryGenerator(ctx: GenerationContext) {
     if (ctx.persistence) {
       pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null")
       pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()")
-      pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()")
+      pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()")
     }
     if (ctx.timeAware) {
       pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(0,0)")
@@ -99,9 +99,9 @@ class FactoryGenerator(ctx: GenerationContext) {
 
 
   private def generatePackageEnum() {
-    val genFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "Package.kt")
+    val genFile = new File(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "factory" + File.separator + "Package.kt")
     val pr = new PrintWriter(genFile, "utf-8")
-    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.getBasePackageForUtilitiesGeneration) + ".factory")
+    pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory")
 
     pr.println("object Package {")
     var i = 0

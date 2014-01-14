@@ -271,26 +271,26 @@ public class GenModelPlugin extends AbstractMojo {
             System.out.println(aspect.toString());
         }
         GenerationContext ctx = new GenerationContext();
-        ctx.setRootSrcDirectory(sourceFile);
-        ctx.aspects_$eq(analyzer.cacheAspects);
-        ctx.newMetaClasses_$eq(analyzer.newMetaClass);
+        ctx.rootSrcDirectory = sourceFile;
+        ctx.aspects = analyzer.cacheAspects;
+        ctx.newMetaClasses = analyzer.newMetaClass;
 
         if (timeAware) {
             persistence = true;
         }
-        ctx.setPackagePrefix(scala.Option.apply(packagePrefix));
-        ctx.setRootGenerationDirectory(output);
-        ctx.setRootUserDirectory(sourceFile);
-        ctx.genSelector_$eq(selector);
-        ctx.js_$eq(js);
-        ctx.generateEvents_$eq(events);
-        ctx.flyweightFactory_$eq(flyweightFactory);
-        ctx.autoBasePackage_$eq(autoBasePackage);
-        ctx.ecma3compat_$eq(ecma3compat);
-        ctx.persistence_$eq(persistence);
-        ctx.timeAware_$eq(timeAware);
+        ctx.packagePrefix = packagePrefix;
+        ctx.rootGenerationDirectory = output;
+        ctx.rootUserDirectory = sourceFile;
+        ctx.genSelector = selector;
+        ctx.js = js;
+        ctx.generateEvents = events;
+        ctx.flyweightFactory = flyweightFactory;
+        ctx.autoBasePackage = autoBasePackage;
+        ctx.ecma3compat = ecma3compat;
+        ctx.persistence = persistence;
+        ctx.timeAware = timeAware;
         if (persistence) {
-            ctx.generateEvents_$eq(true);
+            ctx.generateEvents = true;
         }
 
         Generator gen = new Generator(ctx, ecore);//, getLog());
@@ -303,7 +303,7 @@ public class GenModelPlugin extends AbstractMojo {
 
 
         List<String> exclusions = new ArrayList<String>();
-        if (ctx.js()) {
+        if (ctx.js) {
             exclusions.add("meta.kt");
             exclusions.add("aspect.kt");
         }
@@ -315,7 +315,7 @@ public class GenModelPlugin extends AbstractMojo {
                 boolean JSLIB = false;
                 File file = new File(path);
                 if (file.exists()) {
-                    if (file.isFile() && ctx.js()) {
+                    if (file.isFile() && ctx.js) {
                         JarFile jarFile = new JarFile(file);
                         if (jarFile.getJarEntry("META-INF/services/org.jetbrains.kotlin.js.librarySource") != null) {
                             JSLIB = true;
@@ -386,10 +386,10 @@ public class GenModelPlugin extends AbstractMojo {
             }
 
             ExitCode e;
-            if (ctx.js()) {
+            if (ctx.js) {
                 K2JSCompilerArguments args = new K2JSCompilerArguments();
                 ArrayList<String> sources = new ArrayList<String>();
-                sources.add(ctx.getRootGenerationDirectory().getAbsolutePath());
+                sources.add(ctx.rootGenerationDirectory.getAbsolutePath());
                 if (outputUtil.exists()) {
                     sources.add(outputUtil.getAbsolutePath());
                 }
@@ -445,7 +445,7 @@ public class GenModelPlugin extends AbstractMojo {
             } else {
                 K2JVMCompilerArguments args = new K2JVMCompilerArguments();
                 args.classpath = cpath.toString();
-                String sources = ctx.getRootGenerationDirectory().getAbsolutePath();
+                String sources = ctx.rootGenerationDirectory.getAbsolutePath();
                 if (sourceFile.exists()) {
                     getLog().info("Add directory : " + sourceFile.getAbsolutePath());
                     sources = sources + File.pathSeparator + sourceFile.getAbsolutePath();

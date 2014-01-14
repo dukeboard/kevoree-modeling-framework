@@ -2,12 +2,12 @@
 #* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 
-#set($tracePack=${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())})
+#set($tracePack=${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)})
 
-override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?, kmf_internal_inter : Boolean, kmf_internal_ref : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
+override fun generateDiffTraces(similarObj : ${ctx.kevoreeContainer}?, kmf_internal_inter : Boolean, kmf_internal_ref : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
 
     var similarObjCasted : ${FQNHelper.fqn($ctx, $currentClass)}? = null
-    #if($ctx.js())
+    #if($ctx.js)
         if(similarObj != null && (similarObj is ${FQNHelper.fqn($ctx, $currentClass)} || similarObj is ${FQNHelper.fqn($ctx, $currentClass.getEPackage())}.impl.${currentClass.getName()}Impl) ){
     #else
         if(similarObj != null && (similarObj is ${FQNHelper.fqn($ctx, $currentClass)})){
@@ -31,12 +31,12 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
         }
         if(attVal != attVal2){
             if(!kmf_internal_inter) {
-                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2String,null))
+                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Att_$att.getName(),null,attVal2String,null))
             }
         } else {
             //att similar
             if(kmf_internal_inter) {
-                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Att_$att.getName(),null,attVal2String,null))
+                traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Att_$att.getName(),null,attVal2String,null))
             }
         }
      #end
@@ -70,7 +70,7 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
                   }
                   if(hashResult!!.size != 0){
                     for(hashLoopRes in hashResult!!.keySet()){
-                        traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$kmf_internal_ref.getName(),hashLoopRes,hashResult!!.get(hashLoopRes)!!.metaClassName()))
+                        traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Ref_$kmf_internal_ref.getName(),hashLoopRes,hashResult!!.get(hashLoopRes)!!.metaClassName()))
                     }
                   }
               #else
@@ -85,12 +85,12 @@ override fun generateDiffTraces(similarObj : ${ctx.getKevoreeContainer().get()}?
                   }
                   if(attVal != attVal2){
                          if(!kmf_internal_inter){
-                            traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$kmf_internal_ref.getName(),attVal2String,null,null))
+                            traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Ref_$kmf_internal_ref.getName(),attVal2String,null,null))
                          }
                   } else {
                         //att similar
                         if(kmf_internal_inter){
-                            traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.Ref_$kmf_internal_ref.getName(),attVal2String,null,null))
+                            traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path()!!,${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Ref_$kmf_internal_ref.getName(),attVal2String,null,null))
                         }
                   }
               #end

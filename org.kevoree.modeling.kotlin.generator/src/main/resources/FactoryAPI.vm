@@ -6,7 +6,7 @@
 
 package ${packageName};
 
-trait ${formatedFactoryName} : #if(!$ctx.persistence()) org.kevoree.modeling.api.KMFFactory #else #if($ctx.timeAware()) org.kevoree.modeling.api.time.TimeAwareKMFFactory #else org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
+trait ${formatedFactoryName} : #if(!$ctx.persistence) org.kevoree.modeling.api.KMFFactory #else #if($ctx.timeAware) org.kevoree.modeling.api.time.TimeAwareKMFFactory #else org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
 
     fun getVersion() : String
 

@@ -18,38 +18,38 @@ import ${packageName}.${formatedFactoryName};
 
 override fun getVersion() : String { return "${modelVersion}" }
 
-#if($ctx.persistence())
+#if($ctx.persistence)
 override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()
 #end
 
 #foreach( $class in $classes )
 override fun create${class.getName()}() : ${class.getName()} {
 val tempElem = ${class.getName()}Impl()
-    #if($ctx.persistence())
+    #if($ctx.persistence)
 initObject(tempElem)
     #end
 return tempElem
 }
 #end
 
-override fun create(metaClassName : String) : ${ctx.getKevoreeContainer().get()}? {
+override fun create(metaClassName : String) : ${ctx.kevoreeContainer}? {
 when(metaClassName){
 #foreach( $class in $classes )
-    ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
-    ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.CN_$class.getName() -> { return create${class.getName()}() }
+    ${helper.fqn($ctx,$ctx.basePackageForUtilitiesGeneration)}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
+    ${helper.fqn($ctx,$ctx.basePackageForUtilitiesGeneration)}.util.Constants.CN_$class.getName() -> { return create${class.getName()}() }
 
 #end            else -> {return null;}
 }
 }
 
-#if($ctx.persistence())
+#if($ctx.persistence)
 
     override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null
 
     override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${packageName}.compare.DefaultModelCompare()
 
     protected fun initObject(elem : org.kevoree.modeling.api.time.TimeAwareKMFContainer){
-    #if($ctx.timeAware())
+    #if($ctx.timeAware)
         if(relativityStrategy == org.kevoree.modeling.api.time.RelativeTimeStrategy.LATEST){
             elem.now = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0);
         } else {
@@ -61,7 +61,7 @@ when(metaClassName){
 
 #end
 
-#if($ctx.timeAware())
+#if($ctx.timeAware)
 override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0)
 override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
 override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE

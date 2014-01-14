@@ -9,13 +9,13 @@ package ${packageName}.cloner
 class DefaultModelCloner() : org.kevoree.modeling.api.ModelCloner {
 
 override fun createContext(): MutableMap<org.kevoree.modeling.api.KMFContainer, org.kevoree.modeling.api.KMFContainer> {
-        #if($ctx.js())
+        #if($ctx.js)
         return java.util.HashMap<org.kevoree.modeling.api.KMFContainer,org.kevoree.modeling.api.KMFContainer>()
         #else
         return java.util.IdentityHashMap<org.kevoree.modeling.api.KMFContainer,org.kevoree.modeling.api.KMFContainer>()
         #end
     }
 
-    override var mainFactory : org.kevoree.modeling.api.KMFFactory = ${helper.fqn($ctx, $ctx.getBasePackageForUtilitiesGeneration())}.factory.MainFactory()
+    override var mainFactory : org.kevoree.modeling.api.KMFFactory = ${helper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.factory.MainFactory()
 
 }
