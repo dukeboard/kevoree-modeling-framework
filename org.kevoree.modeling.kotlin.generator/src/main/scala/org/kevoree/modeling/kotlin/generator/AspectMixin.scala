@@ -11,7 +11,7 @@ import scala.collection.JavaConversions._
  * Date: 07/10/13
  * Time: 16:56
  */
-trait AspectMixin {
+object AspectMixin {
 
   def mixin(model: ResourceSet, ctx: GenerationContext) {
 
