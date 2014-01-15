@@ -110,8 +110,7 @@ public class Generator {
      */
     public void  generateModel(String modelVersion) throws Exception {
 
-        FactoryGenerator factoryGenerator = new FactoryGenerator(ctx);
-        factoryGenerator.generateMainFactory();
+        FactoryGenerator.generateMainFactory(ctx);
 
         System.out.println("Check Aspect completeness");
         ResourceSet model = ctx.getEcoreModel(ecoreFile);
@@ -189,18 +188,20 @@ public class Generator {
 
                             EOperation foundOp = null;
                             for(EOperation op : operationList) {
-                                if(AspectMethodMatcher.isMethodEquel(op, method, ctx) && !method.privateMethod) {
+                                if(AspectMethodMatcher.isMethodEqual(op, method, ctx) && !method.privateMethod) {
                                     foundOp = op;
                                     break;
                                 }
                             }
+                            HashSet<EOperation> toRemove = new HashSet<EOperation>();
                             if(foundOp != null) {
                                 for(EOperation opLoop : operationList) {
-                                    if (AspectMethodMatcher.isMethodEquel(opLoop, method, ctx)) {
-                                        operationList.remove(opLoop);
+                                    if (AspectMethodMatcher.isMethodEqual(opLoop, method, ctx)) {
+                                        toRemove.add(opLoop);
                                     }
                                 }
-                                operationList.remove(foundOp);
+                                toRemove.add(foundOp);
+                                operationList.removeAll(toRemove);
                             }
                         }
                     }
@@ -256,6 +257,7 @@ public class Generator {
                         if (operation.getEType() != null) {
                             if (operation.getEType() instanceof EDataType) {
                                 String operationReturnType = ProcessorHelper.convertType(operation.getEType().getName());
+                                System.out.println(operation.getEType().getName() + " converted to " + operationReturnType);
                                 if (operationReturnType.startsWith("List") && !ctx.js) {
                                     operationReturnType = "Mutable" + operationReturnType;
                                 }

@@ -262,7 +262,6 @@ public class GenerationContext {
 
     public File baseLocationForUtilitiesGeneration = null;
 
-
     public void setBaseLocationForUtilitiesGeneration(File metamodelFile) {
 
         ResourceSet metamodel = getEcoreModel(metamodelFile);
@@ -280,7 +279,7 @@ public class GenerationContext {
 
         if (packages.size() > 1) {
             // Many packages at the root.
-            EPackage basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage();
+            basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage();
             basePackageForUtilitiesGeneration.setName(autoBasePackage);
             if (packagePrefix != null) {
                 baseLocationForUtilitiesGeneration = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + packagePrefix.replace(".", File.separator) + File.separator + basePackageForUtilitiesGeneration.getName());

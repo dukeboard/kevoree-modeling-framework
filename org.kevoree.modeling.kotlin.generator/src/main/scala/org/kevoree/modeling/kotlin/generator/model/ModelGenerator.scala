@@ -106,7 +106,7 @@ with ConstantsGenerator {
     generateConstants(ctx, model)
     generateCloner(ctx, ctx.basePackageForUtilitiesGeneration, model)
 
-    val loaderGenBaseDir = ctx.baseLocationForUtilitiesGeneration.getAbsolutePath
+    val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath
     ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir)
 
     generateModelTraceAPI(ctx, loaderGenBaseDir)

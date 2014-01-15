@@ -42,8 +42,8 @@ trait ClonerGenerator {
 
 
   def generateCloner(ctx: GenerationContext, pack: EPackage, model: ResourceSet) {
-    ProcessorHelper.checkOrCreateFolder(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
-    val pr = new PrintWriter(new File(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner" + File.separator + "DefaultModelCloner.kt"), "utf-8")
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
+    val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner" + File.separator + "DefaultModelCloner.kt"), "utf-8")
     val packageName = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration)
     ctx.clonerPackage = packageName + ".cloner"
     val ve = new VelocityEngine()

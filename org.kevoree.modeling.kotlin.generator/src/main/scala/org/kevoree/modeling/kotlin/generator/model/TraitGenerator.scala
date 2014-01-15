@@ -87,8 +87,8 @@ trait TraitGenerator {
 
   def generateContainerTrait(ctx: GenerationContext) {
     val formatedFactoryName = "KMFContainer"
-    ProcessorHelper.checkOrCreateFolder(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
-    val localFile = new File(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "Impl.kt")
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "Impl.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
@@ -109,8 +109,8 @@ trait TraitGenerator {
 
   def generateContainerPersistenceTrait(ctx: GenerationContext) {
     val formatedFactoryName = "KMFContainer"
-    ProcessorHelper.checkOrCreateFolder(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
-    val localFile = new File(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "PersistenceImpl.kt")
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "PersistenceImpl.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()
@@ -130,8 +130,8 @@ trait TraitGenerator {
   }
 
   def generateRemoveFromContainerCommand(ctx: GenerationContext) {
-    ProcessorHelper.checkOrCreateFolder(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
-    val localFile = new File(ctx.baseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + "RemoveFromContainerCommand.kt")
+    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + "RemoveFromContainerCommand.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
     val ve = new VelocityEngine()

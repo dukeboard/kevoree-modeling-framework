@@ -18,7 +18,7 @@ public class LoaderGenerator {
     }
 
     public void generateJSONLoader() throws FileNotFoundException, UnsupportedEncodingException {
-        String loaderGenBaseDir = ctx.baseLocationForUtilitiesGeneration.getAbsolutePath() + File.separator + "loader";
+        String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "loader";
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir);
         File localFile = new File(loaderGenBaseDir + "/JSONModelLoader.kt");
         PrintWriter pr = new PrintWriter(localFile, "utf-8");
@@ -31,7 +31,7 @@ public class LoaderGenerator {
     }
 
     public void generateXMILoader() throws FileNotFoundException, UnsupportedEncodingException {
-        String loaderGenBaseDir = ctx.baseLocationForUtilitiesGeneration.getAbsolutePath() + File.separator + "loader";
+        String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "loader";
         ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir);
         File localFile = new File(loaderGenBaseDir + "/XMIModelLoader.kt");
         PrintWriter pr = new PrintWriter(localFile, "utf-8");

@@ -20,7 +20,7 @@ public class SerialiserGenerator {
     }
 
     public void generateXmiSerializer() throws FileNotFoundException, UnsupportedEncodingException {
-        String serializerGenBaseDir = ctx.baseLocationForUtilitiesGeneration.getAbsolutePath() + File.separator + "serializer" + File.separator;
+        String serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "serializer" + File.separator;
         ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir);
         File genFile = new File(serializerGenBaseDir + "XMIModelSerializer.kt");
         PrintWriter pr = new PrintWriter(genFile, "utf-8");
@@ -32,7 +32,7 @@ public class SerialiserGenerator {
     }
 
     public void generateJsonSerializer() throws FileNotFoundException, UnsupportedEncodingException {
-        String serializerGenBaseDir = ctx.baseLocationForUtilitiesGeneration.getAbsolutePath() + File.separator + "serializer" + File.separator;
+        String serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "serializer" + File.separator;
         ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir);
         File genFile = new File(serializerGenBaseDir + "JSONModelSerializer.kt");
         PrintWriter pr = new PrintWriter(genFile, "utf-8");

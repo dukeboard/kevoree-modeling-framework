@@ -293,12 +293,17 @@ public class GenModelPlugin extends AbstractMojo {
             ctx.generateEvents = true;
         }
 
-        Generator gen = new Generator(ctx, ecore);//, getLog());
-        gen.generateModel(project.getVersion());
-        gen.generateLoader();
-        gen.generateSerializer();
-        gen.generateJSONSerializer();
-        gen.generateJsonLoader();
+        Generator gen = null;//, getLog());
+        try {
+            gen = new Generator(ctx, ecore);
+            gen.generateModel(project.getVersion());
+            gen.generateLoader();
+            gen.generateSerializer();
+            gen.generateJSONSerializer();
+            gen.generateJsonLoader();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         outputClasses.mkdirs();
 
 
