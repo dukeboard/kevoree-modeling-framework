@@ -236,7 +236,7 @@ public class GenerationContext {
             formattedFactoryName += pack.getName().substring(1);
             formattedFactoryName += "Factory";
 
-            String packageName = ProcessorHelper.fqn(this, pack);
+            String packageName = ProcessorHelper.getInstance().fqn(this, pack);
             String completeFactoryName = packageName + "." + formattedFactoryName;
             packageFactoryMap.put(packageName, completeFactoryName);
             for(EClassifier cls : pack.getEClassifiers()) {
@@ -292,7 +292,7 @@ public class GenerationContext {
             if (packages.get(0).getEClassifiers().size() > 0) {
                 // Classifiers in this root package
                 basePackageForUtilitiesGeneration = packages.get(0);
-                baseLocationForUtilitiesGeneration = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + ProcessorHelper.fqn(this, packages.get(0)).replace(".", File.separator) + File.separator);
+                baseLocationForUtilitiesGeneration = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + ProcessorHelper.getInstance().fqn(this, packages.get(0)).replace(".", File.separator) + File.separator);
             } else {
                 baseLocationForUtilitiesGeneration = checkBaseLocation(packages.get(0));
             }
@@ -310,7 +310,7 @@ public class GenerationContext {
             for(EPackage subPack : currentPackage.getESubpackages()) {
                 if (subPack.getEClassifiers().size() > 0) {
                     basePackageForUtilitiesGeneration = currentPackage;
-                    f = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + ProcessorHelper.fqn(this, currentPackage).replace(".", File.separator) + File.separator);
+                    f = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + ProcessorHelper.getInstance().fqn(this, currentPackage).replace(".", File.separator) + File.separator);
                     break;
                 }
             }

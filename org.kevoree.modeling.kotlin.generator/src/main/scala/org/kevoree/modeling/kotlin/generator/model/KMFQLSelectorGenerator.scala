@@ -22,7 +22,7 @@ import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelperClass, GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import scala.collection.JavaConversions._
 
 /**
@@ -37,7 +37,7 @@ trait KMFQLSelectorGenerator {
     var formatedCacheName: String = packElement.getName.substring(0, 1).toUpperCase
     formatedCacheName += packElement.getName.substring(1)
     formatedCacheName += "ResolverCacheInternal"
-    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/impl/")
+    ProcessorHelper.getInstance().checkOrCreateFolder(packageGenDir + "/impl/")
     val localFile = new File(packageGenDir + "/impl/" + formatedCacheName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
@@ -47,12 +47,12 @@ trait KMFQLSelectorGenerator {
     val template = ve.getTemplate("templates/KMFQLSelectorCache.vm");
     val ctxV = new VelocityContext()
     ctxV.put("formatedCacheName", formatedCacheName)
-    ctxV.put("packElem", ProcessorHelper.fqn(ctx, packElement))
+    ctxV.put("packElem", ProcessorHelper.getInstance().fqn(ctx, packElement))
     ctxV.put("ctx", ctx)
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
-    ctx.kevoreeCacheResolver = ProcessorHelper.fqn(ctx, packElement)+".impl."+formatedCacheName
+    ctx.kevoreeCacheResolver = ProcessorHelper.getInstance().fqn(ctx, packElement)+".impl."+formatedCacheName
   }
 
   def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext) {
@@ -63,7 +63,7 @@ trait KMFQLSelectorGenerator {
     val template = ve.getTemplate("templates/KMFQLSelectorByQuery.vm");
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
-    ctxV.put("FQNHelper", new ProcessorHelperClass())
+    ctxV.put("FQNHelper", ProcessorHelper.getInstance())
     val optionalRelationShipNameGen = cls.getEAllReferences.size == 1
     ctxV.put("optionalRelationShipNameGen", optionalRelationShipNameGen)
     if (optionalRelationShipNameGen) {

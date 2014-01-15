@@ -5,7 +5,7 @@ import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.EClass
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, ProcessorHelperClass, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,8 +24,8 @@ trait ContainedElementsGenerator {
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
     ctxV.put("currentClass", cls)
-    ctxV.put("FQNHelper", new ProcessorHelperClass())
-    ctxV.put("packElem",ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util")
+    ctxV.put("FQNHelper", ProcessorHelper.getInstance())
+    ctxV.put("packElem",ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util")
 
     template.merge(ctxV, pr)
   }

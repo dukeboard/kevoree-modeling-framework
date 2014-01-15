@@ -19,12 +19,12 @@ public class LoaderGenerator {
 
     public void generateJSONLoader() throws FileNotFoundException, UnsupportedEncodingException {
         String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "loader";
-        ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir);
+        ProcessorHelper.getInstance().checkOrCreateFolder(loaderGenBaseDir);
         File localFile = new File(loaderGenBaseDir + "/JSONModelLoader.kt");
         PrintWriter pr = new PrintWriter(localFile, "utf-8");
-        pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".loader");
+        pr.println("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".loader");
         pr.println("class JSONModelLoader : org.kevoree.modeling.api.json.JSONModelLoader() {");
-        pr.println("override var factory : org.kevoree.modeling.api.KMFFactory? = " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory.MainFactory()");
+        pr.println("override var factory : org.kevoree.modeling.api.KMFFactory? = " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory.MainFactory()");
         pr.println("}");
         pr.flush();
         pr.close();
@@ -32,12 +32,12 @@ public class LoaderGenerator {
 
     public void generateXMILoader() throws FileNotFoundException, UnsupportedEncodingException {
         String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "loader";
-        ProcessorHelper.checkOrCreateFolder(loaderGenBaseDir);
+        ProcessorHelper.getInstance().checkOrCreateFolder(loaderGenBaseDir);
         File localFile = new File(loaderGenBaseDir + "/XMIModelLoader.kt");
         PrintWriter pr = new PrintWriter(localFile, "utf-8");
-        pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".loader");
+        pr.println("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".loader");
         pr.println("class XMIModelLoader : org.kevoree.modeling.api.xmi.XMIModelLoader() {");
-        pr.println("override var factory : org.kevoree.modeling.api.KMFFactory? = " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory.MainFactory()");
+        pr.println("override var factory : org.kevoree.modeling.api.KMFFactory? = " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory.MainFactory()");
         pr.println("}");
         pr.flush();
         pr.close();

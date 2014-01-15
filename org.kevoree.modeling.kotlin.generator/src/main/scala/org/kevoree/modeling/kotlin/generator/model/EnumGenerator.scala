@@ -37,7 +37,7 @@ package org.kevoree.modeling.kotlin.generator.model
 
 import org.eclipse.emf.ecore.{EPackage, EEnum}
 import java.io.{File, PrintWriter}
-import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 
 
 /**
@@ -60,14 +60,14 @@ trait EnumGenerator {
 
     val pr = new PrintWriter(localFile, "utf-8")
 
-    val packageName = ProcessorHelper.fqn(ctx, packElement)
+    val packageName = ProcessorHelper.getInstance().fqn(ctx, packElement)
 
     //Header
     pr.println("package " + packageName + ";")
     pr.println()
     pr.println()
 
-    pr.println(ProcessorHelper.generateHeader(packElement))
+    pr.println(ProcessorHelper.getInstance().generateHeader(packElement))
 
     //Class core
     pr.println("enum class " + formattedEnumName + " {")

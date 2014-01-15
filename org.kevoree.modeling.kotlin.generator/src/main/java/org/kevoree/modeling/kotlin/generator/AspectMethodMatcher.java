@@ -32,9 +32,9 @@ public class AspectMethodMatcher {
         String methodReturnTypeTxt = "";
         if (eop.getEType() != null) {
             if (eop.getEType() instanceof EDataType) {
-                methodReturnTypeTxt = ProcessorHelper.convertType(eop.getEType().getName());
+                methodReturnTypeTxt = ProcessorHelper.getInstance().convertType(eop.getEType().getName());
             } else {
-                methodReturnTypeTxt = ProcessorHelper.fqn(ctx, eop.getEType());
+                methodReturnTypeTxt = ProcessorHelper.getInstance().fqn(ctx, eop.getEType());
             }
         }
 
@@ -44,13 +44,13 @@ public class AspectMethodMatcher {
         returnTypeCheck |= (equivalentMap.get(methodReturnTypeTxt) != null) && equivalentMap.get(methodReturnTypeTxt).equals(aop.returnType);
         returnTypeCheck |= (eop.getEType() != null && eop.getEType().getName() != null && eop.getEType().getName().equals(aop.returnType));
         returnTypeCheck |= (eop.getEType() != null && eop.getLowerBound() == 0 && eop.getEType().getName() != null && (eop.getEType().getName()+"?").equals(aop.returnType));
-        returnTypeCheck |= (eop.getEType() != null && ProcessorHelper.fqn(ctx,eop.getEType()).equals(aop.returnType));
-        returnTypeCheck |= (eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.fqn(ctx,eop.getEType())+"?").equals(aop.returnType));
+        returnTypeCheck |= (eop.getEType() != null && ProcessorHelper.getInstance().fqn(ctx,eop.getEType()).equals(aop.returnType));
+        returnTypeCheck |= (eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.getInstance().fqn(ctx,eop.getEType())+"?").equals(aop.returnType));
         returnTypeCheck |= aop.returnType != null && methodReturnTypeTxt.equals(aop.returnType);
 
 
         if (!returnTypeCheck) {
-            System.err.println(methodReturnTypeTxt + "<->" + aop.returnType+"-"+(eop.getLowerBound() == 0)+"-"+(eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.fqn(ctx,eop.getEType())+"?").equals(aop.returnType))+"-"+(ProcessorHelper.fqn(ctx,eop.getEType())+"?"));
+            System.err.println(methodReturnTypeTxt + "<->" + aop.returnType+"-"+(eop.getLowerBound() == 0)+"-"+(eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.getInstance().fqn(ctx,eop.getEType())+"?").equals(aop.returnType))+"-"+(ProcessorHelper.getInstance().fqn(ctx,eop.getEType())+"?"));
             return false;
         }
         if (eop.getEParameters().size() != aop.params.size()) {
@@ -62,9 +62,9 @@ public class AspectMethodMatcher {
             for(EParameter eparam : eop.getEParameters()) {
                 i = i + 1;
                 if (eparam.getEType() instanceof EDataType) {
-                    methodReturnTypeTxt = ProcessorHelper.convertType(eparam.getEType().getName());
+                    methodReturnTypeTxt = ProcessorHelper.getInstance().convertType(eparam.getEType().getName());
                 } else {
-                    methodReturnTypeTxt = ProcessorHelper.fqn(ctx, eparam.getEType());
+                    methodReturnTypeTxt = ProcessorHelper.getInstance().fqn(ctx, eparam.getEType());
                 }
                 returnTypeCheck = false;
                 if (((equivalentMap.get(methodReturnTypeTxt) != null) && equivalentMap.get(methodReturnTypeTxt).equals(aop.params.get(i - 1).type)) || (eparam.getEType() != null && eparam.getEType().getName().equals(aop.params.get(i - 1).type))) {

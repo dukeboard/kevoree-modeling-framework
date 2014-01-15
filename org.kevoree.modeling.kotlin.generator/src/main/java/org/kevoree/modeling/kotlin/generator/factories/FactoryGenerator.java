@@ -34,12 +34,12 @@ public class FactoryGenerator {
 
     public static void generateMainFactory(GenerationContext ctx) {
         try {
-            ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "factory");
+            ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "factory");
             generatePackageEnum(ctx);
             File genFile = new File(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "factory" + File.separator + "MainFactory.kt");
             PrintWriter pr = null;
             pr = new PrintWriter(genFile, "utf-8");
-            pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory");
+            pr.println("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory");
             if (ctx.persistence && !ctx.timeAware) {
                 pr.println("class MainFactory : org.kevoree.modeling.api.persistence.PersistenceKMFFactory {");
             } else {
@@ -52,7 +52,7 @@ public class FactoryGenerator {
             if (ctx.persistence) {
                 pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null");
                 pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()");
-                pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()");
+                pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()");
             }
             if (ctx.timeAware) {
                 pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(0,0)");
@@ -113,7 +113,7 @@ public class FactoryGenerator {
     private static void generatePackageEnum(GenerationContext ctx) throws FileNotFoundException, UnsupportedEncodingException {
         File genFile = new File(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "factory" + File.separator + "Package.kt");
         PrintWriter pr = new PrintWriter(genFile, "utf-8");
-        pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory");
+        pr.println("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".factory");
 
         pr.println("object Package {");
         int i = 0;

@@ -22,7 +22,7 @@ import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import org.eclipse.emf.ecore.{EPackage, EClass}
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, ProcessorHelperClass, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,8 +35,8 @@ trait DiffGenerator {
 
   def generateModelTraceCompare(ctx: GenerationContext, packageGenDir: String) {
 
-    val packageName = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration)
-    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/compare/")
+    val packageName = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)
+    ProcessorHelper.getInstance().checkOrCreateFolder(packageGenDir + "/compare/")
     val localFile = new File(packageGenDir + "/compare/DefaultModelCompare.kt")
     val pr = new PrintWriter(localFile, "utf-8")
     val ve = new VelocityEngine()
@@ -44,7 +44,7 @@ trait DiffGenerator {
     ve.init()
     val template = ve.getTemplate("templates/DefaultModelCompare.vm")
     val ctxV = new VelocityContext()
-    ctxV.put("helper", new ProcessorHelperClass())
+    ctxV.put("helper", ProcessorHelper.getInstance())
     ctxV.put("ctx", ctx)
     ctxV.put("packageName", packageName)
     template.merge(ctxV, pr)
@@ -54,7 +54,7 @@ trait DiffGenerator {
 
 
   def generateModelTraceAPI(ctx: GenerationContext, packageGenDir: String) {
-    ProcessorHelper.checkOrCreateFolder(packageGenDir + "/trace/")
+    ProcessorHelper.getInstance().checkOrCreateFolder(packageGenDir + "/trace/")
     val localFile = new File(packageGenDir + "/trace/DefaultTraceSequence.kt")
     val pr = new PrintWriter(localFile, "utf-8")
     val ve = new VelocityEngine()
@@ -62,7 +62,7 @@ trait DiffGenerator {
     ve.init()
     val template = ve.getTemplate("templates/trace/DefaultTraceSequence.vm")
     val ctxV = new VelocityContext()
-    ctxV.put("helper", new ProcessorHelperClass())
+    ctxV.put("helper", ProcessorHelper.getInstance())
     ctxV.put("ctx", ctx)
     template.merge(ctxV, pr)
     pr.flush()
@@ -77,7 +77,7 @@ trait DiffGenerator {
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
     ctxV.put("currentClass", cls)
-    ctxV.put("FQNHelper", new ProcessorHelperClass())
+    ctxV.put("FQNHelper", ProcessorHelper.getInstance())
     template.merge(ctxV, pr)
   }
 

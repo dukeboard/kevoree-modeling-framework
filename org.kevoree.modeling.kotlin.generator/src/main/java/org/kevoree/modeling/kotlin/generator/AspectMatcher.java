@@ -15,7 +15,7 @@ public class AspectMatcher {
   public static Boolean aspectMatcher(final GenerationContext ctx, final AspectClass aspect, EClass eClass) {
       boolean localMatch = aspect.aspectedClass.equals(eClass.getName());
       if(!localMatch) {
-          localMatch = ProcessorHelper.fqn(ctx, eClass).equals(aspect.aspectedClass);
+          localMatch = ProcessorHelper.getInstance().fqn(ctx, eClass).equals(aspect.aspectedClass);
       }
       if (!localMatch) {
           for(EClass superEClass : eClass.getEAllSuperTypes()) {

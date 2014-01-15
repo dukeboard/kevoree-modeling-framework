@@ -52,7 +52,6 @@
 package org.kevoree.modeling.kotlin.generator.model
 
 import org.eclipse.emf.ecore._
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.io.{FileOutputStream, PrintWriter, File}
 import scala.collection.JavaConversions._
@@ -73,37 +72,37 @@ trait APIGenerator extends ClassGenerator {
     val first = !localFile.exists()
     val localFileS = new FileOutputStream(localFile, true)
     val pr = new PrintWriter(localFileS)
-    val pack = ProcessorHelper.fqn(ctx, packElement)
+    val pack = ProcessorHelper.getInstance().fqn(ctx, packElement)
     if (first) {
       pr.println("package " + pack + "")
       pr.println()
     }
     pr.print("trait " + cls.getName)
-    pr.println(generateSuperTypes(ctx, cls, packElement) + " {")
+    pr.println(ProcessorHelper.getInstance().generateSuperTypes(ctx, cls, packElement) + " {")
     cls.getEAttributes.foreach {
       att =>
         if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls)) {} else {
           if (att.isMany) {
-            pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">?")
+            pr.println("public open var " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">?")
           } else {
-            pr.println("public open var " + ProcessorHelper.protectReservedWords(att.getName) + " : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?")
+            pr.println("public open var " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?")
           }
         }
     }
     //Kotlin workaround // Why prop are not generated properly ?
     if (ctx.js && ctx.ecma3compat) {
-      ProcessorHelper.noduplicate(cls.getEAttributes).foreach {
+      ProcessorHelper.getInstance().noduplicate(cls.getEAttributes).foreach {
         att =>
 
           if (cls.getEAllAttributes.exists(att2 => att2.getName.equals(att.getName) && att2.getEContainingClass != cls)) {
 
           } else {
             if (att.isMany) {
-              pr.println("public fun get" + toCamelCase(att) + "()" + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">")
-              pr.println("public fun set" + toCamelCase(att) + "(p" + " : List<" + ProcessorHelper.convertType(att.getEAttributeType, ctx) + ">)")
+              pr.println("public fun get" + toCamelCase(att) + "()" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">")
+              pr.println("public fun set" + toCamelCase(att) + "(p" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">)")
             } else {
-              pr.println("public fun get" + toCamelCase(att) + "() : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?")
-              pr.println("public fun set" + toCamelCase(att) + "(p : " + ProcessorHelper.convertType(att.getEAttributeType, ctx) + "?)")
+              pr.println("public fun get" + toCamelCase(att) + "() : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?")
+              pr.println("public fun set" + toCamelCase(att) + "(p : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?)")
             }
           }
       }
@@ -113,7 +112,7 @@ trait APIGenerator extends ClassGenerator {
           if (cls.getEAllReferences.exists(ref2 => ref2.getName.equals(ref.getName) && ref2.getEContainingClass != cls)) {
 
           } else {
-            val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+            val typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)
             if (ref.isMany) {
               pr.println("public fun get" + toCamelCase(ref) + "()" + " : List<" + typeRefName + ">")
               pr.println("public fun set" + toCamelCase(ref) + "(p" + " : List<" + typeRefName + ">)")
@@ -129,16 +128,16 @@ trait APIGenerator extends ClassGenerator {
       ref =>
         if (cls.getEAllReferences.exists(ref2 => ref2.getName.equals(ref.getName) && ref2.getEContainingClass != cls)) {
         } else {
-          val typeRefName = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+          val typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)
           if (ref.isMany) {
-            pr.println("open var " + protectReservedWords(ref.getName) + " : List<" + typeRefName + ">")
+            pr.println("open var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : List<" + typeRefName + ">")
             generateAddMethod(pr, cls, ref, typeRefName)
             generateAddAllMethod(pr, cls, ref, typeRefName)
             generateRemoveMethod(pr, cls, ref, typeRefName)
             generateRemoveAllMethod(pr, cls, ref, typeRefName)
-            pr.println("fun find" + toCamelCase(ref) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "?")
+            pr.println("fun find" + toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)) + "?")
           } else {
-            pr.println("open var " + protectReservedWords(ref.getName) + " : " + typeRefName + "?")
+            pr.println("open var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + "?")
           }
         }
     }
@@ -152,7 +151,7 @@ trait APIGenerator extends ClassGenerator {
       op1.getEParameters.foreach {
         opP =>
           if (!op2.getEParameters.exists(op2P => {
-            opP.getName == op2P.getName && ProcessorHelper.fqn(opP.getEType) == ProcessorHelper.fqn(op2P.getEType)
+            opP.getName == op2P.getName && ProcessorHelper.getInstance().fqn(opP.getEType) == ProcessorHelper.getInstance().fqn(op2P.getEType)
           })) {
             return false
           }
@@ -160,7 +159,7 @@ trait APIGenerator extends ClassGenerator {
       op2.getEParameters.foreach {
         opP =>
           if (!op1.getEParameters.exists(op2P => {
-            opP.getName == op2P.getName && ProcessorHelper.fqn(opP.getEType) == ProcessorHelper.fqn(op2P.getEType)
+            opP.getName == op2P.getName && ProcessorHelper.getInstance().fqn(opP.getEType) == ProcessorHelper.getInstance().fqn(op2P.getEType)
           })) {
             return false
           }
@@ -187,9 +186,9 @@ trait APIGenerator extends ClassGenerator {
                 pr.println(",")
               }
               val returnTypeP = if (p.getEType.isInstanceOf[EDataType]) {
-                ProcessorHelper.convertType(p.getEType.getName)
+                ProcessorHelper.getInstance().convertType(p.getEType.getName)
               } else {
-                ProcessorHelper.fqn(ctx, p.getEType)
+                ProcessorHelper.getInstance().fqn(ctx, p.getEType)
               }
               pr.print(p.getName() + "P :" + returnTypeP)
               isFirst = false
@@ -197,9 +196,9 @@ trait APIGenerator extends ClassGenerator {
           if (op.getEType != null) {
 
             var returnTypeOP = if (op.getEType.isInstanceOf[EDataType]) {
-              ProcessorHelper.convertType(op.getEType.getName)
+              ProcessorHelper.getInstance().convertType(op.getEType.getName)
             } else {
-              ProcessorHelper.fqn(ctx, op.getEType)
+              ProcessorHelper.getInstance().fqn(ctx, op.getEType)
             }
             if (returnTypeOP == null || returnTypeOP == "null") {
               returnTypeOP = "Unit"
@@ -221,15 +220,15 @@ trait APIGenerator extends ClassGenerator {
   }
 
   private def generateAddAllMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
-    pr.println("fun addAll" + toCamelCase(ref) + "(" + protectReservedWords(ref.getName) + " :List<" + typeRefName + ">)")
+    pr.println("fun addAll" + toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " :List<" + typeRefName + ">)")
   }
 
   private def generateAddMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
-    pr.println("fun add" + toCamelCase(ref) + "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ")")
+    pr.println("fun add" + toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + ")")
   }
 
   private def generateRemoveMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
-    pr.println("fun remove" + toCamelCase(ref) + "(" + protectReservedWords(ref.getName) + " : " + typeRefName + ")")
+    pr.println("fun remove" + toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + ")")
   }
 
   private def generateRemoveAllMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {

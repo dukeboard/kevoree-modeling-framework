@@ -87,7 +87,7 @@ trait TraitGenerator {
 
   def generateContainerTrait(ctx: GenerationContext) {
     val formatedFactoryName = "KMFContainer"
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
     val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "Impl.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
@@ -97,19 +97,19 @@ trait TraitGenerator {
     val template = ve.getTemplate("templates/ContainerTrait.vm")
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName", formatedFactoryName)
-    ctxV.put("packElem", ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container")
-    ctxV.put("FQNHelper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("packElem", ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container")
+    ctxV.put("FQNHelper", ProcessorHelper.getInstance())
     ctxV.put("ctx", ctx)
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
     ctx.kevoreeContainer = "org.kevoree.modeling.api.KMFContainer"
-    ctx.kevoreeContainerImplFQN = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "Impl";
+    ctx.kevoreeContainerImplFQN = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "Impl";
   }
 
   def generateContainerPersistenceTrait(ctx: GenerationContext) {
     val formatedFactoryName = "KMFContainer"
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
     val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + formatedFactoryName + "PersistenceImpl.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
@@ -119,18 +119,18 @@ trait TraitGenerator {
     val template = ve.getTemplate("templates/ContainerPersistenceTrait.vm")
     val ctxV = new VelocityContext()
     ctxV.put("formatedFactoryName", formatedFactoryName)
-    ctxV.put("packElem", ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container")
-    ctxV.put("FQNHelper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("packElem", ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container")
+    ctxV.put("FQNHelper", ProcessorHelper.getInstance())
     ctxV.put("ctx", ctx)
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()
     ctx.kevoreeContainer = "org.kevoree.modeling.api.KMFContainer";
-    ctx.kevoreeContainerImplFQN = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "PersistenceImpl";
+    ctx.kevoreeContainerImplFQN = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container." + formatedFactoryName + "PersistenceImpl";
   }
 
   def generateRemoveFromContainerCommand(ctx: GenerationContext) {
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
+    ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container")
     val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "container" + File.separator + "RemoveFromContainerCommand.kt")
     val pr = new PrintWriter(localFile, "utf-8")
 
@@ -140,7 +140,7 @@ trait TraitGenerator {
     val template = ve.getTemplate("templates/commands/RemoveFromContainerCommand.vm")
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
-    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("helper", ProcessorHelper.getInstance())
     template.merge(ctxV, pr)
     pr.flush()
     pr.close()

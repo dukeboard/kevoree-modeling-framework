@@ -21,10 +21,10 @@ public class SerialiserGenerator {
 
     public void generateXmiSerializer() throws FileNotFoundException, UnsupportedEncodingException {
         String serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "serializer" + File.separator;
-        ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir);
+        ProcessorHelper.getInstance().checkOrCreateFolder(serializerGenBaseDir);
         File genFile = new File(serializerGenBaseDir + "XMIModelSerializer.kt");
         PrintWriter pr = new PrintWriter(genFile, "utf-8");
-        pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".serializer");
+        pr.println("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".serializer");
         pr.println("class XMIModelSerializer : org.kevoree.modeling.api.xmi.XMIModelSerializer() {");
         pr.println("}");
         pr.flush();
@@ -33,10 +33,10 @@ public class SerialiserGenerator {
 
     public void generateJsonSerializer() throws FileNotFoundException, UnsupportedEncodingException {
         String serializerGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "serializer" + File.separator;
-        ProcessorHelper.checkOrCreateFolder(serializerGenBaseDir);
+        ProcessorHelper.getInstance().checkOrCreateFolder(serializerGenBaseDir);
         File genFile = new File(serializerGenBaseDir + "JSONModelSerializer.kt");
         PrintWriter pr = new PrintWriter(genFile, "utf-8");
-        pr.println("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".serializer");
+        pr.println("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".serializer");
         pr.println("class JSONModelSerializer : org.kevoree.modeling.api.json.JSONModelSerializer() {");
         pr.println("}");
         pr.flush();

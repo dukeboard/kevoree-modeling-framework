@@ -28,7 +28,7 @@ trait ConstantsGenerator {
           if(!names.contains(cls.getName)) {
             names.put("CN_"+cls.getName, cls.getName)
           }
-          names.put(ProcessorHelper.fqn(ctx, cls), ProcessorHelper.fqn(ctx, cls))
+          names.put(ProcessorHelper.getInstance().fqn(ctx, cls), ProcessorHelper.getInstance().fqn(ctx, cls))
           if(cls.isInstanceOf[EClass]) {
             cls.asInstanceOf[EClass].getEAttributes.foreach{att=> if(!names.contains(att.getName)){names.put("Att_"+att.getName, att.getName)}}
             cls.asInstanceOf[EClass].getEReferences.foreach{ref=> if(!names.contains(ref.getName)){names.put("Ref_"+ref.getName, ref.getName)}}
@@ -37,7 +37,7 @@ trait ConstantsGenerator {
         case _ =>
       }
     }
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + "/util/")
+    ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + "/util/")
     val localFile = new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + "/util/Constants.kt")
     val pr = new PrintWriter(localFile, "utf-8")
     val ve = new VelocityEngine()
@@ -46,7 +46,7 @@ trait ConstantsGenerator {
     val template = ve.getTemplate("/templates/util/ConstGenerator.vm")
     val ctxV = new VelocityContext()
     ctxV.put("ctx", ctx)
-    ctxV.put("FQNHelper",new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("FQNHelper",ProcessorHelper.getInstance())
     ctxV.put("names", names)
     template.merge(ctxV, pr)
     pr.flush()

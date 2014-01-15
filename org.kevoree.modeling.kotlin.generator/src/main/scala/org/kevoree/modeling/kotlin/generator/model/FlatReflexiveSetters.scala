@@ -3,7 +3,6 @@ package org.kevoree.modeling.kotlin.generator.model
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import org.eclipse.emf.ecore.{EReference, EEnum, EClass}
 import java.io.PrintWriter
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import scala.collection.JavaConversions._
 
 /**
@@ -24,19 +23,19 @@ trait FlatReflexiveSetters {
     pr.println("when(refName) {")
     cls.getEAllAttributes.foreach {
       att =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
+        pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName + " -> {") //START ATTR
       var valueType: String = ""
         if (att.getEAttributeType.isInstanceOf[EEnum]) {
-          valueType = ProcessorHelper.fqn(ctx, att.getEAttributeType)
+          valueType = ProcessorHelper.getInstance().fqn(ctx, att.getEAttributeType)
         } else {
-          valueType = ProcessorHelper.convertType(att.getEAttributeType, ctx)
+          valueType = ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx)
         }
         if (att.isMany) {
           pr.println("if(value is java.util.ArrayList<*>){")
           if (ctx.generateEvents) {
             pr.println("this.internal_" + att.getName + "(value as List<" + valueType + ">, fireEvents)")
           } else {
-            pr.println("this." + protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
+            pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value as List<" + valueType + ">)")
           }
           pr.println("}else {")
           pr.println("if(value is String){")
@@ -72,7 +71,7 @@ trait FlatReflexiveSetters {
           if (ctx.generateEvents) {
             pr.println("this.internal_" + att.getName + "(tempArrayValues as List<" + valueType + ">, fireEvents)")
           } else {
-            pr.println("this." + protectReservedWords(att.getName) + " = (tempArrayValues as List<" + valueType + ">)")
+            pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (tempArrayValues as List<" + valueType + ">)")
           }
           pr.println("}")
           pr.println("}")
@@ -83,7 +82,7 @@ trait FlatReflexiveSetters {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((\"true\" == value || true == value), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (\"true\" == value || true == value)")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (\"true\" == value || true == value)")
                 }
               }
               case "java.util.Date" => {
@@ -91,13 +90,13 @@ trait FlatReflexiveSetters {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
                 }
                 pr.println("} else {")
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
                 }
                 pr.println("}")
               }
@@ -105,7 +104,7 @@ trait FlatReflexiveSetters {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
                 }
               }
             }
@@ -115,28 +114,28 @@ trait FlatReflexiveSetters {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
                 }
               }
               case "Boolean" | "Double" | "Int" | "Float" | "Long" | "Short" => {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value.toString().to" + valueType + "()), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().to" + valueType + "())")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value.toString().to" + valueType + "())")
                 }
               }
               case "Byte" => {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value.toString().toInt().to" + valueType + "()), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toInt().to" + valueType + "())")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value.toString().toInt().to" + valueType + "())")
                 }
               }
               case "ByteArray" => {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value.toString().toByteArray(java.nio.charset.Charset.defaultCharset())), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))")
                 }
               }
               case "java.util.Date" => {
@@ -144,13 +143,13 @@ trait FlatReflexiveSetters {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
                 }
                 pr.println("} else {")
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "(java.util.Date(value.toString().toLong()), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = java.util.Date(value.toString().toLong())")
                 }
                 pr.println("}")
               }
@@ -158,14 +157,14 @@ trait FlatReflexiveSetters {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value.toString() as? " + valueType + "), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value.toString() as? " + valueType + ")")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value.toString() as? " + valueType + ")")
                 }
               }
               case _ => {
                 if (ctx.generateEvents) {
                   pr.println("this.internal_" + att.getName + "((value as? " + valueType + "), fireEvents)")
                 } else {
-                  pr.println("this." + protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
+                  pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = (value as? " + valueType + ")")
                 }
               }
             }
@@ -176,9 +175,9 @@ trait FlatReflexiveSetters {
 
     cls.getEAllReferences.foreach {
       ref =>
-        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {") //START REF
+        pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {") //START REF
         pr.println("when(mutationType) {")
-        val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+        val valueType = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)
         if (ref.isMany) {
           pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {")
           val methodNameClean = "add" + toCamelCase(ref)
@@ -214,8 +213,8 @@ trait FlatReflexiveSetters {
           pr.println("}")
         } else {
           pr.println("org.kevoree.modeling.api.util.ActionType.SET -> {")
-          val methodNameClean = ProcessorHelper.protectReservedWords(ref.getName)
-          val valueType = ProcessorHelper.fqn(ctx, ref.getEReferenceType)
+          val methodNameClean = ProcessorHelper.getInstance().protectReservedWords(ref.getName)
+          val valueType = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)
           if (ref.getEOpposite != null || ctx.generateEvents) {
             pr.println("      this.internal_" + ref.getName + "(value as? " + valueType + ", setOpposite, fireEvents)")
           } else {
@@ -253,7 +252,7 @@ trait FlatReflexiveSetters {
           pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {")
           pr.println("}")
         }
-        pr.println("else -> {throw Exception(" + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
+        pr.println("else -> {throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}")
         pr.println("}") //END MUTATION TYPE
         pr.println("}") //END Ref When case
     }

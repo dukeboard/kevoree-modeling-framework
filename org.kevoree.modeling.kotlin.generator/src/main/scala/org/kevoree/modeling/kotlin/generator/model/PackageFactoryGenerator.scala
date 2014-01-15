@@ -42,7 +42,7 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import org.apache.velocity.VelocityContext
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore.{EClassifier, EClass, EPackage}
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelperClass, GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 import java.util
 
 /**
@@ -63,14 +63,14 @@ trait PackageFactoryGenerator {
     formatedFactoryName += "Factory"
     val localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
-    val packageName = ProcessorHelper.fqn(ctx, packElement)
+    val packageName = ProcessorHelper.getInstance().fqn(ctx, packElement)
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
     val template = ve.getTemplate("FactoryAPI.vm");
     val ctxV = new VelocityContext()
     ctxV.put("packageName", packageName)
-    ctxV.put("helper", new ProcessorHelperClass())
+    ctxV.put("helper", ProcessorHelper.getInstance())
     ctxV.put("ctx", ctx)
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName", formatedFactoryName)
@@ -92,7 +92,7 @@ trait PackageFactoryGenerator {
     formatedFactoryName += "Factory"
     val localFile = new File(packageGenDir + "/impl/Flyweight" + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
-    val packageName = ProcessorHelper.fqn(ctx, packElement)
+    val packageName = ProcessorHelper.getInstance().fqn(ctx, packElement)
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
@@ -122,7 +122,7 @@ trait PackageFactoryGenerator {
     formatedFactoryName += "Factory"
     val localFile = new File(packageGenDir + "/impl/Default" + formatedFactoryName + ".kt")
     val pr = new PrintWriter(localFile, "utf-8")
-    val packageName = ProcessorHelper.fqn(ctx, packElement)
+    val packageName = ProcessorHelper.getInstance().fqn(ctx, packElement)
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName())
     ve.init()
@@ -132,7 +132,7 @@ trait PackageFactoryGenerator {
     import scala.collection.JavaConversions._
     ctxV.put("formatedFactoryName", formatedFactoryName)
     ctxV.put("js", ctx.js)
-    ctxV.put("helper", new ProcessorHelperClass())
+    ctxV.put("helper", ProcessorHelper.getInstance())
     ctxV.put("ctx", ctx)
     val classes: java.util.List[EClassifier] = packElement.getEClassifiers.filter(cls => cls.isInstanceOf[EClass] && !cls.asInstanceOf[EClass].isAbstract && !cls.asInstanceOf[EClass].isInterface).toList
     ctxV.put("classes", classes)

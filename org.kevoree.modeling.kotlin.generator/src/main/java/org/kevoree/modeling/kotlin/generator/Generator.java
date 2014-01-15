@@ -128,7 +128,7 @@ public class Generator {
             while ( (p == null) && iterator.hasNext()) {
                 Notifier el = iterator.next();
                 if(el instanceof EPackage) {
-                    if(ProcessorHelper.fqn(ctx, (EPackage)el).equals(metaC.packageName)) {
+                    if(ProcessorHelper.getInstance().fqn(ctx, (EPackage)el).equals(metaC.packageName)) {
                         p = (EPackage)el;
                     }
                 }
@@ -149,7 +149,7 @@ public class Generator {
             while ( (parentclass == null) && iteratorEclass.hasNext()) {
                 Notifier el = iteratorEclass.next();
                 if(el instanceof EClass) {
-                    if(ProcessorHelper.fqn(ctx, (EClass)el).equals(metaC.parentName)
+                    if(ProcessorHelper.getInstance().fqn(ctx, (EClass)el).equals(metaC.parentName)
                             || ((EClass)el).getName().equals(metaC.parentName)) {
                         parentclass = (EClass)el;
                     }
@@ -212,17 +212,17 @@ public class Generator {
                     System.err.println("Auto generate Method for aspect " + eclass.getName());
 
                     File targetSrc = ctx.rootSrcDirectory;
-                    File targetFile = new File(targetSrc + File.separator + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName() + ".kt");
+                    File targetFile = new File(targetSrc + File.separator + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName() + ".kt");
                     targetFile.getParentFile().mkdirs();
                     FileWriter writer = new FileWriter(targetFile);
-                    writer.write("package " + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ";\n");
+                    writer.write("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ";\n");
                     writer.write("import org.kevoree.modeling.api.aspect;\n");
-                    writer.write("public aspect trait " + "GeneratedAspect_" + eclass.getName() + " : " + ProcessorHelper.fqn(ctx, eclass) + " {\n");
+                    writer.write("public aspect trait " + "GeneratedAspect_" + eclass.getName() + " : " + ProcessorHelper.getInstance().fqn(ctx, eclass) + " {\n");
 
                     AspectClass newAspectClass = new AspectClass();
                     newAspectClass.name = "GeneratedAspect_" + eclass.getName();
                     newAspectClass.aspectedClass = eclass.getName();
-                    newAspectClass.packageName = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration);
+                    newAspectClass.packageName = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration);
                     ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass);
 
 
@@ -236,17 +236,17 @@ public class Generator {
                         for(EParameter param : operation.getEParameters()) {
                             AspectParam newParam = new AspectParam();
                             newParam.name = param.getName();
-                            newParam.type = ProcessorHelper.convertType(param.getEType().getName());
+                            newParam.type = ProcessorHelper.getInstance().convertType(param.getEType().getName());
                             newAspectOperation.params.add(newParam);
 
                             if (!isFirst) {
                                 writer.write(",");
                             }
                             if (param.getEType() instanceof EDataType) {
-                                writer.write("_" + param.getName() + ":" + ProcessorHelper.convertType(param.getEType().getName()));
+                                writer.write("_" + param.getName() + ":" + ProcessorHelper.getInstance().convertType(param.getEType().getName()));
                             } else {
                                 if (param.getEType() != null) {
-                                    writer.write("_" + param.getName() + ":" + ProcessorHelper.fqn(ctx, param.getEType()));
+                                    writer.write("_" + param.getName() + ":" + ProcessorHelper.getInstance().fqn(ctx, param.getEType()));
                                 } else {
                                     writer.write("_" + param.getName());
                                 }
@@ -256,14 +256,14 @@ public class Generator {
 
                         if (operation.getEType() != null) {
                             if (operation.getEType() instanceof EDataType) {
-                                String operationReturnType = ProcessorHelper.convertType(operation.getEType().getName());
+                                String operationReturnType = ProcessorHelper.getInstance().convertType(operation.getEType().getName());
                                 System.out.println(operation.getEType().getName() + " converted to " + operationReturnType);
                                 if (operationReturnType.startsWith("List") && !ctx.js) {
                                     operationReturnType = "Mutable" + operationReturnType;
                                 }
                                 writer.write(") : " + operationReturnType + " {\n");
                             } else {
-                                String operationReturnType = ProcessorHelper.fqn(ctx, operation.getEType());
+                                String operationReturnType = ProcessorHelper.getInstance().fqn(ctx, operation.getEType());
                                 if (operation.getLowerBound() == 0) {
                                     operationReturnType = operationReturnType + "?";
                                 }

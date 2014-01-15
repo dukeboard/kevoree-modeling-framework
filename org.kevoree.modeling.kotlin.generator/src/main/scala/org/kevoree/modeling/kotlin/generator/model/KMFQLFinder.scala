@@ -54,7 +54,6 @@ package org.kevoree.modeling.kotlin.generator.model
 import java.io.PrintWriter
 import org.eclipse.emf.ecore.EClass
 import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper._
 import scala.collection.JavaConversions._
 
 
@@ -90,7 +89,7 @@ trait KMFQLFinder {
             //pr.print("+\"/\"+")
             pr.print("/")
           }
-          pr.print("$" + protectReservedWords(att.getName))
+          pr.print("$" + ProcessorHelper.getInstance().protectReservedWords(att.getName))
           first = false
       }
       pr.print("\"")
@@ -111,15 +110,15 @@ trait KMFQLFinder {
     cls.getEAllReferences.foreach(ref => {
       if (ref.isMany) {
         generateReflexifMapper = true
-        pr.println("override fun find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)) + "? {")
+        pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(key : String) : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType) + "? {")
         if (ctx.persistence) {
 
           if(ref.isContainment){
             pr.println("val resolved = _" + ref.getName + ".get(key)")
             pr.println("if(resolved==null){")
             pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!")
-            pr.println("val result = relativeLookupFrom(this," + ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ",key)")
-            pr.println("return result as? " + protectReservedWords(ProcessorHelper.fqn(ctx, ref.getEReferenceType)))
+            pr.println("val result = relativeLookupFrom(this," + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ",key)")
+            pr.println("return result as? " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType))
             pr.println("} else {")
             pr.println("return resolved")
             pr.println("}")
@@ -144,12 +143,12 @@ trait KMFQLFinder {
     pr.println("when(relationName) {")
     cls.getEAllReferences.foreach(ref => {
       if (ref.isMany) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
-        pr.println("return find" + protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(idP)}")
+        pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
+        pr.println("return find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)) + "ByID(idP)}")
       }
       if (ref.getUpperBound == 1) {
-        pr.println(ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
-        pr.println("val objFound = " + ProcessorHelper.protectReservedWords(ref.getName))
+        pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + " -> {")
+        pr.println("val objFound = " + ProcessorHelper.getInstance().protectReservedWords(ref.getName))
         pr.println("if(objFound!=null && (objFound as " + ctx.kevoreeContainerImplFQN + ").internalGetKey() == idP){")
         pr.println("return objFound")
         pr.println("}else{return null}")

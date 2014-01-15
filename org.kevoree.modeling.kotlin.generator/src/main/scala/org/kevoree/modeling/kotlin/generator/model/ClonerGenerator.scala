@@ -28,7 +28,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.{EEnum, EPackage, EClass}
 import scala.collection.JavaConversions._
-import org.kevoree.modeling.kotlin.generator.{GenerationContext, ProcessorHelper}
+import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
 
 
 /**
@@ -42,9 +42,9 @@ trait ClonerGenerator {
 
 
   def generateCloner(ctx: GenerationContext, pack: EPackage, model: ResourceSet) {
-    ProcessorHelper.checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
+    ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner")
     val pr = new PrintWriter(new File(ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath + File.separator + "cloner" + File.separator + "DefaultModelCloner.kt"), "utf-8")
-    val packageName = ProcessorHelper.fqn(ctx, ctx.basePackageForUtilitiesGeneration)
+    val packageName = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)
     ctx.clonerPackage = packageName + ".cloner"
     val ve = new VelocityEngine()
     ve.setProperty("file.resource.loader.class", classOf[ClasspathResourceLoader].getName)
@@ -52,9 +52,9 @@ trait ClonerGenerator {
     val template = ve.getTemplate("templates/ModelCloner.vm")
     val ctxV = new VelocityContext()
     ctxV.put("packageName", packageName)
-    ctxV.put("potentialRoots", ProcessorHelper.collectAllClassifiersInModel(model))
+    ctxV.put("potentialRoots", ProcessorHelper.getInstance().collectAllClassifiersInModel(model))
     ctxV.put("ctx", ctx)
-    ctxV.put("helper", new org.kevoree.modeling.kotlin.generator.ProcessorHelperClass())
+    ctxV.put("helper", ProcessorHelper.getInstance())
     ctxV.put("packages", ctx.packageFactoryMap.values())
     template.merge(ctxV, pr)
     pr.flush()
