@@ -517,7 +517,7 @@ public class ProcessorHelper {
     /**
      * Separates contained classifiers from not contained classifiers; from a collection of classifiers.
      * @param allClassifiers The classifier collection to sort
-     * @return a 2-tuple with _1 > ContainedClassifiers and _2 > NotContainedClassifiers
+     * @return a Partition containing ContainedClassifiers and NotContainedClassifiers
      */
     public Partition getPartClassifiersByContainement(ArrayList<EClassifier> allClassifiers) {
         ArrayList<EClassifier> containedClassifiers = new ArrayList<EClassifier>();

@@ -103,6 +103,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <maxmemory>128M</maxmemory>
                     <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
                 </configuration>
             </plugin>

@@ -103,10 +103,10 @@ public class Generator {
         }
     }
 
-
     /**
      * Triggers the generation of the given <i>ecore</i> file implementation.
      * @param modelVersion the version of the model (will be included in headers of generated files).
+     * @throws Exception
      */
     public void  generateModel(String modelVersion) throws Exception {
 
