@@ -52,6 +52,7 @@ import org.kevoree.modeling.aspect.AspectParam;
 import org.kevoree.modeling.aspect.NewMetaClassCreation;
 import org.kevoree.modeling.kotlin.generator.factories.FactoryGenerator;
 import org.kevoree.modeling.kotlin.generator.model.ModelGenerator;
+import org.kevoree.modeling.kotlin.generator.model.TraitGenerator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -285,11 +286,13 @@ public class Generator {
         }
 
         ModelGenerator modelGen = new ModelGenerator(ctx);
-        modelGen.generateContainerTrait(ctx);
+
+        TraitGenerator.generateContainerTrait(ctx);
+
         if (ctx.persistence) {
-            modelGen.generateContainerPersistenceTrait(ctx);
+            TraitGenerator.generateContainerPersistenceTrait(ctx);
         }
-        modelGen.generateRemoveFromContainerCommand(ctx);
+        TraitGenerator.generateRemoveFromContainerCommand(ctx);
         System.out.println("Launching model generation");
         modelGen.process(model, modelVersion);
         System.out.println("Done with model generation");

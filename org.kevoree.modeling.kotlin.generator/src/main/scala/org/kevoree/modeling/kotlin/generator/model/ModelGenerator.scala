@@ -31,11 +31,8 @@ import scala.collection.JavaConversions._
  * To change this template use File | Settings | File Templates.
  */
 
-class ModelGenerator(ctx: GenerationContext) extends TraitGenerator
-with PackageFactoryGenerator
-with ClassGenerator
+class ModelGenerator(ctx: GenerationContext) extends ClassGenerator
 with ClonerGenerator
-with EnumGenerator
 with KMFQLFinder
 with KMFQLSelectorGenerator
 with APIGenerator
@@ -70,10 +67,10 @@ with ConstantsGenerator {
         ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir)
         if (currentPackage.getEClassifiers.size() != 0) {
           ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir + "/impl")
-          generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
-          generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
+          PackageFactoryGenerator.generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
+          PackageFactoryGenerator.generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
           if (ctx.flyweightFactory) {
-            generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion)
+            PackageFactoryGenerator.generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion)
           }
         }
         process(currentPackageDir, currentPackage, potentialRoot, userPackageDir,ctx.newMetaClasses.exists(m => m.packageName+"."+m.name == ProcessorHelper.getInstance().fqn(ctx,potentialRoot)))
@@ -93,7 +90,7 @@ with ConstantsGenerator {
       }
       case dt: EDataType => {
         dt match {
-          case enum: EEnum => generateEnum(ctx, currentPackageDir, packElement, enum)
+          case enum: EEnum => EnumGenerator.generateEnum(ctx, currentPackageDir, packElement, enum)
           case _ => System.out.println("Generic DataType " + cls.getName + " ignored for generation.")
         }
       }
