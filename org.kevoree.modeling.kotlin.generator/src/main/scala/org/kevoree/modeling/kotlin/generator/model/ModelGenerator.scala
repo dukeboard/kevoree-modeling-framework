@@ -32,13 +32,8 @@ import scala.collection.JavaConversions._
  */
 
 class ModelGenerator(ctx: GenerationContext) extends ClassGenerator
-with ClonerGenerator
 with KMFQLFinder
-with KMFQLSelectorGenerator
-with APIGenerator
-with ContainedElementsGenerator
-with DiffGenerator
-with ConstantsGenerator {
+with APIGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
@@ -48,16 +43,16 @@ with ConstantsGenerator {
   def process(model: ResourceSet, modelVersion: String) {
 
     if (ctx.genSelector) {
-      generateSelectorCache(ctx, ProcessorHelper.getInstance().getPackageGenDir(ctx, ctx.basePackageForUtilitiesGeneration), ctx.basePackageForUtilitiesGeneration)
+      KMFQLSelectorGenerator.generateSelectorCache(ctx, ProcessorHelper.getInstance().getPackageGenDir(ctx, ctx.basePackageForUtilitiesGeneration), ctx.basePackageForUtilitiesGeneration)
     }
-    generateConstants(ctx, model)
-    generateCloner(ctx, ctx.basePackageForUtilitiesGeneration, model)
+    ConstantsGenerator.generateConstants(ctx, model)
+    ClonerGenerator.generateCloner(ctx, ctx.basePackageForUtilitiesGeneration, model)
 
     val loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration.getAbsolutePath
     ProcessorHelper.getInstance().checkOrCreateFolder(loaderGenBaseDir)
 
-    generateModelTraceAPI(ctx, loaderGenBaseDir)
-    generateModelTraceCompare(ctx, loaderGenBaseDir)
+    DiffGenerator.generateModelTraceAPI(ctx, loaderGenBaseDir)
+    DiffGenerator.generateModelTraceCompare(ctx, loaderGenBaseDir)
     model.getAllContents.filter(c => c.isInstanceOf[EClassifier]).foreach{ potentialRoot2 =>
 
       val potentialRoot = potentialRoot2.asInstanceOf[EClassifier]

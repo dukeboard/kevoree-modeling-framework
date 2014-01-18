@@ -30,11 +30,11 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String)
 
-  def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
+  //def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-  def generateContainedElementsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
+  //def generateContainedElementsMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-  def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
+ // def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
   def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter)
 
@@ -105,9 +105,9 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     generateFlatReflexiveSetters(ctx, cls, pr)
     generateKMFQLMethods(pr, cls, ctx, pack)
     if (ctx.genSelector) {
-      generateSelectorMethods(pr, cls, ctx)
+      KMFQLSelectorGenerator.generateSelectorMethods(pr, cls, ctx)
     }
-    generateContainedElementsMethods(pr, cls, ctx)
+    ContainedElementsGenerator.generateContainedElementsMethods(pr, cls, ctx)
     generateMetaClassName(pr, cls, ctx)
     //Kotlin workaround // Why prop are not generated properly ?
     if (ctx.js && ctx.ecma3compat) {
