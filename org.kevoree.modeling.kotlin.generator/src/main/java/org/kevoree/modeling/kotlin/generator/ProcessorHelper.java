@@ -118,8 +118,11 @@ public class ProcessorHelper {
         typeConvertionTable.put("java.lang.Double","Double");
         typeConvertionTable.put("EDouble","Double");
         typeConvertionTable.put("EDoubleObject","Double");
+        typeConvertionTable.put("ELongObject","Long");
         typeConvertionTable.put("long","Long");
         typeConvertionTable.put("java.lang.Long","Long");
+        typeConvertionTable.put("Long","Long");
+        typeConvertionTable.put("ELong","Long");
         typeConvertionTable.put("java.lang.Object","Any");
         typeConvertionTable.put("EResource","Any");
         typeConvertionTable.put("EJavaObject","Any");
