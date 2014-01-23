@@ -81,8 +81,7 @@ In addition, add the KMF MicroFramework dependency
 
 If you don't have an existing project you can download one by clicking on the button.
 
-> [Download sample project >](https://github.com/dukeboard/kevoree-modeling-framework/tree/master/metamodel/tinycloud
-)
+> [Download sample project >](https://github.com/kevoree/kmf-samples/tree/master/tinycloud)
 
 ### Compile models
 
@@ -519,7 +518,7 @@ Kotlin API
 
 ### Aspect API
 
-Let's take as example a simple FSM metamodel (you can find it [here](https://github.com/dukeboard/kevoree-modeling-framework/tree/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt) ). In this metamodel we add an operation `run` to the metaclass `Action`. Then, you can declare in your src/main/java directory several Kotlin traits implementing the generated interface. An example can be found [here](https://github.com/dukeboard/kevoree-modeling-framework/blob/master/metamodel/fsm/org.kevoree.modeling.sample.fsm.kt/src/main/java/org/jetbrains/annotations/MyAspect.kt).
+Let's take as example a simple FSM metamodel (you can find it [here](https://github.com/kevoree/kmf-samples/tree/master/fsm/org.kevoree.modeling.sample.fsm.kt) ). In this metamodel we add an operation `run` to the metaclass `Action`. Then, you can declare in your src/main/java directory several Kotlin traits implementing the generated interface. An example can be found [here](https://github.com/kevoree/kmf-samples/blob/master/fsm/org.kevoree.modeling.sample.fsm.kt/src/main/java/org/jetbrains/annotations/MyAspect.kt).
 
 ``` kotlin
 aspect trait MyAspect : Action {
