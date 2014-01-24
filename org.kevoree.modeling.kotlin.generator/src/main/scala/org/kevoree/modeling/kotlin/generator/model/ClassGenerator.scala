@@ -5,7 +5,7 @@ package org.kevoree.modeling.kotlin.generator.model
 import java.io.{File, PrintWriter}
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, AspectMatcher, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{KMFQLFinder, ProcessorHelper, AspectMatcher, GenerationContext}
 import scala.collection.mutable
 import java.util
 
@@ -28,7 +28,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   var param_suf = "P"
 
-  def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String)
+  //def generateKMFQLMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext, pack: String)
 
   //def generateSelectorMethods(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
@@ -103,7 +103,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     generateDeleteMethod(pr, cls, ctx, pack)
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
     generateFlatReflexiveSetters(ctx, cls, pr)
-    generateKMFQLMethods(pr, cls, ctx, pack)
+    KMFQLFinder.generateKMFQLMethods(pr, cls, ctx, pack)
     if (ctx.genSelector) {
       KMFQLSelectorGenerator.generateSelectorMethods(pr, cls, ctx)
     }

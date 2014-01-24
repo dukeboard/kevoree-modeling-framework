@@ -19,7 +19,7 @@
 package org.kevoree.modeling.kotlin.generator.model
 
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.kevoree.modeling.kotlin.generator.{ProcessorHelper, GenerationContext}
+import org.kevoree.modeling.kotlin.generator.{KMFQLFinder, ProcessorHelper, GenerationContext}
 import org.eclipse.emf.ecore._
 import scala.collection.JavaConversions._
 
@@ -32,7 +32,6 @@ import scala.collection.JavaConversions._
  */
 
 class ModelGenerator(ctx: GenerationContext) extends ClassGenerator
-with KMFQLFinder
 with APIGenerator {
 
   /**
@@ -56,19 +55,19 @@ with APIGenerator {
     model.getAllContents.filter(c => c.isInstanceOf[EClassifier]).foreach{ potentialRoot2 =>
 
       val potentialRoot = potentialRoot2.asInstanceOf[EClassifier]
-        val currentPackage = potentialRoot.getEPackage
-        val currentPackageDir = ProcessorHelper.getInstance().getPackageGenDir(ctx, currentPackage)
-        val userPackageDir = ProcessorHelper.getInstance().getPackageUserDir(ctx, currentPackage)
-        ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir)
-        if (currentPackage.getEClassifiers.size() != 0) {
-          ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir + "/impl")
-          PackageFactoryGenerator.generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
-          PackageFactoryGenerator.generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
-          if (ctx.flyweightFactory) {
-            PackageFactoryGenerator.generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion)
-          }
+      val currentPackage = potentialRoot.getEPackage
+      val currentPackageDir = ProcessorHelper.getInstance().getPackageGenDir(ctx, currentPackage)
+      val userPackageDir = ProcessorHelper.getInstance().getPackageUserDir(ctx, currentPackage)
+      ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir)
+      if (currentPackage.getEClassifiers.size() != 0) {
+        ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir + "/impl")
+        PackageFactoryGenerator.generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion)
+        PackageFactoryGenerator.generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion)
+        if (ctx.flyweightFactory) {
+          PackageFactoryGenerator.generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion)
         }
-        process(currentPackageDir, currentPackage, potentialRoot, userPackageDir,ctx.newMetaClasses.exists(m => m.packageName+"."+m.name == ProcessorHelper.getInstance().fqn(ctx,potentialRoot)))
+      }
+      process(currentPackageDir, currentPackage, potentialRoot, userPackageDir,ctx.newMetaClasses.exists(m => m.packageName+"."+m.name == ProcessorHelper.getInstance().fqn(ctx,potentialRoot)))
     }
   }
 
