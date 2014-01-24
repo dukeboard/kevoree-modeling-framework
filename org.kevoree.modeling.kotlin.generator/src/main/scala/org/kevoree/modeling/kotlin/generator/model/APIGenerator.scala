@@ -30,7 +30,7 @@ import scala.Some
  * Date: 14/02/13
  * Time: 10:37
  */
-trait APIGenerator extends ClassGenerator {
+trait APIGenerator {
 
   def generateAPI(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass, srcCurrentDir: String) {
 

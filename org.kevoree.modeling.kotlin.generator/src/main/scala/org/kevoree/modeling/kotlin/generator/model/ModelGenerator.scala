@@ -31,8 +31,7 @@ import scala.collection.JavaConversions._
  * To change this template use File | Settings | File Templates.
  */
 
-class ModelGenerator(ctx: GenerationContext) extends ClassGenerator
-with APIGenerator {
+class ModelGenerator(ctx: GenerationContext) extends APIGenerator {
 
   /**
    * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
@@ -76,7 +75,7 @@ with APIGenerator {
     cls match {
       case cl: EClass => {
         if (!cl.isAbstract && !cl.isInterface) {
-          generateFlatClass(ctx, currentPackageDir, packElement, cl)
+          ClassGenerator.generateFlatClass(ctx, currentPackageDir, packElement, cl)
         }
         if(!isHiddenMetaClass){
           generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir)

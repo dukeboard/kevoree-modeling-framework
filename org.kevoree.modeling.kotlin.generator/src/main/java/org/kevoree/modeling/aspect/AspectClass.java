@@ -20,7 +20,7 @@ public class AspectClass {
 
     public String aspectedClass;
 
-    public List<AspectMethod> methods = new ArrayList<AspectMethod>();
+    public AspectMethodList<AspectMethod> methods = new AspectMethodList<AspectMethod>();
 
     public File from = null;
 
