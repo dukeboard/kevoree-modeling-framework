@@ -24,7 +24,7 @@ public class ClassGenerator {
 
     public static void generateFlatClass(GenerationContext ctx, String currentPackageDir, EPackage packElement, EClass cls) {
 
-        File localFile = new File(currentPackageDir + "/impl/" + cls.getName() + "Impl.kt");
+        File localFile = new File(currentPackageDir + File.separator + "impl" + File.separator + cls.getName() + "Impl.kt");
         PrintWriter pr = null;
         try {
             pr = new PrintWriter(localFile, "utf-8");
@@ -61,16 +61,16 @@ public class ClassGenerator {
         ctx.classFactoryMap.put(pack + "." + cls.getName(), ctx.packageFactoryMap.get(pack));
         pr.print("class " + cls.getName() + "Impl");
 
-        boolean classFound = false;
         String tempClassName = ProcessorHelper.getInstance().fqn(ctx, cls);
+        boolean newMetaClassExists = false;
         for(NewMetaClassCreation m : ctx.newMetaClasses) {
             if((m.packageName + "." + m.name).equals(tempClassName)) {
-                classFound = true;
+                newMetaClassExists = true;
                 break;
             }
         }
 
-        String resultAspectName = (classFound ? "," + Arrays.toString(aspectsName.toArray()) : "");
+        String resultAspectName = ((!aspectsName.isEmpty() && !newMetaClassExists) ? "," + ProcessorHelper.getInstance().mkString(aspectsName,",") : "");
 
         pr.println(" : " + ctx.kevoreeContainerImplFQN + ", " + ProcessorHelper.getInstance().fqn(ctx, packElement) + "." + cls.getName() + resultAspectName + " { ");
 
@@ -277,9 +277,9 @@ public class ClassGenerator {
     private static void generateAttributeSetterWithParameter(PrintWriter pr, EAttribute att, GenerationContext ctx, String pack, ArrayList<EAttribute> idAttributes) {
 
         if (att.isMany()) {
-            pr.println("\tprivate static fun internal_" + att.getName() + "(iP : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">?, fireEvents : Boolean = true){");
+            pr.println("\tprivate fun internal_" + att.getName() + "(iP : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">?, fireEvents : Boolean = true){");
         } else {
-            pr.println("\tprivate static fun internal_" + att.getName() + "(iP : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + "?, fireEvents : Boolean = true){");
+            pr.println("\tprivate fun internal_" + att.getName() + "(iP : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + "?, fireEvents : Boolean = true){");
         }
         pr.println("if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}");
         pr.println("if(iP != " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + "){");
@@ -610,7 +610,7 @@ public class ClassGenerator {
 
     private static String generateDoAdd(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\nprivate static fun doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") {\n");
+        res.append("\nprivate fun doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") {\n");
 
         res.append("val _key_ = (" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()\n");
         res.append("if(_key_ == \"\" || _key_ == null){ throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.EMPTY_KEY) }\n");
@@ -628,7 +628,7 @@ public class ClassGenerator {
 
     private static String generateAddWithParameter(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\nprivate static fun internal_add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n");
+        res.append("\nprivate fun internal_add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n");
 
         if (ctx.persistence) {
             res.append("checkLazyLoad()\n");
@@ -686,7 +686,7 @@ public class ClassGenerator {
 
     private static String generateAddAllWithParameter(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\nprivate static fun internal_addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " :List<" + typeRefName + ">, setOpposite : Boolean, fireEvents : Boolean) {\n");
+        res.append("\nprivate fun internal_addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " :List<" + typeRefName + ">, setOpposite : Boolean, fireEvents : Boolean) {\n");
         res.append("if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n");
         res.append("if (setOpposite) {\n");
         res.append("for(el in " + ref.getName() + param_suf + "){\n");
@@ -754,7 +754,7 @@ public class ClassGenerator {
 
     private static String generateRemoveMethodWithParam(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\nprivate static fun internal_remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n");
+        res.append("\nprivate fun internal_remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n");
 
         if (ctx.persistence) {
             res.append("checkLazyLoad()\n");
@@ -804,7 +804,7 @@ public class ClassGenerator {
 
     private static String generateRemoveAllMethodWithParam(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\nprivate static fun internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(setOpposite : Boolean, fireEvents : Boolean) {\n");
+        res.append("\nprivate fun internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(setOpposite : Boolean, fireEvents : Boolean) {\n");
 
         res.append("if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n");
         if (ctx.generateEvents && ref.isContainment()) {

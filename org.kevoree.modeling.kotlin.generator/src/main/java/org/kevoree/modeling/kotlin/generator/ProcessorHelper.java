@@ -591,4 +591,25 @@ public class ProcessorHelper {
         return att.getName().substring(0, 1).toUpperCase() + att.getName().substring(1);
     }
 
+    public String mkString(List array, String sepChar) {
+        return mkString(array, "", sepChar, "");
+    }
+
+
+    public String mkString(List array, String beginChar, String sepChar, String endChar) {
+        StringBuffer res = new StringBuffer();
+        res.append(beginChar);
+        if(array.size() == 1) {
+            res.append(array.get(0));
+        } else if(array.size() > 1) {
+            res.append(array.get(0));
+            for(int i = 1 ; i < array.size() ; i++) {
+                res.append(sepChar);
+                res.append(array.get(i));
+            }
+        }
+        res.append(endChar);
+        return res.toString();
+    }
+
 }
