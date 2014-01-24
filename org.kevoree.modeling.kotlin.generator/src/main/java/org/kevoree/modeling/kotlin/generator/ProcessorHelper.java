@@ -582,4 +582,13 @@ public class ProcessorHelper {
         copyFromStream(this.getClass().getClassLoader().getResourceAsStream(name), name, target);
     }
 
+
+    public String toCamelCase(EReference ref) {
+        return ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1);
+    }
+
+    public String toCamelCase(EAttribute att) {
+        return att.getName().substring(0, 1).toUpperCase() + att.getName().substring(1);
+    }
+
 }

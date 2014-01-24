@@ -5,9 +5,10 @@ package org.kevoree.modeling.kotlin.generator.model
 import java.io.{File, PrintWriter}
 import scala.collection.JavaConversions._
 import org.eclipse.emf.ecore._
-import org.kevoree.modeling.kotlin.generator.{KMFQLFinder, ProcessorHelper, AspectMatcher, GenerationContext}
+import org.kevoree.modeling.kotlin.generator._
 import scala.collection.mutable
 import java.util
+import scala.Some
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,15 +17,7 @@ import java.util
  * Time: 13:35
  */
 
-trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
-
-  def toCamelCase(ref: EReference): String = {
-    return ref.getName.substring(0, 1).toUpperCase + ref.getName.substring(1)
-  }
-
-  def toCamelCase(att: EAttribute): String = {
-    return att.getName.substring(0, 1).toUpperCase + att.getName.substring(1)
-  }
+trait ClassGenerator {
 
   var param_suf = "P"
 
@@ -36,7 +29,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
  // def generateDiffMethod(pr: PrintWriter, cls: EClass, ctx: GenerationContext)
 
-  def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter)
+  //def generateFlatReflexiveSetters(ctx: GenerationContext, cls: EClass, pr: PrintWriter)
 
   def generateFlatClass(ctx: GenerationContext, currentPackageDir: String, packElement: EPackage, cls: EClass) {
 
@@ -102,7 +95,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
     generateDeleteMethod(pr, cls, ctx, pack)
     generateAllGetterSetterMethod(pr, cls, ctx, pack)
-    generateFlatReflexiveSetters(ctx, cls, pr)
+    FlatReflexiveSetters.generateFlatReflexiveSetters(ctx, cls, pr)
     KMFQLFinder.generateKMFQLMethods(pr, cls, ctx, pack)
     if (ctx.genSelector) {
       KMFQLSelectorGenerator.generateSelectorMethods(pr, cls, ctx)
@@ -114,22 +107,22 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
       ProcessorHelper.getInstance().noduplicate(cls.getEAllAttributes).foreach {
         att =>
           if (att.isMany) {
-            pr.println("override public fun get" + toCamelCase(att) + "()" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">" + "{ return " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + "}")
-            pr.println("override public fun set" + toCamelCase(att) + "(internal_p" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">)" + "{ " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = internal_p }")
+            pr.println("override public fun get" + ProcessorHelper.getInstance().toCamelCase(att) + "()" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">" + "{ return " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + "}")
+            pr.println("override public fun set" + ProcessorHelper.getInstance().toCamelCase(att) + "(internal_p" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">)" + "{ " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = internal_p }")
           } else {
-            pr.println("override public fun get" + toCamelCase(att) + "() : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "? { return " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + "}")
-            pr.println("override public fun set" + toCamelCase(att) + "(internal_p : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?) { " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = internal_p }")
+            pr.println("override public fun get" + ProcessorHelper.getInstance().toCamelCase(att) + "() : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "? { return " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + "}")
+            pr.println("override public fun set" + ProcessorHelper.getInstance().toCamelCase(att) + "(internal_p : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?) { " + ProcessorHelper.getInstance().protectReservedWords(att.getName) + " = internal_p }")
           }
       }
       ProcessorHelper.getInstance().noduplicateRef(cls.getEAllReferences).foreach {
         ref =>
           val typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)
           if (ref.isMany) {
-            pr.println("override public fun get" + toCamelCase(ref) + "()" + " : List<" + typeRefName + ">" + "{ return " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + "}")
-            pr.println("override public fun set" + toCamelCase(ref) + "(internal_p" + " : List<" + typeRefName + ">){ " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " = internal_p }")
+            pr.println("override public fun get" + ProcessorHelper.getInstance().toCamelCase(ref) + "()" + " : List<" + typeRefName + ">" + "{ return " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + "}")
+            pr.println("override public fun set" + ProcessorHelper.getInstance().toCamelCase(ref) + "(internal_p" + " : List<" + typeRefName + ">){ " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " = internal_p }")
           } else {
-            pr.println("override public fun get" + toCamelCase(ref) + "() : " + typeRefName + "?" + "{ return " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + "}")
-            pr.println("override public fun set" + toCamelCase(ref) + "(internal_p : " + typeRefName + "?){ " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " = internal_p }")
+            pr.println("override public fun get" + ProcessorHelper.getInstance().toCamelCase(ref) + "() : " + typeRefName + "?" + "{ return " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + "}")
+            pr.println("override public fun set" + ProcessorHelper.getInstance().toCamelCase(ref) + "(internal_p : " + typeRefName + "?){ " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " = internal_p }")
           }
       }
     }
@@ -273,7 +266,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
       cls.getEAllReferences.foreach {
         ref =>
           if (ref.isMany) {
-            pr.println("removeAll"+toCamelCase(ref)+"()")
+            pr.println("removeAll"+ProcessorHelper.getInstance().toCamelCase(ref)+"()")
           } else {
             pr.println(ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " = null")
           }
@@ -540,7 +533,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
       if (ref.getEOpposite == null) {
         res += "_" + ref.getName + ".clear()\n"
       } else {
-        res += "this.internal_removeAll" + toCamelCase(ref) + "(true, false)\n"
+        res += "this.internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(true, false)\n"
       }
       res += "for(el in " + ref.getName + param_suf + "){\n"
       res += "val elKey = (el as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()\n"
@@ -617,7 +610,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   private def generateDoAdd(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
-    res += "\nprivate fun doAdd" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
+    res += "\nprivate fun doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
 
     res += "val _key_ = (" + ref.getName + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()\n"
     res += "if(_key_ == \"\" || _key_ == null){ throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.EMPTY_KEY) }\n"
@@ -635,14 +628,14 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   private def generateAddWithParameter(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
-    res += "\nprivate fun internal_add" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
+    res += "\nprivate fun internal_add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
 
     if (ctx.persistence) {
       res += ("checkLazyLoad()\n")
     }
 
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
-    res += "doAdd" + toCamelCase(ref) + "(" + ref.getName + param_suf + ")\n"
+    res += "doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + ")\n"
 
     if (ref.getEOpposite != null) {
       res += "if(setOpposite){\n"
@@ -670,13 +663,13 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   private def generateAdd(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
-    res += "\noverride fun add" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
+    res += "\noverride fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
 
     if (ref.getEOpposite != null || ctx.generateEvents) {
-      res += "internal_add" + toCamelCase(ref) + "(" + ref.getName + param_suf + ", true, true)\n"
+      res += "internal_add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + ", true, true)\n"
     } else {
       res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
-      res += "doAdd" + toCamelCase(ref) + "(" + ref.getName + param_suf + ")\n"
+      res += "doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + ")\n"
 
       if (ref.getEOpposite != null) {
         val opposite = ref.getEOpposite
@@ -693,11 +686,11 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   private def generateAddAllWithParameter(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
-    res += "\nprivate fun internal_addAll" + toCamelCase(ref) + "(" + ref.getName + param_suf + " :List<" + typeRefName + ">, setOpposite : Boolean, fireEvents : Boolean) {\n"
+    res += "\nprivate fun internal_addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + " :List<" + typeRefName + ">, setOpposite : Boolean, fireEvents : Boolean) {\n"
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     res += "if (setOpposite) {\n"
     res += "for(el in " + ref.getName + param_suf + "){\n"
-    res += "doAdd" + toCamelCase(ref) + "(el)\n"
+    res += "doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(el)\n"
     if (ref.getEOpposite != null) {
       val opposite = ref.getEOpposite
       if (!opposite.isMany) {
@@ -709,7 +702,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     res += "}\n"
     res += "} else {\n"
     res += "for(el in " + ref.getName + param_suf + "){\n"
-    res += "doAdd" + toCamelCase(ref) + "(el)\n"
+    res += "doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(el)\n"
     res += "}\n"
     res += "}\n"
 
@@ -728,13 +721,13 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
   private def generateAddAll(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
     var res = ""
-    res += "\noverride fun addAll" + toCamelCase(ref) + "(" + ref.getName + param_suf + " :List<" + typeRefName + ">) {\n"
+    res += "\noverride fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + " :List<" + typeRefName + ">) {\n"
     if (ref.getEOpposite != null || ctx.generateEvents) {
-      res += "internal_addAll" + toCamelCase(ref) + "(" + ref.getName + param_suf + ", true, true)\n"
+      res += "internal_addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + ", true, true)\n"
     } else {
       res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
       res += "for(el in " + ref.getName + param_suf + "){\n"
-      res += "doAdd" + toCamelCase(ref) + "(el)\n"
+      res += "doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(el)\n"
       if (ref.getEOpposite != null) {
         val opposite = ref.getEOpposite
         if (!opposite.isMany) {
@@ -763,7 +756,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
 
   private def generateRemoveMethodWithParam(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
-    var res = "\nprivate fun internal_remove" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
+    var res = "\nprivate fun internal_remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n"
 
     if (ctx.persistence) {
       res += ("checkLazyLoad()\n")
@@ -786,7 +779,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
     if (ctx.generateEvents) {
       if (ref.isContainment) {
-        res += "if(!removeAll" + toCamelCase(ref) + "CurrentlyProcessing && fireEvents) {\n"
+        res += "if(!removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "CurrentlyProcessing && fireEvents) {\n"
         res += "fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(path(), org.kevoree.modeling.api.util.ActionType.REMOVE, org.kevoree.modeling.api.util.ElementAttributeType.CONTAINMENT, " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName + ", " + ref.getName + param_suf + ",null))\n"
         res += "}\n"
       } else {
@@ -812,7 +805,7 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
 
   private def generateRemoveAllMethodWithParam(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
-    var res = "\nprivate fun internal_removeAll" + toCamelCase(ref) + "(setOpposite : Boolean, fireEvents : Boolean) {\n"
+    var res = "\nprivate fun internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(setOpposite : Boolean, fireEvents : Boolean) {\n"
 
     res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
     if (ctx.generateEvents && ref.isContainment) {
@@ -871,9 +864,9 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
 
 
   private def generateRemove(cls: EClass, ref: EReference, typeRefName: String, ctx: GenerationContext): String = {
-    var res = "\noverride fun remove" + toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
+    var res = "\noverride fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + " : " + typeRefName + ") {\n"
     if (ref.getEOpposite != null || ctx.generateEvents) {
-      res += "internal_remove" + toCamelCase(ref) + "(" + ref.getName + param_suf + ", true, true)\n"
+      res += "internal_remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName + param_suf + ", true, true)\n"
     } else {
 
       res += ("if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n")
@@ -901,11 +894,11 @@ trait ClassGenerator extends ClonerGenerator with FlatReflexiveSetters {
     var res = ""
     if (ctx.generateEvents && ref.isContainment) {
       // only once in the class, only for contained references
-      res += "\nvar removeAll" + toCamelCase(ref) + "CurrentlyProcessing : Boolean = false\n"
+      res += "\nvar removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "CurrentlyProcessing : Boolean = false\n"
     }
-    res += "\noverride fun removeAll" + toCamelCase(ref) + "() {\n"
+    res += "\noverride fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "() {\n"
     if (ref.getEOpposite != null || ctx.generateEvents) {
-      res += "internal_removeAll" + toCamelCase(ref) + "(true, true)\n"
+      res += "internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(true, true)\n"
     } else {
       res += "if(isReadOnly()){throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.READ_ONLY_EXCEPTION)}\n"
       if (ctx.generateEvents && ref.isContainment) {

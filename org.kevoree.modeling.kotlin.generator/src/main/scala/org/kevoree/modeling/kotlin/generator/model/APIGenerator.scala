@@ -64,11 +64,11 @@ trait APIGenerator extends ClassGenerator {
 
           } else {
             if (att.isMany) {
-              pr.println("public fun get" + toCamelCase(att) + "()" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">")
-              pr.println("public fun set" + toCamelCase(att) + "(p" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">)")
+              pr.println("public fun get" + ProcessorHelper.getInstance().toCamelCase(att) + "()" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">")
+              pr.println("public fun set" + ProcessorHelper.getInstance().toCamelCase(att) + "(p" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + ">)")
             } else {
-              pr.println("public fun get" + toCamelCase(att) + "() : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?")
-              pr.println("public fun set" + toCamelCase(att) + "(p : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?)")
+              pr.println("public fun get" + ProcessorHelper.getInstance().toCamelCase(att) + "() : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?")
+              pr.println("public fun set" + ProcessorHelper.getInstance().toCamelCase(att) + "(p : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType, ctx) + "?)")
             }
           }
       }
@@ -80,11 +80,11 @@ trait APIGenerator extends ClassGenerator {
           } else {
             val typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)
             if (ref.isMany) {
-              pr.println("public fun get" + toCamelCase(ref) + "()" + " : List<" + typeRefName + ">")
-              pr.println("public fun set" + toCamelCase(ref) + "(p" + " : List<" + typeRefName + ">)")
+              pr.println("public fun get" + ProcessorHelper.getInstance().toCamelCase(ref) + "()" + " : List<" + typeRefName + ">")
+              pr.println("public fun set" + ProcessorHelper.getInstance().toCamelCase(ref) + "(p" + " : List<" + typeRefName + ">)")
             } else {
-              pr.println("public fun get" + toCamelCase(ref) + "() : " + typeRefName + "?")
-              pr.println("public fun set" + toCamelCase(ref) + "(p : " + typeRefName + "?)")
+              pr.println("public fun get" + ProcessorHelper.getInstance().toCamelCase(ref) + "() : " + typeRefName + "?")
+              pr.println("public fun set" + ProcessorHelper.getInstance().toCamelCase(ref) + "(p : " + typeRefName + "?)")
             }
           }
       }
@@ -101,7 +101,7 @@ trait APIGenerator extends ClassGenerator {
             generateAddAllMethod(pr, cls, ref, typeRefName)
             generateRemoveMethod(pr, cls, ref, typeRefName)
             generateRemoveAllMethod(pr, cls, ref, typeRefName)
-            pr.println("fun find" + toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)) + "?")
+            pr.println("fun find" + ProcessorHelper.getInstance().toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType)) + "?")
           } else {
             pr.println("open var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + "?")
           }
@@ -186,24 +186,19 @@ trait APIGenerator extends ClassGenerator {
   }
 
   private def generateAddAllMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
-    pr.println("fun addAll" + toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " :List<" + typeRefName + ">)")
+    pr.println("fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " :List<" + typeRefName + ">)")
   }
 
   private def generateAddMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
-    pr.println("fun add" + toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + ")")
+    pr.println("fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + ")")
   }
 
   private def generateRemoveMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
-    pr.println("fun remove" + toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + ")")
+    pr.println("fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName) + " : " + typeRefName + ")")
   }
 
   private def generateRemoveAllMethod(pr: PrintWriter, cls: EClass, ref: EReference, typeRefName: String) {
-    pr.println("fun removeAll" + toCamelCase(ref) + "()")
+    pr.println("fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "()")
   }
-
-  def toCamelCase(ref: EReference): String
-
-  def toCamelCase(att: EAttribute): String
-
 
 }
