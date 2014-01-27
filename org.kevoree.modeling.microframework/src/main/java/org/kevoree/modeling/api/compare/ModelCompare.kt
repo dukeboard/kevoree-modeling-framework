@@ -71,7 +71,7 @@ trait ModelCompare {
             }
         }
         target.visit(visitor2, true, true, false)
-
+        traces.addAll(tracesRef); //references should be deleted before, deletion of elements
         if(!inter){
             //if diff
             if(!merge){
@@ -82,7 +82,6 @@ trait ModelCompare {
                 }
             }
         }
-        traces.addAll(tracesRef);
         return traces;
     }
 
