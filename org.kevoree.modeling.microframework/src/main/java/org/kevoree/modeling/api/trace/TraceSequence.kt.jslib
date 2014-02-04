@@ -117,7 +117,13 @@ public trait TraceSequence {
     }
 
     fun reverse() {
-        traces = traces.reverse() as MutableList
+        var reversed = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
+        var i = traces.size
+        while(i>0){
+            i = i -1;
+            reversed.add(reversed.get(i))
+        }
+        traces = reversed
     }
 
 }
