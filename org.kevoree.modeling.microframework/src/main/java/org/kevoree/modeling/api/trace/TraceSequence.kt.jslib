@@ -121,7 +121,7 @@ public trait TraceSequence {
         var i = traces.size
         while(i>0){
             i = i -1;
-            reversed.add(reversed.get(i))
+            reversed.add(traces.get(i))
         }
         traces = reversed
     }
