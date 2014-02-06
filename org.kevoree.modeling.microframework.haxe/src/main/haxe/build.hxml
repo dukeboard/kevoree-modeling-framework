@@ -11,7 +11,10 @@
 --macro keep('org.kevoree.modeling.api', null, true)
 --macro include('org.kevoree.modeling.api')
 -main org.kevoree.modeling.api.Main
--java java
+#-java java
+#-cpp cpp
+-js js
+
 #--next
 #-cpp cpp
 #-main org.kevoree.modeling.api.Main
