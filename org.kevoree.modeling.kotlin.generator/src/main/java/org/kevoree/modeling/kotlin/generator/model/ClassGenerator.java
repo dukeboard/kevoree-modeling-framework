@@ -351,14 +351,14 @@ public class ClassGenerator {
                 }
                 //Generate getter
                 if (att.isMany()) {
-                    if (defaultValue == null || defaultValue == "") {
+                    if (defaultValue == null || "".equals(defaultValue)) {
                         pr.println("public override var " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">? = null");
                     } else {
                         pr.println("public override var " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">? = " + defaultValue);
                     }
                     pr.println("\t set(iP : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">?){");
                 } else {
-                    if (defaultValue == null || defaultValue == "") {
+                    if (defaultValue == null || "".equals(defaultValue)) {
                         pr.println("public override var " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + "? = null");
                     } else {
                         pr.println("public override var " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + "? = " + defaultValue);
@@ -613,7 +613,7 @@ public class ClassGenerator {
         res.append("\nprivate fun doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") {\n");
 
         res.append("val _key_ = (" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()\n");
-        res.append("if(_key_ == \"\" || _key_ == null){ throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.EMPTY_KEY) }\n");
+        res.append("if(_key_ == null || _key_ == \"\"){ throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.EMPTY_KEY) }\n");
         res.append("if(!_" + ref.getName() + ".containsKey(_key_)) {\n");
 
         res.append("_" + ref.getName() + ".put(_key_," + ref.getName() + param_suf + ")\n");

@@ -15,33 +15,33 @@ class Event2Trace(val compare: ModelCompare) {
 
     public fun convert(event: ModelEvent): TraceSequence {
         val result = ArrayList<ModelTrace>()
-        when(event.getType()) {
+        when(event.etype) {
             ActionType.REMOVE -> {
-                result.add(ModelRemoveTrace(event.getSourcePath()!!, event.getElementAttributeName(), event.getPreviousValue().toString()));
+                result.add(ModelRemoveTrace(event.sourcePath!!, event.elementAttributeName, event.previous_value.toString()));
             }
             ActionType.REMOVE_ALL -> {
-                result.add(ModelRemoveAllTrace(event.getSourcePath()!!, event.getElementAttributeName()));
+                result.add(ModelRemoveAllTrace(event.sourcePath!!, event.elementAttributeName));
             }
             ActionType.ADD -> {
-                val casted = event.getValue() as KMFContainer
+                val casted = event.value as KMFContainer
                 val traces = compare.inter(casted, casted)
-                result.add(ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName(), casted.path(), casted.metaClassName()));
+                result.add(ModelAddTrace(event.sourcePath!!, event.elementAttributeName, casted.path(), casted.metaClassName()));
                 result.addAll(traces.traces)
             }
             ActionType.ADD_ALL -> {
-                val casted = event.getValue() as KMFContainer
+                val casted = event.value as KMFContainer
                 for(elem in casted as Iterable<*>){
                     val elemCasted = elem as KMFContainer
                     val traces = compare.inter(elemCasted, elemCasted)
-                    result.add(ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName(), elemCasted.path(), elemCasted.metaClassName()));
+                    result.add(ModelAddTrace(event.sourcePath!!, event.elementAttributeName, elemCasted.path(), elemCasted.metaClassName()));
                     result.addAll(traces.traces)
                 }
             }
             ActionType.SET -> {
-                if(event.getElementAttributeType() == ElementAttributeType.ATTRIBUTE){
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, org.kevoree.modeling.api.util.AttConverter.convFlatAtt(event.getValue()), null));
+                if(event.elementAttributeType == ElementAttributeType.ATTRIBUTE){
+                    result.add(ModelSetTrace(event.sourcePath!!, event.elementAttributeName, null, org.kevoree.modeling.api.util.AttConverter.convFlatAtt(event.value), null));
                 } else {
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), (event.getValue() as? KMFContainer)?.path(), null, null));
+                    result.add(ModelSetTrace(event.sourcePath!!, event.elementAttributeName, (event.value as? KMFContainer)?.path(), null, null));
                 }
             }
             ActionType.RENEW_INDEX -> {
@@ -55,39 +55,39 @@ class Event2Trace(val compare: ModelCompare) {
 
     public fun inverse(event: ModelEvent): TraceSequence {
         val result = ArrayList<ModelTrace>()
-        when(event.getType()) {
+        when(event.etype) {
             ActionType.REMOVE -> {
-                result.add(ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName(), (event.getValue() as KMFContainer).path()!!, (event.getValue() as KMFContainer).metaClassName()));
+                result.add(ModelAddTrace(event.sourcePath!!, event.elementAttributeName, (event.value as KMFContainer).path()!!, (event.value as KMFContainer).metaClassName()));
             }
             ActionType.REMOVE_ALL -> {
-                val casted = event.getValue() as KMFContainer
+                val casted = event.value as KMFContainer
                 for(elem in casted as Iterable<*>){
                     val elemCasted = elem as KMFContainer
                     val traces = compare.inter(elemCasted, elemCasted)
-                    result.add(ModelAddTrace(event.getSourcePath()!!, event.getElementAttributeName(), elemCasted.path(), elemCasted.metaClassName()));
+                    result.add(ModelAddTrace(event.sourcePath!!, event.elementAttributeName, elemCasted.path(), elemCasted.metaClassName()));
                     result.addAll(traces.traces)
                 }
             }
             ActionType.ADD -> {
-                val casted = event.getValue() as KMFContainer
+                val casted = event.value as KMFContainer
                 val traces = compare.inter(casted, casted)
-                result.add(ModelRemoveTrace(event.getSourcePath()!!, event.getElementAttributeName(), casted.path()!!));
+                result.add(ModelRemoveTrace(event.sourcePath!!, event.elementAttributeName, casted.path()!!));
                 result.addAll(traces.traces)
             }
             ActionType.ADD_ALL -> {
-                val casted = event.getValue() as KMFContainer
+                val casted = event.value as KMFContainer
                 for(elem in casted as Iterable<*>){
                     val elemCasted = elem as KMFContainer
                     val traces = compare.inter(elemCasted, elemCasted)
-                    result.add(ModelRemoveTrace(event.getSourcePath()!!, event.getElementAttributeName(), elemCasted.path()!!));
+                    result.add(ModelRemoveTrace(event.sourcePath!!, event.elementAttributeName, elemCasted.path()!!));
                     result.addAll(traces.traces)
                 }
             }
             ActionType.SET -> {
-                if(event.getElementAttributeType() == ElementAttributeType.ATTRIBUTE){
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), null, org.kevoree.modeling.api.util.AttConverter.convFlatAtt(event.getPreviousValue()), null));
+                if(event.elementAttributeType == ElementAttributeType.ATTRIBUTE){
+                    result.add(ModelSetTrace(event.sourcePath!!, event.elementAttributeName, null, org.kevoree.modeling.api.util.AttConverter.convFlatAtt(event.previous_value), null));
                 } else {
-                    result.add(ModelSetTrace(event.getSourcePath()!!, event.getElementAttributeName(), (event.getPreviousValue() as? KMFContainer)?.path(), null, null));
+                    result.add(ModelSetTrace(event.sourcePath!!, event.elementAttributeName, (event.previous_value as? KMFContainer)?.path(), null, null));
                 }
             }
             ActionType.RENEW_INDEX -> {

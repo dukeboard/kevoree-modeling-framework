@@ -3,8 +3,8 @@ package org.kevoree.modeling.api.events
 import org.kevoree.modeling.api.util.ActionType
 import org.kevoree.modeling.api.util.ElementAttributeType
 
-class ModelEvent(val internal_sourcePath: String?, val internal_etype: ActionType, val internal_elementAttributeType: ElementAttributeType, val internal_elementAttributeName: String, val internal_value: Any?,val internal_previous_value: Any?) {
-
+class ModelEvent(val sourcePath: String?, val etype: ActionType, val elementAttributeType: ElementAttributeType, val elementAttributeName: String, val value: Any?, val previous_value: Any?) {
+/*
     fun getSourcePath(): String? {
         return internal_sourcePath;
     }
@@ -28,9 +28,9 @@ class ModelEvent(val internal_sourcePath: String?, val internal_etype: ActionTyp
     fun getPreviousValue(): Any? {
         return internal_previous_value;
     }
-
+*/
     fun toString(): String {
-        return "ModelEvent[src:" + getSourcePath() + ", type:" + getType() + ", elementAttributeType:" + getElementAttributeType() + ", elementAttributeName:" + getElementAttributeName() + ", value:" + getValue() + "]";
+        return "ModelEvent[src:$sourcePath, type:$etype, elementAttributeType:$elementAttributeType, elementAttributeName:$elementAttributeName, value:$value, previousValue:$previous_value]";
     }
 
 }
