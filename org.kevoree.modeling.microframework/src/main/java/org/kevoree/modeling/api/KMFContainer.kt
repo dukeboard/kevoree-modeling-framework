@@ -23,7 +23,7 @@ trait KMFContainer {
     fun reflexiveMutator(mutatorType: ActionType, refName: String, value: Any?, setOpposite : Boolean, fireEvent : Boolean)
     fun selectByQuery(query : String) : List<Any>
     fun addModelElementListener(lst : ModelElementListener)
-    fun removeModelElementListener(lst : ModelElementListener )
+    fun removeModelElementListener(lst : ModelElementListener)
     fun removeAllModelElementListeners()
     fun addModelTreeListener(lst : ModelElementListener)
     fun removeModelTreeListener(lst : ModelElementListener)
@@ -35,6 +35,5 @@ trait KMFContainer {
 
     fun createTraces(similarObj : org.kevoree.modeling.api.KMFContainer?, isInter : Boolean, isMerge : Boolean, onlyReferences : Boolean, onlyAttributes : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
     fun toTraces(attributes : Boolean, references : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace>
-
 
 }

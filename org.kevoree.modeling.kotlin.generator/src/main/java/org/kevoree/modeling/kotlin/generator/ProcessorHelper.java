@@ -145,15 +145,17 @@ public class ProcessorHelper {
     }
 
     public String convertType(String theType) {
-
         String res = typeConvertionTable.get(theType);
         if(res == null) {
             return theType;
         } else {
             return res;
         }
-
     }
+
+
+
+
 
     public String getDefaultValue(GenerationContext ctx, EAttribute att) {
 
