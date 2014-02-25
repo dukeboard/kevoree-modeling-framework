@@ -24,6 +24,28 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
     internal open var internal_recursive_readOnlyElem : Boolean
     internal open var inboundReferences : java.util.HashMap<String,  MutableList<String>>
 
+
+    protected fun getRootOfModel() : org.kevoree.modeling.api.${formatedFactoryName} {
+        var root : org.kevoree.modeling.api.KMFContainer = this
+        while(root.eContainer() != null) {
+            root = root.eContainer()!!
+        }
+        return root
+    }
+
+    protected fun advertiseInboundRefs(action : org.kevoree.modeling.api.util.ActionType, value : Any?) {
+        val root = getRootOfModel()
+        for(inboundElem in inboundReferences.keySet()) {
+            val refList = inboundReferences.get(inboundElem)!!
+            for(ref in refList) {
+                val el = root.findByPath(inboundElem)
+                if(el != null) {
+                    el.reflexiveMutator(action, ref, value, false, true)
+                }
+            }
+        }
+    }
+
     override fun setRecursiveReadOnly(){
         if(internal_recursive_readOnlyElem == true){return}
         setInternalRecursiveReadOnly()

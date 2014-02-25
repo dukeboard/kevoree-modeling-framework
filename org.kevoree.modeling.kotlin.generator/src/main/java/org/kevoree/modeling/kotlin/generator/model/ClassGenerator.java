@@ -260,18 +260,8 @@ public class ClassGenerator {
 
     private static void generateDeleteMethod(PrintWriter pr, EClass cls, GenerationContext ctx, String pack) {
         pr.println("override fun delete(){");
-        pr.println("var root : org.kevoree.modeling.api.KMFContainer = this;\n" +
-                "        while(root.eContainer() != null) {\n" +
-                "            root = root.eContainer()!!;\n" +
-                "        }");
-        pr.println("for(inboundEntry in inboundReferences.entrySet()) {\n" +
-                "       for(ref in inboundEntry.value) {\n" +
-                "           val el = root.findByPath(inboundEntry.key)\n" +
-                "           if(el != null) {\n" +
-                "               el.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, ref, this, false, true);\n" +
-                "           }\n" +
-                "       }\n" +
-                "   }");
+
+        pr.println("advertiseInboundRefs(org.kevoree.modeling.api.util.ActionType.REMOVE, this)");
         pr.println("inboundReferences.clear()");
         if (ctx.persistence) {
             pr.println("(this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.remove(this)");
@@ -283,7 +273,6 @@ public class ClassGenerator {
                     pr.println(ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " = null");
                 }
             }
-
         }
         pr.println("if(internal_unsetCmd!=null){internal_unsetCmd!!.run()}");
         pr.println("}");
@@ -324,27 +313,17 @@ public class ClassGenerator {
         }
         if (att.isID()) {
             pr.println("if(previousParent!=null){");
-            pr.println("previousParent.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId,false,false);");
+            pr.println("previousParent.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, previousRefNameInParent!!, oldId,false,false)");
             pr.println("}");
-            pr.println("var root : org.kevoree.modeling.api.KMFContainer = this;\n" +
-                    "        while(root.eContainer() != null) {\n" +
-                    "            root = root.eContainer()!!;\n" +
-                    "        }");
-            pr.println("for(inboundEntry in inboundReferences.entrySet()) {\n" +
-                    "       for(ref in inboundEntry.value) {\n" +
-                    "           val el = root.findByPath(inboundEntry.key)\n" +
-                    "           if(el != null) {\n" +
-                    "               el.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, ref, oldId,false,false);\n" +
-                    "           }\n" +
-                    "       }\n" +
-                    "   }");
+            pr.println("advertiseInboundRefs(org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, oldId)");
+
             if (ctx.generateEvents) {
                 pr.println("if(fireEvents) {");
                 pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.RENEW_INDEX, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName() + ", path(),null))");
                 pr.println("}");
             }
 
-            pr.println("visit(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container.cleanCacheVisitor,true,true,false);");
+            pr.println("visit(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container.cleanCacheVisitor,true,true,false)");
 
         }
         pr.println("\t}");
