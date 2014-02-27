@@ -247,7 +247,7 @@ public class FlatReflexiveSetters {
             pr.println("}"); //END MUTATION TYPE
             pr.println("}"); //END Ref When case
         }
-        pr.println("    else -> { throw Exception(\"Can reflexively \"+mutationType+\" for \"+refName + \" on \"+ this) }");
+        pr.println("    else -> { throw Exception(\"Can not reflexively \"+mutationType+\" for \"+refName + \" on \"+ this) }");
         pr.println("}"); //END REFS NAME WHEN
 
         pr.println("}"); //END METHOD
