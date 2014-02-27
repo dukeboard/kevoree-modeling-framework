@@ -22,16 +22,16 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
     internal open var internal_containmentRefName : String?
     internal open var internal_readOnlyElem : Boolean
     internal open var internal_recursive_readOnlyElem : Boolean
-    internal open var internal_inboundReferences : java.util.HashMap<String,  MutableList<String>>
+    internal open var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableList<String>>
     internal open var internal_deleteInProgress : Boolean
 
-    protected fun addInboundReference(path : String, refName : String) {
+    protected fun addInboundReference(path : org.kevoree.modeling.api.KMFContainer, refName : String) {
         if(!internal_deleteInProgress) {
             internal_inboundReferences.getOrPut(path){java.util.ArrayList<String>()}.add(refName)
         }
     }
 
-    protected fun removeInboundReference(path : String, refName : String) {
+    protected fun removeInboundReference(path : org.kevoree.modeling.api.KMFContainer, refName : String) {
         if(!internal_deleteInProgress) {
             val refs = internal_inboundReferences.get(path)
             if(refs != null) {
@@ -44,25 +44,12 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
         }
     }
 
-
-    protected fun getRootOfModel() : org.kevoree.modeling.api.${formatedFactoryName} {
-        var root : org.kevoree.modeling.api.KMFContainer = this
-        while(root.eContainer() != null) {
-            root = root.eContainer()!!
-        }
-        return root
-    }
-
     protected fun advertiseInboundRefs(action : org.kevoree.modeling.api.util.ActionType, value : Any?) {
-        val root = getRootOfModel()
         val inbRefTmp = internal_inboundReferences!!
         for(inboundElem in inbRefTmp.keySet()) {
             val refList = inbRefTmp.get(inboundElem)!!
             for(ref in refList) {
-                val el = root.findByPath(inboundElem)
-                if(el != null) {
-                    el.reflexiveMutator(action, ref, value, false, true)
-                }
+                inboundElem.reflexiveMutator(action, ref, value, false, true)
             }
         }
     }
