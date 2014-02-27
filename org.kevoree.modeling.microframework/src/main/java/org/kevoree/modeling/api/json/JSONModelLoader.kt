@@ -17,7 +17,7 @@ import org.kevoree.modeling.api.util.ByteConverter
  */
 public open class JSONModelLoader : ModelLoader {
 
-    open var factory : KMFFactory? = null
+    open var factory: KMFFactory? = null
 
     override fun loadModelFromString(str: String): List<KMFContainer>? {
         return deserialize(ByteConverter.byteArrayInputStreamFromString(str))
@@ -32,12 +32,12 @@ public open class JSONModelLoader : ModelLoader {
         var roots = ArrayList<KMFContainer>()
         var lexer: Lexer = Lexer(instream)
         var currentToken = lexer.nextToken()
-        if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE){
+        if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
             loadObject(lexer, null, null, roots, resolverCommands)
         } else {
             throw Exception("Bad Format / { expected")
         }
-        for(resol in resolverCommands){
+        for (resol in resolverCommands) {
             resol.run()
         }
         return roots
@@ -48,56 +48,56 @@ public open class JSONModelLoader : ModelLoader {
         //must ne currently on { at input
         var currentToken = lexer.nextToken()
         var currentObject: KMFContainer? = null
-        if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE){
-            if(currentToken.value == "eClass"){
+        if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE) {
+            if (currentToken.value == "eClass") {
                 lexer.nextToken() //unpop :
                 currentToken = lexer.nextToken() //Two step for having the name
                 val name = currentToken.value?.toString()!!
                 currentObject = factory?.create(name)
-                if(parent == null){
+                if (parent == null) {
                     roots.add(currentObject!!)
                 }
                 //next loop while begin a sub Elem
                 var currentNameAttOrRef: String? = null
                 var refModel = false
                 currentToken = lexer.nextToken()
-                while(currentToken.tokenType != org.kevoree.modeling.api.json.Type.EOF){
-                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE){
+                while (currentToken.tokenType != org.kevoree.modeling.api.json.Type.EOF) {
+                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
                         loadObject(lexer, currentNameAttOrRef!!, currentObject, roots, commands)
                     }
-                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.COMMA){
+                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.COMMA) {
                         //ignore
                     }
-                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE){
-                        if(currentNameAttOrRef == null){
+                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE) {
+                        if (currentNameAttOrRef == null) {
                             currentNameAttOrRef = currentToken.value.toString()
                         } else {
-                            if(refModel){
+                            if (refModel) {
                                 commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
                             } else {
-                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unescapeJSON(currentToken.value.toString()),false,false)
+                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unescapeJSON(currentToken.value.toString()), false, false)
                                 currentNameAttOrRef = null //unpop
                             }
                         }
                     }
-                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACKET){
+                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACKET) {
                         currentToken = lexer.nextToken()
-                        if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE){
+                        if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
                             loadObject(lexer, currentNameAttOrRef!!, currentObject, roots, commands)
                         } else {
                             refModel = true //wait for all ref to be found
-                            if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE){
+                            if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE) {
                                 commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
                             }
                         }
                     }
-                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACKET){
+                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACKET) {
                         currentNameAttOrRef = null //unpop
                         refModel = false
                     }
-                    if(currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACE){
-                        if(parent != null){
-                            parent.reflexiveMutator(ActionType.ADD, nameInParent!!, currentObject,false,false)
+                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
+                        if (parent != null) {
+                            parent.reflexiveMutator(ActionType.ADD, nameInParent!!, currentObject, false, false)
                         }
                         return //go out
                     }
@@ -113,32 +113,37 @@ public open class JSONModelLoader : ModelLoader {
     }
 
 
-    private fun unescapeJSON(src : String) : String {
-        var builder : String? = null
-        var i : Int = 0
+    private fun unescapeJSON(src: String): String {
+        var builder: String? = null
+        var i: Int = 0
         while (i < src.length) {
             val c = src[i]
-            if(c == '&') {
-                if(builder == null) {
-                    builder = src.substring(0,i)
+            if (c == '&') {
+                if (builder == null) {
+                    builder = src.substring(0, i)
                 }
-                if(src[i+1]=='a') {
-                    builder = builder!! + "'"
-                    i = i+6
-                } else if(src[i+1]=='q') {
+                if (src[i + 1] == 'a') {
+                    if (src[i + 2] == 'm') {
+                        builder = builder!! + "&"
+                        i = i + 5
+                    } else {
+                        builder = builder!! + "'"
+                        i = i + 6
+                    }
+                } else if (src[i + 1] == 'q') {
                     builder = builder!! + "\""
-                    i = i+6
+                    i = i + 6
                 } else {
-                    println("Could not unescaped chain:" + src[i] + src[i+1])
+                    println("Could not unescaped chain:" + src[i] + src[i + 1])
                 }
             } else {
-                if(builder != null) {
+                if (builder != null) {
                     builder = builder!! + c
                 }
                 i++
             }
         }
-        if(builder != null) {
+        if (builder != null) {
             return builder!!
         } else {
             return src
@@ -151,13 +156,13 @@ class ResolveCommand(val roots: ArrayList<KMFContainer>, val ref: String, val cu
     fun run() {
         var referencedElement: Any? = null
         var i = 0
-        while(referencedElement == null && i < roots.size()) {
+        while (referencedElement == null && i < roots.size()) {
             referencedElement = roots.get(i++).findByPath(ref)
         }
-        if(referencedElement != null) {
-            currentRootElem.reflexiveMutator(ActionType.ADD, refName, referencedElement,false,false)
+        if (referencedElement != null) {
+            currentRootElem.reflexiveMutator(ActionType.ADD, refName, referencedElement, false, false)
         } else {
-            throw Exception("Unresolved "+ref)
+            throw Exception("Unresolved " + ref)
         }
     }
 }

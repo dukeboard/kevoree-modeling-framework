@@ -28,7 +28,7 @@ class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
     }
     var isFirst = true
     public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
-        if(!isFirst){
+        if (!isFirst) {
             out.print(",")
         } else {
             isFirst = false
@@ -54,7 +54,7 @@ public open class JSONModelSerializer : ModelSerializer {
         var masterVisitor = object : ModelVisitor() {
             var isFirstInRef = true
             override public fun beginVisitElem(elem: KMFContainer) {
-                if(!isFirstInRef){
+                if (!isFirstInRef) {
                     out.print(",")
                     isFirstInRef = false
                 }
@@ -85,11 +85,11 @@ public open class JSONModelSerializer : ModelSerializer {
         out.print("\n{\"eClass\":\"" + elem.metaClassName() + "\"")
         val attributeVisitor = object : ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: KMFContainer) {
-                if(value != null){
+                if (value != null) {
                     out.print(",\"" + name + "\":\"")
-                    if(value is java.util.Date) {
+                    if (value is java.util.Date) {
                         escapeJson(out, "" + value.getTime())
-                    } else{
+                    } else {
                         escapeJson(out, AttConverter.convFlatAtt(value))
                     }
                     out.print("\"")
@@ -100,16 +100,18 @@ public open class JSONModelSerializer : ModelSerializer {
     }
 
     private fun escapeJson(ostream: java.io.PrintStream, chain: String?) {
-        if(chain == null){
+        if (chain == null) {
             return;
         }
         var i = 0
-        while(i < chain.size){
+        while (i < chain.size) {
             val c = chain.get(i)
-            if(c == '"') {
+            if (c == '"') {
                 ostream.print("&quot;")
-            } else if(c == '\'') {
+            } else if (c == '\'') {
                 ostream.print("&apos;")
+            } else if (c == '&') {
+                ostream.print("&amp;")
             } else {
                 ostream.print(c)
             }
