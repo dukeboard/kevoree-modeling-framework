@@ -25,7 +25,9 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         if (originFactory != null) {
             /* here we rely on the lazy load helped by the path concept, to ensure match in case of existing timepoint for this object path */
             var newObject = originFactory!!.create(metaClassName()) as TimeAwareKMFContainer
-            newObject.isResolved = false
+            //newObject.isResolved = false
+            newObject.isResolved = true
+
             newObject.setOriginPath(path()!!)
             newObject.now = timePoint
             newObject.previousTimePoint = now

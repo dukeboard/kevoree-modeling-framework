@@ -64,21 +64,11 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                 currentNow = relativeTime
             }
             val currentPath = elem.path()!!
+
+            val alreadyExists = datastore!!.get(TimeSegment.RAW.name(), "${currentNow.toString()}/$currentPath") != null
+
             datastore!!.put(TimeSegment.RAW.name(), "${currentNow.toString()}/$currentPath", traceSeq.exportToString())
 
-            //manage origin
-            if (elem is TimeAwareKMFContainer) {
-                if (elem.previousTimePoint != null) {
-                    datastore!!.put(TimeSegment.ORIGIN.name(), "${currentNow.toString()}/$currentPath", elem.previousTimePoint.toString())
-                }
-            }
-
-            //manage latest
-            var currentLatestString = datastore!!.get(TimeSegment.LATEST.name(), currentPath)
-            var currentLatest: TimePoint? = null;
-            if (currentLatestString != null) {
-                currentLatest = TimePoint.create(currentLatestString!!)
-            }
             val previousType = datastore!!.get(TimeSegment.TYPE.name(), elem.path()!!)
             if (previousType == null) {
                 datastore!!.put(TimeSegment.TYPE.name(), elem.path()!!, elem.metaClassName())
@@ -87,28 +77,47 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                     throw Exception("Unconsitant typing : previous was : " + previousType + " , can persist " + elem.metaClassName())
                 }
             }
-            //update next and previous
-            //most simple case > latest
-            if (currentLatest == null || currentLatest!!.compareTo(currentNow!!) < 0) {
-                datastore!!.put(TimeSegment.LATEST.name(), currentPath, currentNow.toString())
-                if (currentLatest != null) {
-                    datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", currentLatest.toString())
-                    datastore!!.put(TimeSegment.NEXT.name(), "$currentLatest/$currentPath", currentNow.toString())
-                }
-            } else {
 
-                var previousGlobal = datastore!!.get(TimeSegment.ORIGIN.name(), currentNow.toString())
-                if (previousGlobal == null) {
-                    //costly, to optimize !!!
-                    var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
-                    var immediatePreviousVersionString = immediatePreviousVersion.toString()
-                    var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath")
-                    if (previousPrevious != null) {
-                        datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", previousPrevious.toString())
-                        datastore!!.put(TimeSegment.NEXT.name(), "$previousPrevious/$currentPath", currentNow.toString())
+
+            //TODO SAVE NEW HASHMAP EXTERNAL RELATIONSHIPS
+
+            if(!alreadyExists && false){
+
+                //manage origin
+                if (elem is TimeAwareKMFContainer) {
+                    if (elem.previousTimePoint != null) {
+                        datastore!!.put(TimeSegment.ORIGIN.name(), "${currentNow.toString()}/$currentPath", elem.previousTimePoint.toString())
                     }
-                    datastore!!.put(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath", currentNow.toString())
-                    datastore!!.put(TimeSegment.NEXT.name(), "$currentNow/$currentPath", immediatePreviousVersionString.toString())
+                }
+                //manage latest
+                var currentLatestString = datastore!!.get(TimeSegment.LATEST.name(), currentPath)
+                var currentLatest: TimePoint? = null;
+                if (currentLatestString != null) {
+                    currentLatest = TimePoint.create(currentLatestString!!)
+                }
+                //update next and previous
+                //most simple case > latest
+                if (currentLatest == null || currentLatest!!.compareTo(currentNow!!) < 0) {
+                    datastore!!.put(TimeSegment.LATEST.name(), currentPath, currentNow.toString())
+                    if (currentLatest != null) {
+                        datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", currentLatest.toString())
+                        datastore!!.put(TimeSegment.NEXT.name(), "$currentLatest/$currentPath", currentNow.toString())
+                    }
+                } else {
+
+                    var previousGlobal = datastore!!.get(TimeSegment.ORIGIN.name(), currentNow.toString())
+                    if (previousGlobal == null) {
+                        //costly, to optimize !!!
+                        var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
+                        var immediatePreviousVersionString = immediatePreviousVersion.toString()
+                        var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath")
+                        if (previousPrevious != null) {
+                            datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", previousPrevious.toString())
+                            datastore!!.put(TimeSegment.NEXT.name(), "$previousPrevious/$currentPath", currentNow.toString())
+                        }
+                        datastore!!.put(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath", currentNow.toString())
+                        datastore!!.put(TimeSegment.NEXT.name(), "$currentNow/$currentPath", immediatePreviousVersionString.toString())
+                    }
                 }
             }
         }
