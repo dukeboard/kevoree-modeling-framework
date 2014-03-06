@@ -18,9 +18,7 @@
 package org.kevoree.modeling.kotlin.generator;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -37,7 +35,7 @@ import org.kevoree.modeling.kotlin.generator.GenerationContext;
  */
 public class KMFQLFinder {
 
-    public static void generateKMFQLMethods( PrintWriter pr, EClass cls, GenerationContext ctx, String pack) {
+    public static void generateKMFQLMethods(PrintWriter pr, EClass cls, GenerationContext ctx, String pack) {
         pr.println("override fun internalGetKey() : String? {");
 
         pr.println("if(key_cache != null){");
@@ -46,10 +44,11 @@ public class KMFQLFinder {
 
         boolean first = true;
         pr.print("key_cache = ");
-        ArrayList<EAttribute> idAttributes = new ArrayList<EAttribute>();
-        for(EAttribute att : cls.getEAllAttributes() ) {
-            if(att.isID() && !att.getName().equals("generated_KMF_ID")) {
-                idAttributes.add(att);
+        SortedSet<String> idAttributes = new TreeSet<String>();
+
+        for (EAttribute att : cls.getEAllAttributes()) {
+            if (att.isID() && !att.getName().equals("generated_KMF_ID")) {
+                idAttributes.add(att.getName());
             }
         }
 
@@ -58,19 +57,20 @@ public class KMFQLFinder {
             pr.print("\"");
             //gets all IDs
 
-            Collections.sort(idAttributes, new Comparator<EAttribute>() {
+              /*
+            Collections.(idAttributes, new Comparator<String>() {
                 @Override
-                public int compare(EAttribute o1, EAttribute o2) {
-                    return o1.getName().compareToIgnoreCase(o2.getName());
+                public int compare(String o1, String o2) {
+                    return o1.compareToIgnoreCase(o2);
                 }
-            });
+            });  */
 
-            for(EAttribute att : idAttributes) {
+            for (String att : idAttributes) {
                 if (!first) {
                     //pr.print("+\"/\"+")
                     pr.print("/");
                 }
-                pr.print("$" + ProcessorHelper.getInstance().protectReservedWords(att.getName()));
+                pr.print("$" + ProcessorHelper.getInstance().protectReservedWords(att));
                 first = false;
             }
 
@@ -89,12 +89,12 @@ public class KMFQLFinder {
 
         //GENERATE findByID methods
         boolean generateReflexifMapper = false;
-        for(EReference ref : cls.getEAllReferences()) {
+        for (EReference ref : cls.getEAllReferences()) {
             if (ref.isMany()) {
                 generateReflexifMapper = true;
                 pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(key : String) : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "? {");
                 if (ctx.persistence) {
-                    if(ref.isContainment()){
+                    if (ref.isContainment()) {
                         pr.println("val resolved = _" + ref.getName() + ".get(key)");
                         pr.println("if(resolved==null){");
                         pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!");
@@ -119,7 +119,7 @@ public class KMFQLFinder {
     public static void generateFindByPathMethods(GenerationContext ctx, EClass cls, PrintWriter pr) {
         pr.print("override fun findByID(relationName:String,idP : String) : org.kevoree.modeling.api.KMFContainer? {");
         pr.println("when(relationName) {");
-        for(EReference ref : cls.getEAllReferences()) {
+        for (EReference ref : cls.getEAllReferences()) {
             if (ref.isMany()) {
                 pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + " -> {");
                 pr.println("return find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(idP)}");
