@@ -88,35 +88,15 @@ public open class JSONModelSerializer : ModelSerializer {
                 if (value != null) {
                     out.print(",\"" + name + "\":\"")
                     if (value is java.util.Date) {
-                        escapeJson(out, "" + value.getTime())
+                        JSONString.encode(out, "" + value.getTime())
                     } else {
-                        escapeJson(out, AttConverter.convFlatAtt(value))
+                        JSONString.encode(out, AttConverter.convFlatAtt(value))
                     }
                     out.print("\"")
                 }
             }
         }
         elem.visitAttributes(attributeVisitor)
-    }
-
-    private fun escapeJson(ostream: java.io.PrintStream, chain: String?) {
-        if (chain == null) {
-            return;
-        }
-        var i = 0
-        while (i < chain.size) {
-            val c = chain.get(i)
-            if (c == '"') {
-                ostream.print("&quot;")
-            } else if (c == '\'') {
-                ostream.print("&apos;")
-            } else if (c == '&') {
-                ostream.print("&amp;")
-            } else {
-                ostream.print(c)
-            }
-            i = i + 1
-        }
     }
 
 }

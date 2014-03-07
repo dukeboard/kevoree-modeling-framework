@@ -28,6 +28,9 @@ public open class JSONModelLoader : ModelLoader {
     }
 
     private fun deserialize(instream: InputStream): List<KMFContainer> {
+        if (instream == null) {
+            throw Exception("Null input Stream")
+        }
         var resolverCommands = ArrayList<ResolveCommand>()
         var roots = ArrayList<KMFContainer>()
         var lexer: Lexer = Lexer(instream)
@@ -75,7 +78,8 @@ public open class JSONModelLoader : ModelLoader {
                             if (refModel) {
                                 commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
                             } else {
-                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unescapeJSON(currentToken.value.toString()), false, false)
+                                val unscaped = JSONString.unescape(currentToken.value.toString())
+                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unscaped, false, false)
                                 currentNameAttOrRef = null //unpop
                             }
                         }
@@ -109,44 +113,6 @@ public open class JSONModelLoader : ModelLoader {
             }
         } else {
             throw Exception("Bad Format")
-        }
-    }
-
-
-    private fun unescapeJSON(src: String): String {
-        var builder: String? = null
-        var i: Int = 0
-        while (i < src.length) {
-            val c = src[i]
-            if (c == '&') {
-                if (builder == null) {
-                    builder = src.substring(0, i)
-                }
-                if (src[i + 1] == 'a') {
-                    if (src[i + 2] == 'm') {
-                        builder = builder!! + "&"
-                        i = i + 5
-                    } else {
-                        builder = builder!! + "'"
-                        i = i + 6
-                    }
-                } else if (src[i + 1] == 'q') {
-                    builder = builder!! + "\""
-                    i = i + 6
-                } else {
-                    println("Could not unescaped chain:" + src[i] + src[i + 1])
-                }
-            } else {
-                if (builder != null) {
-                    builder = builder!! + c
-                }
-                i++
-            }
-        }
-        if (builder != null) {
-            return builder!!
-        } else {
-            return src
         }
     }
 
