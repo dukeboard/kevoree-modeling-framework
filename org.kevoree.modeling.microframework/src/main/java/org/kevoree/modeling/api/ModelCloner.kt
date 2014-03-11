@@ -31,8 +31,8 @@ trait ModelCloner {
         val clonedSrc = mainFactory.create(src.metaClassName())!!
         val attributesCloner = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer) {
-                if(value != null){
-                    if(value is ArrayList<*>){
+                if (value != null) {
+                    if (value is ArrayList<*>) {
                         val clonedList = ArrayList<Any>()
                         clonedList.addAll(value as Collection<Any>);
                         clonedSrc.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, name, clonedList, false, false)
@@ -49,11 +49,15 @@ trait ModelCloner {
     private fun resolveModelElem(src: org.kevoree.modeling.api.KMFContainer, target: org.kevoree.modeling.api.KMFContainer, context: Map<KMFContainer, KMFContainer>, mutableOnly: Boolean) {
         val refResolver = object : org.kevoree.modeling.api.util.ModelVisitor() {
             public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
-                 if(mutableOnly && elem.isRecursiveReadOnly()){
-                     target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem, false, false)
-                 } else {
-                     target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, context.get(elem), false, false)
-                 }
+                if (mutableOnly && elem.isRecursiveReadOnly()) {
+                    target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem, false, false)
+                } else {
+                    val elemResolved = context.get(elem)
+                    if(elemResolved == null){
+                        throw Exception("Cloner error, not self-contain model, the element "+elem.path()+" is contained in the root element")
+                    }
+                    target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elemResolved, false, false)
+                }
             }
         }
         src.visit(refResolver, false, true, true);
@@ -65,7 +69,7 @@ trait ModelCloner {
         context.put(o, clonedObject)
         val cloneGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
             override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
-                if(mutableOnly && elem.isRecursiveReadOnly()){
+                if (mutableOnly && elem.isRecursiveReadOnly()) {
                     noChildrenVisit();
                 } else {
                     context.put(elem, cloneModelElem(elem))
@@ -76,12 +80,12 @@ trait ModelCloner {
         o.visit(cloneGraphVisitor, true, true, false)
         val resolveGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
             override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
-                if(mutableOnly && elem.isRecursiveReadOnly()){
+                if (mutableOnly && elem.isRecursiveReadOnly()) {
                     //noChildrenVisit(); TODO check this behavior on partial clone
                 } else {
                     val clonedObj = context.get(elem)!!
                     resolveModelElem(elem, clonedObj, context, mutableOnly)
-                    if(readOnly){
+                    if (readOnly) {
                         clonedObj.setInternalReadOnly()
                     }
                 }
@@ -91,7 +95,7 @@ trait ModelCloner {
         resolveModelElem(o, clonedObject, context, mutableOnly)
         //copy graph references
         o.visit(resolveGraphVisitor, true, true, false)
-        if(readOnly){
+        if (readOnly) {
             clonedObject.setInternalReadOnly()
         }
         return clonedObject as A
