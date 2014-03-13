@@ -279,7 +279,7 @@ public class ClassGenerator {
                     pr.println("if(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " != null) {");
                     pr.println("(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this," + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + ")");
                     if (ref.isContainer()) {
-                        pr.println(ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + ".delete();");
+                        pr.println(ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!!.delete();");
                     }
                     pr.println(ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " = null");
                     pr.println("}");
