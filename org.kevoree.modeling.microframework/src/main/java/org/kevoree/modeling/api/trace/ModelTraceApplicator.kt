@@ -51,7 +51,11 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             if(trace is ModelAddTrace){
                 tryClosePending(null);
                 if(trace.srcPath != ""){
-                    target = targetModel.findByPath(trace.srcPath)!!
+                    var resolvedTarget = targetModel.findByPath(trace.srcPath)
+                    if(resolvedTarget==null){
+                        throw Exception("Add Trace source not found for path : " + trace.srcPath + " pending " + pendingObjPath + "\n" + trace.toString())
+                    }
+                    target = resolvedTarget!!
                 }
                 createOrAdd(trace.previousPath, target, trace.refName, trace.typeName)
             }
