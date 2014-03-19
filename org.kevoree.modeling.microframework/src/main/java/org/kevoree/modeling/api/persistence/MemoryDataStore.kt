@@ -10,17 +10,17 @@ import java.util.HashSet
  * Time: 15:32
  */
 
-public class MemoryDataStore : DataStore {
+public open class MemoryDataStore : DataStore {
 
     override fun getSegmentKeys(segment: String): Set<String> {
-        if(maps.containsKey(segment)){
+        if (maps.containsKey(segment)) {
             maps.get(segment)!!.keySet()
         }
         return HashSet<String>()
     }
 
     override fun getSegments(): Set<String> {
-       return maps.keySet()
+        return maps.keySet()
     }
 
     override fun sync() {
@@ -29,7 +29,7 @@ public class MemoryDataStore : DataStore {
     var maps = HashMap<String, HashMap<String, String>>()
 
     private fun getOrCreateSegment(segment: String): HashMap<String, String> {
-        if(!maps.containsKey(segment)){
+        if (!maps.containsKey(segment)) {
             maps.put(segment, HashMap<String, String>())
         }
         return maps.get(segment)!!
@@ -46,10 +46,10 @@ public class MemoryDataStore : DataStore {
         getOrCreateSegment(segment).remove(key)
     }
 
-    fun dump(){
-        for(k in maps){
+    fun dump() {
+        for (k in maps) {
             println("Map ${k.key}")
-            for(t in k.value){
+            for (t in k.value) {
                 println("${t.key}->${t.value}")
             }
         }

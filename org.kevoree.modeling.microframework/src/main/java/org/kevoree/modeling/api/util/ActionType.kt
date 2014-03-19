@@ -7,11 +7,12 @@ package org.kevoree.modeling.api.util
  * Time: 19:15
  */
 
-enum class ActionType {
-    SET
-    ADD
-    REMOVE
-    ADD_ALL
-    REMOVE_ALL
-    RENEW_INDEX
+enum class ActionType(val code: String) {
+    SET : ActionType("S")
+    ADD : ActionType("a")
+    REMOVE : ActionType("r")
+    ADD_ALL : ActionType("A")
+    REMOVE_ALL : ActionType("R")
+    RENEW_INDEX : ActionType("I")
+    CONTROL : ActionType("C")
 }

@@ -34,6 +34,11 @@ public trait TraceSequence {
     }
 
     fun populateFromStream(inputStream: java.io.InputStream): org.kevoree.modeling.api.trace.TraceSequence {
+
+        var previousControlSrc: String? = null
+        var previousControlTypeName: String? = null
+
+
         var lexer: Lexer = Lexer(inputStream)
         var currentToken = lexer.nextToken()
         if (currentToken.tokenType != Type.LEFT_BRACKET) {
@@ -56,23 +61,67 @@ public trait TraceSequence {
             }
 
             if (currentToken.tokenType == Type.RIGHT_BRACE) {
-                when(keys.get("traceType")!!) {
-                    ActionType.SET.toString() -> {
-                        traces.add(ModelSetTrace(JSONString.unescape(keys.get("src")!!)!!, keys.get("refname")!!, JSONString.unescape(keys.get("objpath")), JSONString.unescape(keys.get("content")), JSONString.unescape(keys.get("typename"))));
+                var traceTypeRead = keys.get(ModelTraceConstants.traceType)
+                if (traceTypeRead == null) {
+                    traceTypeRead = previousControlTypeName
+                }
+                when(traceTypeRead) {
+                    ActionType.CONTROL.code -> {
+                        val src = keys.get(ModelTraceConstants.src)
+                        if (src != null) {
+                            previousControlSrc = JSONString.unescape(src)!!
+                        }
+                        val globalTypeName = keys.get(ModelTraceConstants.refname)
+                        if (globalTypeName != null) {
+                            previousControlTypeName = globalTypeName;
+                        }
                     }
-                    ActionType.ADD.toString() -> {
-                        traces.add(ModelAddTrace(JSONString.unescape(keys.get("src")!!)!!, keys.get("refname")!!, JSONString.unescape(keys.get("previouspath")!!), keys.get("typename")));
+                    ActionType.SET.code -> {
+                        var srcFound = keys.get(ModelTraceConstants.src)
+                        if (srcFound == null) {
+                            srcFound = previousControlSrc
+                        } else {
+                            srcFound = JSONString.unescape(srcFound)
+                        }
+                        traces.add(ModelSetTrace(srcFound!!, keys.get(ModelTraceConstants.refname)!!, JSONString.unescape(keys.get(ModelTraceConstants.objpath)), JSONString.unescape(keys.get(ModelTraceConstants.content)), JSONString.unescape(keys.get(ModelTraceConstants.typename))));
                     }
-                    ActionType.ADD_ALL.toString() -> {
-                        traces.add(ModelAddAllTrace(JSONString.unescape(keys.get("src")!!)!!, keys.get("refname")!!, JSONString.unescape(keys.get("content"))?.split(";")?.toList(), JSONString.unescape(keys.get("typename"))?.split(";")?.toList()));
+                    ActionType.ADD.code -> {
+                        var srcFound = keys.get(ModelTraceConstants.src)
+                        if (srcFound == null) {
+                            srcFound = previousControlSrc
+                        } else {
+                            srcFound = JSONString.unescape(srcFound)
+                        }
+                        traces.add(ModelAddTrace(srcFound!!, keys.get(ModelTraceConstants.refname)!!, JSONString.unescape(keys.get(ModelTraceConstants.previouspath)!!), keys.get(ModelTraceConstants.typename)));
                     }
-                    ActionType.REMOVE.toString() -> {
-                        traces.add(ModelRemoveTrace(JSONString.unescape(keys.get("src")!!)!!, keys.get("refname")!!, JSONString.unescape(keys.get("objpath")!!)!!));
+                    ActionType.ADD_ALL.code -> {
+                        var srcFound = keys.get(ModelTraceConstants.src)
+                        if (srcFound == null) {
+                            srcFound = previousControlSrc
+                        } else {
+                            srcFound = JSONString.unescape(srcFound)
+                        }
+                        traces.add(ModelAddAllTrace(srcFound!!, keys.get(ModelTraceConstants.refname)!!, JSONString.unescape(keys.get(ModelTraceConstants.content))?.split(";")?.toList(), JSONString.unescape(keys.get(ModelTraceConstants.typename))?.split(";")?.toList()));
                     }
-                    ActionType.REMOVE_ALL.toString() -> {
-                        traces.add(ModelRemoveAllTrace(JSONString.unescape(keys.get("src")!!)!!, keys.get("refname")!!));
+                    ActionType.REMOVE.code -> {
+                        var srcFound = keys.get(ModelTraceConstants.src)
+                        if (srcFound == null) {
+                            srcFound = previousControlSrc
+                        } else {
+                            srcFound = JSONString.unescape(srcFound)
+                        }
+                        traces.add(ModelRemoveTrace(srcFound!!, keys.get(ModelTraceConstants.refname)!!, JSONString.unescape(keys.get(ModelTraceConstants.objpath)!!)!!));
                     }
-                    ActionType.RENEW_INDEX.toString() -> {
+                    ActionType.REMOVE_ALL.code -> {
+                        var srcFound = keys.get(ModelTraceConstants.src)
+                        if (srcFound == null) {
+                            srcFound = previousControlSrc
+                        } else {
+                            srcFound = JSONString.unescape(srcFound)
+                        }
+                        traces.add(ModelRemoveAllTrace(srcFound!!, keys.get(ModelTraceConstants.refname)!!));
+                    }
+                    ActionType.RENEW_INDEX.code -> {
                     }
                     else -> {
                         println("Trace lost !!!")
@@ -88,18 +137,30 @@ public trait TraceSequence {
         val buffer = StringBuilder()
         buffer.append("[")
         var isFirst = true
+        var previousSrc: String? = null
+        var previousType : String? = null
         for (trace in traces) {
             if (!isFirst) {
                 buffer.append(",\n")
             }
-            buffer.append(trace.toString())
+            if (previousSrc == null || previousSrc != trace.srcPath) {
+                buffer.append(ModelControlTrace(trace.srcPath, null).toString())
+                buffer.append(",\n")
+                previousSrc = trace.srcPath
+            }
+            if (previousType == null || previousType != trace.traceType.code) {
+                buffer.append(ModelControlTrace("", trace.traceType.code).toString())
+                buffer.append(",\n")
+                previousType = trace.traceType.code
+            }
+            buffer.append(trace.toCString(false, false))
             isFirst = false
         }
         buffer.append("]")
         return buffer.toString()
     }
 
-    fun toString(): String {
+    override fun toString(): String {
         return exportToString()
     }
 

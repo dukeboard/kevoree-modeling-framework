@@ -24,7 +24,7 @@ public data class TimePoint(val timestamp: Long, val sequenceNumber: Long = 0) :
         return TimePoint(timestamp + timeOffset, 0)
     }
 
-    fun toString(): String {
+    override fun toString(): String {
         return "$timestamp:$sequenceNumber"
     }
 

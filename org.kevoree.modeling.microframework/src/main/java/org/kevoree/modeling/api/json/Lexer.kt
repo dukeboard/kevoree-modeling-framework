@@ -16,7 +16,7 @@ public object Type {
 }
 
 class Token(val tokenType: Int, val value: Any?) {
-    fun toString() : String {
+    override fun toString() : String {
         val v = if (value != null) { " (" + value + ")" } else {""}
         val result = tokenType.toString() + v
         return result

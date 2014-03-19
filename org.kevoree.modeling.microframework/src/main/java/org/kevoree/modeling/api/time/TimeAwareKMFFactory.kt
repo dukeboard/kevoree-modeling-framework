@@ -189,7 +189,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
                     currentTime = relativeTime
                 }
                 //check if version for current time exist
-                var existingVersion = datastore!!.get(TimeSegment.RAW.name(), "$currentTime/$path")
+                var existingVersion = datastore?.get(TimeSegment.RAW.name(), "$currentTime/$path")
                 if (existingVersion == null) {
                     currentTime = lookupImmediatePreviousVersionOf(currentTime!!, path);
                 }
