@@ -68,13 +68,13 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
             val alreadyExists = datastore!!.get(TimeSegment.RAW.name(), "${currentNow.toString()}/$currentPath") != null
 
             datastore!!.put(TimeSegment.RAW.name(), "${currentNow.toString()}/$currentPath", traceSeq.exportToString())
-
-            val previousType = datastore!!.get(TimeSegment.TYPE.name(), elem.path()!!)
+            val path = elem.path()!!
+            val previousType = datastore!!.get(TimeSegment.TYPE.name(), path)
             if (previousType == null) {
                 datastore!!.put(TimeSegment.TYPE.name(), elem.path()!!, elem.metaClassName())
             } else {
                 if (previousType != elem.metaClassName()) {
-                    throw Exception("Unconsitant typing : previous was : " + previousType + " , can persist " + elem.metaClassName())
+                    throw Exception("Unconsitant typing : previous was : " + previousType + " , can persist " + elem.metaClassName()+" for the path :"+path)
                 }
             }
 
