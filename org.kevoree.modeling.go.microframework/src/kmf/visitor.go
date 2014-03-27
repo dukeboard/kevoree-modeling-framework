@@ -4,7 +4,7 @@
  * Date: 15/12/2013
  * Time: 20:22
  */
-package visitor
+package kmf
 
 type ModelVisitor interface {
 
