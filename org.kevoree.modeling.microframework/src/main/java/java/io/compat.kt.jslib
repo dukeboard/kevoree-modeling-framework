@@ -27,7 +27,7 @@ public class ByteArrayInputStream(val inputBytes : ByteArray) : InputStream {
 public class ByteArrayOutputStream : OutputStream {
     fun flush(){}
     fun close(){}
-    public fun toString() : String {
+    public override fun toString() : String {
         return result
     }
     var result : String = ""
