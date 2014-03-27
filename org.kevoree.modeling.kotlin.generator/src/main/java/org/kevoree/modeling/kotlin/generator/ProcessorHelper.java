@@ -141,7 +141,7 @@ public class ProcessorHelper {
         typeConvertionTable.put("java.math.BigInteger","java.math.BigInteger");
         typeConvertionTable.put("java.lang.Class","Any");
         typeConvertionTable.put("EJavaClass","Any");
-        typeConvertionTable.put("java.util.Map","Map<out jet.Any,out jet.Any>");
+        typeConvertionTable.put("java.util.Map","Map<out Any,out Any>");
     }
 
     public String convertType(String theType) {
