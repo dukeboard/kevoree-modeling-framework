@@ -22,7 +22,7 @@ public class AspectMethodMatcher {
         equivalentMap.put("List<Any?>", "MutableList<Any?>");
         equivalentMap.put("MutableIterator<*>", "MutableIterator");
         equivalentMap.put("MutableIterator<Any?>", "MutableIterator");
-        equivalentMap.put("Class<out jet.Any?>", "Class");
+        equivalentMap.put("Class<out Any?>", "Class");
     }
 
     public static Boolean isMethodEqual(EOperation eop, AspectMethod aop, GenerationContext ctx) {
