@@ -13,7 +13,7 @@ object JSONString {
             return;
         }
         var i = 0
-        while (i < chain.size) {
+        while (i < chain.length) {
             val ch = chain.get(i)
             if ( ch == '"' ) {
                 buffer.append(escapeChar)
@@ -56,7 +56,7 @@ object JSONString {
             return;
         }
         var i = 0
-        while (i < chain.size) {
+        while (i < chain.length) {
             val ch = chain.get(i)
             if ( ch == '"' ) {
                 ostream.print(escapeChar)
@@ -98,7 +98,7 @@ object JSONString {
         if(src==null){
             return null
         }
-        if (src.size == 0) {
+        if (src.length == 0) {
             return src
         }
         var builder: StringBuilder? = null
