@@ -54,7 +54,7 @@
 
     <properties>
         <emf.version>2.7.0</emf.version>
-        <kotlin.version>0.7.191</kotlin.version>
+        <kotlin.version>0.7.271</kotlin.version>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
     </properties>
 
