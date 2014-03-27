@@ -98,7 +98,7 @@ public trait TraceSequence {
         return buffer.toString()
     }
 
-    fun toString(): String {
+    override fun toString(): String {
         return exportToString()
     }
 
