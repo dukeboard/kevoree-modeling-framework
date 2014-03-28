@@ -347,9 +347,9 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer {
             }
             queryID = query.substring(query.indexOf('[') + 1, indexFirstClose)
         }
-        var subquery = query.substring(relationName.size + queryID.size + extraReadChar, query.size)
+        var subquery = query.substring(relationName.length + queryID.length + extraReadChar, query.length)
         if (subquery.indexOf('/') != -1){
-            subquery = subquery.substring(subquery.indexOf('/') + 1, subquery.size)
+            subquery = subquery.substring(subquery.indexOf('/') + 1, subquery.length)
         }
         val objFound = findByID(relationName,queryID)
 #if($ctx.persistence)

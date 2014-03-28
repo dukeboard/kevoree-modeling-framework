@@ -52,6 +52,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.jetbrains.jet.cli.common.CLICompiler;
 import org.jetbrains.jet.cli.common.ExitCode;
 import org.jetbrains.jet.cli.common.arguments.K2JSCompilerArguments;
@@ -60,16 +63,15 @@ import org.jetbrains.jet.cli.js.K2JSCompiler;
 import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.k2js.config.EcmaVersion;
 import org.jetbrains.k2js.config.MetaInfServices;
+import org.jetbrains.k2js.translate.utils.TranslationUtils;
 import org.kevoree.modeling.aspect.AspectClass;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.Generator;
+import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
 import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -80,7 +82,6 @@ public class GenModelPlugin extends AbstractMojo {
 
     /**
      * Generate Persistence Layer for Model
-     *
      */
     @Parameter
     private Boolean persistence = false;
@@ -307,6 +308,23 @@ public class GenModelPlugin extends AbstractMojo {
         outputClasses.mkdirs();
 
 
+        if (ctx.js) {
+            ResourceSet model = ctx.getEcoreModel(ecore);
+            Iterator<Notifier> iterator = model.getAllContents();
+            EPackage p = null;
+            while ((p == null) && iterator.hasNext()) {
+                Notifier el = iterator.next();
+                if (el instanceof EPackage) {
+                    if (TranslationUtils.currentPackageNames == null) {
+                        TranslationUtils.currentPackageNames = new ArrayList<String>();
+                    }
+                    TranslationUtils.currentPackageNames.add(ProcessorHelper.getInstance().fqn(ctx, (EPackage) el));
+                }
+            }
+
+        }
+
+
         List<String> exclusions = new ArrayList<String>();
         if (ctx.js) {
             exclusions.add("meta.kt");
@@ -402,6 +420,8 @@ public class GenModelPlugin extends AbstractMojo {
                 args.outputFile = outputJS;
                 args.verbose = false;
                 args.target = EcmaVersion.v5.name();
+
+
                 e = KotlinCompilerJS.exec(new PrintStream(System.err) {
                     @Override
                     public void println(String x) {
