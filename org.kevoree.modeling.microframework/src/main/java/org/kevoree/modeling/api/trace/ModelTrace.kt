@@ -26,6 +26,7 @@ object ModelTraceConstants {
 }
 
 trait ModelTrace {
+    val refName: String
     val traceType : ActionType
     val srcPath: String
     override fun toString(): String {
@@ -35,6 +36,8 @@ trait ModelTrace {
 }
 
 class ModelControlTrace(override val srcPath: String, val traceTypeGlobal: String?) : ModelTrace {
+
+    override val refName: String = ""
 
     override val traceType : ActionType = ActionType.CONTROL
 
@@ -71,7 +74,7 @@ class ModelControlTrace(override val srcPath: String, val traceTypeGlobal: Strin
     }
 }
 
-class ModelAddTrace(override val srcPath: String, val refName: String, val previousPath: String?, val typeName: String?) : ModelTrace {
+class ModelAddTrace(override val srcPath: String, override val refName: String, val previousPath: String?, val typeName: String?) : ModelTrace {
 
     override val traceType : ActionType = ActionType.ADD
 
@@ -130,7 +133,7 @@ class ModelAddTrace(override val srcPath: String, val refName: String, val previ
     }
 }
 
-class ModelAddAllTrace(override val srcPath: String, val refName: String, val previousPath: List<String>?, val typeName: List<String>?) : ModelTrace {
+class ModelAddAllTrace(override val srcPath: String, override val refName: String, val previousPath: List<String>?, val typeName: List<String>?) : ModelTrace {
 
     override val traceType : ActionType = ActionType.ADD_ALL
 
@@ -205,7 +208,7 @@ class ModelAddAllTrace(override val srcPath: String, val refName: String, val pr
     }
 }
 
-class ModelRemoveTrace(override val srcPath: String, val refName: String, val objPath: String) : ModelTrace {
+class ModelRemoveTrace(override val srcPath: String, override val refName: String, val objPath: String) : ModelTrace {
 
     override val traceType : ActionType = ActionType.REMOVE
 
@@ -252,7 +255,7 @@ class ModelRemoveTrace(override val srcPath: String, val refName: String, val ob
     }
 }
 
-class ModelRemoveAllTrace(override val srcPath: String, val refName: String) : ModelTrace {
+class ModelRemoveAllTrace(override val srcPath: String, override val refName: String) : ModelTrace {
 
     override val traceType : ActionType = ActionType.REMOVE_ALL
 
@@ -291,7 +294,7 @@ class ModelRemoveAllTrace(override val srcPath: String, val refName: String) : M
     }
 }
 
-class ModelSetTrace(override val srcPath: String, val refName: String, val objPath: String?, val content: String?, val typeName: String?) : ModelTrace {
+class ModelSetTrace(override val srcPath: String, override val refName: String, val objPath: String?, val content: String?, val typeName: String?) : ModelTrace {
 
     override val traceType : ActionType = ActionType.SET
 
