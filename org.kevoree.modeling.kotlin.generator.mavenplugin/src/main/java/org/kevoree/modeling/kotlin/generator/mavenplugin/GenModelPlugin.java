@@ -436,14 +436,14 @@ public class GenModelPlugin extends AbstractMojo {
                     getLog().error("Can't compile generated code !");
                     throw new MojoExecutionException("Embedded Kotlin compilation error !");
                 } else {
-                    copyJsLibraryFile(KOTLIN_JS_MAPS);
+                    //copyJsLibraryFile(KOTLIN_JS_MAPS);
                     copyJsLibraryFile(KOTLIN_JS_LIB);
-                    copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
+                    //copyJsLibraryFile(KOTLIN_JS_LIB_ECMA5);
                     File outputMerged = new File(outputKotlinJSDir, project.getArtifactId() + ".merged.js");
                     FileOutputStream mergedStream = new FileOutputStream(outputMerged);
-                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
+                    //IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
                     IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB), mergedStream);
-                    IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
+                    //IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
                     Files.copy(new File(outputKotlinJSDir, project.getArtifactId() + ".js"), mergedStream);
                     mergedStream.write(("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['" + project.getArtifactId() + "'];}").getBytes());
                     mergedStream.write("\n".getBytes());
@@ -548,9 +548,9 @@ public class GenModelPlugin extends AbstractMojo {
         }
     }
 
-    public static final String KOTLIN_JS_MAPS = "kotlin-maps.js";
-    public static final String KOTLIN_JS_LIB = "kotlin-lib.js";
-    public static final String KOTLIN_JS_LIB_ECMA5 = "kotlin-lib-ecma5.js";
+    //public static final String KOTLIN_JS_MAPS = "kotlin-maps.js";
+    public static final String KOTLIN_JS_LIB = "kotlin.js";
+    //public static final String KOTLIN_JS_LIB_ECMA5 = "kotlin-lib-ecma5.js";
 
 
 }
