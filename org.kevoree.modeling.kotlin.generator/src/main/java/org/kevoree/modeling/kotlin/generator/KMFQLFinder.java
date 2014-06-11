@@ -97,7 +97,7 @@ public class KMFQLFinder {
                     if (ref.isContainment()) {
                         pr.println("val resolved = _" + ref.getName() + ".get(key)");
                         pr.println("if(resolved==null){");
-                        pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!");
+                        //pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!");
                         pr.println("val result = relativeLookupFrom(this," + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + ",key)");
                         pr.println("return result as? " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()));
                         pr.println("} else {");

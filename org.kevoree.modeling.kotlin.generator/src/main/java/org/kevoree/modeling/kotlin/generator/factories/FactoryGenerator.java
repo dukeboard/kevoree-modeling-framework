@@ -44,7 +44,7 @@ public class FactoryGenerator {
                 pr.println("class MainFactory : org.kevoree.modeling.api.persistence.PersistenceKMFFactory {");
             } else {
                 if (ctx.timeAware) {
-                    pr.println("class MainFactory : org.kevoree.modeling.api.time.TimeAwareKMFFactory {");
+                    pr.println("class MainFactory : org.kevoree.modeling.api.time.TimeAwareKMFFactory<MainFactory> {");
                 } else {
                     pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {");
                 }
@@ -52,17 +52,25 @@ public class FactoryGenerator {
             if (ctx.persistence) {
                 pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null");
                 pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()");
+                pr.println("override val modified_elements: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()\n");
                 pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()");
             }
             if (ctx.timeAware) {
-                pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint? = null");
+                pr.println("override var timeCache: java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta> = java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta>()\n");
+                pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint.create(\"0:0\")");
                 pr.println("override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()");
+                pr.println("override fun time(tp: org.kevoree.modeling.api.time.TimePoint): org.kevoree.modeling.api.time.TimeView<MainFactory> {\n");
+                pr.println("    val newFactory = MainFactory();");
+                pr.println("    newFactory.datastore = this.datastore;");
+                pr.println("    newFactory.relativeTime = tp;");
+                pr.println("    return newFactory;");
+                pr.println("}");
             }
             pr.println("");
             pr.println("private var factories : Array<org.kevoree.modeling.api.KMFFactory?> = Array<org.kevoree.modeling.api.KMFFactory?>(" + ctx.packageFactoryMap.entrySet().size() + ", {i -> null});");
             pr.println("");
             pr.println("{");
-            for(Map.Entry<String, String> entry: ctx.packageFactoryMap.entrySet()) {
+            for (Map.Entry<String, String> entry : ctx.packageFactoryMap.entrySet()) {
                 pr.println("factories.set(Package." + entry.getKey().toUpperCase().replace(".", "_") + ", " + entry.getKey() + ".impl.Default" + entry.getValue().substring(entry.getValue().lastIndexOf(".") + 1, entry.getValue().length()) + "())");
             }
 
@@ -71,7 +79,7 @@ public class FactoryGenerator {
             pr.println("return factories.get(pack)");
             pr.println("}");
 
-            for(Map.Entry<String, String> entry : ctx.packageFactoryMap.entrySet()) {
+            for (Map.Entry<String, String> entry : ctx.packageFactoryMap.entrySet()) {
                 pr.println("fun get" + entry.getValue().substring(entry.getValue().lastIndexOf(".") + 1, entry.getValue().length()) + "() : " + entry.getValue() + " {");
                 pr.println("return factories.get(Package." + entry.getKey().toUpperCase().replace(".", "_") + ") as " + entry.getValue());
                 pr.println("}");
@@ -84,11 +92,7 @@ public class FactoryGenerator {
             pr.println("");
 
             pr.print("override ");
-            if(ctx.timeAware){
-                pr.println("fun obj_create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {");
-            } else {
-                pr.println("fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {");
-            }
+            pr.println("fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {");
             pr.println("val pack = Package.getPackageForName(metaClassName)");
             pr.println("    if(pack != -1) {");
             pr.println("        return getFactoryForPackage(pack)?.create(metaClassName)");
@@ -121,7 +125,7 @@ public class FactoryGenerator {
         pr.println("object Package {");
         int i = 0;
 
-        for(String key : ctx.packageFactoryMap.keySet()) {
+        for (String key : ctx.packageFactoryMap.keySet()) {
             pr.println(" public val " + key.toUpperCase().replace(".", "_") + " : Int = " + i);
             i = i + 1;
         }
@@ -129,7 +133,7 @@ public class FactoryGenerator {
         pr.println("fun getPackageForName(metaClassName : String) : Int {");
         i = 0;
 
-        for(String key : ctx.packageFactoryMap.keySet()) {
+        for (String key : ctx.packageFactoryMap.keySet()) {
             pr.println(" if(metaClassName.startsWith(\"" + key + "\")){return " + i + "}");
             i = i + 1;
         }

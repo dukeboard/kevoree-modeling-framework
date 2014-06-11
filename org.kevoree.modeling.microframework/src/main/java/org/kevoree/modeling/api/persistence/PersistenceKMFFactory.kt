@@ -5,6 +5,8 @@ import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.compare.ModelCompare
 import java.util.HashMap
+import org.kevoree.modeling.api.events.ModelElementListener
+import org.kevoree.modeling.api.events.ModelEvent
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +15,7 @@ import java.util.HashMap
  * Time: 11:05
  */
 
-trait PersistenceKMFFactory : KMFFactory {
+trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     var datastore: DataStore?
 
@@ -24,19 +26,62 @@ trait PersistenceKMFFactory : KMFFactory {
             datastore!!.remove("trace", elem.path()!!);
             datastore!!.remove("type", elem.path()!!);
         }
+        elem_cache.remove(elem.path()!!)
+        modified_elements.remove(elem.path()!!)
     }
 
     val elem_cache: HashMap<String, KMFContainer>
 
-    fun clearCache() {
-        elem_cache.clear()
+    val modified_elements: HashMap<String, KMFContainer>
+
+    protected fun persist(elem: KMFContainer) {
+        if (datastore != null) {
+            val traces = elem.toTraces(true, true)
+            val traceSeq = compare.createSequence()
+            traceSeq.populate(traces)
+            datastore!!.put("trace", elem.path()!!, traceSeq.exportToString())
+            datastore!!.put("type", elem.path()!!, elem.metaClassName())
+            if (elem is KMFContainerProxy) {
+                elem.originFactory = this
+            }
+        }
     }
 
+    fun commit() {
+        for (elem in modified_elements) {
+            persist(elem.value)
+        }
+        datastore?.sync()
+        clearCache()
+    }
+
+    fun rollback() {
+        //TODO
+        clearCache()
+    }
+
+    protected fun clearCache() {
+        for (elem in elem_cache) {
+            elem.value.removeModelElementListener(this)
+        }
+        elem_cache.clear()
+        modified_elements.clear()
+    }
+     /*
     fun lookup(path: String): KMFContainer? {
         return lookupFrom(path, null)
+    } */
+
+    override fun elementChanged(evt: ModelEvent) {
+        modified_elements.put(evt.hashCode().toString(),evt.source!!)
     }
 
-    fun lookupFrom(path: String, origin: KMFContainer?): KMFContainer? {
+    protected fun monitor(elem: KMFContainer) {
+        elem.addModelElementListener(this)
+    }
+
+
+    fun lookup(path: String): KMFContainer? {
 
         //TODO protect for unContains elems
         var path2 = path
@@ -56,6 +101,7 @@ trait PersistenceKMFFactory : KMFFactory {
                 elem_cache.put(path2, elem)
                 elem.isResolved = false
                 elem.setOriginPath(path2)
+                monitor(elem)
                 return elem
             } else {
                 throw Exception("Empty Type Name for " + path2);
@@ -75,31 +121,5 @@ trait PersistenceKMFFactory : KMFFactory {
         return null
     }
 
-    fun persist(elem: KMFContainer) {
-        if (datastore != null) {
-            val traces = elem.toTraces(true, true)
-            val traceSeq = compare.createSequence()
-            traceSeq.populate(traces)
-            datastore!!.put("trace", elem.path()!!, traceSeq.exportToString())
-            datastore!!.put("type", elem.path()!!, elem.metaClassName())
-            if (elem is KMFContainerProxy) {
-                elem.originFactory = this
-            }
-        }
-    }
-
-    fun persistBatch(batch: Batch) {
-        for (b in batch.elements) {
-            persist(b)
-        }
-    }
-
-    fun createBatch(): Batch {
-        return Batch()
-    }
-
-    fun commit() {
-        datastore?.sync()
-    }
 
 }

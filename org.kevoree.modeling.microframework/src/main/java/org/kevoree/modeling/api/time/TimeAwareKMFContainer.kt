@@ -17,13 +17,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     var now: TimePoint?
 
-    fun shift(timePoint: TimePoint): TimeAwareKMFContainer? {
-        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
-            return (originFactory as TimeAwareKMFFactory).createFrom(this, timePoint) as? TimeAwareKMFContainer
-        }
-        return null
-    }
-
+    /*
     fun previous(): KMFContainer? {
         if (meta!!.previous != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).lookupFromTime(path()!!, meta!!.previous!!)
@@ -39,5 +33,6 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
             return null
         }
     }
+    */
 
 }

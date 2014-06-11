@@ -7,7 +7,7 @@ package org.kevoree.modeling.api.time
  * Time: 19:27
  */
 
-public enum class TimeSegment {
+enum class TimeSegment {
             RAW
             ENTITYMETA
             TIMEMETA

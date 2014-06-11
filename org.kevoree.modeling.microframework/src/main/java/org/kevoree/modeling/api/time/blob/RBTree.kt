@@ -117,10 +117,6 @@ public class RBTree {
     }
 
     fun lowerOrEqual(key: TimePoint): Node? {
-        return getLowerOrEqualNode(key)
-    }
-
-    private fun getLowerOrEqualNode(key: TimePoint): Node? {
         var p = root
         if (p == null) {
             return null
@@ -146,6 +142,71 @@ public class RBTree {
                         parent = parent!!.parent
                     }
                     return parent
+                }
+            }
+        }
+        return null
+    }
+
+    fun lower(key: TimePoint): Node? {
+        var p = root
+        if (p == null) {
+            return null
+        }
+        while (p != null) {
+            val cmp = compare(key, p!!.key)
+            if (cmp > 0) {
+                if (p!!.right != null)
+                    p = p!!.right
+                else
+                    return p
+            } else {
+                if (p!!.left != null) {
+                    p = p!!.left
+                } else {
+                    var parent = p!!.parent
+                    var ch = p
+                    while (parent != null && ch == parent!!.left) {
+                        ch = parent
+                        parent = parent!!.parent
+                    }
+                    return parent
+                }
+            }
+        }
+        return null
+    }
+
+    fun upper(key: TimePoint): Node? {
+        var p = root
+        if (p == null) {
+            return null
+        }
+        while (p != null) {
+            val cmp = compare(key, p!!.key)
+            if (cmp > 0) {
+                if (p!!.right != null) {
+                    p = p!!.right;
+                } else {
+                    return null;
+                }
+            } else {
+                if (cmp == 0) {
+                    if (p!!.right != null) {
+                        p = p!!.right;
+                    } else {
+                        return null;
+                    }
+                }
+                if (p!!.left != null) {
+                    val cmp2 = compare(key, p!!.left!!.key)
+                    if (cmp2 < 0) {
+                        p = p!!.left
+                    } else {
+                        return p;
+                    }
+                } else {
+                    return p;
                 }
             }
         }
@@ -384,8 +445,8 @@ public class RBTree {
         }
     }
 
-    public fun max() : Node? {
-        if(this.root == null){
+    public fun max(): Node? {
+        if (this.root == null) {
             return null
         } else {
             return maximumNode(this.root!!)
@@ -399,5 +460,8 @@ public class RBTree {
         }
         return n
     }
+
+
+
 
 }
