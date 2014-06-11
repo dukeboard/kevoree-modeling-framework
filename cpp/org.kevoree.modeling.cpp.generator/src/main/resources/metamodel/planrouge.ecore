@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="planrouge" nsURI="http://planrouge/1.0" nsPrefix="planrouge">
+
+
+  <eClassifiers xsi:type="ecore:EClass" name="Intervention">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"  iD="true"/>
+        <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1" eType="#//InterventionType"/>
+
+    <eStructuralFeatures xsi:type="ecore:EReference" name="position" eType="#//Position"  containment="true"/>
+
+    <eStructuralFeatures xsi:type="ecore:EReference" name="victimes" upperBound="-1" eType="#//Victime" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="affecte" upperBound="-1" eType="#//Agent" containment="true"/>
+  </eClassifiers>
+
+
+  <eClassifiers xsi:type="ecore:EClass" name="Horodatage">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="horodatage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+
+
+  <eClassifiers xsi:type="ecore:EClass" name="InterventionType">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="code" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+
+  <eClassifiers xsi:type="ecore:EClass" name="Position" eSuperTypes="#//Horodatage"/>
+
+  <eClassifiers xsi:type="ecore:EClass" name="GpsPoint" eSuperTypes="#//Position">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="latitude" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="longitude" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="satellites_used" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="precision" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="altitude" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+
+  <eClassifiers xsi:type="ecore:EClass" name="PositionCivil" eSuperTypes="#//Position">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="nomRue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+     <eStructuralFeatures xsi:type="ecore:EAttribute" name="nomVille" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="cp" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numeroRue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="pays" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral=""/>
+  </eClassifiers>
+
+  <eClassifiers xsi:type="ecore:EClass" name="Agent">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="matricule" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" iD="true"/>
+     <eStructuralFeatures xsi:type="ecore:EReference" name="intervention" eType="#//Intervention"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="nom" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+        <eStructuralFeatures xsi:type="ecore:EAttribute" name="prenom" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+        <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateNaissance" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+        <eStructuralFeatures xsi:type="ecore:EAttribute" name="sexe" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+
+  </eClassifiers>
+
+
+  <eClassifiers xsi:type="ecore:EClass" name="Victime">
+
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"  iD="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="nom" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="prenom" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt" />
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="sexe" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="dateNaissance" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" />
+      <eStructuralFeatures xsi:type="ecore:EReference" name="intervenants" upperBound="-1" eType="#//Agent" eKeys="#//Agent/matricule"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="priorite" eType="#//Categorie"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="posRef" eType="#//Position" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="posDestination" upperBound="-1" eType="#//Position" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="bilans" upperBound="-1" eType="#//Bilan"/>
+  </eClassifiers>
+
+
+  <eClassifiers xsi:type="ecore:EClass" name="Categorie">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+
+
+  <eClassifiers xsi:type="ecore:EClass" name="ContainerRoot">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="interventions" upperBound="-1" eType="#//Intervention" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="agents" upperBound="-1"  eType="#//Agent" containment="true"/>
+  </eClassifiers>
+
+
+  <eClassifiers xsi:type="ecore:EClass" name="Bilan" eSuperTypes="#//Horodatage"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Urgence" eSuperTypes="#//Bilan"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Complementaire" eSuperTypes="#//Bilan"/>
+</ecore:EPackage>
