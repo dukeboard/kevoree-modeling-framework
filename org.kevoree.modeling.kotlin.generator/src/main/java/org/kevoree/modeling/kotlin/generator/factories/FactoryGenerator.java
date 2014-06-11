@@ -55,9 +55,8 @@ public class FactoryGenerator {
                 pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()");
             }
             if (ctx.timeAware) {
-                pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(0,0)");
+                pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint? = null");
                 pr.println("override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()");
-                pr.println("override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE");
             }
             pr.println("");
             pr.println("private var factories : Array<org.kevoree.modeling.api.KMFFactory?> = Array<org.kevoree.modeling.api.KMFFactory?>(" + ctx.packageFactoryMap.entrySet().size() + ", {i -> null});");
@@ -85,7 +84,11 @@ public class FactoryGenerator {
             pr.println("");
 
             pr.print("override ");
-            pr.println("fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {");
+            if(ctx.timeAware){
+                pr.println("fun obj_create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {");
+            } else {
+                pr.println("fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer? {");
+            }
             pr.println("val pack = Package.getPackageForName(metaClassName)");
             pr.println("    if(pack != -1) {");
             pr.println("        return getFactoryForPackage(pack)?.create(metaClassName)");

@@ -2,9 +2,9 @@ package org.kevoree.modeling.api.time
 
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.persistence.PersistenceKMFFactory
-import org.kevoree.modeling.api.persistence.KMFContainerProxy
 import org.kevoree.modeling.api.trace.TraceSequence
-import java.util.Date
+import org.kevoree.modeling.api.time.blob.EntityMeta
+import org.kevoree.modeling.api.time.blob.TimeMeta
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,134 +15,75 @@ import java.util.Date
 
 trait TimeAwareKMFFactory : PersistenceKMFFactory {
 
-    fun previous(currentNow: TimePoint, path: String): TimePoint? {
-        var currentNowString = currentNow.toString()
-        var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$currentNowString/$path")
-        if (previousPrevious != null) {
-            return TimePoint.create(previousPrevious!!)
-        }
-        previousPrevious = datastore!!.get(TimeSegment.ORIGIN.name(), "$currentNowString/$path")
-        if (previousPrevious != null) {
-            return TimePoint.create(previousPrevious!!)
-        }
-        return null
-    }
-
-
-    //TODO wtf if no origin
-    fun next(currentNow: TimePoint, path: String): TimePoint? {
-        var currentNowString = currentNow.toString()
-        var previousPrevious = datastore!!.get(TimeSegment.NEXT.name(), "$currentNowString/$path")
-        if (previousPrevious != null) {
-            return TimePoint.create(previousPrevious!!)
-        }
-        return null
-    }
-
-    fun shiftElem(path: String, relativeNow: TimePoint) {
-        //TODO
-    }
-    fun shiftQuery(query: String, relativeNow: TimePoint) {
-        //TODO
-    }
-
-    var relativeTime: TimePoint
+    var relativeTime: TimePoint?
     var queryMap: MutableMap<String, TimePoint>
-    var relativityStrategy: RelativeTimeStrategy
 
-    fun setPrevious(p: TimePoint) {
-        datastore!!.put(TimeSegment.ORIGIN.name(), relativeTime.toString(), p.toString())
-    }
 
     override fun persist(elem: KMFContainer) {
+
+        //TODO add check if object is modify since last load
+        //TODO SAVE NEW HASHMAP EXTERNAL RELATIONSHIPS
+
+        val casted = elem as TimeAwareKMFContainer
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
-            var currentNow = (elem as? TimeAwareKMFContainer)?.now
-            if (currentNow == null) {
-                currentNow = relativeTime
-            }
             val currentPath = elem.path()!!
-
-            val alreadyExists = datastore!!.get(TimeSegment.RAW.name(), "${currentNow.toString()}/$currentPath") != null
-
-            datastore!!.put(TimeSegment.RAW.name(), "${currentNow.toString()}/$currentPath", traceSeq.exportToString())
-            val path = elem.path()!!
-            val previousType = datastore!!.get(TimeSegment.TYPE.name(), path)
-            if (previousType == null) {
-                datastore!!.put(TimeSegment.TYPE.name(), elem.path()!!, elem.metaClassName())
-            } else {
-                if (previousType != elem.metaClassName()) {
-                    throw Exception("Unconsitant typing : previous was : " + previousType + " , can persist " + elem.metaClassName()+" for the path :"+path)
-                }
+            datastore!!.put(TimeSegment.RAW.name(), "${elem.now.toString()}/$currentPath", traceSeq.exportToString())   //TODO check for related elements
+            casted.meta!!.lastestPersisted = elem.now
+            datastore!!.put(TimeSegment.ENTITYMETA.name(), "${elem.now.toString()}/$currentPath", casted.meta.toString())
+            val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), currentPath)
+            val timeMeta = TimeMeta()
+            if (timeMetaPayLoad != null) {
+                timeMeta.load(timeMetaPayLoad)
             }
-
-
-            //TODO SAVE NEW HASHMAP EXTERNAL RELATIONSHIPS
-
-            if(!alreadyExists && false){
-
-                //manage origin
-                if (elem is TimeAwareKMFContainer) {
-                    if (elem.previousTimePoint != null) {
-                        datastore!!.put(TimeSegment.ORIGIN.name(), "${currentNow.toString()}/$currentPath", elem.previousTimePoint.toString())
-                    }
-                }
-                //manage latest
-                var currentLatestString = datastore!!.get(TimeSegment.LATEST.name(), currentPath)
-                var currentLatest: TimePoint? = null;
-                if (currentLatestString != null) {
-                    currentLatest = TimePoint.create(currentLatestString!!)
-                }
-                //update next and previous
-                //most simple case > latest
-                if (currentLatest == null || currentLatest!!.compareTo(currentNow!!) < 0) {
-                    datastore!!.put(TimeSegment.LATEST.name(), currentPath, currentNow.toString())
-                    if (currentLatest != null) {
-                        datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", currentLatest.toString())
-                        datastore!!.put(TimeSegment.NEXT.name(), "$currentLatest/$currentPath", currentNow.toString())
-                    }
-                } else {
-
-                    var previousGlobal = datastore!!.get(TimeSegment.ORIGIN.name(), currentNow.toString())
-                    if (previousGlobal == null) {
-                        //costly, to optimize !!!
-                        var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
-                        var immediatePreviousVersionString = immediatePreviousVersion.toString()
-                        var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath")
-                        if (previousPrevious != null) {
-                            datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", previousPrevious.toString())
-                            datastore!!.put(TimeSegment.NEXT.name(), "$previousPrevious/$currentPath", currentNow.toString())
-                        }
-                        datastore!!.put(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath", currentNow.toString())
-                        datastore!!.put(TimeSegment.NEXT.name(), "$currentNow/$currentPath", immediatePreviousVersionString.toString())
-                    }
-                }
-            }
+            timeMeta.versionTree.insert(elem.now!!, "")
+            datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeMeta.toString())
         }
     }
 
-    //TODO optimize for ABSOLUTE / CLONE CASE
-    fun lookupImmediatePreviousVersionOf(currentNow: TimePoint, path: String): TimePoint? {
-        var currentLatest = datastore!!.get(TimeSegment.LATEST.name(), path)
-        var result: TimePoint? = null
-        if (currentLatest != null) {
-            result = TimePoint.create(currentLatest!!)
+    /*
+    fun fillMeta(elem: TimeAwareKMFContainer, currentNow: TimePoint?, currentPath: String) {
+        if (elem.meta == null) {
+            elem.meta = EntityMeta()
+            elem.meta.metatype = elem.metaClassName()
         }
-        var currentLatestPreviousString = datastore!!.get(TimeSegment.PREVIOUS.name(), "${currentLatest.toString()}/$path")
-        if (currentLatestPreviousString == null) {
-            currentLatestPreviousString = datastore!!.get(TimeSegment.ORIGIN.name(), currentLatest.toString())
+
+        //manage latest
+        var currentLatestString = datastore!!.get(TimeSegment.LATEST.name(), currentPath)
+        var currentLatest: TimePoint? = null;
+        if (currentLatestString != null) {
+            currentLatest = TimePoint.create(currentLatestString!!)
         }
-        while (currentLatestPreviousString != null && TimePoint.create(currentLatestPreviousString!!).compareTo(currentNow) > 0) {
-            result = TimePoint.create(currentLatestPreviousString!!);
-            currentLatestPreviousString = datastore!!.get(TimeSegment.PREVIOUS.name(), "${currentLatestPreviousString.toString()}/$path")
-            if (currentLatestPreviousString == null) {
-                currentLatestPreviousString = datastore!!.get(TimeSegment.ORIGIN.name(), currentLatestPreviousString.toString())
+        //update next and previous
+        //most simple case > latest
+        if (currentLatest == null || currentLatest!!.compareTo(currentNow!!) < 0) {
+            datastore!!.put(TimeSegment.LATEST.name(), currentPath, currentNow.toString())
+            if (currentLatest != null) {
+                elem.meta.previous = TimePoint.create("$currentNow/$currentPath")
+                elem.meta.next = TimePoint.create("$currentNow/$currentPath")
             }
+        } else {
+
+            throw Exception("Unmanaged yet, insert back in time not supported !")
+            /*
+            var previousGlobal = datastore!!.get(TimeSegment.ORIGIN.name(), currentNow.toString())
+            if (previousGlobal == null) {
+                //TODO redo this shit !
+                //costly, to optimize !!!
+                var immediatePreviousVersion = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
+                var immediatePreviousVersionString = immediatePreviousVersion.toString()
+                var previousPrevious = datastore!!.get(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath")
+                if (previousPrevious != null) {
+                    datastore!!.put(TimeSegment.PREVIOUS.name(), "$currentNow/$currentPath", previousPrevious.toString())
+                    datastore!!.put(TimeSegment.NEXT.name(), "$previousPrevious/$currentPath", currentNow.toString())
+                }
+                datastore!!.put(TimeSegment.PREVIOUS.name(), "$immediatePreviousVersionString/$currentPath", currentNow.toString())
+                datastore!!.put(TimeSegment.NEXT.name(), "$currentNow/$currentPath", immediatePreviousVersionString.toString())
+            }  */
         }
-        return result
-    }
+    } */
 
     fun removeVersion(t: TimePoint) {
         //TODO
@@ -150,10 +91,11 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     }
 
     override fun remove(elem: KMFContainer) {
+        //TODO
+        val casted = elem as TimeAwareKMFContainer
         if (datastore != null) {
-            datastore!!.remove(TimeSegment.RAW.name(), elem.path()!!);
-            datastore!!.remove(TimeSegment.TYPE.name(), elem.path()!!);
-            datastore!!.remove(TimeSegment.LATEST.name(), elem.path()!!);
+            datastore!!.remove(TimeSegment.RAW.name(), "${casted.now.toString()}/${elem.path()}");
+            datastore!!.remove(TimeSegment.ENTITYMETA.name(), "${casted.now.toString()}/${elem.path()}");
         }
     }
 
@@ -165,6 +107,36 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
         return internal_lookupFrom(path, origin, null)
     }
 
+    fun closestTime(path: String, time: TimePoint?): TimePoint? {
+        val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), path)
+        if (timeMetaPayLoad == null || timeMetaPayLoad == "" || time == null) {
+            return null
+        }
+        //TODO put in cached
+        val blob = TimeMeta()
+        blob.load(timeMetaPayLoad)
+        val result = blob.versionTree.lowerOrEqual(time)
+        if (result != null) {
+            return result.key
+        }
+        return null
+    }
+
+    fun lastestTime(path: String): TimePoint? {
+        val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), path)
+        if (timeMetaPayLoad == null || timeMetaPayLoad == "") {
+            return null
+        }
+        //TODO put in cached
+        val blob = TimeMeta()
+        blob.load(timeMetaPayLoad)
+        val result = blob.versionTree.max()
+        if (result != null) {
+            return result.key
+        }
+        return null
+    }
+
     fun internal_lookupFrom(path: String, origin: KMFContainer?, time: TimePoint?): KMFContainer? {
         var path2 = path
         if (path2 == "/") {
@@ -173,43 +145,34 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
         if (path2.startsWith("/")) {
             path2 = path2.substring(1)
         }
-        var currentTime: TimePoint? = (origin as? TimeAwareKMFContainer)?.now
-        if (time != null) {
-            currentTime = time
-        }
-        when(relativityStrategy) {
-            RelativeTimeStrategy.ABSOLUTE -> {
-                currentTime = relativeTime
-            }
-            RelativeTimeStrategy.LATEST -> {
-                currentTime = TimePoint.create(datastore!!.get(TimeSegment.LATEST.name(), path2)!!)
-            }
-            RelativeTimeStrategy.RELATIVE -> {
-                if (currentTime == null) {
-                    currentTime = relativeTime
-                }
-                //check if version for current time exist
-                var existingVersion = datastore?.get(TimeSegment.RAW.name(), "$currentTime/$path")
-                if (existingVersion == null) {
-                    currentTime = lookupImmediatePreviousVersionOf(currentTime!!, path);
+        var currentTime: TimePoint? = null
+        if (time == null && relativeTime == null) {
+            currentTime = lastestTime(path2)
+        } else {
+            if (time != null) {
+                currentTime = closestTime(path2, time)
+            } else {
+                if (relativeTime != null) {
+                    currentTime = closestTime(path2, relativeTime)
                 }
             }
-            else -> {
-            }
         }
-        if (currentTime == null) {
-            //try last
-            currentTime = TimePoint.create(datastore!!.get(TimeSegment.LATEST.name(), path2)!!)
-        }
-
-        val composedKey = currentTime!!.toString() + path2
+        val composedKey = "$currentTime/$path2"
         if (elem_cache.containsKey(composedKey)) {
+            //TODO check if update
             return elem_cache.get(composedKey)
         }
         if (datastore != null) {
-            val typeName = datastore!!.get(TimeSegment.TYPE.name(), path2)
-            if (typeName != null) {
-                val elem = create(typeName) as TimeAwareKMFContainer
+            //load the meta object
+            val metaPayload = datastore!!.get(TimeSegment.ENTITYMETA.name(), composedKey)
+            if (metaPayload == null) {
+                return null
+            }
+            val meta = EntityMeta()
+            meta.load(metaPayload)
+            if (meta.metatype != null) {
+                val elem = create(meta.metatype!!) as TimeAwareKMFContainer
+                elem.meta = meta
                 elem_cache.put(composedKey, elem)
                 elem.isResolved = false
                 elem.now = currentTime!!  //must before OriginPath
@@ -223,52 +186,89 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory {
     }
 
     override fun getTraces(origin: KMFContainer): TraceSequence? {
-        val currentNow = (origin as? TimeAwareKMFContainer)!!.now
         val currentPath = origin.path()!!
         var sequence = compare.createSequence()
-        var traces = datastore?.get(TimeSegment.RAW.name(), "$currentNow/$currentPath")
+        val castedOrigin = origin as TimeAwareKMFContainer
+        var traces = datastore?.get(TimeSegment.RAW.name(), "${castedOrigin.meta!!.lastestPersisted}/$currentPath")
         if (traces != null) {
             sequence.populateFromString(traces!!)
             return sequence
         }
-        //try with previous timepoint
-        var previousTimePoint = (origin as? TimeAwareKMFContainer)!!.previousTimePoint
-        if (previousTimePoint != null) {
-            traces = datastore?.get(TimeSegment.RAW.name(), "$previousTimePoint/$currentPath")
-            if (traces != null) {
-                sequence.populateFromString(traces!!)
-                return sequence
-            }
-        }
-        //try with previous version of the current version
-        var resolved = resolvePreviousGetTrace(origin, relativeTime.toString(), sequence)
-        if (resolved) {
-            return sequence
-        }
-        previousTimePoint = lookupImmediatePreviousVersionOf(currentNow!!, currentPath)
-        traces = datastore?.get(TimeSegment.RAW.name(), "$previousTimePoint/$currentPath")
-        if (traces != null) {
-            sequence.populateFromString(traces!!)
-            return sequence
-        }
-        return sequence
+        return null
     }
 
-    private fun resolvePreviousGetTrace(origin: KMFContainer, current: String, sequence: TraceSequence): Boolean {
-        var previous = datastore?.get(TimeSegment.ORIGIN.name(), current.toString())
-        if (previous == null) {
-            return false;
-        }
-        val currentPath = origin.path()!!
-        var composedKey = "$previous/$currentPath"
-        var traces = datastore?.get(TimeSegment.RAW.name(), composedKey)
-        if (traces != null) {
-            sequence.populateFromString(traces!!)
-            return true
+    override fun create(metaClassName: String): org.kevoree.modeling.api.KMFContainer? {
+        return internal_create(metaClassName, null, relativeTime, null)
+    }
+
+    fun createFrom(from: org.kevoree.modeling.api.KMFContainer?, to: TimePoint): org.kevoree.modeling.api.KMFContainer? {
+        if (from == null || from !is TimeAwareKMFContainer) {
+            return null
         } else {
-            return resolvePreviousGetTrace(origin, previous!!, sequence)
+            return internal_create(from.metaClassName(), from.now, to, from.path())
         }
     }
+
+
+    private fun internal_create(metaClassName: String, from: TimePoint?, pto: TimePoint?, pPath: String?): org.kevoree.modeling.api.KMFContainer? {
+        val timePayload = ""
+        var createdObj: TimeAwareKMFContainer? = null
+
+        if (pPath != null && from != null) {
+            //fix potential root path
+            var fromPath: String = pPath
+            if (fromPath == "/") {
+                fromPath = ""
+            }
+            //load BTree structure
+            val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), fromPath)
+            val timeMeta = TimeMeta()
+            if (timeMetaPayLoad != null) {
+                timeMeta.load(timeMetaPayLoad)
+            }
+            var to: TimePoint? = pto
+            if (to == null) {
+                to = timeMeta.versionTree.max()!!.key
+            }
+            if (timeMeta.versionTree.lookup(to!!) != null) {
+                throw Exception("Object already exist with path " + fromPath + " and timepoint " + to + ", please delete it before")
+            }
+            timeMeta.versionTree.insert(to!!, timePayload)
+
+            val previousPayload = datastore?.get(TimeSegment.ENTITYMETA.name(), "$from/$fromPath")
+            var previous: EntityMeta?
+            if (previousPayload != null) {
+                previous = EntityMeta()
+                previous!!.load(previousPayload)
+            } else {
+                throw Exception("Object are not existing with path " + fromPath + " and timepoint " + from + ", please use create method instead to create root")
+            }
+            createdObj = obj_create(metaClassName) as TimeAwareKMFContainer
+            createdObj!!.isResolved = false
+            createdObj!!.now = to
+            createdObj!!.setOriginPath(fromPath)
+            createdObj!!.meta = EntityMeta()
+            createdObj!!.meta!!.metatype = metaClassName
+            createdObj!!.meta!!.lastestPersisted = from
+            if (previous != null) {
+                createdObj!!.meta!!.previous = from
+                previous!!.next = to
+                datastore!!.put(TimeSegment.ENTITYMETA.name(), "${from}/${fromPath}", previous.toString())
+            }
+            datastore!!.put(TimeSegment.ENTITYMETA.name(), "${createdObj!!.now}/${createdObj!!.path()}", createdObj!!.meta.toString())
+            datastore!!.put(TimeSegment.TIMEMETA.name(), fromPath, timeMeta.toString())
+            //TODO, add right side version number
+        } else {
+            createdObj = obj_create(metaClassName) as TimeAwareKMFContainer
+            createdObj!!.isResolved = true
+            createdObj!!.now = pto
+            createdObj!!.meta = EntityMeta()
+            createdObj!!.meta!!.metatype = metaClassName
+        }
+        return createdObj
+    }
+
+    fun obj_create(metaClassName: String): org.kevoree.modeling.api.KMFContainer?
 
 
 }

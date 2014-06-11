@@ -93,7 +93,7 @@ public class ClassGenerator {
         }
         if (ctx.timeAware) {
             pr.println("override var now: org.kevoree.modeling.api.time.TimePoint? = null");
-            pr.println("override var previousTimePoint: org.kevoree.modeling.api.time.TimePoint? = null");
+            pr.println("override var meta: org.kevoree.modeling.api.time.blob.EntityMeta? = null");
         }
 
         pr.println("override var path_cache : String? = null");

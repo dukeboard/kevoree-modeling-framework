@@ -32,7 +32,7 @@ return tempElem
 }
 #end
 
-override fun create(metaClassName : String) : ${ctx.kevoreeContainer}? {
+override fun #if($ctx.timeAware) obj_create #else create #end (metaClassName : String) : ${ctx.kevoreeContainer}? {
 when(metaClassName){
 #foreach( $class in $classes )
     ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
@@ -48,27 +48,20 @@ when(metaClassName){
 
     override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${packageName}.compare.DefaultModelCompare()
 
-
-        #if($ctx.timeAware)
-    protected fun initObject(elem : org.kevoree.modeling.api.time.TimeAwareKMFContainer){
-        if(relativityStrategy == org.kevoree.modeling.api.time.RelativeTimeStrategy.LATEST){
-            elem.now = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0);
-        } else {
-            elem.now = relativeTime;
-        }
-        #else
     protected fun initObject(elem : org.kevoree.modeling.api.persistence.KMFContainerProxy){
-        #end
         elem.originFactory = this
+        #if($ctx.timeAware)
+        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer).now = relativeTime
+        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer).meta = org.kevoree.modeling.api.time.blob.EntityMeta()
+        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer).meta!!.metatype = elem.metaClassName()
+        #end
     }
 
 #end
 
 #if($ctx.timeAware)
-override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint(java.util.Date().getTime(),0)
+override var relativeTime: org.kevoree.modeling.api.time.TimePoint? = null
 override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
-override var relativityStrategy: org.kevoree.modeling.api.time.RelativeTimeStrategy = org.kevoree.modeling.api.time.RelativeTimeStrategy.RELATIVE
-
 
 #end
 

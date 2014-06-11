@@ -8,7 +8,10 @@ package org.kevoree.modeling.api.time
  */
 
 public enum class TimeSegment {
+            LATEST
             RAW
-            ENTITYMETA
-            TIMEMETA
+            TYPE
+            PREVIOUS
+            NEXT
+            ORIGIN
 }

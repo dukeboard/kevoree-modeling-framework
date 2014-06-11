@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.time
 
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.persistence.KMFContainerProxy
+import org.kevoree.modeling.api.time.blob.EntityMeta
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,46 +13,31 @@ import org.kevoree.modeling.api.persistence.KMFContainerProxy
 
 public trait TimeAwareKMFContainer : KMFContainerProxy {
 
-    var previousTimePoint: TimePoint?
-
-    fun shiftOffset(offset: Long): TimeAwareKMFContainer? {
-        if (now != null) {
-            return shift(now!!.shift(offset))
-        }
-        return null
-    }
-
-    fun shift(timePoint: TimePoint): TimeAwareKMFContainer? {
-        if (originFactory != null) {
-            /* here we rely on the lazy load helped by the path concept, to ensure match in case of existing timepoint for this object path */
-            var newObject = originFactory!!.create(metaClassName()) as TimeAwareKMFContainer
-            //newObject.isResolved = false
-            newObject.isResolved = true
-
-            newObject.setOriginPath(path()!!)
-            newObject.now = timePoint
-            newObject.previousTimePoint = now
-            return newObject
-        }
-        return null
-    }
+    var meta: EntityMeta?
 
     var now: TimePoint?
 
-    fun previous(): KMFContainer? {
-        val previousTimePoint = (originFactory as TimeAwareKMFFactory).previous(now!!, path()!!)
-        if (previousTimePoint != null) {
-            return shift(previousTimePoint)
+    fun shift(timePoint: TimePoint): TimeAwareKMFContainer? {
+        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).createFrom(this, timePoint) as? TimeAwareKMFContainer
         }
         return null
     }
 
-    fun next(): KMFContainer? {
-        val nextTimePoint = (originFactory as TimeAwareKMFFactory).next(now!!, path()!!)
-        if (nextTimePoint != null) {
-            return shift(nextTimePoint)
+    fun previous(): KMFContainer? {
+        if (meta!!.previous != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).lookupFromTime(path()!!, meta!!.previous!!)
+        } else {
+            return null
         }
-        return null
+    }
+
+    fun next(): KMFContainer? {
+        if (meta!!.next != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).lookupFromTime(path()!!, meta!!.next!!)
+        } else {
+            return null
+        }
     }
 
 }
