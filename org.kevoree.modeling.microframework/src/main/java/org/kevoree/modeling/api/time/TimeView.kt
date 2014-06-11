@@ -12,6 +12,8 @@ public trait TimeView<A> {
 
     fun time(tp: TimePoint): TimeView<A>
 
+    fun time(tps : String): TimeView<A>
+
     fun lookup(path: String): KMFContainer?
 
     fun commit()

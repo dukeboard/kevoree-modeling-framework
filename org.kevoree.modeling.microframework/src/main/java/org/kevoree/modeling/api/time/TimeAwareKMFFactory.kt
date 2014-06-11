@@ -166,4 +166,8 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         return relativeTime
     }
 
+    override fun time(tps: String): TimeView<A> {
+        return time(TimePoint.create(tps))
+    }
+
 }
