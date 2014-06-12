@@ -137,7 +137,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         if (tp == null) {
             return null
         } else {
-            return  getTimeTree(path).versionTree.lower(tp)?.key
+            return  getTimeTree(path).versionTree.lowerUntil(tp,TimeSegmentConst.DELETE_CODE)?.key
         }
     }
 
@@ -145,7 +145,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         if (tp == null) {
             return null
         } else {
-            return  getTimeTree(path).versionTree.upper(tp)?.key
+            return  getTimeTree(path).versionTree.upperUntil(tp,TimeSegmentConst.DELETE_CODE)?.key
         }
     }
 

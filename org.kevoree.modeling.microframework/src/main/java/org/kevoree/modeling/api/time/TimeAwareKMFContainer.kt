@@ -17,11 +17,19 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
     var now: TimePoint?
 
     fun previous(): TimePoint? {
-        return meta?.previous
+        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
+            return (originFactory as TimeAwareKMFFactory<*>).floor(path()!!, now)
+        } else {
+            return null
+        }
     }
 
     fun next(): TimePoint? {
-        return meta?.next
+        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
+            return (originFactory as TimeAwareKMFFactory<*>).ceil(path()!!, now)
+        } else {
+            return null
+        }
     }
 
     fun lastest(): TimePoint? {
