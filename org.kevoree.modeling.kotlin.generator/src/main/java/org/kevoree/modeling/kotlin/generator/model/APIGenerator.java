@@ -37,8 +37,8 @@ public class APIGenerator {
 
 
     private static boolean isAttributeAlreadyInParents(EClass cls, EAttribute currentAtt) {
-        for(EAttribute att : cls.getEAllAttributes()) {
-            if(att.getName().equals(currentAtt.getName()) && att.getEContainingClass() != cls) {
+        for (EAttribute att : cls.getEAllAttributes()) {
+            if (att.getName().equals(currentAtt.getName()) && att.getEContainingClass() != cls) {
                 return true;
             }
         }
@@ -46,8 +46,8 @@ public class APIGenerator {
     }
 
     private static boolean isReferenceAlreadyInParents(EClass cls, EReference currentRef) {
-        for(EReference ref : cls.getEAllReferences()) {
-            if(ref.getName().equals(currentRef.getName()) && ref.getEContainingClass() != cls) {
+        for (EReference ref : cls.getEAllReferences()) {
+            if (ref.getName().equals(currentRef.getName()) && ref.getEContainingClass() != cls) {
                 return true;
             }
         }
@@ -72,18 +72,26 @@ public class APIGenerator {
         }
         pr.print("trait " + cls.getName());
         pr.println(ProcessorHelper.getInstance().generateSuperTypes(ctx, cls, packElement) + " {");
-        for(EAttribute att : cls.getEAttributes()) {
+        for (EAttribute att : cls.getEAttributes()) {
             if (!isAttributeAlreadyInParents(cls, att)) {
                 if (att.isMany()) {
                     pr.println("public open var " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">?");
+                    pr.print("public fun with");
+                    pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
+                    pr.print("(p : ");
+                    pr.println("List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">) : "+cls.getName());
                 } else {
                     pr.println("public open var " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + "?");
+                    pr.print("public fun with");
+                    pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
+                    pr.print("(p : ");
+                    pr.println(ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ") : "+cls.getName());
                 }
             }
         }
         //Kotlin workaround // Why prop are not generated properly ?
         if (ctx.js && ctx.ecma3compat) {
-            for(EAttribute att : ProcessorHelper.getInstance().noduplicate(cls.getEAttributes())) {
+            for (EAttribute att : ProcessorHelper.getInstance().noduplicate(cls.getEAttributes())) {
                 if (!isAttributeAlreadyInParents(cls, att)) {
                     if (att.isMany()) {
                         pr.println("public fun get" + ProcessorHelper.getInstance().toCamelCase(att) + "()" + " : List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">");
@@ -95,7 +103,7 @@ public class APIGenerator {
                 }
             }
 
-            for(EReference ref : cls.getEReferences()) {
+            for (EReference ref : cls.getEReferences()) {
                 if (!isReferenceAlreadyInParents(cls, ref)) {
                     String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
                     if (ref.isMany()) {
@@ -109,7 +117,7 @@ public class APIGenerator {
             }
         }
         //end kotlin workaround
-        for(EReference ref : cls.getEReferences()) {
+        for (EReference ref : cls.getEReferences()) {
             if (!isReferenceAlreadyInParents(cls, ref)) {
                 String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
                 if (ref.isMany()) {
@@ -121,6 +129,10 @@ public class APIGenerator {
                     pr.println("fun find" + ProcessorHelper.getInstance().toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType())) + "?");
                 } else {
                     pr.println("open var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + "?");
+                    pr.print("public fun with");
+                    pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(ref)));
+                    pr.print("(ref : "+typeRefName+")");
+                    pr.println(" : "+cls.getName());
                 }
             }
         }
@@ -128,15 +140,14 @@ public class APIGenerator {
     /* next we generated custom method */
 
 
-
         ArrayList<EOperation> alreadyGenerated = new ArrayList<EOperation>();
 
-        for(EOperation op : cls.getEAllOperations()) {
-            if(!op.getName().equals("eContainer")) {
+        for (EOperation op : cls.getEAllOperations()) {
+            if (!op.getName().equals("eContainer")) {
 
                 boolean alGen = false;
-                for(EOperation preOp : alreadyGenerated) {
-                    if(matchEOperation(preOp, op)) {
+                for (EOperation preOp : alreadyGenerated) {
+                    if (matchEOperation(preOp, op)) {
                         alGen = true;
                         break;
                     }
@@ -150,21 +161,21 @@ public class APIGenerator {
                     }
                     pr.print("fun " + op.getName() + "(");
                     boolean isFirst = true;
-                    for(EParameter p : op.getEParameters()) {
+                    for (EParameter p : op.getEParameters()) {
                         if (!isFirst) {
                             pr.println(",");
                         }
                         String returnTypeP = ((p.getEType() instanceof EDataType) ?
-                            ProcessorHelper.getInstance().convertType(p.getEType().getName()) :
-                            ProcessorHelper.getInstance().fqn(ctx, p.getEType()));
+                                ProcessorHelper.getInstance().convertType(p.getEType().getName()) :
+                                ProcessorHelper.getInstance().fqn(ctx, p.getEType()));
                         pr.print(p.getName() + "P :" + returnTypeP);
                         isFirst = false;
                     }
                     if (op.getEType() != null) {
 
-                        String returnTypeOP = ( (op.getEType() instanceof EDataType) ?
-                            ProcessorHelper.getInstance().convertType(op.getEType().getName()) :
-                            ProcessorHelper.getInstance().fqn(ctx, op.getEType()));
+                        String returnTypeOP = ((op.getEType() instanceof EDataType) ?
+                                ProcessorHelper.getInstance().convertType(op.getEType().getName()) :
+                                ProcessorHelper.getInstance().fqn(ctx, op.getEType()));
                         if (returnTypeOP == null || returnTypeOP.equals("null")) {
                             returnTypeOP = "Unit";
                         }
@@ -190,27 +201,27 @@ public class APIGenerator {
         }
 
         //Checks if all parameters of OP1 are included in OP2
-        for(EParameter opP : op1.getEParameters()) {
+        for (EParameter opP : op1.getEParameters()) {
             boolean exists = false;
-            for(EParameter op2P : op2.getEParameters()) {
-                if(opP.getName().equals(op2P.getName()) && ProcessorHelper.getInstance().fqn(opP.getEType()).equals(ProcessorHelper.getInstance().fqn(op2P.getEType()))) {
+            for (EParameter op2P : op2.getEParameters()) {
+                if (opP.getName().equals(op2P.getName()) && ProcessorHelper.getInstance().fqn(opP.getEType()).equals(ProcessorHelper.getInstance().fqn(op2P.getEType()))) {
                     exists = true;
                 }
             }
-            if(!exists) {
+            if (!exists) {
                 return false;
             }
         }
 
         //Checks if all parameters of OP2 are included in OP1
-        for(EParameter opP : op2.getEParameters()) {
+        for (EParameter opP : op2.getEParameters()) {
             boolean exists = false;
-            for(EParameter op2P : op1.getEParameters()) {
-                if(opP.getName().equals(op2P.getName()) && ProcessorHelper.getInstance().fqn(opP.getEType()).equals(ProcessorHelper.getInstance().fqn(op2P.getEType()))) {
+            for (EParameter op2P : op1.getEParameters()) {
+                if (opP.getName().equals(op2P.getName()) && ProcessorHelper.getInstance().fqn(opP.getEType()).equals(ProcessorHelper.getInstance().fqn(op2P.getEType()))) {
                     exists = true;
                 }
             }
-            if(!exists) {
+            if (!exists) {
                 return false;
             }
         }
@@ -218,19 +229,19 @@ public class APIGenerator {
     }
 
     private static void generateAddAllMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " :List<" + typeRefName + ">)");
+        pr.println("fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " :List<" + typeRefName + ">) : "+cls.getName());
     }
 
     private static void generateAddMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ")");
+        pr.println("fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ") : "+cls.getName());
     }
 
     private static void generateRemoveMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ")");
+        pr.println("fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ") : "+cls.getName());
     }
 
     private static void generateRemoveAllMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "()");
+        pr.println("fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "() : "+cls.getName());
     }
 
 }
