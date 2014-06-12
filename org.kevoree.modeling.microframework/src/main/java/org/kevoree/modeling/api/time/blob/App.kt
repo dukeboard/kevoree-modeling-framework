@@ -8,7 +8,7 @@ import java.util.Random
  * Created by duke on 6/11/14.
  */
 
-    /*
+
 fun main(args: Array<String>) {
     println("Hello")
 
@@ -17,9 +17,20 @@ fun main(args: Array<String>) {
     btree.insert(TimePoint.create("1"), "");
     btree.insert(TimePoint.create("2"), "");
     btree.insert(TimePoint.create("3"), "");
-    btree.insert(TimePoint.create("4"), "");
+    btree.insert(TimePoint.create("4"), "X");
     btree.insert(TimePoint.create("5"), "");
 
+
+    println(btree.serialize())
+
+    println(btree.relativeMax(TimePoint.create("2"),"X")!!.key)
+    println(btree.relativeMax(TimePoint.create("3"),"X")!!.key)
+    println(btree.relativeMax(TimePoint.create("4"),"X"))
+    println(btree.relativeMax(TimePoint.create("5"),"X")!!.key)
+
+
+
+    /*
     println(btree.lower(TimePoint.create("3"))!!.key)
     println(btree.lower(TimePoint.create("10"))!!.key)
 
@@ -59,6 +70,6 @@ fun main(args: Array<String>) {
         assert(upper.equals(upper2))
 
 
-    }
+    } */
 
-}*/
+}

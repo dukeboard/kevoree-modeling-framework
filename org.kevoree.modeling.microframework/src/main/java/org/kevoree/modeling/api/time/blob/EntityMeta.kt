@@ -12,8 +12,8 @@ import org.kevoree.modeling.api.time.TimePoint
 
 class EntityMeta() {
 
-    var previous: TimePoint? = null
-    var next: TimePoint? = null
+    //var previous: TimePoint? = null
+    //var next: TimePoint? = null
     var lastestPersisted: TimePoint? = null
     var metatype: String? = null
 
@@ -21,17 +21,7 @@ class EntityMeta() {
 
     override fun toString(): String {
         val buidler = StringBuilder()
-        if (previous != null) {
-            buidler.append(previous)
-        }
-        buidler.append(sep)
-        if (next != null) {
-            buidler.append(next)
-        }
-        buidler.append(sep)
-        if (lastestPersisted != null) {
-            buidler.append(lastestPersisted)
-        }
+        buidler.append(lastestPersisted)
         buidler.append(sep)
         buidler.append(metatype)
         return buidler.toString()
@@ -39,20 +29,12 @@ class EntityMeta() {
 
     fun load(payload: String) {
         val elem = payload.split(sep)
-        if (elem.size == 4) {
-            val previousPayload = elem.get(0)
-            if(previousPayload != ""){
-                previous = TimePoint.create(previousPayload)
-            }
-            val nextPayload = elem.get(1)
-            if(nextPayload != ""){
-                next = TimePoint.create(nextPayload)
-            }
-            val originPayload = elem.get(2)
-            if(originPayload != ""){
+        if (elem.size == 2) {
+            val originPayload = elem.get(0)
+            if (originPayload != "") {
                 lastestPersisted = TimePoint.create(originPayload)
             }
-            metatype = elem.get(3)
+            metatype = elem.get(1)
         } else {
             throw Exception("Bad EntityTimeMeta format")
         }

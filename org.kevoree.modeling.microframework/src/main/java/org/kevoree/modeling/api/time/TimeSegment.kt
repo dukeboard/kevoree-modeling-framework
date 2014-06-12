@@ -11,4 +11,12 @@ enum class TimeSegment {
             RAW
             ENTITYMETA
             TIMEMETA
+            ENTITIES
+
+
+}
+
+object TimeSegmentConst {
+    val GLOBAL_TIMEMETA = "#global"
+    val DELETE_CODE = "X"
 }

@@ -102,6 +102,11 @@ private class ReaderContext(val payload: String, var offset: Int) {
     }
 }
 
+
+trait VersionTree {
+    fun floor(key: TimePoint)
+}
+
 public class RBTree {
 
     public var root: Node? = null
@@ -453,6 +458,30 @@ public class RBTree {
         }
     }
 
+    fun relativeMax(from: TimePoint, without: String): Node? {
+        var n = lookupNode(from)
+        if (n == null || n!!.value.equals(without)) {
+            return null
+        } else {
+            //climb to the maximal parent
+            while(n!!.parent != null && n!!.parent!!.key.compareTo(n!!.key)>0){
+               n = n!!.parent
+            }
+            while (n!!.right != null && !n!!.value.equals(without)) {
+                n = n!!.right!!
+            }
+            if(!n!!.value.equals(without)){
+                return n
+            } else {
+                if(n!!.left != null){
+                     return n!!.left
+                } else {
+                     return n!!.parent
+                }
+            }
+        }
+    }
+
     private fun maximumNode(m: Node): Node {
         var n = m
         while (n.right != null) {
@@ -460,8 +489,6 @@ public class RBTree {
         }
         return n
     }
-
-
 
 
 }

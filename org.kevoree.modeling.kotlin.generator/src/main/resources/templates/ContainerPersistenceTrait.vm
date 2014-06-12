@@ -22,6 +22,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
             internal_eContainer = null
             content?.silentlyApplyOn(this)
             internal_eContainer = previousParent
+            originFactory!!.loadInbounds(this)
             inResolution = false
         }
     }

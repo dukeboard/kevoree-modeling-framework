@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.time
 
-import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.persistence.KMFContainerProxy
 import org.kevoree.modeling.api.time.blob.EntityMeta
 
@@ -17,22 +16,38 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     var now: TimePoint?
 
-    /*
-    fun previous(): KMFContainer? {
-        if (meta!!.previous != null && originFactory is TimeAwareKMFFactory) {
-            return (originFactory as TimeAwareKMFFactory).lookupFromTime(path()!!, meta!!.previous!!)
+    fun previous(): TimePoint? {
+        return meta?.previous
+    }
+
+    fun next(): TimePoint? {
+        return meta?.next
+    }
+
+    fun lastest(): TimePoint? {
+        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
+            return (originFactory as TimeAwareKMFFactory<*>).latest(path()!!)
         } else {
             return null
         }
     }
 
-    fun next(): KMFContainer? {
-        if (meta!!.next != null && originFactory is TimeAwareKMFFactory) {
-            return (originFactory as TimeAwareKMFFactory).lookupFromTime(path()!!, meta!!.next!!)
+    fun floor(p: String): TimePoint? {
+        val tp = TimePoint.create(p)
+        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
+            return (originFactory as TimeAwareKMFFactory<*>).floor(path()!!, tp)
         } else {
             return null
         }
     }
-    */
+
+    fun ceil(p: String): TimePoint? {
+        val tp = TimePoint.create(p)
+        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
+            return (originFactory as TimeAwareKMFFactory<*>).ceil(path()!!, tp)
+        } else {
+            return null
+        }
+    }
 
 }

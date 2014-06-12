@@ -7,6 +7,10 @@ import org.kevoree.modeling.api.compare.ModelCompare
 import java.util.HashMap
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
+import org.kevoree.modeling.api.time.TimeAwareKMFContainer
+import org.kevoree.modeling.api.util.InboundRefAware
+import org.kevoree.modeling.api.time.TimeSegment
+import org.kevoree.modeling.api.time.blob.MetaHelper
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +27,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     fun remove(elem: KMFContainer) {
         if (datastore != null) {
-            datastore!!.remove("trace", elem.path()!!);
+            datastore!!.remove(TimeSegment.RAW.name(), elem.path()!!);
             datastore!!.remove("type", elem.path()!!);
         }
         elem_cache.remove(elem.path()!!)
@@ -39,7 +43,12 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
-            datastore!!.put("trace", elem.path()!!, traceSeq.exportToString())
+            datastore!!.put(TimeSegment.RAW.name(), elem.path()!!, traceSeq.exportToString())
+
+            val castedInBounds = elem as InboundRefAware
+            val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
+            datastore!!.put(TimeSegment.RAW.name(), "${elem.path()}#", saved)
+
             datastore!!.put("type", elem.path()!!, elem.metaClassName())
             if (elem is KMFContainerProxy) {
                 elem.originFactory = this
@@ -113,12 +122,20 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     /* potential optimisation, only load att or reference */
     fun getTraces(origin: KMFContainer): TraceSequence? {
         var sequence = compare.createSequence()
-        val traces = datastore?.get("trace", origin.path()!!)
+        val traces = datastore?.get(TimeSegment.RAW.name(), origin.path()!!)
         if (traces != null) {
             sequence.populateFromString(traces)
             return sequence
         }
         return null
+    }
+
+    fun loadInbounds(elem : TimeAwareKMFContainer){
+        val castedInBounds = elem as InboundRefAware
+        val payload = datastore!!.get(TimeSegment.RAW.name(), "${elem.path()}#")
+        if(payload != null){
+            castedInBounds.internal_inboundReferences = MetaHelper.unserialize(payload,this)
+        }
     }
 
 

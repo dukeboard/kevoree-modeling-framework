@@ -56,6 +56,7 @@ public class FactoryGenerator {
                 pr.println("override var compare: org.kevoree.modeling.api.compare.ModelCompare = " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".compare.DefaultModelCompare()");
             }
             if (ctx.timeAware) {
+                pr.println("override var entitiesCache: java.util.HashMap<String, org.kevoree.modeling.api.time.blob.EntitiesMeta> = java.util.HashMap<String, org.kevoree.modeling.api.time.blob.EntitiesMeta>()\n");
                 pr.println("override var timeCache: java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta> = java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta>()\n");
                 pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint.create(\"0:0\")");
                 pr.println("override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()");

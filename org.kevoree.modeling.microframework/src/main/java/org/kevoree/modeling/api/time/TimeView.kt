@@ -24,4 +24,15 @@ public trait TimeView<A> {
         return this as A
     }
 
+
+    public fun globalFloor(tp: TimePoint?): TimePoint?
+
+    public fun globalCeil(tp: TimePoint?): TimePoint?
+
+    public fun globalLatest(): TimePoint?
+
+    fun create(metaTypeName: String): KMFContainer?
+
+    fun entities() : List<KMFContainer>
+
 }

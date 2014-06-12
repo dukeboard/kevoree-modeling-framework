@@ -6,6 +6,10 @@ import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.time.blob.EntityMeta
 import org.kevoree.modeling.api.time.blob.TimeMeta
 import java.util.HashMap
+import org.kevoree.modeling.api.time.blob.EntitiesMeta
+import java.util.ArrayList
+import org.kevoree.modeling.api.util.InboundRefAware
+import org.kevoree.modeling.api.time.blob.MetaHelper
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,33 +23,49 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     var relativeTime: TimePoint
     var queryMap: MutableMap<String, TimePoint>
     var timeCache: HashMap<String, TimeMeta>
+    var entitiesCache: HashMap<String, EntitiesMeta>
 
     override fun clearCache() {
         super<PersistenceKMFFactory>.clearCache()
         timeCache.clear()
+        entitiesCache.clear()
     }
 
     override fun persist(elem: KMFContainer) {
-        //TODO SAVE NEW HASHMAP EXTERNAL RELATIONS)HIPS
         val casted = elem as TimeAwareKMFContainer
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
             val currentPath = elem.path()!!
+
+            //add currentPath to currentTimePointMeta
+            val entitiesMeta = getEntitiesMeta(relativeTime)
+            entitiesMeta.list.add(currentPath)
+            datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
+
             val key = "${relativeTime.toString()}/$currentPath"
             datastore!!.put(TimeSegment.RAW.name(), key, traceSeq.exportToString())
+
+
+            val castedInBounds = elem as InboundRefAware
+            val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
+            datastore!!.put(TimeSegment.RAW.name(), key+"#", saved)
 
             val timeTree = getTimeTree(elem.path()!!)
             timeTree.versionTree.insert(relativeTime, "")
             datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeTree.toString())
 
             casted.meta!!.lastestPersisted = relativeTime
-            casted.meta!!.previous = timeTree.versionTree.lower(elem.now!!)?.key
-            casted.meta!!.next = timeTree.versionTree.upper(elem.now!!)?.key
-
             datastore!!.put(TimeSegment.ENTITYMETA.name(), key, casted.meta.toString())
 
+            //check global time
+            //TODO maybe use a global lock for this write
+            val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
+            if (globalTime.versionTree.lookup(relativeTime) == null) {
+                globalTime.versionTree.insert(relativeTime, "");
+                datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
+            }
         }
     }
 
@@ -63,10 +83,22 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             if (timeMetaPayLoad != null) {
                 timeMeta.load(timeMetaPayLoad)
             }
-            timeMeta.versionTree.insert(relativeTime, "del")
+            timeMeta.versionTree.insert(relativeTime, TimeSegmentConst.DELETE_CODE)
+
             datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeMeta.toString())
             datastore!!.remove(TimeSegment.ENTITYMETA.name(), key);
             datastore!!.remove(TimeSegment.RAW.name(), key);
+            datastore!!.remove(TimeSegment.RAW.name(), key+"#");
+
+            val entitiesMeta = getEntitiesMeta(relativeTime)
+            entitiesMeta.list.remove(currentPath)
+            datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
+
+            val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
+            if (globalTime.versionTree.lookup(relativeTime) == null) {
+                globalTime.versionTree.insert(relativeTime, "");
+                datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
+            }
         }
     }
 
@@ -85,20 +117,62 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         }
     }
 
-    fun lastestTime(path: String): TimePoint? {
-        val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), path)
-        if (timeMetaPayLoad == null || timeMetaPayLoad == "") {
-            return null
+    private fun getEntitiesMeta(tp: TimePoint): EntitiesMeta {
+        val time = tp.toString()
+        val alreadyCached = entitiesCache.get(time);
+        if (alreadyCached != null) {
+            return alreadyCached;
+        } else {
+            val payload = datastore!!.get(TimeSegment.ENTITIES.name(), time);
+            val blob = EntitiesMeta();
+            if (payload != null) {
+                blob.load(payload);
+            }
+            entitiesCache.put(time, blob);
+            return blob;
         }
-        //TODO put in cached
-        val blob = TimeMeta()
-        blob.load(timeMetaPayLoad)
-        val result = blob.versionTree.max()
-        if (result != null) {
-            return result.key
-        }
-        return null
     }
+
+    public fun floor(path: String, tp: TimePoint?): TimePoint? {
+        if (tp == null) {
+            return null
+        } else {
+            return  getTimeTree(path).versionTree.lower(tp)?.key
+        }
+    }
+
+    public fun ceil(path: String, tp: TimePoint?): TimePoint? {
+        if (tp == null) {
+            return null
+        } else {
+            return  getTimeTree(path).versionTree.upper(tp)?.key
+        }
+    }
+
+    public fun latest(path: String): TimePoint? {
+        return  getTimeTree(path).versionTree.relativeMax(relativeTime,TimeSegmentConst.DELETE_CODE)?.key
+    }
+
+    override public fun globalFloor(tp: TimePoint?): TimePoint? {
+        if (tp == null) {
+            return null
+        } else {
+            return  getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.lower(tp)?.key
+        }
+    }
+
+    override public fun globalCeil(tp: TimePoint?): TimePoint? {
+        if (tp == null) {
+            return null
+        } else {
+            return  getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.upper(tp)?.key
+        }
+    }
+
+    override public fun globalLatest(): TimePoint? {
+        return  getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.max()?.key
+    }
+
 
     private fun cleanPath(path: String): String {
         var path2 = path
@@ -114,8 +188,9 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     override fun lookup(path: String): KMFContainer? {
         var path2 = cleanPath(path)
         val timeTree = getTimeTree(path2)
-        val askedTime = timeTree.versionTree.lowerOrEqual(relativeTime)?.key
-        if (askedTime == null) {
+        val askedTimeResult = timeTree.versionTree.lowerOrEqual(relativeTime)
+        val askedTime = askedTimeResult?.key
+        if (askedTime == null || askedTimeResult!!.value.equals(TimeSegmentConst.DELETE_CODE)) {
             return null;
         }
         val composedKey = "$askedTime/$path2"
@@ -168,6 +243,18 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
     override fun time(tps: String): TimeView<A> {
         return time(TimePoint.create(tps))
+    }
+
+    override fun entities(): List<KMFContainer> {
+        val meta = getEntitiesMeta(relativeTime)
+        val result = ArrayList<KMFContainer>()
+        for (elem in meta.list) {
+            val resolved = lookup(elem)
+            if (resolved != null) {
+                result.add(resolved)
+            }
+        }
+        return result
     }
 
 }
