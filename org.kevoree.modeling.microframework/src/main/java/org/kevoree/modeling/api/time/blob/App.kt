@@ -12,20 +12,39 @@ import java.util.Random
 fun main(args: Array<String>) {
     println("Hello")
 
+
+
+
     val btree = RBTree()
-    btree.insert(TimePoint.create("0"), "X");
+
+
+    btree.insert(TimePoint.create("0"), "");
     btree.insert(TimePoint.create("1"), "");
-    btree.insert(TimePoint.create("2"), "");
+    btree.insert(TimePoint.create("2"), "X");
+    btree.insert(TimePoint.create("3"), "");
+    btree.insert(TimePoint.create("4"), "");
+
+    /*
     btree.insert(TimePoint.create("3"), "");
     btree.insert(TimePoint.create("4"), "X");
     btree.insert(TimePoint.create("5"), "");
     btree.insert(TimePoint.create("6"), "");
-
+      */
 
     println(btree.serialize())
 
 
-    println(btree.relativeMax(TimePoint.create("10"),"X"))
+    //println(btree.relativeMax(TimePoint.create("3"),"X"))
+    /*
+
+     */
+    println(btree.upperUntil(TimePoint.create("0"),"X")?.key)
+    println(btree.upperUntil(TimePoint.create("1"),"X")?.key)
+    println(btree.upperUntil(TimePoint.create("2"),"X")?.key)
+    println(btree.upperUntil(TimePoint.create("3"),"X")?.key)
+    println(btree.upperUntil(TimePoint.create("4"),"X")?.key)
+
+
 
 
 

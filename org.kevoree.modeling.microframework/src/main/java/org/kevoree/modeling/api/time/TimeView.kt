@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.time
 
 import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.trace.TraceSequence
 
 /**
  * Created by duke on 6/11/14.
@@ -33,6 +34,10 @@ public trait TimeView<A> {
 
     fun create(metaTypeName: String): KMFContainer?
 
-    fun entities() : List<KMFContainer>
+    fun modified() : Set<String>
+
+    fun delete() : TimeView<A>
+
+    fun diff(tp : TimePoint) : TraceSequence
 
 }

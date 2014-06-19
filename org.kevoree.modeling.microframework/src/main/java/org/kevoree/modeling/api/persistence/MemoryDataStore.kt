@@ -36,6 +36,9 @@ public open class MemoryDataStore : DataStore {
     }
 
     override fun put(segment: String, key: String, value: String) {
+
+        //println("put/"+segment+"_"+key+"="+value)
+
         getOrCreateSegment(segment).put(key, value)
     }
     override fun get(segment: String, key: String): String? {

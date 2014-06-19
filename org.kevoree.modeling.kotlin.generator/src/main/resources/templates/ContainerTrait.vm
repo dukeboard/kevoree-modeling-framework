@@ -22,12 +22,12 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
     internal open var internal_containmentRefName : String?
     internal open var internal_readOnlyElem : Boolean
     internal open var internal_recursive_readOnlyElem : Boolean
-    //override open var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableList<String>>
+    //override open var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableSet<String>>
     internal open var internal_deleteInProgress : Boolean
 
     protected fun addInboundReference(path : org.kevoree.modeling.api.KMFContainer, refName : String) {
         if(!internal_deleteInProgress) {
-            internal_inboundReferences.getOrPut(path){java.util.ArrayList<String>()}.add(refName)
+            internal_inboundReferences.getOrPut(path){java.util.HashSet<String>()}.add(refName)
         }
     }
 

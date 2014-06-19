@@ -183,51 +183,18 @@ public class RBTree {
         return null
     }
 
+
     fun lowerUntil(key: TimePoint, until: String): Node? {
-        var p = root
-        if (p == null) {
-            return null
+        val current = lookup(key)
+        if(current!= null && current == until){
+            return null;
         }
-        while (p != null) {
-            if (p!!.value.equals(until)) {
-                if (p!!.right != null) {
-                    p = p!!.right
-                } else {
-                    if (p!!.parent != null) {
-                        val cmp = compare(key, p!!.parent!!.key)
-                        if (cmp > 0) {
-                            p = p!!.parent
-                        } else {
-                            return null
-                        }
-                    } else {
-                        return null
-                    }
-                }
-            } else {
-                val cmp = compare(key, p!!.key)
-                if (cmp > 0) {
-                    if (p!!.right != null) {
-                        p = p!!.right
-                    } else {
-                        return p
-                    }
-                } else {
-                    if (p!!.left != null) {
-                        p = p!!.left
-                    } else {
-                        var parent = p!!.parent
-                        var ch = p
-                        while (parent != null && ch == parent!!.left) {
-                            ch = parent
-                            parent = parent!!.parent
-                        }
-                        return parent
-                    }
-                }
-            }
+        var root = lower(key)
+        if(root == null || root!!.value.equals(until)){
+            return null;
+        } else {
+            return root;
         }
-        return null
     }
 
     fun upper(key: TimePoint): Node? {
@@ -266,64 +233,18 @@ public class RBTree {
         return null
     }
 
-
     fun upperUntil(key: TimePoint, until: String): Node? {
-        var p = root
-        if (p == null) {
-            return null
+        val current = lookup(key)
+        if(current!= null && current == until){
+            return null;
         }
-        while (p != null) {
-            if (p!!.value.equals(until)) {
-                if (p!!.left != null) {
-                    p = p!!.left
-                } else {
-                    if (p!!.parent != null) {
-                        val cmp = compare(key, p!!.parent!!.key)
-                        if (cmp > 0) {
-                            p = p!!.parent
-                        } else {
-                            return null;
-                        }
-                    } else {
-                        return null
-                    }
-                }
-            } else {
-                val cmp = compare(key, p!!.key)
-                if (cmp > 0) {
-                    if (p!!.right != null) {
-                        p = p!!.right;
-                    } else {
-                        return null;
-                    }
-                } else {
-                    if (cmp == 0) {
-                        if (p!!.right != null) {
-                            p = p!!.right;
-                        } else {
-                            return null;
-                        }
-                    }
-                    if (p!!.left != null) {
-                        val cmp2 = compare(key, p!!.left!!.key)
-                        if (cmp2 < 0) {
-                            p = p!!.left
-                        } else {
-                             if(cmp2 == 0){
-                                 return null
-                             } else {
-                                 return p;
-                             }
-                        }
-                    } else {
-                        return p;
-                    }
-                }
-            }
+        var root = upper(key)
+        if(root == null || root!!.value.equals(until)){
+            return null;
+        } else {
+            return root;
         }
-        return null
     }
-
 
     fun compare(k1: TimePoint, k2: TimePoint): Int {
         return k1.compareTo(k2)
@@ -566,6 +487,10 @@ public class RBTree {
     }
 
     fun relativeMax(from: TimePoint, without: String): Node? {
+        val current = lookup(from);
+        if(current != null && current == without){
+            return null;
+        }
         var n = lower(from)
         if (n == null || n!!.value.equals(without)) {
             return null

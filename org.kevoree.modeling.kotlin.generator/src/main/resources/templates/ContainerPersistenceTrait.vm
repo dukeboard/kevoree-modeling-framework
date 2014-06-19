@@ -21,8 +21,8 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
             val previousParent = internal_eContainer
             internal_eContainer = null
             content?.silentlyApplyOn(this)
-            internal_eContainer = previousParent
             originFactory!!.loadInbounds(this)
+            internal_eContainer = previousParent
             inResolution = false
         }
     }
@@ -40,6 +40,8 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
                 parentPath = path.substring(0, path.lastIndexOf("/"))
                 currentParentRelationName = path.substring(path.lastIndexOf("/") + 1, path.size - 1)
                 currentParentRelationName = currentParentRelationName.substring(0, currentParentRelationName.lastIndexOf("["))
+            }else {
+                currentParentRelationName = path.substring(0, path.lastIndexOf("["))
             }
             val parentElem = originFactory!!.lookup(parentPath)!!
             internal_unsetCmd = ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.container.RemoveFromContainerCommand(parentElem, org.kevoree.modeling.api.util.ActionType.REMOVE, currentParentRelationName, this)

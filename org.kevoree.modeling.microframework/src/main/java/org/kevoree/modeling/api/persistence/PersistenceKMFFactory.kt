@@ -130,7 +130,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         return null
     }
 
-    fun loadInbounds(elem : TimeAwareKMFContainer){
+    fun loadInbounds(elem : KMFContainer){
         val castedInBounds = elem as InboundRefAware
         val payload = datastore!!.get(TimeSegment.RAW.name(), "${elem.path()}#")
         if(payload != null){

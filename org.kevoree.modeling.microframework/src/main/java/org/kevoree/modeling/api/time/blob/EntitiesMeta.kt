@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.time.blob
 
 import java.util.ArrayList
+import java.util.HashMap
 
 /**
  * Created by duke on 6/4/14.
@@ -14,12 +15,12 @@ class EntitiesMeta() {
 
     val sep = "#"
 
-    var list = ArrayList<String>()
+    var list = HashMap<String,Boolean>()
 
     override fun toString(): String {
         val stringBuilder = StringBuilder()
         var isFirst = true
-        for (p in list) {
+        for (p in list.keySet()) {
             if (!isFirst) {
                 stringBuilder.append(sep)
             }
@@ -41,9 +42,9 @@ class EntitiesMeta() {
         val elements = payload.split(sep)
         for (elem in elements) {
             if(elem.equals("/")){
-                list.add("")
+                list.put("",true)
             } else {
-                list.add(elem)
+                list.put(elem,true)
             }
         }
     }

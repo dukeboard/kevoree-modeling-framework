@@ -79,7 +79,7 @@ public class ClassGenerator {
         pr.println("override internal var internal_unsetCmd : " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container.RemoveFromContainerCommand? = null");
         pr.println("override internal var internal_readOnlyElem : Boolean = false");
         pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false");
-        pr.println("override internal var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableList<String>> = java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableList<String>>()");
+        pr.println("override internal var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>> = java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableSet<String>>()");
         pr.println("override internal var internal_deleteInProgress : Boolean = false");
 
         if (ctx.generateEvents) {
@@ -261,6 +261,7 @@ public class ClassGenerator {
 
     private static void generateDeleteMethod(PrintWriter pr, EClass cls, GenerationContext ctx, String pack) {
         pr.println("override fun delete(){");
+        pr.println("checkLazyLoad();");
         pr.println("internal_deleteInProgress = true");
         if (ctx.persistence) {
             pr.println("(this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.remove(this)");
