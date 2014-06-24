@@ -166,8 +166,10 @@ public final class TranslationUtils {
     //TODO extend logic for nested/inner declarations
     private static boolean needsStableMangling(FunctionDescriptor descriptor) {
 
-        //System.out.println(descriptor.getName() + "->" + descriptor.getContainingDeclaration());
 
+        if (descriptor.toString().contains("compareTo")) {
+            return false;
+        }
         if (descriptor.getContainingDeclaration().toString().contains("org.kevoree")) {
             return false;
         }

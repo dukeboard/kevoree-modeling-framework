@@ -7,16 +7,32 @@ package org.kevoree.modeling.api.time
  * Time: 16:02
  */
 
-public data class TimePoint(val timestamp: Long, val sequenceNumber: Long = 0) : Comparable<TimePoint> {
+public data class TimePoint(val timestamp: Long, val sequenceNumber: Long = 0) {
 
-    override fun compareTo(other: TimePoint): Int {
+    fun compareTo(other: TimePoint): Int {
         if (this == other) {
             return 0
         }
         if (timestamp == other.timestamp) {
-            return sequenceNumber.compareTo(other.sequenceNumber)
+            if(this.sequenceNumber == other.sequenceNumber){
+                return 0;
+            } else {
+                if(this.sequenceNumber < other.sequenceNumber){
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
         } else {
-            return timestamp.compareTo(other.timestamp)
+            if(this.timestamp == other.timestamp){
+                return 0;
+            } else {
+                if(this.timestamp < other.timestamp){
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
         }
     }
 
