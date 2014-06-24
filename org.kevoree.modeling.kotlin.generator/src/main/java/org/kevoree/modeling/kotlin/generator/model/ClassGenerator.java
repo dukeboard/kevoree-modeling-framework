@@ -890,6 +890,12 @@ public class ClassGenerator {
                 res.append("}\n");
                 res.append("}\n");
             }
+        } else {
+            if (ref.isContainment()) {
+                res.append("for(el in temp_els!!){\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").setEContainer(null,null,null)\n");
+                res.append("}\n");
+            }
         }
 
 
