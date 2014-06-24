@@ -47,7 +47,7 @@ when(metaClassName){
 
     override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null
 
-    override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${packageName}.compare.DefaultModelCompare()
+    override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.compare.DefaultModelCompare()
 
     protected fun initObject(elem : org.kevoree.modeling.api.persistence.KMFContainerProxy){
         elem.originFactory = this
