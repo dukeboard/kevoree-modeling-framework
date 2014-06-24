@@ -358,30 +358,28 @@ public class ClassGenerator {
 
         HashSet<String> alreadyGeneratedAttributes = new HashSet<String>();
         for (EAttribute att : cls.getEAllAttributes()) {
-
-
-
-            if (att.isMany()) {
-                pr.print("override public fun with");
-                pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
-                pr.print("(p : ");
-                pr.println("List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">) : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{");
-                pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName())+"=p;");
-                pr.println("return this;");
-                pr.println("}");
-            } else {
-                pr.print("override public fun with");
-                pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
-                pr.print("(p : ");
-                pr.println(ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ") : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{");
-                pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName())+"=p;");
-                pr.println("return this;");
-                pr.println("}");
-            }
-
-
             if (!alreadyGeneratedAttributes.contains(att.getName())) {
                 alreadyGeneratedAttributes.add(att.getName());
+
+                if (att.isMany()) {
+                    pr.print("override public fun with");
+                    pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
+                    pr.print("(p : ");
+                    pr.println("List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">) : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{");
+                    pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName())+"=p;");
+                    pr.println("return this;");
+                    pr.println("}");
+                } else {
+                    pr.print("override public fun with");
+                    pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
+                    pr.print("(p : ");
+                    pr.println(ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ") : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{");
+                    pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName())+"=p;");
+                    pr.println("return this;");
+                    pr.println("}");
+                }
+
+
                 String defaultValue = ProcessorHelper.getInstance().getDefaultValue(ctx, att);
                 if (att.getName().equals("generated_KMF_ID") && idAttributes.size() == 0) {
                     if (ctx.js) {
