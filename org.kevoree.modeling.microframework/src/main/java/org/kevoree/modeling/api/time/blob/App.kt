@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.time.blob
 
 import org.kevoree.modeling.api.time.TimePoint
 import java.util.TreeSet
-import java.util.Random
 
 /**
  * Created by duke on 6/11/14.

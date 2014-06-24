@@ -81,7 +81,7 @@ private class ReaderContext(val payload: String, var offset: Int) {
         } else {
             offset = offset + 1
         }
-        var splitted = tokenBuild.toString().split(';')
+        var splitted = tokenBuild.toString().split(";")
         var color = if (splitted.get(2) == "B") {
             Color.BLACK
         } else {

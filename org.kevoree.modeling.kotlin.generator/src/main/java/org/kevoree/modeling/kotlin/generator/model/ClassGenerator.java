@@ -261,7 +261,9 @@ public class ClassGenerator {
 
     private static void generateDeleteMethod(PrintWriter pr, EClass cls, GenerationContext ctx, String pack) {
         pr.println("override fun delete(){");
-        pr.println("checkLazyLoad();");
+        if (ctx.persistence) {
+            pr.println("checkLazyLoad();");
+        }
         pr.println("internal_deleteInProgress = true");
         if (ctx.persistence) {
             pr.println("(this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.remove(this)");
