@@ -38,7 +38,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
             var currentParentRelationName = ""
             if(path.contains("/")){
                 parentPath = path.substring(0, path.lastIndexOf("/"))
-                currentParentRelationName = path.substring(path.lastIndexOf("/") + 1, path.size - 1)
+                currentParentRelationName = path.substring(path.lastIndexOf("/") + 1, path.length - 1)
                 currentParentRelationName = currentParentRelationName.substring(0, currentParentRelationName.lastIndexOf("["))
             }else {
                 currentParentRelationName = path.substring(0, path.lastIndexOf("["))
