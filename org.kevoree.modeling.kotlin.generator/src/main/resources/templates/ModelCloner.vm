@@ -2,7 +2,7 @@
 #* @vtlvariable name="potentialRoots" type="java.util.ArrayList<org.eclipse.emf.ecore.EClassifier>" *#
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="packages" type="java.util.Collection<java.lang.String>" *#
-#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelperClass" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
 
 package ${packageName}.cloner
 
