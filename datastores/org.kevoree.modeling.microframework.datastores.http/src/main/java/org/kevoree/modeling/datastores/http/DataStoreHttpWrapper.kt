@@ -38,7 +38,7 @@ public class DataStoreHttpWrapper(val wrapped: DataStore, val port: Int) : Abstr
             }
         } else {
             if(HttpMethod.PUT.`is`(request?.getMethod())){
-                put(segmentName!!, elemPath!!, baseRequest.getReader()!!.readText())
+                put(segmentName!!, elemPath!!, baseRequest.getReader()!!.readLine()!!)
             } else {
                 if(HttpMethod.DELETE.`is`(request?.getMethod())){
                     remove(segmentName!!, elemPath!!)
@@ -54,7 +54,7 @@ public class DataStoreHttpWrapper(val wrapped: DataStore, val port: Int) : Abstr
 
     }
 
-    var server: Server? = null
+    internal var server: Server? = null
 
     fun startServer() {
         server = Server(8080)

@@ -61,8 +61,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     fun commit() {
-        for (elem in modified_elements) {
-            persist(elem.value)
+        for (elem in modified_elements.values()) {
+            persist(elem)
         }
         datastore?.sync()
         clearCache()
@@ -74,8 +74,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     protected fun clearCache() {
-        for (elem in elem_cache) {
-            elem.value.removeModelElementListener(this)
+        for (elem in elem_cache.values()) {
+            elem.removeModelElementListener(this)
         }
         elem_cache.clear()
         modified_elements.clear()

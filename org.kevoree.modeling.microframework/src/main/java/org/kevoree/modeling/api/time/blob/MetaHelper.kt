@@ -17,13 +17,14 @@ object MetaHelper {
     fun serialize(p: java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>>): String {
         val buffer = StringBuilder()
         var isFirst = true
-        for (v in p) {
+        for (key in p.keySet()) {
+            val v = p.get(key)!!
             if (!isFirst) {
                 buffer.append(sep)
             }
-            buffer.append(v.key.path())
-            if (!v.value.empty) {
-                for (v2 in v.value) {
+            buffer.append(key.path())
+            if (v.size() != 0) {
+                for (v2 in v) {
                     buffer.append(sep2)
                     buffer.append(v2)
                 }
