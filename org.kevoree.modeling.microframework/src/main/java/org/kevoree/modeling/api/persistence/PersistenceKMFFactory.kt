@@ -126,9 +126,10 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
                 elem.setOriginPath(path2)
                 monitor(elem)
                 return elem
-            } else {
-                throw Exception("Empty Type Name for " + path2);
             }
+            /*else {
+                throw Exception("Empty Type Name for " + path2);
+            }*/
         }
         return null
     }
