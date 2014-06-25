@@ -38,6 +38,10 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     val modified_elements: HashMap<String, KMFContainer>
 
+    fun notify(elem : KMFContainer){
+        modified_elements.put(elem.hashCode().toString(),elem)
+    }
+
     protected fun persist(elem: KMFContainer) {
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
