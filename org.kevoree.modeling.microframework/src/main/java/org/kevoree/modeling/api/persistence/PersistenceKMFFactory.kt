@@ -86,7 +86,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     } */
 
     override fun elementChanged(evt: ModelEvent) {
-        modified_elements.put(evt.hashCode().toString(),evt.source!!)
+        modified_elements.put(evt.source!!.hashCode().toString(),evt.source)
     }
 
     protected fun monitor(elem: KMFContainer) {
