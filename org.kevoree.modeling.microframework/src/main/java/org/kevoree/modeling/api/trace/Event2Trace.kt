@@ -57,7 +57,7 @@ class Event2Trace(val compare: ModelCompare) {
         val result = ArrayList<ModelTrace>()
         when(event.etype) {
             ActionType.REMOVE -> {
-                result.add(ModelAddTrace(event.sourcePath!!, event.elementAttributeName, (event.value as KMFContainer).path()!!, (event.value as KMFContainer).metaClassName()));
+                result.add(ModelAddTrace(event.sourcePath!!, event.elementAttributeName, (event.value as KMFContainer).path(), (event.value as KMFContainer).metaClassName()));
             }
             ActionType.REMOVE_ALL -> {
                 val casted = event.value as KMFContainer
@@ -71,7 +71,7 @@ class Event2Trace(val compare: ModelCompare) {
             ActionType.ADD -> {
                 val casted = event.value as KMFContainer
                 val traces = compare.inter(casted, casted)
-                result.add(ModelRemoveTrace(event.sourcePath!!, event.elementAttributeName, casted.path()!!));
+                result.add(ModelRemoveTrace(event.sourcePath!!, event.elementAttributeName, casted.path()));
                 result.addAll(traces.traces)
             }
             ActionType.ADD_ALL -> {
@@ -79,7 +79,7 @@ class Event2Trace(val compare: ModelCompare) {
                 for(elem in casted as Iterable<*>){
                     val elemCasted = elem as KMFContainer
                     val traces = compare.inter(elemCasted, elemCasted)
-                    result.add(ModelRemoveTrace(event.sourcePath!!, event.elementAttributeName, elemCasted.path()!!));
+                    result.add(ModelRemoveTrace(event.sourcePath!!, event.elementAttributeName, elemCasted.path()));
                     result.addAll(traces.traces)
                 }
             }

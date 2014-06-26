@@ -15,7 +15,7 @@ trait KMFContainer {
     fun getRefInParent(): String?
     fun findByPath(query: String): KMFContainer?
     fun findByID(relationName : String,idP : String) : KMFContainer?
-    fun path(): String?
+    fun path(): String
     fun metaClassName(): String
     fun reflexiveMutator(mutatorType: org.kevoree.modeling.api.util.ActionType, refName: String, value: Any?, setOpposite : Boolean, fireEvent : Boolean)
     fun selectByQuery(query : String) : List<Any>

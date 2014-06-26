@@ -18,7 +18,7 @@ trait KMFContainer {
     fun findByPath(query: String): KMFContainer?
     fun findByID(relationName : String,idP : String) : KMFContainer?
 
-    fun path(): String?
+    fun path(): String
     fun metaClassName(): String
     fun reflexiveMutator(mutatorType: ActionType, refName: String, value: Any?, setOpposite : Boolean, fireEvent : Boolean)
     fun selectByQuery(query : String) : List<Any>
