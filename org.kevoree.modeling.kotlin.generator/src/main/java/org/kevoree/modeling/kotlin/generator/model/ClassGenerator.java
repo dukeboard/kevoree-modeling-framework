@@ -555,7 +555,9 @@ public class ClassGenerator {
                 // containment relation in noOpposite Method
 
                 res.append("if($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " != null){\n");
-                res.append("originFactory!!.elementsToBeRemoved.add(($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + ").path())\n");
+                if(ctx.persistence) {
+                    res.append("originFactory!!.elementsToBeRemoved.add(($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + ").path())\n");
+                }
                 res.append("($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n");
                 res.append("}\n");
 
