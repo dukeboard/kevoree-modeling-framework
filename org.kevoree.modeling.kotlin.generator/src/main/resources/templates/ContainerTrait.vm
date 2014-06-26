@@ -9,7 +9,10 @@ package ${packElem}
 
 object cleanCacheVisitor : org.kevoree.modeling.api.util.ModelVisitor() {
     public override fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
-          (elem as KMFContainerImpl).path_cache = null
+        (elem as KMFContainerImpl).path_cache = null
+    #if($ctx.persistence)
+        (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.notify(elem)
+    #end
     }
 }
 
@@ -112,11 +115,19 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
         if(tempUnsetCmd != null){
             tempUnsetCmd.run()
         }
+#if($ctx.persistence)
+        if(container == null) {
+            (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.remove(this)
+        }
+#end
         internal_eContainer = container
         internal_unsetCmd = unsetCmd
         internal_containmentRefName = refNameInParent
         path_cache = null
-        visit(cleanCacheVisitor,true,true,false)
+#if($ctx.persistence)
+        (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.notify(this)
+#end
+        (this as KMFContainerImpl).visit(cleanCacheVisitor,true,true,false)
 }
 
 #if($ctx.genSelector)
