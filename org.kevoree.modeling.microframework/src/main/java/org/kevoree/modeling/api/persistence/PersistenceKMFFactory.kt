@@ -70,9 +70,14 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     fun commit() {
-        for (elem in modified_elements.values()) {
-            if (elem.path() == "") {
-                elem.delete()
+
+        val keys = modified_elements.keySet().toList()
+        for (elem in keys) {
+            val resolved = modified_elements.get(keys)
+            if(resolved != null){
+                if (resolved.path() == "") {
+                    resolved.delete()
+                }
             }
         }
         for (elem in modified_elements.values()) {
