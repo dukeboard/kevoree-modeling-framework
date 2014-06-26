@@ -115,11 +115,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
         if(tempUnsetCmd != null){
             tempUnsetCmd.run()
         }
-#if($ctx.persistence)
-        if(container == null) {
-            (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.remove(this)
-        }
-#end
+
         internal_eContainer = container
         internal_unsetCmd = unsetCmd
         internal_containmentRefName = refNameInParent
