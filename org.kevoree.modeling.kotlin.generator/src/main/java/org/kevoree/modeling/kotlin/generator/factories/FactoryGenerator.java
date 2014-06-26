@@ -49,6 +49,11 @@ public class FactoryGenerator {
                     pr.println("class MainFactory : org.kevoree.modeling.api.KMFFactory {");
                 }
             }
+
+            pr.println("override fun setRoot(elem : org.kevoree.modeling.api.KMFContainer){\n" +
+                    "    (elem as "+ctx.getKevoreeContainerImplFQN()+").is_root = true\n" +
+                    "}");
+
             if (ctx.persistence) {
                 pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null");
                 pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()");

@@ -248,6 +248,8 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
     var path_cache : String?
     var key_cache : String?
 
+    var is_root : Boolean
+
     override fun path(): String? {
         if(path_cache!=null){return path_cache}
         val container = eContainer()
@@ -259,7 +261,13 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
                 path_cache = if(parentPath == ""){""}else{parentPath + "/"} + internal_containmentRefName + "[" + internalGetKey() + "]"
             }
         } else {
-            path_cache =  ""
+            if(is_root){
+                path_cache = "/"
+            } else {
+                path_cache =  ""
+            }
+
+
         }
         return path_cache;
     }

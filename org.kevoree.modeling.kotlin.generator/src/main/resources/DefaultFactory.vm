@@ -78,6 +78,9 @@ override fun time(tp: org.kevoree.modeling.api.time.TimePoint): org.kevoree.mode
 #end
 
 
+override fun setRoot(elem : org.kevoree.modeling.api.KMFContainer){
+    (elem as ${ctx.getKevoreeContainerImplFQN()}).is_root = true
+}
 
 
 }

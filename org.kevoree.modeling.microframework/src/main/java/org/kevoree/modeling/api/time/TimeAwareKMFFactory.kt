@@ -34,12 +34,17 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     }
 
     override fun persist(elem: KMFContainer) {
+
+        val currentPath = elem.path()!!
+        if (currentPath == "") {
+            throw Exception("Internal error, empty path found during persist method " + elem)
+        }
+
         val casted = elem as TimeAwareKMFContainer
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
-            val currentPath = elem.path()!!
 
             //add currentPath to currentTimePointMeta
             val entitiesMeta = getEntitiesMeta(relativeTime)
@@ -54,7 +59,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
             datastore!!.put(TimeSegment.RAW.name(), key + "#", saved)
 
-            val timeTree = getTimeTree(elem.path()!!)
+            val timeTree = getTimeTree(currentPath)
             timeTree.versionTree.insert(relativeTime, "")
             datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeTree.toString())
 

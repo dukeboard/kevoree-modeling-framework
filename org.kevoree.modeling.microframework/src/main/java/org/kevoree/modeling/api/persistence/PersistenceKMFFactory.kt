@@ -7,7 +7,6 @@ import org.kevoree.modeling.api.compare.ModelCompare
 import java.util.HashMap
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
-import org.kevoree.modeling.api.time.TimeAwareKMFContainer
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.TimeSegment
 import org.kevoree.modeling.api.time.blob.MetaHelper
@@ -31,29 +30,35 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             datastore!!.remove("type", elem.path()!!);
         }
         elem_cache.remove(elem.path()!!)
-        modified_elements.remove(elem.path()!!)
+        modified_elements.remove(elem.hashCode().toString())
     }
 
     val elem_cache: HashMap<String, KMFContainer>
 
     val modified_elements: HashMap<String, KMFContainer>
 
-    fun notify(elem : KMFContainer){
-        modified_elements.put(elem.hashCode().toString(),elem)
+    fun notify(elem: KMFContainer) {
+        modified_elements.put(elem.hashCode().toString(), elem)
     }
 
     protected fun persist(elem: KMFContainer) {
+
+        val elemPath = elem.path()!!
+        if (elemPath == "") {
+            throw Exception("Internal error, empty path found during persist method " + elem)
+        }
+
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
             traceSeq.populate(traces)
-            datastore!!.put(TimeSegment.RAW.name(), elem.path()!!, traceSeq.exportToString())
+            datastore!!.put(TimeSegment.RAW.name(), elemPath, traceSeq.exportToString())
 
             val castedInBounds = elem as InboundRefAware
             val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
-            datastore!!.put(TimeSegment.RAW.name(), "${elem.path()}#", saved)
+            datastore!!.put(TimeSegment.RAW.name(), "${elemPath}#", saved)
 
-            datastore!!.put("type", elem.path()!!, elem.metaClassName())
+            datastore!!.put("type", elemPath, elem.metaClassName())
             if (elem is KMFContainerProxy) {
                 elem.originFactory = this
             }
@@ -61,6 +66,11 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     fun commit() {
+        for (elem in modified_elements.values()) {
+            if (elem.path() == "") {
+                elem.delete()
+            }
+        }
         for (elem in modified_elements.values()) {
             persist(elem)
         }
@@ -80,13 +90,13 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         elem_cache.clear()
         modified_elements.clear()
     }
-     /*
-    fun lookup(path: String): KMFContainer? {
-        return lookupFrom(path, null)
-    } */
+    /*
+   fun lookup(path: String): KMFContainer? {
+       return lookupFrom(path, null)
+   } */
 
     override fun elementChanged(evt: ModelEvent) {
-        modified_elements.put(evt.source!!.hashCode().toString(),evt.source)
+        modified_elements.put(evt.source!!.hashCode().toString(), evt.source)
     }
 
     protected fun monitor(elem: KMFContainer) {
@@ -134,11 +144,11 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         return null
     }
 
-    fun loadInbounds(elem : KMFContainer){
+    fun loadInbounds(elem: KMFContainer) {
         val castedInBounds = elem as InboundRefAware
         val payload = datastore!!.get(TimeSegment.RAW.name(), "${elem.path()}#")
-        if(payload != null){
-            castedInBounds.internal_inboundReferences = MetaHelper.unserialize(payload,this)
+        if (payload != null) {
+            castedInBounds.internal_inboundReferences = MetaHelper.unserialize(payload, this)
         }
     }
 

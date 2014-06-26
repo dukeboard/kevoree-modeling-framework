@@ -82,6 +82,8 @@ public class ClassGenerator {
         pr.println("override internal var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>> = java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableSet<String>>()");
         pr.println("override internal var internal_deleteInProgress : Boolean = false");
 
+        pr.println("override var is_root : Boolean = false;");
+
         if (ctx.generateEvents) {
             pr.println("override internal var internal_modelElementListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>? = null");
             pr.println("override internal var internal_modelTreeListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>? = null");
@@ -365,16 +367,16 @@ public class ClassGenerator {
                     pr.print("override public fun with");
                     pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
                     pr.print("(p : ");
-                    pr.println("List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">) : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{");
-                    pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName())+"=p;");
+                    pr.println("List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">) : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{");
+                    pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName()) + "=p;");
                     pr.println("return this;");
                     pr.println("}");
                 } else {
                     pr.print("override public fun with");
                     pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
                     pr.print("(p : ");
-                    pr.println(ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ") : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{");
-                    pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName())+"=p;");
+                    pr.println(ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ") : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{");
+                    pr.println(ProcessorHelper.getInstance().protectReservedWords(att.getName()) + "=p;");
                     pr.println("return this;");
                     pr.println("}");
                 }
@@ -494,9 +496,9 @@ public class ClassGenerator {
 
                 pr.print("override public fun with");
                 pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(ref)));
-                pr.print("(ref : "+typeRefName+")");
-                String packName = ProcessorHelper.getInstance().fqn(ctx,cls.getEPackage());
-                pr.println(" : "+packName+"."+cls.getName()+"{");
+                pr.print("(ref : " + typeRefName + ")");
+                String packName = ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage());
+                pr.println(" : " + packName + "." + cls.getName() + "{");
                 pr.println("return this;");
                 pr.println("}");
 
@@ -704,7 +706,7 @@ public class ClassGenerator {
 
     private static String generateAdd(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\noverride fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{\n");
+        res.append("\noverride fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{\n");
 
         if (ref.getEOpposite() != null || ctx.generateEvents) {
             res.append("internal_add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + ", true, true)\n");
@@ -763,7 +765,7 @@ public class ClassGenerator {
 
     private static String generateAddAll(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\noverride fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " :List<" + typeRefName + ">) : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{\n");
+        res.append("\noverride fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " :List<" + typeRefName + ">) : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{\n");
         if (ref.getEOpposite() != null || ctx.generateEvents) {
             res.append("internal_addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + ", true, true)\n");
         } else {
@@ -919,7 +921,7 @@ public class ClassGenerator {
 
     private static String generateRemove(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
         StringBuffer res = new StringBuffer();
-        res.append("\noverride fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{\n");
+        res.append("\noverride fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{\n");
         if (ref.getEOpposite() != null || ctx.generateEvents) {
             res.append("internal_remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + ", true, true)\n");
         } else {
@@ -952,7 +954,7 @@ public class ClassGenerator {
             // only once in the class, only for contained references
             res.append("\nvar removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "CurrentlyProcessing : Boolean = false\n");
         }
-        res.append("\noverride fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "() : "+ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage())+"."+cls.getName()+"{\n");
+        res.append("\noverride fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "() : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{\n");
         if (ref.getEOpposite() != null || ctx.generateEvents) {
             res.append("internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(true, true)\n");
         } else {

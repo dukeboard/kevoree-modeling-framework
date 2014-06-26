@@ -111,8 +111,6 @@ public class Generator {
      */
     public void  generateModel(String modelVersion) throws Exception {
 
-        FactoryGenerator.generateMainFactory(ctx);
-
         System.out.println("Check Aspect completeness");
         ResourceSet model = ctx.getEcoreModel(ecoreFile);
         checkModel(model);
@@ -295,6 +293,10 @@ public class Generator {
         TraitGenerator.generateRemoveFromContainerCommand(ctx);
         System.out.println("Launching model generation");
         modelGen.process(model, modelVersion);
+
+        FactoryGenerator.generateMainFactory(ctx);
+
+
         System.out.println("Done with model generation");
     }
 

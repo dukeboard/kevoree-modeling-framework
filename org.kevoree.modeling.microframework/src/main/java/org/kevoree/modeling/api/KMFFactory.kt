@@ -11,4 +11,6 @@ trait KMFFactory {
 
     fun create(metaClassName : String) : org.kevoree.modeling.api.KMFContainer?
 
+    fun setRoot(elem : KMFContainer)
+
 }
