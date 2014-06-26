@@ -258,7 +258,14 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
             if(parentPath == null){
                 return null
             } else {
-                path_cache = if(parentPath == ""){""}else{parentPath + "/"} + internal_containmentRefName + "[" + internalGetKey() + "]"
+                //path_cache = if(parentPath == ""){""}else{parentPath + "/"} + internal_containmentRefName + "[" + internalGetKey() + "]"
+                if(parentPath == "") {
+                    path_cache = internal_containmentRefName + "[" + internalGetKey() + "]"
+                } else if(parentPath == "/") {
+                    path_cache = parentPath + internal_containmentRefName + "[" + internalGetKey() + "]"
+                } else {
+                    path_cache = parentPath + "/" + internal_containmentRefName + "[" + internalGetKey() + "]"
+                }
             }
         } else {
             if(is_root){
