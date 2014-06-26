@@ -854,6 +854,8 @@ Kotlin.PrimitiveHashSet = Kotlin.createClassNow(Kotlin.AbstractCollection, funct
   return!0 === this.map[g];
 }, iterator:function() {
   return new SetIterator(this);
+}, size:function() {
+    return this.$size;
 }, add_za3rmp$:function(g) {
   var h = this.map[g];
   this.map[g] = !0;

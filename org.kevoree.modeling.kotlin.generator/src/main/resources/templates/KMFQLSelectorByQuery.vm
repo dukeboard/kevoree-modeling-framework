@@ -6,8 +6,14 @@
 #* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
 #* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
 
+
 override fun selectByQuery(query : String) : MutableList<Any> {
     val collected = java.util.ArrayList<Any>()
+    internal_selectByQuery(query,collected);
+    return collected;
+}
+
+override fun internal_selectByQuery(query : String, result : MutableList<Any>) {
     try {
         val firstSepIndex = query.indexOf('[')
         var queryID = ""
@@ -51,7 +57,7 @@ override fun selectByQuery(query : String) : MutableList<Any> {
                 ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.Ref_${ref.getName()} -> {
                 #if(!$ref.isMany())
                     var subResult = ${ctx.kevoreeCacheResolver}.filter(queryID,java.util.Collections.singleton(${FQNHelper.protectReservedWords($ref.getName())})!!)
-                    collected.add(subResult)
+                    result.add(subResult)
                 #else
                     var subResult : MutableCollection<Any>? = null
                     #if(${ref.getEReferenceType().getEIDAttribute()})
@@ -72,13 +78,13 @@ override fun selectByQuery(query : String) : MutableList<Any> {
                     }
                     if(subquery != ""){
                         for(subObj in subResult!!){
-                            collected.addAll( (subObj as ${FQNHelper.fqn($ctx, $ref.getEReferenceType())}).selectByQuery(subquery))
+                            (subObj as ${ctx.getKevoreeContainerImplFQN()}).internal_selectByQuery(subquery,result)
                         }
                     } else {
-                        collected.addAll(subResult!!)
+                    result.addAll(subResult!!)
                     }
                 #end
-                    return collected
+                    return
                 }
             #end
                 ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.util.Constants.KMFQL_CONTAINED -> {
@@ -95,16 +101,16 @@ override fun selectByQuery(query : String) : MutableList<Any> {
                     #end
                     if(subquery != ""){
                         for(subObj in subResult!!){
-                            collected.addAll( (subObj as ${formatedFactoryName}).selectByQuery(subquery))
+                            (subObj as ${ctx.getKevoreeContainerImplFQN()}).internal_selectByQuery(subquery,result)
                         }
                     } else {
-                        collected.addAll(subResult!!)
+                        result.addAll(subResult!!)
                     }
-                    return collected
+                    return
                 }
-            else -> {return collected}
+            else -> {return}
         }
     } catch(e:Exception){
-        return collected
+        return
     }
 }
