@@ -28,8 +28,8 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
     }
 
     override fun setOriginPath(path: String) {
-        if (path == "") { // ERROR
-            throw Exception("Cannot set origin path to \"\" ")
+        if (path == "" || !path.startsWith("/")) { // ERROR
+            throw Exception("Cannot setOrigin for element with path \""+path+"\" : No reference to a Root")
         }
         if(path == "/") { // ROOT
             originFactory!!.setRoot(this)
