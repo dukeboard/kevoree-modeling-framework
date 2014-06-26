@@ -10,6 +10,8 @@ import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.TimeSegment
 import org.kevoree.modeling.api.time.blob.MetaHelper
+import java.util.ArrayList
+import java.util.HashSet
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,10 +37,21 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     val elem_cache: HashMap<String, KMFContainer>
 
+    val elementsToBeRemoved : MutableSet<String>
+
     val modified_elements: HashMap<String, KMFContainer>
 
     fun notify(elem: KMFContainer) {
         modified_elements.put(elem.hashCode().toString(), elem)
+    }
+
+    fun cleanUnusedPaths(path : String) {
+        println("Cleaining -> " + path)
+        if (datastore != null) {
+            datastore!!.remove(TimeSegment.RAW.name(), path);
+            datastore!!.remove("type", path);
+        }
+        elem_cache.remove(path)
     }
 
     protected fun persist(elem: KMFContainer) {
@@ -73,15 +86,22 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
         val keys = modified_elements.keySet().toList()
         for (elem in keys) {
-            val resolved = modified_elements.get(keys)
+            println("Elem:" + elem)
+            val resolved = modified_elements.get(elem)
             if(resolved != null){
                 if (resolved.path() == "") {
+                println("Commit CLean :" + resolved.metaClassName())
                     resolved.delete()
                 }
             }
         }
         for (elem in modified_elements.values()) {
             persist(elem)
+            elementsToBeRemoved.remove(elem.path())
+        }
+        for(e in elementsToBeRemoved) {
+            println("ElementToRemove:" + e)
+            cleanUnusedPaths(e)
         }
         datastore?.sync()
         clearCache()
@@ -98,6 +118,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         }
         elem_cache.clear()
         modified_elements.clear()
+        elementsToBeRemoved.clear()
     }
     /*
    fun lookup(path: String): KMFContainer? {
