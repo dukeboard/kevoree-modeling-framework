@@ -28,20 +28,27 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
     }
 
     override fun setOriginPath(path: String) {
-        path_cache = path
-        if(path != "" && path != "/"){
+        if (path == "") { // ERROR
+            throw Exception("Cannot set origin path to \"\" ")
+        }
+        if(path == "/") { // ROOT
+            originFactory!!.setRoot(this)
+        } else {
 
             //set key_cache
             key_cache = path.substring(path.lastIndexOf("[")+1,path.lastIndexOf("]"))
 
-            var parentPath: String = "/"
-            var currentParentRelationName = ""
-            if(path.contains("/")){
+            var parentPath: String
+            var currentParentRelationName : String
+
+            if(path.lastIndexOf("/") == 0) { // parent is root
+                parentPath = "/"
+                currentParentRelationName = path.substring(1, path.length - 1)
+                currentParentRelationName = currentParentRelationName.substring(0, currentParentRelationName.lastIndexOf("["))
+            } else {
                 parentPath = path.substring(0, path.lastIndexOf("/"))
                 currentParentRelationName = path.substring(path.lastIndexOf("/") + 1, path.length - 1)
                 currentParentRelationName = currentParentRelationName.substring(0, currentParentRelationName.lastIndexOf("["))
-            }else {
-                currentParentRelationName = path.substring(0, path.lastIndexOf("["))
             }
             val parentElem = originFactory!!.lookup(parentPath)!!
             internal_unsetCmd = ${FQNHelper.fqn($ctx, $ctx.basePackageForUtilitiesGeneration)}.container.RemoveFromContainerCommand(parentElem, org.kevoree.modeling.api.util.ActionType.REMOVE, currentParentRelationName, this)
@@ -50,7 +57,6 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
 
         }
         path_cache = path
-
     }
 
 }
