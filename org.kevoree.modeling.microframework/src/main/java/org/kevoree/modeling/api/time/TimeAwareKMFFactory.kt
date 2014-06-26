@@ -33,9 +33,13 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         entitiesCache.clear()
     }
 
+    override fun cleanUnusedPaths(path : String) {
+        //TODO
+    }
+
     override fun persist(elem: KMFContainer) {
 
-        val currentPath = elem.path()!!
+        val currentPath = elem.path()
         if (currentPath == "") {
             throw Exception("Internal error, empty path found during persist method " + elem)
         }
@@ -78,7 +82,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
     fun removeVersion(t: TimePoint, target: KMFContainer) {
         if (datastore != null) {
-            val currentPath = target.path()!!
+            val currentPath = target.path()
             val timeTree = getTimeTree(currentPath)
             timeTree.versionTree.delete(relativeTime)
             if (timeTree.versionTree.root == null) {
@@ -100,7 +104,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     override fun remove(elem: KMFContainer) {
         val key = "${relativeTime.toString()}/${elem.path()}"
         if (datastore != null) {
-            var currentPath = elem.path()!!
+            var currentPath = elem.path()
 
             //Insert this timeMeta into the global ordering of time of this object
             val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), currentPath)
@@ -252,7 +256,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     }
 
     override fun getTraces(origin: KMFContainer): TraceSequence? {
-        val currentPath = origin.path()!!
+        val currentPath = origin.path()
         var sequence = compare.createSequence()
         val castedOrigin = origin as TimeAwareKMFContainer
         if (castedOrigin.meta!!.lastestPersisted == null) {

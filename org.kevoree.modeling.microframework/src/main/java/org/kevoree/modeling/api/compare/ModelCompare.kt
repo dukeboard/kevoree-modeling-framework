@@ -53,14 +53,14 @@ trait ModelCompare {
                 if(childPath != null){
                     if(objectsMap.containsKey(childPath)){
                         if(inter){
-                            traces.add(ModelAddTrace(parent.path()!!, refNameInParent, elem.path(), elem.metaClassName()))
+                            traces.add(ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()))
                         }
                         traces.addAll(objectsMap.get(childPath)!!.createTraces(elem, inter,merge, false,true))
                         tracesRef.addAll(objectsMap.get(childPath)!!.createTraces(elem, inter,merge, true,false))
                         objectsMap.remove(childPath) //drop from to process elements
                     } else {
                         if(!inter){
-                            traces.add(ModelAddTrace(parent.path()!!, refNameInParent, elem.path(), elem.metaClassName()))
+                            traces.add(ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()))
                             traces.addAll(elem.createTraces(elem, true,merge, false,true))
                             tracesRef.addAll(elem.createTraces(elem, true,merge, true,false))
                         }
@@ -76,9 +76,9 @@ trait ModelCompare {
             //if diff
             if(!merge){
                 for(diffChild in objectsMap.values()){
-                    val src = (if(diffChild.eContainer() != null){diffChild.eContainer()!!.path()!!}else{"null"})
+                    val src = (if(diffChild.eContainer() != null){diffChild.eContainer()!!.path()}else{"null"})
                     val refNameInParent = (if(diffChild.getRefInParent() != null){diffChild.getRefInParent()!!}else{"null"})
-                    traces.add(ModelRemoveTrace(src, refNameInParent, (diffChild as KMFContainer).path()!!))
+                    traces.add(ModelRemoveTrace(src, refNameInParent, (diffChild as KMFContainer).path()))
                 }
             }
         }

@@ -28,10 +28,10 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     fun remove(elem: KMFContainer) {
         if (datastore != null) {
-            datastore!!.remove(TimeSegment.RAW.name(), elem.path()!!);
-            datastore!!.remove("type", elem.path()!!);
+            datastore!!.remove(TimeSegment.RAW.name(), elem.path());
+            datastore!!.remove("type", elem.path());
         }
-        elem_cache.remove(elem.path()!!)
+        elem_cache.remove(elem.path())
         modified_elements.remove(elem.hashCode().toString())
     }
 
@@ -56,7 +56,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     protected fun persist(elem: KMFContainer) {
 
-        val elemPath = elem.path()!!
+        val elemPath = elem.path()
         if (elemPath == "") {
             throw Exception("Internal error, empty path found during persist method " + elem)
         }
@@ -86,11 +86,9 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
         val keys = modified_elements.keySet().toList()
         for (elem in keys) {
-            println("Elem:" + elem)
             val resolved = modified_elements.get(elem)
             if(resolved != null){
                 if (resolved.path() == "") {
-                println("Commit CLean :" + resolved.metaClassName())
                     resolved.delete()
                 }
             }
@@ -100,7 +98,6 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             elementsToBeRemoved.remove(elem.path())
         }
         for(e in elementsToBeRemoved) {
-            println("ElementToRemove:" + e)
             cleanUnusedPaths(e)
         }
         datastore?.sync()
@@ -169,7 +166,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     /* potential optimisation, only load att or reference */
     fun getTraces(origin: KMFContainer): TraceSequence? {
         var sequence = compare.createSequence()
-        val traces = datastore?.get(TimeSegment.RAW.name(), origin.path()!!)
+        val traces = datastore?.get(TimeSegment.RAW.name(), origin.path())
         if (traces != null) {
             sequence.populateFromString(traces)
             return sequence

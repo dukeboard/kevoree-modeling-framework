@@ -18,7 +18,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     fun previous(): TimePoint? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).floor(path()!!, now)
+            return (originFactory as TimeAwareKMFFactory<*>).floor(path(), now)
         } else {
             return null
         }
@@ -26,7 +26,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     fun next(): TimePoint? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).ceil(path()!!, now)
+            return (originFactory as TimeAwareKMFFactory<*>).ceil(path(), now)
         } else {
             return null
         }
@@ -34,7 +34,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     fun lastest(): TimePoint? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).latest(path()!!)
+            return (originFactory as TimeAwareKMFFactory<*>).latest(path())
         } else {
             return null
         }
@@ -43,7 +43,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
     fun floor(p: String): TimePoint? {
         val tp = TimePoint.create(p)
         if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).floor(path()!!, tp)
+            return (originFactory as TimeAwareKMFFactory<*>).floor(path(), tp)
         } else {
             return null
         }
@@ -52,7 +52,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
     fun ceil(p: String): TimePoint? {
         val tp = TimePoint.create(p)
         if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).ceil(path()!!, tp)
+            return (originFactory as TimeAwareKMFFactory<*>).ceil(path(), tp)
         } else {
             return null
         }
