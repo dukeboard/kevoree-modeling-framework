@@ -20,7 +20,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
         private var internal_hashcode : Int?
         override fun hashCode() : Int{
              if(internal_hashcode == null){
-                 internal_hashcode = (Math.random() + java.util.Date().getTime()).toInt();
+                 internal_hashcode = (Math.floor(Math.random()*10000000) + java.util.Date().getTime()).toInt();
              }
              return internal_hashcode!!;
         }
