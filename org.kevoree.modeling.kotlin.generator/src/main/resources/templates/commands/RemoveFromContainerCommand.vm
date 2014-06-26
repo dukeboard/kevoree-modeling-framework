@@ -8,7 +8,9 @@ class RemoveFromContainerCommand(val target : org.kevoree.modeling.api.KMFContai
 #if($ctx.persistence)
         var casted = target as KMFContainerPersistenceImpl
         if(!casted.inResolution){
-            (element as KMFContainerPersistenceImpl).originFactory!!.elementsToBeRemoved.add((element as KMFContainerImpl).path())
+            if(element!= null) {
+                (element as KMFContainerPersistenceImpl).originFactory!!.elementsToBeRemoved.add((element as KMFContainerImpl).path())
+            }
             target.reflexiveMutator(mutatorType,refName, element,true,true)
         }
     #else
