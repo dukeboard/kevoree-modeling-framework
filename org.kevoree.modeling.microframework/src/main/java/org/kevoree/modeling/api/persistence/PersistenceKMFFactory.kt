@@ -107,13 +107,16 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     fun lookup(path: String): KMFContainer? {
 
         //TODO protect for unContains elems
+        if(path == "") {return null}
         var path2 = path
+        /*
         if (path2 == "/") {
             path2 = ""
         }
         if (path2.startsWith("/")) {
             path2 = path2.substring(1)
         }
+        */
         if (elem_cache.containsKey(path2)) {
             return elem_cache.get(path2)
         }
