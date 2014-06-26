@@ -48,6 +48,10 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             throw Exception("Internal error, empty path found during persist method " + elem)
         }
 
+        if (!elemPath.startsWith("/")) {
+            throw Exception("Cannot persist, because the path of the element do not refer to a root: " + elemPath + " -> "+ elem)
+        }
+
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = compare.createSequence()
