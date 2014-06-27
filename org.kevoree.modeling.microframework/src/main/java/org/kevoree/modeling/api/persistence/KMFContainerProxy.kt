@@ -20,7 +20,11 @@ public trait KMFContainerProxy : KMFContainer {
 
     fun relativeLookupFrom(base: KMFContainer, relationInParent: String, key: String): KMFContainer? {
         val currentPath = base.path()
-        return originFactory?.lookup("$currentPath/$relationInParent[$key]")
+        if(currentPath == "/"){
+            return originFactory?.lookup("/$relationInParent[$key]")
+        } else {
+            return originFactory?.lookup("$currentPath/$relationInParent[$key]")
+        }
     }
 
 }
