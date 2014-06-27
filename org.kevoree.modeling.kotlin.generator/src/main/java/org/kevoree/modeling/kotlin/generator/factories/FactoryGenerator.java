@@ -56,7 +56,7 @@ public class FactoryGenerator {
                     "}");
 
             if (ctx.persistence) {
-                pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null");
+                pr.println("override var datastore: org.kevoree.modeling.api.persistence.DataStore? = org.kevoree.modeling.api.persistence.MemoryDataStore()");
                 pr.println("override val elem_cache: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()");
                 pr.println("override val modified_elements: java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.HashMap<String, org.kevoree.modeling.api.KMFContainer>()\n");
                 pr.println("override val elementsToBeRemoved : MutableSet<String> = java.util.HashSet<String>()\n");

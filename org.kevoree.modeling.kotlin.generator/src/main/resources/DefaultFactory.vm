@@ -46,7 +46,7 @@ when(metaClassName){
 
 #if($ctx.persistence)
 
-    override var datastore: org.kevoree.modeling.api.persistence.DataStore? = null
+    override var datastore: org.kevoree.modeling.api.persistence.DataStore? = org.kevoree.modeling.api.persistence.MemoryDataStore()
 
     override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.compare.DefaultModelCompare()
 
