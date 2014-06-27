@@ -82,6 +82,8 @@ public class ClassGenerator {
         pr.println("override internal var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>> = java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableSet<String>>()");
         pr.println("override internal var internal_deleteInProgress : Boolean = false");
 
+        pr.println("override var internal_is_deleted : Boolean = false;");
+
         pr.println("override var is_root : Boolean = false;");
 
         if (ctx.generateEvents) {
@@ -294,6 +296,7 @@ public class ClassGenerator {
         pr.println("advertiseInboundRefs(org.kevoree.modeling.api.util.ActionType.REMOVE, this)");
         pr.println("internal_inboundReferences.clear()");
         pr.println("if(internal_unsetCmd!=null){internal_unsetCmd!!.run()}");
+        pr.println("internal_is_deleted = true;");
         pr.println("}");
     }
 

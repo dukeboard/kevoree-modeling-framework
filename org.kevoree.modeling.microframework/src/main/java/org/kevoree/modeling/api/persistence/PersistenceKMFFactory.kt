@@ -10,8 +10,6 @@ import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.TimeSegment
 import org.kevoree.modeling.api.time.blob.MetaHelper
-import java.util.ArrayList
-import java.util.HashSet
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,7 +35,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     val elem_cache: HashMap<String, KMFContainer>
 
-    val elementsToBeRemoved : MutableSet<String>
+    val elementsToBeRemoved: MutableSet<String>
 
     val modified_elements: HashMap<String, KMFContainer>
 
@@ -45,8 +43,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         modified_elements.put(elem.hashCode().toString(), elem)
     }
 
-    fun cleanUnusedPaths(path : String) {
-        println("Cleaining -> " + path)
+    fun cleanUnusedPaths(path: String) {
         if (datastore != null) {
             datastore!!.remove(TimeSegment.RAW.name(), path);
             datastore!!.remove("type", path);
@@ -62,7 +59,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         }
 
         if (!elemPath.startsWith("/")) {
-            throw Exception("Cannot persist, because the path of the element do not refer to a root: " + elemPath + " -> "+ elem)
+            throw Exception("Cannot persist, because the path of the element do not refer to a root: " + elemPath + " -> " + elem)
         }
 
         if (datastore != null) {
@@ -87,9 +84,13 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         val keys = modified_elements.keySet().toList()
         for (elem in keys) {
             val resolved = modified_elements.get(elem)
-            if(resolved != null){
+            if (resolved != null) {
                 if (resolved.path() == "") {
-                    resolved.delete()
+                    if(!resolved.isDeleted()){
+                        resolved.delete()
+                    } else {
+                        modified_elements.remove(elem)
+                    }
                 }
             }
         }
@@ -97,7 +98,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             persist(elem)
             elementsToBeRemoved.remove(elem.path())
         }
-        for(e in elementsToBeRemoved) {
+        for (e in elementsToBeRemoved) {
             cleanUnusedPaths(e)
         }
         datastore?.sync()
@@ -117,10 +118,6 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         modified_elements.clear()
         elementsToBeRemoved.clear()
     }
-    /*
-   fun lookup(path: String): KMFContainer? {
-       return lookupFrom(path, null)
-   } */
 
     override fun elementChanged(evt: ModelEvent) {
         modified_elements.put(evt.source!!.hashCode().toString(), evt.source)
@@ -132,33 +129,22 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
 
     fun lookup(path: String): KMFContainer? {
-
-        //TODO protect for unContains elems
-        if(path == "") {return null}
-        var path2 = path
-        /*
-        if (path2 == "/") {
-            path2 = ""
+        if (path == "") {
+            return null
         }
-        if (path2.startsWith("/")) {
-            path2 = path2.substring(1)
-        }
-        */
-        if (elem_cache.containsKey(path2)) {
-            return elem_cache.get(path2)
+        if (elem_cache.containsKey(path)) {
+            return elem_cache.get(path)
         }
         if (datastore != null) {
-            val typeName = datastore!!.get("type", path2)
+            val typeName = datastore!!.get("type", path)
             if (typeName != null) {
                 val elem = create(typeName) as KMFContainerProxy
-                elem_cache.put(path2, elem)
+                elem_cache.put(path, elem)
                 elem.isResolved = false
-                elem.setOriginPath(path2)
+                elem.setOriginPath(path)
                 monitor(elem)
                 return elem
-            } /*else {
-                throw Exception("Empty Type Name for " + path2);
-            }*/
+            }
         }
         return null
     }

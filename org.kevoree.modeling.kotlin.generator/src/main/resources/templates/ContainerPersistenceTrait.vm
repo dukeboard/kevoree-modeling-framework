@@ -14,6 +14,9 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
 
 
     fun checkLazyLoad(){
+        if(isDeleted()){
+            throw Exception("This object is deleted")
+        }
         if(!isResolved){
             isResolved = true
             inResolution = true

@@ -32,6 +32,11 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
         }
     #end
 
+    var internal_is_deleted : Boolean
+
+    override fun isDeleted() : Boolean {
+        return internal_is_deleted
+    }
 
     internal open var internal_eContainer : org.kevoree.modeling.api.${formatedFactoryName}?
     internal open var internal_unsetCmd : RemoveFromContainerCommand?

@@ -43,6 +43,9 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         if (currentPath == "") {
             throw Exception("Internal error, empty path found during persist method " + elem)
         }
+        if (!currentPath.startsWith("/")) {
+            throw Exception("Cannot persist, because the path of the element do not refer to a root: " + currentPath + " -> "+ elem)
+        }
 
         val casted = elem as TimeAwareKMFContainer
         if (datastore != null) {
@@ -53,6 +56,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             //add currentPath to currentTimePointMeta
             val entitiesMeta = getEntitiesMeta(relativeTime)
             entitiesMeta.list.put(currentPath, true)
+
             datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
 
             val key = "${relativeTime.toString()}/$currentPath"
@@ -102,9 +106,19 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     }
 
     override fun remove(elem: KMFContainer) {
-        val key = "${relativeTime.toString()}/${elem.path()}"
+
+        if(elem.isDeleted()){
+            return
+        }
+
+        val path = elem.path()
+        if(path == ""){
+            throw Exception("Can't remove empty path !!!!")
+        }
+
+        val key = "${relativeTime.toString()}/${path}"
         if (datastore != null) {
-            var currentPath = elem.path()
+            var currentPath = path
 
             //Insert this timeMeta into the global ordering of time of this object
             val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), currentPath)
@@ -132,6 +146,10 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
                 globalTime.versionTree.insert(relativeTime, "");
                 datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
             }
+
+            modified_elements.remove(elem.hashCode().toString())
+            elem_cache.remove(currentPath)
+
         }
     }
 
@@ -206,27 +224,14 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         return  getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.max()?.key
     }
 
-
-    private fun cleanPath(path: String): String {
-        var path2 = path
-        if (path2 == "/") {
-            path2 = ""
-        }
-        if (path2.startsWith("/")) {
-            path2 = path2.substring(1)
-        }
-        return path2
-    }
-
     override fun lookup(path: String): KMFContainer? {
-        var path2 = cleanPath(path)
-        val timeTree = getTimeTree(path2)
+        val timeTree = getTimeTree(path)
         val askedTimeResult = timeTree.versionTree.lowerOrEqual(relativeTime)
         val askedTime = askedTimeResult?.key
         if (askedTime == null || askedTimeResult!!.value.equals(TimeSegmentConst.DELETE_CODE)) {
             return null;
         }
-        val composedKey = "$askedTime/$path2"
+        val composedKey = "$askedTime/$path"
         if (elem_cache.containsKey(composedKey)) {
             return elem_cache.get(composedKey)
         }
@@ -245,7 +250,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
                 elem_cache.put(composedKey, elem)
                 elem.isResolved = false
                 elem.now = askedTime  //must before OriginPath
-                elem.setOriginPath(path2)
+                elem.setOriginPath(path)
                 monitor(elem)
                 return elem
             } else {

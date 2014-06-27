@@ -52,6 +52,7 @@ public class FactoryGenerator {
 
             pr.println("override fun setRoot(elem : org.kevoree.modeling.api.KMFContainer){\n" +
                     "    (elem as "+ctx.getKevoreeContainerImplFQN()+").is_root = true\n" +
+                    "    (elem as "+ctx.getKevoreeContainerImplFQN()+").path_cache = \"/\"\n" +
                     "}");
 
             if (ctx.persistence) {

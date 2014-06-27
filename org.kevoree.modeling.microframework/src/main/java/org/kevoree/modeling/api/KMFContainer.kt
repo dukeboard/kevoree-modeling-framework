@@ -12,6 +12,7 @@ trait KMFContainer {
     fun isRecursiveReadOnly(): Boolean
     fun setInternalReadOnly()
     fun delete()
+    fun isDeleted() : Boolean
     fun modelEquals(similarObj: KMFContainer?): Boolean
     fun deepModelEquals(similarObj: KMFContainer?): Boolean
     fun getRefInParent(): String?
