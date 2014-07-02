@@ -67,9 +67,9 @@
         <module>datastores/org.kevoree.modeling.microframework.datastores.http</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.websocket</module>
 
-
+		<!--
         <module>org.kevoree.modeling.framework.ui.graph</module>
-
+-->
     </modules>
 
     <dependencies>
