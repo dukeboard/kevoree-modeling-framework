@@ -55,11 +55,14 @@
     <properties>
         <emf.version>2.7.0</emf.version>
         <kotlin.version>0.7.271</kotlin.version>
+        <emf.version>2.9.1-v20140203-1126</emf.version>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
     </properties>
 
     <modules>
         <module>org.kevoree.modeling.microframework</module>
+        <module>org.kevoree.modeling.dsl</module>
+
         <module>org.kevoree.modeling.kotlin.generator</module>
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
