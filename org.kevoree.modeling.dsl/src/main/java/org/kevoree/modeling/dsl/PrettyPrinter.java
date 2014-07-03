@@ -9,6 +9,7 @@ import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -45,7 +46,7 @@ public class PrettyPrinter {
         String superTypes = "";
         if(!cls.getESuperTypes().isEmpty()) {
             for(EClassifier st : cls.getESuperTypes()) {
-                superTypes = superTypes + (superTypes.equals("")?": ":",") + st.getName();
+                superTypes = superTypes + (superTypes.equals("")?": ":",") + fqn(st);
             }
         }
 
@@ -58,6 +59,7 @@ public class PrettyPrinter {
         ctxV.put("attributes",cls.getEAttributes());
         ctxV.put("references",cls.getEReferences());
         ctxV.put("superTypes", superTypes);
+        ctxV.put("PrettyPrinter", this);
         template.merge(ctxV, sw);
     }
 
@@ -82,6 +84,44 @@ public class PrettyPrinter {
             e.printStackTrace();
         }
         return rs;
+    }
+
+
+    /**
+     * Computes the Fully Qualified Name of the package in the context of the model.
+     * @param pack the package which FQN has to be computed
+     * @return the Fully Qualified package name
+     */
+    public String fqn(EPackage pack) {
+
+        if (pack == null) {
+            try {
+                throw new Exception("Null Package , stop generation");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        String locFqn = pack.getName().toLowerCase();
+        EPackage parentPackage = pack.getESuperPackage();
+        while (parentPackage != null) {
+            locFqn = parentPackage.getName() + "." + locFqn;
+            parentPackage = parentPackage.getESuperPackage();
+        }
+        return locFqn;
+    }
+
+    /**
+     * Computes the Fully Qualified Name of the class in the context of the model.
+     * @param cls the class which FQN has to be computed
+     * @return the Fully Qualified Class name
+     */
+    public String fqn(EClassifier cls) {
+        if (cls.getEPackage() == null) {
+            return cls.getName();
+        } else {
+            return fqn(cls.getEPackage()) + "." + cls.getName();
+        }
     }
 
 }
