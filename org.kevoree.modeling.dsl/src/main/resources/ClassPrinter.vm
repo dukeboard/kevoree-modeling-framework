@@ -1,0 +1,13 @@
+#* @vtlvariable name="clazz" type="org.eclipse.emf.ecore.EClass"
+ @vtlvariable name="superTypes" type="java.lang.String"
+ @vtlvariable name="attributes" type="java.util.List<org.eclipse.emf.ecore.EAttribute>"
+ @vtlvariable name="references" type="java.util.List<org.eclipse.emf.ecore.EReference>" *#
+class $clazz.getName() $superTypes {
+#foreach($att in $attributes)
+   #if($att.isID())@id #end$att.getName() : $att.getEAttributeType().getName()
+#end
+
+#foreach($ref in $references)
+   #if($ref.isContainment())@contained #end$ref.getName() : $ref.getEReferenceType().getName()
+#end
+}

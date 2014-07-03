@@ -1,17 +1,5 @@
 package org.kevoree.modeling.dsl;
 
-import com.intellij.core.CoreApplicationEnvironment;
-import com.intellij.core.CoreProjectEnvironment;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.impl.PsiFileFactoryImpl;
-import com.intellij.testFramework.LightVirtualFile;
-import org.kevoree.modeling.MetaModelLanguage;
-import org.kevoree.modeling.MetaModelLanguageType;
-import org.kevoree.modeling.MetaModelParserDefinition;
-
 /**
  * Created by duke on 7/3/14.
  */
@@ -19,7 +7,7 @@ public class ParserTester {
 
     public static void main(String[] args){
 
-
+/*
         CoreApplicationEnvironment environment = new CoreApplicationEnvironment(new Disposable() {
             @Override
             public void dispose() {
@@ -39,7 +27,7 @@ public class ParserTester {
         System.out.println("Elem");
 
         System.out.println("Yop");
-
+*/
     }
 
 }
