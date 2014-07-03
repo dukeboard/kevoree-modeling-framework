@@ -9,6 +9,7 @@ CMakeFiles/
 .project
 .settings/
 *.iml
+.class
 *.ipr
 *.iws
 keystore

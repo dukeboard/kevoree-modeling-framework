@@ -23,12 +23,6 @@ public class MetaModelRelationDeclarationImpl extends ASTWrapperPsiElement imple
   }
 
   @Override
-  @NotNull
-  public List<MetaModelBodyElemAnnot> getBodyElemAnnotList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, MetaModelBodyElemAnnot.class);
-  }
-
-  @Override
   @Nullable
   public MetaModelMultiplicityDeclaration getMultiplicityDeclaration() {
     return findChildByClass(MetaModelMultiplicityDeclaration.class);

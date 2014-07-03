@@ -26,6 +26,7 @@ NEWLINE=\n\t
 COMMENT="//".*
 NUMBER=[0-9\-]+
 IDENT=[\*\.a-zA-Z0-9_\-]+
+ANNOTATION=[@][\.a-zA-Z0-9_\-]+
 STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
 %%
@@ -33,12 +34,11 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   {WHITE_SPACE}      { return com.intellij.psi.TokenType.WHITE_SPACE; }
 
   "class"            { return CLASS; }
+  "oppositeOf"       { return OPPOSITE; }
   ":"                { return COLON; }
   ","                { return COMMA; }
   "/"                { return SUB; }
   "="                { return EQ; }
-  "@id"              { return ID_ANNOT; }
-  "@contained"       { return CONT_ANNOT; }
   "["                { return MULT_OPEN; }
   "{"                { return BODY_OPEN; }
   "]"                { return MULT_CLOSE; }
@@ -52,6 +52,7 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   {COMMENT}          { return COMMENT; }
   {NUMBER}           { return NUMBER; }
   {IDENT}            { return IDENT; }
+  {ANNOTATION}       { return ANNOTATION; }
   {STRING}           { return STRING; }
 
   [^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }

@@ -16,12 +16,11 @@
 tokens=[
     newline = 'regexp:\n\t'
     CLASS='class'
+    OPPOSITE='oppositeOf'
     COLON=':'
     COMMA=','
     SUB='/'
     EQ='='
-    ID_ANNOT ='@id'
-    CONT_ANNOT ='@contained'
     MULT_OPEN='['
     BODY_OPEN='{'
     MULT_CLOSE=']'
@@ -32,22 +31,20 @@ tokens=[
     comment='regexp://.*'
     NUMBER='regexp:[0-9\-]+'
     IDENT='regexp:[\*\.a-zA-Z0-9_\-]+'
+    ANNOTATION='regexp:[@][\.a-zA-Z0-9_\-]+'
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
   ]
-
 }
 
 METAMODEL ::= DECLARATION*
 DECLARATION ::= (CLASS_DECLARATION | eof | newline | CRLF)
-CLASS_DECLARATION ::= CLASS IDENT COLON_SEP* BODY_OPEN RELATION_DECLARATION* BODY_CLOSE {pin=2 recoverWhile=rule_start}
-RELATION_DECLARATION ::= BODY_ELEM_ANNOT* IDENT COLON IDENT MULTIPLICITY_DECLARATION?
+CLASS_DECLARATION ::= CLASS IDENT COLON_SEP* BODY_OPEN RELATION_DECLARATION* BODY_CLOSE {pin=1 recoverWhile=rule_start}
+RELATION_DECLARATION ::= ANNOTATION* IDENT COLON IDENT MULTIPLICITY_DECLARATION? (OPPOSITE IDENT)?
 MULTIPLICITY_DECLARATION ::= MULT_OPEN STAR_OR_NB COMMA STAR_OR_NB MULT_CLOSE
 private STAR_OR_NB ::= (NUMBER | STAR)
 private rule_start ::= !(CLASS)
-
 private COLON_SEP ::= COLON IDENT
 private COMMA_SEP ::= COMMA IDENT
-BODY_ELEM_ANNOT ::= (ID_ANNOT|CONT_ANNOT)
 
 /*
 private ADD_STATEMENT ::= ADD IDENT COMMA_SEP* COLON IDENT (SUB IDENT)? {pin=2 recoverWhile=rule_start}

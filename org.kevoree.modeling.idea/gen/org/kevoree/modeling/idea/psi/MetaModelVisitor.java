@@ -7,10 +7,6 @@ import com.intellij.psi.PsiElement;
 
 public class MetaModelVisitor extends PsiElementVisitor {
 
-  public void visitBodyElemAnnot(@NotNull MetaModelBodyElemAnnot o) {
-    visitPsiElement(o);
-  }
-
   public void visitClassDeclaration(@NotNull MetaModelClassDeclaration o) {
     visitPsiElement(o);
   }

@@ -7,9 +7,6 @@ import com.intellij.psi.PsiElement;
 
 public interface MetaModelRelationDeclaration extends PsiElement {
 
-  @NotNull
-  List<MetaModelBodyElemAnnot> getBodyElemAnnotList();
-
   @Nullable
   MetaModelMultiplicityDeclaration getMultiplicityDeclaration();
 
