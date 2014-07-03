@@ -1,0 +1,71 @@
+
+{
+  parserClass="org.kevoree.modeling.idea.parser.MetaModelParser"
+  parserUtilClass="org.kevoree.modeling.idea.parser.MetaModelParserUtil"
+  stubParserClass="org.kevoree.modeling.idea.parser.GeneratedParserUtilBase"
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+  psiClassPrefix="MetaModel"
+  psiImplClassSuffix="Impl"
+  psiPackage="org.kevoree.modeling.idea.psi"
+  psiImplPackage="org.kevoree.modeling.idea.psi.impl"
+
+  elementTypeHolderClass="org.kevoree.modeling.idea.psi.MetaModelTypes"
+  elementTypeClass="org.kevoree.modeling.idea.psi.MetaModelElementType"
+  tokenTypeClass="org.kevoree.modeling.idea.psi.MetaModelTokenType"
+
+tokens=[
+    newline = 'regexp:\n\t'
+    CLASS='class'
+    PACKAGE='package'
+    COLON=':'
+    COMMA=','
+    SUB='/'
+    EQ='='
+    ID_ANNOT ='@id'
+    CONT_ANNOT ='@contained'
+    MULT_OPEN='['
+    BODY_OPEN='{'
+    MULT_CLOSE=']'
+    BODY_CLOSE='}'
+    MULT_SEP='.'
+    STAR='*'
+    eof = '<<EOF>>'
+    comment='regexp://.*'
+    NUMBER='regexp:[0-9\-]+'
+    IDENT='regexp:[\*\.a-zA-Z0-9_\-]+'
+    string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+  ]
+
+}
+
+METAMODEL ::= DECLARATION*
+DECLARATION ::= (PACKAGE_DECLARATION | CLASS_DECLARATION | eof | newline | CRLF)
+PACKAGE_DECLARATION ::= PACKAGE IDENT BODY_OPEN DECLARATION* BODY_CLOSE
+CLASS_DECLARATION ::= CLASS IDENT COLON_SEP* BODY_OPEN RELATION_DECLARATION* BODY_CLOSE {pin=2 recoverWhile=!(CLASS)}
+RELATION_DECLARATION ::= BODY_ELEM_ANNOT* IDENT COLON IDENT MULTIPLICITY_DECLARATION?
+MULTIPLICITY_DECLARATION ::= MULT_OPEN STAR_OR_NB COMMA STAR_OR_NB MULT_CLOSE
+private STAR_OR_NB ::= (NUMBER | STAR)
+private rule_start_class ::= !(CLASS|PACKAGE)
+private rule_start_package ::= !(PACKAGE)
+
+private COLON_SEP ::= COLON IDENT
+private COMMA_SEP ::= COMMA IDENT
+BODY_ELEM_ANNOT ::= (ID_ANNOT|CONT_ANNOT)
+
+/*
+private ADD_STATEMENT ::= ADD IDENT COMMA_SEP* COLON IDENT (SUB IDENT)? {pin=2 recoverWhile=rule_start}
+private REMOVE_STATEMENT ::= REMOVE IDENT COMMA_SEP* {pin=2 recoverWhile=rule_start}
+private BIND_STATEMENT ::= BIND IDENT COMMA_SEP* IDENT {pin=2 recoverWhile=rule_start}
+private UNBIND_STATEMENT ::= UNBIND IDENT COMMA_SEP* IDENT {pin=2 recoverWhile=rule_start}
+private ATTACH_STATEMENT ::= ATTACH IDENT COMMA_SEP* IDENT {pin=2 recoverWhile=rule_start}
+private DETACH_STATEMENT ::= DETACH IDENT COMMA_SEP* IDENT {pin=2 recoverWhile=rule_start}
+private NAMESPACE_STATEMENNT ::= NAMESPACE IDENT {pin=2 recoverWhile=rule_start}
+private REPO_STATEMENNT ::= REPO string {pin=2 recoverWhile=rule_start}
+private INCLUDE_STATEMENNT ::= INCLUDE IDENT COLON_SEP* {pin=2 recoverWhile=rule_start}
+private MOVE_STATEMENT ::= MOVE IDENT COMMA_SEP* IDENT {pin=2 recoverWhile=rule_start}
+private NETWORK_STATEMENT ::= NETWORK IDENT IDENT {pin=2 recoverWhile=rule_start}
+private SET_STATEMENT ::= SET IDENT (SUB IDENT)? EQ string {pin=2 recoverWhile=rule_start}
+private START_STATEMENT ::= START IDENT COMMA_SEP* {pin=2 recoverWhile=rule_start}
+private STOP_STATEMENT ::= STOP IDENT COMMA_SEP* {pin=2 recoverWhile=rule_start}
+*/
+

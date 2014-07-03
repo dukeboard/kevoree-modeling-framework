@@ -1,0 +1,7 @@
+class Concept {
+
+}
+
+class Concept2 {
+    @id name : String
+}

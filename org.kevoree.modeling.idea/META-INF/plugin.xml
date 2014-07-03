@@ -1,0 +1,69 @@
+<idea-plugin version="2">
+    <id>org.kevoree.modeling.idea.plugin</id>
+    <name>Kevoree Modeling Framework IDEA plugin</name>
+    <version>1</version>
+    <vendor email="fouquet.f@gmail.com" url="http://www.kevoree.org">Kevoree</vendor>
+
+    <description><![CDATA[
+      Authors : Fouquet Francois
+      Development environment for modeling.
+    ]]></description>
+
+    <change-notes><![CDATA[
+      V1: initial version.<br>
+    ]]>
+    </change-notes>
+
+    <idea-version since-build="133.000"/>
+    <category>Custom Languages</category>
+    <depends>com.intellij</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.platform</depends>
+    <resource-bundle>org.kevoree.modeling.idea.MetaModelBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <fileTypeFactory implementation="org.kevoree.modeling.idea.MetaModelFileTypeFactory"/>
+        <lang.parserDefinition language="MetaModel"
+                               implementationClass="org.kevoree.modeling.MetaModelParserDefinition"/>
+        <lang.syntaxHighlighterFactory key="MetaModel"
+                                       implementationClass="org.kevoree.modeling.idea.highlighter.MetaModelSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="org.kevoree.modeling.idea.highlighter.MetaModelColorSettingsPage"/>
+
+        <completion.contributor language="MetaModel"
+                                implementationClass="org.kevoree.modeling.idea.ide.MetaModelCompletionContributor"/>
+
+
+        <lang.braceMatcher language="MetaModel"
+                           implementationClass="org.kevoree.modeling.idea.ide.MetaModelBraceMatcher"/>
+
+        <internalFileTemplate name="MetaModel"/>
+
+        <lang.formatter language="MetaModel" implementationClass="org.kevoree.modeling.idea.formatter.MetaModelFormattingModelBuilder"/>
+
+    </extensions>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+    <project-components>
+        <component>
+            <implementation-class>org.kevoree.modeling.idea.ide.MetaModelComponent</implementation-class>
+        </component>
+    </project-components>
+
+    <actions>
+        <group id="MetaModelPlugin.ActionGroup" popup="true" text="MetaModel" description="MetaModel actions"
+               icon="/icons/kevs_16x16.png">
+
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+
+            <action id="MetaModel.NewMetaModelFileAction" text="New MetaModel"
+                    description="Create a new MetaModel in the current project"
+                    class="org.kevoree.modeling.idea.action.NewMetaModelFileAction">
+            </action>
+        </group>
+    </actions>
+
+</idea-plugin>
