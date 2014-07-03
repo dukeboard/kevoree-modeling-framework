@@ -90,13 +90,13 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="mm.bnf" pinned="false" current="true" current-in-tab="true">
+          <file leaf-file-name="mm.bnf" pinned="false" current="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/mm.bnf">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.7237762" vertical-offset="498" max-vertical-offset="1155">
-                  <caret line="47" column="44" selection-start-line="47" selection-start-column="37" selection-end-line="47" selection-end-column="44" />
+                <state vertical-scroll-proportion="0.26573426" vertical-offset="539" max-vertical-offset="1110">
+                  <caret line="41" column="118" selection-start-line="41" selection-start-column="118" selection-end-line="41" selection-end-column="118" />
                   <folding>
-                    <element signature="e#1#1103#0" expanded="true" />
+                    <element signature="e#1#1081#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -106,11 +106,11 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="mm.bnf.preview" pinned="false" current="false" current-in-tab="true">
+          <file leaf-file-name="mm.bnf.preview" pinned="false" current="true" current-in-tab="true">
             <entry file="mock:///mm.bnf.preview">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.3146853" vertical-offset="0" max-vertical-offset="286">
-                  <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+                <state vertical-scroll-proportion="0.36713287" vertical-offset="0" max-vertical-offset="286">
+                  <caret line="7" column="29" selection-start-line="7" selection-start-column="1" selection-end-line="7" selection-end-column="1" />
                   <folding />
                 </state>
               </provider>
@@ -674,12 +674,12 @@
       <workItem from="1404318516464" duration="11000" />
       <workItem from="1404318553320" duration="21720000" />
       <workItem from="1404368397712" duration="9344000" />
-      <workItem from="1404423233586" duration="6171000" />
+      <workItem from="1404423233586" duration="6281000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="39972000" />
+    <option name="totallyTimeSpent" value="40082000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1440" height="874" extended-state="6" />
@@ -1116,10 +1116,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/mm.bnf">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7237762" vertical-offset="498" max-vertical-offset="1155">
-          <caret line="47" column="44" selection-start-line="47" selection-start-column="37" selection-end-line="47" selection-end-column="44" />
+        <state vertical-scroll-proportion="0.26573426" vertical-offset="539" max-vertical-offset="1110">
+          <caret line="41" column="118" selection-start-line="41" selection-start-column="118" selection-end-line="41" selection-end-column="118" />
           <folding>
-            <element signature="e#1#1103#0" expanded="true" />
+            <element signature="e#1#1081#0" expanded="true" />
           </folding>
         </state>
       </provider>
