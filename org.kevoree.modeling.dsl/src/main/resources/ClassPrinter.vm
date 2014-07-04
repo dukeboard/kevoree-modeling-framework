@@ -6,10 +6,13 @@
   *#
 class $PrettyPrinter.fqn($clazz) $superTypes {
 #foreach($att in $attributes)
-    #if($att.isID())@id #end$att.getName() : $att.getEAttributeType().getName()
+    #if($att.isID())@id #end$att.getName() : $att.getEType().getName()
 #end
 
 #foreach($ref in $references)
-    #if($ref.isContainment())@contained #end$ref.getName() : $PrettyPrinter.fqn($ref.getEReferenceType())
+    #if($ref.isContainment())@contained #end$ref.getName() : $PrettyPrinter.fqn($ref.getEReferenceType())#if($ref.getEOpposite()) oppositeOf $ref.getEOpposite().getName()
+#else
+
+#end
 #end
 }
