@@ -6,7 +6,7 @@
   *#
 class $PrettyPrinter.fqn($clazz) $superTypes {
 #foreach($att in $attributes)
-    #if($att.isID())@id #end$att.getName() : $att.getEType().getName()
+    #if($att.isID())@id #end$att.getName() : $PrettyPrinter.convertType($att.getEType().getName())
 #end
 
 #foreach($ref in $references)

@@ -52,6 +52,10 @@ public class MetaModelSyntaxHighlighter extends SyntaxHighlighterBase {
         if (tokenType.equals(MetaModelTypes.CLASS)) {
             return KEYWORD_KEYS;
         }
+        if (tokenType.equals(MetaModelTypes.OPPOSITE)) {
+            return KEYWORD_KEYS;
+        }
+
         if (tokenType.equals(MetaModelTypes.ANNOTATION)) {
             return ANNOTATION_KEYS;
         }

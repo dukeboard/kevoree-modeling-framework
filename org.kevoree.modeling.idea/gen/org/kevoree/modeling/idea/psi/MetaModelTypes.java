@@ -8,10 +8,14 @@ import org.kevoree.modeling.idea.psi.impl.*;
 
 public interface MetaModelTypes {
 
+  IElementType ANNOTATIONS = new MetaModelElementType("ANNOTATIONS");
   IElementType CLASS_DECLARATION = new MetaModelElementType("CLASS_DECLARATION");
   IElementType DECLARATION = new MetaModelElementType("DECLARATION");
   IElementType MULTIPLICITY_DECLARATION = new MetaModelElementType("MULTIPLICITY_DECLARATION");
+  IElementType PARENTS_DECLARATION = new MetaModelElementType("PARENTS_DECLARATION");
   IElementType RELATION_DECLARATION = new MetaModelElementType("RELATION_DECLARATION");
+  IElementType RELATION_NAME = new MetaModelElementType("RELATION_NAME");
+  IElementType TYPE_DECLARATION = new MetaModelElementType("TYPE_DECLARATION");
 
   IElementType ANNOTATION = new MetaModelTokenType("ANNOTATION");
   IElementType BODY_CLOSE = new MetaModelTokenType("}");
@@ -37,7 +41,10 @@ public interface MetaModelTypes {
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-       if (type == CLASS_DECLARATION) {
+       if (type == ANNOTATIONS) {
+        return new MetaModelAnnotationsImpl(node);
+      }
+      else if (type == CLASS_DECLARATION) {
         return new MetaModelClassDeclarationImpl(node);
       }
       else if (type == DECLARATION) {
@@ -46,8 +53,17 @@ public interface MetaModelTypes {
       else if (type == MULTIPLICITY_DECLARATION) {
         return new MetaModelMultiplicityDeclarationImpl(node);
       }
+      else if (type == PARENTS_DECLARATION) {
+        return new MetaModelParentsDeclarationImpl(node);
+      }
       else if (type == RELATION_DECLARATION) {
         return new MetaModelRelationDeclarationImpl(node);
+      }
+      else if (type == RELATION_NAME) {
+        return new MetaModelRelationNameImpl(node);
+      }
+      else if (type == TYPE_DECLARATION) {
+        return new MetaModelTypeDeclarationImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }

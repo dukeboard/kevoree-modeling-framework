@@ -7,7 +7,19 @@ import com.intellij.psi.PsiElement;
 
 public interface MetaModelRelationDeclaration extends PsiElement {
 
+  @NotNull
+  MetaModelAnnotations getAnnotations();
+
   @Nullable
   MetaModelMultiplicityDeclaration getMultiplicityDeclaration();
+
+  @NotNull
+  MetaModelRelationName getRelationName();
+
+  @NotNull
+  MetaModelTypeDeclaration getTypeDeclaration();
+
+  @Nullable
+  PsiElement getIdent();
 
 }

@@ -7,6 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public class MetaModelVisitor extends PsiElementVisitor {
 
+  public void visitAnnotations(@NotNull MetaModelAnnotations o) {
+    visitPsiElement(o);
+  }
+
   public void visitClassDeclaration(@NotNull MetaModelClassDeclaration o) {
     visitPsiElement(o);
   }
@@ -19,7 +23,19 @@ public class MetaModelVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitParentsDeclaration(@NotNull MetaModelParentsDeclaration o) {
+    visitPsiElement(o);
+  }
+
   public void visitRelationDeclaration(@NotNull MetaModelRelationDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitRelationName(@NotNull MetaModelRelationName o) {
+    visitPsiElement(o);
+  }
+
+  public void visitTypeDeclaration(@NotNull MetaModelTypeDeclaration o) {
     visitPsiElement(o);
   }
 

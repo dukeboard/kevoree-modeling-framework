@@ -23,9 +23,21 @@ public class MetaModelClassDeclarationImpl extends ASTWrapperPsiElement implemen
   }
 
   @Override
+  @Nullable
+  public MetaModelParentsDeclaration getParentsDeclaration() {
+    return findChildByClass(MetaModelParentsDeclaration.class);
+  }
+
+  @Override
   @NotNull
   public List<MetaModelRelationDeclaration> getRelationDeclarationList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, MetaModelRelationDeclaration.class);
+  }
+
+  @Override
+  @Nullable
+  public MetaModelTypeDeclaration getTypeDeclaration() {
+    return findChildByClass(MetaModelTypeDeclaration.class);
   }
 
 }

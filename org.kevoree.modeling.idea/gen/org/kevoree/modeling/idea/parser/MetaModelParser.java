@@ -20,7 +20,10 @@ public class MetaModelParser implements PsiParser {
     boolean result_;
     builder_ = adapt_builder_(root_, builder_, this, null);
     Marker marker_ = enter_section_(builder_, 0, _COLLAPSE_, null);
-    if (root_ == CLASS_DECLARATION) {
+    if (root_ == ANNOTATIONS) {
+      result_ = ANNOTATIONS(builder_, 0);
+    }
+    else if (root_ == CLASS_DECLARATION) {
       result_ = CLASS_DECLARATION(builder_, 0);
     }
     else if (root_ == DECLARATION) {
@@ -29,8 +32,17 @@ public class MetaModelParser implements PsiParser {
     else if (root_ == MULTIPLICITY_DECLARATION) {
       result_ = MULTIPLICITY_DECLARATION(builder_, 0);
     }
+    else if (root_ == PARENTS_DECLARATION) {
+      result_ = PARENTS_DECLARATION(builder_, 0);
+    }
     else if (root_ == RELATION_DECLARATION) {
       result_ = RELATION_DECLARATION(builder_, 0);
+    }
+    else if (root_ == RELATION_NAME) {
+      result_ = RELATION_NAME(builder_, 0);
+    }
+    else if (root_ == TYPE_DECLARATION) {
+      result_ = TYPE_DECLARATION(builder_, 0);
     }
     else {
       result_ = parse_root_(root_, builder_, 0);
@@ -44,15 +56,31 @@ public class MetaModelParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // CLASS IDENT COLON_SEP* BODY_OPEN RELATION_DECLARATION* BODY_CLOSE
+  // ANNOTATION*
+  public static boolean ANNOTATIONS(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "ANNOTATIONS")) return false;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<annotations>");
+    int pos_ = current_position_(builder_);
+    while (true) {
+      if (!consumeToken(builder_, ANNOTATION)) break;
+      if (!empty_element_parsed_guard_(builder_, "ANNOTATIONS", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
+    exit_section_(builder_, level_, marker_, ANNOTATIONS, true, false, null);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // CLASS TYPE_DECLARATION PARENTS_DECLARATION? BODY_OPEN RELATION_DECLARATION* BODY_CLOSE
   public static boolean CLASS_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "CLASS_DECLARATION")) return false;
     boolean result_ = false;
     boolean pinned_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<class declaration>");
-    result_ = consumeTokens(builder_, 1, CLASS, IDENT);
+    result_ = consumeToken(builder_, CLASS);
     pinned_ = result_; // pin = 1
-    result_ = result_ && report_error_(builder_, CLASS_DECLARATION_2(builder_, level_ + 1));
+    result_ = result_ && report_error_(builder_, TYPE_DECLARATION(builder_, level_ + 1));
+    result_ = pinned_ && report_error_(builder_, CLASS_DECLARATION_2(builder_, level_ + 1)) && result_;
     result_ = pinned_ && report_error_(builder_, consumeToken(builder_, BODY_OPEN)) && result_;
     result_ = pinned_ && report_error_(builder_, CLASS_DECLARATION_4(builder_, level_ + 1)) && result_;
     result_ = pinned_ && consumeToken(builder_, BODY_CLOSE) && result_;
@@ -60,15 +88,10 @@ public class MetaModelParser implements PsiParser {
     return result_ || pinned_;
   }
 
-  // COLON_SEP*
+  // PARENTS_DECLARATION?
   private static boolean CLASS_DECLARATION_2(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "CLASS_DECLARATION_2")) return false;
-    int pos_ = current_position_(builder_);
-    while (true) {
-      if (!COLON_SEP(builder_, level_ + 1)) break;
-      if (!empty_element_parsed_guard_(builder_, "CLASS_DECLARATION_2", pos_)) break;
-      pos_ = current_position_(builder_);
-    }
+    PARENTS_DECLARATION(builder_, level_ + 1);
     return true;
   }
 
@@ -152,30 +175,57 @@ public class MetaModelParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // ANNOTATION* IDENT COLON IDENT MULTIPLICITY_DECLARATION? (OPPOSITE IDENT)?
+  // COLON TYPE_DECLARATION (COMMA TYPE_DECLARATION)*
+  public static boolean PARENTS_DECLARATION(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "PARENTS_DECLARATION")) return false;
+    if (!nextTokenIs(builder_, COLON)) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, COLON);
+    result_ = result_ && TYPE_DECLARATION(builder_, level_ + 1);
+    result_ = result_ && PARENTS_DECLARATION_2(builder_, level_ + 1);
+    exit_section_(builder_, marker_, PARENTS_DECLARATION, result_);
+    return result_;
+  }
+
+  // (COMMA TYPE_DECLARATION)*
+  private static boolean PARENTS_DECLARATION_2(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "PARENTS_DECLARATION_2")) return false;
+    int pos_ = current_position_(builder_);
+    while (true) {
+      if (!PARENTS_DECLARATION_2_0(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "PARENTS_DECLARATION_2", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
+    return true;
+  }
+
+  // COMMA TYPE_DECLARATION
+  private static boolean PARENTS_DECLARATION_2_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "PARENTS_DECLARATION_2_0")) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, COMMA);
+    result_ = result_ && TYPE_DECLARATION(builder_, level_ + 1);
+    exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // ANNOTATIONS RELATION_NAME COLON TYPE_DECLARATION MULTIPLICITY_DECLARATION? (OPPOSITE IDENT)?
   public static boolean RELATION_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "RELATION_DECLARATION")) return false;
     if (!nextTokenIs(builder_, "<relation declaration>", ANNOTATION, IDENT)) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<relation declaration>");
-    result_ = RELATION_DECLARATION_0(builder_, level_ + 1);
-    result_ = result_ && consumeTokens(builder_, 0, IDENT, COLON, IDENT);
+    result_ = ANNOTATIONS(builder_, level_ + 1);
+    result_ = result_ && RELATION_NAME(builder_, level_ + 1);
+    result_ = result_ && consumeToken(builder_, COLON);
+    result_ = result_ && TYPE_DECLARATION(builder_, level_ + 1);
     result_ = result_ && RELATION_DECLARATION_4(builder_, level_ + 1);
     result_ = result_ && RELATION_DECLARATION_5(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, RELATION_DECLARATION, result_, false, null);
     return result_;
-  }
-
-  // ANNOTATION*
-  private static boolean RELATION_DECLARATION_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "RELATION_DECLARATION_0")) return false;
-    int pos_ = current_position_(builder_);
-    while (true) {
-      if (!consumeToken(builder_, ANNOTATION)) break;
-      if (!empty_element_parsed_guard_(builder_, "RELATION_DECLARATION_0", pos_)) break;
-      pos_ = current_position_(builder_);
-    }
-    return true;
   }
 
   // MULTIPLICITY_DECLARATION?
@@ -203,6 +253,18 @@ public class MetaModelParser implements PsiParser {
   }
 
   /* ********************************************************** */
+  // IDENT
+  public static boolean RELATION_NAME(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "RELATION_NAME")) return false;
+    if (!nextTokenIs(builder_, IDENT)) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, IDENT);
+    exit_section_(builder_, marker_, RELATION_NAME, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
   // NUMBER | STAR
   static boolean STAR_OR_NB(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "STAR_OR_NB")) return false;
@@ -212,6 +274,18 @@ public class MetaModelParser implements PsiParser {
     result_ = consumeToken(builder_, NUMBER);
     if (!result_) result_ = consumeToken(builder_, STAR);
     exit_section_(builder_, marker_, null, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // IDENT
+  public static boolean TYPE_DECLARATION(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "TYPE_DECLARATION")) return false;
+    if (!nextTokenIs(builder_, IDENT)) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, IDENT);
+    exit_section_(builder_, marker_, TYPE_DECLARATION, result_);
     return result_;
   }
 

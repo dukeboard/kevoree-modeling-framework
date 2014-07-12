@@ -17,12 +17,7 @@ public class StandaloneParserTester {
        File input = new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/org.kevoree.modeling.dsl/src/main/resources/HelloWorld.mm");
 
         PsiFile psi = parser.parser(input);
-
-        System.out.println(psi.getNode().isParsed());
-
-        for (PsiElement element : psi.getChildren()) {
-            System.out.println(element.getClass());
-        }
+        parser.convert2ecore(psi);
 
     }
 

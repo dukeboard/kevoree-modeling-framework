@@ -31,22 +31,25 @@ public class PrettyPrinter {
         StringWriter sw = new StringWriter();
         ResourceSet rs = getEcoreModel(ecoreModel);
         TreeIterator<Notifier> iterator = rs.getAllContents();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Notifier notifier = iterator.next();
             if (notifier instanceof EClass) {
-                printClass(sw, (EClass)notifier);
+                printClass(sw, (EClass) notifier);
             }
         }
         return sw.toString();
 
     }
 
+    public String convertType(String typeName) {
+        return PrimitiveTypes.convert(typeName);
+    }
 
     private void printClass(StringWriter sw, EClass cls) {
         String superTypes = "";
-        if(!cls.getESuperTypes().isEmpty()) {
-            for(EClassifier st : cls.getESuperTypes()) {
-                superTypes = superTypes + (superTypes.equals("")?": ":",") + fqn(st);
+        if (!cls.getESuperTypes().isEmpty()) {
+            for (EClassifier st : cls.getESuperTypes()) {
+                superTypes = superTypes + (superTypes.equals("") ? ": " : ",") + fqn(st);
             }
         }
 
@@ -55,14 +58,13 @@ public class PrettyPrinter {
         ve.init();
         Template template = ve.getTemplate("ClassPrinter.vm");
         VelocityContext ctxV = new VelocityContext();
-        ctxV.put("clazz",cls);
-        ctxV.put("attributes",cls.getEAttributes());
-        ctxV.put("references",cls.getEReferences());
+        ctxV.put("clazz", cls);
+        ctxV.put("attributes", cls.getEAttributes());
+        ctxV.put("references", cls.getEReferences());
         ctxV.put("superTypes", superTypes);
         ctxV.put("PrettyPrinter", this);
         template.merge(ctxV, sw);
     }
-
 
 
     protected ResourceSet getEcoreModel(File ecorefile) {
@@ -89,6 +91,7 @@ public class PrettyPrinter {
 
     /**
      * Computes the Fully Qualified Name of the package in the context of the model.
+     *
      * @param pack the package which FQN has to be computed
      * @return the Fully Qualified package name
      */
@@ -113,6 +116,7 @@ public class PrettyPrinter {
 
     /**
      * Computes the Fully Qualified Name of the class in the context of the model.
+     *
      * @param cls the class which FQN has to be computed
      * @return the Fully Qualified Class name
      */

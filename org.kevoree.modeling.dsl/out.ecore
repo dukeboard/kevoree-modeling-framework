@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="kevoree">
+  <eClassifiers xsi:type="ecore:EClass" name="ComponentInstance" eSuperTypes="//Instance"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Instance" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ComponentType" eSuperTypes="//TypeDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TypeDefinition" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ContainerNode" eSuperTypes="//Instance"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ContainerRoot"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PortType" eSuperTypes="//TypeDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Port" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Namespace" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Dictionary"/>
+  <eClassifiers xsi:type="ecore:EClass" name="FragmentDictionary" eSuperTypes="//Dictionary"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DictionaryType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DictionaryAttribute" eSuperTypes="//TypedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TypedElement" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DictionaryValue"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PortTypeRef" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ServicePortType" eSuperTypes="//PortType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Operation" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Parameter" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MessagePortType" eSuperTypes="//PortType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Repository"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DeployUnit" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TypeLibrary" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PortTypeMapping"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Channel" eSuperTypes="//Instance"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MBinding"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NodeNetwork"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NodeLink"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NetworkInfo" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NetworkProperty" eSuperTypes="//NamedElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ChannelType" eSuperTypes="//TypeDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Group" eSuperTypes="//Instance"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GroupType" eSuperTypes="//TypeDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="NodeType" eSuperTypes="//TypeDefinition"/>
+</ecore:EPackage>

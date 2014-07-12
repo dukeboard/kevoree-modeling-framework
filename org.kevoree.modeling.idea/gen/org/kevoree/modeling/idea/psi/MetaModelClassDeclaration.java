@@ -7,7 +7,13 @@ import com.intellij.psi.PsiElement;
 
 public interface MetaModelClassDeclaration extends PsiElement {
 
+  @Nullable
+  MetaModelParentsDeclaration getParentsDeclaration();
+
   @NotNull
   List<MetaModelRelationDeclaration> getRelationDeclarationList();
+
+  @Nullable
+  MetaModelTypeDeclaration getTypeDeclaration();
 
 }
