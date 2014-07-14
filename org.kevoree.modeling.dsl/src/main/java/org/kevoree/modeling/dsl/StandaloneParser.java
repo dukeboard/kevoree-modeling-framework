@@ -116,6 +116,9 @@ public class StandaloneParser {
     }
 
     public void convert2ecore(PsiFile psi) {
+
+
+
         ResourceSetImpl rs = new ResourceSetImpl();
         Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
         Map<String, Object> m = reg.getExtensionToFactoryMap();

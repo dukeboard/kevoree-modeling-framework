@@ -70,8 +70,8 @@
       <file leaf-file-name="mm.bnf" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/mm.bnf">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.33333334" vertical-offset="94" max-vertical-offset="690">
-              <caret line="52" column="0" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.58178055" vertical-offset="94" max-vertical-offset="690">
+              <caret line="60" column="16" selection-start-line="60" selection-start-column="16" selection-end-line="60" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -698,12 +698,12 @@
       <workItem from="1405319549535" duration="154000" />
       <workItem from="1405319723563" duration="73000" />
       <workItem from="1405319811428" duration="692000" />
-      <workItem from="1405322158946" duration="2390000" />
+      <workItem from="1405322158946" duration="2989000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="51978000" />
+    <option name="totallyTimeSpent" value="52577000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1440" y="22" width="1440" height="878" extended-state="6" />
@@ -986,8 +986,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/mm.bnf">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33333334" vertical-offset="94" max-vertical-offset="690">
-          <caret line="52" column="0" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.58178055" vertical-offset="94" max-vertical-offset="690">
+          <caret line="60" column="16" selection-start-line="60" selection-start-column="16" selection-end-line="60" selection-end-column="16" />
           <folding />
         </state>
       </provider>

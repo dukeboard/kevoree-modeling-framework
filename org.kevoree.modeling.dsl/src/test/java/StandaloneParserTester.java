@@ -1,4 +1,3 @@
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.junit.Test;
 import org.kevoree.modeling.dsl.StandaloneParser;
@@ -13,8 +12,8 @@ public class StandaloneParserTester {
 
     @Test
     public void test() throws IOException {
-       StandaloneParser parser = new StandaloneParser();
-       File input = new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/org.kevoree.modeling.dsl/src/main/resources/HelloWorld.mm");
+        StandaloneParser parser = new StandaloneParser();
+        File input = new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/org.kevoree.modeling.dsl/src/main/resources/HelloWorld.mm");
 
         PsiFile psi = parser.parser(input);
         parser.convert2ecore(psi);
