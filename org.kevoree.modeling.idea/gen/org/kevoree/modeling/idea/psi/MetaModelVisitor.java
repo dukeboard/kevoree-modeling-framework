@@ -43,6 +43,10 @@ public class MetaModelVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitRelationOpposite(@NotNull MetaModelRelationOpposite o) {
+    visitPsiElement(o);
+  }
+
   public void visitTypeDeclaration(@NotNull MetaModelTypeDeclaration o) {
     visitPsiElement(o);
   }

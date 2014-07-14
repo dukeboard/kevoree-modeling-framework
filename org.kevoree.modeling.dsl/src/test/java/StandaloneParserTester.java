@@ -3,7 +3,6 @@ import org.junit.Test;
 import org.kevoree.modeling.dsl.StandaloneParser;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by duke on 7/3/14.
@@ -11,7 +10,7 @@ import java.io.IOException;
 public class StandaloneParserTester {
 
     @Test
-    public void test() throws IOException {
+    public void test() throws Exception {
         StandaloneParser parser = new StandaloneParser();
         File input = new File("/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/org.kevoree.modeling.dsl/src/main/resources/HelloWorld.mm");
 

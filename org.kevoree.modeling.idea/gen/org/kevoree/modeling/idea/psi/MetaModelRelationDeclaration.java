@@ -16,10 +16,10 @@ public interface MetaModelRelationDeclaration extends PsiElement {
   @NotNull
   MetaModelRelationName getRelationName();
 
+  @Nullable
+  MetaModelRelationOpposite getRelationOpposite();
+
   @NotNull
   MetaModelTypeDeclaration getTypeDeclaration();
-
-  @Nullable
-  PsiElement getIdent();
 
 }

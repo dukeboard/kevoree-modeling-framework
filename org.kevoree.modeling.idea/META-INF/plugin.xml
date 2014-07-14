@@ -64,6 +64,13 @@
                     class="org.kevoree.modeling.idea.action.NewMetaModelFileAction">
             </action>
         </group>
+
+        <action id="ConvertMMtoEcore" class="org.kevoree.modeling.action.ConvertToEcoreAction"
+                text="Convert to Ecore" description="ConvertMMtoEcore">
+            <add-to-group group-id="RunContextGroup" anchor="last"/>
+        </action>
+
+
     </actions>
 
 </idea-plugin>

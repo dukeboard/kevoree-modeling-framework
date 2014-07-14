@@ -14,7 +14,7 @@
       <eStructuralFeatures xsi:type="ecore:EReference" name="fragmentDictionary" upperBound="-1" eType="/0/FragmentDictionary" containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Port" eSuperTypes="/0/NamedElement">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="bindings" upperBound="-1" eType="/0/MBinding"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="bindings" upperBound="-1" eType="/0/MBinding" eOpposite="/0/MBinding/port"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="portTypeRef" eType="/0/PortTypeRef"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Namespace" eSuperTypes="/0/NamedElement">
@@ -41,13 +41,13 @@
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="ContainerNode" eSuperTypes="/0/Instance">
       <eStructuralFeatures xsi:type="ecore:EReference" name="components" upperBound="-1" eType="/0/ComponentInstance" containment="true"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="hosts" upperBound="-1" eType="/0/ContainerNode"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="host" eType="/0/ContainerNode"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="groups" upperBound="-1" eType="/0/Group"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="hosts" upperBound="-1" eType="/0/ContainerNode" eOpposite="/0/ContainerNode/host"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="host" eType="/0/ContainerNode" eOpposite="/0/ContainerNode/hosts"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="groups" upperBound="-1" eType="/0/Group" eOpposite="/0/Group/subNodes"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="networkInformation" upperBound="-1" eType="/0/NetworkInfo" containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Group" eSuperTypes="/0/Instance">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="subNodes" upperBound="-1" eType="/0/ContainerNode"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="subNodes" upperBound="-1" eType="/0/ContainerNode" eOpposite="/0/ContainerNode/groups"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="NetworkInfo" eSuperTypes="/0/NamedElement">
       <eStructuralFeatures xsi:type="ecore:EReference" name="values" upperBound="-1" eType="/0/NetworkProperty" containment="true"/>
@@ -74,11 +74,11 @@
       <eStructuralFeatures xsi:type="ecore:EReference" name="subTypes" upperBound="-1" eType="/0/TypeDefinition"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Channel" eSuperTypes="/0/Instance">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="bindings" upperBound="-1" eType="/0/MBinding"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="bindings" upperBound="-1" eType="/0/MBinding" eOpposite="/0/MBinding/hub"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="MBinding">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="port" eType="/0/Port"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="hub" eType="/0/Channel"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="port" eType="/0/Port" eOpposite="/0/Port/bindings"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="hub" eType="/0/Channel" eOpposite="/0/Channel/bindings"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="DeployUnit" eSuperTypes="/0/NamedElement">
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="groupName" eType="/2" iD="true"/>

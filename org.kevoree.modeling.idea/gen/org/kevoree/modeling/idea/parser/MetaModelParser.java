@@ -47,6 +47,9 @@ public class MetaModelParser implements PsiParser {
     else if (root_ == RELATION_NAME) {
       result_ = RELATION_NAME(builder_, 0);
     }
+    else if (root_ == RELATION_OPPOSITE) {
+      result_ = RELATION_OPPOSITE(builder_, 0);
+    }
     else if (root_ == TYPE_DECLARATION) {
       result_ = TYPE_DECLARATION(builder_, 0);
     }
@@ -111,30 +114,6 @@ public class MetaModelParser implements PsiParser {
       pos_ = current_position_(builder_);
     }
     return true;
-  }
-
-  /* ********************************************************** */
-  // COLON IDENT
-  static boolean COLON_SEP(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "COLON_SEP")) return false;
-    if (!nextTokenIs(builder_, COLON)) return false;
-    boolean result_ = false;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeTokens(builder_, 0, COLON, IDENT);
-    exit_section_(builder_, marker_, null, result_);
-    return result_;
-  }
-
-  /* ********************************************************** */
-  // COMMA IDENT
-  static boolean COMMA_SEP(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "COMMA_SEP")) return false;
-    if (!nextTokenIs(builder_, COMMA)) return false;
-    boolean result_ = false;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeTokens(builder_, 0, COMMA, IDENT);
-    exit_section_(builder_, marker_, null, result_);
-    return result_;
   }
 
   /* ********************************************************** */
@@ -242,7 +221,7 @@ public class MetaModelParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // ANNOTATIONS RELATION_NAME COLON TYPE_DECLARATION MULTIPLICITY_DECLARATION? (OPPOSITE IDENT)?
+  // ANNOTATIONS RELATION_NAME COLON TYPE_DECLARATION MULTIPLICITY_DECLARATION? RELATION_OPPOSITE?
   public static boolean RELATION_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "RELATION_DECLARATION")) return false;
     if (!nextTokenIs(builder_, "<relation declaration>", ANNOTATION, IDENT)) return false;
@@ -265,21 +244,11 @@ public class MetaModelParser implements PsiParser {
     return true;
   }
 
-  // (OPPOSITE IDENT)?
+  // RELATION_OPPOSITE?
   private static boolean RELATION_DECLARATION_5(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "RELATION_DECLARATION_5")) return false;
-    RELATION_DECLARATION_5_0(builder_, level_ + 1);
+    RELATION_OPPOSITE(builder_, level_ + 1);
     return true;
-  }
-
-  // OPPOSITE IDENT
-  private static boolean RELATION_DECLARATION_5_0(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "RELATION_DECLARATION_5_0")) return false;
-    boolean result_ = false;
-    Marker marker_ = enter_section_(builder_);
-    result_ = consumeTokens(builder_, 0, OPPOSITE, IDENT);
-    exit_section_(builder_, marker_, null, result_);
-    return result_;
   }
 
   /* ********************************************************** */
@@ -291,6 +260,18 @@ public class MetaModelParser implements PsiParser {
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, IDENT);
     exit_section_(builder_, marker_, RELATION_NAME, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // OPPOSITE IDENT
+  public static boolean RELATION_OPPOSITE(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "RELATION_OPPOSITE")) return false;
+    if (!nextTokenIs(builder_, OPPOSITE)) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeTokens(builder_, 0, OPPOSITE, IDENT);
+    exit_section_(builder_, marker_, RELATION_OPPOSITE, result_);
     return result_;
   }
 

@@ -25,6 +25,7 @@ import org.kevoree.modeling.idea.psi.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -115,9 +116,9 @@ public class StandaloneParser {
         }
     }
 
-    public void convert2ecore(PsiFile psi) {
+    public void convert2ecore(PsiFile psi) throws Exception {
 
-
+        HashMap<EReference, String> postProcess = new HashMap<EReference, String>();
 
         ResourceSetImpl rs = new ResourceSetImpl();
         Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
@@ -192,6 +193,11 @@ public class StandaloneParser {
                             ref.setName(relation.getRelationName().getIdent().getText());
                             newType.getEStructuralFeatures().add(ref);
                             structuralFeature = ref;
+
+                            MetaModelRelationOpposite opposite = relation.getRelationOpposite();
+                            if (opposite != null) {
+                                postProcess.put(ref, opposite.getIdent().getText());
+                            }
                         }
 
                         if (lower != null) {
@@ -213,6 +219,21 @@ public class StandaloneParser {
                 }
             }
         }
+
+        //process opposite link
+        for (Map.Entry<EReference, String> entry : postProcess.entrySet()) {
+            boolean found = false;
+            for (EReference ref : ((EClass) entry.getKey().getEType()).getEAllReferences()) {
+                if (ref.getName().equals(entry.getValue())) {
+                    entry.getKey().setEOpposite(ref);
+                    found = true;
+                }
+            }
+            if (!found) {
+                throw new Exception("Opposite not found " + entry.getValue());
+            }
+        }
+
         try {
             r.save(Collections.EMPTY_MAP);
         } catch (IOException e) {

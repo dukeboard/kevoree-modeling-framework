@@ -17,6 +17,7 @@ public interface MetaModelTypes {
   IElementType PARENTS_DECLARATION = new MetaModelElementType("PARENTS_DECLARATION");
   IElementType RELATION_DECLARATION = new MetaModelElementType("RELATION_DECLARATION");
   IElementType RELATION_NAME = new MetaModelElementType("RELATION_NAME");
+  IElementType RELATION_OPPOSITE = new MetaModelElementType("RELATION_OPPOSITE");
   IElementType TYPE_DECLARATION = new MetaModelElementType("TYPE_DECLARATION");
 
   IElementType ANNOTATION = new MetaModelTokenType("ANNOTATION");
@@ -69,6 +70,9 @@ public interface MetaModelTypes {
       }
       else if (type == RELATION_NAME) {
         return new MetaModelRelationNameImpl(node);
+      }
+      else if (type == RELATION_OPPOSITE) {
+        return new MetaModelRelationOppositeImpl(node);
       }
       else if (type == TYPE_DECLARATION) {
         return new MetaModelTypeDeclarationImpl(node);
