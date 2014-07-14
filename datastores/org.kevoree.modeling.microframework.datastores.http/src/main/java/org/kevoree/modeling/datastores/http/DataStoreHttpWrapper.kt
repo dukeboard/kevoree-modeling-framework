@@ -54,17 +54,17 @@ public class DataStoreHttpWrapper(val wrapped: DataStore, val port: Int) : Abstr
 
     }
 
-    internal var server: Server? = null
+    var _server: Server? = null
 
     fun startServer() {
-        server = Server(8080)
-        server!!.setHandler(this)
-        server!!.start()
+        _server = Server(8080)
+        _server!!.setHandler(this)
+        _server!!.start()
     }
 
     fun stopServer() {
-        server?.stop()
-        server = null
+        _server?.stop()
+        _server = null
     }
 
     override fun get(segment: String, key: String): String? {
