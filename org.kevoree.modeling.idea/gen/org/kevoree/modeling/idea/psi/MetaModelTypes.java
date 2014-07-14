@@ -12,6 +12,8 @@ public interface MetaModelTypes {
   IElementType CLASS_DECLARATION = new MetaModelElementType("CLASS_DECLARATION");
   IElementType DECLARATION = new MetaModelElementType("DECLARATION");
   IElementType MULTIPLICITY_DECLARATION = new MetaModelElementType("MULTIPLICITY_DECLARATION");
+  IElementType MULTIPLICITY_DECLARATION_LOWER = new MetaModelElementType("MULTIPLICITY_DECLARATION_LOWER");
+  IElementType MULTIPLICITY_DECLARATION_UPPER = new MetaModelElementType("MULTIPLICITY_DECLARATION_UPPER");
   IElementType PARENTS_DECLARATION = new MetaModelElementType("PARENTS_DECLARATION");
   IElementType RELATION_DECLARATION = new MetaModelElementType("RELATION_DECLARATION");
   IElementType RELATION_NAME = new MetaModelElementType("RELATION_NAME");
@@ -52,6 +54,12 @@ public interface MetaModelTypes {
       }
       else if (type == MULTIPLICITY_DECLARATION) {
         return new MetaModelMultiplicityDeclarationImpl(node);
+      }
+      else if (type == MULTIPLICITY_DECLARATION_LOWER) {
+        return new MetaModelMultiplicityDeclarationLowerImpl(node);
+      }
+      else if (type == MULTIPLICITY_DECLARATION_UPPER) {
+        return new MetaModelMultiplicityDeclarationUpperImpl(node);
       }
       else if (type == PARENTS_DECLARATION) {
         return new MetaModelParentsDeclarationImpl(node);

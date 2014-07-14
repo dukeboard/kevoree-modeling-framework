@@ -8,15 +8,44 @@ public enum PrimitiveTypes {
     String, Long, Int, Bool, Short, Double, Float;
 
     public static boolean isPrimitive(String originalName) {
-        for(PrimitiveTypes p : PrimitiveTypes.values()){
-            if(p.name().equals(originalName)){
+        for (PrimitiveTypes p : PrimitiveTypes.values()) {
+            if (p.name().equals(originalName)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static String convert(String originalName) {
+    public static String toEcoreType(String originalName) {
+        if (originalName.equals("String")) {
+            return "java.lang.String";
+        }
+        if (originalName.equals("Bool")) {
+            return "java.lang.Boolean";
+        }
+        if (originalName.equals("Int")) {
+            return "java.lang.Integer";
+        }
+        if (originalName.equals("Long")) {
+            return "java.lang.Long";
+        }
+        if (originalName.equals("Short")) {
+            return "java.lang.Short";
+        }
+        if (originalName.equals("Double")) {
+            return "java.lang.Double";
+        }
+        if (originalName.equals("Float")) {
+            return "java.lang.Float";
+        }
+        return originalName;
+    }
+
+    public static String convert(String originalNameFull) {
+        String originalName = originalNameFull;
+        if (originalName.startsWith("ecore.")) {
+            originalName = originalName.substring(6);
+        }
         if (originalName.equals("String") || originalName.equals("EString") || originalName.equals("EStringObject")) {
             return "String";
         }

@@ -31,6 +31,16 @@
 
     <developers>
         <developer>
+            <name>Francois Fouquet</name>
+            <id>francois.fouquet</id>
+            <email>fouquet.f@gmail.com</email>
+            <roles>
+                <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
             <name>Gregory Nain</name>
             <id>gregory.nain</id>
             <email>gregory.nain@uni.lu</email>
@@ -41,11 +51,10 @@
             <timezone>+2</timezone>
         </developer>
         <developer>
-            <name>Francois Fouquet</name>
-            <id>francois.fouquet</id>
-            <email>fouquet.f@gmail.com</email>
+            <name>Thomas Hartmann</name>
+            <id>thomas.hartmann</id>
+            <email>fthomi.hartmann@gmail.com</email>
             <roles>
-                <role>admin</role>
                 <role>developer</role>
             </roles>
             <timezone>+2</timezone>
@@ -54,22 +63,25 @@
 
     <properties>
         <emf.version>2.7.0</emf.version>
-        <kotlin.version>0.7.271</kotlin.version>
+        <kotlin.version>0.8.11</kotlin.version>
         <emf.version>2.9.1-v20140203-1126</emf.version>
         <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
     </properties>
 
     <modules>
         <module>org.kevoree.modeling.microframework</module>
+        <!--
         <module>org.kevoree.modeling.dsl</module>
-
+         -->
         <module>org.kevoree.modeling.kotlin.generator</module>
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.http</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.websocket</module>
 
+        <!--
+        <module>datastores/org.kevoree.modeling.microframework.datastores.websocket</module>
+        -->
 		<!--
         <module>org.kevoree.modeling.framework.ui.graph</module>
 -->

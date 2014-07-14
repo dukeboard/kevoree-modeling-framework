@@ -22,4 +22,16 @@ public class MetaModelMultiplicityDeclarationImpl extends ASTWrapperPsiElement i
     else super.accept(visitor);
   }
 
+  @Override
+  @NotNull
+  public MetaModelMultiplicityDeclarationLower getMultiplicityDeclarationLower() {
+    return findNotNullChildByClass(MetaModelMultiplicityDeclarationLower.class);
+  }
+
+  @Override
+  @NotNull
+  public MetaModelMultiplicityDeclarationUpper getMultiplicityDeclarationUpper() {
+    return findNotNullChildByClass(MetaModelMultiplicityDeclarationUpper.class);
+  }
+
 }

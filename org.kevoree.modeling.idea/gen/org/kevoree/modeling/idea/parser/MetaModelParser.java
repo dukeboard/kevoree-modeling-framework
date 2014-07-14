@@ -32,6 +32,12 @@ public class MetaModelParser implements PsiParser {
     else if (root_ == MULTIPLICITY_DECLARATION) {
       result_ = MULTIPLICITY_DECLARATION(builder_, 0);
     }
+    else if (root_ == MULTIPLICITY_DECLARATION_LOWER) {
+      result_ = MULTIPLICITY_DECLARATION_LOWER(builder_, 0);
+    }
+    else if (root_ == MULTIPLICITY_DECLARATION_UPPER) {
+      result_ = MULTIPLICITY_DECLARATION_UPPER(builder_, 0);
+    }
     else if (root_ == PARENTS_DECLARATION) {
       result_ = PARENTS_DECLARATION(builder_, 0);
     }
@@ -159,18 +165,42 @@ public class MetaModelParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // MULT_OPEN STAR_OR_NB COMMA STAR_OR_NB MULT_CLOSE
+  // MULT_OPEN MULTIPLICITY_DECLARATION_LOWER COMMA MULTIPLICITY_DECLARATION_UPPER MULT_CLOSE
   public static boolean MULTIPLICITY_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "MULTIPLICITY_DECLARATION")) return false;
     if (!nextTokenIs(builder_, MULT_OPEN)) return false;
     boolean result_ = false;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, MULT_OPEN);
-    result_ = result_ && STAR_OR_NB(builder_, level_ + 1);
+    result_ = result_ && MULTIPLICITY_DECLARATION_LOWER(builder_, level_ + 1);
     result_ = result_ && consumeToken(builder_, COMMA);
-    result_ = result_ && STAR_OR_NB(builder_, level_ + 1);
+    result_ = result_ && MULTIPLICITY_DECLARATION_UPPER(builder_, level_ + 1);
     result_ = result_ && consumeToken(builder_, MULT_CLOSE);
     exit_section_(builder_, marker_, MULTIPLICITY_DECLARATION, result_);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // STAR_OR_NB
+  public static boolean MULTIPLICITY_DECLARATION_LOWER(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "MULTIPLICITY_DECLARATION_LOWER")) return false;
+    if (!nextTokenIs(builder_, "<multiplicity declaration lower>", NUMBER, STAR)) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<multiplicity declaration lower>");
+    result_ = STAR_OR_NB(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, MULTIPLICITY_DECLARATION_LOWER, result_, false, null);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // STAR_OR_NB
+  public static boolean MULTIPLICITY_DECLARATION_UPPER(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "MULTIPLICITY_DECLARATION_UPPER")) return false;
+    if (!nextTokenIs(builder_, "<multiplicity declaration upper>", NUMBER, STAR)) return false;
+    boolean result_ = false;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<multiplicity declaration upper>");
+    result_ = STAR_OR_NB(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, MULTIPLICITY_DECLARATION_UPPER, result_, false, null);
     return result_;
   }
 

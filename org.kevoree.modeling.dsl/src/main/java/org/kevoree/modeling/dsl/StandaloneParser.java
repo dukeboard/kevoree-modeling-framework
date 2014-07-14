@@ -46,6 +46,18 @@ public class StandaloneParser {
         environment.registerFileType(MetaModelLanguageType.INSTANCE, "mm");
     }
 
+    private EClassifier getOrCreateDataType(String name, Resource r, EcoreFactory factory) {
+        for (EObject o : r.getContents()) {
+            if (o instanceof EDataType && ((EDataType) o).getName().equals(name)) {
+                return (EDataType) o;
+            }
+        }
+        EDataType dt = factory.createEDataType();
+        dt.setName(name);
+        r.getContents().add(dt);
+        return dt;
+    }
+
     private EPackage getOrCreatePackage(EPackage base, String packageName, Resource r, EcoreFactory factory) {
         if (base == null) {
             for (EObject o : r.getContents()) {
@@ -131,7 +143,6 @@ public class StandaloneParser {
                     //Attributes and Relationships managements.
                     for (MetaModelRelationDeclaration relation : classDeclaration.getRelationDeclarationList()) {
                         String typeName = relation.getTypeDeclaration().getText();
-
                         final boolean[] isID = {false};
                         final boolean[] isContained = {false};
                         MetaModelAnnotations annotations = relation.getAnnotations();
@@ -148,31 +159,60 @@ public class StandaloneParser {
                                 }
                             });
                         }
+                        //Process multiplicity
+                        MetaModelMultiplicityDeclaration multiplicityDeclaration = relation.getMultiplicityDeclaration();
+                        String lower = null;
+                        String upper = null;
+                        if (multiplicityDeclaration != null) {
+                            if (multiplicityDeclaration.getMultiplicityDeclarationLower() != null) {
+                                lower = multiplicityDeclaration.getMultiplicityDeclarationLower().getText();
+                            }
+                            if (multiplicityDeclaration.getMultiplicityDeclarationUpper() != null) {
+                                upper = multiplicityDeclaration.getMultiplicityDeclarationUpper().getText();
+                            }
+                        }
+                        EStructuralFeature structuralFeature = null;
                         if (PrimitiveTypes.isPrimitive(typeName)) {
                             //Create ECore Attribute
                             org.eclipse.emf.ecore.EAttribute eatt = factory.createEAttribute();
                             eatt.setName(relation.getRelationName().getIdent().getText());
+                            eatt.setEType(getOrCreateDataType(PrimitiveTypes.toEcoreType(relation.getTypeDeclaration().getIdent().getText()), r, factory));
                             eatt.setID(isID[0]);
+                            newType.getEStructuralFeatures().add(eatt);
+                            structuralFeature = eatt;
                         } else {
                             //Create ECore Reference
-
+                            EReference ref = factory.createEReference();
+                            ref.setContainment(isContained[0]);
+                            //TODO manage opposite
+                            ref.setEType(getOrCreate(relation.getTypeDeclaration().getIdent().getText(), r, factory));
+                            ref.setName(relation.getRelationName().getIdent().getText());
+                            newType.getEStructuralFeatures().add(ref);
+                            structuralFeature = ref;
                         }
 
+                        if (lower != null) {
+                            if (lower.equals("*")) {
+                                structuralFeature.setLowerBound(-1);
+                            } else {
+                                structuralFeature.setLowerBound(Integer.parseInt(lower));
+                            }
+                        }
+                        if (upper != null) {
+                            if (upper.equals("*")) {
+                                structuralFeature.setUpperBound(-1);
+                            } else {
+                                structuralFeature.setUpperBound(Integer.parseInt(upper));
+                            }
+                        }
 
-                        System.out.println(typeName);
                     }
                 }
-
-
             }
-
         }
-
-
         try {
             r.save(Collections.EMPTY_MAP);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

@@ -1,15 +1,9 @@
 package org.kevoree.modeling.dsl;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.*;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -53,17 +47,60 @@ public class PrettyPrinter {
             }
         }
 
-        VelocityEngine ve = new VelocityEngine();
-        ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-        ve.init();
-        Template template = ve.getTemplate("ClassPrinter.vm");
-        VelocityContext ctxV = new VelocityContext();
-        ctxV.put("clazz", cls);
-        ctxV.put("attributes", cls.getEAttributes());
-        ctxV.put("references", cls.getEReferences());
-        ctxV.put("superTypes", superTypes);
-        ctxV.put("PrettyPrinter", this);
-        template.merge(ctxV, sw);
+        sw.write("\n");
+        sw.write("class " + fqn(cls) + " " + superTypes + " {\n");
+
+        for (EAttribute eAttribute : cls.getEAttributes()) {
+            if (eAttribute.isID()) {
+                sw.write("    @id\n");
+            }
+            String multiplicity = "";
+            if(eAttribute.getUpperBound() != 1 && eAttribute.getLowerBound() != 1){
+                multiplicity = multiplicity + "[";
+                if(eAttribute.getLowerBound() == -1){
+                    multiplicity = multiplicity + "*";
+                } else {
+                    multiplicity = multiplicity + eAttribute.getLowerBound();
+                }
+                multiplicity = multiplicity + ",";
+                if(eAttribute.getUpperBound() == -1){
+                    multiplicity = multiplicity + "*";
+                } else {
+                    multiplicity = multiplicity + eAttribute.getUpperBound();
+                }
+                multiplicity = multiplicity + "]";
+            }
+            sw.append("    " + eAttribute.getName() + " : " + convertType(fqn(eAttribute.getEType())) +multiplicity+ "\n");
+        }
+
+        for (EReference eRef : cls.getEReferences()) {
+            if (eRef.isContainment()) {
+                sw.write("    @contained\n");
+            }
+            String multiplicity = "";
+            String opposite = "";
+            if(eRef.getUpperBound() != 1 && eRef.getLowerBound() != 1){
+                multiplicity = multiplicity + "[";
+                if(eRef.getLowerBound() == -1){
+                    multiplicity = multiplicity + "*";
+                } else {
+                    multiplicity = multiplicity + eRef.getLowerBound();
+                }
+                multiplicity = multiplicity + ",";
+                if(eRef.getUpperBound() == -1){
+                    multiplicity = multiplicity + "*";
+                } else {
+                    multiplicity = multiplicity + eRef.getUpperBound();
+                }
+                multiplicity = multiplicity + "]";
+            }
+            if(eRef.getEOpposite()!= null){
+                opposite = " oppositeOf "+eRef.getEOpposite().getName();
+            }
+            sw.append("    " + eRef.getName() + " : " + convertType(fqn(eRef.getEType())) +multiplicity+ opposite+ "\n");
+        }
+
+        sw.write("}\n");
     }
 
 

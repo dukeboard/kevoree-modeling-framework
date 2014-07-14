@@ -7,4 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface MetaModelMultiplicityDeclaration extends PsiElement {
 
+  @NotNull
+  MetaModelMultiplicityDeclarationLower getMultiplicityDeclarationLower();
+
+  @NotNull
+  MetaModelMultiplicityDeclarationUpper getMultiplicityDeclarationUpper();
+
 }
