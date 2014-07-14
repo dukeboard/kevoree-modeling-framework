@@ -3,9 +3,14 @@ package org.kevoree.modeling.idea.ide;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.patterns.PlatformPatterns;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.MetaModelLanguage;
+import org.kevoree.modeling.idea.psi.MetaModelClassDeclaration;
+import org.kevoree.modeling.idea.psi.MetaModelDeclaration;
 import org.kevoree.modeling.idea.psi.MetaModelTypes;
 
 /**
@@ -13,7 +18,7 @@ import org.kevoree.modeling.idea.psi.MetaModelTypes;
  */
 public class MetaModelCompletionContributor extends CompletionContributor {
 
-    String[] primitives = {"String","Integer","Long"};
+    String[] primitives = {"String", "Integer", "Long"};
 
     public MetaModelCompletionContributor() {
         extend(CompletionType.BASIC,
@@ -21,13 +26,23 @@ public class MetaModelCompletionContributor extends CompletionContributor {
                 new CompletionProvider<CompletionParameters>() {
                     public void addCompletions(@NotNull CompletionParameters parameters,
                                                ProcessingContext context,
-                                               @NotNull CompletionResultSet resultSet) {
+                                               @NotNull final CompletionResultSet resultSet) {
 
-                        for(String p : primitives){
+                        for (String p : primitives) {
                             resultSet.addElement(LookupElementBuilder.create(p));
                         }
-
-
+                        parameters.getOriginalFile().acceptChildren(new PsiElementVisitor() {
+                            @Override
+                            public void visitElement(PsiElement element) {
+                                if (element instanceof MetaModelDeclaration) {
+                                    MetaModelDeclaration declaration = (MetaModelDeclaration) element;
+                                    if (declaration.getClassDeclaration() != null) {
+                                        resultSet.addElement(LookupElementBuilder.create(declaration.getClassDeclaration().getTypeDeclaration().getIdent().getText()));
+                                    }
+                                }
+                                super.visitElement(element);
+                            }
+                        });
                     }
                 }
         );
@@ -37,7 +52,7 @@ public class MetaModelCompletionContributor extends CompletionContributor {
                     public void addCompletions(@NotNull CompletionParameters parameters,
                                                ProcessingContext context,
                                                @NotNull CompletionResultSet resultSet) {
-                            resultSet.addElement(LookupElementBuilder.create("class "));
+                        resultSet.addElement(LookupElementBuilder.create("class "));
                     }
                 }
         );
