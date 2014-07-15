@@ -3,15 +3,17 @@ package org.kevoree.modeling.idea;
 import com.intellij.CommonBundle;
 import com.intellij.reference.SoftReference;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.lang.ref.Reference;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 /**
  * Created by duke on 16/01/2014.
  */
-public class MetaModelBundle {
+public class MetaModelBundle extends ResourceBundle {
 
     private static Reference<ResourceBundle> ourBundle;
 
@@ -33,4 +35,14 @@ public class MetaModelBundle {
         return bundle;
     }
 
+    @Override
+    protected Object handleGetObject(String key) {
+        return getBundle().getObject(key);
+    }
+
+    @NotNull
+    @Override
+    public Enumeration<String> getKeys() {
+        return getBundle().getKeys();
+    }
 }
