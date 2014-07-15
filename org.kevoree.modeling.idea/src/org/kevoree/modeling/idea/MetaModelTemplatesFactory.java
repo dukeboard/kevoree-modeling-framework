@@ -30,7 +30,7 @@ public class MetaModelTemplatesFactory implements FileTemplateGroupDescriptorFac
     }
 
     public FileTemplateGroupDescriptor getFileTemplatesDescriptor() {
-        String title = MetaModelBundle.message("file.template.group.title.mm");
+        String title = "MetaModel file templates";
         final FileTemplateGroupDescriptor group =
                 new FileTemplateGroupDescriptor(title, MetaModelIcons.KEVS_ICON_16x16);
 

@@ -25,8 +25,8 @@ import org.kevoree.modeling.idea.MetaModelTemplatesFactory;
 public class NewMetaModelFileAction extends CreateTemplateInPackageAction<PsiElement> implements DumbAware {
 
     public NewMetaModelFileAction() {
-        super(MetaModelBundle.message("new.mm.file"),
-                MetaModelBundle.message("new.mm.file.description"),
+        super("Create MetaModel file",
+                "This will create a new MetaModel file in the current project",
                 MetaModelIcons.KEVS_ICON_16x16, JavaModuleSourceRootTypes.SOURCES);
     }
 
@@ -67,7 +67,7 @@ public class NewMetaModelFileAction extends CreateTemplateInPackageAction<PsiEle
 
     @Override
     protected String getActionName(PsiDirectory psiDirectory, String s, String s2) {
-        return MetaModelBundle.message("new.mm.lib.action.text");
+        return "New MetaModel File";
     }
 
     protected boolean isAvailable(final DataContext dataContext) {

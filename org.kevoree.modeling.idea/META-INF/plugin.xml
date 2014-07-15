@@ -19,7 +19,6 @@
     <depends>com.intellij</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
-    <resource-bundle>org.kevoree.modeling.idea.MetaModelBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
 
