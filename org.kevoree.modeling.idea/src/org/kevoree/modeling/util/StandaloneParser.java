@@ -131,7 +131,7 @@ public class StandaloneParser {
         Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
         Map<String, Object> m = reg.getExtensionToFactoryMap();
         m.put("ecore", new XMIResourceFactoryImpl());
-        Resource r = rs.createResource(URI.createURI(target.getAbsolutePath()));
+        Resource r = rs.createResource(URI.createURI("file:///"+target.getAbsolutePath()));
         EcoreFactory factory = new EcoreFactoryImpl();
         for (PsiElement element : psi.getChildren()) {
             if (element instanceof MetaModelDeclaration) {

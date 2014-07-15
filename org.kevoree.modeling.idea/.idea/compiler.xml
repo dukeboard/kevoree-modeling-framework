@@ -18,6 +18,9 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="org.kevoree.modeling.idea" target="1.6" />
+    </bytecodeTargetLevel>
   </component>
 </project>
 

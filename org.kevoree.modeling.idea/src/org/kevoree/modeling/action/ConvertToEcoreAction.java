@@ -33,9 +33,7 @@ public class ConvertToEcoreAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
-
         StandaloneParser parser = new StandaloneParser(anActionEvent.getProject());
-
         VirtualFile currentFile = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
         try {
             PsiFile psi = parser.parser(currentFile);
@@ -46,7 +44,7 @@ public class ConvertToEcoreAction extends AnAction implements DumbAware {
             e.printStackTrace();
         }
 
-        currentFile.getParent().refresh(true,true);
+        currentFile.getParent().refresh(true, true);
 
     }
 }
