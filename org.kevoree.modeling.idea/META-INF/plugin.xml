@@ -60,8 +60,7 @@
     </project-components>
 
     <actions>
-        <group id="MetaModelPlugin.ActionGroup" popup="true" text="MetaModel" description="MetaModel actions"
-               icon="/icons/kevs_16x16.png">
+        <group id="MetaModelPlugin.ActionGroup" popup="true" text="MetaModel" description="MetaModel actions" icon="/icons/kevs_16x16.png">
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
 
