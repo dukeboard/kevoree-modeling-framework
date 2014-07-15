@@ -10,13 +10,13 @@ import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.MetaModelLanguage;
 import org.kevoree.modeling.idea.psi.MetaModelDeclaration;
 import org.kevoree.modeling.idea.psi.MetaModelTypes;
+import org.kevoree.modeling.util.PrimitiveTypes;
 
 /**
  * Created by duke on 21/01/2014.
  */
 public class MetaModelCompletionContributor extends CompletionContributor {
 
-    String[] primitives = {"String", "Integer", "Long"};
 
     public MetaModelCompletionContributor() {
         extend(CompletionType.BASIC,
@@ -25,9 +25,8 @@ public class MetaModelCompletionContributor extends CompletionContributor {
                     public void addCompletions(@NotNull CompletionParameters parameters,
                                                ProcessingContext context,
                                                @NotNull final CompletionResultSet resultSet) {
-
-                        for (String p : primitives) {
-                            resultSet.addElement(LookupElementBuilder.create(p));
+                        for (PrimitiveTypes p : PrimitiveTypes.values()) {
+                            resultSet.addElement(LookupElementBuilder.create(p.toString()));
                         }
                         parameters.getOriginalFile().acceptChildren(new PsiElementVisitor() {
                             @Override
