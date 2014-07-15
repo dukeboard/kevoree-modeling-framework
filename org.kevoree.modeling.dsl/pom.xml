@@ -39,39 +39,10 @@
             <version>${kotlin.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>openapi</groupId>
-            <artifactId>openapi</artifactId>
-            <version>13</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/openapi.jar</systemPath>
-        </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${basedir}/../org.kevoree.modeling.idea/src</source>
-                                <source>${basedir}/../org.kevoree.modeling.idea/gen</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -84,6 +55,9 @@
                             <tasks>
                                 <echo message="prepare phase"/>
                                 <unzip src="${basedir}/lib/openapi.jar" dest="${basedir}/target/classes"/>
+                                <unzip src="${basedir}/../org.kevoree.modeling.idea/org.kevoree.modeling.idea.zip" dest="${basedir}/target/classes"/>
+                                <unzip src="${basedir}/target/classes/org.kevoree.modeling.idea/lib/org.kevoree.modeling.idea.jar" dest="${basedir}/target/classes"/>
+                                <delete dir="${basedir}/target/classes/org.kevoree.modeling.idea/lib"/>
                             </tasks>
                         </configuration>
                         <goals>

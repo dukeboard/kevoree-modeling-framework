@@ -43,9 +43,11 @@ package org.kevoree.modeling.kotlin.generator;
  * Time: 23:05
  */
 
+import com.intellij.psi.PsiFile;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.*;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.kevoree.modeling.MetaModelLanguageType;
 import org.kevoree.modeling.aspect.AspectClass;
 import org.kevoree.modeling.aspect.AspectMethod;
 import org.kevoree.modeling.aspect.AspectParam;
@@ -53,6 +55,7 @@ import org.kevoree.modeling.aspect.NewMetaClassCreation;
 import org.kevoree.modeling.kotlin.generator.factories.FactoryGenerator;
 import org.kevoree.modeling.kotlin.generator.model.ModelGenerator;
 import org.kevoree.modeling.kotlin.generator.model.TraitGenerator;
+import org.kevoree.modeling.util.StandaloneParser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -73,11 +76,17 @@ public class Generator {
      */
     public Generator(GenerationContext ctx, File ecoreFile) throws Exception {
         this.ecoreFile = ecoreFile;
-
-        if(this.ecoreFile.getAbsolutePath().endsWith(MetaModelLan)){
-
+        if(ecoreFile.getAbsolutePath().endsWith(MetaModelLanguageType.DEFAULT_EXTENSION)){
+            StandaloneParser parser = new StandaloneParser();
+            PsiFile psi = parser.parser(this.ecoreFile);
+            File temp = File.createTempFile("tempKevGen","tempKevGen");
+            temp.deleteOnExit();
+            parser.convert2ecore(psi,temp);
+            this.ecoreFile = temp;
         }
 
+
+        System.out.println(org.kevoree.modeling.MetaModelLanguage.class.getName());
 
         this.ctx = ctx;
         preProcess();

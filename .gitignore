@@ -21,3 +21,5 @@ org.kevoree.modeling.idea/out
 build/
 CMakeCache.txt
 cmake_install.cmake
+.idea
+.DS_Store
