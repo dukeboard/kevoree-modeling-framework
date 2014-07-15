@@ -40,6 +40,7 @@
 
         <lang.formatter language="MetaModel" implementationClass="org.kevoree.modeling.idea.formatter.MetaModelFormattingModelBuilder"/>
 
+        <lang.foldingBuilder language="MetaModel" implementationClass="org.kevoree.modeling.idea.folder.MetaModelFoldingBuilder"/>
 
         <gotoSymbolContributor implementation="org.kevoree.modeling.idea.psi.MetaModelChooseByNameContributor"/>
 
@@ -66,7 +67,8 @@
 
             <action id="MetaModel.NewMetaModelFileAction" text="New MetaModel"
                     description="Create a new MetaModel in the current project"
-                    class="org.kevoree.modeling.idea.action.NewMetaModelFileAction">
+                    class="org.kevoree.modeling.idea.action.NewMetaModelFileAction"
+                    icon="/icons/kevs_16x16.png">
             </action>
         </group>
 
