@@ -38,27 +38,48 @@
             <artifactId>kotlin-compiler</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>openapi</groupId>
+            <artifactId>openapi</artifactId>
+            <version>13</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/openapi.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>${basedir}/../org.kevoree.modeling.idea/src</include>
-                        <include>${basedir}/../org.kevoree.modeling.idea/gen</include>
-                    </includes>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/../org.kevoree.modeling.idea/src</source>
+                                <source>${basedir}/../org.kevoree.modeling.idea/gen</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
                     <execution>
-                        <id>prepare</id>
+                        <id>copyTarget</id>
+                        <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
                                 <echo message="prepare phase"/>

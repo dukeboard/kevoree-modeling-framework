@@ -73,6 +73,12 @@ public class Generator {
      */
     public Generator(GenerationContext ctx, File ecoreFile) throws Exception {
         this.ecoreFile = ecoreFile;
+
+        if(this.ecoreFile.getAbsolutePath().endsWith(MetaModelLan)){
+
+        }
+
+
         this.ctx = ctx;
         preProcess();
     }
