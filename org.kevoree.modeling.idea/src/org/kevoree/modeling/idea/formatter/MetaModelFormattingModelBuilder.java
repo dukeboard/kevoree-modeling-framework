@@ -8,7 +8,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kevoree.modeling.idea.psi.MetaModelTypes;
 
 /**
  * Created by duke on 7/3/14.
@@ -18,15 +17,11 @@ public class MetaModelFormattingModelBuilder implements FormattingModelBuilder {
     @Override
     public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
         return FormattingModelProvider.createFormattingModelForPsiFile(element.getContainingFile(),
-                new MetaModelBlock(element.getNode(),null, Wrap.createWrap(WrapType.NONE, false),
-                        Alignment.createAlignment(), createSpaceBuilder(settings)), settings);
+                new MetaModelBlock(element.getNode(), Alignment.createAlignment(), Wrap.createWrap(WrapType.NONE, false)),settings);
     }
 
     private static SpacingBuilder createSpaceBuilder(CodeStyleSettings settings) {
-        return new SpacingBuilder(settings).
-                around(MetaModelTypes.COLON).spaceIf(settings.SPACE_AROUND_ASSIGNMENT_OPERATORS)
-                //before(SimpleTypes.PROPERTY).none()
-                ;
+        return null;
     }
 
     @Nullable
