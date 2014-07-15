@@ -5,11 +5,9 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.MetaModelLanguage;
-import org.kevoree.modeling.idea.psi.MetaModelClassDeclaration;
 import org.kevoree.modeling.idea.psi.MetaModelDeclaration;
 import org.kevoree.modeling.idea.psi.MetaModelTypes;
 
@@ -37,7 +35,7 @@ public class MetaModelCompletionContributor extends CompletionContributor {
                                 if (element instanceof MetaModelDeclaration) {
                                     MetaModelDeclaration declaration = (MetaModelDeclaration) element;
                                     if (declaration.getClassDeclaration() != null) {
-                                        resultSet.addElement(LookupElementBuilder.create(declaration.getClassDeclaration().getTypeDeclaration().getIdent().getText()));
+                                        resultSet.addElement(LookupElementBuilder.create(declaration.getClassDeclaration().getTypeDeclaration()));
                                     }
                                 }
                                 super.visitElement(element);

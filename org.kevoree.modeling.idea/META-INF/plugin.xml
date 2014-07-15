@@ -41,6 +41,12 @@
 
         <lang.formatter language="MetaModel" implementationClass="org.kevoree.modeling.idea.formatter.MetaModelFormattingModelBuilder"/>
 
+
+        <gotoSymbolContributor implementation="org.kevoree.modeling.idea.psi.MetaModelChooseByNameContributor"/>
+
+        <!--
+        <psi.referenceContributor implementation="org.kevoree.modeling.idea.psi.MetaModelReferenceContributor"/>
+          -->
     </extensions>
 
     <application-components>

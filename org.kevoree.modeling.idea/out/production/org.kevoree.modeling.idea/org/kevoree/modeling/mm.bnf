@@ -13,6 +13,8 @@
   elementTypeClass="org.kevoree.modeling.idea.psi.MetaModelElementType"
   tokenTypeClass="org.kevoree.modeling.idea.psi.MetaModelTokenType"
 
+  psiImplUtilClass="org.kevoree.modeling.idea.psi.MetaModelUtil"
+
 tokens=[
     newline = 'regexp:\n\t'
     CLASS='class'
@@ -40,7 +42,7 @@ METAMODEL ::= DECLARATION*
 DECLARATION ::= (CLASS_DECLARATION | eof | newline | CRLF)
 CLASS_DECLARATION ::= CLASS TYPE_DECLARATION PARENTS_DECLARATION? BODY_OPEN RELATION_DECLARATION* BODY_CLOSE {pin=1 recoverWhile=rule_start}
 PARENTS_DECLARATION ::= COLON TYPE_DECLARATION (COMMA TYPE_DECLARATION)*
-TYPE_DECLARATION ::= IDENT
+TYPE_DECLARATION ::= IDENT {mixin="org.kevoree.modeling.idea.psi.impl.MetaModelNamedElementImpl" implements="org.kevoree.modeling.idea.psi.MetaModelNamedElement" methods=[setName getNameIdentifier]}
 RELATION_DECLARATION ::= ANNOTATIONS RELATION_NAME COLON TYPE_DECLARATION MULTIPLICITY_DECLARATION? RELATION_OPPOSITE?
 RELATION_OPPOSITE ::= OPPOSITE IDENT
 RELATION_NAME ::= IDENT

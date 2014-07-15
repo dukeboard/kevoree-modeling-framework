@@ -48,6 +48,10 @@ public class MetaModelVisitor extends PsiElementVisitor {
   }
 
   public void visitTypeDeclaration(@NotNull MetaModelTypeDeclaration o) {
+    visitNamedElement(o);
+  }
+
+  public void visitNamedElement(@NotNull MetaModelNamedElement o) {
     visitPsiElement(o);
   }
 
