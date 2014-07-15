@@ -14,9 +14,7 @@ CMakeFiles/
 *.ipr
 *.iws
 keystore
-/.idea/
 org.kevoree.modeling.idea/out
-**.idea
 **/node_modules/**
 **/*.jar
 /release.properties
