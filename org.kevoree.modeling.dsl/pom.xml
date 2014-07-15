@@ -38,23 +38,40 @@
             <artifactId>kotlin-compiler</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>openapi</groupId>
-            <artifactId>openapi</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/openapi.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>plugin</groupId>
-            <artifactId>plugin</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/org.kevoree.modeling.idea.jar</systemPath>
-        </dependency>
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>${basedir}/../org.kevoree.modeling.idea/src</include>
+                        <include>${basedir}/../org.kevoree.modeling.idea/gen</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>prepare</id>
+                        <configuration>
+                            <tasks>
+                                <echo message="prepare phase"/>
+                                <unzip src="${basedir}/lib/openapi.jar" dest="${basedir}/target/classes"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -76,6 +76,11 @@
             <add-to-group group-id="RunContextGroup" anchor="last"/>
         </action>
 
+        <action id="ConvertEcore2MM" class="org.kevoree.modeling.action.ConvertToMMAction"
+                text="Convert to MetaModel DSL" description="ConvertEcore2MM">
+            <add-to-group group-id="RunContextGroup" anchor="last"/>
+        </action>
+
 
     </actions>
 
