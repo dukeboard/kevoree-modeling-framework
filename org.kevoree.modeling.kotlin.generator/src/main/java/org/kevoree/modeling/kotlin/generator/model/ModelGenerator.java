@@ -67,14 +67,11 @@ public class ModelGenerator {
 
         while (iterator.hasNext()) {
             Notifier c = iterator.next();
-
             if (c instanceof EClassifier && !(c instanceof EDataType)) {
                 EClassifier potentialRoot = (EClassifier) c;
-
                 EPackage currentPackage = potentialRoot.getEPackage();
                 String currentPackageDir = ProcessorHelper.getInstance().getPackageGenDir(ctx, currentPackage);
                 ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir);
-
                 String userPackageDir = ProcessorHelper.getInstance().getPackageUserDir(ctx, currentPackage);
                 if (currentPackage.getEClassifiers().size() != 0) {
                     ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir + File.separator + "impl");
@@ -84,7 +81,6 @@ public class ModelGenerator {
                         PackageFactoryGenerator.generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion);
                     }
                 }
-
                 boolean isHiddenMetaclass = false;
                 for (NewMetaClassCreation m : ctx.newMetaClasses) {
                     if ((m.packageName + "." + m.name).equals(ProcessorHelper.getInstance().fqn(ctx, potentialRoot))) {
@@ -92,11 +88,8 @@ public class ModelGenerator {
                         break;
                     }
                 }
-
                 process(currentPackageDir, currentPackage, potentialRoot, userPackageDir, isHiddenMetaclass);
-
             }
-
         }
 
     }
