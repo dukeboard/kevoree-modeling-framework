@@ -54,7 +54,7 @@ public class MetaModelReference extends PsiReferenceBase<PsiElement> implements 
         List<MetaModelTypeDeclaration> properties = MetaModelUtil.findProperties(project);
         List<LookupElement> variants = new ArrayList<LookupElement>();
         for (final MetaModelTypeDeclaration property : properties) {
-            if (property.getName() != null && property.getName().length() > 0) {
+            if (property != null && property.getName() != null && property.getName().length() > 0) {
                 variants.add(LookupElementBuilder.create(property).
                                 withIcon(MetaModelIcons.KEVS_ICON_16x16).
                                 withTypeText(property.getContainingFile().getName())

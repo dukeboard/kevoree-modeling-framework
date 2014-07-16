@@ -38,15 +38,22 @@
 
         <internalFileTemplate name="MetaModel"/>
 
-        <lang.formatter language="MetaModel" implementationClass="org.kevoree.modeling.idea.formatter.MetaModelFormattingModelBuilder"/>
+        <lang.formatter language="MetaModel"
+                        implementationClass="org.kevoree.modeling.idea.formatter.MetaModelFormattingModelBuilder"/>
 
-        <lang.foldingBuilder language="MetaModel" implementationClass="org.kevoree.modeling.idea.folder.MetaModelFoldingBuilder"/>
+        <lang.foldingBuilder language="MetaModel"
+                             implementationClass="org.kevoree.modeling.idea.folder.MetaModelFoldingBuilder"/>
 
         <gotoSymbolContributor implementation="org.kevoree.modeling.idea.psi.MetaModelChooseByNameContributor"/>
 
         <!--
         <psi.referenceContributor implementation="org.kevoree.modeling.idea.psi.MetaModelReferenceContributor"/>
           -->
+
+
+        <annotator language="MetaModel"
+                   implementationClass="org.kevoree.modeling.idea.psi.MetaModelTypeNamedAnnotator"/>
+
     </extensions>
 
     <application-components>
@@ -60,7 +67,8 @@
     </project-components>
 
     <actions>
-        <group id="MetaModelPlugin.ActionGroup" popup="true" text="MetaModel" description="MetaModel actions" icon="/icons/kevs_16x16.png">
+        <group id="MetaModelPlugin.ActionGroup" popup="true" text="MetaModel" description="MetaModel actions"
+               icon="/icons/kevs_16x16.png">
 
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
 

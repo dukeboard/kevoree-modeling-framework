@@ -5,12 +5,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.kevoree.modeling.MetaModelLanguageType;
 import org.kevoree.modeling.util.StandaloneParser;
 
 import java.io.File;
+import java.util.List;
 
 
 /**
@@ -37,13 +39,22 @@ public class ConvertToEcoreAction extends AnAction implements DumbAware {
         VirtualFile currentFile = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
         try {
             PsiFile psi = parser.parser(currentFile);
-            String path = currentFile.getCanonicalPath();
-            File target = new File(path.replace(".mm", ".ecore"));
-            parser.convert2ecore(psi, target);
+            List<String> errors = parser.check(psi);
+            if (!errors.isEmpty()) {
+
+                for(String s : errors){
+                    System.out.println(s);
+                }
+
+                JBPopupFactory.getInstance().createMessage("Please correct errors in MM file first !").showInBestPositionFor(anActionEvent.getDataContext());
+            } else {
+                String path = currentFile.getCanonicalPath();
+                File target = new File(path.replace(".mm", ".ecore"));
+                parser.convert2ecore(psi, target);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         currentFile.getParent().refresh(true, true);
 
     }

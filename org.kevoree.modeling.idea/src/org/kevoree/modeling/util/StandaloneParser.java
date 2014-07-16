@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.impl.EcoreFactoryImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.MetaModelLanguage;
 import org.kevoree.modeling.MetaModelLanguageType;
 import org.kevoree.modeling.MetaModelParserDefinition;
@@ -25,9 +26,7 @@ import org.kevoree.modeling.idea.psi.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by duke on 7/3/14.
@@ -41,9 +40,10 @@ public class StandaloneParser {
     public static void main(String[] args) throws Exception {
         StandaloneParser parser = new StandaloneParser();
         PsiFile psi = parser.parser(new File("/Users/duke/Documents/dev/kevoreeTeam/kmf-samples/tinycloud/cloud.kt/cloud.mm"));
-        File t = File.createTempFile("temp",".ecore");
+        File t = File.createTempFile("temp", ".ecore");
         t.deleteOnExit();
-        parser.convert2ecore(psi,t);
+        parser.check(psi);
+        //parser.convert2ecore(psi,t);
     }
 
 
@@ -88,7 +88,7 @@ public class StandaloneParser {
             EPackage newP = factory.createEPackage();
             newP.setName(packageName);
             newP.setNsPrefix(packageName);
-            newP.setNsURI("http://"+packageName);
+            newP.setNsURI("http://" + packageName);
             r.getContents().add(newP);
             return newP;
         } else {
@@ -138,12 +138,15 @@ public class StandaloneParser {
     }
 
     public void convert2ecore(PsiFile psi, File target) throws Exception {
+        if(!check(psi).isEmpty()){
+            throw new Exception("Error in PSI file, generation aborded !");
+        }
         HashMap<EReference, String> postProcess = new HashMap<EReference, String>();
         ResourceSetImpl rs = new ResourceSetImpl();
         Resource.Factory.Registry reg = Resource.Factory.Registry.INSTANCE;
         Map<String, Object> m = reg.getExtensionToFactoryMap();
         m.put("ecore", new XMIResourceFactoryImpl());
-        Resource r = rs.createResource(URI.createURI("file:///"+target.getAbsolutePath()));
+        Resource r = rs.createResource(URI.createURI("file:///" + target.getAbsolutePath()));
 
         EcoreFactory factory = new EcoreFactoryImpl();
         for (PsiElement element : psi.getChildren()) {
@@ -270,6 +273,33 @@ public class StandaloneParser {
         LightVirtualFile virtualFile = new LightVirtualFile("hello.mm", MetaModelLanguage.INSTANCE, new String(input.contentsToByteArray()));
         virtualFile.setCharset(CharsetToolkit.UTF8_CHARSET);
         return ((PsiFileFactoryImpl) PsiFileFactory.getInstance(project)).trySetupPsiForFile(virtualFile, MetaModelLanguage.INSTANCE, true, false);
+    }
+
+    public List<String> check(PsiFile psiFile) {
+        final List<String> errors = new ArrayList<String>();
+        MetaModelVisitor visitor = new MetaModelVisitor() {
+            @Override
+            public void visitTypeDeclaration(@NotNull MetaModelTypeDeclaration o) {
+                for(PrimitiveTypes p : PrimitiveTypes.values()){
+                    if(o.getName().equals(p.name())){
+                        super.visitTypeDeclaration(o);
+                        return;
+                    }
+                }
+                if (o.getName() != null && o.getName().indexOf(".") < 1) {
+                    errors.add("Type NamedElement must be a qualified name with at least one package : " + o.getName());
+                }
+                super.visitTypeDeclaration(o);
+            }
+
+            @Override
+            public void visitPsiElement(@NotNull PsiElement o) {
+                super.visitPsiElement(o);
+                o.acceptChildren(this);
+            }
+        };
+        psiFile.acceptChildren(visitor);
+        return errors;
     }
 
 }
