@@ -45,6 +45,7 @@
                              implementationClass="org.kevoree.modeling.idea.folder.MetaModelFoldingBuilder"/>
 
         <gotoSymbolContributor implementation="org.kevoree.modeling.idea.psi.MetaModelChooseByNameContributor"/>
+        <lang.psiStructureViewFactory language="MetaModel" implementationClass="org.kevoree.modeling.idea.structure.MetaModelStructureViewFactory" />
 
         <!--
         <psi.referenceContributor implementation="org.kevoree.modeling.idea.psi.MetaModelReferenceContributor"/>
