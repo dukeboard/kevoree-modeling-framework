@@ -73,6 +73,7 @@ public class StandaloneParser {
         }
         EDataType dt = factory.createEDataType();
         dt.setName(name);
+        dt.setInstanceClassName(name);
         r.getContents().add(dt);
         return dt;
     }
@@ -86,6 +87,8 @@ public class StandaloneParser {
             }
             EPackage newP = factory.createEPackage();
             newP.setName(packageName);
+            newP.setNsPrefix(packageName);
+            newP.setNsURI("http://"+packageName);
             r.getContents().add(newP);
             return newP;
         } else {
