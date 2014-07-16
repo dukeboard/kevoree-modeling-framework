@@ -86,7 +86,13 @@ public class ProcessorHelper {
         if(aType instanceof EEnum) {
             return fqn(ctx, ((EEnum)aType).getEPackage()) + "." + ((EEnum)aType).getName();
         } else {
-            return convertType(aType.getInstanceClassName());
+
+            if(aType.getInstanceClass()!=null){
+                return convertType(aType.getInstanceClassName());
+            } else {
+                return convertType(aType.getName());
+            }
+
         }
     }
 

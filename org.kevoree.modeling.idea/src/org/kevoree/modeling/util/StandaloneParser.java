@@ -38,6 +38,15 @@ public class StandaloneParser {
 
     Project project = null;
 
+    public static void main(String[] args) throws Exception {
+        StandaloneParser parser = new StandaloneParser();
+        PsiFile psi = parser.parser(new File("/Users/duke/Documents/dev/kevoreeTeam/kmf-samples/tinycloud/cloud.kt/cloud.mm"));
+        File t = File.createTempFile("temp",".ecore");
+        t.deleteOnExit();
+        parser.convert2ecore(psi,t);
+    }
+
+
     public StandaloneParser() {
         CoreApplicationEnvironment environment = new CoreApplicationEnvironment(new Disposable() {
             @Override
@@ -132,6 +141,7 @@ public class StandaloneParser {
         Map<String, Object> m = reg.getExtensionToFactoryMap();
         m.put("ecore", new XMIResourceFactoryImpl());
         Resource r = rs.createResource(URI.createURI("file:///"+target.getAbsolutePath()));
+
         EcoreFactory factory = new EcoreFactoryImpl();
         for (PsiElement element : psi.getChildren()) {
             if (element instanceof MetaModelDeclaration) {

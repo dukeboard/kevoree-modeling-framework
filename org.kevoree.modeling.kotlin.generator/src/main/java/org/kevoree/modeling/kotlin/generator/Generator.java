@@ -79,7 +79,7 @@ public class Generator {
         if(ecoreFile.getAbsolutePath().endsWith(MetaModelLanguageType.DEFAULT_EXTENSION)){
             StandaloneParser parser = new StandaloneParser();
             PsiFile psi = parser.parser(this.ecoreFile);
-            File temp = File.createTempFile("tempKevGen","tempKevGen");
+            File temp = File.createTempFile("tempKevGen",".ecore");
             temp.deleteOnExit();
             parser.convert2ecore(psi,temp);
             this.ecoreFile = temp;

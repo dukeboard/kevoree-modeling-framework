@@ -45,7 +45,8 @@ public class ModelGenerator {
 
     /**
      * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
-     * @param model the XMIResource to be generated
+     *
+     * @param model        the XMIResource to be generated
      * @param modelVersion the version of the model to be included in headers
      */
     public void process(ResourceSet model, String modelVersion) {
@@ -64,15 +65,17 @@ public class ModelGenerator {
 
         Iterator<Notifier> iterator = model.getAllContents();
 
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Notifier c = iterator.next();
 
-            if(c instanceof EClassifier) {
-                EClassifier potentialRoot = (EClassifier)c;
+            if (c instanceof EClassifier && !(c instanceof EDataType)) {
+                EClassifier potentialRoot = (EClassifier) c;
+
                 EPackage currentPackage = potentialRoot.getEPackage();
                 String currentPackageDir = ProcessorHelper.getInstance().getPackageGenDir(ctx, currentPackage);
-                String userPackageDir = ProcessorHelper.getInstance().getPackageUserDir(ctx, currentPackage);
                 ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir);
+
+                String userPackageDir = ProcessorHelper.getInstance().getPackageUserDir(ctx, currentPackage);
                 if (currentPackage.getEClassifiers().size() != 0) {
                     ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir + File.separator + "impl");
                     PackageFactoryGenerator.generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion);
@@ -83,14 +86,14 @@ public class ModelGenerator {
                 }
 
                 boolean isHiddenMetaclass = false;
-                for(NewMetaClassCreation m : ctx.newMetaClasses) {
-                    if((m.packageName+"."+m.name).equals(ProcessorHelper.getInstance().fqn(ctx,potentialRoot))) {
+                for (NewMetaClassCreation m : ctx.newMetaClasses) {
+                    if ((m.packageName + "." + m.name).equals(ProcessorHelper.getInstance().fqn(ctx, potentialRoot))) {
                         isHiddenMetaclass = true;
                         break;
                     }
                 }
 
-                process(currentPackageDir, currentPackage, potentialRoot, userPackageDir,isHiddenMetaclass);
+                process(currentPackageDir, currentPackage, potentialRoot, userPackageDir, isHiddenMetaclass);
 
             }
 
@@ -101,17 +104,17 @@ public class ModelGenerator {
 
     private void process(String currentPackageDir, EPackage packElement, EClassifier cls, String userPackageDir, Boolean isHiddenMetaClass) {
 
-        if(cls instanceof EClass) {
-            EClass cl = (EClass)cls;
+        if (cls instanceof EClass) {
+            EClass cl = (EClass) cls;
             if (!cl.isAbstract() && !cl.isInterface()) {
                 ClassGenerator.generateFlatClass(ctx, currentPackageDir, packElement, cl);
             }
-            if(!isHiddenMetaClass){
+            if (!isHiddenMetaClass) {
                 APIGenerator.generateAPI(ctx, currentPackageDir, packElement, cl, userPackageDir);
             }
-        } else if(cls instanceof EDataType) {
-            if(cls instanceof EEnum) {
-                EEnum enm = (EEnum)cls;
+        } else if (cls instanceof EDataType) {
+            if (cls instanceof EEnum) {
+                EEnum enm = (EEnum) cls;
                 EnumGenerator.generateEnum(ctx, currentPackageDir, packElement, enm);
             } else {
                 System.out.println("Generic DataType " + cls.getName() + " ignored for generation.");
