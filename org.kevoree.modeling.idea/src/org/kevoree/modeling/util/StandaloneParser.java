@@ -279,7 +279,7 @@ public class StandaloneParser {
         final List<String> errors = new ArrayList<String>();
         MetaModelVisitor visitor = new MetaModelVisitor() {
             @Override
-            public void visitTypeDeclaration(@NotNull MetaModelTypeDeclaration o) {
+            public void visitTypeDeclaration(final @NotNull MetaModelTypeDeclaration o) {
                 for(PrimitiveTypes p : PrimitiveTypes.values()){
                     if(o.getName().equals(p.name())){
                         super.visitTypeDeclaration(o);
@@ -288,6 +288,31 @@ public class StandaloneParser {
                 }
                 if (o.getName() != null && o.getName().indexOf(".") < 1) {
                     errors.add("Type NamedElement must be a qualified name with at least one package : " + o.getName());
+                }
+                final boolean[] isValidated = {false};
+                if (!isValidated[0]) {
+                    PsiElement parent = o.getParent();
+                    if (!(parent instanceof MetaModelClassDeclaration)) {
+                        PsiFile file = o.getContainingFile();
+                        file.acceptChildren(new MetaModelVisitor() {
+                            @Override
+                            public void visitPsiElement(@NotNull PsiElement oo) {
+                                super.visitPsiElement(oo);
+                                if(!isValidated[0]){
+                                    oo.acceptChildren(this);
+                                }
+                            }
+                            @Override
+                            public void visitClassDeclaration(@NotNull MetaModelClassDeclaration oo) {
+                                if(oo.getTypeDeclaration().getName().equals(o.getName())){
+                                    isValidated[0] = true;
+                                }
+                            }
+                        });
+                        if(!isValidated[0]){
+                            errors.add("Type identifier not found, please declare corresponding class");
+                        }
+                    }
                 }
                 super.visitTypeDeclaration(o);
             }
