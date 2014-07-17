@@ -5,7 +5,8 @@
     <vendor email="fouquet.f@gmail.com" url="http://www.kevoree.org">Kevoree</vendor>
 
     <description><![CDATA[
-      Authors : Fouquet Francois
+      Authors :  Francois Fouquet, Gregory Nain
+      Contributors :  Thomas Hartmann, Assaad Moawad
       Development environment for modeling.
     ]]></description>
 
