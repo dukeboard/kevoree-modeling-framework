@@ -1,13 +1,22 @@
 package org.kevoree.modeling.action;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +48,9 @@ public class GenerateJSAction extends AnAction implements DumbAware {
         final VirtualFile currentFile = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
         ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), "KMF Compiler 2 JS") {
             public void run(@NotNull ProgressIndicator progressIndicator) {
+
+                Notifications.Bus.notify(new Notification("kevoree modeling framework", "KMF Compilation", "Compilation started", NotificationType.INFORMATION));
+
                 progressIndicator.setFraction(0.10);
                 progressIndicator.setText("downloading compiler file...");
                 final File compiler = KMFCompilerResolver.resolveCompiler();
@@ -69,6 +81,9 @@ public class GenerateJSAction extends AnAction implements DumbAware {
                     // Finished
                     progressIndicator.setFraction(1.0);
                     progressIndicator.setText("finished");
+
+                    Notifications.Bus.notify(new Notification("kevoree modeling framework", "KMF Compilation", "Compilation success", NotificationType.INFORMATION));
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

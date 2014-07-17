@@ -1,17 +1,28 @@
 package org.kevoree.modeling.action;
 
+import com.google.common.io.Files;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -37,8 +48,13 @@ public class GenerateJavaAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(final AnActionEvent anActionEvent) {
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), "KMF Compiler 2 JAR"){
+        final VirtualFile currentFile = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
+
+        ProgressManager.getInstance().run(new Task.Backgroundable(anActionEvent.getProject(), "KMF Compiler 2 JAR") {
             public void run(@NotNull ProgressIndicator progressIndicator) {
+
+                Notifications.Bus.notify(new Notification("kevoree modeling framework", "KMF Compilation", "Compilation started", NotificationType.INFORMATION));
+
                 progressIndicator.setFraction(0.10);
                 progressIndicator.setText("downloading compiler file...");
                 final File compiler = KMFCompilerResolver.resolveCompiler();
@@ -49,7 +65,6 @@ public class GenerateJavaAction extends AnAction implements DumbAware {
                     final URLClassLoader urlClassLoader = new InvertedURLClassLoader(urls);
                     final Class cls = urlClassLoader.loadClass("org.kevoree.modeling.kotlin.standalone.App");
 
-                    VirtualFile currentFile = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
                     final String path = currentFile.getCanonicalPath();
 
                     Thread t = new Thread(new Runnable() {
@@ -73,12 +88,69 @@ public class GenerateJavaAction extends AnAction implements DumbAware {
                     // Finished
                     progressIndicator.setFraction(1.0);
                     progressIndicator.setText("finished");
-                    currentFile.getParent().refresh(true, true);
+
+                    Notifications.Bus.notify(new Notification("kevoree modeling framework", "KMF Compilation", "Compilation success", NotificationType.INFORMATION));
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }});
+
+
+                ApplicationManager.getApplication().invokeLater(new Runnable() {
+                    public void run() {
+                        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                            public void run() {
+
+                                assert currentFile != null;
+                                final VirtualFile[] libDir = new VirtualFile[1];
+                                try {
+                                    libDir[0] = currentFile.getParent().findChild(currentFile.getName() + ".libs");
+                                    if (libDir[0] == null) {
+                                        libDir[0] = currentFile.getParent().createChildDirectory(this, currentFile.getName() + ".libs");
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                String resultFile = currentFile.getCanonicalPath().replace(currentFile.getExtension(), "jar");
+                                File resultFileP = new File(resultFile);
+
+                                try {
+                                    File target = new File(libDir[0].getCanonicalPath(), resultFileP.getName());
+                                    if (target.exists()) {
+                                        target.delete();
+                                    }
+                                    Files.copy(resultFileP, target);
+                                    resultFileP.delete();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                                Module module = ProjectRootManager.getInstance(getProject()).getFileIndex().getModuleForFile(currentFile);
+                                ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+                                ModifiableRootModel rootModel = moduleRootManager.getModifiableModel();
+                                Library library = rootModel.getModuleLibraryTable().getLibraryByName(currentFile.getName());
+                                if (library == null) {
+                                    library = rootModel.getModuleLibraryTable().getModifiableModel().createLibrary(currentFile.getName());
+                                }
+                                Library.ModifiableModel modifiableModel = library.getModifiableModel();
+                                modifiableModel.addJarDirectory(libDir[0], false);
+                                modifiableModel.commit();
+                                rootModel.commit();
+
+                                currentFile.getParent().refresh(false, true);
+                            }
+                        });
+
+
+                    }
+                });
+
+
+            }
+        });
+
+
     }
 
 }
