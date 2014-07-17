@@ -42,7 +42,7 @@ public class MetaModelStructureViewReferenceElement implements StructureViewTree
 
     private void setIcon() {
         for(PrimitiveTypes p : PrimitiveTypes.values()){
-            if(simpleType.equals(p.name())){
+            if(refDecl.getTypeDeclaration().getName().equals(p.name())){
                     attribute = true;
                 if(refDecl.getAnnotations().getText() != null && !refDecl.getAnnotations().getText().equals("")) {
                     id = true;
