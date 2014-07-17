@@ -66,21 +66,7 @@
     <favorites_list name="org.kevoree.modeling.idea.plugin" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="MetaModelCompletionContributor.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/idea/ide/MetaModelCompletionContributor.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6498195" vertical-offset="0" max-vertical-offset="915">
-              <caret line="57" column="164" selection-start-line="57" selection-start-column="139" selection-end-line="57" selection-end-column="164" />
-              <folding>
-                <element signature="e#3871#4296#0" expanded="true" />
-                <element signature="e#4277#4278#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -132,15 +118,15 @@
         <option value="$PROJECT_DIR$/src/org/kevoree/modeling/idea/psi/MetaModelReference.java" />
         <option value="$PROJECT_DIR$/src/org/kevoree/modeling/action/ConvertToEcoreAction.java" />
         <option value="$PROJECT_DIR$/META-INF/plugin.xml" />
-        <option value="$PROJECT_DIR$/src/org/kevoree/modeling/action/KMFCompilerResolver.java" />
         <option value="$PROJECT_DIR$/src/org/kevoree/modeling/action/InvertedURLClassLoader.java" />
         <option value="$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/openapi/roots/ModifiableRootModel.class" />
         <option value="$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/openapi/roots/libraries/Library.class" />
         <option value="$PROJECT_DIR$/src/org/kevoree/modeling/action/GenerateJavaAction.java" />
-        <option value="$PROJECT_DIR$/src/org/kevoree/modeling/action/GenerateJSAction.java" />
         <option value="$PROJECT_DIR$/src/org/kevoree/modeling/idea/psi/MetaModelTypeNamedAnnotator.java" />
         <option value="$PROJECT_DIR$/src/org/kevoree/modeling/util/StandaloneParser.java" />
         <option value="$PROJECT_DIR$/src/org/kevoree/modeling/idea/ide/MetaModelCompletionContributor.java" />
+        <option value="$PROJECT_DIR$/src/org/kevoree/modeling/action/GenerateJSAction.java" />
+        <option value="$PROJECT_DIR$/src/org/kevoree/modeling/action/KMFCompilerResolver.java" />
       </list>
     </option>
   </component>
@@ -813,12 +799,12 @@
       <workItem from="1405513136385" duration="48000" />
       <workItem from="1405513230006" duration="14000" />
       <workItem from="1405513353050" duration="7253000" />
-      <workItem from="1405582066240" duration="14569000" />
+      <workItem from="1405582066240" duration="17825000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="100815000" />
+    <option name="totallyTimeSpent" value="104071000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="2560" height="1414" extended-state="6" />
@@ -839,13 +825,13 @@
       <window_info id="KevoreeEditor" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.42203146" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3207262" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18986385" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="PsiViewer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2553648" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.35022694" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34987277" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32980332" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18268467" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18268467" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32980332" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
@@ -1178,17 +1164,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/action/KMFCompilerResolver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3068592" vertical-offset="0" max-vertical-offset="831">
-          <caret line="17" column="27" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#520#528#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/action/InvertedURLClassLoader.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.19855596" vertical-offset="0" max-vertical-offset="915">
@@ -1261,14 +1236,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/action/GenerateJSAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.23465703" vertical-offset="0" max-vertical-offset="1365">
-          <caret line="13" column="82" selection-start-line="13" selection-start-column="44" selection-end-line="13" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/action/GenerateJavaAction.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.48447204" vertical-offset="675" max-vertical-offset="2355">
@@ -1324,13 +1291,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/action/KMFCompilerResolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5170213" vertical-offset="57" max-vertical-offset="540">
+          <caret line="20" column="29" selection-start-line="20" selection-start-column="29" selection-end-line="20" selection-end-column="29" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#520#528#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/action/GenerateJSAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.30851063" vertical-offset="680" max-vertical-offset="1425">
+          <caret line="55" column="71" selection-start-line="55" selection-start-column="71" selection-end-line="55" selection-end-column="71" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2687#3351#0" expanded="true" />
+            <element signature="e#3328#3329#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/kevoree/modeling/idea/ide/MetaModelCompletionContributor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6498195" vertical-offset="0" max-vertical-offset="915">
-          <caret line="57" column="164" selection-start-line="57" selection-start-column="139" selection-end-line="57" selection-end-column="164" />
+        <state vertical-scroll-proportion="0.9574468" vertical-offset="0" max-vertical-offset="1140">
+          <caret line="47" column="16" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
           <folding>
-            <element signature="e#3871#4296#0" expanded="true" />
-            <element signature="e#4277#4278#0" expanded="true" />
+            <element signature="e#2547#2982#0" expanded="true" />
+            <element signature="e#2963#2964#0" expanded="true" />
+            <element signature="e#3161#4003#0" expanded="true" />
+            <element signature="e#3984#3985#0" expanded="true" />
+            <element signature="e#4223#4648#0" expanded="true" />
+            <element signature="e#4629#4630#0" expanded="true" />
           </folding>
         </state>
       </provider>

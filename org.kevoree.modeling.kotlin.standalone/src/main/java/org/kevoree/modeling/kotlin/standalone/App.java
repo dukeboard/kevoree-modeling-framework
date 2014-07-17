@@ -3,6 +3,7 @@ package org.kevoree.modeling.kotlin.standalone;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
+import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 import org.kevoree.modeling.kotlin.generator.RootGenerator;
 
 import java.io.*;
@@ -146,11 +147,51 @@ public class App {
                         Manifest manifest = new Manifest();
                         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
                         JarOutputStream target = new JarOutputStream(new FileOutputStream(outputJar), manifest);
-                        add(outDir, target, outDir.getPath()+File.separator, true);
+                        add(outDir, target, outDir.getPath() + File.separator, true);
                         target.close();
                         deleteDirectory(masterOut);
                     } else {
                         Files.copy(new File(outDir, targetName + ".min.js"), outputJar);
+                        //Generate sample
+
+                        String basePack = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration);
+
+                        String hTMLSample = "<html lang=\"en\">\n" +
+                                "<script type=\"text/javascript\" src=\"" + targetName + ".js\"></script>\n" +
+                                "<script>\n" +
+                                "var model = Kotlin.modules['" + targetName + "'];\n" +
+                                "var saver = new model." + basePack + ".serializer.JSONModelSerializer();\n" +
+                                "var loader = new model." + basePack + ".loader.JSONModelLoader();\n" +
+                                "var cloner = new model." + basePack + ".cloner.DefaultModelCloner();\n" +
+                                "var compare = new model." + basePack + ".compare.DefaultModelCompare();\n" +
+                                "var factory = new model." + basePack + ".impl.DefaultCloudFactory();\n" +
+                                "var saverXmi = new model." + basePack + ".serializer.XMIModelSerializer();\n" +
+                                "var loaderXmi = new model." + basePack + ".loader.XMIModelLoader();\n" +
+                                "//write your code here ...\n" +
+                                "</script>\n<div>Open JavaScript Console...</div>\n" +
+                                "</html>";
+
+                        String nodeJSSample = "var model = require('./"+targetName+".js');\n" +
+                                "\n" +
+                                "var saver = new model."+basePack+".serializer.JSONModelSerializer();\n" +
+                                "var loader = new model."+basePack+".loader.JSONModelLoader();\n" +
+                                "var cloner = new model."+basePack+".cloner.DefaultModelCloner();\n" +
+                                "var compare = new model."+basePack+".compare.DefaultModelCompare();\n" +
+                                "var factory = new model."+basePack+".impl.DefaultCloudFactory();\n" +
+                                "\n" +
+                                "//write your code here\n"
+                                + "console.log(\"Hello nodeJS\");\n";
+
+                        File outSampleHtml = new File(outputJar.getAbsolutePath().replace(".js", ".html"));
+                        FileWriter writer = new FileWriter(outSampleHtml);
+                        writer.append(hTMLSample);
+                        writer.close();
+
+                        File outSampleNODEJS = new File(outputJar.getAbsolutePath().replace(".js", ".node.js"));
+                        FileWriter writerNJS = new FileWriter(outSampleNODEJS);
+                        writerNJS.append(nodeJSSample);
+                        writerNJS.close();
+
                         deleteDirectory(masterOut);
                     }
                     System.out.println("Output : " + outputJar.getAbsolutePath());
@@ -164,14 +205,14 @@ public class App {
 
 
         Thread[] subT = new Thread[1000];
-        tg.enumerate(subT,true);
+        tg.enumerate(subT, true);
         for (Thread sub : subT) {
             try {
-                if(sub != null){
+                if (sub != null) {
                     sub.interrupt();
                     sub.stop();
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -219,7 +260,7 @@ public class App {
                     target.closeEntry();
                 }
                 for (File nestedFile : source.listFiles()) {
-                    add(nestedFile, target, basePath,false);
+                    add(nestedFile, target, basePath, false);
                 }
                 return;
             }

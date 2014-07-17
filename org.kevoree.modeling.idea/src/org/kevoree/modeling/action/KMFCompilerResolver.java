@@ -20,8 +20,8 @@ public class KMFCompilerResolver {
         synchronized (lock) {
             if (resolved == null) {
                 HashSet<String> urls = new HashSet<String>();
-                urls.add("https://oss.sonatype.org/content/groups/public/");
-                resolved = resolver.resolve("mvn:org.kevoree.modeling:org.kevoree.modeling.kotlin.standalone:LATEST", urls);
+                urls.add("http://repo1.maven.org/maven2/");
+                resolved = resolver.resolve("mvn:org.kevoree.modeling:org.kevoree.modeling.kotlin.standalone:RELEASE", urls);
             }
             return resolved;
         }

@@ -245,14 +245,14 @@ public class RootGenerator {
                 //getLog().error("Can't compile generated code !");
                 throw new Exception("Embedded Kotlin compilation error !");
             } else {
-                copyJsLibraryFile(outputClasses, KOTLIN_JS_MAPS);
+                //copyJsLibraryFile(outputClasses, KOTLIN_JS_MAPS);
                 copyJsLibraryFile(outputClasses, KOTLIN_JS_LIB);
-                copyJsLibraryFile(outputClasses, KOTLIN_JS_LIB_ECMA5);
+                //copyJsLibraryFile(outputClasses, KOTLIN_JS_LIB_ECMA5);
                 File outputMerged = new File(outputClasses, targetName + ".merged.js");
                 FileOutputStream mergedStream = new FileOutputStream(outputMerged);
-                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
+                //IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB_ECMA5), mergedStream);
                 IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_LIB), mergedStream);
-                IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
+                //IOUtils.copy(MetaInfServices.loadClasspathResource(KOTLIN_JS_MAPS), mergedStream);
                 Files.copy(new File(outputClasses, targetName + ".js"), mergedStream);
                 mergedStream.write(("if(typeof(module)!='undefined'){module.exports = Kotlin.modules['" + targetName + "'];}").getBytes());
                 mergedStream.write("\n".getBytes());
@@ -326,7 +326,9 @@ public class RootGenerator {
     CLICompiler KotlinCompiler = new K2JVMCompiler();
     CLICompiler KotlinCompilerJS = new K2JSCompiler();
 
-    public static final String KOTLIN_JS_MAPS = "kotlin-maps.js";
-    public static final String KOTLIN_JS_LIB = "kotlin-lib.js";
-    public static final String KOTLIN_JS_LIB_ECMA5 = "kotlin-lib-ecma5.js";
+    //public static final String KOTLIN_JS_MAPS = "kotlin-maps.js";
+    //public static final String KOTLIN_JS_LIB = "kotlin-lib.js";
+    public static final String KOTLIN_JS_LIB = "kotlin.js";
+
+    //public static final String KOTLIN_JS_LIB_ECMA5 = "kotlin-lib-ecma5.js";
 }

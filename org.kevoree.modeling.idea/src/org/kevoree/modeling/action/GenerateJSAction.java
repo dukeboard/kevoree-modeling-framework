@@ -81,6 +81,7 @@ public class GenerateJSAction extends AnAction implements DumbAware {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
                 currentFile.getParent().refresh(true, true);
             }
         });
