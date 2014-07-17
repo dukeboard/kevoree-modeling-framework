@@ -22,10 +22,12 @@ package org.kevoree.modeling.kotlin.generator.model;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.kevoree.modeling.VelocityLog;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
@@ -52,6 +54,8 @@ public class ClonerGenerator {
             String packageName = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration);
             ctx.clonerPackage = packageName + ".cloner";
             VelocityEngine ve = new VelocityEngine();
+            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
             ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
             ve.init();
             Template template = ve.getTemplate("templates/ModelCloner.vm");

@@ -13,6 +13,8 @@
     <orderEntry type="library" name="org.eclipse.emf.ecore.xmi-2.9.1-v20131212-0545" level="project" />
     <orderEntry type="library" name="org.eclipse.emf.ecore-2.9.2-v20131212-0545" level="project" />
     <orderEntry type="library" name="org.eclipse.emf.common-2.9.2-v20131212-0545" level="project" />
+    <orderEntry type="library" name="org.kevoree.log-1" level="project" />
+    <orderEntry type="library" name="org.kevoree.maven.resolver-20" level="project" />
   </component>
 </module>
 

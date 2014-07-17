@@ -19,9 +19,11 @@ package org.kevoree.modeling.kotlin.generator.model;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.eclipse.emf.ecore.EClass;
+import org.kevoree.modeling.VelocityLog;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
@@ -48,6 +50,8 @@ public class DiffGenerator {
         try {
             pr = new PrintWriter(localFile, "utf-8");
             VelocityEngine ve = new VelocityEngine();
+            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
             ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
             ve.init();
             Template template = ve.getTemplate("templates/DefaultModelCompare.vm");
@@ -76,6 +80,8 @@ public class DiffGenerator {
         try {
             pr = new PrintWriter(localFile, "utf-8");
             VelocityEngine ve = new VelocityEngine();
+            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
             ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
             ve.init();
             Template template = ve.getTemplate("templates/trace/DefaultTraceSequence.vm");
@@ -95,8 +101,11 @@ public class DiffGenerator {
         }
     }
 
+    /*
     public static void generateDiffMethod(PrintWriter pr, EClass cls, GenerationContext ctx) {
         VelocityEngine ve = new VelocityEngine();
+        ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
         ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
         ve.init();
         Template template = ve.getTemplate("templates/trace/TraceCompareMethod.vm");
@@ -105,6 +114,6 @@ public class DiffGenerator {
         ctxV.put("currentClass", cls);
         ctxV.put("FQNHelper", ProcessorHelper.getInstance());
         template.merge(ctxV, pr);
-    }
+    }*/
 
 }

@@ -90,6 +90,16 @@
             <add-to-group group-id="RunContextGroup" anchor="last"/>
         </action>
 
+        <action id="GenerateJS" class="org.kevoree.modeling.action.GenerateJSAction"
+                text="Compile to JS" description="Compile2JS">
+            <add-to-group group-id="RunContextGroup" anchor="last"/>
+        </action>
+
+        <action id="GenerateJava" class="org.kevoree.modeling.action.GenerateJavaAction"
+                text="Compile to JAR" description="Compile2JAR">
+            <add-to-group group-id="RunContextGroup" anchor="last"/>
+        </action>
+
 
     </actions>
 

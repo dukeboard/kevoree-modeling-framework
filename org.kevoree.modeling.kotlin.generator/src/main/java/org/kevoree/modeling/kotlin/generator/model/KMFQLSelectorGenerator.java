@@ -19,10 +19,12 @@ package org.kevoree.modeling.kotlin.generator.model;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
+import org.kevoree.modeling.VelocityLog;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
@@ -50,6 +52,8 @@ public class KMFQLSelectorGenerator {
             pr = new PrintWriter(localFile, "utf-8");
 
             VelocityEngine ve = new VelocityEngine();
+            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
             ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
             ve.init();
             Template template = ve.getTemplate("templates/KMFQLSelectorCache.vm");
@@ -74,6 +78,8 @@ public class KMFQLSelectorGenerator {
     public static void generateSelectorMethods(PrintWriter pr, EClass cls, GenerationContext ctx) {
 
         VelocityEngine ve = new VelocityEngine();
+        ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
         ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
         ve.init();
         Template template = ve.getTemplate("templates/KMFQLSelectorByQuery.vm");
