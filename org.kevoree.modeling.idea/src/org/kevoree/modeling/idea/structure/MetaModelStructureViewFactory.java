@@ -1,5 +1,6 @@
 package org.kevoree.modeling.idea.structure;
 
+import com.intellij.ide.actions.RelatedItemLineMarkerGotoAdapter;
 import com.intellij.ide.structureView.*;
 import com.intellij.ide.structureView.impl.StructureViewModelWrapper;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
@@ -22,15 +23,17 @@ import org.kevoree.modeling.util.PrimitiveTypes;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gregory.nain on 16/07/2014.
  */
 public class MetaModelStructureViewFactory implements PsiStructureViewFactory{
 
+
+
     public StructureViewBuilder getStructureViewBuilder(final PsiFile psiFile) {
         return new TreeBasedStructureViewBuilder() {
-
             @NotNull
             @Override
             public StructureViewModel createStructureViewModel(@Nullable Editor editor) {
@@ -49,39 +52,17 @@ public class MetaModelStructureViewFactory implements PsiStructureViewFactory{
             @Override
             public void visitClassDeclaration(@NotNull MetaModelClassDeclaration o) {
                 super.visitClassDeclaration(o);
-                String fqPackage = o.getTypeDeclaration().getName().substring(0, o.getTypeDeclaration().getName().lastIndexOf("."));
-                if(fqPackage != null && !fqPackage.equals("")) {
-                    MetaModelStructureViewPackageElement currentPackage = null;
-                    String[] packages = fqPackage.split(".");
-
-                    if(packages.length == 0) {
-                        currentPackage = root.packages.get(fqPackage);
-                        if(currentPackage == null) {
-                            currentPackage = new MetaModelStructureViewPackageElement(fqPackage);
-                            root.packages.put(fqPackage, currentPackage);
-                        }
-                    } else {
-                        for (String pack : packages) {
-                            if (currentPackage == null) {
-                                currentPackage = root.packages.get(pack);
-                                if(currentPackage == null) {
-                                    currentPackage = new MetaModelStructureViewPackageElement(pack);
-                                    root.packages.put(pack, currentPackage);
-                                }
-                            } else {
-                                MetaModelStructureViewPackageElement inCurrentPackage = currentPackage.packages.get(pack);
-                                if (inCurrentPackage == null) {
-                                    currentPackage = new MetaModelStructureViewPackageElement(pack);
-                                    currentPackage.packages.put(pack, currentPackage);
-                                } else {
-                                    currentPackage = inCurrentPackage;
-                                }
-                            }
-                        }
+                MetaModelStructureViewClassElement classElement = new MetaModelStructureViewClassElement(o, editor);
+                if(o.getParentsDeclaration() != null) {
+                    for(MetaModelTypeDeclaration d : o.getParentsDeclaration().getTypeDeclarationList()) {
+                        classElement.parents.add(new MetaModelStructureViewParentElement(d, editor));
                     }
-                    currentPackage.innerClasses.add(new MetaModelStructureViewClassElement(o,editor));
+                }
+                processReferences(o, classElement, editor);
+                if(o.getTypeDeclaration().getName().lastIndexOf(".") != -1) {
+                    processPackages(root, o).innerClasses.add(classElement);
                 } else {
-                    root.innerClasses.add(new MetaModelStructureViewClassElement(o,editor));
+                    root.innerClasses.add(classElement);
                 }
             }
 
@@ -97,5 +78,43 @@ public class MetaModelStructureViewFactory implements PsiStructureViewFactory{
     }
 
 
+    private MetaModelStructureViewPackageElement processPackages(MetaModelStructureViewRootElement root, MetaModelClassDeclaration o) {
+        MetaModelStructureViewPackageElement currentPackage = null;
+        String oName = o.getTypeDeclaration().getName();
+        String fqPackage = oName.substring(0, oName.lastIndexOf("."));
+        String[] packages = fqPackage.split(".");
+
+        if(packages.length == 0) {
+            currentPackage = getOrPut(root.packages, fqPackage);
+        } else {
+            for (String pack : packages) {
+                if (currentPackage == null) {
+                    currentPackage = getOrPut(root.packages, pack);
+                } else {
+                    currentPackage = getOrPut(currentPackage.packages, pack);
+                }
+            }
+        }
+        return currentPackage;
+    }
+
+    private MetaModelStructureViewPackageElement getOrPut(Map<String, MetaModelStructureViewPackageElement> packageMap, String packageName) {
+        MetaModelStructureViewPackageElement pack = packageMap.get(packageName);
+        if(pack == null) {
+            pack = new MetaModelStructureViewPackageElement(packageName);
+            packageMap.put(packageName, pack);
+        }
+        return pack;
+    }
+
+    private void processReferences(MetaModelClassDeclaration o, MetaModelStructureViewClassElement classElement, Editor editor) {
+
+        for(MetaModelRelationDeclaration relDec : o.getRelationDeclarationList()) {
+            MetaModelStructureViewReferenceElement referenceElement = new MetaModelStructureViewReferenceElement(relDec, editor);
+            classElement.references.add(referenceElement);
+        }
+
+
+    }
 
 }

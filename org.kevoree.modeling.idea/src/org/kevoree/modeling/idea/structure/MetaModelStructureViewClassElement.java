@@ -5,6 +5,8 @@ import com.intellij.ide.util.treeView.smartTree.SortableTreeElement;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.Icons;
 import com.intellij.util.PlatformIcons;
@@ -24,7 +26,8 @@ public class MetaModelStructureViewClassElement implements StructureViewTreeElem
     private MetaModelClassDeclaration classDecl;
     private String presText;
     private Editor editor;
-
+    public List<MetaModelStructureViewReferenceElement> references = new ArrayList<MetaModelStructureViewReferenceElement>();
+    public List<MetaModelStructureViewParentElement> parents = new ArrayList<MetaModelStructureViewParentElement>();
 
     public MetaModelStructureViewClassElement(MetaModelClassDeclaration classDecl, Editor editor) {
         this.classDecl = classDecl;
@@ -44,7 +47,9 @@ public class MetaModelStructureViewClassElement implements StructureViewTreeElem
 
     @Override
     public void navigate(boolean b) {
+        //System.out.println("Editor:" + editor.getClass());
         editor.getCaretModel().moveToOffset(classDecl.getTextOffset());
+        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER_UP);
     }
 
     @Override
@@ -70,7 +75,7 @@ public class MetaModelStructureViewClassElement implements StructureViewTreeElem
             @Nullable
             @Override
             public String getLocationString() {
-                return "Location Unknown";
+                return null;
             }
 
             @Nullable
@@ -83,7 +88,10 @@ public class MetaModelStructureViewClassElement implements StructureViewTreeElem
 
     @Override
     public TreeElement[] getChildren() {
-        return EMPTY_ARRAY;
+        List<TreeElement> all = new ArrayList<TreeElement>();
+        all.addAll(parents);
+        all.addAll(references);
+        return all.toArray(new TreeElement[all.size()]);
     }
 
     @NotNull

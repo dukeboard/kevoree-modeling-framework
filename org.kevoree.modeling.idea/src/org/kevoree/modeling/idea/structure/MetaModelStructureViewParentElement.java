@@ -1,41 +1,47 @@
 package org.kevoree.modeling.idea.structure;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.structureView.StructureViewTreeElement;
+import com.intellij.ide.util.treeView.smartTree.SortableTreeElement;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kevoree.modeling.idea.psi.MetaModelClassDeclaration;
+import org.kevoree.modeling.idea.psi.MetaModelParentsDeclaration;
+import org.kevoree.modeling.idea.psi.MetaModelRelationDeclaration;
+import org.kevoree.modeling.idea.psi.MetaModelTypeDeclaration;
+import org.kevoree.modeling.util.PrimitiveTypes;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by gregory.nain on 16/07/2014.
  */
-public class MetaModelStructureViewPackageElement implements StructureViewTreeElement {
+public class MetaModelStructureViewParentElement implements StructureViewTreeElement, SortableTreeElement {
 
-    public List<MetaModelStructureViewClassElement> innerClasses = new ArrayList<MetaModelStructureViewClassElement>();
-    public HashMap<String, MetaModelStructureViewPackageElement> packages = new HashMap<String, MetaModelStructureViewPackageElement>();
+    private MetaModelTypeDeclaration typeDecl;
+    private Editor editor;
+    private String simpleType;
 
-    private String packageName;
 
-    public MetaModelStructureViewPackageElement(String packageName) {
-        this.packageName = packageName;
+    public MetaModelStructureViewParentElement(MetaModelTypeDeclaration typeDecl, Editor editor) {
+        this.typeDecl = typeDecl;
+        this.editor = editor;
+        simpleType = typeDecl.getName().substring(typeDecl.getName().lastIndexOf(".")+1);
     }
 
     @Override
     public Object getValue() {
-        return packageName;
+        return typeDecl;
     }
 
     @Override
     public void navigate(boolean b) {
+
     }
+
 
     @Override
     public boolean canNavigate() {
@@ -54,28 +60,31 @@ public class MetaModelStructureViewPackageElement implements StructureViewTreeEl
             @Nullable
             @Override
             public String getPresentableText() {
-                return packageName;
+                return simpleType;
             }
 
             @Nullable
             @Override
             public String getLocationString() {
-                return "";
+                return null;
             }
 
             @Nullable
             @Override
             public Icon getIcon(boolean b) {
-                return PlatformIcons.PACKAGE_ICON;
+                return AllIcons.Actions.MoveUp;
             }
         };
     }
 
     @Override
     public TreeElement[] getChildren() {
-        List<TreeElement> res = new ArrayList<TreeElement>();
-        res.addAll(packages.values());
-        res.addAll(innerClasses);
-        return res.toArray(new TreeElement[res.size()]);
+        return EMPTY_ARRAY;
+    }
+
+    @NotNull
+    @Override
+    public String getAlphaSortKey() {
+        return simpleType;
     }
 }

@@ -10,6 +10,7 @@ import com.intellij.util.Icons;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kevoree.modeling.MetaModelIcons;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
             @Nullable
             @Override
             public String getPresentableText() {
-                return element.getVirtualFile().toString();
+                return element.getVirtualFile().getName().toString();
             }
 
             @Nullable
@@ -71,7 +72,7 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
             @Nullable
             @Override
             public Icon getIcon(boolean b) {
-                return PlatformIcons.FILE_ICON;
+                return MetaModelIcons.KEVS_ICON_16x16;
             }
         };
     }
