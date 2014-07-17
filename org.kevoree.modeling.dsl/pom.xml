@@ -38,7 +38,6 @@
             <artifactId>kotlin-compiler</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>

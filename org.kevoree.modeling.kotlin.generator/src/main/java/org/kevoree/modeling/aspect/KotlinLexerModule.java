@@ -1,10 +1,9 @@
-package org.kevoree.modeling.kotlin.generator.mavenplugin;
+package org.kevoree.modeling.aspect;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.jet.lexer.JetLexer;
 import org.jetbrains.jet.lexer.JetTokens;
-import org.kevoree.modeling.aspect.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,8 +42,8 @@ public class KotlinLexerModule {
         }
     }
 */
-    HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
-    List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
+    public HashMap<String, AspectClass> cacheAspects = new HashMap<String, AspectClass>();
+    public List<NewMetaClassCreation> newMetaClass = new ArrayList<NewMetaClassCreation>();
 
     private String currentPackageName = "";
 

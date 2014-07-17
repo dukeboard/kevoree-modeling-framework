@@ -83,6 +83,9 @@
 		<!--
         <module>org.kevoree.modeling.framework.ui.graph</module>
 -->
+
+        <module>org.kevoree.modeling.kotlin.standalone</module>
+
     </modules>
 
     <dependencies>

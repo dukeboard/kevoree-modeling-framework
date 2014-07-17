@@ -84,10 +84,6 @@ public class Generator {
             parser.convert2ecore(psi,temp);
             this.ecoreFile = temp;
         }
-
-
-        System.out.println(org.kevoree.modeling.MetaModelLanguage.class.getName());
-
         this.ctx = ctx;
         preProcess();
     }
@@ -95,7 +91,6 @@ public class Generator {
 
     private void preProcess() throws Exception {
         ResourceSet model = ctx.getEcoreModel(ecoreFile);
-
         //registering factories
         Iterator<Notifier> iterator1 = model.getAllContents();
         while (iterator1.hasNext()) {

@@ -71,6 +71,8 @@ public class GenerationContext {
      */
     public File rootGenerationDirectory = null;
 
+    public File rootCompilationDirectory = null;
+
     public File rootSrcDirectory = null;
 
     /**

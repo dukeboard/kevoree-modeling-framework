@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.kevoree.modeling.kotlin.standalone</artifactId>
+    <name>Kevoree :: Modeling :: Kotlin :: Standalone</name>
+
+    <parent>
+        <artifactId>org.kevoree.modeling.root</artifactId>
+        <groupId>org.kevoree.modeling</groupId>
+        <version>2.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <artifactId>org.kevoree.modeling.kotlin.generator</artifactId>
+            <groupId>org.kevoree.modeling</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kevoree.modeling</groupId>
+            <artifactId>org.kevoree.modeling.microframework</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.kevoree.modeling</groupId>
+                                    <artifactId>org.kevoree.modeling.microframework</artifactId>
+                                    <version>${project.version}</version>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>microframework.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jetbrains.kotlin</groupId>
+                                    <artifactId>kotlin-runtime</artifactId>
+                                    <version>${kotlin.version}</version>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>kotlin-runtime.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jetbrains.kotlin</groupId>
+                                    <artifactId>kotlin-stdlib</artifactId>
+                                    <version>${kotlin.version}</version>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>kotlin-stdlib.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jetbrains.kotlin</groupId>
+                                    <artifactId>kotlin-js-library</artifactId>
+                                    <version>${kotlin.version}</version>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>kotlin-js-library.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>org.kevoree.modeling.kotlin.standalone.App</mainClass>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            -->
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+
+                    <attach>false</attach>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.kevoree.modeling.kotlin.standalone.App</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <appendAssemblyId>true</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!--groupId>com.pyx4me</groupId-->
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>proguard</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <injar>${project.build.finalName}-jar-with-dependencies.jar</injar>
+                    <outjar>${project.build.finalName}.jar</outjar>
+                    <options>
+                        <option>-keep public class org.kevoree.modeling.kotlin.standalone.App { *; }</option>
+                        <option>-keep class org.picocontainer** { *;}</option>
+                        <option>-keep class org.jetbrains.jet.cli.common.** { *;}</option>
+                        <option>-keep class org.jetbrains.jet.lang.psi.** { *; }</option>
+                        <option>-keep class com.intellij.psi.** { *; }</option>
+                        <option>-keep class org.apache.velocity.** { *; }</option>
+                        <option>-keep class org.kevoree.** { *; }</option>
+                        <option>-keep class org.jetbrains.jet.lang.** { *; }</option>
+                        <option>-keep class org.jetbrains.jet.codegen.** { *; }</option>
+                        <option>-dontwarn</option>
+                        <option>-ignorewarnings</option>
+                        <option>-dontoptimize</option>
+                        <option>-dontobfuscate</option>
+                    </options>
+                    <libs>
+                        <lib>${java.bootstrap.classes}</lib>
+                    </libs>
+                    <maxMemory>1024m</maxMemory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>5.0</version>
+                        <scope>system</scope>
+                        <systemPath>${basedir}/../lib/proguard.jar</systemPath>
+                    </dependency>
+                    <dependency>
+                        <groupId>ant</groupId>
+                        <artifactId>ant</artifactId>
+                        <version>1.7.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <java.bootstrap.classes>${java.home}/../jre/lib/rt.jar</java.bootstrap.classes>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>other</id>
+            <activation>
+                <os>
+                    <family>!mac</family>
+                </os>
+            </activation>
+            <properties>
+                <java.bootstrap.classes>${java.home}/lib/rt.jar</java.bootstrap.classes>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

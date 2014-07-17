@@ -91,9 +91,7 @@ public class ModelGenerator {
                 process(currentPackageDir, currentPackage, potentialRoot, userPackageDir, isHiddenMetaclass);
             }
         }
-
     }
-
 
     private void process(String currentPackageDir, EPackage packElement, EClassifier cls, String userPackageDir, Boolean isHiddenMetaClass) {
 
