@@ -55,12 +55,19 @@ public class MetaModelCompletionContributor extends CompletionContributor {
         );
 
         extend(CompletionType.BASIC,
-                PlatformPatterns.psiElement(MetaModelTypes.IDENT).withLanguage(MetaModelLanguage.INSTANCE).and(PlatformPatterns.psiElement(MetaModelTypes.MULT_CLOSE)),
+                PlatformPatterns.psiElement(MetaModelTypes.ANNOTATION).withLanguage(MetaModelLanguage.INSTANCE),
                 new CompletionProvider<CompletionParameters>() {
                     public void addCompletions(@NotNull CompletionParameters parameters,
                                                ProcessingContext context,
                                                @NotNull final CompletionResultSet resultSet) {
-                        resultSet.addElement(LookupElementBuilder.create("oppositeOf"));
+
+                        if(parameters.getPosition().getText().startsWith("@")){
+                            resultSet.addElement(LookupElementBuilder.create("id"));
+                            resultSet.addElement(LookupElementBuilder.create("contained"));
+                        } else {
+                            resultSet.addElement(LookupElementBuilder.create("@id"));
+                            resultSet.addElement(LookupElementBuilder.create("@contained"));
+                        }
                     }
                 }
         );
