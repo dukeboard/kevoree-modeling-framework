@@ -53,6 +53,18 @@ public class MetaModelCompletionContributor extends CompletionContributor {
                     }
                 }
         );
+
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement(MetaModelTypes.IDENT).withLanguage(MetaModelLanguage.INSTANCE).and(PlatformPatterns.psiElement(MetaModelTypes.MULT_CLOSE)),
+                new CompletionProvider<CompletionParameters>() {
+                    public void addCompletions(@NotNull CompletionParameters parameters,
+                                               ProcessingContext context,
+                                               @NotNull final CompletionResultSet resultSet) {
+                        resultSet.addElement(LookupElementBuilder.create("oppositeOf"));
+                    }
+                }
+        );
+
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement().withLanguage(MetaModelLanguage.INSTANCE).afterLeaf(PlatformPatterns.psiElement(MetaModelTypes.BODY_CLOSE)),
                 new CompletionProvider<CompletionParameters>() {
