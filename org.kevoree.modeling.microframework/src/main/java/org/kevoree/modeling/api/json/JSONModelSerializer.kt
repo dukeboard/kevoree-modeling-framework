@@ -19,9 +19,10 @@ import org.kevoree.modeling.api.util.AttConverter
 
 
 class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
-    override fun beginVisitRef(refName: String, refType: String) {
+    override fun beginVisitRef(refName: String, refType: String) : Boolean {
         out.print(",\"" + refName + "\":[")
         isFirst = true
+        return true
     }
     override fun endVisitRef(refName: String) {
         out.print("]")
@@ -66,9 +67,10 @@ public open class JSONModelSerializer : ModelSerializer {
                 out.println("}")
                 isFirstInRef = false
             }
-            override fun beginVisitRef(refName: String, refType: String) {
+            override fun beginVisitRef(refName: String, refType: String) : Boolean {
                 out.print(",\"" + refName + "\":[")
                 isFirstInRef = true
+                return true
             }
             override fun endVisitRef(refName: String) {
                 out.print("]")

@@ -99,11 +99,9 @@ public class App {
                     ctx.rootUserDirectory = srcIn;
 
                     if (js) {
-                        ctx.genSelector = false;
                         ctx.js = true;
                         ctx.ecma3compat = false;
                     } else {
-                        ctx.genSelector = false;
                         ctx.js = false;
                         ctx.ecma3compat = false;
                     }
@@ -160,24 +158,24 @@ public class App {
                                 "<script type=\"text/javascript\" src=\"" + targetName + ".js\"></script>\n" +
                                 "<script>\n" +
                                 "var model = Kotlin.modules['" + targetName + "'];\n" +
-                                "var saver = new model." + basePack + ".serializer.JSONModelSerializer();\n" +
-                                "var loader = new model." + basePack + ".loader.JSONModelLoader();\n" +
-                                "var cloner = new model." + basePack + ".cloner.DefaultModelCloner();\n" +
-                                "var compare = new model." + basePack + ".compare.DefaultModelCompare();\n" +
                                 "var factory = new model." + basePack + ".impl.DefaultCloudFactory();\n" +
-                                "var saverXmi = new model." + basePack + ".serializer.XMIModelSerializer();\n" +
-                                "var loaderXmi = new model." + basePack + ".loader.XMIModelLoader();\n" +
+                                "var cloner = factory.createModelCloner();\n" +
+                                "var saver = factory.createJSONSerializer();\n" +
+                                "var loader = factory.createJSONLoader();\n" +
+                                "var compare = factory.createModelCompare();\n" +
+                                "var saverXmi = factory.createXMISerializer();\n" +
+                                "var loaderXmi = factory.createXMILoader();\n" +
                                 "//write your code here ...\n" +
                                 "</script>\n<div>Open JavaScript Console...</div>\n" +
                                 "</html>";
 
-                        String nodeJSSample = "var model = require('./"+targetName+".js');\n" +
+                        String nodeJSSample = "var model = require('./" + targetName + ".js');\n" +
                                 "\n" +
-                                "var saver = new model."+basePack+".serializer.JSONModelSerializer();\n" +
-                                "var loader = new model."+basePack+".loader.JSONModelLoader();\n" +
-                                "var cloner = new model."+basePack+".cloner.DefaultModelCloner();\n" +
-                                "var compare = new model."+basePack+".compare.DefaultModelCompare();\n" +
-                                "var factory = new model."+basePack+".impl.DefaultCloudFactory();\n" +
+                                "var factory = new model." + basePack + ".impl.DefaultCloudFactory();\n" +
+                                "var cloner = factory.createModelCloner();\n" +
+                                "var saver = factory.createJSONSerializer();\n" +
+                                "var loader = factory.createJSONLoader();\n" +
+                                "var compare = factory.createModelCompare();\n" +
                                 "\n" +
                                 "//write your code here\n"
                                 + "console.log(\"Hello nodeJS\");\n";

@@ -17,21 +17,21 @@
  */
 package org.kevoree.modeling.kotlin.generator;
 
-import java.io.*;
-import java.util.*;
-
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.*;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.kevoree.modeling.aspect.NewMetaClassCreation;
 import org.kevoree.modeling.aspect.AspectClass;
+import org.kevoree.modeling.aspect.NewMetaClassCreation;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,20 +44,15 @@ public class GenerationContext {
 
     public Boolean timeAware = false;
 
-    public Boolean persistence = false ;
+    public Boolean persistence = false;
 
     public String autoBasePackage = "kmf";
 
-    public Boolean ecma3compat = false ;
+    public Boolean ecma3compat = false;
 
     public HashMap<String, AspectClass> aspects = new HashMap<String, AspectClass>();
 
-    public List<NewMetaClassCreation> newMetaClasses = new ArrayList<NewMetaClassCreation>()  ;
-
-    /**
-     * True if selectByQuery methods have to be generated
-     */
-    public Boolean genSelector = false;
+    public List<NewMetaClassCreation> newMetaClasses = new ArrayList<NewMetaClassCreation>();
 
     /**
      * Package to be added before the RootPackage of the model
@@ -82,13 +77,13 @@ public class GenerationContext {
     public File rootUserDirectory = null;
 
 
-    public List<EClass> getChildrenOf(final EClass parent, XMIResource resource ) {
+    public List<EClass> getChildrenOf(final EClass parent, XMIResource resource) {
         final ArrayList<EClass> children = new ArrayList<EClass>();
         TreeIterator<EObject> iterator = resource.getAllContents();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             EObject cls = iterator.next();
-            if(cls instanceof EClass && ((EClass)cls).getESuperTypes().contains(parent)) {
-                children.add(((EClass)cls));
+            if (cls instanceof EClass && ((EClass) cls).getESuperTypes().contains(parent)) {
+                children.add(((EClass) cls));
             }
         }
         return children;
@@ -97,13 +92,13 @@ public class GenerationContext {
 
     public void checkEID(EClass current) {
         boolean idFound = false;
-        for(EAttribute att : current.getEAllAttributes()){
-            if(att.isID()) {
+        for (EAttribute att : current.getEAllAttributes()) {
+            if (att.isID()) {
                 idFound = true;
                 break;
             }
         }
-        if(!idFound) {
+        if (!idFound) {
             EAttribute generatedKmfIdAttribute = EcoreFactory.eINSTANCE.createEAttribute();
             generatedKmfIdAttribute.setID(true);
             generatedKmfIdAttribute.setName("generated_KMF_ID");
@@ -121,7 +116,7 @@ public class GenerationContext {
             }
         })));
 
-        for(File subDir : dir.listFiles(new FileFilter() {
+        for (File subDir : dir.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.isDirectory();
@@ -145,7 +140,7 @@ public class GenerationContext {
 
             if (ecorefile.isDirectory()) {
                 List<File> ecoreFiles = getRecursiveListOfFiles(ecorefile, "ecore");
-                for(File eFile : ecoreFiles) {
+                for (File eFile : ecoreFiles) {
 
                     System.out.println("Include Ecore File : " + eFile.getCanonicalPath());
 
@@ -167,7 +162,7 @@ public class GenerationContext {
             }
 
             TreeIterator<Notifier> iterator = rs.getAllContents();
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 Notifier notifier = iterator.next();
                 if (notifier instanceof EClass) {
                     checkEID((EClass) notifier);
@@ -224,6 +219,7 @@ public class GenerationContext {
 
     /**
      * Recursively registers the factories in the maps, though the subpackages relation
+     *
      * @param pack : The package where to start the registration
      */
     public void registerFactory(EPackage pack) {
@@ -241,12 +237,12 @@ public class GenerationContext {
             String packageName = ProcessorHelper.getInstance().fqn(this, pack);
             String completeFactoryName = packageName + "." + formattedFactoryName;
             packageFactoryMap.put(packageName, completeFactoryName);
-            for(EClassifier cls : pack.getEClassifiers()) {
+            for (EClassifier cls : pack.getEClassifiers()) {
                 classFactoryMap.put(pack + "." + cls.getName(), completeFactoryName);
             }
         }
 
-        for(EPackage subPackage : pack.getESubpackages()) {
+        for (EPackage subPackage : pack.getESubpackages()) {
             registerFactory(subPackage);
         }
     }
@@ -270,8 +266,8 @@ public class GenerationContext {
 
         final ArrayList<EPackage> packages = new ArrayList<EPackage>();
 
-        TreeIterator<Notifier> iterator =  metamodel.getAllContents();
-        while(iterator.hasNext()) {
+        TreeIterator<Notifier> iterator = metamodel.getAllContents();
+        while (iterator.hasNext()) {
             Notifier notifier = iterator.next();
             if (notifier instanceof EPackage && ((EPackage) notifier).getESuperPackage() == null) {
                 // Root package
@@ -309,7 +305,7 @@ public class GenerationContext {
         while (f == null && packageList.size() > 0) {
             EPackage currentPackage = packageList.pollFirst();
 
-            for(EPackage subPack : currentPackage.getESubpackages()) {
+            for (EPackage subPack : currentPackage.getESubpackages()) {
                 if (subPack.getEClassifiers().size() > 0) {
                     basePackageForUtilitiesGeneration = currentPackage;
                     f = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + ProcessorHelper.getInstance().fqn(this, currentPackage).replace(".", File.separator) + File.separator);
@@ -345,10 +341,6 @@ public class GenerationContext {
 
     public List<NewMetaClassCreation> getNewMetaClasses() {
         return newMetaClasses;
-    }
-
-    public Boolean getGenSelector() {
-        return genSelector;
     }
 
     public String getPackagePrefix() {

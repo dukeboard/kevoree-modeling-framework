@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.xmi
 import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
-import java.util.ArrayList
 import org.kevoree.modeling.api.util.AttConverter
 
 /*
@@ -13,14 +12,9 @@ import org.kevoree.modeling.api.util.AttConverter
 class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java.util.HashMap<KMFContainer, String>, val elementsCount: java.util.HashMap<String, Int>, val resourceSet: ResourceSet?) : ModelVisitor() {
 
     var value: String? = null
-    override public fun beginVisitElem(elem: KMFContainer) {
-    }
-    override public fun endVisitElem(elem: KMFContainer) {
-    }
-    override fun beginVisitRef(refName: String, refType: String) {
-    }
+
     override fun endVisitRef(refName: String) {
-        if(value != null) {
+        if (value != null) {
             ostream.print(" " + refName + "=\"" + value.toString() + "\"")
             value = null
         }
@@ -28,10 +22,10 @@ class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java
 
     public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
         var adjustedAddress = resourceSet?.objToAddr(elem)
-        if(adjustedAddress == null){
+        if (adjustedAddress == null) {
             adjustedAddress = addressTable.get(elem)
         }
-        if(value == null) {
+        if (value == null) {
             value = adjustedAddress
         } else {
             value = value!! + " "
@@ -43,15 +37,15 @@ class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java
 
 class AttributesVisitor(val ostream: java.io.PrintStream, val ignoreGeneratedID: Boolean) : ModelAttributeVisitor {
     public override fun visit(value: Any?, name: String, parent: KMFContainer) {
-        if(value != null) {
-            if(ignoreGeneratedID && name == "generated_KMF_ID"){
+        if (value != null) {
+            if (ignoreGeneratedID && name == "generated_KMF_ID") {
                 return
             }
-            if(value is String && value == ""){
+            if (value is String && value == "") {
                 return
             }
             ostream.print(" " + name + "=\"")
-            if(value is java.util.Date) {
+            if (value is java.util.Date) {
                 escapeXml(ostream, "" + value.getTime())
             } else {
                 escapeXml(ostream, AttConverter.convFlatAtt(value))
@@ -61,22 +55,22 @@ class AttributesVisitor(val ostream: java.io.PrintStream, val ignoreGeneratedID:
     }
 
     private fun escapeXml(ostream: java.io.PrintStream, chain: String?) {
-        if(chain == null){
+        if (chain == null) {
             return
         }
         var i = 0
         var max = chain.length
-        while(i < max){
+        while (i < max) {
             var c = chain.charAt(i)
-            if(c == '"') {
+            if (c == '"') {
                 ostream.print("&quot;")
-            } else if(c == '&') {
+            } else if (c == '&') {
                 ostream.print("&amp;")
-            } else if(c == '\'') {
+            } else if (c == '\'') {
                 ostream.print("&apos;")
-            } else if(c == '<') {
+            } else if (c == '<') {
                 ostream.print("&lt;")
-            } else if(c == '>') {
+            } else if (c == '>') {
                 ostream.print("&gt;")
             } else {
                 ostream.print(c)
@@ -92,14 +86,6 @@ class ModelSerializationVisitor(val ostream: java.io.PrintStream, val addressTab
     val attributeVisitor = AttributesVisitor(ostream, ignoreGeneratedID)
     val referenceVisitor = ReferencesVisitor(ostream, addressTable, elementsCount, resourceSet)
 
-    override public fun beginVisitElem(elem: KMFContainer) {
-    }
-    override public fun endVisitElem(elem: KMFContainer) {
-    }
-    override fun beginVisitRef(refName: String, refType: String) {
-    }
-    override fun endVisitRef(refName: String) {
-    }
     public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
         ostream.print('<')
         ostream.print(refNameInParent)
@@ -124,16 +110,6 @@ class ModelSerializationVisitor(val ostream: java.io.PrintStream, val addressTab
 
 
 class ModelAddressVisitor(val addressTable: java.util.HashMap<KMFContainer, String>, val elementsCount: java.util.HashMap<String, Int>, val packageList: java.util.ArrayList<String>) : ModelVisitor() {
-
-
-    override public fun beginVisitElem(elem: KMFContainer) {
-    }
-    override public fun endVisitElem(elem: KMFContainer) {
-    }
-    override fun beginVisitRef(refName: String, refType: String) {
-    }
-    override fun endVisitRef(refName: String) {
-    }
     public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
 
         val parentXmiAddress = addressTable.get(parent)!!
@@ -141,7 +117,7 @@ class ModelAddressVisitor(val addressTable: java.util.HashMap<KMFContainer, Stri
         addressTable.put(elem, parentXmiAddress + "/@" + refNameInParent + "." + i)
         elementsCount.put(parentXmiAddress + "/@" + refNameInParent, i + 1)
         val pack = elem.metaClassName().substring(0, elem.metaClassName().lastIndexOf('.'))
-        if(!packageList.contains(pack))
+        if (!packageList.contains(pack))
             packageList.add(pack)
     }
 }
@@ -183,7 +159,7 @@ public open class XMIModelSerializer : org.kevoree.modeling.api.ModelSerializer 
         wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"")
 
         var index = 0;
-        while(index < packageList.size) {
+        while (index < packageList.size) {
             wt.print(" xmlns:" + packageList.get(index).replace(".", "_") + "=\"http://" + packageList.get(index) + "\"")
             index++
         }

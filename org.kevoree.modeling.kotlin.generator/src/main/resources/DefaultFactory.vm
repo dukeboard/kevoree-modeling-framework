@@ -84,5 +84,26 @@ override fun setRoot(elem : org.kevoree.modeling.api.KMFContainer){
     (elem as ${ctx.getKevoreeContainerImplFQN()}).path_cache = "/"
 }
 
-
+override fun createJSONSerializer(): org.kevoree.modeling.api.json.JSONModelSerializer {
+    return ${packageName}.serializer.JSONModelSerializer()
 }
+override fun createJSONLoader(): org.kevoree.modeling.api.json.JSONModelLoader {
+    return ${packageName}.loader.JSONModelLoader()
+}
+override fun createXMISerializer(): org.kevoree.modeling.api.xmi.XMIModelSerializer {
+    return ${packageName}.serializer.XMIModelSerializer()
+}
+override fun createXMILoader(): org.kevoree.modeling.api.xmi.XMIModelLoader {
+    return ${packageName}.loader.XMIModelLoader()
+}
+override fun createModelCompare(): org.kevoree.modeling.api.compare.ModelCompare {
+    return ${packageName}.compare.DefaultModelCompare()
+}
+
+override fun createModelCloner() : org.kevoree.modeling.api.ModelCloner {
+    return ${packageName}.cloner.DefaultModelCloner()
+}
+
+
+
+    }

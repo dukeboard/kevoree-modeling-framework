@@ -44,11 +44,12 @@ public class NewMetaModelFileAction extends CreateTemplateInPackageAction<PsiEle
     protected PsiElement doCreate(PsiDirectory psiDirectory, String parameterName, String typeName) throws IncorrectOperationException {
         MetaModelTemplatesFactory.Template template = MetaModelTemplatesFactory.Template.MetaModel;
         String fileName = fileNameFromTypeName(typeName, parameterName);
-        return MetaModelTemplatesFactory.createFromTemplate(psiDirectory, fileName, template,"class Concept {\n" +
-                "\n" +
+        return MetaModelTemplatesFactory.createFromTemplate(psiDirectory, fileName, template,"class kmf.Concept {\n" +
+                "    @Contained\n" +
+                "    concepts : kmf.Concept2[0,*]\n" +
                 "}\n" +
                 "\n" +
-                "class Concept2 {\n" +
+                "class kmf.Concept2 {\n" +
                 "    @id name : String\n" +
                 "}\n");
     }

@@ -113,8 +113,6 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
         return internal_recursive_readOnlyElem
     }
 
-    fun internalGetKey() : String?
-
     fun setEContainer( container : org.kevoree.modeling.api.${formatedFactoryName}?, unsetCmd : RemoveFromContainerCommand?, refNameInParent : String? ) {
         if(internal_readOnlyElem){return}
         if(eContainer() == container){return}
@@ -134,13 +132,9 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
 #end
 }
 
-#if($ctx.genSelector)
-
-#else
-    override fun selectByQuery(query : String) : List<Any> {
-        throw Exception("Not activated, please add selector option in KMF generation plugin")
-    }
-#end
+override fun select(query : String) : List<org.kevoree.modeling.api.KMFContainer> {
+    return org.kevoree.modeling.api.util.Selector.select(this,query)
+}
 
 #if($ctx.generateEvents)
     internal var internal_modelElementListeners : MutableList<org.kevoree.modeling.api.events.ModelElementListener>?
@@ -344,22 +338,6 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
         return resultTest
     }
 
-
-#if(!$ctx.js)
-    override fun findByPath<A>(query: String, clazz: Class<A>): A? {
-        try {
-            val res = findByPath(query)
-            if(res != null){
-                return res as A
-            } else {
-                return null
-            }
-        }catch(e: Exception){
-            return null
-        }
-    }
-#end
-
     override fun findByPath(query: String): org.kevoree.modeling.api.KMFContainer? {
         if(query == path()){
             return this
@@ -485,9 +463,5 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
         }
         return traces
     }
-
-    #if($ctx.genSelector)
-        fun internal_selectByQuery(query : String, result : MutableList<Any>)
-    #end
 
 }

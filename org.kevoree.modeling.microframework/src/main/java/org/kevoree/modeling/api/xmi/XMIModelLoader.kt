@@ -12,7 +12,7 @@ import org.kevoree.modeling.api.util.ActionType
 * Author : Gregory Nain
 * Date : 30/08/13
 */
-public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
+public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader {
 
     public var resourceSet: ResourceSet? = null
 
@@ -47,8 +47,9 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         override fun endVisitElem(elem: KMFContainer) {
             refMap = null
         }
-        override fun beginVisitRef(refName: String, refType: String) {
+        override fun beginVisitRef(refName: String, refType: String): Boolean {
             refMap!!.put(refName, refType)
+            return true
         }
         public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
         }
@@ -59,41 +60,41 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         var i: Int = 0
         while (i < src.length) {
             val c = src[i]
-            if(c == '&') {
-                if(builder == null) {
+            if (c == '&') {
+                if (builder == null) {
                     builder = StringBuilder()
                     builder!!.append(src.substring(0, i))
                 }
-                if(src[i + 1] == 'a') {
-                    if(src[i + 2] == 'm') {
+                if (src[i + 1] == 'a') {
+                    if (src[i + 2] == 'm') {
                         builder?.append("&")
                         i = i + 5
-                    } else if(src[i + 2] == 'p') {
+                    } else if (src[i + 2] == 'p') {
                         builder?.append("'")
                         i = i + 6
                     } else {
                         println("Could not unescaped chain:" + src[i] + src[i + 1] + src[i + 2])
                     }
-                } else if(src[i + 1] == 'q') {
+                } else if (src[i + 1] == 'q') {
                     builder?.append("\"")
                     i = i + 6
-                } else if(src[i + 1] == 'l') {
+                } else if (src[i + 1] == 'l') {
                     builder?.append("<")
                     i = i + 4
-                } else if(src[i + 1] == 'g') {
+                } else if (src[i + 1] == 'g') {
                     builder?.append(">")
                     i = i + 4
                 } else {
                     println("Could not unescaped chain:" + src[i] + src[i + 1])
                 }
             } else {
-                if(builder != null) {
+                if (builder != null) {
                     builder?.append(c)
                 }
                 i++
             }
         }
-        if(builder != null) {
+        if (builder != null) {
             return builder.toString()
         } else {
             return src
@@ -102,7 +103,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
     override fun loadModelFromString(str: String): List<KMFContainer>? {
         val reader = XmlParser(ByteConverter.byteArrayInputStreamFromString(str))
-        if(reader.hasNext()) {
+        if (reader.hasNext()) {
             return deserialize(reader)
         } else {
             println("Loader::Nothing in the String !")
@@ -113,7 +114,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
     override fun loadModelFromStream(inputStream: InputStream): List<KMFContainer>? {
         val reader = XmlParser(inputStream)
-        if(reader.hasNext()) {
+        if (reader.hasNext()) {
             return deserialize(reader)
         } else {
             println("Loader::Nothing in the file !")
@@ -124,19 +125,19 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
     private fun loadObject(ctx: LoadingContext, xmiAddress: String, objectType: String? = null): KMFContainer {
         val elementTagName = ctx.xmiReader!!.getLocalName()
         var modelElem: KMFContainer?
-        if(objectType != null) {
+        if (objectType != null) {
             modelElem = factory?.create(objectType)
-            if(modelElem == null) {
+            if (modelElem == null) {
                 var xsiType: String? = null
-                for(i in 0.rangeTo(ctx.xmiReader!!.getAttributeCount() - 1)){
+                for (i in 0.rangeTo(ctx.xmiReader!!.getAttributeCount() - 1)) {
                     val localName = ctx.xmiReader!!.getAttributeLocalName(i)
                     val xsi = ctx.xmiReader!!.getAttributePrefix(i)
-                    if (localName == LOADER_XMI_LOCAL_NAME && xsi == LOADER_XMI_XSI){
+                    if (localName == LOADER_XMI_LOCAL_NAME && xsi == LOADER_XMI_XSI) {
                         xsiType = ctx.xmiReader!!.getAttributeValue(i)
                         break
                     }
                 }
-                if(xsiType != null) {
+                if (xsiType != null) {
                     modelElem = factory?.create(xsiType!!.substring(xsiType!!.lastIndexOf(":") + 1, xsiType!!.length))
                 }
             }
@@ -145,7 +146,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
             modelElem = factory?.create(elementTagName)
         }
 
-        if(modelElem == null) {
+        if (modelElem == null) {
             println("Could not create an object for local name " + elementTagName)
         }
         ctx.map.put(xmiAddress, modelElem!!)
@@ -155,30 +156,30 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
 
 
         /* Preparation of maps */
-        if(!attributesHashmap.containsKey(modelElem!!.metaClassName())) {
+        if (!attributesHashmap.containsKey(modelElem!!.metaClassName())) {
             modelElem?.visitAttributes(attributeVisitor)
         }
         val elemAttributesMap = attributesHashmap.get(modelElem!!.metaClassName())!!
 
-        if(!referencesHashmap.containsKey(modelElem!!.metaClassName())) {
+        if (!referencesHashmap.containsKey(modelElem!!.metaClassName())) {
             modelElem?.visit(referencesVisitor, false, true, false)
         }
         val elemReferencesMap = referencesHashmap.get(modelElem!!.metaClassName())!!
 
 
         /* Read attributes and References */
-        for(i in 0.rangeTo(ctx.xmiReader!!.getAttributeCount() - 1)) {
+        for (i in 0.rangeTo(ctx.xmiReader!!.getAttributeCount() - 1)) {
             val prefix = ctx.xmiReader!!.getAttributePrefix(i)
-            if(prefix == null || prefix.equals("")) {
+            if (prefix == null || prefix.equals("")) {
                 val attrName = ctx.xmiReader!!.getAttributeLocalName(i).trim()
                 val valueAtt = ctx.xmiReader!!.getAttributeValue(i).trim()
-                if( valueAtt != null) {
-                    if(elemAttributesMap.containsKey(attrName)) {
+                if ( valueAtt != null) {
+                    if (elemAttributesMap.containsKey(attrName)) {
                         modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName, (unescapeXml(valueAtt)), false, false)
-                        if(namedElementSupportActivated && attrName.equals("name")){
+                        if (namedElementSupportActivated && attrName.equals("name")) {
                             val parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")))
-                            for(entry in ctx.map.entrySet().toList()) {
-                                if(entry.value == parent) {
+                            for (entry in ctx.map.entrySet().toList()) {
+                                if (entry.value == parent) {
                                     val refT = entry.key + "/" + unescapeXml(valueAtt)
                                     ctx.map.put(refT, modelElem!!)
                                 }
@@ -186,10 +187,10 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                         }
                     } else {
                         //reference, can be remote
-                        if(!valueAtt.startsWith("#") && !valueAtt.startsWith("/")){
-                            if(resourceSet != null){
+                        if (!valueAtt.startsWith("#") && !valueAtt.startsWith("/")) {
+                            if (resourceSet != null) {
                                 val previousLoadedRef = resourceSet!!.resolveObject(valueAtt)
-                                if(previousLoadedRef != null){
+                                if (previousLoadedRef != null) {
                                     modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName, previousLoadedRef, true, false)
                                 } else {
                                     throw Exception("Unresolve NsURI based XMI reference " + valueAtt)
@@ -198,20 +199,20 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                                 throw Exception("Bad XMI reference " + valueAtt)
                             }
                         } else {
-                            for(xmiRef in valueAtt.split(" ")) {
-                                var adjustedRef = if(xmiRef.startsWith("#")){
+                            for (xmiRef in valueAtt.split(" ")) {
+                                var adjustedRef = if (xmiRef.startsWith("#")) {
                                     xmiRef.substring(1)
-                                }else{
+                                } else {
                                     xmiRef
                                 }
-                                adjustedRef = if(adjustedRef.startsWith("//")){
+                                adjustedRef = if (adjustedRef.startsWith("//")) {
                                     "/0" + adjustedRef.substring(1)
                                 } else {
                                     adjustedRef
                                 }
                                 adjustedRef = adjustedRef.replace(".0", "")
                                 val ref = ctx.map.get(adjustedRef)
-                                if( ref != null) {
+                                if ( ref != null) {
                                     modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, attrName, ref, true, false)
                                 } else {
                                     ctx.resolvers.add(XMIResolveCommand(ctx, modelElem!!, org.kevoree.modeling.api.util.ActionType.ADD, attrName, adjustedRef, resourceSet))
@@ -224,12 +225,12 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         }
 
         var done = false
-        while(!done) {
-            when(ctx.xmiReader!!.next()) {
+        while (!done) {
+            when (ctx.xmiReader!!.next()) {
                 Token.START_TAG -> {
                     val subElemName = ctx.xmiReader!!.getLocalName()
                     val i = ctx.elementsCount.get(xmiAddress + "/@" + subElemName) ?: 0
-                    val subElementId = xmiAddress + "/@" + subElemName + (if(i != 0){
+                    val subElementId = xmiAddress + "/@" + subElemName + (if (i != 0) {
                         "." + i
                     } else {
                         ""
@@ -239,7 +240,7 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1)
                 }
                 Token.END_TAG -> {
-                    if(ctx.xmiReader!!.getLocalName().equals(elementTagName)){
+                    if (ctx.xmiReader!!.getLocalName().equals(elementTagName)) {
                         done = true
                     }
                 }
@@ -256,18 +257,18 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
         var nsURI: String? = null
         val context = LoadingContext()
         context.xmiReader = reader
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             val nextTag = reader.next()
-            when(nextTag) {
+            when (nextTag) {
                 Token.START_TAG -> {
                     val localName = reader.getLocalName()
-                    if(localName != null) {
+                    if (localName != null) {
                         val loadedRootsSize = context.loadedRoots.size()
 
-                        for(i in 0.rangeTo(context.xmiReader!!.getAttributeCount() - 1)){
+                        for (i in 0.rangeTo(context.xmiReader!!.getAttributeCount() - 1)) {
                             val localName = context.xmiReader!!.getAttributeLocalName(i)
                             val localValue = context.xmiReader!!.getAttributeValue(i)
-                            if(localName == LOADER_XMI_NS_URI){
+                            if (localName == LOADER_XMI_NS_URI) {
                                 nsURI = localValue
                             }
                         }
@@ -289,10 +290,10 @@ public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader{
                 }
             }
         }
-        for(res in context.resolvers) {
+        for (res in context.resolvers) {
             res.run()
         }
-        if(resourceSet != null && nsURI != null){
+        if (resourceSet != null && nsURI != null) {
             resourceSet!!.registerXmiAddrMappedObjects(nsURI!!, context.map)
         }
         return context.loadedRoots
@@ -327,23 +328,23 @@ public class LoadingContext() {
 }
 
 
-public class XMIResolveCommand(val context: LoadingContext, val target: org.kevoree.modeling.api.KMFContainer, val mutatorType: ActionType, val refName: String, val ref: String, val resourceSet: ResourceSet?){
+public class XMIResolveCommand(val context: LoadingContext, val target: org.kevoree.modeling.api.KMFContainer, val mutatorType: ActionType, val refName: String, val ref: String, val resourceSet: ResourceSet?) {
     fun run() {
         var referencedElement = context.map.get(ref)
-        if(referencedElement != null) {
+        if (referencedElement != null) {
             target.reflexiveMutator(mutatorType, refName, referencedElement, true, false)
             return
         }
-        if(ref.equals("/0/") || ref.equals("/")) {
+        if (ref.equals("/0/") || ref.equals("/")) {
             referencedElement = context.map.get("/0")
-            if(referencedElement != null)   {
+            if (referencedElement != null) {
                 target.reflexiveMutator(mutatorType, refName, referencedElement, true, false)
                 return
             }
         }
-        if(resourceSet != null){
+        if (resourceSet != null) {
             referencedElement = resourceSet.resolveObject(ref)
-            if(referencedElement != null) {
+            if (referencedElement != null) {
                 target.reflexiveMutator(mutatorType, refName, referencedElement, true, false)
                 return
             }

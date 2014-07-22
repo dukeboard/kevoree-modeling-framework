@@ -14,7 +14,7 @@ public abstract class ModelVisitor {
 
     var visitStopped = false
 
-    fun stopVisit(){
+    fun stopVisit() {
         visitStopped = true
     }
 
@@ -22,24 +22,29 @@ public abstract class ModelVisitor {
 
     var visitReferences = true
 
-    fun noChildrenVisit(){
+    fun noChildrenVisit() {
         visitChildren = false
     }
 
-    fun noReferencesVisit(){
+    fun noReferencesVisit() {
         visitReferences = false
     }
 
-    public abstract fun visit(elem : KMFContainer, refNameInParent : String, parent : KMFContainer)
+    public abstract fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer)
 
-    var alreadyVisited : HashMap<String,KMFContainer>? = null
+    var alreadyVisited: HashMap<String, KMFContainer>? = null
 
-    open fun beginVisitElem(elem : KMFContainer){}
+    open fun beginVisitElem(elem: KMFContainer) {
+    }
 
-    open fun endVisitElem(elem : KMFContainer){}
+    open fun endVisitElem(elem: KMFContainer) {
+    }
 
-    open fun beginVisitRef(refName : String, refType : String){}
+    open fun beginVisitRef(refName: String, refType: String): Boolean {
+        return true;
+    }
 
-    open fun endVisitRef(refName : String){}
+    open fun endVisitRef(refName: String) {
+    }
 
 }

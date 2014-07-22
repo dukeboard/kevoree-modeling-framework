@@ -51,9 +51,6 @@ public class ModelGenerator {
      */
     public void process(ResourceSet model, String modelVersion) {
 
-        if (ctx.genSelector) {
-            KMFQLSelectorGenerator.generateSelectorCache(ctx, ProcessorHelper.getInstance().getPackageGenDir(ctx, ctx.basePackageForUtilitiesGeneration), ctx.basePackageForUtilitiesGeneration);
-        }
         ConstantsGenerator.generateConstants(ctx, model);
         ClonerGenerator.generateCloner(ctx, ctx.basePackageForUtilitiesGeneration, model);
 

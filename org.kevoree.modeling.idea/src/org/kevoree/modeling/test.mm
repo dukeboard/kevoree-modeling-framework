@@ -1,11 +1,11 @@
-class TypeDefinition {
+class p.TypeDefinition {
     @id name : String
-    @contained properties : Property[0,*]
+    @contained properties : p.Property[0,*]
 }
-class ComponentType : TypeDefinition {
-    portNumber : Integer
+class p.ComponentType : p.TypeDefinition {
+    portNumber : Int
 }
-class Property {
+class p.Property {
        @id name : String
        value : String
 }

@@ -108,9 +108,6 @@ public class ClassGenerator {
         generateAllGetterSetterMethod(pr, cls, ctx, pack);
         FlatReflexiveSetters.generateFlatReflexiveSetters(ctx, cls, pr);
         KMFQLFinder.generateKMFQLMethods(pr, cls, ctx, pack);
-        if (ctx.genSelector) {
-            KMFQLSelectorGenerator.generateSelectorMethods(pr, cls, ctx);
-        }
         ContainedElementsGenerator.generateContainedElementsMethods(pr, cls, ctx);
         generateMetaClassName(pr, cls, ctx);
         //Kotlin workaround // Why prop are not generated properly ?

@@ -50,6 +50,27 @@ public class FactoryGenerator {
                 }
             }
 
+            pr.println("override fun createJSONSerializer(): org.kevoree.modeling.api.json.JSONModelSerializer {\n" +
+                    "    return "+ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)+".serializer.JSONModelSerializer()\n" +
+                    "}\n" +
+                    "override fun createJSONLoader(): org.kevoree.modeling.api.json.JSONModelLoader {\n" +
+                    "    return "+ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)+".loader.JSONModelLoader()\n" +
+                    "}\n" +
+                    "override fun createXMISerializer(): org.kevoree.modeling.api.xmi.XMIModelSerializer {\n" +
+                    "    return "+ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)+".serializer.XMIModelSerializer()\n" +
+                    "}\n" +
+                    "override fun createXMILoader(): org.kevoree.modeling.api.xmi.XMIModelLoader {\n" +
+                    "    return "+ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)+".loader.XMIModelLoader()\n" +
+                    "}\n" +
+                    "override fun createModelCompare(): org.kevoree.modeling.api.compare.ModelCompare {\n" +
+                    "    return "+ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)+".compare.DefaultModelCompare()\n" +
+                    "}\n" +
+                    "\n" +
+                    "override fun createModelCloner() : org.kevoree.modeling.api.ModelCloner {\n" +
+                    "    return "+ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration)+".cloner.DefaultModelCloner()\n" +
+                    "}");
+
+
             pr.println("override fun setRoot(elem : org.kevoree.modeling.api.KMFContainer){\n" +
                     "    (elem as "+ctx.getKevoreeContainerImplFQN()+").is_root = true\n" +
                     "    (elem as "+ctx.getKevoreeContainerImplFQN()+").path_cache = \"/\"\n" +

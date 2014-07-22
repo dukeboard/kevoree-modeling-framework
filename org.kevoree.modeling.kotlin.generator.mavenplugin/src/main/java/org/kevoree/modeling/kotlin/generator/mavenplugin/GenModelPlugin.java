@@ -162,7 +162,6 @@ public class GenModelPlugin extends AbstractMojo {
         ctx.rootGenerationDirectory = output;
         ctx.rootCompilationDirectory = outputClasses;
         ctx.rootUserDirectory = sourceFile;
-        ctx.genSelector = selector;
         ctx.js = js;
         ctx.generateEvents = events;
         ctx.flyweightFactory = flyweightFactory;

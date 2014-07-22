@@ -40,6 +40,7 @@ import java.io.UnsupportedEncodingException;
  * Time: 18:39
  */
 public class KMFQLSelectorGenerator {
+    /*
 
     public static void generateSelectorCache(GenerationContext ctx, String packageGenDir, EPackage packElement) {
         String formatedCacheName = packElement.getName().substring(0, 1).toUpperCase();
@@ -97,4 +98,5 @@ public class KMFQLSelectorGenerator {
         template.merge(ctxV, pr);
     }
 
+*/
 }

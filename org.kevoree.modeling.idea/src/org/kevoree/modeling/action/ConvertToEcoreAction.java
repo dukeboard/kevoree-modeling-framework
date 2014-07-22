@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -37,6 +38,9 @@ public class ConvertToEcoreAction extends AnAction implements DumbAware {
     public void actionPerformed(AnActionEvent anActionEvent) {
         StandaloneParser parser = new StandaloneParser(anActionEvent.getProject());
         VirtualFile currentFile = DataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
+
+        FileDocumentManager.getInstance().saveDocument(FileDocumentManager.getInstance().getDocument(currentFile));
+
         try {
             PsiFile psi = parser.parser(currentFile);
             List<String> errors = parser.check(psi);
