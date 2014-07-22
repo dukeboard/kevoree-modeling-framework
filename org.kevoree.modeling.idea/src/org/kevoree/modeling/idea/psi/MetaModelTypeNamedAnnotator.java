@@ -38,13 +38,13 @@ public class MetaModelTypeNamedAnnotator implements Annotator {
                             @Override
                             public void visitPsiElement(@NotNull PsiElement o) {
                                 super.visitPsiElement(o);
-                                if(!isValidated[0]){
+                                if(o != null && !isValidated[0]){
                                     o.acceptChildren(this);
                                 }
                             }
                             @Override
                             public void visitClassDeclaration(@NotNull MetaModelClassDeclaration o) {
-                                if(o.getTypeDeclaration().getName().equals(casted.getName())){
+                                if(o != null && o.getTypeDeclaration() != null && o.getTypeDeclaration().getName() != null && o.getTypeDeclaration().getName().equals(casted.getName())){
                                     isValidated[0] = true;
                                 }
                             }

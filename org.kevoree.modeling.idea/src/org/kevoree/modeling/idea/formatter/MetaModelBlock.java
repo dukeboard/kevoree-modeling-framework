@@ -7,6 +7,7 @@ import com.intellij.psi.formatter.common.AbstractBlock;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.kevoree.modeling.idea.parser.GeneratedParserUtilBase;
 import org.kevoree.modeling.idea.psi.MetaModelTypes;
 
 import java.util.ArrayList;
@@ -134,7 +135,7 @@ public class MetaModelBlock extends AbstractBlock {
                 return Spacing.createSpacing(1, 1, 2, false, 1);
             }
 
-            if (type1 == MetaModelTypes.IDENT && type2 == MetaModelTypes.COLON) {
+            if (type1 == MetaModelTypes.IDENT) {
                 return Spacing.createSpacing(1, 1, 0, false, 0);
             }
             if (type1 == MetaModelTypes.BODY_OPEN) {
@@ -142,6 +143,9 @@ public class MetaModelBlock extends AbstractBlock {
             }
             if (type1 == MetaModelTypes.BODY_CLOSE) {
                 return Spacing.createSpacing(1, 1, 1, false, 1);
+            }
+            if(type1 == TokenType.ERROR_ELEMENT || type2 == TokenType.ERROR_ELEMENT || type1 == GeneratedParserUtilBase.DUMMY_BLOCK || type2 == GeneratedParserUtilBase.DUMMY_BLOCK)  {
+                return Spacing.createSpacing(1, 1, 0, false, 0);
             }
 
             System.out.println("Formatting Warning. Spacing unspecified between t1:" + type1 + " type2:" + type2);

@@ -52,17 +52,19 @@ public class MetaModelStructureViewFactory implements PsiStructureViewFactory{
             @Override
             public void visitClassDeclaration(@NotNull MetaModelClassDeclaration o) {
                 super.visitClassDeclaration(o);
-                MetaModelStructureViewClassElement classElement = new MetaModelStructureViewClassElement(o, editor);
-                if(o.getParentsDeclaration() != null) {
-                    for(MetaModelTypeDeclaration d : o.getParentsDeclaration().getTypeDeclarationList()) {
-                        classElement.parents.add(new MetaModelStructureViewParentElement(d, editor));
+                if(o.getTypeDeclaration() != null) {
+                    MetaModelStructureViewClassElement classElement = new MetaModelStructureViewClassElement(o, editor);
+                    if (o.getParentsDeclaration() != null) {
+                        for (MetaModelTypeDeclaration d : o.getParentsDeclaration().getTypeDeclarationList()) {
+                            classElement.parents.add(new MetaModelStructureViewParentElement(d, editor));
+                        }
                     }
-                }
-                processReferences(o, classElement, editor);
-                if(o.getTypeDeclaration().getName().lastIndexOf(".") != -1) {
-                    processPackages(root, o).innerClasses.add(classElement);
-                } else {
-                    root.innerClasses.add(classElement);
+                    processReferences(o, classElement, editor);
+                    if (o.getTypeDeclaration().getName().lastIndexOf(".") != -1) {
+                        processPackages(root, o).innerClasses.add(classElement);
+                    } else {
+                        root.innerClasses.add(classElement);
+                    }
                 }
             }
 

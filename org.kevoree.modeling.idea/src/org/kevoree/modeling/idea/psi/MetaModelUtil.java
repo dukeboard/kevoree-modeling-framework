@@ -63,8 +63,7 @@ public class MetaModelUtil {
                     public void visitElement(PsiElement element) {
                         if (element instanceof MetaModelDeclaration) {
                             MetaModelDeclaration declaration = (MetaModelDeclaration) element;
-                            if (declaration.getClassDeclaration() != null) {
-
+                            if (declaration.getClassDeclaration() != null && declaration.getClassDeclaration().getTypeDeclaration() != null) {
                                 if(key.equals(declaration.getClassDeclaration().getTypeDeclaration().getName())){
                                     result.add(declaration.getClassDeclaration().getTypeDeclaration());
                                 }

@@ -33,7 +33,7 @@ public class MetaModelCompletionContributor extends CompletionContributor {
                             public void visitElement(PsiElement element) {
                                 if (element instanceof MetaModelDeclaration) {
                                     MetaModelDeclaration declaration = (MetaModelDeclaration) element;
-                                    if (declaration.getClassDeclaration() != null) {
+                                    if (declaration.getClassDeclaration() != null && declaration.getClassDeclaration().getTypeDeclaration() != null) {
                                         resultSet.addElement(LookupElementBuilder.create(declaration.getClassDeclaration().getTypeDeclaration()));
                                     }
                                 }
