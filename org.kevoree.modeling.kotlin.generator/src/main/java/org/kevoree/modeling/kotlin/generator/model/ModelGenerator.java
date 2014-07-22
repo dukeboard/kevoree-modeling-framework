@@ -64,7 +64,7 @@ public class ModelGenerator {
 
         while (iterator.hasNext()) {
             Notifier c = iterator.next();
-            if (c instanceof EClassifier && !(c instanceof EDataType)) {
+            if (c instanceof EClass || c instanceof EEnum ) {
                 EClassifier potentialRoot = (EClassifier) c;
                 EPackage currentPackage = potentialRoot.getEPackage();
                 String currentPackageDir = ProcessorHelper.getInstance().getPackageGenDir(ctx, currentPackage);
