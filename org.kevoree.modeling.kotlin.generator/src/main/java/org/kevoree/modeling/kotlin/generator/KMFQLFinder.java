@@ -53,26 +53,21 @@ public class KMFQLFinder {
         }
 
         if (idAttributes.size() > 0) {
-
             pr.print("\"");
-            //gets all IDs
-
-              /*
-            Collections.(idAttributes, new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o1.compareToIgnoreCase(o2);
+            if(idAttributes.size() == 1){
+                pr.print("$" + ProcessorHelper.getInstance().protectReservedWords(idAttributes.first()));
+            } else {
+                for (String att : idAttributes) {
+                    if (!first) {
+                        //pr.print("+\"/\"+")
+                        pr.print(",");
+                    }
+                    pr.print(att+"=$" + ProcessorHelper.getInstance().protectReservedWords(att));
+                    first = false;
                 }
-            });  */
-
-            for (String att : idAttributes) {
-                if (!first) {
-                    //pr.print("+\"/\"+")
-                    pr.print("/");
-                }
-                pr.print("$" + ProcessorHelper.getInstance().protectReservedWords(att));
-                first = false;
             }
+
+
 
             pr.print("\"");
 

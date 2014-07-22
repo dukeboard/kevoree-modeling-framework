@@ -177,6 +177,7 @@ public class GenModelPlugin extends AbstractMojo {
             generator.execute(ctx, ecore, project.getVersion(), project.getArtifactId(), project.getCompileClasspathElements());
         } catch (Exception e) {
             getLog().error(e);
+            throw new MojoExecutionException("KMF Compilation error !",e);
         }
     }
 

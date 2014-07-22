@@ -85,23 +85,23 @@ override fun setRoot(elem : org.kevoree.modeling.api.KMFContainer){
 }
 
 override fun createJSONSerializer(): org.kevoree.modeling.api.json.JSONModelSerializer {
-    return ${packageName}.serializer.JSONModelSerializer()
+    return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.serializer.JSONModelSerializer()
 }
 override fun createJSONLoader(): org.kevoree.modeling.api.json.JSONModelLoader {
-    return ${packageName}.loader.JSONModelLoader()
+    return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.loader.JSONModelLoader()
 }
 override fun createXMISerializer(): org.kevoree.modeling.api.xmi.XMIModelSerializer {
-    return ${packageName}.serializer.XMIModelSerializer()
+    return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.serializer.XMIModelSerializer()
 }
 override fun createXMILoader(): org.kevoree.modeling.api.xmi.XMIModelLoader {
-    return ${packageName}.loader.XMIModelLoader()
+    return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.loader.XMIModelLoader()
 }
 override fun createModelCompare(): org.kevoree.modeling.api.compare.ModelCompare {
-    return ${packageName}.compare.DefaultModelCompare()
+    return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.compare.DefaultModelCompare()
 }
 
 override fun createModelCloner() : org.kevoree.modeling.api.ModelCloner {
-    return ${packageName}.cloner.DefaultModelCloner()
+    return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.cloner.DefaultModelCloner()
 }
 
 
