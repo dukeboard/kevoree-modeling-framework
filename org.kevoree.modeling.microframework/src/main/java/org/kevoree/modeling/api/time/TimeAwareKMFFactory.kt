@@ -33,18 +33,19 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         entitiesCache.clear()
     }
 
-    override fun cleanUnusedPaths(path : String) {
+    override fun cleanUnusedPaths(path: String) {
         //TODO
     }
 
     override fun persist(elem: KMFContainer) {
 
         val currentPath = elem.path()
+
         if (currentPath == "") {
             throw Exception("Internal error, empty path found during persist method " + elem)
         }
         if (!currentPath.startsWith("/")) {
-            throw Exception("Cannot persist, because the path of the element do not refer to a root: " + currentPath + " -> "+ elem)
+            throw Exception("Cannot persist, because the path of the element do not refer to a root: " + currentPath + " -> " + elem)
         }
 
         val casted = elem as TimeAwareKMFContainer
@@ -107,12 +108,12 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
     override fun remove(elem: KMFContainer) {
 
-        if(elem.isDeleted()){
+        if (elem.isDeleted()) {
             return
         }
 
         val path = elem.path()
-        if(path == ""){
+        if (path == "") {
             throw Exception("Can't remove empty path !!!!")
         }
 
@@ -188,7 +189,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         if (tp == null) {
             return null
         } else {
-            return  getTimeTree(path).versionTree.lowerUntil(tp, TimeSegmentConst.DELETE_CODE)?.key
+            return getTimeTree(path).versionTree.lowerUntil(tp, TimeSegmentConst.DELETE_CODE)?.key
         }
     }
 
@@ -196,19 +197,19 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         if (tp == null) {
             return null
         } else {
-            return  getTimeTree(path).versionTree.upperUntil(tp, TimeSegmentConst.DELETE_CODE)?.key
+            return getTimeTree(path).versionTree.upperUntil(tp, TimeSegmentConst.DELETE_CODE)?.key
         }
     }
 
     public fun latest(path: String): TimePoint? {
-        return  getTimeTree(path).versionTree.relativeMax(relativeTime, TimeSegmentConst.DELETE_CODE)?.key
+        return getTimeTree(path).versionTree.relativeMax(relativeTime, TimeSegmentConst.DELETE_CODE)?.key
     }
 
     override public fun globalFloor(tp: TimePoint?): TimePoint? {
         if (tp == null) {
             return null
         } else {
-            return  getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.lower(tp)?.key
+            return getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.lower(tp)?.key
         }
     }
 
@@ -216,12 +217,12 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         if (tp == null) {
             return null
         } else {
-            return  getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.upper(tp)?.key
+            return getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.upper(tp)?.key
         }
     }
 
     override public fun globalLatest(): TimePoint? {
-        return  getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.max()?.key
+        return getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.max()?.key
     }
 
     override fun lookup(path: String): KMFContainer? {
@@ -349,10 +350,10 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         while (!currentTP.equals(resolved2!!)) {
 
             val entities = getEntitiesMeta(currentTP)
-            for(path in entities.list.keySet()){
+            for (path in entities.list.keySet()) {
                 val key = "${currentTP.toString()}/${path}"
                 val raw = datastore!!.get(TimeSegment.RAW.name(), key);
-                if(raw != null){
+                if (raw != null) {
                     sequence.populateFromString(raw)
                 }
             }

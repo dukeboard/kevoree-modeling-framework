@@ -17,7 +17,7 @@ trait KMFFactory {
 
     fun create(metaClassName: String): org.kevoree.modeling.api.KMFContainer?
 
-    fun setRoot(elem: KMFContainer)
+    fun root(elem: KMFContainer)
 
     fun createJSONSerializer(): JSONModelSerializer
 
@@ -29,5 +29,8 @@ trait KMFFactory {
 
     fun createModelCompare(): ModelCompare
 
-    fun createModelCloner() : ModelCloner
+    fun createModelCloner(): ModelCloner
+
+    fun select(query: String): List<KMFContainer>
+
 }

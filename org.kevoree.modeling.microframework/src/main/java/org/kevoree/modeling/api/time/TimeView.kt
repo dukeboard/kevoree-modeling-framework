@@ -25,7 +25,6 @@ public trait TimeView<A> {
         return this as A
     }
 
-
     public fun globalFloor(tp: TimePoint?): TimePoint?
 
     public fun globalCeil(tp: TimePoint?): TimePoint?
@@ -39,5 +38,9 @@ public trait TimeView<A> {
     fun delete() : TimeView<A>
 
     fun diff(tp : TimePoint) : TraceSequence
+
+    fun select(query : String) : List<KMFContainer>
+
+    fun root(elem: KMFContainer)
 
 }

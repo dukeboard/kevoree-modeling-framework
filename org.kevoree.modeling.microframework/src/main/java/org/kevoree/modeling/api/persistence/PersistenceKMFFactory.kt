@@ -10,6 +10,7 @@ import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.TimeSegment
 import org.kevoree.modeling.api.time.blob.MetaHelper
+import java.util.ArrayList
 
 /**
  * Created with IntelliJ IDEA.
@@ -86,7 +87,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             val resolved = modified_elements.get(elem)
             if (resolved != null) {
                 if (resolved.path() == "") {
-                    if(!resolved.isDeleted()){
+                    if (!resolved.isDeleted()) {
                         resolved.delete()
                     } else {
                         modified_elements.remove(elem)
@@ -127,7 +128,6 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         elem.addModelElementListener(this)
     }
 
-
     fun lookup(path: String): KMFContainer? {
         if (path == "") {
             return null
@@ -165,6 +165,15 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         val payload = datastore!!.get(TimeSegment.RAW.name(), "${elem.path()}#")
         if (payload != null) {
             castedInBounds.internal_inboundReferences = MetaHelper.unserialize(payload, this)
+        }
+    }
+
+    override fun select(query: String): List<KMFContainer> {
+        val localRoot = lookup("/")
+        if (localRoot != null) {
+            return localRoot.select(query)
+        } else {
+            return ArrayList<KMFContainer>()
         }
     }
 

@@ -35,7 +35,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
             throw Exception("Cannot setOrigin for element with path \""+path+"\" : No reference to a Root")
         }
         if(path == "/") { // ROOT
-            originFactory!!.setRoot(this)
+            originFactory!!.root(this)
         } else {
 
             //set key_cache

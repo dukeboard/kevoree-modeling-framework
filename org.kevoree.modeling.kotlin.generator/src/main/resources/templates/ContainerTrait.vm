@@ -133,7 +133,11 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
 }
 
 override fun select(query : String) : List<org.kevoree.modeling.api.KMFContainer> {
-    return org.kevoree.modeling.api.util.Selector.select(this,query)
+    if(path()=="/" && query.startsWith("/")){
+        return org.kevoree.modeling.api.util.Selector.select(this,query.substring(1))
+    } else {
+        return org.kevoree.modeling.api.util.Selector.select(this,query)
+    }
 }
 
 #if($ctx.generateEvents)
