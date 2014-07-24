@@ -25,19 +25,19 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     var relativeTime: TimePoint
     var queryMap: MutableMap<String, TimePoint>
     var timeCache: HashMap<String, TimeMeta>
-    var entitiesCache: HashMap<String, EntitiesMeta>
+    var entitiesCache: EntitiesMeta?
 
     override fun clearCache() {
         super<PersistenceKMFFactory>.clearCache()
         timeCache.clear()
-        entitiesCache.clear()
+        entitiesCache = null
     }
 
     override fun cleanUnusedPaths(path: String) {
         //TODO
     }
 
-    override fun commit(){
+    override fun commit() {
         super<PersistenceKMFFactory>.commit()
         val entitiesMeta = getEntitiesMeta(relativeTime)
         datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
@@ -176,16 +176,15 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
     private fun getEntitiesMeta(tp: TimePoint): EntitiesMeta {
         val time = tp.toString()
-        val alreadyCached = entitiesCache.get(time);
-        if (alreadyCached != null) {
-            return alreadyCached;
+        if (entitiesCache != null) {
+            return entitiesCache!!;
         } else {
             val payload = datastore!!.get(TimeSegment.ENTITIES.name(), time);
             val blob = EntitiesMeta();
             if (payload != null) {
                 blob.load(payload);
             }
-            entitiesCache.put(time, blob);
+            entitiesCache = blob;
             return blob;
         }
     }
