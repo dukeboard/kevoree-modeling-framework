@@ -37,6 +37,12 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         //TODO
     }
 
+    override fun commit(){
+        super<PersistenceKMFFactory>.commit()
+        val entitiesMeta = getEntitiesMeta(relativeTime)
+        datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
+    }
+
     override fun persist(elem: KMFContainer) {
 
         val currentPath = elem.path()
@@ -58,7 +64,6 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             val entitiesMeta = getEntitiesMeta(relativeTime)
             entitiesMeta.list.put(currentPath, true)
 
-            datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
 
             val key = "${relativeTime.toString()}/$currentPath"
             datastore!!.put(TimeSegment.RAW.name(), key, traceSeq.exportToString())
