@@ -130,7 +130,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
         val path = elem.path()
         if (path == "") {
-            throw Exception("Can't remove empty path !!!!")
+            throw Exception("Can't remove empty path !!!! "+elem.metaClassName()+"@"+elem.internalGetKey())
         }
 
         val key = "${relativeTime.toString()}/${path}"
