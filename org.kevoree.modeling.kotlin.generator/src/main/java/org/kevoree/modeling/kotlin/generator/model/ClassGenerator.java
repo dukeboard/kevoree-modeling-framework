@@ -325,6 +325,9 @@ public class ClassGenerator {
         }
         pr.println("val kmf_previousVal = $" + ProcessorHelper.getInstance().protectReservedWords(att.getName()));
         pr.println("$" + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = iP");
+        if (ctx.persistence) {
+            pr.println("if(!inResolution){");
+        }
         if (ctx.generateEvents) {
             pr.println("if(fireEvents) {");
             pr.println("fireModelEvent(org.kevoree.modeling.api.events.ModelEvent(oldPath, org.kevoree.modeling.api.util.ActionType.SET, org.kevoree.modeling.api.util.ElementAttributeType.ATTRIBUTE, " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName() + ", " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + ",kmf_previousVal,this))");
@@ -343,7 +346,9 @@ public class ClassGenerator {
             }
 
             pr.println("visit(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container.cleanCacheVisitor,true,true,false)");
-
+        }
+        if (ctx.persistence) {
+            pr.println("}");
         }
         pr.println("\t}");
         pr.println("\t}//end of setter");
