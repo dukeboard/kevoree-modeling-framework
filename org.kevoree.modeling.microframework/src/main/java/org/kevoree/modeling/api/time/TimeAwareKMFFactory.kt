@@ -33,7 +33,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         entitiesCache = null
     }
 
-    protected var sharedCache: org.kevoree.modeling.api.time.blob.SharedCache<A>
+    var sharedCache: org.kevoree.modeling.api.time.blob.SharedCache<A>
 
     override fun cleanUnusedPaths(path: String) {
         //TODO
