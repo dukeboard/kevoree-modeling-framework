@@ -33,14 +33,25 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         entitiesCache = null
     }
 
+    protected var sharedCache: org.kevoree.modeling.api.time.blob.SharedCache<A>
+
     override fun cleanUnusedPaths(path: String) {
         //TODO
     }
+
 
     override fun commit() {
         super<PersistenceKMFFactory>.commit()
         val entitiesMeta = getEntitiesMeta(relativeTime)
         datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
+        sharedCache.drop(relativeTime)
+    }
+
+    fun commitAll() {
+        for (tv in sharedCache.keys()) {
+            sharedCache.get(tv)?.commit()
+        }
+        sharedCache.flush()
     }
 
     override fun persist(elem: KMFContainer) {
