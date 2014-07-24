@@ -67,7 +67,7 @@ when(metaClassName){
 override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint.create("0:0");
 override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
 override var timeCache: java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta> = java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta>()
-override var entitiesCache: java.util.HashMap<String, org.kevoree.modeling.api.time.blob.EntitiesMeta> = java.util.HashMap<String, org.kevoree.modeling.api.time.blob.EntitiesMeta>()
+override var entitiesCache: org.kevoree.modeling.api.time.blob.EntitiesMeta? = null
 
 override fun time(tp: org.kevoree.modeling.api.time.TimePoint): org.kevoree.modeling.api.time.TimeView<${formatedFactoryName}> {
     val newFactory = Default${formatedFactoryName}()
