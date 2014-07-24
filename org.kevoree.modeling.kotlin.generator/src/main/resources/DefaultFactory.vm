@@ -68,7 +68,7 @@ override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree
 override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
 override var timeCache: java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta> = java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta>()
 override var entitiesCache: org.kevoree.modeling.api.time.blob.EntitiesMeta? = null
-override protected var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}> = org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}>()
+override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}> = org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}>()
 
 override fun time(tp: org.kevoree.modeling.api.time.TimePoint): org.kevoree.modeling.api.time.TimeView<${formatedFactoryName}> {
     val resolved : org.kevoree.modeling.api.time.TimeView<${formatedFactoryName}>? = sharedCache.get(tp);

@@ -50,7 +50,7 @@ public class FactoryGenerator {
                 }
             }
 
-            pr.println("override protected var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache<MainFactory> = org.kevoree.modeling.api.time.blob.SharedCache<MainFactory>()\n");
+            pr.println("override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache<MainFactory> = org.kevoree.modeling.api.time.blob.SharedCache<MainFactory>()\n");
 
             pr.println("override fun select(query: String): List<org.kevoree.modeling.api.KMFContainer> {\n" +
                     "        //TODO\n" +
