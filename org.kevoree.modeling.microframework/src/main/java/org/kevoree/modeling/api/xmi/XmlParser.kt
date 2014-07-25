@@ -28,7 +28,7 @@ public class XmlParser(val inputStream : java.io.InputStream) {
     private var xmlCharset : String? = null
 
     private var tagName : String = ""
-    private var tagPrefix : String? = null
+    var tagPrefix : String? = null
 
     private var attributesNames : java.util.ArrayList<String> = java.util.ArrayList<String>()
     private var attributesPrefixes : java.util.ArrayList<String?> = java.util.ArrayList<String?>()
