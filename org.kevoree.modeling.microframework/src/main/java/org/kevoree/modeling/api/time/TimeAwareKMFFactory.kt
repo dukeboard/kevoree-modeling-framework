@@ -62,8 +62,8 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         }
         if(syncAtEnd){
             datastore?.sync()
+            clearCache()
         }
-        clearCache()
 
         val entitiesMeta = getEntitiesMeta(relativeTime)
         datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
@@ -82,6 +82,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         }
         datastore?.sync()
         sharedCache.flush()
+        clearCache()
     }
 
     override fun persist(elem: KMFContainer) {
