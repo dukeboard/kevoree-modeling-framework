@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.time.blob
 
-import java.util.ArrayList
-import org.kevoree.modeling.api.time.TimeAwareKMFFactory
 import org.kevoree.modeling.api.persistence.PersistenceKMFFactory
 import java.util.HashSet
 
@@ -38,15 +36,17 @@ object MetaHelper {
         val result = java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>>()
         val lines = p.split(sep)
         for (l in lines) {
-            if(l != ""){
-                val elems = l.split(sep2)
-                if (elems.size > 1) {
-                    val payload = HashSet<String>()
-                    for (i in 1..elems.size - 1) {
-                        payload.add(elems.get(i))
-                    }
-                    result.put(factory.lookup(elems.get(0))!!, payload)
+            val elems = l.split(sep2)
+            if (elems.size > 1) {
+                val payload = HashSet<String>()
+                for (i in 1..elems.size - 1) {
+                    payload.add(elems.get(i))
                 }
+
+                println(">"+elems.get(0))
+                println("$"+factory.lookup(elems.get(0)))
+
+                result.put(factory.lookup(elems.get(0))!!, payload)
             }
         }
         return result

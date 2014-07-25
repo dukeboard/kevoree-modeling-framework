@@ -156,7 +156,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         val path = elem.path()
         if (path == "") {
             modified_elements.remove(elem)
-            error("WARNING :: Can't process dangling element! type:" + elem.metaClassName() + ",id=" + elem.internalGetKey() + " ignored")
+            println("WARNING :: Can't process dangling element! type:" + elem.metaClassName() + ",id=" + elem.internalGetKey() + " ignored")
             return;
         }
 
