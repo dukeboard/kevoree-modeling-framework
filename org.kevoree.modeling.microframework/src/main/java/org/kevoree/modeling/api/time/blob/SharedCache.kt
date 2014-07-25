@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.time.TimePoint
 public class SharedCache<A> {
 
     private var times = HashMap<TimePoint, TimeView<A>>()
+    var timeCache: HashMap<String, TimeMeta> = HashMap<String, TimeMeta>()
 
     fun add(tp: TimePoint, tv: TimeView<A>) {
         times.put(tp, tv)

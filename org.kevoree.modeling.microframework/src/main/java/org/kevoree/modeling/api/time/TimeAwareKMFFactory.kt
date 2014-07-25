@@ -24,12 +24,11 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
     var relativeTime: TimePoint
     var queryMap: MutableMap<String, TimePoint>
-    var timeCache: HashMap<String, TimeMeta>
     var entitiesCache: EntitiesMeta?
 
     override fun clearCache() {
         super<PersistenceKMFFactory>.clearCache()
-        timeCache.clear()
+        sharedCache.timeCache.clear()
         entitiesCache = null
     }
 
@@ -204,7 +203,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     }
 
     private fun getTimeTree(path: String): TimeMeta {
-        val alreadyCached = timeCache.get(path);
+        val alreadyCached = sharedCache.timeCache.get(path);
         if (alreadyCached != null) {
             return alreadyCached;
         } else {
@@ -213,7 +212,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             if (timeMetaPayLoad != null) {
                 blob.load(timeMetaPayLoad);
             }
-            timeCache.put(path, blob);
+            sharedCache.timeCache.put(path, blob);
             return blob;
         }
     }

@@ -81,7 +81,6 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     fun commit() {
-
         val keys = modified_elements.keySet().toList()
         for (elem in keys) {
             val resolved = modified_elements.get(elem)
