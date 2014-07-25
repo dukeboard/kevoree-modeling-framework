@@ -66,7 +66,6 @@ when(metaClassName){
 #if($ctx.timeAware)
 override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint.create("0:0");
 override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
-override var timeCache: java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta> = java.util.HashMap<String, org.kevoree.modeling.api.time.blob.TimeMeta>()
 override var entitiesCache: org.kevoree.modeling.api.time.blob.EntitiesMeta? = null
 override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}> = org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}>()
 
