@@ -672,8 +672,6 @@ public class ClassGenerator {
         res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").addInboundReference(this, " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + ")\n");
 
 
-        res.append("} else {\n");
-        res.append("println(\""+cls.getName()+"::add"+ProcessorHelper.getInstance().toCamelCase(ref)+" -> Element not added, because a "+typeRefName+" already exists with id:\"+_key_)\n");
         res.append("}\n");
         res.append("}\n");
         return res.toString();
