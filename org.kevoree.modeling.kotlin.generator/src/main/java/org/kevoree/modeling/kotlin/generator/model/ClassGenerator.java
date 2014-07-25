@@ -58,7 +58,7 @@ public class ClassGenerator {
 
         pr.println(ProcessorHelper.getInstance().generateHeader(packElement));
         //case class name
-        ctx.classFactoryMap.put(pack + "." + cls.getName(), ctx.packageFactoryMap.get(pack));
+        //ctx.classFactoryMap.put(pack + "." + cls.getName(), ctx.packageFactoryMap.get(pack));
         pr.print("class " + cls.getName() + "Impl");
 
         String tempClassName = ProcessorHelper.getInstance().fqn(ctx, cls);

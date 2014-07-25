@@ -25,6 +25,7 @@ import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -47,16 +48,14 @@ public class ModelGenerator {
      * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
      *
      * @param model        the XMIResource to be generated
-     * @param modelVersion the version of the model to be included in headers
      */
-    public void process(ResourceSet model, String modelVersion) {
+    public void process(ResourceSet model) {
 
         ConstantsGenerator.generateConstants(ctx, model);
         String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         ProcessorHelper.getInstance().checkOrCreateFolder(loaderGenBaseDir);
 
         Iterator<Notifier> iterator = model.getAllContents();
-
         while (iterator.hasNext()) {
             Notifier c = iterator.next();
             if (c instanceof EClass || c instanceof EEnum) {
@@ -67,11 +66,6 @@ public class ModelGenerator {
                 String userPackageDir = ProcessorHelper.getInstance().getPackageUserDir(ctx, currentPackage);
                 if (currentPackage.getEClassifiers().size() != 0) {
                     ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir + File.separator + "impl");
-                    PackageFactoryGenerator.generatePackageFactory(ctx, currentPackageDir, currentPackage, modelVersion);
-                    PackageFactoryGenerator.generatePackageFactoryDefaultImpl(ctx, currentPackageDir, currentPackage, modelVersion);
-                    if (ctx.flyweightFactory) {
-                        PackageFactoryGenerator.generateFlyweightFactory(ctx, currentPackageDir, currentPackage, modelVersion);
-                    }
                 }
                 boolean isHiddenMetaclass = false;
                 for (NewMetaClassCreation m : ctx.newMetaClasses) {
@@ -83,6 +77,7 @@ public class ModelGenerator {
                 process(currentPackageDir, currentPackage, potentialRoot, userPackageDir, isHiddenMetaclass);
             }
         }
+
     }
 
     private void process(String currentPackageDir, EPackage packElement, EClassifier cls, String userPackageDir, Boolean isHiddenMetaClass) {

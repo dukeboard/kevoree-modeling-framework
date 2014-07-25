@@ -44,7 +44,7 @@ import java.util.ArrayList;
  */
 
 public class PackageFactoryGenerator {
-
+/*
     public static void generatePackageFactory(GenerationContext ctx, String packageGenDir, EPackage packElement, String modelVersion) {
         if (packElement.getName() == null || packElement.getName() == "") {
             return;
@@ -90,7 +90,8 @@ public class PackageFactoryGenerator {
         }
 
     }
-
+*/
+    /*
     public static void generateFlyweightFactory(GenerationContext ctx, String packageGenDir, EPackage packElement, String modelVersion) {
 
         if (packElement.getName() == null || packElement.getName().equals("")) {
@@ -135,7 +136,8 @@ public class PackageFactoryGenerator {
             }
         }
     }
-
+    */
+/*
     public static void generatePackageFactoryDefaultImpl(GenerationContext ctx, String packageGenDir, EPackage packElement, String modelVersion) {
         if (packElement.getName() == null || packElement.getName().equals("")) {
             return;
@@ -180,6 +182,6 @@ public class PackageFactoryGenerator {
             }
         }
     }
-
+*/
 
 }

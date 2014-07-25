@@ -4,14 +4,14 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
 
-package ${packageName};
+package ${packageName}.factory;
 
 trait ${formatedFactoryName} : #if(!$ctx.persistence) org.kevoree.modeling.api.KMFFactory #else #if($ctx.timeAware) org.kevoree.modeling.api.time.TimeAwareKMFFactory<${formatedFactoryName}> #else org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
 
     fun getVersion() : String
 
 #foreach( $class in $classes )
-    fun create${class.getName()}() : ${class.getName()}
+    fun create${class.getName()}() : $helper.fqn($ctx, $class)
 #end
 
 

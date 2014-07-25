@@ -38,9 +38,11 @@ public class ConstantsGenerator {
             Notifier elm = iterator.next();
             if(elm instanceof EClassifier) {
                 EClassifier cls = (EClassifier)elm;
+                /*
                 if(!names.containsValue(cls.getName())) {
                     names.put("CN_"+cls.getName(), cls.getName());
                 }
+                */
                 names.put(ProcessorHelper.getInstance().fqn(ctx, cls), ProcessorHelper.getInstance().fqn(ctx, cls));
                 if(cls instanceof EClass) {
 

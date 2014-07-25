@@ -73,6 +73,7 @@ public class Generator {
      * Generator class. Proposes several methods for generation of Model, Loader, Serializer from a EMF-<i>ecore</i> model.
      * @param ctx the generation context
      * @param ecoreFile the ecore model that implementation will be generated
+     * @throws Exception e
      */
     public Generator(GenerationContext ctx, File ecoreFile) throws Exception {
         this.ecoreFile = ecoreFile;
@@ -92,13 +93,14 @@ public class Generator {
     private void preProcess() throws Exception {
         ResourceSet model = ctx.getEcoreModel(ecoreFile);
         //registering factories
+        /*
         Iterator<Notifier> iterator1 = model.getAllContents();
         while (iterator1.hasNext()) {
             Notifier el = iterator1.next();
             if(el instanceof EPackage) {
                 ctx.registerFactory((EPackage)el);
             }
-        }
+        }*/
 
         ctx.setBaseLocationForUtilitiesGeneration(ecoreFile);
 
@@ -117,7 +119,7 @@ public class Generator {
     /**
      * Triggers the generation of the given <i>ecore</i> file implementation.
      * @param modelVersion the version of the model (will be included in headers of generated files).
-     * @throws Exception
+     * @throws Exception e
      */
     public void  generateModel(String modelVersion) throws Exception {
 
@@ -302,9 +304,9 @@ public class Generator {
         }
         TraitGenerator.generateRemoveFromContainerCommand(ctx);
         System.out.println("Launching model generation");
-        modelGen.process(model, modelVersion);
+        modelGen.process(model);
 
-        FactoryGenerator.generateMainFactory(ctx);
+        FactoryGenerator.generateMainFactory(ctx, model, modelVersion);
 
 
         System.out.println("Done with model generation");

@@ -76,20 +76,6 @@ public class GenerationContext {
      */
     public File rootUserDirectory = null;
 
-
-    public List<EClass> getChildrenOf(final EClass parent, XMIResource resource) {
-        final ArrayList<EClass> children = new ArrayList<EClass>();
-        TreeIterator<EObject> iterator = resource.getAllContents();
-        while (iterator.hasNext()) {
-            EObject cls = iterator.next();
-            if (cls instanceof EClass && ((EClass) cls).getESuperTypes().contains(parent)) {
-                children.add(((EClass) cls));
-            }
-        }
-        return children;
-    }
-
-
     public void checkEID(EClass current) {
         boolean idFound = false;
         for (EAttribute att : current.getEAllAttributes()) {
@@ -212,41 +198,6 @@ public class GenerationContext {
     public String clonerPackage = "";
 
 
-    //Maps a package with its factory (eg. org.kevoree => org.kevoree.KevoreeFactory)
-    public HashMap<String, String> packageFactoryMap = new HashMap<String, String>();
-    //Maps a class with its factory (eg. org.kevoree.ContainerRoot => org.kevoree.KevoreeFactory)
-    public HashMap<String, String> classFactoryMap = new HashMap<String, String>();
-
-    /**
-     * Recursively registers the factories in the maps, though the subpackages relation
-     *
-     * @param pack : The package where to start the registration
-     */
-    public void registerFactory(EPackage pack) {
-
-        if (pack.getName() == null || pack.getName().equals("")) {
-            return;
-        }
-
-        if (pack.getEClassifiers().size() > 0) {
-
-            String formattedFactoryName = pack.getName().substring(0, 1).toUpperCase();
-            formattedFactoryName += pack.getName().substring(1);
-            formattedFactoryName += "Factory";
-
-            String packageName = ProcessorHelper.getInstance().fqn(this, pack);
-            String completeFactoryName = packageName + "." + formattedFactoryName;
-            packageFactoryMap.put(packageName, completeFactoryName);
-            for (EClassifier cls : pack.getEClassifiers()) {
-                classFactoryMap.put(pack + "." + cls.getName(), completeFactoryName);
-            }
-        }
-
-        for (EPackage subPackage : pack.getESubpackages()) {
-            registerFactory(subPackage);
-        }
-    }
-
     /**
      * Tells if the code must be JavaScript compliant
      */
@@ -327,6 +278,40 @@ public class GenerationContext {
         return persistence;
     }
 
+    public File getRootGenerationDirectory() {
+        return rootGenerationDirectory;
+    }
+
+
+    public String getKevoreeContainer() {
+        return kevoreeContainer;
+    }
+
+    public String getKevoreeContainerImplFQN() {
+        return kevoreeContainerImplFQN;
+    }
+
+    public String getKevoreeCacheResolver() {
+        return kevoreeCacheResolver;
+    }
+
+    public Boolean getJs() {
+        return js;
+    }
+
+    public Boolean getGenerateEvents() {
+        return generateEvents;
+    }
+
+    public EPackage getBasePackageForUtilitiesGeneration() {
+        return basePackageForUtilitiesGeneration;
+    }
+
+    public File getBaseLocationForUtilitiesGeneration() {
+        return baseLocationForUtilitiesGeneration;
+    }
+
+/*
     public String getAutoBasePackage() {
         return autoBasePackage;
     }
@@ -347,10 +332,6 @@ public class GenerationContext {
         return packagePrefix;
     }
 
-    public File getRootGenerationDirectory() {
-        return rootGenerationDirectory;
-    }
-
     public File getRootSrcDirectory() {
         return rootSrcDirectory;
     }
@@ -358,19 +339,6 @@ public class GenerationContext {
     public File getRootUserDirectory() {
         return rootUserDirectory;
     }
-
-    public String getKevoreeContainer() {
-        return kevoreeContainer;
-    }
-
-    public String getKevoreeContainerImplFQN() {
-        return kevoreeContainerImplFQN;
-    }
-
-    public String getKevoreeCacheResolver() {
-        return kevoreeCacheResolver;
-    }
-
     public ArrayList<String> getGeneratedLoaderFiles() {
         return generatedLoaderFiles;
     }
@@ -382,32 +350,66 @@ public class GenerationContext {
     public String getClonerPackage() {
         return clonerPackage;
     }
-
-    public HashMap<String, String> getPackageFactoryMap() {
+public HashMap<String, String> getPackageFactoryMap() {
         return packageFactoryMap;
     }
 
     public HashMap<String, String> getClassFactoryMap() {
         return classFactoryMap;
     }
-
-    public Boolean getJs() {
-        return js;
-    }
-
-    public Boolean getFlyweightFactory() {
+     public Boolean getFlyweightFactory() {
         return flyweightFactory;
     }
 
-    public Boolean getGenerateEvents() {
-        return generateEvents;
+
+
+    //Maps a package with its factory (eg. org.kevoree => org.kevoree.KevoreeFactory)
+    //public HashMap<String, String> packageFactoryMap = new HashMap<String, String>();
+    //Maps a class with its factory (eg. org.kevoree.ContainerRoot => org.kevoree.KevoreeFactory)
+    //public HashMap<String, String> classFactoryMap = new HashMap<String, String>();
+
+    /**
+     * Recursively registers the factories in the maps, though the subpackages relation
+     *
+     * @param pack : The package where to start the registration
+     */
+    /*public void registerFactory(EPackage pack) {
+
+        if (pack.getName() == null || pack.getName().equals("")) {
+            return;
+        }
+
+        if (pack.getEClassifiers().size() > 0) {
+
+            String formattedFactoryName = pack.getName().substring(0, 1).toUpperCase();
+            formattedFactoryName += pack.getName().substring(1);
+            formattedFactoryName += "Factory";
+
+            String packageName = ProcessorHelper.getInstance().fqn(this, pack);
+            String completeFactoryName = packageName + "." + formattedFactoryName;
+            packageFactoryMap.put(packageName, completeFactoryName);
+            for (EClassifier cls : pack.getEClassifiers()) {
+                classFactoryMap.put(pack + "." + cls.getName(), completeFactoryName);
+            }
+        }
+
+        for (EPackage subPackage : pack.getESubpackages()) {
+            registerFactory(subPackage);
+        }
+    }
+     public List<EClass> getChildrenOf(final EClass parent, XMIResource resource) {
+        final ArrayList<EClass> children = new ArrayList<EClass>();
+        TreeIterator<EObject> iterator = resource.getAllContents();
+        while (iterator.hasNext()) {
+            EObject cls = iterator.next();
+            if (cls instanceof EClass && ((EClass) cls).getESuperTypes().contains(parent)) {
+                children.add(((EClass) cls));
+            }
+        }
+        return children;
     }
 
-    public EPackage getBasePackageForUtilitiesGeneration() {
-        return basePackageForUtilitiesGeneration;
-    }
+*/
 
-    public File getBaseLocationForUtilitiesGeneration() {
-        return baseLocationForUtilitiesGeneration;
-    }
+
 }
