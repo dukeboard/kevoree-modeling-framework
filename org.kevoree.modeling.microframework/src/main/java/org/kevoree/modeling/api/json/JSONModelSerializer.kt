@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.ModelSerializer
 import java.io.ByteArrayOutputStream
 import java.util.ArrayList
 import org.kevoree.modeling.api.util.AttConverter
+import org.kevoree.modeling.api.KMFFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -38,7 +39,7 @@ class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
     }
 }
 
-public open class JSONModelSerializer : ModelSerializer {
+public class JSONModelSerializer() : ModelSerializer {
 
     override fun serialize(model: KMFContainer): String? {
         val outstream = ByteArrayOutputStream()

@@ -15,9 +15,7 @@ import org.kevoree.modeling.api.util.ByteConverter
  * Date: 28/08/13
  * Time: 13:08
  */
-public open class JSONModelLoader : ModelLoader {
-
-    open var factory: KMFFactory? = null
+public class JSONModelLoader(val factory : KMFFactory) : ModelLoader {
 
     override fun loadModelFromString(str: String): List<KMFContainer>? {
         return deserialize(ByteConverter.byteArrayInputStreamFromString(str))

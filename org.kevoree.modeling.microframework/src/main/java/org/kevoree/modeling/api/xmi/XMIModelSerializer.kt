@@ -125,7 +125,7 @@ class ModelAddressVisitor(val addressTable: java.util.HashMap<KMFContainer, Stri
 
 
 
-public open class XMIModelSerializer : org.kevoree.modeling.api.ModelSerializer {
+public class XMIModelSerializer() : org.kevoree.modeling.api.ModelSerializer {
 
     public var resourceSet: ResourceSet? = null
 

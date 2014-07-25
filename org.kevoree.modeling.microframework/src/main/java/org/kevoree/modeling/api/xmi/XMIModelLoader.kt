@@ -12,15 +12,13 @@ import org.kevoree.modeling.api.util.ActionType
 * Author : Gregory Nain
 * Date : 30/08/13
 */
-public open class XMIModelLoader : org.kevoree.modeling.api.ModelLoader {
+public class XMIModelLoader(val factory : KMFFactory) : org.kevoree.modeling.api.ModelLoader {
 
     public var resourceSet: ResourceSet? = null
 
     public val LOADER_XMI_LOCAL_NAME: String = "type"
     public val LOADER_XMI_XSI: String = "xsi"
     public val LOADER_XMI_NS_URI: String = "nsURI"
-
-    protected open var factory: KMFFactory? = null
 
     private val attributesHashmap = java.util.HashMap<String, java.util.HashMap<String, Boolean>>()
     private val referencesHashmap = java.util.HashMap<String, java.util.HashMap<String, String>>()

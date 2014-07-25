@@ -331,33 +331,4 @@ public class Generator {
         }
     }
 
-    public void generateLoader() throws FileNotFoundException, UnsupportedEncodingException {
-        System.out.println("Launching loader generation");
-        LoaderGenerator loaderGenerator = new LoaderGenerator(ctx);
-        loaderGenerator.generateXMILoader();
-        System.out.println("Done with loader generation");
-    }
-
-    public void  generateJsonLoader() throws FileNotFoundException, UnsupportedEncodingException {
-        System.out.println("Launching JSON loader generation");
-        LoaderGenerator loaderGenerator = new LoaderGenerator(ctx);
-        loaderGenerator.generateJSONLoader();
-        System.out.println("Done with JSON loader generation");
-    }
-
-
-    public void  generateSerializer() throws FileNotFoundException, UnsupportedEncodingException {
-        System.out.println("Launching serializer generation");
-        SerialiserGenerator serializerGenerator = new SerialiserGenerator(ctx);
-        serializerGenerator.generateXmiSerializer();
-        System.out.println("Done with serializer generation");
-    }
-
-    public void  generateJSONSerializer() throws FileNotFoundException, UnsupportedEncodingException {
-        System.out.println("Launching json serializer generation");
-        SerialiserGenerator serializerGenerator = new SerialiserGenerator(ctx);
-        serializerGenerator.generateJsonSerializer();
-        System.out.println("Done with serializer generation");
-    }
-
 }

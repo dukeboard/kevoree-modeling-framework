@@ -52,8 +52,6 @@ public class ModelGenerator {
     public void process(ResourceSet model, String modelVersion) {
 
         ConstantsGenerator.generateConstants(ctx, model);
-        ClonerGenerator.generateCloner(ctx, ctx.basePackageForUtilitiesGeneration, model);
-
         String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         ProcessorHelper.getInstance().checkOrCreateFolder(loaderGenBaseDir);
 
@@ -61,7 +59,7 @@ public class ModelGenerator {
 
         while (iterator.hasNext()) {
             Notifier c = iterator.next();
-            if (c instanceof EClass || c instanceof EEnum ) {
+            if (c instanceof EClass || c instanceof EEnum) {
                 EClassifier potentialRoot = (EClassifier) c;
                 EPackage currentPackage = potentialRoot.getEPackage();
                 String currentPackageDir = ProcessorHelper.getInstance().getPackageGenDir(ctx, currentPackage);

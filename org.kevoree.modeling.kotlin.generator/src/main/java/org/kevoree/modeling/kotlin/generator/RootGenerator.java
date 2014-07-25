@@ -122,10 +122,6 @@ public class RootGenerator {
         try {
             gen = new Generator(ctx, ecore);
             gen.generateModel(version);
-            gen.generateLoader();
-            gen.generateSerializer();
-            gen.generateJSONSerializer();
-            gen.generateJsonLoader();
         } catch (Exception e) {
             e.printStackTrace();
         }
