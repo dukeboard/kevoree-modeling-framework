@@ -39,7 +39,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         //TODO
     }
 
-    internal fun internal_commit(syncAtEnd : Boolean){
+    internal fun internal_commit(syncAtEnd: Boolean) {
         val keys = modified_elements.keySet().toList()
         for (elem in keys) {
             val resolved = modified_elements.get(elem)
@@ -60,7 +60,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         for (e in elementsToBeRemoved) {
             cleanUnusedPaths(e)
         }
-        if(syncAtEnd){
+        if (syncAtEnd) {
             datastore?.sync()
             clearCache()
         }
@@ -161,9 +161,8 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
         val path = elem.path()
         if (path == "") {
-
-            System.err.println("Can't remove empty path !!!! " + elem.metaClassName() + "@" + elem.internalGetKey())
-            // throw Exception()
+            modified_elements.remove(elem)
+            System.err.println("WARNING :: Can't process dangling element! type:" + elem.metaClassName() + ",id=" + elem.internalGetKey()+" ignored")
             return;
         }
 
