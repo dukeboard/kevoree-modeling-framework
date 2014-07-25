@@ -121,17 +121,12 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
         }
     }
 
-    private fun loadObject(ctx: LoadingContext, xmiAddress: String, objectType: String? = null, ns: Map<String, String>): KMFContainer {
+    private fun loadObject(ctx: LoadingContext, xmiAddress: String, objectType: String? = null): KMFContainer {
         val elementTagName = ctx.xmiReader!!.getLocalName()
-
-
-          println(objectType)
 
         var modelElem: KMFContainer?
         if (objectType != null) {
             modelElem = factory?.create(objectType)
-
-            println(">"+objectType)
 
             if (modelElem == null) {
                 var xsiType: String? = null
@@ -144,10 +139,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
                     }
                 }
                 if (xsiType != null) {
-                    var realTypeName = ns.get(xsiType?.substring(0, xsiType!!.lastIndexOf(":")))
-                    if (realTypeName == null) {
-                        realTypeName = xsiType
-                    }
+                    var realTypeName = xsiType?.substring(0, xsiType!!.lastIndexOf(":"))
                     var realName = xsiType!!.substring(xsiType!!.lastIndexOf(":") + 1, xsiType!!.length)
                     modelElem = factory?.create(realTypeName + "." + realName)
                 }
@@ -160,6 +152,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
         if (modelElem == null) {
             println("Could not create an object for local name " + elementTagName)
         }
+
         ctx.map.put(xmiAddress, modelElem!!)
         //ctx.map.put(xmiAddress.replace(".0",""), modelElem!!)
         //println("Registering " + xmiAddress)
@@ -246,7 +239,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
                     } else {
                         ""
                     })
-                    val containedElement = loadObject(ctx, subElementId, elemReferencesMap.get(subElemName), ns)
+                    val containedElement = loadObject(ctx, subElementId, elemReferencesMap.get(subElemName))
                     modelElem?.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, subElemName!!, containedElement, true, false)
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1)
                 }
@@ -293,7 +286,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
                         if (realTypeName == null) {
                             realTypeName = xsiType
                         }
-                        context.loadedRoots.add(loadObject(context, "/" + loadedRootsSize, "$xsiType.$localName", ns))
+                        context.loadedRoots.add(loadObject(context, "/" + loadedRootsSize, "$xsiType.$localName"))
 
                     } else {
                         println("Tried to read a tag with null tag_name.")
