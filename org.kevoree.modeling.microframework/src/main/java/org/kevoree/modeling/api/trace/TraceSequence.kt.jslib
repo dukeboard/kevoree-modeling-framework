@@ -15,9 +15,9 @@ import org.kevoree.modeling.api.util.ByteConverter
  * Time: 19:52
  */
 
-public trait TraceSequence(val factory : KMFFactory) {
+public class TraceSequence(val factory : KMFFactory) {
 
-    var traces: MutableList<org.kevoree.modeling.api.trace.ModelTrace> = ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
+    var traces: MutableList<org.kevoree.modeling.api.trace.ModelTrace> = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
 
     fun populate(addtraces: List<org.kevoree.modeling.api.trace.ModelTrace>): org.kevoree.modeling.api.trace.TraceSequence {
         traces.addAll(addtraces);
