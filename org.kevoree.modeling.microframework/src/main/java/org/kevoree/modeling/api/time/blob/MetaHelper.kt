@@ -38,13 +38,15 @@ object MetaHelper {
         val result = java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>>()
         val lines = p.split(sep)
         for (l in lines) {
-            val elems = l.split(sep2)
-            if (elems.size > 1) {
-                val payload = HashSet<String>()
-                for (i in 1..elems.size - 1) {
-                    payload.add(elems.get(i))
+            if(l != ""){
+                val elems = l.split(sep2)
+                if (elems.size > 1) {
+                    val payload = HashSet<String>()
+                    for (i in 1..elems.size - 1) {
+                        payload.add(elems.get(i))
+                    }
+                    result.put(factory.lookup(elems.get(0))!!, payload)
                 }
-                result.put(factory.lookup(elems.get(0))!!, payload)
             }
         }
         return result

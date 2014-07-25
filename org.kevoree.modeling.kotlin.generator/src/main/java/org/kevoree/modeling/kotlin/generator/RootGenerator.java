@@ -218,6 +218,8 @@ public class RootGenerator {
             }
         }
 
+        System.out.println("Start Kotlin compilation ....");
+
         ExitCode e;
         if (ctx.js) {
             K2JSCompilerArguments args = new K2JSCompilerArguments();
