@@ -673,7 +673,7 @@ public class ClassGenerator {
 
 
         res.append("} else {\n");
-        res.append("System.err.println(\"Element not added, because a "+typeRefName+" already exists with id:\"+_key_)\n");
+        res.append("error(\"Element not added, because a "+typeRefName+" already exists with id:\"+_key_)\n");
         res.append("}\n");
         res.append("}\n");
         return res.toString();
