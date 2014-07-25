@@ -42,10 +42,6 @@ object MetaHelper {
                 for (i in 1..elems.size - 1) {
                     payload.add(elems.get(i))
                 }
-
-                println(">"+elems.get(0))
-                println("$"+factory.lookup(elems.get(0)))
-
                 result.put(factory.lookup(elems.get(0))!!, payload)
             }
         }

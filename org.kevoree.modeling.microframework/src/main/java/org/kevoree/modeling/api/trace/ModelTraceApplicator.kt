@@ -38,6 +38,10 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             target.reflexiveMutator(ActionType.ADD, refName, targetElem, true, fireEvents)
         } else {
             //add to pending
+            if(potentialTypeName == null){
+                throw Exception("Unknow typeName for potential path $previousPath, to store in $refName, unconsistency error")
+            }
+
             pendingObj = factory.create(potentialTypeName!!)
             pendingObjPath = previousPath;
             pendingParentRefName = refName;
