@@ -48,7 +48,8 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     }
 
     fun commitAll() {
-        for (tv in sharedCache.keys()) {
+        val clonedKet = sharedCache.keys().toList()
+        for (tv in clonedKet) {
             sharedCache.get(tv)?.commit()
         }
         sharedCache.flush()
@@ -131,8 +132,8 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         val path = elem.path()
         if (path == "") {
 
-            System.err.println("Can't remove empty path !!!! "+elem.metaClassName()+"@"+elem.internalGetKey())
-           // throw Exception()
+            System.err.println("Can't remove empty path !!!! " + elem.metaClassName() + "@" + elem.internalGetKey())
+            // throw Exception()
             return;
         }
 
