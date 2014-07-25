@@ -23,8 +23,6 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     var datastore: DataStore?
 
-    var compare: ModelCompare
-
     fun remove(elem: KMFContainer) {
         if (datastore != null) {
             datastore!!.remove(TimeSegment.RAW.name(), elem.path());
@@ -65,7 +63,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
-            val traceSeq = compare.createSequence()
+            val traceSeq = TraceSequence(this)
             traceSeq.populate(traces)
             datastore!!.put(TimeSegment.RAW.name(), elemPath, traceSeq.exportToString())
 
@@ -150,7 +148,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     /* potential optimisation, only load att or reference */
     fun getTraces(origin: KMFContainer): TraceSequence? {
-        var sequence = compare.createSequence()
+        var sequence = TraceSequence(this)
         val traces = datastore?.get(TimeSegment.RAW.name(), origin.path())
         if (traces != null) {
             sequence.populateFromString(traces)

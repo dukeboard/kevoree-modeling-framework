@@ -5,13 +5,9 @@ import org.kevoree.modeling.api.persistence.PersistenceKMFFactory
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.time.blob.EntityMeta
 import org.kevoree.modeling.api.time.blob.TimeMeta
-import java.util.HashMap
 import org.kevoree.modeling.api.time.blob.EntitiesMeta
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.blob.MetaHelper
-import org.kevoree.modeling.api.trace.ModelTrace
-import org.kevoree.modeling.api.KMFFactory
-import java.util.ArrayList
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +19,6 @@ import java.util.ArrayList
 trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
     var relativeTime: TimePoint
-    var queryMap: MutableMap<String, TimePoint>
     var entitiesCache: EntitiesMeta?
 
     override fun clearCache() {
@@ -98,7 +93,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         val casted = elem as TimeAwareKMFContainer
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
-            val traceSeq = compare.createSequence()
+            val traceSeq = TraceSequence(this)
             traceSeq.populate(traces)
 
             //add currentPath to currentTimePointMeta
@@ -161,7 +156,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         val path = elem.path()
         if (path == "") {
             modified_elements.remove(elem)
-            System.err.println("WARNING :: Can't process dangling element! type:" + elem.metaClassName() + ",id=" + elem.internalGetKey()+" ignored")
+            System.err.println("WARNING :: Can't process dangling element! type:" + elem.metaClassName() + ",id=" + elem.internalGetKey() + " ignored")
             return;
         }
 
@@ -310,7 +305,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
 
     override fun getTraces(origin: KMFContainer): TraceSequence? {
         val currentPath = origin.path()
-        var sequence = compare.createSequence()
+        var sequence = TraceSequence(this)
         val castedOrigin = origin as TimeAwareKMFContainer
         if (castedOrigin.meta!!.lastestPersisted == null) {
             return null
@@ -375,12 +370,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     }
 
     override fun diff(tp: TimePoint): TraceSequence {
-        val selfThis = this;
-        val sequence: TraceSequence = object : TraceSequence {
-            override var traces: MutableList<ModelTrace> = ArrayList<ModelTrace>()
-            override var factory: KMFFactory? = selfThis;
-        }
-
+        val sequence: TraceSequence = TraceSequence(this)
         val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
         var resolved1 = globalTime.versionTree.lowerOrEqual(relativeTime)?.value
         var resolved2 = globalTime.versionTree.lowerOrEqual(tp)?.value

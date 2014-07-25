@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.json.Lexer
 import org.kevoree.modeling.api.json.Type
 import org.kevoree.modeling.api.util.ByteConverter
 import org.kevoree.modeling.api.json.JSONString
+import java.util.ArrayList
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,11 +15,9 @@ import org.kevoree.modeling.api.json.JSONString
  * Time: 19:52
  */
 
-public trait TraceSequence {
+public class TraceSequence(val factory : KMFFactory) {
 
-    var traces: MutableList<org.kevoree.modeling.api.trace.ModelTrace>
-
-    var factory: KMFFactory?
+    var traces: MutableList<org.kevoree.modeling.api.trace.ModelTrace> = ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
 
     fun populate(addtraces: List<org.kevoree.modeling.api.trace.ModelTrace>): org.kevoree.modeling.api.trace.TraceSequence {
         traces.addAll(addtraces);

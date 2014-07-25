@@ -6,25 +6,24 @@ import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.trace.ModelTrace
 import org.kevoree.modeling.api.trace.*;
+import org.kevoree.modeling.api.KMFFactory
 
 /**
  * Created by duke on 26/07/13.
  */
 
-trait ModelCompare {
-
-    fun createSequence(): TraceSequence
+public class ModelCompare(val factory : KMFFactory) {
 
     public fun diff(origin: KMFContainer, target: KMFContainer): TraceSequence {
-        return createSequence().populate(internal_diff(origin, target, false, false));
+        return TraceSequence(factory).populate(internal_diff(origin, target, false, false));
     }
 
     public fun merge(origin: KMFContainer, target: KMFContainer): TraceSequence {
-        return createSequence().populate(internal_diff(origin, target, false, true));
+        return TraceSequence(factory).populate(internal_diff(origin, target, false, true));
     }
 
     public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequence {
-        return createSequence().populate(internal_diff(origin, target, true, false));
+        return TraceSequence(factory).populate(internal_diff(origin, target, true, false));
     }
 
     private fun internal_diff(origin: KMFContainer, target: KMFContainer, inter: Boolean, merge: Boolean): List<ModelTrace> {

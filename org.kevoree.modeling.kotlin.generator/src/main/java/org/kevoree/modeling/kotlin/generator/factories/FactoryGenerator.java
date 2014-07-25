@@ -93,7 +93,6 @@ public class FactoryGenerator {
             if (ctx.timeAware) {
                 pr.println("override var entitiesCache: org.kevoree.modeling.api.time.blob.EntitiesMeta? = null\n");
                 pr.println("override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint.create(\"0:0\")");
-                pr.println("override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()");
                 pr.println("override fun time(tp: org.kevoree.modeling.api.time.TimePoint): org.kevoree.modeling.api.time.TimeView<MainFactory> {\n");
                 pr.println("    val newFactory = MainFactory();");
                 pr.println("    newFactory.datastore = this.datastore;");

@@ -57,9 +57,6 @@ public class ModelGenerator {
         String loaderGenBaseDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath();
         ProcessorHelper.getInstance().checkOrCreateFolder(loaderGenBaseDir);
 
-        DiffGenerator.generateModelTraceAPI(ctx, loaderGenBaseDir);
-        DiffGenerator.generateModelTraceCompare(ctx, loaderGenBaseDir);
-
         Iterator<Notifier> iterator = model.getAllContents();
 
         while (iterator.hasNext()) {

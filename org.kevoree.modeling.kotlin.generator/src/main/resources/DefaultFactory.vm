@@ -48,8 +48,6 @@ when(metaClassName){
 
     override var datastore: org.kevoree.modeling.api.persistence.DataStore? = org.kevoree.modeling.api.persistence.MemoryDataStore()
 
-    override var compare: org.kevoree.modeling.api.compare.ModelCompare = ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.compare.DefaultModelCompare()
-
     protected fun initObject(elem : org.kevoree.modeling.api.persistence.KMFContainerProxy){
         elem.originFactory = this
         monitor(elem)
@@ -65,7 +63,6 @@ when(metaClassName){
 
 #if($ctx.timeAware)
 override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint.create("0:0");
-override var queryMap: MutableMap<String, org.kevoree.modeling.api.time.TimePoint> = java.util.HashMap<String, org.kevoree.modeling.api.time.TimePoint>()
 override var entitiesCache: org.kevoree.modeling.api.time.blob.EntitiesMeta? = null
 override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}> = org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}>()
 
@@ -120,7 +117,7 @@ override fun time(tp: org.kevoree.modeling.api.time.TimePoint): org.kevoree.mode
     return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.loader.XMIModelLoader()
     }
     override fun createModelCompare(): org.kevoree.modeling.api.compare.ModelCompare {
-    return ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.compare.DefaultModelCompare()
+        return org.kevoree.modeling.api.compare.ModelCompare(this)
     }
 
     override fun createModelCloner() : org.kevoree.modeling.api.ModelCloner {

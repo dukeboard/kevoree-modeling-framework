@@ -34,8 +34,8 @@ public class ModelTracker(val compare: ModelCompare) : ModelElementListener {
     fun track(model: KMFContainer) {
         currentModel = model
         currentModel!!.addModelTreeListener(this)
-        traceSequence = compare.createSequence()
-        invertedTraceSequence = compare.createSequence()
+        traceSequence = TraceSequence(compare.factory)
+        invertedTraceSequence = TraceSequence(compare.factory)
     }
 
     fun untrack() {
@@ -67,8 +67,8 @@ public class ModelTracker(val compare: ModelCompare) : ModelElementListener {
     }
 
     fun reset() {
-        traceSequence = compare.createSequence()
-        invertedTraceSequence = compare.createSequence()
+        traceSequence = TraceSequence(compare.factory)
+        invertedTraceSequence = TraceSequence(compare.factory)
     }
 
 }
