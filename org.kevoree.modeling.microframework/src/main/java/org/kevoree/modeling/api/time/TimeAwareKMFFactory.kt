@@ -39,19 +39,48 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         //TODO
     }
 
+    internal fun internal_commit(syncAtEnd : Boolean){
+        val keys = modified_elements.keySet().toList()
+        for (elem in keys) {
+            val resolved = modified_elements.get(elem)
+            if (resolved != null) {
+                if (resolved.path() == "") {
+                    if (!resolved.isDeleted()) {
+                        resolved.delete()
+                    } else {
+                        modified_elements.remove(elem)
+                    }
+                }
+            }
+        }
+        for (elem in modified_elements.values()) {
+            persist(elem)
+            elementsToBeRemoved.remove(elem.path())
+        }
+        for (e in elementsToBeRemoved) {
+            cleanUnusedPaths(e)
+        }
+        if(syncAtEnd){
+            datastore?.sync()
+        }
+        clearCache()
 
-    override fun commit() {
-        super<PersistenceKMFFactory>.commit()
         val entitiesMeta = getEntitiesMeta(relativeTime)
         datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
         sharedCache.drop(relativeTime)
     }
 
+
+    override fun commit() {
+        internal_commit(true)
+    }
+
     fun commitAll() {
         val clonedKet = sharedCache.keys().toList()
         for (tv in clonedKet) {
-            sharedCache.get(tv)?.commit()
+            (sharedCache.get(tv) as? TimeAwareKMFFactory )?.internal_commit(false)
         }
+        datastore?.sync()
         sharedCache.flush()
     }
 
