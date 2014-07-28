@@ -478,7 +478,7 @@ public class ClassGenerator {
             String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
             if (ref.isMany()) {
                 //Declare internal cache (Hash Map);
-                pr.println("internal val " + "_" + ref.getName() + " : java.util.HashMap<String," + typeRefName + "> = java.util.HashMap<String," + typeRefName + ">()");
+                pr.println("internal val " + "_" + ref.getName() + " : MutableMap<String," + typeRefName + "> = java.util.concurrent.ConcurrentHashMap<String," + typeRefName + ">()");
                 pr.println("override var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + ":List<" + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + ">");
                 pr.println("\t  get(){");
                 if (ctx.persistence) {

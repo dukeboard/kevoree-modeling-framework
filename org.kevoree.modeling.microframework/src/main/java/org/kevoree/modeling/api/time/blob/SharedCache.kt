@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.time.blob
 import java.util.HashMap
 import org.kevoree.modeling.api.time.TimeView
 import org.kevoree.modeling.api.time.TimePoint
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Created by duke on 7/24/14.
@@ -11,7 +12,7 @@ import org.kevoree.modeling.api.time.TimePoint
 public class SharedCache<A> {
 
     private var times = HashMap<TimePoint, TimeView<A>>()
-    var timeCache: HashMap<String, TimeMeta> = HashMap<String, TimeMeta>()
+    var timeCache: MutableMap<String, TimeMeta> = ConcurrentHashMap<String, TimeMeta>()
 
     fun add(tp: TimePoint, tv: TimeView<A>) {
         times.put(tp, tv)
