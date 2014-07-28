@@ -2,7 +2,10 @@ package org.kevoree.modeling.kotlin.generator;
 
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
-import com.google.javascript.jscomp.*;
+import com.google.javascript.jscomp.CompilationLevel;
+import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.WarningLevel;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EPackage;
@@ -60,8 +63,8 @@ public class RootGenerator {
     }
 
     public void execute(GenerationContext ctx, File ecore, String version, String targetName, List<String> additionalClassPath) throws Exception {
-        if(!ecore.exists()){
-           throw new Exception("Input file not found "+ecore.getAbsolutePath()+" generation aborded");
+        if (!ecore.exists()) {
+            throw new Exception("Input file not found " + ecore.getAbsolutePath() + " generation aborded");
         }
 
         File output = ctx.getRootGenerationDirectory();
@@ -275,6 +278,10 @@ public class RootGenerator {
             }
         } else {
             K2JVMCompilerArguments args = new K2JVMCompilerArguments();
+
+            args.notNullAssertions = false;
+            args.notNullParamAssertions = false;
+
             args.classpath = cpath.toString();
             String sources = ctx.rootGenerationDirectory.getAbsolutePath();
             if (sourceFile.exists()) {
