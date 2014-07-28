@@ -35,7 +35,7 @@ return tempElem
 override fun create(metaClassName : String) : ${ctx.kevoreeContainer}? {
 when(metaClassName){
 #foreach( $class in $classes )
-    ${helper.fqn($ctx,$ctx.getBasePackageForUtilitiesGeneration())}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
+    ${ctx.basePackageForUtilitiesGeneration}.util.Constants.${helper.fqn($ctx,$class).replace(".","_")} -> { return create${class.getName()}() }
 #end            else -> {return null;}
 }
 }

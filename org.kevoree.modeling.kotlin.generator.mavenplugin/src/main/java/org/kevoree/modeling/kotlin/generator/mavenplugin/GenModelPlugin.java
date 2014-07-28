@@ -87,14 +87,7 @@ public class GenModelPlugin extends AbstractMojo {
      * code containerRoot package
      */
     @Parameter
-    private String packagePrefix;
-
-    /**
-     * Generate also selector
-     */
-    @Parameter
-    private Boolean selector = false;
-
+    private String metaModelQualifiedName;
 
     /**
      * Generate JS version
@@ -102,11 +95,6 @@ public class GenModelPlugin extends AbstractMojo {
     @Parameter
     private Boolean js = false;
 
-    /**
-     * Generate JS version
-     */
-    @Parameter
-    private Boolean flyweightFactory = false;
     /**
      * Generate Events
      */
@@ -158,13 +146,12 @@ public class GenModelPlugin extends AbstractMojo {
         if (timeAware) {
             persistence = true;
         }
-        ctx.packagePrefix = packagePrefix;
+        ctx.metaModelName = metaModelQualifiedName;
         ctx.rootGenerationDirectory = output;
         ctx.rootCompilationDirectory = outputClasses;
         ctx.rootUserDirectory = sourceFile;
         ctx.js = js;
         ctx.generateEvents = events;
-        ctx.flyweightFactory = flyweightFactory;
         ctx.autoBasePackage = autoBasePackage;
         ctx.ecma3compat = ecma3compat;
         ctx.persistence = persistence;
@@ -174,10 +161,25 @@ public class GenModelPlugin extends AbstractMojo {
         }
         try {
             RootGenerator generator = new RootGenerator();
-            generator.execute(ctx, ecore, project.getVersion(), project.getArtifactId(), project.getCompileClasspathElements());
+            String targetName;
+            if (metaModelQualifiedName != null) {
+                targetName = metaModelQualifiedName;
+            } else {
+                targetName = ecore.getName();
+                if (targetName.endsWith(".ecore")) {
+                    targetName = targetName.replace(".ecore", "");
+                }
+                if (targetName.endsWith(".mm")) {
+                    targetName = targetName.replace(".mm", "");
+                }
+                if (targetName.endsWith(".xsd")) {
+                    targetName = targetName.replace(".xsd", "");
+                }
+            }
+            generator.execute(ctx, ecore, project.getVersion(), targetName, project.getCompileClasspathElements());
         } catch (Exception e) {
             getLog().error(e);
-            throw new MojoExecutionException("KMF Compilation error !",e);
+            throw new MojoExecutionException("KMF Compilation error !", e);
         }
     }
 

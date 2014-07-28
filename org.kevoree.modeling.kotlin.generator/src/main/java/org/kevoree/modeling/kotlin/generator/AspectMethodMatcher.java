@@ -16,6 +16,7 @@ import java.util.HashMap;
 public class AspectMethodMatcher {
 
     private static HashMap<String, String> equivalentMap = new HashMap<String, String>();
+
     static {
         equivalentMap.put("List<*>", "MutableList");
         equivalentMap.put("List<Any?>", "MutableList");
@@ -38,19 +39,19 @@ public class AspectMethodMatcher {
             }
         }
 
-        boolean  returnTypeCheck = false;
+        boolean returnTypeCheck = false;
 
         returnTypeCheck |= equivalentMap.get(methodReturnTypeTxt) == aop.returnType;
         returnTypeCheck |= (equivalentMap.get(methodReturnTypeTxt) != null) && equivalentMap.get(methodReturnTypeTxt).equals(aop.returnType);
         returnTypeCheck |= (eop.getEType() != null && eop.getEType().getName() != null && eop.getEType().getName().equals(aop.returnType));
-        returnTypeCheck |= (eop.getEType() != null && eop.getLowerBound() == 0 && eop.getEType().getName() != null && (eop.getEType().getName()+"?").equals(aop.returnType));
-        returnTypeCheck |= (eop.getEType() != null && ProcessorHelper.getInstance().fqn(ctx,eop.getEType()).equals(aop.returnType));
-        returnTypeCheck |= (eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.getInstance().fqn(ctx,eop.getEType())+"?").equals(aop.returnType));
+        returnTypeCheck |= (eop.getEType() != null && eop.getLowerBound() == 0 && eop.getEType().getName() != null && (eop.getEType().getName() + "?").equals(aop.returnType));
+        returnTypeCheck |= (eop.getEType() != null && ProcessorHelper.getInstance().fqn(ctx, eop.getEType()).equals(aop.returnType));
+        returnTypeCheck |= (eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.getInstance().fqn(ctx, eop.getEType()) + "?").equals(aop.returnType));
         returnTypeCheck |= aop.returnType != null && methodReturnTypeTxt.equals(aop.returnType);
 
 
         if (!returnTypeCheck) {
-            System.err.println(methodReturnTypeTxt + "<->" + aop.returnType+"-"+(eop.getLowerBound() == 0)+"-"+(eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.getInstance().fqn(ctx,eop.getEType())+"?").equals(aop.returnType))+"-"+(ProcessorHelper.getInstance().fqn(ctx,eop.getEType())+"?"));
+            System.err.println(methodReturnTypeTxt + "<->" + aop.returnType + "-" + (eop.getLowerBound() == 0) + "-" + (eop.getEType() != null && eop.getLowerBound() == 0 && (ProcessorHelper.getInstance().fqn(ctx, eop.getEType()) + "?").equals(aop.returnType)) + "-" + (ProcessorHelper.getInstance().fqn(ctx, eop.getEType()) + "?"));
             return false;
         }
         if (eop.getEParameters().size() != aop.params.size()) {
@@ -59,7 +60,7 @@ public class AspectMethodMatcher {
         } else {
             int i = 0;
 
-            for(EParameter eparam : eop.getEParameters()) {
+            for (EParameter eparam : eop.getEParameters()) {
                 i = i + 1;
                 if (eparam.getEType() instanceof EDataType) {
                     methodReturnTypeTxt = ProcessorHelper.getInstance().convertType(eparam.getEType().getName());

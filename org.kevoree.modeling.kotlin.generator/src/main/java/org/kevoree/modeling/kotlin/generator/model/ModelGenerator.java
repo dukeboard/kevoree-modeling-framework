@@ -33,7 +33,6 @@ import java.util.Iterator;
  * User: gregory.nain
  * Date: 21/03/12
  * Time: 14:02
- * To change this template use File | Settings | File Templates.
  */
 
 public class ModelGenerator {

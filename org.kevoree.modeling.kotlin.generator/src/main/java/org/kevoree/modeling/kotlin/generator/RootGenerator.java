@@ -60,6 +60,9 @@ public class RootGenerator {
     }
 
     public void execute(GenerationContext ctx, File ecore, String version, String targetName, List<String> additionalClassPath) throws Exception {
+        if(!ecore.exists()){
+           throw new Exception("Input file not found "+ecore.getAbsolutePath()+" generation aborded");
+        }
 
         File output = ctx.getRootGenerationDirectory();
         deleteDirectory(output);
@@ -120,8 +123,8 @@ public class RootGenerator {
 
         Generator gen = null;
         try {
-            gen = new Generator(ctx, ecore);
-            gen.generateModel(version);
+            gen = new Generator(ctx, ecore, targetName);
+            gen.generateModel(version, targetName);
         } catch (Exception e) {
             e.printStackTrace();
         }

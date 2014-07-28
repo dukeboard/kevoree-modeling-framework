@@ -33,7 +33,7 @@ public class ContainedElementsGenerator {
         ctxV.put("ctx", ctx);
         ctxV.put("currentClass", cls);
         ctxV.put("FQNHelper", ProcessorHelper.getInstance());
-        ctxV.put("packElem",ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util");
+        ctxV.put("packElem",ctx.basePackageForUtilitiesGeneration + ".util");
 
         template.merge(ctxV, pr);
     }

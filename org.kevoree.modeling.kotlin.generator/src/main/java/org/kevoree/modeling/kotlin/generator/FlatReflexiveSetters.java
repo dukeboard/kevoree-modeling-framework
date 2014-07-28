@@ -24,7 +24,7 @@ public class FlatReflexiveSetters {
         }
         pr.println("when(refName) {");
         for(EAttribute att : cls.getEAllAttributes()) {
-            pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Att_" + att.getName() + " -> {"); //START ATTR
+            pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Att_" + att.getName() + " -> {"); //START ATTR
             String valueType = "";
             if (att.getEAttributeType() instanceof EEnum) {
                 valueType = ProcessorHelper.getInstance().fqn(ctx, att.getEAttributeType());
@@ -167,7 +167,7 @@ public class FlatReflexiveSetters {
         }
 
         for(EReference ref : cls.getEAllReferences()) {
-            pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + " -> {"); //START REF
+            pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + " -> {"); //START REF
             pr.println("when(mutationType) {");
             String valueType = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
             if (ref.isMany()) {
@@ -243,7 +243,7 @@ public class FlatReflexiveSetters {
                 pr.println("org.kevoree.modeling.api.util.ActionType.RENEW_INDEX -> {");
                 pr.println("}");
             }
-            pr.println("else -> {throw Exception(" + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}");
+            pr.println("else -> {throw Exception(" + ctx.basePackageForUtilitiesGeneration + ".util.Constants.UNKNOWN_MUTATION_TYPE_EXCEPTION + mutationType)}");
             pr.println("}"); //END MUTATION TYPE
             pr.println("}"); //END Ref When case
         }

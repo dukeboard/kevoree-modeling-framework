@@ -93,7 +93,7 @@ public class KMFQLFinder {
                         pr.println("val resolved = _" + ref.getName() + ".get(key)");
                         pr.println("if(resolved==null){");
                         //pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!");
-                        pr.println("val result = relativeLookupFrom(this," + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + ",key)");
+                        pr.println("val result = relativeLookupFrom(this," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ",key)");
                         pr.println("return result as? " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()));
                         pr.println("} else {");
                         pr.println("return resolved");
@@ -116,11 +116,11 @@ public class KMFQLFinder {
         pr.println("when(relationName) {");
         for (EReference ref : cls.getEAllReferences()) {
             if (ref.isMany()) {
-                pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + " -> {");
+                pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + " -> {");
                 pr.println("return find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(idP)}");
             }
             if (ref.getUpperBound() == 1) {
-                pr.println(ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.Ref_" + ref.getName() + " -> {");
+                pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + " -> {");
                 pr.println("val objFound = " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()));
                 pr.println("if(objFound!=null && (objFound as " + ctx.kevoreeContainerImplFQN + ").internalGetKey() == idP){");
                 pr.println("return objFound");

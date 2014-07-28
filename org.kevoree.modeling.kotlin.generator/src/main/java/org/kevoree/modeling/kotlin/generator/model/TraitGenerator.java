@@ -58,7 +58,7 @@ public class TraitGenerator {
             Template template = ve.getTemplate("templates/ContainerTrait.vm");
             VelocityContext ctxV = new VelocityContext();
             ctxV.put("formatedFactoryName", kmfContainerName);
-            ctxV.put("packElem", ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container");
+            ctxV.put("packElem", ctx.basePackageForUtilitiesGeneration + ".container");
             ctxV.put("FQNHelper", ProcessorHelper.getInstance());
             ctxV.put("ctx", ctx);
             template.merge(ctxV, pr);
@@ -75,7 +75,7 @@ public class TraitGenerator {
         }
 
         ctx.kevoreeContainer = "org.kevoree.modeling.api.KMFContainer";
-        ctx.kevoreeContainerImplFQN = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container." + kmfContainerName + "Impl";
+        ctx.kevoreeContainerImplFQN = ctx.basePackageForUtilitiesGeneration + ".container." + kmfContainerName + "Impl";
     }
 
     public static void generateContainerPersistenceTrait(GenerationContext ctx) {
@@ -93,7 +93,7 @@ public class TraitGenerator {
             Template template = ve.getTemplate("templates/ContainerPersistenceTrait.vm");
             VelocityContext ctxV = new VelocityContext();
             ctxV.put("formatedFactoryName", kmfContainerName);
-            ctxV.put("packElem", ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container");
+            ctxV.put("packElem", ctx.basePackageForUtilitiesGeneration + ".container");
             ctxV.put("FQNHelper", ProcessorHelper.getInstance());
             ctxV.put("ctx", ctx);
             template.merge(ctxV, pr);
@@ -108,7 +108,7 @@ public class TraitGenerator {
             }
         }
         ctx.kevoreeContainer = "org.kevoree.modeling.api.KMFContainer";
-        ctx.kevoreeContainerImplFQN = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".container." + kmfContainerName + "PersistenceImpl";
+        ctx.kevoreeContainerImplFQN = ctx.basePackageForUtilitiesGeneration + ".container." + kmfContainerName + "PersistenceImpl";
     }
 
     public static void generateRemoveFromContainerCommand(GenerationContext ctx) {

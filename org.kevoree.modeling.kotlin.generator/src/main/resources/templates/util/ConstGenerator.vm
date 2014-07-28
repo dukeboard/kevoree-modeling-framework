@@ -1,7 +1,7 @@
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="FQNHelper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
 #* @vtlvariable name="names" type="java.util.HashMap<java.lang.String,java.lang.String>" *#
-package ${FQNHelper.fqn($ctx, ${ctx.basePackageForUtilitiesGeneration})}.util;
+package ${ctx.basePackageForUtilitiesGeneration}.util;
 object Constants {
 
     public val UNKNOWN_MUTATION_TYPE_EXCEPTION : String = "Unknown mutation type: "

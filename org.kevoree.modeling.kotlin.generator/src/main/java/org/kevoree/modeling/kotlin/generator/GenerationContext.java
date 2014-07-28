@@ -20,18 +20,26 @@ package org.kevoree.modeling.kotlin.generator;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.*;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EcoreFactory;
+import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.kevoree.modeling.aspect.AspectClass;
 import org.kevoree.modeling.aspect.NewMetaClassCreation;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -53,12 +61,6 @@ public class GenerationContext {
     public HashMap<String, AspectClass> aspects = new HashMap<String, AspectClass>();
 
     public List<NewMetaClassCreation> newMetaClasses = new ArrayList<NewMetaClassCreation>();
-
-    /**
-     * Package to be added before the RootPackage of the model
-     * eg: Root package in the model: 'kevoree'; value of packagePrefix: 'org' would generate code in org.kevoree
-     */
-    public String packagePrefix = null;
 
     /**
      * Base folder for the generation process
@@ -174,100 +176,30 @@ public class GenerationContext {
 
 
     /**
-     * Name of the cache class used in SelectByQuery methods.
-     * Example: KevoreeResolverCacheInternal
-     */
-    public String kevoreeCacheResolver = "";
-
-
-    /**
-     * Store of FQN of EClasses for which the loader method has already been generated
-     */
-    public ArrayList<String> generatedLoaderFiles = new ArrayList<String>();
-
-    /**
-     * PrintWriter used for all the loader generation
-     */
-    public PrintWriter loaderPrintWriter = null;
-
-
-    /**
-     * hosts the package name of the Cloner
-     * example "org.kevoree.cloner"
-     */
-    public String clonerPackage = "";
-
-
-    /**
      * Tells if the code must be JavaScript compliant
      */
     public Boolean js = false;
 
-    public Boolean flyweightFactory = false;
-
     public Boolean generateEvents = false;
 
-    public EPackage basePackageForUtilitiesGeneration = null;
+    public String basePackageForUtilitiesGeneration = null;
 
     public File baseLocationForUtilitiesGeneration = null;
 
-    public void setBaseLocationForUtilitiesGeneration(File metamodelFile) {
+    public String metaModelName = null;
 
-        ResourceSet metamodel = getEcoreModel(metamodelFile);
+    public String formattedName = null;
 
-        final ArrayList<EPackage> packages = new ArrayList<EPackage>();
-
-        TreeIterator<Notifier> iterator = metamodel.getAllContents();
-        while (iterator.hasNext()) {
-            Notifier notifier = iterator.next();
-            if (notifier instanceof EPackage && ((EPackage) notifier).getESuperPackage() == null) {
-                // Root package
-                packages.add((EPackage) notifier);
-            }
+    public void setBaseLocationForUtilitiesGeneration(String targetName) throws Exception {
+        basePackageForUtilitiesGeneration = targetName;
+        baseLocationForUtilitiesGeneration = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + targetName.replace(".", File.separator));
+        metaModelName = targetName;
+        if (targetName.contains(".")) {
+            formattedName = targetName.substring(targetName.lastIndexOf(".")+1);
+        } else {
+            formattedName = targetName;
         }
-
-        if (packages.size() > 1) {
-            // Many packages at the root.
-            basePackageForUtilitiesGeneration = EcoreFactory.eINSTANCE.createEPackage();
-            basePackageForUtilitiesGeneration.setName(autoBasePackage);
-            if (packagePrefix != null) {
-                baseLocationForUtilitiesGeneration = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + packagePrefix.replace(".", File.separator) + File.separator + basePackageForUtilitiesGeneration.getName());
-            } else {
-                baseLocationForUtilitiesGeneration = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + basePackageForUtilitiesGeneration.getName());
-            }
-
-        } else if (packages.size() == 1) {
-            // One package at the root.
-            if (packages.get(0).getEClassifiers().size() > 0) {
-                // Classifiers in this root package
-                basePackageForUtilitiesGeneration = packages.get(0);
-                baseLocationForUtilitiesGeneration = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + ProcessorHelper.getInstance().fqn(this, packages.get(0)).replace(".", File.separator) + File.separator);
-            } else {
-                baseLocationForUtilitiesGeneration = checkBaseLocation(packages.get(0));
-            }
-        }
-    }
-
-    private File checkBaseLocation(EPackage rootElement) {
-        LinkedList<EPackage> packageList = new LinkedList<EPackage>();
-        packageList.addLast(rootElement);
-        File f = null;
-
-        while (f == null && packageList.size() > 0) {
-            EPackage currentPackage = packageList.pollFirst();
-
-            for (EPackage subPack : currentPackage.getESubpackages()) {
-                if (subPack.getEClassifiers().size() > 0) {
-                    basePackageForUtilitiesGeneration = currentPackage;
-                    f = new File(rootGenerationDirectory.getAbsolutePath() + File.separator + ProcessorHelper.getInstance().fqn(this, currentPackage).replace(".", File.separator) + File.separator);
-                    break;
-                }
-            }
-            if (f == null) {
-                packageList.addAll(currentPackage.getESubpackages());
-            }
-        }
-        return f;
+        formattedName = formattedName.substring(0, 1).toUpperCase() + formattedName.substring(1);
     }
 
     public Boolean getTimeAware() {
@@ -291,10 +223,6 @@ public class GenerationContext {
         return kevoreeContainerImplFQN;
     }
 
-    public String getKevoreeCacheResolver() {
-        return kevoreeCacheResolver;
-    }
-
     public Boolean getJs() {
         return js;
     }
@@ -303,113 +231,13 @@ public class GenerationContext {
         return generateEvents;
     }
 
-    public EPackage getBasePackageForUtilitiesGeneration() {
+
+    public String getBasePackageForUtilitiesGeneration() {
         return basePackageForUtilitiesGeneration;
     }
 
     public File getBaseLocationForUtilitiesGeneration() {
         return baseLocationForUtilitiesGeneration;
     }
-
-/*
-    public String getAutoBasePackage() {
-        return autoBasePackage;
-    }
-
-    public Boolean getEcma3compat() {
-        return ecma3compat;
-    }
-
-    public HashMap<String, AspectClass> getAspects() {
-        return aspects;
-    }
-
-    public List<NewMetaClassCreation> getNewMetaClasses() {
-        return newMetaClasses;
-    }
-
-    public String getPackagePrefix() {
-        return packagePrefix;
-    }
-
-    public File getRootSrcDirectory() {
-        return rootSrcDirectory;
-    }
-
-    public File getRootUserDirectory() {
-        return rootUserDirectory;
-    }
-    public ArrayList<String> getGeneratedLoaderFiles() {
-        return generatedLoaderFiles;
-    }
-
-    public PrintWriter getLoaderPrintWriter() {
-        return loaderPrintWriter;
-    }
-
-    public String getClonerPackage() {
-        return clonerPackage;
-    }
-public HashMap<String, String> getPackageFactoryMap() {
-        return packageFactoryMap;
-    }
-
-    public HashMap<String, String> getClassFactoryMap() {
-        return classFactoryMap;
-    }
-     public Boolean getFlyweightFactory() {
-        return flyweightFactory;
-    }
-
-
-
-    //Maps a package with its factory (eg. org.kevoree => org.kevoree.KevoreeFactory)
-    //public HashMap<String, String> packageFactoryMap = new HashMap<String, String>();
-    //Maps a class with its factory (eg. org.kevoree.ContainerRoot => org.kevoree.KevoreeFactory)
-    //public HashMap<String, String> classFactoryMap = new HashMap<String, String>();
-
-    /**
-     * Recursively registers the factories in the maps, though the subpackages relation
-     *
-     * @param pack : The package where to start the registration
-     */
-    /*public void registerFactory(EPackage pack) {
-
-        if (pack.getName() == null || pack.getName().equals("")) {
-            return;
-        }
-
-        if (pack.getEClassifiers().size() > 0) {
-
-            String formattedFactoryName = pack.getName().substring(0, 1).toUpperCase();
-            formattedFactoryName += pack.getName().substring(1);
-            formattedFactoryName += "Factory";
-
-            String packageName = ProcessorHelper.getInstance().fqn(this, pack);
-            String completeFactoryName = packageName + "." + formattedFactoryName;
-            packageFactoryMap.put(packageName, completeFactoryName);
-            for (EClassifier cls : pack.getEClassifiers()) {
-                classFactoryMap.put(pack + "." + cls.getName(), completeFactoryName);
-            }
-        }
-
-        for (EPackage subPackage : pack.getESubpackages()) {
-            registerFactory(subPackage);
-        }
-    }
-     public List<EClass> getChildrenOf(final EClass parent, XMIResource resource) {
-        final ArrayList<EClass> children = new ArrayList<EClass>();
-        TreeIterator<EObject> iterator = resource.getAllContents();
-        while (iterator.hasNext()) {
-            EObject cls = iterator.next();
-            if (cls instanceof EClass && ((EClass) cls).getESuperTypes().contains(parent)) {
-                children.add(((EClass) cls));
-            }
-        }
-        return children;
-    }
-
-*/
-
 
 }

@@ -58,9 +58,7 @@ import org.kevoree.modeling.kotlin.generator.model.TraitGenerator;
 import org.kevoree.modeling.util.StandaloneParser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -71,44 +69,35 @@ public class Generator {
 
     /**
      * Generator class. Proposes several methods for generation of Model, Loader, Serializer from a EMF-<i>ecore</i> model.
-     * @param ctx the generation context
+     *
+     * @param ctx       the generation context
      * @param ecoreFile the ecore model that implementation will be generated
      * @throws Exception e
      */
-    public Generator(GenerationContext ctx, File ecoreFile) throws Exception {
+    public Generator(GenerationContext ctx, File ecoreFile, String targetName) throws Exception {
         this.ecoreFile = ecoreFile;
-        if(ecoreFile.getAbsolutePath().endsWith(MetaModelLanguageType.DEFAULT_EXTENSION)){
+        if (ecoreFile.getAbsolutePath().endsWith(MetaModelLanguageType.DEFAULT_EXTENSION)) {
             StandaloneParser parser = new StandaloneParser();
             PsiFile psi = parser.parser(this.ecoreFile);
-            File temp = File.createTempFile("tempKevGen",".ecore");
+            File temp = File.createTempFile("tempKevGen", ".ecore");
             temp.deleteOnExit();
-            parser.convert2ecore(psi,temp);
+            parser.convert2ecore(psi, temp);
             this.ecoreFile = temp;
         }
         this.ctx = ctx;
-        preProcess();
+        preProcess(targetName);
     }
 
 
-    private void preProcess() throws Exception {
+    private void preProcess(String targetName) throws Exception {
         ResourceSet model = ctx.getEcoreModel(ecoreFile);
         //registering factories
-        /*
-        Iterator<Notifier> iterator1 = model.getAllContents();
-        while (iterator1.hasNext()) {
-            Notifier el = iterator1.next();
-            if(el instanceof EPackage) {
-                ctx.registerFactory((EPackage)el);
-            }
-        }*/
-
-        ctx.setBaseLocationForUtilitiesGeneration(ecoreFile);
-
+        ctx.setBaseLocationForUtilitiesGeneration(targetName);
         Iterator<Notifier> iterator2 = model.getAllContents();
         while (iterator2.hasNext()) {
             Notifier el = iterator2.next();
-            if(el instanceof EPackage) {
-                EPackage pack = (EPackage)el;
+            if (el instanceof EPackage) {
+                EPackage pack = (EPackage) el;
                 if (pack.getName() == null || pack.getName().equals("")) {
                     throw new Exception("Package with an empty name : generation stopped !");
                 }
@@ -118,17 +107,18 @@ public class Generator {
 
     /**
      * Triggers the generation of the given <i>ecore</i> file implementation.
+     *
      * @param modelVersion the version of the model (will be included in headers of generated files).
      * @throws Exception e
      */
-    public void  generateModel(String modelVersion) throws Exception {
+    public void generateModel(String modelVersion, String targetName) throws Exception {
 
         System.out.println("Check Aspect completeness");
         ResourceSet model = ctx.getEcoreModel(ecoreFile);
         checkModel(model);
         //Create new metaClass
 
-        for(NewMetaClassCreation metaC : ctx.newMetaClasses) {
+        for (NewMetaClassCreation metaC : ctx.newMetaClasses) {
             System.err.println("Auto creation of metaClass " + metaC.packageName + "." + metaC.name + " super " + metaC.parentName);
             EClass newMeta = EcoreFactory.eINSTANCE.createEClass();
             newMeta.setName(metaC.name);
@@ -136,15 +126,15 @@ public class Generator {
 
             EPackage p = null;
             Iterator<Notifier> iterator = model.getAllContents();
-            while ( (p == null) && iterator.hasNext()) {
+            while ((p == null) && iterator.hasNext()) {
                 Notifier el = iterator.next();
-                if(el instanceof EPackage) {
-                    if(ProcessorHelper.getInstance().fqn(ctx, (EPackage)el).equals(metaC.packageName)) {
-                        p = (EPackage)el;
+                if (el instanceof EPackage) {
+                    if (ProcessorHelper.getInstance().fqn(ctx, (EPackage) el).equals(metaC.packageName)) {
+                        p = (EPackage) el;
                     }
                 }
             }
-            if(p != null) {
+            if (p != null) {
                 p.getEClassifiers().add(newMeta);
             } else {
                 System.err.println("Create package : " + metaC.packageName);
@@ -157,16 +147,16 @@ public class Generator {
 
             EClass parentclass = null;
             Iterator<Notifier> iteratorEclass = model.getAllContents();
-            while ( (parentclass == null) && iteratorEclass.hasNext()) {
+            while ((parentclass == null) && iteratorEclass.hasNext()) {
                 Notifier el = iteratorEclass.next();
-                if(el instanceof EClass) {
-                    if(ProcessorHelper.getInstance().fqn(ctx, (EClass)el).equals(metaC.parentName)
-                            || ((EClass)el).getName().equals(metaC.parentName)) {
-                        parentclass = (EClass)el;
+                if (el instanceof EClass) {
+                    if (ProcessorHelper.getInstance().fqn(ctx, (EClass) el).equals(metaC.parentName)
+                            || ((EClass) el).getName().equals(metaC.parentName)) {
+                        parentclass = (EClass) el;
                     }
                 }
             }
-            if(parentclass != null) {
+            if (parentclass != null) {
                 newMeta.getESuperTypes().add(parentclass);
             } else {
                 throw new Exception("Parent Does not exist");
@@ -181,32 +171,32 @@ public class Generator {
         while (iterator.hasNext()) {
             Notifier content = iterator.next();
 
-            if(content instanceof EClass) {
-                EClass eclass = (EClass)content;
+            if (content instanceof EClass) {
+                EClass eclass = (EClass) content;
                 //Should have aspect covered all method
                 HashSet<EOperation> operationList = new HashSet<EOperation>();
 
-                for(EOperation op : eclass.getEAllOperations()) {
-                    if(!op.getName().equals("eContainer")) {
+                for (EOperation op : eclass.getEAllOperations()) {
+                    if (!op.getName().equals("eContainer")) {
                         operationList.add(op);
                     }
                 }
 
-                for(AspectClass aspect :  ctx.aspects.values()) {
+                for (AspectClass aspect : ctx.aspects.values()) {
                     if (AspectMatcher.aspectMatcher(ctx, aspect, eclass)) {
                         //aspect match
-                        for(AspectMethod method : aspect.methods) {
+                        for (AspectMethod method : aspect.methods) {
 
                             EOperation foundOp = null;
-                            for(EOperation op : operationList) {
-                                if(AspectMethodMatcher.isMethodEqual(op, method, ctx) && !method.privateMethod) {
+                            for (EOperation op : operationList) {
+                                if (AspectMethodMatcher.isMethodEqual(op, method, ctx) && !method.privateMethod) {
                                     foundOp = op;
                                     break;
                                 }
                             }
                             HashSet<EOperation> toRemove = new HashSet<EOperation>();
-                            if(foundOp != null) {
-                                for(EOperation opLoop : operationList) {
+                            if (foundOp != null) {
+                                for (EOperation opLoop : operationList) {
                                     if (AspectMethodMatcher.isMethodEqual(opLoop, method, ctx)) {
                                         toRemove.add(opLoop);
                                     }
@@ -223,28 +213,28 @@ public class Generator {
                     System.err.println("Auto generate Method for aspect " + eclass.getName());
 
                     File targetSrc = ctx.rootSrcDirectory;
-                    File targetFile = new File(targetSrc + File.separator + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration).replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName() + ".kt");
+                    File targetFile = new File(targetSrc + File.separator + ctx.basePackageForUtilitiesGeneration.replace(".", File.separator) + File.separator + "GeneratedAspect_" + eclass.getName() + ".kt");
                     targetFile.getParentFile().mkdirs();
                     FileWriter writer = new FileWriter(targetFile);
-                    writer.write("package " + ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ";\n");
+                    writer.write("package " + ctx.basePackageForUtilitiesGeneration + ";\n");
                     writer.write("import org.kevoree.modeling.api.aspect;\n");
                     writer.write("public aspect trait " + "GeneratedAspect_" + eclass.getName() + " : " + ProcessorHelper.getInstance().fqn(ctx, eclass) + " {\n");
 
                     AspectClass newAspectClass = new AspectClass();
                     newAspectClass.name = "GeneratedAspect_" + eclass.getName();
                     newAspectClass.aspectedClass = eclass.getName();
-                    newAspectClass.packageName = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration);
+                    newAspectClass.packageName = ctx.basePackageForUtilitiesGeneration;
                     ctx.aspects.put(newAspectClass.packageName + "." + newAspectClass.name, newAspectClass);
 
 
-                    for(EOperation operation : operationList) {
+                    for (EOperation operation : operationList) {
                         writer.write("\toverride fun " + operation.getName() + "(");
                         boolean isFirst = true;
                         AspectMethod newAspectOperation = new AspectMethod();
                         newAspectOperation.name = operation.getName();
                         newAspectClass.methods.add(newAspectOperation);
 
-                        for(EParameter param : operation.getEParameters()) {
+                        for (EParameter param : operation.getEParameters()) {
                             AspectParam newParam = new AspectParam();
                             newParam.name = param.getName();
                             newParam.type = ProcessorHelper.getInstance().convertType(param.getEType().getName());
@@ -306,27 +296,27 @@ public class Generator {
         System.out.println("Launching model generation");
         modelGen.process(model);
 
-        FactoryGenerator.generateMainFactory(ctx, model, modelVersion);
+        FactoryGenerator.generateMainFactory(ctx, model, modelVersion, targetName);
 
 
         System.out.println("Done with model generation");
     }
 
-    public void  checkModel(ResourceSet model) {
+    public void checkModel(ResourceSet model) {
 
         Iterator<Notifier> iterator = model.getAllContents();
         while (iterator.hasNext()) {
             Notifier content = iterator.next();
-            if(content instanceof EPackage) {
-                EPackage pack = (EPackage)content;
+            if (content instanceof EPackage) {
+                EPackage pack = (EPackage) content;
                 if (pack.getNsPrefix() == null || pack.getNsPrefix().equals("")) {
                     pack.setNsPrefix(pack.getName());
-                    System.err.println("The Metamodel package " + pack.getName() + " does not have a Namespace Prefix. A namespace has been automatically used for generation.");
+                    //System.err.println("The Metamodel package " + pack.getName() + " does not have a Namespace Prefix. A namespace has been automatically used for generation.");
                 }
 
                 if (pack.getNsURI() == null || pack.getNsURI().equals("")) {
                     pack.setNsURI("http://" + pack.getName());
-                    System.err.println("The Metamodel package " + pack.getName() + " does not have a Namespace URI. A namespace has been automatically used for generation.");
+                    //System.err.println("The Metamodel package " + pack.getName() + " does not have a Namespace URI. A namespace has been automatically used for generation.");
                     //throw new Exception("The base package "+pack.getName+" of the metamodel must contain an XML Namespace. Generation aborted.")
                 }
             }

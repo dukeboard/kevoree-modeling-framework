@@ -25,14 +25,11 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.kevoree.modeling.VelocityLog;
-import org.kevoree.modeling.aspect.NewMetaClassCreation;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
-import org.kevoree.modeling.kotlin.generator.model.PackageFactoryGenerator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,7 +38,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /*
 * Author : Gregory Nain (developer.name@uni.lu)
@@ -50,13 +46,11 @@ import java.util.Map;
 public class FactoryGenerator {
 
 
-    public static void generateMainFactory(GenerationContext ctx, ResourceSet model, String modelVersion) {
+    public static void generateMainFactory(GenerationContext ctx, ResourceSet model, String modelVersion, String targetName) {
 
-        EPackage packElement = ctx.getBasePackageForUtilitiesGeneration();
         String packageGenDir = ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + "/factory";
         ProcessorHelper.getInstance().checkOrCreateFolder(packageGenDir);
-        String formatedFactoryName = packElement.getName().substring(0, 1).toUpperCase();
-        formatedFactoryName += packElement.getName().substring(1);
+        String formatedFactoryName = ctx.formattedName;
         formatedFactoryName += "Factory";
         File localFile = new File(packageGenDir + "/Default" + formatedFactoryName + ".kt");
         PrintWriter pr = null;
@@ -65,8 +59,8 @@ public class FactoryGenerator {
         Iterator<Notifier> iterator = model.getAllContents();
         while (iterator.hasNext()) {
             Notifier c = iterator.next();
-            if(c instanceof EClassifier) {
-                EClassifier cls = (EClassifier)c;
+            if (c instanceof EClassifier) {
+                EClassifier cls = (EClassifier) c;
                 if (cls instanceof EClass && !((EClass) cls).isAbstract() && !((EClass) cls).isInterface()) {
                     retained.add(cls);
                 }
@@ -77,7 +71,7 @@ public class FactoryGenerator {
 
         try {
             pr = new PrintWriter(localFile, "utf-8");
-            String packageName = ProcessorHelper.getInstance().fqn(ctx, packElement);
+            String packageName = ctx.basePackageForUtilitiesGeneration.toLowerCase();
             VelocityEngine ve = new VelocityEngine();
             ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
 
@@ -85,7 +79,7 @@ public class FactoryGenerator {
             ve.init();
             Template template = ve.getTemplate("DefaultFactory.vm");
             VelocityContext ctxV = new VelocityContext();
-            ctxV.put("packageName", packageName);
+            ctxV.put("packageName", ctx.basePackageForUtilitiesGeneration.toLowerCase());
             ctxV.put("formatedFactoryName", formatedFactoryName);
             ctxV.put("js", ctx.js);
             ctxV.put("helper", ProcessorHelper.getInstance());
@@ -99,7 +93,7 @@ public class FactoryGenerator {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } finally {
-            if(pr != null) {
+            if (pr != null) {
                 pr.flush();
                 pr.close();
             }
@@ -112,21 +106,17 @@ public class FactoryGenerator {
     }
 
 
-
     public static void generateFactoryAPI(GenerationContext ctx, String packageGenDir, String modelVersion, List<EClassifier> retained) {
 
-        EPackage packElement = ctx.getBasePackageForUtilitiesGeneration();
         ProcessorHelper.getInstance().checkOrCreateFolder(packageGenDir);
 
-        String formatedFactoryName  = packElement.getName().substring(0, 1).toUpperCase();
-        formatedFactoryName += packElement.getName().substring(1);
+        String formatedFactoryName = ctx.formattedName;
         formatedFactoryName += "Factory";
 
         File localFile = new File(packageGenDir + "/" + formatedFactoryName + ".kt");
         PrintWriter pr = null;
         try {
             pr = new PrintWriter(localFile, "utf-8");
-            String packageName = ProcessorHelper.getInstance().fqn(ctx, packElement);
             VelocityEngine ve = new VelocityEngine();
             ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
 
@@ -134,7 +124,7 @@ public class FactoryGenerator {
             ve.init();
             Template template = ve.getTemplate("FactoryAPI.vm");
             VelocityContext ctxV = new VelocityContext();
-            ctxV.put("packageName", packageName);
+            ctxV.put("packageName", ctx.basePackageForUtilitiesGeneration.toLowerCase());
             ctxV.put("helper", ProcessorHelper.getInstance());
             ctxV.put("ctx", ctx);
             ctxV.put("formatedFactoryName", formatedFactoryName);
@@ -145,7 +135,7 @@ public class FactoryGenerator {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } finally {
-            if(pr != null) {
+            if (pr != null) {
                 pr.flush();
                 pr.close();
             }

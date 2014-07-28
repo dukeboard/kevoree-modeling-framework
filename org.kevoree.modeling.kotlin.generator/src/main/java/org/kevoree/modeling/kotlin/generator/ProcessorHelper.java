@@ -22,7 +22,6 @@ import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.*;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.omg.IOP.ENCODING_CDR_ENCAPS;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -45,7 +44,7 @@ public class ProcessorHelper {
 
     public Collection<EAttribute> noduplicate(EList<EAttribute> allAtt) {
         HashMap<String, EAttribute> eATTs = new HashMap<String, EAttribute>();
-        for(EAttribute at : allAtt) {
+        for (EAttribute at : allAtt) {
             eATTs.put(at.getName(), at);
         }
         return eATTs.values();
@@ -53,7 +52,7 @@ public class ProcessorHelper {
 
     public Collection<EReference> noduplicateRef(EList<EReference> allRefs) {
         HashMap<String, EReference> eRefs = new HashMap<String, EReference>();
-        for(EReference ref : allRefs) {
+        for (EReference ref : allRefs) {
             eRefs.put(ref.getName(), ref);
         }
         return eRefs.values();
@@ -67,9 +66,9 @@ public class ProcessorHelper {
 
     public Collection<EClass> getEClassInEPackage(EPackage ePackage) {
         ArrayList<EClass> classes = new ArrayList<EClass>();
-        for(EClassifier classif : ePackage.getEClassifiers()) {
-            if(classif instanceof EClass) {
-                classes.add((EClass)classif);
+        for (EClassifier classif : ePackage.getEClassifiers()) {
+            if (classif instanceof EClass) {
+                classes.add((EClass) classif);
             }
         }
         return classes;
@@ -83,11 +82,11 @@ public class ProcessorHelper {
 
 
     public String convertType(EDataType aType, GenerationContext ctx) {
-        if(aType instanceof EEnum) {
-            return fqn(ctx, ((EEnum)aType).getEPackage()) + "." + ((EEnum)aType).getName();
+        if (aType instanceof EEnum) {
+            return fqn(ctx, ((EEnum) aType).getEPackage()) + "." + ((EEnum) aType).getName();
         } else {
 
-            if(aType.getInstanceClass()!=null){
+            if (aType.getInstanceClass() != null) {
                 return convertType(aType.getInstanceClassName());
             } else {
                 return convertType(aType.getName());
@@ -98,69 +97,67 @@ public class ProcessorHelper {
 
 
     private static HashMap<String, String> typeConvertionTable = new HashMap<String, String>();
+
     static {
-        typeConvertionTable.put("short","Short");
-        typeConvertionTable.put("java.lang.Short","Short");
-        typeConvertionTable.put("byte","Byte");
-        typeConvertionTable.put("EByte","Byte");
-        typeConvertionTable.put("java.lang.Byte","Byte");
-        typeConvertionTable.put("EBooleanObject","Boolean");
-        typeConvertionTable.put("EBoolean","Boolean");
-        typeConvertionTable.put("bool","Boolean");
-        typeConvertionTable.put("boolean","Boolean");
-        typeConvertionTable.put("java.lang.Boolean","Boolean");
-        typeConvertionTable.put("Boolean","Boolean");
-        typeConvertionTable.put("EString","String");
-        typeConvertionTable.put("java.lang.String","String");
-        typeConvertionTable.put("String","String");
-        typeConvertionTable.put("EIntegerObject","Int");
-        typeConvertionTable.put("int","Int");
-        typeConvertionTable.put("java.lang.Integer","Int");
-        typeConvertionTable.put("Integer","Int");
-        typeConvertionTable.put("EInt","Int");
-        typeConvertionTable.put("float","Float");
-        typeConvertionTable.put("java.lang.Float","Float");
-        typeConvertionTable.put("double","Double");
-        typeConvertionTable.put("java.lang.Double","Double");
-        typeConvertionTable.put("EDouble","Double");
-        typeConvertionTable.put("EDoubleObject","Double");
-        typeConvertionTable.put("ELongObject","Long");
-        typeConvertionTable.put("long","Long");
-        typeConvertionTable.put("java.lang.Long","Long");
-        typeConvertionTable.put("Long","Long");
-        typeConvertionTable.put("ELong","Long");
-        typeConvertionTable.put("java.lang.Object","Any");
-        typeConvertionTable.put("EResource","Any");
-        typeConvertionTable.put("EJavaObject","Any");
-        typeConvertionTable.put("java.util.Date","java.util.Date");
-        typeConvertionTable.put("ETreeIterator","MutableIterator<*>");
-        typeConvertionTable.put("org.eclipse.emf.common.util.Enumerator","Any");
-        typeConvertionTable.put("EEList","List<Any?>");
-        typeConvertionTable.put("org.eclipse.emf.common.util.EList","List<Any>");
-        typeConvertionTable.put("org.eclipse.emf.ecore.resource.Resource","Any");
-        typeConvertionTable.put("org.eclipse.emf.ecore.resource.ResourceSet","Any");
-        typeConvertionTable.put("org.eclipse.emf.common.util.TreeIterator","Any");
-        typeConvertionTable.put("byte[]","Array<Byte>");
-        typeConvertionTable.put("char","Char");
-        typeConvertionTable.put("Char","Char");
-        typeConvertionTable.put("java.lang.Character","Char");
-        typeConvertionTable.put("java.math.BigInteger","java.math.BigInteger");
-        typeConvertionTable.put("java.lang.Class","Any");
-        typeConvertionTable.put("EJavaClass","Any");
-        typeConvertionTable.put("java.util.Map","Map<out Any,out Any>");
+        typeConvertionTable.put("short", "Short");
+        typeConvertionTable.put("java.lang.Short", "Short");
+        typeConvertionTable.put("byte", "Byte");
+        typeConvertionTable.put("EByte", "Byte");
+        typeConvertionTable.put("java.lang.Byte", "Byte");
+        typeConvertionTable.put("EBooleanObject", "Boolean");
+        typeConvertionTable.put("EBoolean", "Boolean");
+        typeConvertionTable.put("bool", "Boolean");
+        typeConvertionTable.put("boolean", "Boolean");
+        typeConvertionTable.put("java.lang.Boolean", "Boolean");
+        typeConvertionTable.put("Boolean", "Boolean");
+        typeConvertionTable.put("EString", "String");
+        typeConvertionTable.put("java.lang.String", "String");
+        typeConvertionTable.put("String", "String");
+        typeConvertionTable.put("EIntegerObject", "Int");
+        typeConvertionTable.put("int", "Int");
+        typeConvertionTable.put("java.lang.Integer", "Int");
+        typeConvertionTable.put("Integer", "Int");
+        typeConvertionTable.put("EInt", "Int");
+        typeConvertionTable.put("float", "Float");
+        typeConvertionTable.put("java.lang.Float", "Float");
+        typeConvertionTable.put("double", "Double");
+        typeConvertionTable.put("java.lang.Double", "Double");
+        typeConvertionTable.put("EDouble", "Double");
+        typeConvertionTable.put("EDoubleObject", "Double");
+        typeConvertionTable.put("ELongObject", "Long");
+        typeConvertionTable.put("long", "Long");
+        typeConvertionTable.put("java.lang.Long", "Long");
+        typeConvertionTable.put("Long", "Long");
+        typeConvertionTable.put("ELong", "Long");
+        typeConvertionTable.put("java.lang.Object", "Any");
+        typeConvertionTable.put("EResource", "Any");
+        typeConvertionTable.put("EJavaObject", "Any");
+        typeConvertionTable.put("java.util.Date", "java.util.Date");
+        typeConvertionTable.put("ETreeIterator", "MutableIterator<*>");
+        typeConvertionTable.put("org.eclipse.emf.common.util.Enumerator", "Any");
+        typeConvertionTable.put("EEList", "List<Any?>");
+        typeConvertionTable.put("org.eclipse.emf.common.util.EList", "List<Any>");
+        typeConvertionTable.put("org.eclipse.emf.ecore.resource.Resource", "Any");
+        typeConvertionTable.put("org.eclipse.emf.ecore.resource.ResourceSet", "Any");
+        typeConvertionTable.put("org.eclipse.emf.common.util.TreeIterator", "Any");
+        typeConvertionTable.put("byte[]", "Array<Byte>");
+        typeConvertionTable.put("char", "Char");
+        typeConvertionTable.put("Char", "Char");
+        typeConvertionTable.put("java.lang.Character", "Char");
+        typeConvertionTable.put("java.math.BigInteger", "java.math.BigInteger");
+        typeConvertionTable.put("java.lang.Class", "Any");
+        typeConvertionTable.put("EJavaClass", "Any");
+        typeConvertionTable.put("java.util.Map", "Map<out Any,out Any>");
     }
 
     public String convertType(String theType) {
         String res = typeConvertionTable.get(theType);
-        if(res == null) {
+        if (res == null) {
             return theType;
         } else {
             return res;
         }
     }
-
-
-
 
 
     public String getDefaultValue(GenerationContext ctx, EAttribute att) {
@@ -177,24 +174,24 @@ public class ProcessorHelper {
 
         if (dataType != null) {
 
-            if(dataType.equals("Boolean")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.BOOLEAN_DEFAULTVAL";
-            } else if(dataType.equals("Byte")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.BYTE_DEFAULTVAL";
-            } else if(dataType.equals("Char")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.CHAR_DEFAULTVAL";
-            } else if(dataType.equals("Double")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.DOUBLE_DEFAULTVAL";
-            } else if(dataType.equals("Float")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.FLOAT_DEFAULTVAL";
-            } else if(dataType.equals("Int")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.INT_DEFAULTVAL";
-            } else if(dataType.equals("Long")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.LONG_DEFAULTVAL";
-            } else if(dataType.equals("Short")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.SHORT_DEFAULTVAL";
-            } else if(dataType.equals("String")) {
-                return fqn(ctx, ctx.basePackageForUtilitiesGeneration) + ".util.Constants.STRING_DEFAULTVAL";
+            if (dataType.equals("Boolean")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.BOOLEAN_DEFAULTVAL";
+            } else if (dataType.equals("Byte")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.BYTE_DEFAULTVAL";
+            } else if (dataType.equals("Char")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.CHAR_DEFAULTVAL";
+            } else if (dataType.equals("Double")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.DOUBLE_DEFAULTVAL";
+            } else if (dataType.equals("Float")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.FLOAT_DEFAULTVAL";
+            } else if (dataType.equals("Int")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.INT_DEFAULTVAL";
+            } else if (dataType.equals("Long")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.LONG_DEFAULTVAL";
+            } else if (dataType.equals("Short")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.SHORT_DEFAULTVAL";
+            } else if (dataType.equals("String")) {
+                return ctx.basePackageForUtilitiesGeneration + ".util.Constants.STRING_DEFAULTVAL";
             } else {
                 return "null";
             }
@@ -207,15 +204,15 @@ public class ProcessorHelper {
 
     public String protectReservedWords(String word) {
 
-        if(word.equals("type")) {
+        if (word.equals("type")) {
             return "`type`";
-        } else if(word.equals("object")) {
+        } else if (word.equals("object")) {
             return "`object`";
-        } else if(word.equals("requires")) {
+        } else if (word.equals("requires")) {
             return "`requires`";
-        } else if(word.equals("interfaces")) {
+        } else if (word.equals("interfaces")) {
             return "`interfaces`";
-        } else if(word.equals("package")) {
+        } else if (word.equals("package")) {
             return "`package`";
         } else {
             return word;
@@ -225,45 +222,45 @@ public class ProcessorHelper {
 
     public String protectReservedJWords(String word) {
 
-        if(word.equals("long")) {
+        if (word.equals("long")) {
             return "_long_";
-        } else if(word.equals("int")) {
+        } else if (word.equals("int")) {
             return "_int_";
-        } else if(word.equals("float")) {
+        } else if (word.equals("float")) {
             return "_float_";
-        } else if(word.equals("double")) {
+        } else if (word.equals("double")) {
             return "_double_";
-        } else if(word.equals("short")) {
+        } else if (word.equals("short")) {
             return "_short_";
-        } else if(word.equals("char")) {
+        } else if (word.equals("char")) {
             return "_char_";
-        } else if(word.equals("boolean")) {
+        } else if (word.equals("boolean")) {
             return "_boolean_";
-        } else if(word.equals("byte")) {
+        } else if (word.equals("byte")) {
             return "_byte_";
-        } else if(word.equals("type")) {
+        } else if (word.equals("type")) {
             return "_type_";
-        } else if(word.equals("object")) {
+        } else if (word.equals("object")) {
             return "_object_";
-        } else if(word.equals("requires")) {
+        } else if (word.equals("requires")) {
             return "_requires_";
-        } else if(word.equals("transient")) {
+        } else if (word.equals("transient")) {
             return "_transient_";
-        } else if(word.equals("package")) {
+        } else if (word.equals("package")) {
             return "_package_";
-        } else if(word.equals("default")) {
+        } else if (word.equals("default")) {
             return "_default_";
-        } else if(word.equals("interface")) {
+        } else if (word.equals("interface")) {
             return "_interface_";
-        } else if(word.equals("enumeration")) {
+        } else if (word.equals("enumeration")) {
             return "_enumeration_";
-        } else if(word.equals("volatile")) {
+        } else if (word.equals("volatile")) {
             return "_volatile_";
-        } else if(word.equals("abstract")) {
+        } else if (word.equals("abstract")) {
             return "_abstract_";
-        } else if(word.equals("enum")) {
+        } else if (word.equals("enum")) {
             return "_enum_";
-        } else if(word.equals("class")) {
+        } else if (word.equals("class")) {
             return "_class_";
         } else {
             return word;
@@ -293,7 +290,7 @@ public class ProcessorHelper {
             superTypeList = " : " + ctx.kevoreeContainer;
         }
 
-        for(EClass superType : cls.getESuperTypes()) {
+        for (EClass superType : cls.getESuperTypes()) {
             superTypeList = superTypeList + " , " + fqn(ctx, superType);
         }
         return superTypeList;
@@ -302,7 +299,7 @@ public class ProcessorHelper {
     public String generateSuperTypesPlusSuperAPI(GenerationContext ctx, EClass cls, EPackage packElement) {
         String superTypeList;
         superTypeList = " : " + ctx.kevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName();
-        for(EClass superType : cls.getESuperTypes()) {
+        for (EClass superType : cls.getESuperTypes()) {
             String superName = fqn(ctx, superType.getEPackage()) + ".impl." + superType.getName() + "Internal";
             superTypeList = superTypeList + " , " + superName;
         }
@@ -313,19 +310,19 @@ public class ProcessorHelper {
     public List<EClass> getAllConcreteSubTypes(EClass iface) {
         LinkedList<EClass> res = new LinkedList<EClass>();
 
-        for(EClassifier cl : iface.getEPackage().getEClassifiers()) {
-            if(cl instanceof EClass) {
-                EClass cls = (EClass)cl;
+        for (EClassifier cl : iface.getEPackage().getEClassifiers()) {
+            if (cl instanceof EClass) {
+                EClass cls = (EClass) cl;
                 if (!cls.isInterface() && !cls.isAbstract() && cls.getEAllSuperTypes().contains(iface)) {
 
                     boolean alreadyAdded = false;
-                    for(EClass previousC : res) {
-                        if(cls.getEAllSuperTypes().contains(previousC)) {
+                    for (EClass previousC : res) {
+                        if (cls.getEAllSuperTypes().contains(previousC)) {
                             alreadyAdded = true;
                             break;
                         }
                     }
-                    if(alreadyAdded) {
+                    if (alreadyAdded) {
                         res.addLast(cls);
                     } else {
                         res.addFirst(cls);
@@ -339,25 +336,25 @@ public class ProcessorHelper {
     public List<EClass> getDirectConcreteSubTypes(EClass iface) {
         ArrayList<EClass> res = new ArrayList<EClass>();
 
-        for(EClassifier cl : iface.getEPackage().getEClassifiers()) {
-            if(cl instanceof EClass) {
-                EClass cls = (EClass)cl;
+        for (EClassifier cl : iface.getEPackage().getEClassifiers()) {
+            if (cl instanceof EClass) {
+                EClass cls = (EClass) cl;
                 if (!cls.isInterface() && !cls.isAbstract() && cls.getEAllSuperTypes().contains(iface)) {
 
                     boolean supertypeFound = false;
-                    for(EClass previousC : res) {
-                        if(cls.getEAllSuperTypes().contains(previousC)) {
+                    for (EClass previousC : res) {
+                        if (cls.getEAllSuperTypes().contains(previousC)) {
                             supertypeFound = true;
                             break;
                         }
                     }
                     //adds an element only if the collection does not already contain one of its supertypes
-                    if(!supertypeFound) {
+                    if (!supertypeFound) {
 
                         //remove potential subtypes already inserted in the collection
                         ArrayList<EClass> toBeRemoved = new ArrayList<EClass>();
-                        for(EClass c : res) {
-                            if(c.getEAllSuperTypes().contains(cls)) {
+                        for (EClass c : res) {
+                            if (c.getEAllSuperTypes().contains(cls)) {
                                 toBeRemoved.add(c);
                             }
                         }
@@ -372,27 +369,27 @@ public class ProcessorHelper {
 
     /**
      * Returns the absolute path of the folder in which to generate classes of a package.
-     * @param ctx The generation context
+     *
+     * @param ctx  The generation context
      * @param pack the package to be generated
      * @return The absolute path of the folder where to generate the content of the package.
      */
     public String getPackageGenDir(GenerationContext ctx, EPackage pack) {
         String modelGenBaseDir = ctx.rootGenerationDirectory.getAbsolutePath() + "/";
-        if(ctx.packagePrefix != null){modelGenBaseDir += ctx.packagePrefix.replace(".", "/") + "/";}
         modelGenBaseDir += fqn(pack).replace(".", "/") + "/";
         return modelGenBaseDir;
     }
 
     /**
      * Returns the absolute path of the folder containing implementations made by users for the given package.
-     * @param ctx The generation context
+     *
+     * @param ctx  The generation context
      * @param pack the package required
      * @return The absolute path of the folder where to find any implementation made by developers.
      */
     public String getPackageUserDir(GenerationContext ctx, EPackage pack) {
         if (ctx.rootUserDirectory != null) {
             String modelGenBaseDir = ctx.rootUserDirectory.getAbsolutePath() + "/";
-            if(ctx.packagePrefix != null){modelGenBaseDir += ctx.packagePrefix.replace(".", "/") + "/";}
             modelGenBaseDir += fqn(pack).replace(".", "/") + "/";
             return modelGenBaseDir;
         } else {
@@ -403,11 +400,11 @@ public class ProcessorHelper {
 
     /**
      * Computes the Fully Qualified Name of the package in the context of the model.
+     *
      * @param pack the package which FQN has to be computed
      * @return the Fully Qualified package name
      */
     public String fqn(EPackage pack) {
-
         if (pack == null) {
             try {
                 throw new Exception("Null Package , stop generation");
@@ -427,37 +424,19 @@ public class ProcessorHelper {
 
     /**
      * Computes the Fully Qualified Name of the package in the context of the generation (i.e. including the package prefix if any).
-     * @param ctx the generation context
+     *
+     * @param ctx  the generation context
      * @param pack the package which FQN has to be computed
      * @return the Fully Qualified package name
      */
     public String fqn(GenerationContext ctx, EPackage pack) {
-        if (pack == null) {
-            if (ctx.packagePrefix != null) {
-                return ctx.packagePrefix;
-            } else {
-                return "";
-            }
-        }
-
-        if(ctx.packagePrefix != null) {
-            if ("".equals(pack.getName())) {
-                return ctx.packagePrefix;
-            } else {
-                if (ctx.packagePrefix.endsWith(".")) {
-                    return ctx.packagePrefix + fqn(pack);
-                } else {
-                    return ctx.packagePrefix + "." + fqn(pack);
-                }
-            }
-        } else {
-            return fqn(pack);
-        }
+        return fqn(pack);
     }
 
 
     /**
      * Computes the Fully Qualified Name of the class in the context of the model.
+     *
      * @param cls the class which FQN has to be computed
      * @return the Fully Qualified Class name
      */
@@ -471,6 +450,7 @@ public class ProcessorHelper {
 
     /**
      * Computes the Fully Qualified Name of the class in the context of the generation (i.e. including the package prefix if any).
+     *
      * @param ctx the generation context
      * @param cls the class which FQN has to be computed
      * @return the Fully Qualified Class name
@@ -479,11 +459,7 @@ public class ProcessorHelper {
         if (cls.getEPackage() != null) {
             return fqn(ctx, cls.getEPackage()) + "." + cls.getName();
         } else {
-            if (ctx.packagePrefix == null) {
-                return cls.getName();
-            } else {
-                return ctx.packagePrefix + "." + cls.getName();
-            }
+            return cls.getName();
         }
     }
 
@@ -491,14 +467,14 @@ public class ProcessorHelper {
         ArrayList<EClassifier> allClassifiers = new ArrayList<EClassifier>();
 
         Iterator<Notifier> iterator = model.getAllContents();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Notifier content = iterator.next();
 
-            if(content instanceof EClass) {
-                allClassifiers.add((EClass)content);
-            } else if(content instanceof EEnum) {
-                allClassifiers.add((EEnum)content);
-            }else if(content instanceof EPackage) {
+            if (content instanceof EClass) {
+                allClassifiers.add((EClass) content);
+            } else if (content instanceof EEnum) {
+                allClassifiers.add((EEnum) content);
+            } else if (content instanceof EPackage) {
                 allClassifiers.addAll(collectAllClassifiersInPackage((EPackage) content));
             }
         }
@@ -519,7 +495,7 @@ public class ProcessorHelper {
         return allClassifiers;
     }
 
-    public class Partition{
+    public class Partition {
         public ArrayList<EClassifier> containedClassifiers;
         public ArrayList<EClassifier> notContainedClassifiers;
     }
@@ -527,6 +503,7 @@ public class ProcessorHelper {
 
     /**
      * Separates contained classifiers from not contained classifiers; from a collection of classifiers.
+     *
      * @param allClassifiers The classifier collection to sort
      * @return a Partition containing ContainedClassifiers and NotContainedClassifiers
      */
@@ -534,17 +511,17 @@ public class ProcessorHelper {
         ArrayList<EClassifier> containedClassifiers = new ArrayList<EClassifier>();
         ArrayList<EClassifier> notContainedClassifiers = new ArrayList<EClassifier>();
 
-        for(EClassifier classifier : allClassifiers) {
-            if(classifier instanceof EClass) {
-                for (EReference containedRef : ((EClass)classifier).getEAllContainments()) {
+        for (EClassifier classifier : allClassifiers) {
+            if (classifier instanceof EClass) {
+                for (EReference containedRef : ((EClass) classifier).getEAllContainments()) {
                     containedClassifiers.add(containedRef.getEReferenceType());
                 }
-            } else if(classifier instanceof EEnum) {
-                containedClassifiers.add((EEnum)classifier);
+            } else if (classifier instanceof EEnum) {
+                containedClassifiers.add((EEnum) classifier);
             }
         }
 
-        for(EClassifier classifier : allClassifiers) {
+        for (EClassifier classifier : allClassifiers) {
             if (!containedClassifiers.contains(classifier)) {
                 notContainedClassifiers.add(classifier);
             }
@@ -583,7 +560,8 @@ public class ProcessorHelper {
 
     /**
      * Copies from a resource from the Jar
-      * @param name the name of teh resource
+     *
+     * @param name   the name of teh resource
      * @param target the location
      */
     public void copyFromStream(String name, String target) {
@@ -607,11 +585,11 @@ public class ProcessorHelper {
     public String mkString(List array, String beginChar, String sepChar, String endChar) {
         StringBuffer res = new StringBuffer();
         res.append(beginChar);
-        if(array.size() == 1) {
+        if (array.size() == 1) {
             res.append(array.get(0));
-        } else if(array.size() > 1) {
+        } else if (array.size() > 1) {
             res.append(array.get(0));
-            for(int i = 1 ; i < array.size() ; i++) {
+            for (int i = 1; i < array.size(); i++) {
                 res.append(sepChar);
                 res.append(array.get(i));
             }

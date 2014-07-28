@@ -3,7 +3,6 @@ package org.kevoree.modeling.kotlin.standalone;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 import org.kevoree.modeling.kotlin.generator.RootGenerator;
 
 import java.io.*;
@@ -107,7 +106,6 @@ public class App {
                     }
 
                     ctx.generateEvents = true;
-                    ctx.flyweightFactory = false;
                     ctx.autoBasePackage = "kmf";
 
                     String targetName = ecoreFile.getName().substring(0, ecoreFile.getName().lastIndexOf("."));
@@ -152,13 +150,13 @@ public class App {
                         Files.copy(new File(outDir, targetName + ".min.js"), outputJar);
                         //Generate sample
 
-                        String basePack = ProcessorHelper.getInstance().fqn(ctx, ctx.basePackageForUtilitiesGeneration);
+                        String basePack = ctx.basePackageForUtilitiesGeneration;
 
                         String hTMLSample = "<html lang=\"en\">\n" +
                                 "<script type=\"text/javascript\" src=\"" + targetName + ".js\"></script>\n" +
                                 "<script>\n" +
                                 "var model = Kotlin.modules['" + targetName + "'];\n" +
-                                "var factory = new model." + basePack + ".impl.DefaultCloudFactory();\n" +
+                                "var factory = new model." + basePack + ".factory.DefaultCloudFactory();\n" +
                                 "var cloner = factory.createModelCloner();\n" +
                                 "var saver = factory.createJSONSerializer();\n" +
                                 "var loader = factory.createJSONLoader();\n" +
@@ -171,7 +169,7 @@ public class App {
 
                         String nodeJSSample = "var model = require('./" + targetName + ".js');\n" +
                                 "\n" +
-                                "var factory = new model." + basePack + ".impl.DefaultCloudFactory();\n" +
+                                "var factory = new model." + basePack + ".factory.DefaultCloudFactory();\n" +
                                 "var cloner = factory.createModelCloner();\n" +
                                 "var saver = factory.createJSONSerializer();\n" +
                                 "var loader = factory.createJSONLoader();\n" +
