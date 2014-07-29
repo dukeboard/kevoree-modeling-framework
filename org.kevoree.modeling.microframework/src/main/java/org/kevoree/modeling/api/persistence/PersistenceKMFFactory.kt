@@ -3,8 +3,6 @@ package org.kevoree.modeling.api.persistence
 import org.kevoree.modeling.api.KMFFactory
 import org.kevoree.modeling.api.KMFContainer
 import org.kevoree.modeling.api.trace.TraceSequence
-import org.kevoree.modeling.api.compare.ModelCompare
-import java.util.HashMap
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.util.InboundRefAware
@@ -39,7 +37,12 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     val modified_elements: MutableMap<String, KMFContainer>
 
     fun notify(elem: KMFContainer) {
-        modified_elements.put(elem.hashCode().toString(), elem)
+        if (elem.internalGetKey() != null) {
+            val key = elem.hashCode().toString() + elem.internalGetKey()
+            if (modified_elements.get(key) == null) {
+                modified_elements.put(key, elem)
+            }
+        }
     }
 
     fun cleanUnusedPaths(path: String) {
@@ -118,7 +121,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     override fun elementChanged(evt: ModelEvent) {
-        modified_elements.put(evt.source!!.hashCode().toString(), evt.source)
+        notify(evt.source!!)
     }
 
     protected fun monitor(elem: KMFContainer) {
