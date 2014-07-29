@@ -29,10 +29,9 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
     }
 
     public fun createOrAdd(previousPath: String?, target: KMFContainer, refName: String, potentialTypeName: String?) {
-        val targetElem: Any? = if(previousPath!=null){
-            targetModel.findByPath(previousPath)
-        } else {
-            null
+        var targetElem: Any? = null
+        if(previousPath!=null){
+            targetElem = targetModel.findByPath(previousPath)
         }
         if(targetElem != null){
             target.reflexiveMutator(ActionType.ADD, refName, targetElem, true, fireEvents)

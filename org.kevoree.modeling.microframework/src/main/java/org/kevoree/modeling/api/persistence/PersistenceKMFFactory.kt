@@ -32,11 +32,11 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         modified_elements.remove(elem.hashCode().toString())
     }
 
-    val elem_cache: HashMap<String, KMFContainer>
+    val elem_cache: MutableMap<String, KMFContainer>
 
     val elementsToBeRemoved: MutableSet<String>
 
-    val modified_elements: HashMap<String, KMFContainer>
+    val modified_elements: MutableMap<String, KMFContainer>
 
     fun notify(elem: KMFContainer) {
         modified_elements.put(elem.hashCode().toString(), elem)

@@ -33,6 +33,7 @@ public class SharedCache<A> {
 
     fun flush() {
         times.clear()
+        timeCache.clear()
     }
 
 }
