@@ -27,7 +27,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             datastore!!.remove("type", elem.path());
         }
         elem_cache.remove(elem.path())
-        modified_elements.remove(elem.hashCode().toString())
+        modified_elements.remove(elem.hashCode().toString() + elem.internalGetKey())
     }
 
     val elem_cache: MutableMap<String, KMFContainer>
