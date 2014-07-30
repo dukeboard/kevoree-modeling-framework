@@ -21,6 +21,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     var datastore: DataStore?
 
+    var dirty: Boolean
+
     fun remove(elem: KMFContainer) {
         if (datastore != null) {
             datastore!!.remove(TimeSegment.RAW.name(), elem.path());
@@ -55,8 +57,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     protected fun persist(elem: KMFContainer) {
 
-        if(elem is KMFContainerProxy && !elem.isDirty){
-           return;
+        if (elem is KMFContainerProxy && !elem.isDirty) {
+            return;
         }
 
         val elemPath = elem.path()
@@ -86,6 +88,9 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     fun commit() {
+        if (!dirty) {
+            return
+        }
         val keys = modified_elements.keySet().toList()
         for (elem in keys) {
             val resolved = modified_elements.get(elem)
@@ -123,6 +128,9 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     protected fun monitor(elem: KMFContainer) {
+        if(!dirty){
+            dirty = true
+        }
         elem.addModelElementListener(this)
     }
 

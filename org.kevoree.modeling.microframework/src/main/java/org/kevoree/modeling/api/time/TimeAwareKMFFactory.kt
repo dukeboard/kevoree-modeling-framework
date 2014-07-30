@@ -29,6 +29,18 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         entitiesCache = null
     }
 
+    override protected fun monitor(elem: KMFContainer) {
+        if (!dirty) {
+            dirty = true
+            val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
+            if (globalTime.versionTree.lookup(relativeTime) == null) {
+                globalTime.versionTree.insert(relativeTime, "");
+                globalTime.dirty = true;
+            }
+        }
+        elem.addModelElementListener(this)
+    }
+
 
     override fun commit() {
         val keys = modified_elements.keySet().toList()
@@ -100,16 +112,10 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
 
             casted.meta!!.latestPersisted = relativeTime
             datastore!!.put(TimeSegment.ENTITYMETA.name(), key, casted.meta.toString())
-
-            //check global time
-            val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
-            if (globalTime.versionTree.lookup(relativeTime) == null) {
-                globalTime.versionTree.insert(relativeTime, "");
-                globalTime.dirty = true;
-            }
         }
     }
 
+    /*
     fun removeVersion(t: TimePoint, target: KMFContainer) {
         if (datastore != null) {
             val currentPath = target.path()
@@ -130,7 +136,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
 
             //TODO perhaps update global timeline
         }
-    }
+    }*/
 
     override fun remove(elem: KMFContainer) {
 
@@ -171,10 +177,13 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             entitiesMeta.isDirty = true;
             datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
             //Create endpoint in the global ordering of time
-            val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
-            if (globalTime.versionTree.lookup(relativeTime) == null) {
-                globalTime.versionTree.insert(relativeTime, "");
-                globalTime.dirty = true
+
+            if (!dirty) {
+                val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
+                if (globalTime.versionTree.lookup(relativeTime) == null) {
+                    globalTime.versionTree.insert(relativeTime, "");
+                    globalTime.dirty = true
+                }
             }
 
             modified_elements.remove(elem.hashCode().toString())
@@ -342,15 +351,18 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         //drop every elements from this time
         datastore!!.remove(TimeSegment.ENTITIES.name(), relativeTime.toString());
         //Create endpoint in the global ordering of time
-        val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
-        if (globalTime.versionTree.lookup(relativeTime) == null) {
-            globalTime.versionTree.insert(relativeTime, "");
-            datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
+
+        if (!dirty) {
+            val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
+            if (globalTime.versionTree.lookup(relativeTime) == null) {
+                globalTime.versionTree.insert(relativeTime, "");
+                globalTime.dirty = true;
+            }
         }
+
         val entitiesMeta = getEntitiesMeta(relativeTime)
         entitiesMeta.list.clear()
         entitiesMeta.isDirty = true;
-        datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
     }
 
     override fun diff(tp: TimePoint): TraceSequence {

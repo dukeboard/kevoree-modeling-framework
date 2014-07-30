@@ -77,6 +77,9 @@ override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache = org.
     if(elem !is org.kevoree.modeling.api.persistence.KMFContainerProxy || (elem as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory != this){
         throw Exception("KMFObject created in another factory of TimeView cannot be set as root of this TimeView")
     }
+    if(lookup("/") != elem){
+       elem.isDirty = true;
+    }
     (elem as ${ctx.getKevoreeContainerImplFQN()}).is_root = true
     (elem as ${ctx.getKevoreeContainerImplFQN()}).path_cache = "/"
     modified_elements.put("/", elem)
