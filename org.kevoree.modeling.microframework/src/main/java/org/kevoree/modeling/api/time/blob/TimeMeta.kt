@@ -10,6 +10,8 @@ package org.kevoree.modeling.api.time.blob
 
 class TimeMeta() {
 
+    var dirty: Boolean = true
+
     var versionTree: RBTree = RBTree()
 
     override fun toString(): String {
