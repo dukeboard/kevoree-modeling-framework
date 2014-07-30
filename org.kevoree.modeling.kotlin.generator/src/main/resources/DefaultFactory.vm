@@ -1,7 +1,7 @@
 #* @vtlvariable name="packageName" type="java.lang.String" *#
 #* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
+#* @vtlvariable name="formatedTimeView" type="java.lang.String" *#
 #* @vtlvariable name="modelVersion" type="java.lang.String" *#
-#* @vtlvariable name="js" type="java.lang.Boolean" *#
 #* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
 #* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
 #* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
@@ -12,7 +12,7 @@ package ${packageName}.factory;
 import $helper.fqn($ctx, $class);
 #end
 
-#if(!$js)open#end class Default${formatedFactoryName} : ${formatedFactoryName} {
+#if($ctx.persistence) #if(!$ctx.timeAware) open #end #end class Default${formatedFactoryName} : ${formatedFactoryName} #if($ctx.timeAware),org.kevoree.modeling.api.time.TimeAwareKMFFactory,${formatedTimeView} #else #if($ctx.persistence),org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
 
 override fun getVersion() : String { return "${modelVersion}" }
 
@@ -60,22 +60,7 @@ when(metaClassName){
 #if($ctx.timeAware)
 override var relativeTime: org.kevoree.modeling.api.time.TimePoint = org.kevoree.modeling.api.time.TimePoint.create("0:0");
 override var entitiesCache: org.kevoree.modeling.api.time.blob.EntitiesMeta? = null
-override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}> = org.kevoree.modeling.api.time.blob.SharedCache<${formatedFactoryName}>()
-
-override fun time(tp: org.kevoree.modeling.api.time.TimePoint): org.kevoree.modeling.api.time.TimeView<${formatedFactoryName}> {
-    val resolved : org.kevoree.modeling.api.time.TimeView<${formatedFactoryName}>? = sharedCache.get(tp);
-    if(resolved != null){
-        return resolved;
-    } else {
-        val newFactory = Default${formatedFactoryName}()
-        newFactory.sharedCache = sharedCache
-        newFactory.datastore = this.datastore;
-        newFactory.relativeTime = tp;
-        sharedCache.add(tp,newFactory)
-        return newFactory;
-    }
-}
-
+override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache = org.kevoree.modeling.api.time.blob.SharedCache()
 #end
 
 #if(!$ctx.persistence)

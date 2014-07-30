@@ -14,14 +14,14 @@ class EntityMeta() {
 
     //var previous: TimePoint? = null
     //var next: TimePoint? = null
-    var lastestPersisted: TimePoint? = null
+    var latestPersisted: TimePoint? = null
     var metatype: String? = null
 
     val sep = "/"
 
     override fun toString(): String {
         val buidler = StringBuilder()
-        buidler.append(lastestPersisted)
+        buidler.append(latestPersisted)
         buidler.append(sep)
         buidler.append(metatype)
         return buidler.toString()
@@ -32,7 +32,7 @@ class EntityMeta() {
         if (elem.size == 2) {
             val originPayload = elem.get(0)
             if (originPayload != "") {
-                lastestPersisted = TimePoint.create(originPayload)
+                latestPersisted = TimePoint.create(originPayload)
             }
             metatype = elem.get(1)
         } else {

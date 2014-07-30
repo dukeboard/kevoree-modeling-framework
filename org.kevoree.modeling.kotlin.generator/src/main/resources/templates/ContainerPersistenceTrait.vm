@@ -12,7 +12,6 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
   trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KMFContainerProxy {
 #end
 
-
     fun checkLazyLoad(){
         if(isDeleted()){
             throw Exception("This object is deleted")
@@ -27,6 +26,7 @@ trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kev
             originFactory!!.loadInbounds(this)
             internal_eContainer = previousParent
             inResolution = false
+            isDirty = false
         }
     }
 

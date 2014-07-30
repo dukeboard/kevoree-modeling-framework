@@ -12,6 +12,8 @@ import java.util.HashMap
 
 class EntitiesMeta() {
 
+    var isDirty = false;
+
     val sep = "#"
 
     var list = HashMap<String, Boolean>()
@@ -37,6 +39,7 @@ class EntitiesMeta() {
         for (elem in elements) {
             list.put(elem, true)
         }
+        isDirty = false;
     }
 
 }

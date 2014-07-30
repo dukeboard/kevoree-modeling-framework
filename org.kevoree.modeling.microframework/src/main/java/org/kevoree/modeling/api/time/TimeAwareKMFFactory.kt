@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.time.blob.TimeMeta
 import org.kevoree.modeling.api.time.blob.EntitiesMeta
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.blob.MetaHelper
+import org.kevoree.modeling.api.persistence.KMFContainerProxy
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,24 +17,20 @@ import org.kevoree.modeling.api.time.blob.MetaHelper
  * Time: 16:35
  */
 
-trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
+trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
 
     var relativeTime: TimePoint
     var entitiesCache: EntitiesMeta?
+    var sharedCache: org.kevoree.modeling.api.time.blob.SharedCache
 
-    override fun clearCache() {
-        super<PersistenceKMFFactory>.clearCache()
+    override fun clear() {
+        super<PersistenceKMFFactory>.clear()
         sharedCache.timeCache.clear()
         entitiesCache = null
     }
 
-    var sharedCache: org.kevoree.modeling.api.time.blob.SharedCache<A>
 
-    override fun cleanUnusedPaths(path: String) {
-        //TODO
-    }
-
-    internal fun internal_commit(syncAtEnd: Boolean) {
+    override fun commit() {
         val keys = modified_elements.keySet().toList()
         for (elem in keys) {
             val resolved = modified_elements.get(elem)
@@ -51,38 +48,23 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             persist(elem)
             elementsToBeRemoved.remove(elem.path())
         }
-        for (e in elementsToBeRemoved) {
-            cleanUnusedPaths(e)
-        }
-        if (syncAtEnd) {
-            datastore?.sync()
-            clearCache()
-        }
-
         val entitiesMeta = getEntitiesMeta(relativeTime)
-        datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
-        sharedCache.drop(relativeTime)
-    }
-
-
-    override fun commit() {
-        internal_commit(true)
-    }
-
-    fun commitAll() {
-        val clonedKet = sharedCache.keys().toList()
-        for (tv in clonedKet) {
-            (sharedCache.get(tv) as? TimeAwareKMFFactory )?.internal_commit(false)
+        if (entitiesMeta.isDirty) {
+            datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
+            entitiesMeta.isDirty = false;
         }
-        datastore?.sync()
-        sharedCache.flush()
-        clearCache()
+        val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
+        if (globalTime.dirty) {
+            datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
+            globalTime.dirty = false
+        }
     }
 
     override fun persist(elem: KMFContainer) {
-
+        if (elem is KMFContainerProxy && !elem.isDirty) {
+            return;
+        }
         val currentPath = elem.path()
-
         if (currentPath == "") {
             throw Exception("Internal error, empty path found during persist method " + elem)
         }
@@ -99,7 +81,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             //add currentPath to currentTimePointMeta
             val entitiesMeta = getEntitiesMeta(relativeTime)
             entitiesMeta.list.put(currentPath, true)
-
+            entitiesMeta.isDirty = true;
 
             val key = "${relativeTime.toString()}/$currentPath"
             datastore!!.put(TimeSegment.RAW.name(), key, traceSeq.exportToString())
@@ -110,18 +92,20 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             datastore!!.put(TimeSegment.RAW.name(), key + "#", saved)
 
             val timeTree = getTimeTree(currentPath)
-            timeTree.versionTree.insert(relativeTime, "")
-            datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeTree.toString())
+            if (timeTree.versionTree.lookup(relativeTime) == null) {
+                timeTree.versionTree.insert(relativeTime, "")
+                datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeTree.toString())
+                timeTree.dirty = false
+            }
 
-            casted.meta!!.lastestPersisted = relativeTime
+            casted.meta!!.latestPersisted = relativeTime
             datastore!!.put(TimeSegment.ENTITYMETA.name(), key, casted.meta.toString())
 
             //check global time
-            //TODO maybe use a global lock for this write
             val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
             if (globalTime.versionTree.lookup(relativeTime) == null) {
                 globalTime.versionTree.insert(relativeTime, "");
-                datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
+                globalTime.dirty = true;
             }
         }
     }
@@ -137,6 +121,7 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeTree.toString())
             val entitiesMeta = getEntitiesMeta(relativeTime)
             entitiesMeta.list.remove(currentPath)
+            entitiesMeta.isDirty = true;
             datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
             val key = "${relativeTime.toString()}/$currentPath";
             datastore!!.remove(TimeSegment.RAW.name(), key);
@@ -183,12 +168,13 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             //update elements updated at this time
             val entitiesMeta = getEntitiesMeta(relativeTime)
             entitiesMeta.list.put(currentPath, true)
+            entitiesMeta.isDirty = true;
             datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
             //Create endpoint in the global ordering of time
             val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
             if (globalTime.versionTree.lookup(relativeTime) == null) {
                 globalTime.versionTree.insert(relativeTime, "");
-                datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
+                globalTime.dirty = true
             }
 
             modified_elements.remove(elem.hashCode().toString())
@@ -307,10 +293,10 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         val currentPath = origin.path()
         var sequence = TraceSequence(this)
         val castedOrigin = origin as TimeAwareKMFContainer
-        if (castedOrigin.meta!!.lastestPersisted == null) {
+        if (castedOrigin.meta!!.latestPersisted == null) {
             return null
         }
-        var traces = datastore?.get(TimeSegment.RAW.name(), "${castedOrigin.meta!!.lastestPersisted}/$currentPath")
+        var traces = datastore?.get(TimeSegment.RAW.name(), "${castedOrigin.meta!!.latestPersisted}/$currentPath")
         if (traces != null) {
             sequence.populateFromString(traces!!)
             return sequence
@@ -318,12 +304,8 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
         return null
     }
 
-    override fun now(): TimePoint? {
+    override fun now(): TimePoint {
         return relativeTime
-    }
-
-    override fun time(tps: String): TimeView<A> {
-        return time(TimePoint.create(tps))
     }
 
     override fun modified(): Set<String> {
@@ -333,13 +315,13 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
     override fun loadInbounds(elem: KMFContainer) {
         val castedInBounds = elem as InboundRefAware
         val casted2 = elem as TimeAwareKMFContainer
-        val payload = datastore!!.get(TimeSegment.RAW.name(), "${casted2.meta!!.lastestPersisted}/${elem.path()}#")
+        val payload = datastore!!.get(TimeSegment.RAW.name(), "${casted2.meta!!.latestPersisted}/${elem.path()}#")
         if (payload != null) {
             castedInBounds.internal_inboundReferences = MetaHelper.unserialize(payload, this)
         }
     }
 
-    override fun delete(): TimeView<A> {
+    override fun delete() {
         for (path in getEntitiesMeta(relativeTime).list.keySet()) {
             val key = "${relativeTime.toString()}/${path}"
             //Insert this timeMeta into the global ordering of time of this object
@@ -365,8 +347,10 @@ trait TimeAwareKMFFactory<A> : PersistenceKMFFactory, TimeView<A> {
             globalTime.versionTree.insert(relativeTime, "");
             datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
         }
-        getEntitiesMeta(relativeTime).list.clear()
-        return this
+        val entitiesMeta = getEntitiesMeta(relativeTime)
+        entitiesMeta.list.clear()
+        entitiesMeta.isDirty = true;
+        datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
     }
 
     override fun diff(tp: TimePoint): TraceSequence {

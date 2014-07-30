@@ -13,7 +13,7 @@ public trait KMFContainerProxy : KMFContainer {
 
     var isResolved: Boolean
     var inResolution: Boolean
-
+    var isDirty : Boolean
     var originFactory: PersistenceKMFFactory?
 
     fun setOriginPath(path: String)

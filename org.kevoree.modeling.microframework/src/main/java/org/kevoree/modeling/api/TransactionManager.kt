@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api
 
-import org.kevoree.modeling.api.persistence.DataStore
 import org.kevoree.modeling.api.time.TimeView
 
 /**
@@ -16,5 +15,5 @@ trait Transaction {
     fun close()
 }
 trait TimeTransaction : Transaction {
-    fun time(timepoint: String): TimeView<*>
+    fun time(timepoint: String): TimeView
 }

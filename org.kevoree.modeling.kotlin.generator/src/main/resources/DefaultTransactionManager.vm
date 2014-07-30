@@ -1,0 +1,96 @@
+#* @vtlvariable name="packageName" type="java.lang.String" *#
+#* @vtlvariable name="formatedFactoryName" type="java.lang.String" *#
+#* @vtlvariable name="formatedName" type="java.lang.String" *#
+#* @vtlvariable name="formatedName2" type="java.lang.String" *#
+#* @vtlvariable name="formatedName3" type="java.lang.String" *#
+#* @vtlvariable name="formatedFactoryNameImpl" type="java.lang.String" *#
+
+#* @vtlvariable name="modelVersion" type="java.lang.String" *#
+#* @vtlvariable name="js" type="java.lang.Boolean" *#
+#* @vtlvariable name="classes" type="java.util.List<org.eclipse.emf.ecore.EClassifier>" *#
+#* @vtlvariable name="ctx" type="org.kevoree.modeling.kotlin.generator.GenerationContext" *#
+#* @vtlvariable name="helper" type="org.kevoree.modeling.kotlin.generator.ProcessorHelper" *#
+
+package ${packageName}.factory;
+
+import org.kevoree.modeling.api.TransactionManager
+import org.kevoree.modeling.api.Transaction
+import org.kevoree.modeling.api.TimeTransaction
+import org.kevoree.modeling.api.persistence.DataStore
+import org.kevoree.modeling.api.time.TimeView
+import org.kevoree.modeling.api.time.TimePoint
+
+class ${formatedName}(val datastore : DataStore) : TransactionManager {
+
+    private var isClosed : Boolean = false
+
+    override fun createTransaction(): Transaction {
+        if(isClosed){
+            throw Exception("This TransactionManager is closed !");
+        }
+        #if($ctx.timeAware)
+            return ${formatedName2}(datastore);
+        #else
+            var n = ${formatedName2}()
+            n.datastore = datastore;
+            return n;
+        #end
+    }
+
+    override fun close() {
+        if(!isClosed){
+            isClosed = true
+            datastore.sync()
+        }
+    }
+}
+
+class ${formatedName2}(#if($ctx.timeAware) internal val datastore : DataStore #end) : #if($ctx.timeAware) TimeTransaction #else Default${formatedFactoryNameImpl}(),Transaction #end {
+
+
+    #if($ctx.timeAware)
+        val sharedCache = org.kevoree.modeling.api.time.blob.SharedCache()
+
+        override fun time(timepoint: String): ${formatedName3} {
+            val tp = TimePoint.create(timepoint);
+            val resolved : ${formatedName3}? = sharedCache.get(tp) as? ${formatedName3};
+            if(resolved != null){
+                return resolved;
+            } else {
+                 val temp = Default${formatedFactoryNameImpl}();
+                 temp.sharedCache = sharedCache;
+                 temp.datastore = datastore;
+                 temp.relativeTime = tp;
+                 sharedCache.add(tp,temp);
+                 return temp;
+            }
+        }
+
+    override fun commit() {
+        for (tv in sharedCache.keys()) {
+            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.commit();
+        }
+    }
+    override fun close() {
+        for (tv in sharedCache.keys()) {
+            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.clear();
+        }
+        sharedCache.flush()
+        datastore.sync()
+    }
+    #else
+        #if($ctx.persistence)
+             override fun close() {
+                clear();
+                datastore!!.sync();
+            }
+        #end
+
+    #end
+
+}
+
+
+#if($ctx.timeAware)
+trait ${formatedName3} : TimeView,${formatedFactoryName} {}
+#end

@@ -94,6 +94,7 @@ public class ClassGenerator {
             pr.println("override var isResolved: Boolean = true");
             pr.println("override var inResolution: Boolean = false");
             pr.println("override var originFactory: org.kevoree.modeling.api.persistence.PersistenceKMFFactory? = null");
+            pr.println("override var isDirty = false;\n");
         }
         if (ctx.timeAware) {
             pr.println("override var now: org.kevoree.modeling.api.time.TimePoint? = null");

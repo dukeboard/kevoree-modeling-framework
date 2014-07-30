@@ -9,16 +9,16 @@ import java.util.concurrent.ConcurrentHashMap
  * Created by duke on 7/24/14.
  */
 
-public class SharedCache<A> {
+public class SharedCache {
 
-    private var times = HashMap<TimePoint, TimeView<A>>()
+    private var times = HashMap<TimePoint, TimeView>()
     var timeCache: MutableMap<String, TimeMeta> = ConcurrentHashMap<String, TimeMeta>()
 
-    fun add(tp: TimePoint, tv: TimeView<A>) {
+    fun add(tp: TimePoint, tv: TimeView) {
         times.put(tp, tv)
     }
 
-    fun get(tp: TimePoint): TimeView<A>? {
+    fun get(tp: TimePoint): TimeView? {
         return times.get(tp)
     }
 

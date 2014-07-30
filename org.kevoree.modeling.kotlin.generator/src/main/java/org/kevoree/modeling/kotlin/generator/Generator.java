@@ -296,7 +296,7 @@ public class Generator {
         System.out.println("Launching model generation");
         modelGen.process(model);
 
-        FactoryGenerator.generateMainFactory(ctx, model, modelVersion, targetName);
+        FactoryGenerator.generate(ctx, model, modelVersion, targetName);
 
 
         System.out.println("Done with model generation");

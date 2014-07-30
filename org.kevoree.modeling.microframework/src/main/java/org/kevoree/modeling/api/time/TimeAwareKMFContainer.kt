@@ -17,24 +17,24 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
     var now: TimePoint?
 
     fun previous(): TimePoint? {
-        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).floor(path(), now)
+        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).floor(path(), now)
         } else {
             return null
         }
     }
 
     fun next(): TimePoint? {
-        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).ceil(path(), now)
+        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).ceil(path(), now)
         } else {
             return null
         }
     }
 
-    fun lastest(): TimePoint? {
-        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).latest(path())
+    fun latest(): TimePoint? {
+        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).latest(path())
         } else {
             return null
         }
@@ -42,8 +42,8 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     fun floor(p: String): TimePoint? {
         val tp = TimePoint.create(p)
-        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).floor(path(), tp)
+        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).floor(path(), tp)
         } else {
             return null
         }
@@ -51,8 +51,8 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     fun ceil(p: String): TimePoint? {
         val tp = TimePoint.create(p)
-        if (originFactory != null && originFactory is TimeAwareKMFFactory<*>) {
-            return (originFactory as TimeAwareKMFFactory<*>).ceil(path(), tp)
+        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
+            return (originFactory as TimeAwareKMFFactory).ceil(path(), tp)
         } else {
             return null
         }

@@ -12,7 +12,7 @@ import org.kevoree.modeling.api.time.TimeWalker
 
 class TimeMeta() {
 
-    var dirty: Boolean = true
+    var dirty: Boolean = true;
 
     var versionTree: RBTree = RBTree()
 
@@ -22,6 +22,7 @@ class TimeMeta() {
 
     fun load(payload: String) {
         versionTree.unserialize(payload)
+        dirty = false;
     }
 
     fun walk(walker : TimeWalker) {

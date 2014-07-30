@@ -55,6 +55,10 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     protected fun persist(elem: KMFContainer) {
 
+        if(elem is KMFContainerProxy && !elem.isDirty){
+           return;
+        }
+
         val elemPath = elem.path()
         if (elemPath == "") {
             throw Exception("Internal error, empty path found during persist method " + elem)
@@ -102,16 +106,9 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         for (e in elementsToBeRemoved) {
             cleanUnusedPaths(e)
         }
-        datastore?.sync()
-        clearCache()
     }
 
-    fun rollback() {
-        //TODO
-        clearCache()
-    }
-
-    protected fun clearCache() {
+    fun clear() {
         for (elem in elem_cache.values()) {
             elem.removeModelElementListener(this)
         }
@@ -121,7 +118,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     override fun elementChanged(evt: ModelEvent) {
-        notify(evt.source!!)
+        (evt.source as KMFContainerProxy).isDirty = true
+        notify(evt.source)
     }
 
     protected fun monitor(elem: KMFContainer) {
