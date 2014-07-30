@@ -24,7 +24,7 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
 
     private var isClosed : Boolean = false
 
-    override fun createTransaction(): Transaction {
+    override fun createTransaction(): ${formatedName2} {
         if(isClosed){
             throw Exception("This TransactionManager is closed !");
         }

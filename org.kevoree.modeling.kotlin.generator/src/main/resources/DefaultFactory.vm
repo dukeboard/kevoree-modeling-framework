@@ -80,6 +80,7 @@ override var sharedCache : org.kevoree.modeling.api.time.blob.SharedCache = org.
     (elem as ${ctx.getKevoreeContainerImplFQN()}).is_root = true
     (elem as ${ctx.getKevoreeContainerImplFQN()}).path_cache = "/"
     modified_elements.put("/", elem)
+    elem_cache.put("/", elem)
     }
     #end
 
