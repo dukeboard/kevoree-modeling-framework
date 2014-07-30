@@ -44,7 +44,7 @@ when(metaClassName){
 
     override var datastore: org.kevoree.modeling.api.persistence.DataStore? = org.kevoree.modeling.api.persistence.MemoryDataStore()
 
-    override dirty : Boolean = false;
+    override var dirty : Boolean = false;
 
     protected fun initObject(elem : org.kevoree.modeling.api.persistence.KMFContainerProxy){
         elem.originFactory = this
