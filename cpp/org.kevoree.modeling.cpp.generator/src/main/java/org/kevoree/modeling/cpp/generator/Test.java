@@ -18,11 +18,12 @@ public class Test {
         context.setEcore("/home/jed/KEVOREE_PROJECT/kevoree-cpp/kevoree-core/model/metamodel/kevoree.ecore");
         context.setDebug_model(false);
         context.setVersion("1.0");
-        context.setVersionmicroframework("1.3-SNAPSHOT");
+        context.setVersionmicroframework("1.3.2");
 
 
         Generator gen = new Generator(context);
         gen.generateModel();
+   // gen.generateEnvironnement();
 
 
 

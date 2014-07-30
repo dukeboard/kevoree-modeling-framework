@@ -41,6 +41,10 @@ public abstract  class AGenerator {
     protected String msg_DEBUG(EClass cls,String msg){
         return "LOGGER_WRITE(Logger::DEBUG_MODEL,\""+cls.getName()+" --> "+msg+"\");";
     }
+
+    protected String msg_ERROR(EClass cls,String msg){
+        return "LOGGER_WRITE(Logger::DEBUG_MODEL,\""+cls.getName()+" --> "+msg+"\");";
+    }
     protected void ADD_DEBUG(EClass cls,String msg){
         if(ctx.isDebug_model()){
             add_CPP(msg_DEBUG(cls,msg));

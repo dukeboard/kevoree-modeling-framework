@@ -533,7 +533,12 @@ public class ClassGenerator extends AGenerator {
         if(ctx.isDebug_model()){
             add_CPP("LOGGER_WRITE(Logger::DEBUG_MODEL,\"REQUEST -- findByID "+ref.getName()+" => \"+id);" );
         }
+
+        add_CPP("if("+ref.getName()+".find(id) != "+ref.getName()+".end())");
+        add_CPP("{");
         add_CPP("return "+ref.getName()+"[id];");
+        add_CPP("}else { return NULL; }");
+
         add_CPP("}");
 
     }
