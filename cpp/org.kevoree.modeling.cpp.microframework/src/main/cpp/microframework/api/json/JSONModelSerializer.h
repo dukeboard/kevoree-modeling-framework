@@ -26,9 +26,9 @@ class SerializerAttributeVisitor:public ModelAttributeVisitor
 {
 public:
 	SerializerAttributeVisitor (std::string *out)
-{
+	{
 		this->out = out;
-}
+	}
 
 	void  visit(any val,string name,KMFContainer *parent)
 	{
@@ -70,11 +70,11 @@ class ModelReferenceVisitor :public ModelVisitor
 {
 public:
 	ModelReferenceVisitor(std::string *_out)
-{
+	{
 		isFirst=true;
 		this->out = _out;
 
-}
+	}
 	void beginVisitRef(string refName,string refType)
 	{
 		out->append(",\n\"" + refName + "\":[");
@@ -102,11 +102,11 @@ class ModelMasterVisitor :public ModelVisitor
 {
 public:
 	ModelMasterVisitor(std::string *_out)
-{
+	{
 		isFirstInRef=true;
 		out = _out;
 		internalReferenceVisitor =new ModelReferenceVisitor(_out);
-}
+	}
 
 	void printAttName(KMFContainer *elem,string *out)
 	{

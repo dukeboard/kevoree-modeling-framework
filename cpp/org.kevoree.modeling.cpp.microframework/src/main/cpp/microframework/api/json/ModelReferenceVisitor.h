@@ -4,16 +4,16 @@
 
 class ModelReferenceVisitor:public ModelVisitor
 {
-  public:
-    ModelReferenceVisitor ()
-    {
+public:
+	ModelReferenceVisitor ()
+	{
 
-    }
+	}
 
-    void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
-    {
+	void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
+	{
 
-    }
+	}
 
 };
 

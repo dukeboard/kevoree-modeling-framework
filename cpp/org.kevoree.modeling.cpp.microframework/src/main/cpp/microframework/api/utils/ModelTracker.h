@@ -12,7 +12,7 @@ using std::string;
  */
 class ModelTracker : public ModelElementListener {
 
-  public:
+public:
 
 };
 

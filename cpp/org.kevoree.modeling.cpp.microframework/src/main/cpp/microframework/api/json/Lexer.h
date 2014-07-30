@@ -17,10 +17,10 @@ class Token
 {
 public:
 	Token(int _tokenType,string _value)
-{
+	{
 		tokenType = _tokenType;
 		value =_value;
-}
+	}
 
 	std::string toString(){
 		string v;

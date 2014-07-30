@@ -27,8 +27,8 @@ public:
 	string toString ();
 	void reverse();
 
-list<ModelTrace*> traces;
-KMFFactory *factory;
+	list<ModelTrace*> traces;
+	KMFFactory *factory;
 };
 
 

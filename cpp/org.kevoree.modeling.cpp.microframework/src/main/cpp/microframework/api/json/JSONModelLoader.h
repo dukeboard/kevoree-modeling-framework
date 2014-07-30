@@ -34,17 +34,17 @@ class JSONModelLoader : public ModelLoader
 {
 
 public:
-  JSONModelLoader();
-  ~JSONModelLoader();
-  KMFFactory *factory;
-  void setFactory(KMFFactory *factory);
-  vector<KMFContainer*>* loadModelFromString(string str);
-  vector<KMFContainer*>* loadModelFromStream(istream &inputStream);
+	JSONModelLoader();
+	~JSONModelLoader();
+	KMFFactory *factory;
+	void setFactory(KMFFactory *factory);
+	vector<KMFContainer*>* loadModelFromString(string str);
+	vector<KMFContainer*>* loadModelFromStream(istream &inputStream);
 
 private:
-vector<KMFContainer*>* deserialize(istream &inputStream);
-void loadObject(Lexer *lexer,string nameInParent,KMFContainer *parent,vector<KMFContainer*> *roots ,vector<ResolveCommand*> *commands);
-string  unescapeJSON(string src);
+	vector<KMFContainer*>* deserialize(istream &inputStream);
+	void loadObject(Lexer *lexer,string nameInParent,KMFContainer *parent,vector<KMFContainer*> *roots ,vector<ResolveCommand*> *commands);
+	string  unescapeJSON(string src);
 
 
 };

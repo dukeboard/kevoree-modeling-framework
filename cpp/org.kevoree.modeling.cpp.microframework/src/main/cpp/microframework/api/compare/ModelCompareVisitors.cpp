@@ -23,7 +23,7 @@ ModelCompareVisitorCreateTraces::~ModelCompareVisitorCreateTraces(){
 
 void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
 {
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"BEGIN -- ModelCompareVisitorCreateTraces "+elem->path());
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"BEGIN -- ModelCompareVisitorCreateTraces "+elem->path());
 	string childPath = elem->path ();
 	if (!childPath.empty ())
 	{
@@ -77,7 +77,7 @@ void ModelCompareVisitorCreateTraces::visit (KMFContainer * elem, string refName
 		// TODO THROW EXCEPTION
 		LOGGER_WRITE(Logger::ERROR,"ERROR the child path is not defined "+elem->path());
 	}
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"END -- ModelCompareVisitorCreateTraces "+elem->path());
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"END -- ModelCompareVisitorCreateTraces "+elem->path());
 
 }
 

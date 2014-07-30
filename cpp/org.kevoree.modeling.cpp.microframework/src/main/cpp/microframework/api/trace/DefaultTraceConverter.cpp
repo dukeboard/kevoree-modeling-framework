@@ -56,5 +56,5 @@ string DefaultTraceConverter::tryConvertAttName(string previousAttName){
 	if(metaClassNameEquivalence_2.find(FQNattName) != metaClassNameEquivalence_1.end()){
 		return   metaClassNameEquivalence_2[FQNattName];
 	}
-
+	return "";
 }

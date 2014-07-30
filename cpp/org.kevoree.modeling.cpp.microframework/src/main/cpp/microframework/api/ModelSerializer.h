@@ -14,8 +14,8 @@ class ModelSerializer
 {
 
 public:
-    virtual void serializeToStream(KMFContainer *model, iostream  raw)=0;
-    virtual string serialize(KMFContainer *model)=0;
+	virtual void serializeToStream(KMFContainer *model, iostream  raw)=0;
+	virtual string serialize(KMFContainer *model)=0;
 };
 
 

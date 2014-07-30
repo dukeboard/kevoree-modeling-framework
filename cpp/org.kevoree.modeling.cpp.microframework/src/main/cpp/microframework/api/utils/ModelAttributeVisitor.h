@@ -12,8 +12,8 @@ using std::string;
 
 class KMFContainer;
 class ModelAttributeVisitor {
-  public:
-  virtual void visit(any value,string name,KMFContainer *parent){}
+public:
+	virtual void visit(any value,string name,KMFContainer *parent){}
 };
 
 

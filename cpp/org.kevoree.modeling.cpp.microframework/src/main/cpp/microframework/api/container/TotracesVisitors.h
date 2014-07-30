@@ -10,10 +10,10 @@ class ToTracesattVisitorFill :public ModelAttributeVisitor
 
 public:
 	ToTracesattVisitorFill (std::string _path,list<ModelTrace*> *_traces)
-{
+	{
 		traces = _traces;
 		path = _path;
-}
+	}
 
 	void  visit(any val,string name,KMFContainer *parent)
 	{
@@ -48,10 +48,10 @@ class ToTracesrefVisitorFill :public ModelVisitor
 {
 public:
 	ToTracesrefVisitorFill (std::string _path,list<ModelTrace*> *_traces)
-{
+	{
 		traces = _traces;
 		path = _path;
-}
+	}
 
 	void visit (KMFContainer * elem, string refNameInParent,KMFContainer * parent)
 	{

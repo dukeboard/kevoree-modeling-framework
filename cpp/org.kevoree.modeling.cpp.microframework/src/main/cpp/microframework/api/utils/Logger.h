@@ -44,7 +44,7 @@ private:
     // constructor, copy constructor and assignment operator.
     Logger();
     Logger(const Logger& logger) {}
-    Logger& operator = (const Logger& logger) {}
+    Logger& operator = (const Logger& logger);
 
     // private instance data
     bool        active;

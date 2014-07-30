@@ -13,22 +13,22 @@ class RemoveFromContainerCommand
 {
 
 public:
-    RemoveFromContainerCommand(KMFContainer *_target,int _mutatorType,string _refName,any _element) {
-          target = _target;
-          mutatorType = _mutatorType;
-          refName = _refName;
-          element = _element;
-    }
+	RemoveFromContainerCommand(KMFContainer *_target,int _mutatorType,string _refName,any _element) {
+		target = _target;
+		mutatorType = _mutatorType;
+		refName = _refName;
+		element = _element;
+	}
 
-    void run()
-    {
-            target->reflexiveMutator(mutatorType,refName, element,true,true);
-    }
+	void run()
+	{
+		target->reflexiveMutator(mutatorType,refName, element,true,true);
+	}
 private:
-KMFContainer *target;
-int mutatorType;
-std::string refName;
-any element;
+	KMFContainer *target;
+	int mutatorType;
+	std::string refName;
+	any element;
 
 };
 

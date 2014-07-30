@@ -18,15 +18,10 @@ class ModelCloner
 {
 
 public:
-    KMFFactory mainFactory;
-
-
-     virtual std::unordered_map<KMFContainer, KMFContainer> createContext(){}
-
-     template <class A>
-     A clone(A o,bool readOnly,bool mutableOnly);
-    
-    
+	KMFFactory mainFactory;
+	virtual std::unordered_map<KMFContainer, KMFContainer> createContext(){}
+	template <class A>
+	A clone(A o,bool readOnly,bool mutableOnly);
 };
 
 

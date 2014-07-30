@@ -6,7 +6,6 @@
 #include <microframework/api/utils/any.h>
 #include <microframework/api/utils/ModelVisitor.h>
 #include <microframework/api/utils/ModelAttributeVisitor.h>
-#include <microframework/api/utils/Constants.h>
 #include <microframework/api/utils/Logger.h>
 #include <ctime>
 #include <list>
@@ -39,7 +38,7 @@ public:
     virtual bool isReadOnly(){return false;}
     virtual bool isRecursiveReadOnly(){return false;}
     virtual void setInternalReadOnly(){}
-    virtual void deleteContainer(){} // can't use delete reserve c++ 
+    virtual void deleteContainer(){} // can't use delete reserve c++
     virtual bool modelEquals(KMFContainer similarObj){return false;}
     virtual bool deepModelEquals(KMFContainer similarObj){return false;}
     virtual string getRefInParent(){return "";}
@@ -58,7 +57,7 @@ public:
     template <class A> // http://www.cplusplus.com/doc/tutorial/templates
 	A* findByPath(string query,A clazz);
 	virtual string internalGetKey(){return "";};
- 
+
     virtual void visit(ModelVisitor *visitor,bool recursive,bool containedReference ,bool nonContainedReference){ }
     virtual void visitAttributes(ModelAttributeVisitor *visitor ){}
     virtual list<ModelTrace*> *createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes ) {return NULL;}

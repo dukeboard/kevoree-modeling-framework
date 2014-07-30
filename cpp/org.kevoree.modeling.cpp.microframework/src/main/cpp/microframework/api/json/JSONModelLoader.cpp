@@ -108,56 +108,56 @@ void JSONModelLoader::loadObject(Lexer *lexer,string nameInParent,KMFContainer *
                        if(currentToken.tokenType == COMMA){
                         //ignore
                          }      */
-                         if(currentToken.tokenType == VALUE){
-                        	 if(currentNameAttOrRef.empty())
-                        	 {
-                        		 currentNameAttOrRef = currentToken.value;
-                        	 } else
-                        	 {
-                        		 if(refModel)
-                        		 {
-                        			 ResolveCommand *resolvecommand = new ResolveCommand(roots, currentToken.value, currentObject, currentNameAttOrRef);
-                        			 commands->push_back(resolvecommand);
-                        		 } else
-                        		 {
-                        			 any  json =string(unescapeJSON(currentToken.value));
-                        			 currentObject->reflexiveMutator(SET, currentNameAttOrRef,json ,false,false)   ;
-                        			 currentNameAttOrRef.clear();
-                        		 }
-                        	 }
+				if(currentToken.tokenType == VALUE){
+					if(currentNameAttOrRef.empty())
+					{
+						currentNameAttOrRef = currentToken.value;
+					} else
+					{
+						if(refModel)
+						{
+							ResolveCommand *resolvecommand = new ResolveCommand(roots, currentToken.value, currentObject, currentNameAttOrRef);
+							commands->push_back(resolvecommand);
+						} else
+						{
+							any  json =string(unescapeJSON(currentToken.value));
+							currentObject->reflexiveMutator(SET, currentNameAttOrRef,json ,false,false)   ;
+							currentNameAttOrRef.clear();
+						}
+					}
 
-                         }
+				}
 
-                         if(currentToken.tokenType == LEFT_BRACKET){
-                        	 currentToken = lexer->nextToken();
-                        	 if(currentToken.tokenType == LEFT_BRACE){
-                        		 loadObject(lexer, currentNameAttOrRef, currentObject, roots, commands) ;
-                        	 } else {
-                        		 refModel = true; //wait for all ref to be found
-                        		 if(currentToken.tokenType == VALUE){
-                        			 ResolveCommand *resolvecommand = new ResolveCommand(roots, currentToken.value, currentObject, currentNameAttOrRef);
-                        			 commands->push_back(resolvecommand);
-                        		 }
-                        	 }
-                         }
+				if(currentToken.tokenType == LEFT_BRACKET){
+					currentToken = lexer->nextToken();
+					if(currentToken.tokenType == LEFT_BRACE){
+						loadObject(lexer, currentNameAttOrRef, currentObject, roots, commands) ;
+					} else {
+						refModel = true; //wait for all ref to be found
+						if(currentToken.tokenType == VALUE){
+							ResolveCommand *resolvecommand = new ResolveCommand(roots, currentToken.value, currentObject, currentNameAttOrRef);
+							commands->push_back(resolvecommand);
+						}
+					}
+				}
 
-                         if(currentToken.tokenType == RIGHT_BRACKET){
-                        	 currentNameAttOrRef.clear();
-                        	 refModel = false ;
-                         }
+				if(currentToken.tokenType == RIGHT_BRACKET){
+					currentNameAttOrRef.clear();
+					refModel = false ;
+				}
 
 
-                         if(currentToken.tokenType == RIGHT_BRACE){
-                        	 if(parent != NULL)
-                        	 {
-                        		 any  json =currentObject;
-                        		 Logger::Write(Logger::DEBUG_MICROFRAMEWORK, "PARENT ADD" +nameInParent);
-                        		 parent->reflexiveMutator(ADD, nameInParent,json ,false,false)   ;
-                        	 }
-                        	 return; //go out
-                         }
+				if(currentToken.tokenType == RIGHT_BRACE){
+					if(parent != NULL)
+					{
+						any  json =currentObject;
+						Logger::Write(Logger::DEBUG_MICROFRAMEWORK, "PARENT ADD" +nameInParent);
+						parent->reflexiveMutator(ADD, nameInParent,json ,false,false)   ;
+					}
+					return; //go out
+				}
 
-                         currentToken = lexer->nextToken();
+				currentToken = lexer->nextToken();
 
 			}
 

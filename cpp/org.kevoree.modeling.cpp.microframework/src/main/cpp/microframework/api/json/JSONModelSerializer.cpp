@@ -22,5 +22,5 @@ string JSONModelSerializer::serialize(KMFContainer *model)
 	ModelMasterVisitor *masterVisitor = new  ModelMasterVisitor(&out);
 	model->visit(masterVisitor, true, true, false);
 	delete masterVisitor;
-    return out;
+	return out;
 }

@@ -53,7 +53,7 @@ list<ModelTrace*> * KMFContainerImpl::toTraces(bool attributes,bool references){
 }
 void KMFContainerImpl::setEContainer(KMFContainerImpl *container,RemoveFromContainerCommand *unsetCmd,string refNameInParent){
 
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"BEGIN --KMFContainerImpl::setEContainer "+refNameInParent);
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"BEGIN --KMFContainerImpl::setEContainer "+refNameInParent);
 	if(!internal_readOnlyElem)
 	{
 		RemoveFromContainerCommand *tempUnsetCmd = internal_unsetCmd;
@@ -79,12 +79,12 @@ void KMFContainerImpl::setEContainer(KMFContainerImpl *container,RemoveFromConta
 
 	}
 
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"END --KMFContainerImpl:setEContainer");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"END --KMFContainerImpl:setEContainer");
 }
 
 void  KMFContainerImpl::internal_visit(ModelVisitor *visitor,KMFContainer *internalElem,bool recursive,bool containedReference,bool nonContainedReference,string refName)
 {
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"BEGIN --KMFContainerImpl::internal_visit path nonContainedReference");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"BEGIN --KMFContainerImpl::internal_visit path nonContainedReference");
 	if(internalElem != NULL)
 	{
 		if(nonContainedReference && recursive)
@@ -113,13 +113,13 @@ void  KMFContainerImpl::internal_visit(ModelVisitor *visitor,KMFContainer *inter
 			visitor->visitReferences = true;
 		}
 	}
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"END --KMFContainerImpl::internal_visit");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"END --KMFContainerImpl::internal_visit");
 }
 
 
 string KMFContainerImpl::path()
 {
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"REQUEST -- KMFContainerImpl::path");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"REQUEST -- KMFContainerImpl::path");
 	if(!path_cache.empty())
 	{
 		LOGGER_WRITE(Logger::DEBUG_MODEL,"RESULT -- KMFContainerImpl::path "+path_cache);
@@ -143,7 +143,7 @@ string KMFContainerImpl::path()
 	{
 		path_cache =  "";
 	}
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"END --KMFContainerImpl::path");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"END --KMFContainerImpl::path");
 	return path_cache;
 }
 
@@ -210,10 +210,10 @@ void KMFContainerImpl::clean_path_cache(){
 
 list<ModelTrace*>* KMFContainerImpl::createTraces(KMFContainer *similarObj ,bool isInter ,bool isMerge ,bool onlyReferences,bool onlyAttributes )
 {
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"begin -- createTraces");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"\t begin -- createTraces "+similarObj->path());
 	list <ModelTrace*> *traces= new   list <ModelTrace *>;
 	std::map<string,string> values;
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"begin visit attributes");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"begin visit attributes");
 	if(onlyAttributes)
 	{
 
@@ -240,10 +240,11 @@ list<ModelTrace*>* KMFContainerImpl::createTraces(KMFContainer *similarObj ,bool
 
 		}
 	}
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"end visit attributes");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"end visit attributes");
 
 	if(onlyReferences)
 	{
+		LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"begin visiting references");
 		string payload ="";
 		VisitorFillRef *refVisitorFill = new VisitorFillRef(&values);         // TODO FIXE ME ? payload
 		visit(refVisitorFill,false,false,true);
@@ -262,7 +263,8 @@ list<ModelTrace*>* KMFContainerImpl::createTraces(KMFContainer *similarObj ,bool
 			for ( std::map<string,string>::const_iterator it = (values).begin();  it != (values).end(); ++it)
 			{
 				string hashLoopRes =  it->first;
-				vector<string> result =   Utils::split(hashLoopRes,"_");		
+				vector<string> result;
+				Utils::split(result, hashLoopRes, "_");
 				if(result.size() ==2){		
 					ModelRemoveTrace *removetrace = new ModelRemoveTrace(path(),result.at(0),result.at(1));
 					traces->push_back(removetrace);
@@ -273,9 +275,10 @@ list<ModelTrace*>* KMFContainerImpl::createTraces(KMFContainer *similarObj ,bool
 				}
 			}
 		}
+		LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"end visiting references");
 	}
 	values.clear();
-	LOGGER_WRITE(Logger::DEBUG_MODEL,"end -- createTraces");
+	LOGGER_WRITE(Logger::DEBUG_MICROFRAMEWORK,"\t end -- createTraces "+similarObj->path());
 	return traces;
 }
 template <class A>

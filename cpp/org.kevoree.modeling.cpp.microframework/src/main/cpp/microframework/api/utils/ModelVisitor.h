@@ -15,21 +15,21 @@ class KMFContainer;
 class ModelVisitor
 {
 
-  public:
-  ModelVisitor();
-  void stopVisit();
-  void noChildrenVisit();
-  void noReferencesVisit();
-  virtual void visit(KMFContainer *elem,string refNameInParent, KMFContainer* parent)=0;
-  virtual void beginVisitElem(KMFContainer *elem){}
-  virtual void endVisitElem(KMFContainer *elem){}
-  virtual void beginVisitRef(string refName,string refType){}
-  virtual void endVisitRef(string refName){}
+public:
+	ModelVisitor();
+	void stopVisit();
+	void noChildrenVisit();
+	void noReferencesVisit();
+	virtual void visit(KMFContainer *elem,string refNameInParent, KMFContainer* parent)=0;
+	virtual void beginVisitElem(KMFContainer *elem){}
+	virtual void endVisitElem(KMFContainer *elem){}
+	virtual void beginVisitRef(string refName,string refType){}
+	virtual void endVisitRef(string refName){}
 
-  bool visitStopped; // false
-  bool visitChildren; // true
-  bool visitReferences; // true;
-  std::unordered_map<string,KMFContainer*> alreadyVisited;
+	bool visitStopped; // false
+	bool visitChildren; // true
+	bool visitReferences; // true;
+	std::unordered_map<string,KMFContainer*> alreadyVisited;
 };
 
 

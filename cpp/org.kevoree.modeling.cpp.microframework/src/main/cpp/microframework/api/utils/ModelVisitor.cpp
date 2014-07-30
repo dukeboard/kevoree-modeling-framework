@@ -2,22 +2,22 @@
 
 void ModelVisitor::stopVisit()
 {
-        visitStopped = true;
+	visitStopped = true;
 }
 
 void ModelVisitor::noChildrenVisit()
 {
-        visitChildren = true;
+	visitChildren = true;
 }
 
 
 ModelVisitor::ModelVisitor(){
-	  visitStopped = false;
-	  visitChildren = true;
-	  visitReferences=true;
+	visitStopped = false;
+	visitChildren = true;
+	visitReferences=true;
 }
 
 
 void ModelVisitor::noReferencesVisit(){
-     visitReferences = false;
+	visitReferences = false;
 }
