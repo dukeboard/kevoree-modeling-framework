@@ -61,7 +61,7 @@ class TimeMeta() {
         }
     }
 
-    fun walkRangeAsc(walker : TimeWalker, from : TimePoint?, to : TimePoint?) {
+    fun walkRangeAsc(walker : TimeWalker, from : Long?, to : Long?) {
         var startNode : Node? = null
         if(from != null) {
             startNode = versionTree.lowerOrEqual(from)
@@ -78,7 +78,7 @@ class TimeMeta() {
         }
     }
 
-    fun walkRangeDesc(walker : TimeWalker, from : TimePoint?, to : TimePoint?) {
+    fun walkRangeDesc(walker : TimeWalker, from : Long?, to : Long?) {
         var startNode : Node? = null
         if(from != null) {
             startNode = versionTree.lowerOrEqual(from)
@@ -111,7 +111,7 @@ class TimeMeta() {
         }
     }
 
-    private fun internalRangeWalkerAsc(currentNode : Node, walker : TimeWalker, to : TimePoint? = null, first : Boolean = false) : Boolean {
+    private fun internalRangeWalkerAsc(currentNode : Node, walker : TimeWalker, to : Long? = null, first : Boolean = false) : Boolean {
 
         if (!first && currentNode.left != null) {
             if(internalRangeWalkerAsc(currentNode.left!!, walker, to)) {
@@ -128,7 +128,7 @@ class TimeMeta() {
         return false;
     }
 
-    private fun internalRangeWalkerDesc(currentNode : Node, walker : TimeWalker, to : TimePoint? = null, first : Boolean = false) : Boolean {
+    private fun internalRangeWalkerDesc(currentNode : Node, walker : TimeWalker, to : Long? = null, first : Boolean = false) : Boolean {
         if (!first && currentNode.right != null) {
             if(internalRangeWalkerDesc(currentNode.right!!, walker)){
                 return true;

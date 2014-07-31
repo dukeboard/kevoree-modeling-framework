@@ -18,7 +18,6 @@ import org.kevoree.modeling.api.Transaction
 import org.kevoree.modeling.api.TimeTransaction
 import org.kevoree.modeling.api.persistence.DataStore
 import org.kevoree.modeling.api.time.TimeView
-import org.kevoree.modeling.api.time.TimePoint
 
 class ${formatedName}(val datastore : DataStore) : TransactionManager {
 
