@@ -195,7 +195,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             //drop additional related raw
             datastore!!.remove(TimeSegment.RAW.name(), key + "#");
             //update elements updated at this time
-            val entitiesMeta = getEntitiesMeta(relativeTime)
+            val entitiesMeta = getEntitiesMeta()
             entitiesMeta.list.put(currentPath, true)
             entitiesMeta.isDirty = true;
             datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
@@ -326,7 +326,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
     }
 
     override fun modified(): Set<String> {
-        return getEntitiesMeta(relativeTime).list.keySet()
+        return getEntitiesMeta().list.keySet()
     }
 
     override fun loadInbounds(elem: KMFContainer) {
@@ -339,7 +339,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
     }
 
     override fun delete() {
-        for (path in getEntitiesMeta(relativeTime).list.keySet()) {
+        for (path in getEntitiesMeta().list.keySet()) {
             val key = "${relativeTime.toString()}/${path}"
             //Insert this timeMeta into the global ordering of time of this object
             val timeMetaPayLoad = datastore!!.get(TimeSegment.TIMEMETA.name(), path)
@@ -368,13 +368,15 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             }
         }
 
-        val entitiesMeta = getEntitiesMeta(relativeTime)
+        val entitiesMeta = getEntitiesMeta()
         entitiesMeta.list.clear()
         entitiesMeta.isDirty = true;
     }
 
+
     override fun diff(tp: TimePoint): TraceSequence {
         val sequence: TraceSequence = TraceSequence(this)
+        /*
         val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
         var resolved1 = globalTime.versionTree.lowerOrEqual(relativeTime)?.value
         var resolved2 = globalTime.versionTree.lowerOrEqual(tp)?.value
@@ -400,6 +402,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             }
             currentTP = TimePoint.create(globalTime.versionTree.upper(currentTP)?.value!!);
         }
+        */
         return sequence
     }
 
