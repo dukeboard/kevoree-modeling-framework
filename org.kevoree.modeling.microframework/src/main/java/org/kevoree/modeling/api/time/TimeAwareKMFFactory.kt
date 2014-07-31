@@ -23,9 +23,46 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
     var entitiesCache: EntitiesMeta?
     var sharedCache: org.kevoree.modeling.api.time.blob.SharedCache
 
+    private fun getEntitiesMeta(): EntitiesMeta {
+        if (entitiesCache != null) {
+            return entitiesCache!!;
+        } else {
+            val payload = datastore!!.get(TimeSegment.ENTITIES.name(), relativeTime.toString());
+            val blob = EntitiesMeta();
+            if (payload != null) {
+                blob.load(payload);
+            }
+            entitiesCache = blob;
+            return blob;
+        }
+    }
+
+    override fun endCommit() {
+        val entitiesMeta = getEntitiesMeta()
+        for (path in entitiesMeta.list.keySet()) {
+            val timeTree = getTimeTree(path)
+            if (timeTree.dirty) {
+                datastore!!.put(TimeSegment.TIMEMETA.name(), path, timeTree.toString())
+                timeTree.dirty = false
+            }
+        }
+        if (entitiesMeta.isDirty) {
+            datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
+            entitiesMeta.isDirty = false;
+        }
+        val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
+        if (globalTime.dirty) {
+            datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
+            globalTime.dirty = false
+        }
+    }
+
     override fun clear() {
+        if (entitiesCache != null && entitiesCache!!.isDirty) {
+            println("WARNING :: CLOSED TimeView in dirty mode ! " + relativeTime)
+        }
+
         super<PersistenceKMFFactory>.clear()
-        sharedCache.timeCache.clear()
         entitiesCache = null
     }
 
@@ -40,7 +77,6 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         }
         elem.addModelElementListener(this)
     }
-
 
     override fun commit() {
         val keys = modified_elements.keySet().toList()
@@ -60,16 +96,6 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             persist(elem)
             elementsToBeRemoved.remove(elem.path())
         }
-        val entitiesMeta = getEntitiesMeta(relativeTime)
-        if (entitiesMeta.isDirty) {
-            datastore!!.put(TimeSegment.ENTITIES.name(), relativeTime.toString(), entitiesMeta.toString())
-            entitiesMeta.isDirty = false;
-        }
-        val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
-        if (globalTime.dirty) {
-            datastore!!.put(TimeSegment.TIMEMETA.name(), TimeSegmentConst.GLOBAL_TIMEMETA, globalTime.toString())
-            globalTime.dirty = false
-        }
     }
 
     override fun persist(elem: KMFContainer) {
@@ -88,30 +114,27 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = TraceSequence(this)
+            //TODO Incremental save hier
             traceSeq.populate(traces)
-
-            //add currentPath to currentTimePointMeta
-            val entitiesMeta = getEntitiesMeta(relativeTime)
+            //Add currentPath to currentTimePointMeta
+            val entitiesMeta = getEntitiesMeta()
             entitiesMeta.list.put(currentPath, true)
             entitiesMeta.isDirty = true;
-
+            //Save RAW of element
             val key = "${relativeTime.toString()}/$currentPath"
             datastore!!.put(TimeSegment.RAW.name(), key, traceSeq.exportToString())
-
-
+            //Save META object of element
             val castedInBounds = elem as InboundRefAware
             val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
             datastore!!.put(TimeSegment.RAW.name(), key + "#", saved)
-
+            casted.meta!!.latestPersisted = relativeTime
+            datastore!!.put(TimeSegment.ENTITYMETA.name(), key, casted.meta.toString())
+            //Update the TimeTree and keep it in memeory until transactino close
             val timeTree = getTimeTree(currentPath)
             if (timeTree.versionTree.lookup(relativeTime) == null) {
                 timeTree.versionTree.insert(relativeTime, "")
-                datastore!!.put(TimeSegment.TIMEMETA.name(), currentPath, timeTree.toString())
-                timeTree.dirty = false
+                timeTree.dirty = true
             }
-
-            casted.meta!!.latestPersisted = relativeTime
-            datastore!!.put(TimeSegment.ENTITYMETA.name(), key, casted.meta.toString())
         }
     }
 
@@ -203,21 +226,6 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
                 blob.load(timeMetaPayLoad);
             }
             sharedCache.timeCache.put(path, blob);
-            return blob;
-        }
-    }
-
-    private fun getEntitiesMeta(tp: TimePoint): EntitiesMeta {
-        val time = tp.toString()
-        if (entitiesCache != null) {
-            return entitiesCache!!;
-        } else {
-            val payload = datastore!!.get(TimeSegment.ENTITIES.name(), time);
-            val blob = EntitiesMeta();
-            if (payload != null) {
-                blob.load(payload);
-            }
-            entitiesCache = blob;
             return blob;
         }
     }

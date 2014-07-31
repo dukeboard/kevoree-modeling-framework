@@ -70,6 +70,9 @@ class ${formatedName2}(#if($ctx.timeAware) internal val datastore : DataStore #e
         for (tv in sharedCache.keys()) {
             (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.commit();
         }
+        for (tv in sharedCache.keys()) {
+            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.endCommit();
+        }
     }
     override fun close() {
         for (tv in sharedCache.keys()) {

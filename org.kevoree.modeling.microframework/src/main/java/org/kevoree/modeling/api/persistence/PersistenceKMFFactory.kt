@@ -87,6 +87,10 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         }
     }
 
+    fun endCommit() {
+
+    }
+
     fun commit() {
         if (!dirty) {
             return
