@@ -28,50 +28,40 @@ class TimeMeta() {
 
 
     fun walkAsc(walker : TimeWalker) {
-        walk(walker : TimeWalker, null, null, false)
+        if(versionTree.root != null) {
+            internalWalkerAsc(versionTree.root!!, walker : TimeWalker)
+        }
     }
 
     fun walkDesc(walker : TimeWalker) {
-        walk(walker : TimeWalker, null, null, false)
+        if(versionTree.root != null) {
+            internalWalkerDesc(versionTree.root!!, walker : TimeWalker)
+        }
     }
 
-    fun walkRangeAsc(walker : TimeWalker, from : Long?, to : Long?) {
-        walk(walker : TimeWalker, from, to)
-    }
 
-    fun walkRangeDesc(walker : TimeWalker, from : Long?, to : Long?) {
-        walk(walker : TimeWalker, from, to, false)
-    }
-
-    private fun internalWalkerAsc(currentNode : Node, walker : TimeWalker, limit : Long? = null ) {
+    private fun internalWalkerAsc(currentNode : Node, walker : TimeWalker) {
         if (currentNode.left != null) {
             internalWalkerAsc(currentNode.left!!, walker)
         }
         walker.walk(currentNode.key)
-        if(limit == null || TimeComparator.compare(currentNode.key,limit) < 0) {
-            if (currentNode.right != null) {
-                internalWalkerAsc(currentNode.right!!, walker)
-            }
+        if (currentNode.right != null) {
+            internalWalkerAsc(currentNode.right!!, walker)
         }
+
     }
 
-    private fun internalWalkerDesc(currentNode : Node, walker : TimeWalker, limit : Long? = null ) {
+    private fun internalWalkerDesc(currentNode : Node, walker : TimeWalker) {
         if (currentNode.right != null) {
             internalWalkerDesc(currentNode.right!!,walker)
         }
         walker.walk(currentNode.key)
-        if(limit == null || TimeComparator.compare(currentNode.key,limit) > 0) {
-            if (currentNode.left != null) {
-                internalWalkerDesc(currentNode.left!!, walker)
-            }
+        if (currentNode.left != null) {
+            internalWalkerDesc(currentNode.left!!, walker)
         }
     }
 
-    private fun walk(walker : TimeWalker, from : Long? = null, to : Long? = null, ascending : Boolean = true) {
-        if(versionTree.root == null){
-            return
-        }
-
+    fun walkRangeAsc(walker : TimeWalker, from : TimePoint?, to : TimePoint?) {
         var startNode : Node? = null
         if(from != null) {
             startNode = versionTree.lowerOrEqual(from)
@@ -83,13 +73,75 @@ class TimeMeta() {
             }
         }
 
-        if(ascending) {
-            internalWalkerAsc(if(startNode==null){versionTree.root!!}else{startNode!!}, walker, to);
-        } else {
-            internalWalkerDesc(if(startNode==null){versionTree.root!!}else{startNode!!}, walker, to);
+        while(startNode != null && !internalRangeWalkerAsc(startNode!!, walker, to, true)) {
+            startNode = startNode!!.parent;
         }
     }
 
+    fun walkRangeDesc(walker : TimeWalker, from : TimePoint?, to : TimePoint?) {
+        var startNode : Node? = null
+        if(from != null) {
+            startNode = versionTree.lowerOrEqual(from)
+            if(startNode == null) {
+                startNode = versionTree.upper(from)
+            }
+            if(startNode == null) {
+                return;
+            }
+        }
+        while(startNode != null && !internalRangeWalkerDesc(startNode!!, walker, to, true)) {
+           if(startNode!!.parent == null) {
+               startNode = null;
+           } else {
+               if(startNode == startNode!!.parent!!.left) {
+                   startNode = startNode!!.parent
+               } else {
+                   do{
+                       var fromRight : Boolean = (startNode == startNode!!.parent!!.right)
+                       startNode = startNode!!.parent
+                   } while(fromRight && startNode!!.parent != null)
+                   if(startNode!!.parent == null) {
+                       startNode = null
+                   }
 
+               }
+           }
+
+
+        }
+    }
+
+    private fun internalRangeWalkerAsc(currentNode : Node, walker : TimeWalker, to : TimePoint? = null, first : Boolean = false) : Boolean {
+
+        if (!first && currentNode.left != null) {
+            if(internalRangeWalkerAsc(currentNode.left!!, walker, to)) {
+                return true;
+            }
+        }
+        walker.walk(currentNode.key)
+        if(to != null && currentNode.key.compareTo(to) != -1) {
+            return true;
+        }
+        if (currentNode.right != null) {
+            return internalRangeWalkerAsc(currentNode.right!!, walker, to)
+        }
+        return false;
+    }
+
+    private fun internalRangeWalkerDesc(currentNode : Node, walker : TimeWalker, to : TimePoint? = null, first : Boolean = false) : Boolean {
+        if (!first && currentNode.right != null) {
+            if(internalRangeWalkerDesc(currentNode.right!!, walker)){
+                return true;
+            }
+        }
+        walker.walk(currentNode.key)
+        if(to != null && currentNode.key.compareTo(to) != 1) {
+            return true;
+        }
+        if (currentNode.left != null) {
+            return internalRangeWalkerDesc(currentNode.left!!, walker)
+        }
+        return false;
+    }
 
 }
