@@ -60,6 +60,9 @@ public class ClassGenerator {
         //case class name
         //ctx.classFactoryMap.put(pack + "." + cls.getName(), ctx.packageFactoryMap.get(pack));
         pr.print("class " + cls.getName() + "Impl");
+        if (ctx.timeAware) {
+            pr.print("(override var now: Long)");
+        }
 
         String tempClassName = ProcessorHelper.getInstance().fqn(ctx, cls);
         boolean newMetaClassExists = false;
@@ -97,7 +100,6 @@ public class ClassGenerator {
             pr.println("override var isDirty = false;\n");
         }
         if (ctx.timeAware) {
-            pr.println("override var now: org.kevoree.modeling.api.time.TimePoint? = null");
             pr.println("override var meta: org.kevoree.modeling.api.time.blob.EntityMeta? = null");
         }
 
@@ -561,7 +563,7 @@ public class ClassGenerator {
                 // containment relation in noOpposite Method
 
                 res.append("if($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " != null){\n");
-                if(ctx.persistence) {
+                if (ctx.persistence) {
                     res.append("originFactory!!.elementsToBeRemoved.add(($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + ").path())\n");
                 }
                 res.append("($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n");

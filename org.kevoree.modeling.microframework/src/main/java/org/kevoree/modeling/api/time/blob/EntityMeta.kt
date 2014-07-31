@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.time.blob
 
-import org.kevoree.modeling.api.time.TimePoint
-
 /**
  * Created by duke on 6/4/14.
  */
@@ -14,7 +12,7 @@ class EntityMeta() {
 
     //var previous: TimePoint? = null
     //var next: TimePoint? = null
-    var latestPersisted: TimePoint? = null
+    var latestPersisted: Long? = null
     var metatype: String? = null
 
     val sep = "/"
@@ -32,7 +30,7 @@ class EntityMeta() {
         if (elem.size == 2) {
             val originPayload = elem.get(0)
             if (originPayload != "") {
-                latestPersisted = TimePoint.create(originPayload)
+                latestPersisted = java.lang.Long.parseLong(originPayload)
             }
             metatype = elem.get(1)
         } else {

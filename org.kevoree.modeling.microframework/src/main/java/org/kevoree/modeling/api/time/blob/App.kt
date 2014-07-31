@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.time.blob
 
-import org.kevoree.modeling.api.time.TimePoint
 import java.util.TreeSet
 
 /**
@@ -11,17 +10,21 @@ import java.util.TreeSet
 fun main(args: Array<String>) {
     println("Hello")
 
+    println(0.compareTo(0))
+    println(0.compareTo(1))
+    println(1.compareTo(0))
+
 
 
 
     val btree = RBTree()
 
 
-    btree.insert(TimePoint.create("0"), "");
-    btree.insert(TimePoint.create("1"), "");
-    btree.insert(TimePoint.create("2"), "X");
-    btree.insert(TimePoint.create("3"), "");
-    btree.insert(TimePoint.create("4"), "");
+    btree.insert(0, "");
+    btree.insert(1, "");
+    btree.insert(2, "X");
+    btree.insert(3, "");
+    btree.insert(4, "");
 
     /*
     btree.insert(TimePoint.create("3"), "");
@@ -37,11 +40,11 @@ fun main(args: Array<String>) {
     /*
 
      */
-    println(btree.upperUntil(TimePoint.create("0"),"X")?.key)
-    println(btree.upperUntil(TimePoint.create("1"),"X")?.key)
-    println(btree.upperUntil(TimePoint.create("2"),"X")?.key)
-    println(btree.upperUntil(TimePoint.create("3"),"X")?.key)
-    println(btree.upperUntil(TimePoint.create("4"),"X")?.key)
+    println(btree.upperUntil(0,"X")?.key)
+    println(btree.upperUntil(1,"X")?.key)
+    println(btree.upperUntil(2,"X")?.key)
+    println(btree.upperUntil(3,"X")?.key)
+    println(btree.upperUntil(4,"X")?.key)
 
 
 

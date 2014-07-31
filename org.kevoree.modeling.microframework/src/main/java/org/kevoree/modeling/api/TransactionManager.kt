@@ -15,5 +15,5 @@ trait Transaction {
     fun close()
 }
 trait TimeTransaction : Transaction {
-    fun time(timepoint: String): TimeView
+    fun time(timepoint: Long): TimeView
 }

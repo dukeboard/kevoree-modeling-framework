@@ -14,9 +14,9 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
 
     var meta: EntityMeta?
 
-    var now: TimePoint?
+    var now: Long
 
-    fun previous(): TimePoint? {
+    fun previous(): Long? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).floor(path(), now)
         } else {
@@ -24,7 +24,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
-    fun next(): TimePoint? {
+    fun next(): Long? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).ceil(path(), now)
         } else {
@@ -32,7 +32,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
-    fun latest(): TimePoint? {
+    fun latest(): Long? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).latest(path())
         } else {
@@ -40,8 +40,8 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
-    fun floor(p: String): TimePoint? {
-        val tp = TimePoint.create(p)
+    fun floor(p: String): Long? {
+        val tp = java.lang.Long.parseLong(p)
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).floor(path(), tp)
         } else {
@@ -49,8 +49,8 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
-    fun ceil(p: String): TimePoint? {
-        val tp = TimePoint.create(p)
+    fun ceil(p: String): Long? {
+        val tp = java.lang.Long.parseLong(p)
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).ceil(path(), tp)
         } else {

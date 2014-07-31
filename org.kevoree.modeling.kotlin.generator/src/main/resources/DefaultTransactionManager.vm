@@ -28,13 +28,7 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
         if(isClosed){
             throw Exception("This TransactionManager is closed !");
         }
-        #if($ctx.timeAware)
-            return ${formatedName2}(datastore);
-        #else
-            var n = ${formatedName2}()
-            n.datastore = datastore;
-            return n;
-        #end
+        return ${formatedName2}(datastore);
     }
 
     override fun close() {
@@ -45,23 +39,19 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
     }
 }
 
-class ${formatedName2}(#if($ctx.timeAware) internal val datastore : DataStore #end) : #if($ctx.timeAware) TimeTransaction #else Default${formatedFactoryNameImpl}(),Transaction #end {
+class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end internal val datastore : DataStore #end) : #if($ctx.timeAware) TimeTransaction #else Default${formatedFactoryNameImpl}(datastore),Transaction #end {
 
 
     #if($ctx.timeAware)
         val sharedCache = org.kevoree.modeling.api.time.blob.SharedCache()
 
-        override fun time(timepoint: String): ${formatedName3} {
-            val tp = TimePoint.create(timepoint);
-            val resolved : ${formatedName3}? = sharedCache.get(tp) as? ${formatedName3};
+        override fun time(timepoint: Long): ${formatedName3} {
+            val resolved : ${formatedName3}? = sharedCache.get(timepoint) as? ${formatedName3};
             if(resolved != null){
                 return resolved;
             } else {
-                 val temp = Default${formatedFactoryNameImpl}();
-                 temp.sharedCache = sharedCache;
-                 temp.datastore = datastore;
-                 temp.relativeTime = tp;
-                 sharedCache.add(tp,temp);
+                 val temp = Default${formatedFactoryNameImpl}(datastore #if($ctx.timeAware) ,sharedCache,timepoint #end );
+                 sharedCache.add(timepoint,temp);
                  return temp;
             }
         }

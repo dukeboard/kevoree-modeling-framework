@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.time.blob
 
 import java.util.HashMap
 import org.kevoree.modeling.api.time.TimeView
-import org.kevoree.modeling.api.time.TimePoint
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -11,23 +10,23 @@ import java.util.concurrent.ConcurrentHashMap
 
 public class SharedCache {
 
-    private var times = HashMap<TimePoint, TimeView>()
+    private var times = HashMap<Long, TimeView>()
     var timeCache: MutableMap<String, TimeMeta> = ConcurrentHashMap<String, TimeMeta>()
 
-    fun add(tp: TimePoint, tv: TimeView) {
+    fun add(tp: Long, tv: TimeView) {
         times.put(tp, tv)
     }
 
-    fun get(tp: TimePoint): TimeView? {
+    fun get(tp: Long): TimeView? {
         return times.get(tp)
     }
 
-    fun drop(tp: TimePoint) {
+    fun drop(tp: Long) {
         times.remove(tp)
     }
 
 
-    fun keys(): Set<TimePoint> {
+    fun keys(): Set<Long> {
         return times.keySet()
     }
 

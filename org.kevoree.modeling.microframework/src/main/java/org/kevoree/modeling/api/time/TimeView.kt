@@ -9,25 +9,25 @@ import org.kevoree.modeling.api.trace.TraceSequence
 
 public trait TimeView {
 
-    fun now(): TimePoint
+    fun now(): Long
 
     fun lookup(path: String): KMFContainer?
 
-    public fun globalFloor(tp: TimePoint?): TimePoint?
+    public fun globalFloor(tp: Long?): Long?
 
-    public fun globalCeil(tp: TimePoint?): TimePoint?
+    public fun globalCeil(tp: Long?): Long?
 
-    public fun globalLatest(): TimePoint?
+    public fun globalLatest(): Long?
 
     fun create(metaTypeName: String): KMFContainer?
 
-    fun modified() : Set<String>
+    fun modified(): Set<String>
 
     fun delete()
 
-    fun diff(tp : TimePoint) : TraceSequence
+    fun diff(other: TimeView): TraceSequence
 
-    fun select(query : String) : List<KMFContainer>
+    fun select(query: String): List<KMFContainer>
 
     fun root(elem: KMFContainer)
 

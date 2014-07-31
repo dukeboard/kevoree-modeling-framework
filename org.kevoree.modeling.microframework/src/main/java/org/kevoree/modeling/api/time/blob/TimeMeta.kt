@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.time.blob
 
 import org.kevoree.modeling.api.time.TimeWalker
-import org.kevoree.modeling.api.time.TimePoint
+import org.kevoree.modeling.api.time.TimeComparator
 
 /**
  * Created by duke on 6/4/14.
@@ -35,39 +35,39 @@ class TimeMeta() {
         walk(walker : TimeWalker, null, null, false)
     }
 
-    fun walkRangeAsc(walker : TimeWalker, from : TimePoint?, to : TimePoint?) {
+    fun walkRangeAsc(walker : TimeWalker, from : Long?, to : Long?) {
         walk(walker : TimeWalker, from, to)
     }
 
-    fun walkRangeDesc(walker : TimeWalker, from : TimePoint?, to : TimePoint?) {
+    fun walkRangeDesc(walker : TimeWalker, from : Long?, to : Long?) {
         walk(walker : TimeWalker, from, to, false)
     }
 
-    private fun internalWalkerAsc(currentNode : Node, walker : TimeWalker, limit : TimePoint? = null ) {
+    private fun internalWalkerAsc(currentNode : Node, walker : TimeWalker, limit : Long? = null ) {
         if (currentNode.left != null) {
             internalWalkerAsc(currentNode.left!!, walker)
         }
         walker.walk(currentNode.key)
-        if(limit == null || currentNode.key.compareTo(limit) < 0) {
+        if(limit == null || TimeComparator.compare(currentNode.key,limit) < 0) {
             if (currentNode.right != null) {
                 internalWalkerAsc(currentNode.right!!, walker)
             }
         }
     }
 
-    private fun internalWalkerDesc(currentNode : Node, walker : TimeWalker, limit : TimePoint? = null ) {
+    private fun internalWalkerDesc(currentNode : Node, walker : TimeWalker, limit : Long? = null ) {
         if (currentNode.right != null) {
             internalWalkerDesc(currentNode.right!!,walker)
         }
         walker.walk(currentNode.key)
-        if(limit == null || currentNode.key.compareTo(limit) > 0) {
+        if(limit == null || TimeComparator.compare(currentNode.key,limit) > 0) {
             if (currentNode.left != null) {
                 internalWalkerDesc(currentNode.left!!, walker)
             }
         }
     }
 
-    private fun walk(walker : TimeWalker, from : TimePoint? = null, to : TimePoint? = null, ascending : Boolean = true) {
+    private fun walk(walker : TimeWalker, from : Long? = null, to : Long? = null, ascending : Boolean = true) {
         if(versionTree.root == null){
             return
         }

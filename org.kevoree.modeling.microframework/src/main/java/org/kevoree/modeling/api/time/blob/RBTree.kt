@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.time.blob
 
-import org.kevoree.modeling.api.time.TimePoint
+import org.kevoree.modeling.api.time.TimeComparator
 
 /**
  * Created by duke on 6/4/14.
@@ -11,7 +11,9 @@ enum class Color {
     BLACK
 }
 
-class Node(var key: TimePoint, var value: String, var color: Color, var left: Node?, var right: Node?) {
+
+
+class Node(var key: Long, var value: String, var color: Color, var left: Node?, var right: Node?) {
     public var parent: Node? = null
 
     {
@@ -87,7 +89,7 @@ private class ReaderContext(val payload: String, var offset: Int) {
         } else {
             Color.RED
         }
-        var p = Node(TimePoint.create(splitted.get(0)), splitted.get(1), color, null, null)
+        var p = Node(java.lang.Long.parseLong(splitted.get(0)), splitted.get(1), color, null, null)
         val left = unserialize()
         if (left != null) {
             left.parent = p
@@ -104,7 +106,7 @@ private class ReaderContext(val payload: String, var offset: Int) {
 
 
 trait VersionTree {
-    fun floor(key: TimePoint)
+    fun floor(key: Long)
 }
 
 public class RBTree {
@@ -121,7 +123,7 @@ public class RBTree {
         root = ReaderContext(payload, 0).unserialize()
     }
 
-    fun lowerOrEqual(key: TimePoint): Node? {
+    fun lowerOrEqual(key: Long): Node? {
         var p = root
         if (p == null) {
             return null
@@ -153,7 +155,7 @@ public class RBTree {
         return null
     }
 
-    fun lower(key: TimePoint): Node? {
+    fun lower(key: Long): Node? {
         var p = root
         if (p == null) {
             return null
@@ -184,20 +186,20 @@ public class RBTree {
     }
 
 
-    fun lowerUntil(key: TimePoint, until: String): Node? {
+    fun lowerUntil(key: Long, until: String): Node? {
         val current = lookup(key)
-        if(current!= null && current == until){
+        if (current != null && current == until) {
             return null;
         }
         var root = lower(key)
-        if(root == null || root!!.value.equals(until)){
+        if (root == null || root!!.value.equals(until)) {
             return null;
         } else {
             return root;
         }
     }
 
-    fun upper(key: TimePoint): Node? {
+    fun upper(key: Long): Node? {
         var p = root
         if (p == null) {
             return null
@@ -233,30 +235,30 @@ public class RBTree {
         return null
     }
 
-    fun upperUntil(key: TimePoint, until: String): Node? {
+    fun upperUntil(key: Long, until: String): Node? {
         val current = lookup(key)
-        if(current!= null && current == until){
+        if (current != null && current == until) {
             return null;
         }
         var root = upper(key)
-        if(root == null || root!!.value.equals(until)){
+        if (root == null || root!!.value.equals(until)) {
             return null;
         } else {
             return root;
         }
     }
 
-    fun compare(k1: TimePoint, k2: TimePoint): Int {
-        return k1.compareTo(k2)
+    fun compare(k1: Long, k2: Long): Int {
+        return TimeComparator.compare(k1, k2)
     }
 
-    private fun lookupNode(key: TimePoint): Node? {
+    private fun lookupNode(key: Long): Node? {
         var n = root
         if (n == null) {
             return null
         }
         while (n != null) {
-            val compResult = key.compareTo(n!!.key)
+            val compResult = compare(key, n!!.key)
             if (compResult == 0) {
                 return n
             } else {
@@ -267,15 +269,17 @@ public class RBTree {
                 }
             }
         }
-        return n
+        return n;
     }
-    public fun lookup(key: TimePoint): String? {
+    public fun lookup(key: Long): String? {
         val n = lookupNode(key)
-        return (if (n == null)
-            null
-        else
-            n.value)
+        if (n == null) {
+            return null;
+        } else {
+            return n.value;
+        }
     }
+
     private fun rotateLeft(n: Node) {
         val r = n.right
         replaceNode(n, r!!)
@@ -310,14 +314,14 @@ public class RBTree {
             newn.parent = oldn.parent
         }
     }
-    public fun insert(key: TimePoint, value: String) {
+    public fun insert(key: Long, value: String) {
         val insertedNode = Node(key, value, Color.RED, null, null)
         if (root == null) {
             root = insertedNode
         } else {
             var n = root
             while (true) {
-                val compResult = key.compareTo(n!!.key)
+                val compResult = compare(key,n!!.key)
                 if (compResult == 0) {
                     n!!.value = value
                     return
@@ -386,7 +390,7 @@ public class RBTree {
             rotateLeft(n.grandparent()!!)
         }
     }
-    public fun delete(key: TimePoint) {
+    public fun delete(key: Long) {
         var n = lookupNode(key)
         if (n == null) {
             return
@@ -486,9 +490,9 @@ public class RBTree {
         }
     }
 
-    fun relativeMax(from: TimePoint, without: String): Node? {
+    fun relativeMax(from: Long, without: String): Node? {
         val current = lookup(from);
-        if(current != null && current == without){
+        if (current != null && current == without) {
             return null;
         }
         var n = lower(from)
@@ -496,7 +500,7 @@ public class RBTree {
             return null
         } else {
             //climb to the maximal parent
-            while (n!!.parent != null && n!!.parent!!.key.compareTo(n!!.key) > 0) {
+            while (n!!.parent != null && compare(n!!.parent!!.key,n!!.key) > 0) {
                 n = n!!.parent
             }
             while (n!!.right != null && !n!!.value.equals(without)) {
