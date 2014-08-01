@@ -119,6 +119,12 @@ public class RBTree {
 
     public var root: Node? = null
 
+    private var size : Int = 0
+
+    fun size() : Int {
+        return size
+    }
+
     fun serialize(): String {
         var builder = StringBuilder()
         root?.serialize(builder)
@@ -324,6 +330,7 @@ public class RBTree {
     public fun insert(key: Long, value: STATE) {
         val insertedNode = Node(key, value, Color.RED, null, null)
         if (root == null) {
+            size++
             root = insertedNode
         } else {
             var n = root
@@ -331,11 +338,13 @@ public class RBTree {
                 val compResult = compare(key, n!!.key)
                 if (compResult == 0) {
                     n!!.value = value
+                    //nop size
                     return
                 } else
                     if (compResult < 0) {
                         if (n!!.left == null) {
                             n!!.left = insertedNode
+                            size++
                             break
                         } else {
                             n = n!!.left!!
@@ -343,6 +352,7 @@ public class RBTree {
                     } else {
                         if (n!!.right == null) {
                             n!!.right = insertedNode
+                            size++
                             break
                         } else {
                             n = n!!.right
@@ -360,10 +370,11 @@ public class RBTree {
             insertCase2(n)
     }
     private fun insertCase2(n: Node) {
-        if (nodeColor(n.parent) == Color.BLACK)
+        if (nodeColor(n.parent) == Color.BLACK) {
             return
-        else
+        } else {
             insertCase3(n)
+        }
     }
     private fun insertCase3(n: Node) {
         if (nodeColor(n.uncle()) == Color.RED) {
@@ -402,6 +413,7 @@ public class RBTree {
         if (n == null) {
             return
         } else {
+            size--;
             if (n!!.left != null && n!!.right != null) {
                 // Copy key/value from predecessor and then delete it instead
                 val pred = maximumNode(n!!.left!!)

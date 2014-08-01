@@ -8,23 +8,17 @@ import java.util.TreeSet
 
 
 fun main(args: Array<String>) {
-    println("Hello")
-
-    println(0.compareTo(0))
-    println(0.compareTo(1))
-    println(1.compareTo(0))
-
-
-
-
     val btree = RBTree()
-
-
     btree.insert(0, STATE.EXISTS);
     btree.insert(1, STATE.EXISTS);
     btree.insert(2, STATE.DELETED);
     btree.insert(3, STATE.EXISTS);
     btree.insert(4, STATE.EXISTS);
+    btree.insert(5, STATE.EXISTS);
+
+    println("size:"+btree.size())
+
+    println(btree.upper(1)?.key)
 
     /*
     btree.insert(TimePoint.create("3"), "");
