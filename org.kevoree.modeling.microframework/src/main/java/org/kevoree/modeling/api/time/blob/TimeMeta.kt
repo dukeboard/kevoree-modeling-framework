@@ -13,6 +13,14 @@ import org.kevoree.modeling.api.time.TimeComparator
 
 class TimeMeta() {
 
+    class object{
+        final val GO_DOWN_LEFT : Short = 0;
+        final val GO_DOWN_RIGHT : Short = 1;
+        final val PROCESS_PREFIX : Short = 2;
+        final val PROCESS_INFIX : Short = 3;
+        final val PROCESS_POSTFIX : Short = 4;
+    }
+
     var dirty: Boolean = true;
 
     var versionTree: RBTree = RBTree()
@@ -29,40 +37,107 @@ class TimeMeta() {
 
     fun walkAsc(walker : TimeWalker) {
         if(versionTree.root != null) {
-            internalWalkerAsc(versionTree.root!!, walker : TimeWalker)
+            var stop : Boolean = false
+            var currentNode = versionTree.root!!
+            var parentNode = currentNode.parent
+            var actionToApply = GO_DOWN_LEFT
+            while(!stop) {
+                when(actionToApply) {
+                    GO_DOWN_LEFT -> {
+                        if(currentNode.left != null) {
+                            parentNode = currentNode
+                            currentNode = currentNode.left!!
+                        } else {
+                            //actionToApply = PROCESS_INFIX {
+                            walker.walk(currentNode.key)
+                            actionToApply = GO_DOWN_RIGHT
+                            //}
+                        }
+                    }
+                    GO_DOWN_RIGHT -> {
+                        if(currentNode.right != null) {
+                            parentNode = currentNode
+                            currentNode = currentNode.right!!
+                            actionToApply = GO_DOWN_LEFT
+                        } else {
+                            actionToApply = PROCESS_POSTFIX
+                        }
+                    }
+                    PROCESS_POSTFIX -> {
+                        if(currentNode.parent != null) {
+                            if(currentNode == parentNode?.left) {
+
+                                currentNode = currentNode.parent!!
+                                parentNode = currentNode.parent
+
+                                //actionToApply = PROCESS_INFIX {
+                                walker.walk(currentNode.key)
+                                actionToApply = GO_DOWN_RIGHT
+                                //}
+                            } else {
+                                currentNode = currentNode.parent!!
+                                parentNode = currentNode.parent
+                                actionToApply = PROCESS_POSTFIX
+                            }
+                        } else {
+                            stop = true
+                        }
+                    }
+                }
+            }
         }
     }
 
     fun walkDesc(walker : TimeWalker) {
         if(versionTree.root != null) {
-            internalWalkerDesc(versionTree.root!!, walker : TimeWalker)
-        }
-    }
+            var stop : Boolean = false
+            var currentNode = versionTree.root!!
+            var parentNode = currentNode.parent
+            var actionToApply = GO_DOWN_RIGHT
+            while(!stop) {
+                when(actionToApply) {
+                    GO_DOWN_LEFT -> {
+                        if(currentNode.left != null) {
+                            parentNode = currentNode
+                            currentNode = currentNode.left!!
+                            actionToApply = GO_DOWN_RIGHT
+                        } else {
+                            actionToApply = PROCESS_POSTFIX
+                        }
+                    }
+                    GO_DOWN_RIGHT -> {
+                        if(currentNode.right != null) {
+                            parentNode = currentNode
+                            currentNode = currentNode.right!!
+                        } else {
+                            //actionToApply = PROCESS_INFIX {
+                            walker.walk(currentNode.key)
+                            actionToApply = GO_DOWN_LEFT
+                            //}
+                        }
+                    }
+                    PROCESS_POSTFIX -> {
+                        if(currentNode.parent != null) {
+                            if(currentNode == parentNode?.right) {
 
+                                currentNode = currentNode.parent!!
+                                parentNode = currentNode.parent
 
-    private fun internalWalkerAsc(currentNode : Node, walker : TimeWalker) {
-        //Deep Left first
-        if (currentNode.left != null) {
-            internalWalkerAsc(currentNode.left!!, walker)
-        }
-        //Infix walk
-        walker.walk(currentNode.key)
-        //Process Right
-        if (currentNode.right != null) {
-            internalWalkerAsc(currentNode.right!!, walker)
-        }
-    }
-
-    private fun internalWalkerDesc(currentNode : Node, walker : TimeWalker) {
-        //Deep right first
-        if (currentNode.right != null) {
-            internalWalkerDesc(currentNode.right!!,walker)
-        }
-        //Infix Walk
-        walker.walk(currentNode.key)
-        //Process Left
-        if (currentNode.left != null) {
-            internalWalkerDesc(currentNode.left!!, walker)
+                                //actionToApply = PROCESS_INFIX {
+                                walker.walk(currentNode.key)
+                                actionToApply = GO_DOWN_LEFT
+                                //}
+                            } else {
+                                currentNode = currentNode.parent!!
+                                parentNode = currentNode.parent
+                                actionToApply = PROCESS_POSTFIX
+                            }
+                        } else {
+                            stop = true
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -80,47 +155,69 @@ class TimeMeta() {
             }
         }
 
-        //Processes while there is a parent and while the limit (to) has not been reached
-        while(startNode != null && !internalRangeWalkerAsc(startNode!!, walker, to, true)) {
-            if(startNode!!.parent == null) {
-                startNode = null;
-            } else {
-                if(startNode == startNode!!.parent!!.left) {
-                    startNode = startNode!!.parent
-                } else {
-                    do{
-                        //Goes up in the tree while going up from the right child (the parent is lower)
-                        var fromRight : Boolean = (startNode == startNode!!.parent!!.right)
-                        startNode = startNode!!.parent
-                    } while(fromRight && startNode!!.parent != null)
-                    if(startNode!!.parent == null) {
-                        startNode = null
+        var stop : Boolean = false
+        var currentNode = startNode!!
+        var parentNode = currentNode.parent
+        var actionToApply = PROCESS_INFIX
+        while(!stop) {
+            when(actionToApply) {
+                GO_DOWN_LEFT -> {
+                    if(currentNode.left != null) {
+                        parentNode = currentNode
+                        currentNode = currentNode.left!!
+                    } else {
+                        //actionToApply = PROCESS_INFIX {
+                        if(to != null && currentNode.key.compareTo(to) > 0) {
+                            stop = true;
+                        } else {
+                            walker.walk(currentNode.key)
+                        }
+                        actionToApply = GO_DOWN_RIGHT
+                        //}
+                    }
+                }
+                PROCESS_INFIX -> {
+                    if(to != null && currentNode.key.compareTo(to) > 0) {
+                        stop = true;
+                    } else {
+                        walker.walk(currentNode.key)
+                    }
+                    actionToApply = GO_DOWN_RIGHT
+                }
+                GO_DOWN_RIGHT -> {
+                    if(currentNode.right != null) {
+                        parentNode = currentNode
+                        currentNode = currentNode.right!!
+                        actionToApply = GO_DOWN_LEFT
+                    } else {
+                        actionToApply = PROCESS_POSTFIX
+                    }
+                }
+                PROCESS_POSTFIX -> {
+                    if(currentNode.parent != null) {
+                        if(currentNode == parentNode?.left) {
+                            currentNode = currentNode.parent!!
+                            parentNode = currentNode.parent
+                            //actionToApply = PROCESS_INFIX {
+                            if(to != null && currentNode.key.compareTo(to) > 0) {
+                                stop = true;
+                            } else {
+                                walker.walk(currentNode.key)
+                            }
+                            actionToApply = GO_DOWN_RIGHT
+                            //}
+                        } else {
+                            currentNode = currentNode.parent!!
+                            parentNode = currentNode.parent
+                            actionToApply = PROCESS_POSTFIX
+                        }
+                    } else {
+                        stop = true
                     }
                 }
             }
         }
     }
-
-       //returns true when the limit is reached
-    private fun internalRangeWalkerAsc(currentNode : Node, walker : TimeWalker, to : Long? = null, first : Boolean = false) : Boolean {
-
-        //When processing a range, we should not process the left branch of the element and of its parent hierarchy (all smaller)
-        if (!first && currentNode.left != null) {
-            if(internalRangeWalkerAsc(currentNode.left!!, walker, to)) {
-                return true;
-            }
-        }
-        if(to != null && currentNode.key.compareTo(to) >= 0) {
-            //The limit is reached.
-            return true;
-        }
-        walker.walk(currentNode.key)
-        if (currentNode.right != null) {
-            return internalRangeWalkerAsc(currentNode.right!!, walker, to)
-        }
-        return false;
-    }
-
 
 
     fun walkRangeDesc(walker : TimeWalker, from : Long?, to : Long?) {
@@ -134,41 +231,65 @@ class TimeMeta() {
                 return;
             }
         }
-        while(startNode != null && !internalRangeWalkerDesc(startNode!!, walker, to, true)) {
-            if(startNode!!.parent == null) {
-                startNode = null;
-            } else {
-                if(startNode == startNode!!.parent!!.right) {
-                    startNode = startNode!!.parent
-                } else {
-                    do{
-                        //Goes up in the tree while going up from the left child (the parent is higher)
-                        var fromLeft : Boolean = (startNode == startNode!!.parent!!.left)
-                        startNode = startNode!!.parent
-                    } while(fromLeft && startNode!!.parent != null)
-                    if(startNode!!.parent == null) {
-                        startNode = null
+        var stop : Boolean = false
+        var currentNode = startNode!!
+        var parentNode = currentNode.parent
+        var actionToApply = PROCESS_INFIX
+        while(!stop) {
+            when(actionToApply) {
+                GO_DOWN_LEFT -> {
+                    if(currentNode.left != null) {
+                        parentNode = currentNode
+                        currentNode = currentNode.left!!
+                        actionToApply = GO_DOWN_RIGHT
+                    } else {
+                        actionToApply = PROCESS_POSTFIX
+                    }
+                }
+                PROCESS_INFIX -> {
+                    walker.walk(currentNode.key)
+                    actionToApply = GO_DOWN_LEFT
+                    if(to != null && currentNode.key < to) {
+                        stop = true
+                    }
+                }
+                GO_DOWN_RIGHT -> {
+                    if(currentNode.right != null) {
+                        parentNode = currentNode
+                        currentNode = currentNode.right!!
+                    } else {
+                        //actionToApply = PROCESS_INFIX {
+                        walker.walk(currentNode.key)
+                        actionToApply = GO_DOWN_LEFT
+                        if(to != null && currentNode.key < to) {
+                            stop = true
+                        }
+                        //}
+                    }
+                }
+                PROCESS_POSTFIX -> {
+                    if(currentNode.parent != null) {
+                        if(currentNode == parentNode?.right) {
+                            currentNode = currentNode.parent!!
+                            parentNode = currentNode.parent
+                            //actionToApply = PROCESS_INFIX {
+                            walker.walk(currentNode.key)
+                            actionToApply = GO_DOWN_LEFT
+                            if(to != null && currentNode.key < to) {
+                                stop = true
+                            }
+                            //}
+                        } else {
+                            currentNode = currentNode.parent!!
+                            parentNode = currentNode.parent
+                            actionToApply = PROCESS_POSTFIX
+                        }
+                    } else {
+                        stop = true
                     }
                 }
             }
         }
-    }
-
-
-    private fun internalRangeWalkerDesc(currentNode : Node, walker : TimeWalker, to : Long? = null, first : Boolean = false) : Boolean {
-        if (!first && currentNode.right != null) {
-            if(internalRangeWalkerDesc(currentNode.right!!, walker, to)){
-                return true;
-            }
-        }
-        walker.walk(currentNode.key)
-        if(to != null && currentNode.key.compareTo(to) <= 0) {
-            return true;
-        }
-        if (currentNode.left != null) {
-            return internalRangeWalkerDesc(currentNode.left!!, walker, to)
-        }
-        return false;
     }
 
 }
