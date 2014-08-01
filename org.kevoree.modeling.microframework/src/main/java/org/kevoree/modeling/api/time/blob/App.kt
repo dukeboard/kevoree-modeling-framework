@@ -20,11 +20,11 @@ fun main(args: Array<String>) {
     val btree = RBTree()
 
 
-    btree.insert(0, "");
-    btree.insert(1, "");
-    btree.insert(2, "X");
-    btree.insert(3, "");
-    btree.insert(4, "");
+    btree.insert(0, STATE.EXISTS);
+    btree.insert(1, STATE.EXISTS);
+    btree.insert(2, STATE.DELETED);
+    btree.insert(3, STATE.EXISTS);
+    btree.insert(4, STATE.EXISTS);
 
     /*
     btree.insert(TimePoint.create("3"), "");
@@ -40,11 +40,11 @@ fun main(args: Array<String>) {
     /*
 
      */
-    println(btree.upperUntil(0,"X")?.key)
-    println(btree.upperUntil(1,"X")?.key)
-    println(btree.upperUntil(2,"X")?.key)
-    println(btree.upperUntil(3,"X")?.key)
-    println(btree.upperUntil(4,"X")?.key)
+    println(btree.upperUntil(0,STATE.DELETED)?.key)
+    println(btree.upperUntil(1,STATE.DELETED)?.key)
+    println(btree.upperUntil(2,STATE.DELETED)?.key)
+    println(btree.upperUntil(3,STATE.DELETED)?.key)
+    println(btree.upperUntil(4,STATE.DELETED)?.key)
 
 
 

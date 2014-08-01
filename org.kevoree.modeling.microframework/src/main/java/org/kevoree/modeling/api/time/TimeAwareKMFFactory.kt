@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.time.blob.EntitiesMeta
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.blob.MetaHelper
 import org.kevoree.modeling.api.persistence.KMFContainerProxy
+import org.kevoree.modeling.api.time.blob.STATE
 
 /**
  * Created with IntelliJ IDEA.
@@ -71,7 +72,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             dirty = true
             val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
             if (globalTime.versionTree.lookup(relativeTime) == null) {
-                globalTime.versionTree.insert(relativeTime, "");
+                globalTime.versionTree.insert(relativeTime, STATE.EXISTS);
                 globalTime.dirty = true;
             }
         }
@@ -132,7 +133,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             //Update the TimeTree and keep it in memeory until transactino close
             val timeTree = getTimeTree(currentPath)
             if (timeTree.versionTree.lookup(relativeTime) == null) {
-                timeTree.versionTree.insert(relativeTime, "")
+                timeTree.versionTree.insert(relativeTime, STATE.EXISTS)
                 timeTree.dirty = true
             }
         }
@@ -184,7 +185,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             if (timeMetaPayLoad != null) {
                 timeMeta.load(timeMetaPayLoad)
             }
-            timeMeta.versionTree.insert(relativeTime, TimeSegmentConst.DELETE_CODE)
+            timeMeta.versionTree.insert(relativeTime, STATE.DELETED)
             datastore.put(TimeSegment.TIMEMETA.name(), currentPath, timeMeta.toString())
 
             //drop entity meta at this time (useless not type, no futur creation)
@@ -204,7 +205,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             if (!dirty) {
                 val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
                 if (globalTime.versionTree.lookup(relativeTime) == null) {
-                    globalTime.versionTree.insert(relativeTime, "");
+                    globalTime.versionTree.insert(relativeTime, STATE.EXISTS);
                     globalTime.dirty = true
                 }
             }
@@ -234,7 +235,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         if (tp == null) {
             return null
         } else {
-            return getTimeTree(path).versionTree.lowerUntil(tp, TimeSegmentConst.DELETE_CODE)?.key
+            return getTimeTree(path).versionTree.lowerUntil(tp, STATE.DELETED)?.key
         }
     }
 
@@ -242,12 +243,12 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         if (tp == null) {
             return null
         } else {
-            return getTimeTree(path).versionTree.upperUntil(tp, TimeSegmentConst.DELETE_CODE)?.key
+            return getTimeTree(path).versionTree.upperUntil(tp, STATE.DELETED)?.key
         }
     }
 
     public fun latest(path: String): Long? {
-        return getTimeTree(path).versionTree.relativeMax(relativeTime, TimeSegmentConst.DELETE_CODE)?.key
+        return getTimeTree(path).versionTree.relativeMax(relativeTime, STATE.DELETED)?.key
     }
 
     override public fun globalFloor(tp: Long?): Long? {
@@ -274,7 +275,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         val timeTree = getTimeTree(path)
         val askedTimeResult = timeTree.versionTree.lowerOrEqual(relativeTime)
         val askedTime = askedTimeResult?.key
-        if (askedTime == null || askedTimeResult!!.value.equals(TimeSegmentConst.DELETE_CODE)) {
+        if (askedTime == null || askedTimeResult!!.value.equals(STATE.DELETED)) {
             return null;
         }
         val composedKey = "$askedTime/$path"
@@ -362,7 +363,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         if (!dirty) {
             val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
             if (globalTime.versionTree.lookup(relativeTime) == null) {
-                globalTime.versionTree.insert(relativeTime, "");
+                globalTime.versionTree.insert(relativeTime, STATE.EXISTS);
                 globalTime.dirty = true;
             }
         }
@@ -381,7 +382,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         if (resolved1 == null || resolved2 == null) {
             return sequence
         } else {
-            if (TimeComparator.compare(resolved1!!,resolved2!!) > 1) {
+            if (TimeComparator.compare(resolved1!!, resolved2!!) > 1) {
                 val temp = resolved1
                 resolved1 = resolved2
                 resolved2 = temp

@@ -11,9 +11,12 @@ enum class Color {
     BLACK
 }
 
+enum class STATE {
+    EXISTS
+    DELETED
+}
 
-
-class Node(var key: Long, var value: String, var color: Color, var left: Node?, var right: Node?) {
+class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, var right: Node?) {
     public var parent: Node? = null
 
     {
@@ -41,7 +44,7 @@ class Node(var key: Long, var value: String, var color: Color, var left: Node?, 
     fun serialize(builder: StringBuilder) {
         builder.append(key)
         builder.append(";")
-        builder.append(value)
+        builder.append(value.ordinal().toString())
         builder.append(";")
         if (color == Color.RED) {
             builder.append("R")
@@ -60,8 +63,6 @@ class Node(var key: Long, var value: String, var color: Color, var left: Node?, 
             builder.append("#|")
         }
     }
-
-
 }
 
 private class ReaderContext(val payload: String, var offset: Int) {
@@ -89,7 +90,12 @@ private class ReaderContext(val payload: String, var offset: Int) {
         } else {
             Color.RED
         }
-        var p = Node(java.lang.Long.parseLong(splitted.get(0)), splitted.get(1), color, null, null)
+        var state = if (splitted.get(1) == STATE.EXISTS.ordinal().toString()) {
+            STATE.EXISTS
+        } else {
+            STATE.DELETED
+        }
+        var p = Node(java.lang.Long.parseLong(splitted.get(0)), state, color, null, null)
         val left = unserialize()
         if (left != null) {
             left.parent = p
@@ -186,7 +192,7 @@ public class RBTree {
     }
 
 
-    fun lowerUntil(key: Long, until: String): Node? {
+    fun lowerUntil(key: Long, until: STATE): Node? {
         val current = lookup(key)
         if (current != null && current == until) {
             return null;
@@ -235,7 +241,7 @@ public class RBTree {
         return null
     }
 
-    fun upperUntil(key: Long, until: String): Node? {
+    fun upperUntil(key: Long, until: STATE): Node? {
         val current = lookup(key)
         if (current != null && current == until) {
             return null;
@@ -271,7 +277,8 @@ public class RBTree {
         }
         return n;
     }
-    public fun lookup(key: Long): String? {
+
+    public fun lookup(key: Long): STATE? {
         val n = lookupNode(key)
         if (n == null) {
             return null;
@@ -314,14 +321,14 @@ public class RBTree {
             newn.parent = oldn.parent
         }
     }
-    public fun insert(key: Long, value: String) {
+    public fun insert(key: Long, value: STATE) {
         val insertedNode = Node(key, value, Color.RED, null, null)
         if (root == null) {
             root = insertedNode
         } else {
             var n = root
             while (true) {
-                val compResult = compare(key,n!!.key)
+                val compResult = compare(key, n!!.key)
                 if (compResult == 0) {
                     n!!.value = value
                     return
@@ -490,7 +497,7 @@ public class RBTree {
         }
     }
 
-    fun relativeMax(from: Long, without: String): Node? {
+    fun relativeMax(from: Long, without: STATE): Node? {
         val current = lookup(from);
         if (current != null && current == without) {
             return null;
@@ -500,7 +507,7 @@ public class RBTree {
             return null
         } else {
             //climb to the maximal parent
-            while (n!!.parent != null && compare(n!!.parent!!.key,n!!.key) > 0) {
+            while (n!!.parent != null && compare(n!!.parent!!.key, n!!.key) > 0) {
                 n = n!!.parent
             }
             while (n!!.right != null && !n!!.value.equals(without)) {
