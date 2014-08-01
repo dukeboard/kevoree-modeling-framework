@@ -58,4 +58,8 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
+    fun timeTree() : TimeTree {
+        return (originFactory as TimeAwareKMFFactory).getTimeTree(path())
+    }
+
 }

@@ -215,7 +215,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         }
     }
 
-    private fun getTimeTree(path: String): TimeMeta {
+    fun getTimeTree(path: String): TimeMeta {
         val alreadyCached = sharedCache.timeCache.get(path);
         if (alreadyCached != null) {
             return alreadyCached;

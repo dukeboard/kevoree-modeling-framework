@@ -55,6 +55,24 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
             }
         }
 
+        override fun globalTimeTree(): org.kevoree.modeling.api.time.TimeTree {
+            return timeTree(org.kevoree.modeling.api.time.TimeSegmentConst.GLOBAL_TIMEMETA)
+        }
+        override fun timeTree(path: String): org.kevoree.modeling.api.time.TimeTree {
+            val alreadyCached = sharedCache.timeCache.get(path);
+            if (alreadyCached != null) {
+                return alreadyCached;
+            } else {
+                val timeMetaPayLoad = datastore.get(org.kevoree.modeling.api.time.TimeSegment.TIMEMETA.name(), path);
+                val blob = org.kevoree.modeling.api.time.blob.TimeMeta();
+                if (timeMetaPayLoad != null) {
+                    blob.load(timeMetaPayLoad);
+                }
+                sharedCache.timeCache.put(path, blob);
+                return blob;
+            }
+        }
+
     override fun commit() {
         for (tv in sharedCache.keys()) {
             (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.commit();
