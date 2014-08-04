@@ -55,7 +55,7 @@ fun main(args: Array<String>) {
     */
 
     println(">"+saved2.length)
-    println("computed:"+btree.size()*7+btree.max()?.key.toString().size)
+    println("computed:"+btree.size()*7+btree.last()?.key.toString().size)
     println("#"+saved2.toByteArray("UTF-8").size)
 
 

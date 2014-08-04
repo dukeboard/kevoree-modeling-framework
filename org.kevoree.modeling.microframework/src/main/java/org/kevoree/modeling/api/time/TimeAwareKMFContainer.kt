@@ -43,7 +43,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
 
     fun last(): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
-        val previousTime = (timeTree() as TimeMeta).versionTree.lastWileNot(STATE.DELETED)?.key
+        val previousTime = (timeTree() as TimeMeta).versionTree.lastWhileNot(now, STATE.DELETED)?.key
         if (previousTime != null) {
             return getOriginTransaction().time(previousTime).lookup(path()) as? A
         }
@@ -52,7 +52,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
 
     fun first(): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
-        val previousTime = (timeTree() as TimeMeta).versionTree.firstWhileNot(STATE.DELETED)?.key
+        val previousTime = (timeTree() as TimeMeta).versionTree.firstWhileNot(now, STATE.DELETED)?.key
         if (previousTime != null) {
             return getOriginTransaction().time(previousTime).lookup(path()) as? A
         }
