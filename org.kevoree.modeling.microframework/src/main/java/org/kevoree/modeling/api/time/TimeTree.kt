@@ -9,8 +9,8 @@ trait TimeTree {
     fun walk(walker : TimeWalker)
     fun walkAsc(walker : TimeWalker)
     fun walkDesc(walker : TimeWalker)
-    fun walkRangeAsc(walker : TimeWalker, from : Long?, to : Long?)
-    fun walkRangeDesc(walker : TimeWalker, from : Long?, to : Long?)
+    fun walkRangeAsc(walker : TimeWalker, from : Long, to : Long)
+    fun walkRangeDesc(walker : TimeWalker, from : Long, to : Long)
 
     fun first() : Long?
     fun last() : Long?

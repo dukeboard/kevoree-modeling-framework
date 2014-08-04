@@ -51,260 +51,62 @@ class TimeMeta() : TimeTree {
         dirty = false;
     }
 
-
     override fun walkAsc(walker: TimeWalker) {
-        if (versionTree.root != null) {
-            var stop: Boolean = false
-            var currentNode = versionTree.root!!
-            var parentNode = currentNode.parent
-            var actionToApply = GO_DOWN_LEFT
-            while (!stop) {
-                when (actionToApply) {
-                    GO_DOWN_LEFT -> {
-                        if (currentNode.left != null) {
-                            parentNode = currentNode
-                            currentNode = currentNode.left!!
-                        } else {
-                            //actionToApply = PROCESS_INFIX {
-                            walker.walk(currentNode.key)
-                            actionToApply = GO_DOWN_RIGHT
-                            //}
-                        }
-                    }
-                    GO_DOWN_RIGHT -> {
-                        if (currentNode.right != null) {
-                            parentNode = currentNode
-                            currentNode = currentNode.right!!
-                            actionToApply = GO_DOWN_LEFT
-                        } else {
-                            actionToApply = PROCESS_POSTFIX
-                        }
-                    }
-                    PROCESS_POSTFIX -> {
-                        if (currentNode.parent != null) {
-                            if (currentNode == parentNode?.left) {
-
-                                currentNode = currentNode.parent!!
-                                parentNode = currentNode.parent
-
-                                //actionToApply = PROCESS_INFIX {
-                                walker.walk(currentNode.key)
-                                actionToApply = GO_DOWN_RIGHT
-                                //}
-                            } else {
-                                currentNode = currentNode.parent!!
-                                parentNode = currentNode.parent
-                                actionToApply = PROCESS_POSTFIX
-                            }
-                        } else {
-                            stop = true
-                        }
-                    }
-                }
-            }
+        var elem = versionTree.first()
+        while (elem != null) {
+            walker.walk(elem!!.key)
+            elem = elem!!.next()
         }
     }
 
     override fun walkDesc(walker: TimeWalker) {
-        if (versionTree.root != null) {
-            var stop: Boolean = false
-            var currentNode = versionTree.root!!
-            var parentNode = currentNode.parent
-            var actionToApply = GO_DOWN_RIGHT
-            while (!stop) {
-                when (actionToApply) {
-                    GO_DOWN_LEFT -> {
-                        if (currentNode.left != null) {
-                            parentNode = currentNode
-                            currentNode = currentNode.left!!
-                            actionToApply = GO_DOWN_RIGHT
-                        } else {
-                            actionToApply = PROCESS_POSTFIX
-                        }
-                    }
-                    GO_DOWN_RIGHT -> {
-                        if (currentNode.right != null) {
-                            parentNode = currentNode
-                            currentNode = currentNode.right!!
-                        } else {
-                            //actionToApply = PROCESS_INFIX {
-                            walker.walk(currentNode.key)
-                            actionToApply = GO_DOWN_LEFT
-                            //}
-                        }
-                    }
-                    PROCESS_POSTFIX -> {
-                        if (currentNode.parent != null) {
-                            if (currentNode == parentNode?.right) {
-
-                                currentNode = currentNode.parent!!
-                                parentNode = currentNode.parent
-
-                                //actionToApply = PROCESS_INFIX {
-                                walker.walk(currentNode.key)
-                                actionToApply = GO_DOWN_LEFT
-                                //}
-                            } else {
-                                currentNode = currentNode.parent!!
-                                parentNode = currentNode.parent
-                                actionToApply = PROCESS_POSTFIX
-                            }
-                        } else {
-                            stop = true
-                        }
-                    }
-                }
-            }
+        var elem = versionTree.last()
+        while (elem != null) {
+            walker.walk(elem!!.key)
+            elem = elem!!.previous()
         }
     }
 
-    override fun walkRangeAsc(walker: TimeWalker, from: Long?, to: Long?) {
-        //Looks for the closest version for the FROM, LowerOrEquals first
-        var startNode: Node? = null
-        if (from != null) {
-            startNode = versionTree.previousOrEqual(from)
-            if (startNode == null) {
-                startNode = versionTree.next(from)
-            }
-            if (startNode == null) {
-                // !! No version found !!
-                return;
-            }
-        }
 
-        var stop: Boolean = false
-        var currentNode = startNode!!
-        var parentNode = currentNode.parent
-        var actionToApply = PROCESS_INFIX
-        while (!stop) {
-            when (actionToApply) {
-                GO_DOWN_LEFT -> {
-                    if (currentNode.left != null) {
-                        parentNode = currentNode
-                        currentNode = currentNode.left!!
-                    } else {
-                        //actionToApply = PROCESS_INFIX {
-                        if (to != null && currentNode.key.compareTo(to) > 0) {
-                            stop = true;
-                        } else {
-                            walker.walk(currentNode.key)
-                        }
-                        actionToApply = GO_DOWN_RIGHT
-                        //}
-                    }
-                }
-                PROCESS_INFIX -> {
-                    if (to != null && currentNode.key.compareTo(to) > 0) {
-                        stop = true;
-                    } else {
-                        walker.walk(currentNode.key)
-                    }
-                    actionToApply = GO_DOWN_RIGHT
-                }
-                GO_DOWN_RIGHT -> {
-                    if (currentNode.right != null) {
-                        parentNode = currentNode
-                        currentNode = currentNode.right!!
-                        actionToApply = GO_DOWN_LEFT
-                    } else {
-                        actionToApply = PROCESS_POSTFIX
-                    }
-                }
-                PROCESS_POSTFIX -> {
-                    if (currentNode.parent != null) {
-                        if (currentNode == parentNode?.left) {
-                            currentNode = currentNode.parent!!
-                            parentNode = currentNode.parent
-                            //actionToApply = PROCESS_INFIX {
-                            if (to != null && currentNode.key.compareTo(to) > 0) {
-                                stop = true;
-                            } else {
-                                walker.walk(currentNode.key)
-                            }
-                            actionToApply = GO_DOWN_RIGHT
-                            //}
-                        } else {
-                            currentNode = currentNode.parent!!
-                            parentNode = currentNode.parent
-                            actionToApply = PROCESS_POSTFIX
-                        }
-                    } else {
-                        stop = true
-                    }
+    override fun walkRangeAsc(walker: TimeWalker, from: Long, to: Long) {
+        var from2 = from
+        var to2 = to
+        if (from > to) {
+            from2 = to
+            to2 = from
+        }
+        var elem: Node?
+        elem = versionTree.previousOrEqual(from2)
+        while (elem != null) {
+            walker.walk(elem!!.key)
+            elem = elem!!.next()
+            if (elem != null) {
+                if (elem!!.key >= to2) {
+                    return
                 }
             }
+
         }
     }
 
-    override fun walkRangeDesc(walker: TimeWalker, from: Long?, to: Long?) {
-        var startNode: Node? = null
-        if (from != null) {
-            startNode = versionTree.previousOrEqual(from)
-            if (startNode == null) {
-                startNode = versionTree.next(from)
-            }
-            if (startNode == null) {
-                return;
-            }
+    override fun walkRangeDesc(walker: TimeWalker, from: Long, to: Long) {
+        var from2 = from
+        var to2 = to
+        if (from > to) {
+            from2 = to
+            to2 = from
         }
-        var stop: Boolean = false
-        var currentNode = startNode!!
-        var parentNode = currentNode.parent
-        var actionToApply = PROCESS_INFIX
-        while (!stop) {
-            when (actionToApply) {
-                GO_DOWN_LEFT -> {
-                    if (currentNode.left != null) {
-                        parentNode = currentNode
-                        currentNode = currentNode.left!!
-                        actionToApply = GO_DOWN_RIGHT
-                    } else {
-                        actionToApply = PROCESS_POSTFIX
-                    }
-                }
-                PROCESS_INFIX -> {
-                    walker.walk(currentNode.key)
-                    actionToApply = GO_DOWN_LEFT
-                    if (to != null && currentNode.key < to) {
-                        stop = true
-                    }
-                }
-                GO_DOWN_RIGHT -> {
-                    if (currentNode.right != null) {
-                        parentNode = currentNode
-                        currentNode = currentNode.right!!
-                    } else {
-                        //actionToApply = PROCESS_INFIX {
-                        walker.walk(currentNode.key)
-                        actionToApply = GO_DOWN_LEFT
-                        if (to != null && currentNode.key < to) {
-                            stop = true
-                        }
-                        //}
-                    }
-                }
-                PROCESS_POSTFIX -> {
-                    if (currentNode.parent != null) {
-                        if (currentNode == parentNode?.right) {
-                            currentNode = currentNode.parent!!
-                            parentNode = currentNode.parent
-                            //actionToApply = PROCESS_INFIX {
-                            walker.walk(currentNode.key)
-                            actionToApply = GO_DOWN_LEFT
-                            if (to != null && currentNode.key < to) {
-                                stop = true
-                            }
-                            //}
-                        } else {
-                            currentNode = currentNode.parent!!
-                            parentNode = currentNode.parent
-                            actionToApply = PROCESS_POSTFIX
-                        }
-                    } else {
-                        stop = true
-                    }
+        var elem: Node?
+        elem = versionTree.previousOrEqual(to2)
+        while (elem != null) {
+            walker.walk(elem!!.key)
+            elem = elem!!.previous()
+            if (elem != null) {
+                if (elem!!.key <= from2) {
+                    return
                 }
             }
+
         }
     }
 

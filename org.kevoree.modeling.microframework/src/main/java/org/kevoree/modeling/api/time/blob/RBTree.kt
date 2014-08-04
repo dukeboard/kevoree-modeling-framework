@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.time.blob
 
-import org.kevoree.modeling.api.time.TimeComparator
-
 /**
  * Created by duke on 6/4/14.
  */
@@ -15,6 +13,11 @@ enum class STATE {
     EXISTS
     DELETED
 }
+
+object RBCONST {
+
+}
+
 
 class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, var right: Node?) {
     public var parent: Node? = null
@@ -122,20 +125,20 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
         }
     }
 
-    fun previous() : Node? {
-        var p : Node? = this
-        if(p!!.left != null) {
+    fun previous(): Node? {
+        var p: Node? = this
+        if (p!!.left != null) {
             p = p!!.left!!
-            while(p!!.right != null) {
+            while (p!!.right != null) {
                 p = p!!.right!!
             }
             return p;
         } else {
-            if(p!!.parent != null) {
-                if(p == p!!.parent!!.right) {
+            if (p!!.parent != null) {
+                if (p == p!!.parent!!.right) {
                     return p!!.parent!!
                 } else {
-                    while(p!!.parent != null && p == p!!.parent!!.left) {
+                    while (p!!.parent != null && p == p!!.parent!!.left) {
                         p = p!!.parent!!
                     }
                     return p!!.parent
@@ -201,11 +204,6 @@ private class ReaderContext(val payload: String, var offset: Int) {
     }
 }
 
-
-trait VersionTree {
-    fun floor(key: Long)
-}
-
 public class RBTree {
 
     public var root: Node? = null
@@ -253,11 +251,10 @@ public class RBTree {
             return null
         }
         while (p != null) {
-            val cmp = compare(key, p!!.key)
-            if (cmp == 0) {
+            if (key == p!!.key) {
                 return p
             }
-            if (cmp > 0) {
+            if (key > p!!.key) {
                 if (p!!.right != null) {
                     p = p!!.right
                 } else {
@@ -286,15 +283,13 @@ public class RBTree {
             return null
         }
         while (p != null) {
-
-            //val cmp = compare(key, p!!.key)
             if (key == p!!.key) {
                 return p
             }
             if (key < p!!.key) {
-                if (p!!.left != null)
+                if (p!!.left != null) {
                     p = p!!.left
-                else {
+                } else {
                     return p
                 }
             } else {
@@ -320,14 +315,14 @@ public class RBTree {
             return null
         }
         while (p != null) {
-            if(key < p!!.key) {
-                if(p!!.left != null) {
+            if (key < p!!.key) {
+                if (p!!.left != null) {
                     p = p!!.left!!
                 } else {
                     return p!!.previous();
                 }
-            } else if( key > p!!.key) {
-                if(p!!.right != null) {
+            } else if ( key > p!!.key) {
+                if (p!!.right != null) {
                     p = p!!.right!!
                 } else {
                     return p;
@@ -341,13 +336,11 @@ public class RBTree {
 
 
     fun previousWhileNot(key: Long, until: STATE): Node? {
-        var elm = lookupNode(key)
-        if (elm == null ) {
-            elm = previous(key)
+        var elm = previousOrEqual(key)
+        if (elm!!.value.equals(until)) {
+            return null;
         } else {
-            if(elm!!.value.equals(until)) {
-                return null;
-            } else {
+            if (elm!!.key == key) {
                 elm = elm!!.previous()
             }
         }
@@ -364,14 +357,14 @@ public class RBTree {
             return null
         }
         while (p != null) {
-            if(key < p!!.key) {
-                if(p!!.left != null) {
+            if (key < p!!.key) {
+                if (p!!.left != null) {
                     p = p!!.left!!
                 } else {
                     return p;
                 }
-            } else if( key > p!!.key) {
-                if(p!!.right != null) {
+            } else if ( key > p!!.key) {
+                if (p!!.right != null) {
                     p = p!!.right!!
                 } else {
                     return p!!.next();
@@ -384,15 +377,12 @@ public class RBTree {
     }
 
     fun nextWhileNot(key: Long, until: STATE): Node? {
-        var elm = lookupNode(key)
-        if (elm == null ) {
-            elm = next(key)
+        var elm = nextOrEqual(key)
+        if (elm!!.value.equals(until)) {
+            return null;
         } else {
-            if(elm!!.value.equals(until)) {
-                return null;
-            } else {
+            if (elm!!.key == key) {
                 elm = elm!!.next()
-
             }
         }
         if (elm == null || elm!!.value.equals(until)) {
@@ -402,13 +392,13 @@ public class RBTree {
         }
     }
 
-    fun first() : Node? {
+    fun first(): Node? {
         var p = root
         if (p == null) {
             return null
         }
         while (p != null) {
-            if(p!!.left != null) {
+            if (p!!.left != null) {
                 p = p!!.left!!
             } else {
                 return p
@@ -417,13 +407,13 @@ public class RBTree {
         return null
     }
 
-    fun last() : Node? {
+    fun last(): Node? {
         var p = root
         if (p == null) {
             return null
         }
         while (p != null) {
-            if(p!!.right != null) {
+            if (p!!.right != null) {
                 p = p!!.right!!
             } else {
                 return p
@@ -432,17 +422,17 @@ public class RBTree {
         return null;
     }
 
-    fun firstWhileNot(key : Long, until: STATE) : Node? {
+    fun firstWhileNot(key: Long, until: STATE): Node? {
         var elm = previousOrEqual(key)
         if (elm == null ) {
             return null
-        } else if(elm!!.value.equals(until)) {
+        } else if (elm!!.value.equals(until)) {
             return null
         }
-        var prev : Node?
+        var prev: Node?
         do {
             prev = elm!!.previous();
-            if(prev == null || prev!!.value.equals(until)) {
+            if (prev == null || prev!!.value.equals(until)) {
                 return elm
             } else {
                 elm = prev
@@ -451,19 +441,17 @@ public class RBTree {
         return prev;
     }
 
-    fun lastWhileNot(key : Long, until: STATE) : Node? {
-
+    fun lastWhileNot(key: Long, until: STATE): Node? {
         var elm = previousOrEqual(key)
         if (elm == null ) {
             return null
-        } else if(elm!!.value.equals(until)) {
+        } else if (elm!!.value.equals(until)) {
             return null
         }
-
-        var next : Node?
+        var next: Node?
         do {
             next = elm!!.next();
-            if(next == null || next!!.value.equals(until)) {
+            if (next == null || next!!.value.equals(until)) {
                 return elm
             } else {
                 elm = next
@@ -472,21 +460,16 @@ public class RBTree {
         return next;
     }
 
-    fun compare(k1: Long, k2: Long): Int {
-        return TimeComparator.compare(k1, k2)
-    }
-
     private fun lookupNode(key: Long): Node? {
         var n = root
         if (n == null) {
             return null
         }
         while (n != null) {
-            val compResult = compare(key, n!!.key)
-            if (compResult == 0) {
+            if (key == n!!.key) {
                 return n
             } else {
-                if (compResult < 0) {
+                if (key < n!!.key) {
                     n = n!!.left
                 } else {
                     n = n!!.right
@@ -548,13 +531,12 @@ public class RBTree {
         } else {
             var n = root
             while (true) {
-                val compResult = compare(key, n!!.key)
-                if (compResult == 0) {
+                if (key == n!!.key) {
                     n!!.value = value
                     //nop size
                     return
                 } else
-                    if (compResult < 0) {
+                    if (key < n!!.key) {
                         if (n!!.left == null) {
                             n!!.left = insertedNode
                             size++
@@ -717,47 +699,5 @@ public class RBTree {
             return n.color
         }
     }
-    /*
-        public fun max(): Node? {
-            if (this.root == null) {
-                return null
-            } else {
-                return maximumNode(this.root!!)
-            }
-        }
 
-        fun relativeMax(from: Long, without: STATE): Node? {
-            val current = lookup(from);
-            if (current != null && current == without) {
-                return null;
-            }
-            var n = previous(from)
-            if (n == null || n!!.value.equals(without)) {
-                return null
-            } else {
-                //climb to the maximal parent
-                while (n!!.parent != null && compare(n!!.parent!!.key, n!!.key) > 0) {
-                    n = n!!.parent
-                }
-                while (n!!.right != null && !n!!.value.equals(without)) {
-                    n = n!!.right!!
-                }
-                if (!n!!.value.equals(without)) {
-                    return n
-                } else {
-                    if (n!!.left != null) {
-                        return n!!.left
-                    } else {
-                        return n!!.parent
-                    }
-                }
-            }
-        }
-
-        private fun maximumNode(m: Node): Node {
-            var n = m
-
-            return n
-        }
-    */
 }
