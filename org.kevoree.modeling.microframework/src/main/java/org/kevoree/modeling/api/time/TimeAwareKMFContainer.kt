@@ -10,13 +10,13 @@ import org.kevoree.modeling.api.time.blob.EntityMeta
  * Time: 16:01
  */
 
-public trait TimeAwareKMFContainer : KMFContainerProxy {
+public trait TimeAwareKMFContainer<A : TimeAwareKMFContainer> : KMFContainerProxy {
 
     var meta: EntityMeta?
 
     var now: Long
 
-    fun previous(): Long? {
+    fun previous(): A? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).floor(path(), now)
         } else {
@@ -24,7 +24,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
-    fun next(): Long? {
+    fun next(): A? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).ceil(path(), now)
         } else {
@@ -32,7 +32,7 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
-    fun latest(): Long? {
+    fun last(): A? {
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
             return (originFactory as TimeAwareKMFFactory).latest(path())
         } else {
@@ -40,6 +40,15 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         }
     }
 
+    fun first(): A? {
+        return null//TODO
+    }
+
+    fun jump(time: Long): A? {
+        return null//TODO
+    }
+
+    /*
     fun floor(p: String): Long? {
         val tp = java.lang.Long.parseLong(p)
         if (originFactory != null && originFactory is TimeAwareKMFFactory) {
@@ -56,9 +65,9 @@ public trait TimeAwareKMFContainer : KMFContainerProxy {
         } else {
             return null
         }
-    }
+    }*/
 
-    fun timeTree() : TimeTree {
+    fun timeTree(): TimeTree {
         return (originFactory as TimeAwareKMFFactory).getTimeTree(path())
     }
 

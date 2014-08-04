@@ -10,6 +10,7 @@ import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.blob.MetaHelper
 import org.kevoree.modeling.api.persistence.KMFContainerProxy
 import org.kevoree.modeling.api.time.blob.STATE
+import org.kevoree.modeling.api.Transaction
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,6 +24,8 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
     val relativeTime: Long
     val sharedCache: org.kevoree.modeling.api.time.blob.SharedCache
     var entitiesCache: EntitiesMeta?
+
+    override var originTransaction: Transaction
 
     public fun getEntitiesMeta(): EntitiesMeta {
         if (entitiesCache != null) {

@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.TimeSegment
 import org.kevoree.modeling.api.time.blob.MetaHelper
 import java.util.ArrayList
+import org.kevoree.modeling.api.Transaction
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,6 +23,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     val datastore: DataStore
 
     var dirty: Boolean
+
+    var originTransaction : Transaction
 
     fun remove(elem: KMFContainer) {
         if (datastore != null) {
