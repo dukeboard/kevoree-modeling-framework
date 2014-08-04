@@ -15,9 +15,11 @@ enum class STATE {
 }
 
 object RBCONST {
-
+    val BLACK_DELETE = '0'
+    val BLACK_EXISTS = '1'
+    val RED_DELETE = '2'
+    val RED_EXISTS = '3'
 }
-
 
 class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, var right: Node?) {
     public var parent: Node? = null
@@ -49,28 +51,33 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
 
     fun serialize(builder: StringBuilder) {
         builder.append("|")
-        builder.append(key)
-        builder.append(";")
         if (value == STATE.DELETED) {
-            builder.append("D")
+            if (color == Color.BLACK) {
+                builder.append(RBCONST.BLACK_DELETE)
+            } else {
+                builder.append(RBCONST.RED_DELETE)
+            }
         } else {
-            builder.append("E")
+            if (color == Color.BLACK) {
+                builder.append(RBCONST.BLACK_EXISTS)
+            } else {
+                builder.append(RBCONST.RED_EXISTS)
+            }
         }
-        builder.append(";")
-        if (color == Color.RED) {
-            builder.append("R")
+        builder.append(key)
+        if(left == null && right == null){
+            builder.append("%")
         } else {
-            builder.append("B")
-        }
-        if (left != null) {
-            left?.serialize(builder)
-        } else {
-            builder.append("#")
-        }
-        if (right != null) {
-            right?.serialize(builder)
-        } else {
-            builder.append("#")
+            if (left != null) {
+                left?.serialize(builder)
+            } else {
+                builder.append("#")
+            }
+            if (right != null) {
+                right?.serialize(builder)
+            } else {
+                builder.append("#")
+            }
         }
     }
 
@@ -153,12 +160,18 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
 
 private class ReaderContext(val payload: String, var offset: Int) {
 
-    fun unserialize(): Node? {
+    fun unserialize(rightBranch : Boolean): Node? {
         if (offset >= payload.length) {
             return null;
         }
         var tokenBuild = StringBuilder()
         var ch = payload.get(offset)
+        if (ch == '%') {
+            if(rightBranch){
+                offset = offset + 1
+            }
+            return null
+        }
         if (ch == '#') {
             offset = offset + 1
             return null
@@ -168,33 +181,30 @@ private class ReaderContext(val payload: String, var offset: Int) {
         }
         offset = offset + 1
         ch = payload.get(offset)
-        while (offset + 1 < payload.length && ch != '|' && ch != '#') {
+        var color : Color = Color.BLACK
+        var state : STATE = STATE.EXISTS
+        when(ch){
+            RBCONST.BLACK_DELETE -> {color = Color.BLACK;state=STATE.DELETED}
+            RBCONST.BLACK_EXISTS -> {color = Color.BLACK;state=STATE.EXISTS}
+            RBCONST.RED_DELETE -> {color = Color.RED;state=STATE.DELETED}
+            RBCONST.RED_EXISTS -> {color = Color.RED;state=STATE.EXISTS}
+        }
+        offset = offset + 1
+        ch = payload.get(offset)
+        while (offset + 1 < payload.length && ch != '|' && ch != '#' && ch != '%') {
             tokenBuild.append(ch)
             offset = offset + 1
             ch = payload.get(offset)
         }
-        if (ch != '|' && ch != '#') {
+        if (ch != '|' && ch != '#' && ch != '%') {
             tokenBuild.append(ch)
         }
-        var splitted = tokenBuild.toString().split(";")
-        var color: Color;
-        if (splitted.get(2) == "B") {
-            color = Color.BLACK
-        } else {
-            color = Color.RED
-        }
-        var state: STATE
-        if (splitted.get(1) == "D") {
-            state = STATE.DELETED
-        } else {
-            state = STATE.EXISTS
-        }
-        var p = Node(java.lang.Long.parseLong(splitted.get(0)), state, color, null, null)
-        val left = unserialize()
+        var p = Node(java.lang.Long.parseLong(tokenBuild.toString()), state, color, null, null)
+        val left = unserialize(false)
         if (left != null) {
             left.parent = p
         }
-        val right = unserialize()
+        val right = unserialize(true)
         if (right != null) {
             right.parent = p
         }
@@ -242,7 +252,7 @@ public class RBTree {
             ch = payload.get(i)
         }
         size = java.lang.Long.parseLong(buffer.toString()).toInt()
-        root = ReaderContext(payload, i).unserialize()
+        root = ReaderContext(payload, i).unserialize(true)
     }
 
     fun previousOrEqual(key: Long): Node? {

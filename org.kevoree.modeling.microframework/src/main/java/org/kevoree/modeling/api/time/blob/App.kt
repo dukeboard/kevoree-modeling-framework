@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
     btree.insert(5, STATE.EXISTS);
 */
 
-    for(i in 0L..5L){
+    for(i in 0L..1000000L){
         btree.insert(i, STATE.EXISTS);
     }
 
@@ -34,13 +34,9 @@ fun main(args: Array<String>) {
       */
 
     var saved = btree.serialize()
-    println(saved)
-
-
     val btree2 = RBTree()
     btree2.unserialize(saved)
     var saved2 = btree2.serialize()
-    println(saved2)
 
     //println(btree.relativeMax(TimePoint.create("3"),"X"))
     /*
@@ -54,8 +50,10 @@ fun main(args: Array<String>) {
     println(btree.upperUntil(4,STATE.DELETED)?.key)
     */
 
+    println(">"+saved.length)
     println(">"+saved2.length)
-    println("computed:"+btree.size()*7+btree.last()?.key.toString().size)
+
+    println("computed:"+btree.size()*2+btree.last()?.key.toString().size)
     println("#"+saved2.toByteArray("UTF-8").size)
 
 
