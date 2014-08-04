@@ -103,6 +103,7 @@ class TimeMeta() : TimeTree {
             elem = elem!!.previous()
             if (elem != null) {
                 if (elem!!.key <= from2) {
+                    walker.walk(elem!!.key)
                     return
                 }
             }
