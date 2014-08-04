@@ -271,7 +271,48 @@ public class RBTree {
         if (p == null) {
             return null
         }
+        var findNext : Boolean = false
         while (p != null) {
+
+            if(findNext) {
+                if(p!!.right != null) {
+                    p = p!!.right!!
+                    while(p!!.left != null) {
+                        p = p!!.left!!
+                    }
+                    return p;
+                } else {
+                    if(p!!.parent != null) {
+                        if(p == p!!.parent!!.left) {
+                            return p!!.parent!!
+                        } else {
+                            while(p!!.parent != null && p == p!!.parent!!.right) {
+                                p = p!!.parent!!
+                            }
+                            return p!!.parent
+                        }
+                    } else {
+                        return null
+                    }
+                }
+            } else { // lookup
+                if(key < p!!.key) {
+                    if(p!!.left != null) {
+                        p = p!!.left!!
+                    } else {
+                        findNext = true;
+                    }
+                } else if( key > p!!.key) {
+                    if(p!!.right != null) {
+                        p = p!!.right!!
+                    } else {
+                        findNext = true;
+                    }
+                } else {
+                    findNext = true
+                }
+            }
+            /*
             val cmp = compare(key, p!!.key)
             if (cmp > 0) {
                 if (p!!.right != null) {
@@ -283,6 +324,9 @@ public class RBTree {
                 if (cmp == 0) {
                     if (p!!.right != null) {
                         p = p!!.right;
+                        while(p!!.left != null) {
+                            p = p!!.left
+                        }
                     } else {
                         return null;
                     }
@@ -297,7 +341,7 @@ public class RBTree {
                 } else {
                     return p;
                 }
-            }
+            }*/
         }
         return null
     }
