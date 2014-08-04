@@ -42,6 +42,7 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
     }
 
     fun serialize(builder: StringBuilder) {
+        builder.append("|")
         builder.append(key)
         builder.append(";")
         builder.append(value.ordinal().toString())
@@ -51,38 +52,71 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
         } else {
             builder.append("B")
         }
-        builder.append("|")
         if (left != null) {
             left?.serialize(builder)
         } else {
-            builder.append("#|")
+            builder.append("#")
         }
         if (right != null) {
             right?.serialize(builder)
         } else {
-            builder.append("#|")
+            builder.append("#")
         }
     }
+
+    /*
+    unefficient for the moment
+    fun serializeBinary(buffer: ByteBuffer) {
+        buffer.put(0)
+        buffer.putLong(key)
+        if(value == STATE.EXISTS){
+            buffer.put(0)
+        } else {
+            buffer.put(1)
+        }
+        if(color == Color.RED){
+            buffer.put(0)
+        } else {
+            buffer.put(1)
+        }
+        if (left != null) {
+            left?.serializeBinary(buffer)
+        } else {
+            buffer.put(1)
+        }
+        if (right != null) {
+            right?.serializeBinary(buffer)
+        } else {
+            buffer.put(1)
+        }
+    } */
+
 }
 
 private class ReaderContext(val payload: String, var offset: Int) {
 
     fun unserialize(): Node? {
+        if(offset >= payload.length){
+            return null;
+        }
         var tokenBuild = StringBuilder()
         var ch = payload.get(offset)
         if (ch == '#') {
-            offset = offset + 2
+            offset = offset + 1
             return null
         }
-        while (offset < payload.length && ch != '|') {
+        if (ch != '|') {
+           throw Exception("Error while loading BTree")
+        }
+        offset = offset + 1
+        ch = payload.get(offset)
+        while (offset+1 < payload.length && ch != '|' && ch != '#') {
             tokenBuild.append(ch)
             offset = offset + 1
             ch = payload.get(offset)
         }
-        if (ch != '|') {
+        if (ch != '|' && ch != '#') {
             tokenBuild.append(ch)
-        } else {
-            offset = offset + 1
         }
         var splitted = tokenBuild.toString().split(";")
         var color = if (splitted.get(2) == "B") {
@@ -126,13 +160,34 @@ public class RBTree {
     }
 
     fun serialize(): String {
-        var builder = StringBuilder()
+        var builder = StringBuilder(size*(7+5))
+        builder.append(size)
         root?.serialize(builder)
         return builder.toString()
     }
 
+   /*
+    fun serializeBinary() : ByteBuffer {
+        var bb = ByteBuffer.allocate(size*13)
+        root?.serializeBinary(bb)
+        return bb
+    }*/
+
+
     fun unserialize(payload: String) {
-        root = ReaderContext(payload, 0).unserialize()
+        if(payload.size == 0){
+            return
+        }
+        var i = 0
+        var buffer = StringBuffer()
+        var ch = payload.get(i)
+        while (i < payload.length && ch != '|' ) {
+            buffer.append(ch)
+            i = i + 1
+            ch = payload.get(i)
+        }
+        size = java.lang.Long.parseLong(buffer.toString()).toInt()
+        root = ReaderContext(payload, i).unserialize()
     }
 
     fun lowerOrEqual(key: Long): Node? {
@@ -544,6 +599,5 @@ public class RBTree {
         }
         return n
     }
-
 
 }

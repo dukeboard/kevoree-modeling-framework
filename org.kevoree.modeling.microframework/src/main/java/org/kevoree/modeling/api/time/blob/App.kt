@@ -9,16 +9,22 @@ import java.util.TreeSet
 
 fun main(args: Array<String>) {
     val btree = RBTree()
+
+    /*
     btree.insert(0, STATE.EXISTS);
     btree.insert(1, STATE.EXISTS);
     btree.insert(2, STATE.DELETED);
     btree.insert(3, STATE.EXISTS);
     btree.insert(4, STATE.EXISTS);
     btree.insert(5, STATE.EXISTS);
+*/
 
-    println("size:"+btree.size())
+    for(i in 10001L..20000L){
+        btree.insert(i, STATE.EXISTS);
+    }
 
-    println(btree.upper(1)?.key)
+    //println("size:"+btree.size())
+    //println(btree.upper(1)?.key)
 
     /*
     btree.insert(TimePoint.create("3"), "");
@@ -27,20 +33,39 @@ fun main(args: Array<String>) {
     btree.insert(TimePoint.create("6"), "");
       */
 
-    println(btree.serialize())
+    var saved = btree.serialize()
+    println(saved)
 
+
+    val btree2 = RBTree()
+    btree2.unserialize(saved)
+    var saved2 = btree2.serialize()
+    println(saved2)
 
     //println(btree.relativeMax(TimePoint.create("3"),"X"))
     /*
 
      */
+    /*
     println(btree.upperUntil(0,STATE.DELETED)?.key)
     println(btree.upperUntil(1,STATE.DELETED)?.key)
     println(btree.upperUntil(2,STATE.DELETED)?.key)
     println(btree.upperUntil(3,STATE.DELETED)?.key)
     println(btree.upperUntil(4,STATE.DELETED)?.key)
+    */
+
+    println(">"+saved2.length)
+    println("computed:"+btree.size()*7+btree.max()?.key.toString().size)
+    println("#"+saved2.toByteArray("UTF-8").size)
 
 
+    /*
+    var bb = ByteBuffer.allocate(saved2.length*2)
+    for(c in saved2){
+        bb.putChar(c)
+    }
+    println("$"+bb.position())
+     */
 
 
 
