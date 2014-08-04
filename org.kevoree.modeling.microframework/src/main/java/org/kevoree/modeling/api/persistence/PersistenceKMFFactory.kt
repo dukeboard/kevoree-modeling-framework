@@ -24,7 +24,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     var dirty: Boolean
 
-    var originTransaction : Transaction
+    val originTransaction : Transaction
 
     fun remove(elem: KMFContainer) {
         if (datastore != null) {

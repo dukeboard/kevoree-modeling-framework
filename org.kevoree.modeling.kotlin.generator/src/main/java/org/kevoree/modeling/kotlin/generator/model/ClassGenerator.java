@@ -75,7 +75,13 @@ public class ClassGenerator {
 
         String resultAspectName = ((!aspectsName.isEmpty() && !newMetaClassExists) ? "," + ProcessorHelper.getInstance().mkString(aspectsName, ",") : "");
 
-        pr.println(" : " + ctx.kevoreeContainerImplFQN + ", " + ProcessorHelper.getInstance().fqn(ctx, packElement) + "." + cls.getName() + resultAspectName + " { ");
+        String genericType = "";
+        if(ctx.timeAware){
+            genericType = "<"+ProcessorHelper.getInstance().fqn(ctx, packElement)+"."+cls.getName()+">";
+        }
+
+
+        pr.println(" : " + ctx.kevoreeContainerImplFQN +genericType+ ", " + ProcessorHelper.getInstance().fqn(ctx, packElement) + "." + cls.getName() + resultAspectName + " { ");
 
         pr.println("override internal var internal_eContainer : " + ctx.kevoreeContainer + "? = null");
         pr.println("override internal var internal_containmentRefName : String? = null");
@@ -264,6 +270,12 @@ public class ClassGenerator {
     }
 
     private static void generateDeleteMethod(PrintWriter pr, EClass cls, GenerationContext ctx, String pack) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         pr.println("override fun delete(){");
         if (ctx.persistence) {
             pr.println("checkLazyLoad();");
@@ -284,7 +296,7 @@ public class ClassGenerator {
                     }
                 } else {
                     pr.println("if(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " != null) {");
-                    pr.println("(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")");
+                    pr.println("(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")");
                     if (ref.isContainer()) {
                         pr.println(ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!!.delete();");
                     }
@@ -519,6 +531,12 @@ public class ClassGenerator {
     }
 
     private static String generateInternalSetter(GenerationContext ctx, EClass cls, EReference ref, String typeRefName) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         StringBuffer res = new StringBuffer();
         res.append("\nfun internal_").append(ref.getName());
         res.append("(" + ref.getName() + param_suf + " : ");
@@ -564,16 +582,16 @@ public class ClassGenerator {
 
                 res.append("if($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " != null){\n");
                 if (ctx.persistence) {
-                    res.append("originFactory!!.elementsToBeRemoved.add(($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + ").path())\n");
+                    res.append("originFactory!!.elementsToBeRemoved.add(($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + ").path())\n");
                 }
-                res.append("($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + " ).setEContainer(null, null,null)\n");
+                res.append("($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + " ).setEContainer(null, null,null)\n");
                 res.append("}\n");
 
                 res.append("if(" + ref.getName() + param_suf + "!=null){\n");
                 if (ref.isMany()) {
-                    res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").setEContainer(this, " + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", " + ref.getName() + param_suf + ")," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+                    res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(this, " + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", " + ref.getName() + param_suf + ")," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
                 } else {
-                    res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").setEContainer(this, " + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", null)," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+                    res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(this, " + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", null)," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
                 }
                 res.append("}\n");
 
@@ -584,10 +602,10 @@ public class ClassGenerator {
             res.append("val kmf_previousVal = $" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "\n");
 
             res.append("if(" + ref.getName() + param_suf + " != null) {\n");
-            res.append("(" + ref.getName() + param_suf + "!! as " + ctx.kevoreeContainerImplFQN + ").addInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+            res.append("(" + ref.getName() + param_suf + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + ").addInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
             res.append("} else {\n");
             res.append("if($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " != null) {\n");
-            res.append("($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+            res.append("($" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
             res.append("}\n");
             res.append("}\n");
             res.append("$" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " = " + ref.getName() + param_suf + "\n");
@@ -604,16 +622,16 @@ public class ClassGenerator {
                 res.append("this.internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(true, false)\n");
             }
             res.append("for(el in " + ref.getName() + param_suf + "){\n");
-            res.append("val elKey = (el as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()\n");
+            res.append("val elKey = el.internalGetKey()\n");
             res.append("if(elKey == null){throw Exception(" + ctx.basePackageForUtilitiesGeneration + ".util.Constants.ELEMENT_HAS_NO_KEY_IN_COLLECTION)}\n");
             res.append("_" + ref.getName() + ".put(elKey!!,el)\n");
-            res.append("(el as " + ctx.kevoreeContainerImplFQN + ").addInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+            res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").addInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
 
             if (ref.isContainment()) {
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").setEContainer(this," + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", el)," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(this," + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", el)," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
             }
             if (ref.getEOpposite() != null) {
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType." + (ref.getEOpposite().isMany() ? "ADD" : "SET") + ", " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", this, false, fireEvents)\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType." + (ref.getEOpposite().isMany() ? "ADD" : "SET") + ", " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", this, false, fireEvents)\n");
             }
 
             res.append("}\n");
@@ -661,18 +679,24 @@ public class ClassGenerator {
     }
 
     private static String generateDoAdd(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         StringBuffer res = new StringBuffer();
         res.append("\nprivate fun doAdd" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") {\n");
 
-        res.append("val _key_ = (" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()\n");
+        res.append("val _key_ = " + ref.getName() + param_suf+ ".internalGetKey()\n");
         res.append("if(_key_ == null || _key_ == \"\"){ throw Exception(" + ctx.basePackageForUtilitiesGeneration + ".util.Constants.EMPTY_KEY) }\n");
         res.append("if(!_" + ref.getName() + ".containsKey(_key_)) {\n");
 
         res.append("_" + ref.getName() + ".put(_key_," + ref.getName() + param_suf + ")\n");
         if (ref.isContainment()) {
-            res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").setEContainer(this," + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", " + ref.getName() + param_suf + ")," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+            res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(this," + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand(this, org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ", " + ref.getName() + param_suf + ")," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
         }
-        res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").addInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+        res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN+genericParam + ").addInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
 
 
         res.append("}\n");
@@ -736,6 +760,12 @@ public class ClassGenerator {
     }
 
     private static String generateAddAllWithParameter(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         StringBuffer res = new StringBuffer();
         res.append("\nprivate fun internal_addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " :List<" + typeRefName + ">, setOpposite : Boolean, fireEvents : Boolean) {\n");
         res.append("if(isReadOnly()){throw Exception(" + ctx.basePackageForUtilitiesGeneration + ".util.Constants.READ_ONLY_EXCEPTION)}\n");
@@ -745,9 +775,9 @@ public class ClassGenerator {
         if (ref.getEOpposite() != null) {
             EReference opposite = ref.getEOpposite();
             if (!opposite.isMany()) {
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
             } else {
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
             }
         }
         res.append("}\n");
@@ -771,6 +801,12 @@ public class ClassGenerator {
     }
 
     private static String generateAddAll(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         StringBuffer res = new StringBuffer();
         res.append("\noverride fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " :List<" + typeRefName + ">) : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{\n");
         if (ref.getEOpposite() != null || ctx.generateEvents) {
@@ -782,9 +818,9 @@ public class ClassGenerator {
             if (ref.getEOpposite() != null) {
                 EReference opposite = ref.getEOpposite();
                 if (!opposite.isMany()) {
-                    res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
+                    res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
                 } else {
-                    res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
+                    res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + opposite.getName() + ", this, false, fireEvents)\n");
                 }
             }
             res.append("}\n");
@@ -805,6 +841,10 @@ public class ClassGenerator {
 
 
     private static String generateRemoveMethodWithParam(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
         StringBuffer res = new StringBuffer();
         res.append("\nprivate fun internal_remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ", setOpposite : Boolean, fireEvents : Boolean) {\n");
 
@@ -814,7 +854,7 @@ public class ClassGenerator {
 
         res.append(("if(isReadOnly()){throw Exception(" + ctx.basePackageForUtilitiesGeneration + ".util.Constants.READ_ONLY_EXCEPTION)}\n"));
         if (!ref.isRequired()) {
-            res.append("if(" + "_" + ref.getName() + ".size() != 0 && " + "_" + ref.getName() + ".containsKey((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey())) {\n");
+            res.append("if(" + "_" + ref.getName() + ".size() != 0 && " + "_" + ref.getName() + ".containsKey(" + ref.getName() + param_suf + ".internalGetKey())) {\n");
         } else {
             res.append("if(" + "_" + ref.getName() + ".size == " + ref.getLowerBound() + "&& " + "_" + ref.getName() + ".containsKey((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()) ) {\n");
             res.append("throw UnsupportedOperationException(\"The list of " + ref.getName() + param_suf + " must contain at least " + ref.getLowerBound() + " element. Can not remove sizeof(" + ref.getName() + param_suf + ")=\"+" + "_" + ref.getName() + ".size)\n");
@@ -823,11 +863,11 @@ public class ClassGenerator {
 
         res.append("val previousPathToBeRemoved = " + ref.getName() + param_suf + ".path()\n");
 
-        res.append("_" + ref.getName() + ".remove((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey())\n");
-        res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+        res.append("_" + ref.getName() + ".remove(" + ref.getName() + param_suf  + ".internalGetKey())\n");
+        res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
         if (ref.isContainment()) {
             //TODO
-            res.append("(" + ref.getName() + param_suf + "!! as " + ctx.kevoreeContainerImplFQN + ").setEContainer(null,null,null)\n");
+            res.append("(" + ref.getName() + param_suf + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(null,null,null)\n");
         }
 
         if (ctx.generateEvents) {
@@ -858,6 +898,12 @@ public class ClassGenerator {
 
 
     private static String generateRemoveAllMethodWithParam(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         StringBuffer res = new StringBuffer();
         res.append("\nprivate fun internal_removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(setOpposite : Boolean, fireEvents : Boolean) {\n");
 
@@ -873,28 +919,28 @@ public class ClassGenerator {
             if (ref.isContainment()) {
                 res.append("if(setOpposite){\n");
                 res.append("for(el in temp_els!!){\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").setEContainer(null,null,null)\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN +genericParam+ ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN +genericParam+ ").setEContainer(null,null,null)\n");
                 if (!ref.getEOpposite().isMany()) {
-                    res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", null, false, fireEvents)\n");
+                    res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", null, false, fireEvents)\n");
                 } else {
-                    res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", this, false, fireEvents)\n");
+                    res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", this, false, fireEvents)\n");
                 }
                 res.append("}\n");
                 res.append("} else {\n");
                 res.append("for(el in temp_els!!){\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").setEContainer(null,null,null)\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(null,null,null)\n");
                 res.append("}\n");
                 res.append("}\n");
             } else {
                 res.append("if(setOpposite){\n");
                 res.append("for(el in temp_els!!){\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
                 if (!ref.getEOpposite().isMany()) {
-                    res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", null, false, fireEvents)\n");
+                    res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.SET, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", null, false, fireEvents)\n");
                 } else {
-                    res.append("(el as " + ctx.kevoreeContainerImplFQN + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", this, false, fireEvents)\n");
+                    res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").reflexiveMutator(org.kevoree.modeling.api.util.ActionType.REMOVE, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getEOpposite().getName() + ", this, false, fireEvents)\n");
                 }
                 res.append("}\n");
                 res.append("}\n");
@@ -902,7 +948,7 @@ public class ClassGenerator {
         } else {
             if (ref.isContainment()) {
                 res.append("for(el in temp_els!!){\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").setEContainer(null,null,null)\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(null,null,null)\n");
                 res.append("}\n");
             }
         }
@@ -927,6 +973,12 @@ public class ClassGenerator {
 
 
     private static String generateRemove(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         StringBuffer res = new StringBuffer();
         res.append("\noverride fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ref.getName() + param_suf + " : " + typeRefName + ") : " + ProcessorHelper.getInstance().fqn(ctx, cls.getEPackage()) + "." + cls.getName() + "{\n");
         if (ref.getEOpposite() != null || ctx.generateEvents) {
@@ -935,17 +987,17 @@ public class ClassGenerator {
 
             res.append(("if(isReadOnly()){throw Exception(" + ctx.basePackageForUtilitiesGeneration + ".util.Constants.READ_ONLY_EXCEPTION)}\n"));
             if (!ref.isRequired()) {
-                res.append("if(" + "_" + ref.getName() + ".size() != 0 && " + "_" + ref.getName() + ".containsKey((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey())) {\n");
+                res.append("if(" + "_" + ref.getName() + ".size() != 0 && " + "_" + ref.getName() + ".containsKey(" + ref.getName() + param_suf + ".internalGetKey())) {\n");
             } else {
-                res.append("if(" + "_" + ref.getName() + ".size == " + ref.getLowerBound() + "&& " + "_" + ref.getName() + ".containsKey((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()) ) {\n");
+                res.append("if(" + "_" + ref.getName() + ".size == " + ref.getLowerBound() + "&& " + "_" + ref.getName() + ".containsKey(" + ref.getName() + param_suf + ".internalGetKey()) ) {\n");
                 res.append("throw UnsupportedOperationException(\"The list of " + ref.getName() + param_suf + " must contain at least " + ref.getLowerBound() + " element. Can not remove sizeof(" + ref.getName() + param_suf + ")=\"+" + "_" + ref.getName() + ".size)\n");
                 res.append("} else {\n");
             }
 
             res.append("_" + ref.getName() + ".remove((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey())\n");
-            res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+            res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
             if (ref.isContainment()) {
-                res.append("(" + ref.getName() + param_suf + "!! as " + ctx.kevoreeContainerImplFQN + ").setEContainer(null,null,null)\n");
+                res.append("(" + ref.getName() + param_suf + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(null,null,null)\n");
             }
             res.append("}\n");
         }
@@ -956,6 +1008,12 @@ public class ClassGenerator {
 
 
     private static String generateRemoveAll(EClass cls, EReference ref, String typeRefName, GenerationContext ctx) {
+
+        String genericParam = "";
+        if(ctx.timeAware){
+            genericParam = "<*>";
+        }
+
         StringBuffer res = new StringBuffer();
         if (ctx.generateEvents && ref.isContainment()) {
             // only once in the class, only for contained references
@@ -974,8 +1032,8 @@ public class ClassGenerator {
             }
             if (ref.isContainment()) {
                 res.append("for(el in temp_els!!){\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
-                res.append("(el as " + ctx.kevoreeContainerImplFQN + ").setEContainer(null,null,null)\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
+                res.append("(el as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(null,null,null)\n");
                 res.append("}\n");
             }
             res.append("_" + ref.getName() + ".clear()\n");

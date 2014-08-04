@@ -7,7 +7,7 @@
 package ${packElem}
 
 #if($ctx.timeAware)
-trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.time.TimeAwareKMFContainer {
+ trait ${formatedFactoryName}PersistenceImpl<A> : ${formatedFactoryName}Impl,org.kevoree.modeling.api.time.TimeAwareKMFContainer<A> {
 #else
   trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KMFContainerProxy {
 #end

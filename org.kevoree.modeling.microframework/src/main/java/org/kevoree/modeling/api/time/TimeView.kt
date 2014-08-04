@@ -13,12 +13,6 @@ public trait TimeView {
 
     fun lookup(path: String): KMFContainer?
 
-    public fun globalFloor(tp: Long?): Long?
-
-    public fun globalCeil(tp: Long?): Long?
-
-    public fun globalLatest(): Long?
-
     fun create(metaTypeName: String): KMFContainer?
 
     fun modified(): Set<String>

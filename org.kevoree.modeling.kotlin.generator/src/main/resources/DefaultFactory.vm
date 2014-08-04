@@ -12,7 +12,7 @@ package ${packageName}.factory;
 import $helper.fqn($ctx, $class);
 #end
 
-#if($ctx.persistence) #if(!$ctx.timeAware) open #end #end class Default${formatedFactoryName}(#if($ctx.persistence) override val datastore : org.kevoree.modeling.api.persistence.DataStore #end #if($ctx.timeAware), override val sharedCache : org.kevoree.modeling.api.time.blob.SharedCache,override val relativeTime: Long   #end  ) : ${formatedFactoryName} #if($ctx.timeAware),org.kevoree.modeling.api.time.TimeAwareKMFFactory,${formatedTimeView} #else #if($ctx.persistence),org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
+#if($ctx.persistence) #if(!$ctx.timeAware) open #end #end class Default${formatedFactoryName}(#if($ctx.persistence)override var originTransaction: org.kevoree.modeling.api.Transaction, override val datastore : org.kevoree.modeling.api.persistence.DataStore #end #if($ctx.timeAware), override val sharedCache : org.kevoree.modeling.api.time.blob.SharedCache,override val relativeTime: Long   #end  ) : ${formatedFactoryName} #if($ctx.timeAware),org.kevoree.modeling.api.time.TimeAwareKMFFactory,${formatedTimeView} #else #if($ctx.persistence),org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
 
 override fun getVersion() : String { return "${modelVersion}" }
 
@@ -50,10 +50,10 @@ when(metaClassName){
         elem.originFactory = this
         monitor(elem)
         #if($ctx.timeAware)
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer).isResolved = true
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer).now = relativeTime
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer).meta = org.kevoree.modeling.api.time.blob.EntityMeta()
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer).meta!!.metatype = elem.metaClassName()
+        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).isResolved = true
+        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).now = relativeTime
+        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).meta = org.kevoree.modeling.api.time.blob.EntityMeta()
+        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).meta!!.metatype = elem.metaClassName()
         #end
     }
 #end
@@ -75,8 +75,8 @@ when(metaClassName){
     if(lookup("/") != elem){
        elem.isDirty = true;
     }
-    (elem as ${ctx.getKevoreeContainerImplFQN()}).is_root = true
-    (elem as ${ctx.getKevoreeContainerImplFQN()}).path_cache = "/"
+    (elem as ${ctx.getKevoreeContainerImplFQN()}#if($ctx.timeAware)<*>#end).is_root = true
+    (elem as ${ctx.getKevoreeContainerImplFQN()}#if($ctx.timeAware)<*>#end).path_cache = "/"
     modified_elements.put("/", elem)
     elem_cache.put("/", elem)
     }

@@ -13,6 +13,19 @@ import org.kevoree.modeling.api.time.TimeTree
 
 class TimeMeta() : TimeTree {
 
+    override fun first(): Long? {
+        return versionTree.first()?.key
+    }
+    override fun last(): Long? {
+        return versionTree.last()?.key
+    }
+    override fun next(from: Long): Long? {
+        return versionTree.next(from)?.key
+    }
+    override fun previous(from: Long): Long? {
+        return versionTree.previous(from)?.key
+    }
+
     override fun walk(walker: TimeWalker) {
         return walkAsc(walker)
     }
@@ -149,9 +162,9 @@ class TimeMeta() : TimeTree {
         //Looks for the closest version for the FROM, LowerOrEquals first
         var startNode: Node? = null
         if (from != null) {
-            startNode = versionTree.lowerOrEqual(from)
+            startNode = versionTree.previousOrEqual(from)
             if (startNode == null) {
-                startNode = versionTree.upper(from)
+                startNode = versionTree.next(from)
             }
             if (startNode == null) {
                 // !! No version found !!
@@ -226,9 +239,9 @@ class TimeMeta() : TimeTree {
     override fun walkRangeDesc(walker: TimeWalker, from: Long?, to: Long?) {
         var startNode: Node? = null
         if (from != null) {
-            startNode = versionTree.lowerOrEqual(from)
+            startNode = versionTree.previousOrEqual(from)
             if (startNode == null) {
-                startNode = versionTree.upper(from)
+                startNode = versionTree.next(from)
             }
             if (startNode == null) {
                 return;

@@ -285,7 +285,7 @@ public class ProcessorHelper {
         String superTypeList = "";
 
         if (ctx.timeAware) {
-            superTypeList = " : org.kevoree.modeling.api.time.TimeAwareKMFContainer ";
+            superTypeList = " : org.kevoree.modeling.api.time.TimeAwareKMFContainer<"+cls.getName()+"> ";
         } else {
             superTypeList = " : " + ctx.kevoreeContainer;
         }
@@ -296,6 +296,7 @@ public class ProcessorHelper {
         return superTypeList;
     }
 
+    /*
     public String generateSuperTypesPlusSuperAPI(GenerationContext ctx, EClass cls, EPackage packElement) {
         String superTypeList;
         superTypeList = " : " + ctx.kevoreeContainerImplFQN + ", " + fqn(ctx, packElement) + "." + cls.getName();
@@ -365,7 +366,7 @@ public class ProcessorHelper {
             }
         }
         return res;
-    }
+    } */
 
     /**
      * Returns the absolute path of the folder in which to generate classes of a package.

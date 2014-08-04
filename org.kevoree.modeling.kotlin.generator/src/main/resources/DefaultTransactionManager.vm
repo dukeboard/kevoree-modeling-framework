@@ -49,7 +49,7 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
             if(resolved != null){
                 return resolved;
             } else {
-                 val temp = Default${formatedFactoryNameImpl}(datastore #if($ctx.timeAware) ,sharedCache,timepoint #end );
+                 val temp = Default${formatedFactoryNameImpl}(this,datastore #if($ctx.timeAware) ,sharedCache,timepoint #end );
                  sharedCache.add(timepoint,temp);
                  return temp;
             }

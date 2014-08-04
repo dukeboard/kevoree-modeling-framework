@@ -114,7 +114,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             throw Exception("Cannot persist, because the path of the element do not refer to a root: " + currentPath + " -> " + elem)
         }
 
-        val casted = elem as TimeAwareKMFContainer
+        val casted = elem as TimeAwareKMFContainer<*>
         if (datastore != null) {
             val traces = elem.toTraces(true, true)
             val traceSeq = TraceSequence(this)
@@ -234,49 +234,9 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         }
     }
 
-    public fun floor(path: String, tp: Long?): Long? {
-        if (tp == null) {
-            return null
-        } else {
-            return getTimeTree(path).versionTree.lowerUntil(tp, STATE.DELETED)?.key
-        }
-    }
-
-    public fun ceil(path: String, tp: Long?): Long? {
-        if (tp == null) {
-            return null
-        } else {
-            return getTimeTree(path).versionTree.upperUntil(tp, STATE.DELETED)?.key
-        }
-    }
-
-    public fun latest(path: String): Long? {
-        return getTimeTree(path).versionTree.relativeMax(relativeTime, STATE.DELETED)?.key
-    }
-
-    override public fun globalFloor(tp: Long?): Long? {
-        if (tp == null) {
-            return null
-        } else {
-            return getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.lower(tp)?.key
-        }
-    }
-
-    override public fun globalCeil(tp: Long?): Long? {
-        if (tp == null) {
-            return null
-        } else {
-            return getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.upper(tp)?.key
-        }
-    }
-
-    override public fun globalLatest(): Long? {
-        return getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA).versionTree.max()?.key
-    }
-
     override fun lookup(path: String): KMFContainer? {
         val timeTree = getTimeTree(path)
-        val askedTimeResult = timeTree.versionTree.lowerOrEqual(relativeTime)
+        val askedTimeResult = timeTree.versionTree.previousOrEqual(relativeTime)
         val askedTime = askedTimeResult?.key
         if (askedTime == null || askedTimeResult!!.value.equals(STATE.DELETED)) {
             return null;
@@ -295,7 +255,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             val meta = EntityMeta()
             meta.load(metaPayload)
             if (meta.metatype != null) {
-                val elem = create(meta.metatype!!) as TimeAwareKMFContainer
+                val elem = create(meta.metatype!!) as TimeAwareKMFContainer<*>
                 elem.meta = meta
                 elem_cache.put(composedKey, elem)
                 elem.isResolved = false
@@ -313,7 +273,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
     override fun getTraces(origin: KMFContainer): TraceSequence? {
         val currentPath = origin.path()
         var sequence = TraceSequence(this)
-        val castedOrigin = origin as TimeAwareKMFContainer
+        val castedOrigin = origin as TimeAwareKMFContainer<*>
         if (castedOrigin.meta!!.latestPersisted == null) {
             return null
         }
@@ -335,7 +295,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
 
     override fun loadInbounds(elem: KMFContainer) {
         val castedInBounds = elem as InboundRefAware
-        val casted2 = elem as TimeAwareKMFContainer
+        val casted2 = elem as TimeAwareKMFContainer<*>
         val payload = datastore.get(TimeSegment.RAW.name(), "${casted2.meta!!.latestPersisted}/${elem.path()}#")
         if (payload != null) {
             castedInBounds.internal_inboundReferences = MetaHelper.unserialize(payload, this)
@@ -380,8 +340,8 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         val casted = other as TimeAwareKMFFactory
         val sequence: TraceSequence = TraceSequence(this)
         val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
-        var resolved1 = globalTime.versionTree.lowerOrEqual(relativeTime)?.key
-        var resolved2 = globalTime.versionTree.lowerOrEqual(casted.relativeTime)?.key
+        var resolved1 = globalTime.versionTree.previousOrEqual(relativeTime)?.key
+        var resolved2 = globalTime.versionTree.previousOrEqual(casted.relativeTime)?.key
         if (resolved1 == null || resolved2 == null) {
             return sequence
         } else {
@@ -401,7 +361,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
                     sequence.populateFromString(raw)
                 }
             }
-            currentTP = globalTime.versionTree.upper(currentTP)?.key!!;
+            currentTP = globalTime.versionTree.next(currentTP)?.key!!;
         }
         return sequence
     }

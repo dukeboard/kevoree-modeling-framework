@@ -122,7 +122,7 @@ public class KMFQLFinder {
             if (ref.getUpperBound() == 1) {
                 pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + " -> {");
                 pr.println("val objFound = " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()));
-                pr.println("if(objFound!=null && (objFound as " + ctx.kevoreeContainerImplFQN + ").internalGetKey() == idP){");
+                pr.println("if(objFound!=null && objFound.internalGetKey() == idP){");
                 pr.println("return objFound");
                 pr.println("}else{return null}");
                 pr.println("}");
