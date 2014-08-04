@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
     btree.insert(5, STATE.EXISTS);
 */
 
-    for(i in 10001L..20000L){
+    for(i in 0L..5L){
         btree.insert(i, STATE.EXISTS);
     }
 

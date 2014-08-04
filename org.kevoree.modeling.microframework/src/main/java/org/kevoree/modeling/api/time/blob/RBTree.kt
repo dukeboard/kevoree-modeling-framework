@@ -45,7 +45,11 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
         builder.append("|")
         builder.append(key)
         builder.append(";")
-        builder.append(value.ordinal().toString())
+        if (value == STATE.DELETED) {
+            builder.append("D")
+        } else {
+            builder.append("E")
+        }
         builder.append(";")
         if (color == Color.RED) {
             builder.append("R")
@@ -148,15 +152,17 @@ private class ReaderContext(val payload: String, var offset: Int) {
             tokenBuild.append(ch)
         }
         var splitted = tokenBuild.toString().split(";")
-        var color = if (splitted.get(2) == "B") {
-            Color.BLACK
+        var color : Color;
+        if (splitted.get(2) == "B") {
+            color = Color.BLACK
         } else {
-            Color.RED
+            color = Color.RED
         }
-        var state = if (splitted.get(1) == STATE.EXISTS.ordinal().toString()) {
-            STATE.EXISTS
+        var state : STATE
+        if (splitted.get(1) == "D") {
+            state= STATE.DELETED
         } else {
-            STATE.DELETED
+            state = STATE.EXISTS
         }
         var p = Node(java.lang.Long.parseLong(splitted.get(0)), state, color, null, null)
         val left = unserialize()
