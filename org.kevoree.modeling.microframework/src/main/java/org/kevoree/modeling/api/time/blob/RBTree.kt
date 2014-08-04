@@ -20,10 +20,12 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
     public var parent: Node? = null
 
     {
-        if (left != null)
+        if (left != null) {
             left!!.parent = this
-        if (right != null)
+        }
+        if (right != null) {
             right!!.parent = this
+        }
         this.parent = null
     }
 
@@ -32,10 +34,11 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
     }
 
     fun sibling(): Node? {
-        if (this == parent?.left)
+        if (this == parent?.left) {
             return parent?.right
-        else
+        } else {
             return parent?.left
+        }
     }
     fun uncle(): Node? {
         return parent?.sibling()
@@ -95,20 +98,20 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
         }
     } */
 
-    fun next() : Node? {
-        var p : Node? = this
-        if(p!!.right != null) {
+    fun next(): Node? {
+        var p: Node? = this
+        if (p!!.right != null) {
             p = p!!.right!!
-            while(p!!.left != null) {
+            while (p!!.left != null) {
                 p = p!!.left!!
             }
             return p;
         } else {
-            if(p!!.parent != null) {
-                if(p == p!!.parent!!.left) {
+            if (p!!.parent != null) {
+                if (p == p!!.parent!!.left) {
                     return p!!.parent!!
                 } else {
-                    while(p!!.parent != null && p == p!!.parent!!.right) {
+                    while (p!!.parent != null && p == p!!.parent!!.right) {
                         p = p!!.parent!!
                     }
                     return p!!.parent
@@ -119,7 +122,7 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
         }
     }
 
-    fun previous() : Node? {
+    fun previous(): Node? {
         //TODO
         return null
     }
@@ -129,7 +132,7 @@ class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, v
 private class ReaderContext(val payload: String, var offset: Int) {
 
     fun unserialize(): Node? {
-        if(offset >= payload.length){
+        if (offset >= payload.length) {
             return null;
         }
         var tokenBuild = StringBuilder()
@@ -139,11 +142,11 @@ private class ReaderContext(val payload: String, var offset: Int) {
             return null
         }
         if (ch != '|') {
-           throw Exception("Error while loading BTree")
+            throw Exception("Error while loading BTree")
         }
         offset = offset + 1
         ch = payload.get(offset)
-        while (offset+1 < payload.length && ch != '|' && ch != '#') {
+        while (offset + 1 < payload.length && ch != '|' && ch != '#') {
             tokenBuild.append(ch)
             offset = offset + 1
             ch = payload.get(offset)
@@ -152,15 +155,15 @@ private class ReaderContext(val payload: String, var offset: Int) {
             tokenBuild.append(ch)
         }
         var splitted = tokenBuild.toString().split(";")
-        var color : Color;
+        var color: Color;
         if (splitted.get(2) == "B") {
             color = Color.BLACK
         } else {
             color = Color.RED
         }
-        var state : STATE
+        var state: STATE
         if (splitted.get(1) == "D") {
-            state= STATE.DELETED
+            state = STATE.DELETED
         } else {
             state = STATE.EXISTS
         }
@@ -188,29 +191,29 @@ public class RBTree {
 
     public var root: Node? = null
 
-    private var size : Int = 0
+    private var size: Int = 0
 
-    fun size() : Int {
+    fun size(): Int {
         return size
     }
 
     fun serialize(): String {
-        var builder = StringBuilder(size*(7+5))
+        var builder = StringBuilder(size * (7 + 5))
         builder.append(size)
         root?.serialize(builder)
         return builder.toString()
     }
 
-   /*
-    fun serializeBinary() : ByteBuffer {
-        var bb = ByteBuffer.allocate(size*13)
-        root?.serializeBinary(bb)
-        return bb
-    }*/
+    /*
+     fun serializeBinary() : ByteBuffer {
+         var bb = ByteBuffer.allocate(size*13)
+         root?.serializeBinary(bb)
+         return bb
+     }*/
 
 
     fun unserialize(payload: String) {
-        if(payload.size == 0){
+        if (payload.size == 0) {
             return
         }
         var i = 0
@@ -236,10 +239,11 @@ public class RBTree {
                 return p
             }
             if (cmp > 0) {
-                if (p!!.right != null)
+                if (p!!.right != null) {
                     p = p!!.right
-                else
+                } else {
                     return p
+                }
             } else {
                 if (p!!.left != null) {
                     p = p!!.left
@@ -309,21 +313,21 @@ public class RBTree {
         while (p != null) {
 
 
-                if(key < p!!.key) {
-                    if(p!!.left != null) {
-                        p = p!!.left!!
-                    } else {
-                        return p!!.next();
-                    }
-                } else if( key > p!!.key) {
-                    if(p!!.right != null) {
-                        p = p!!.right!!
-                    } else {
-                        return p!!.next();
-                    }
+            if (key < p!!.key) {
+                if (p!!.left != null) {
+                    p = p!!.left!!
                 } else {
                     return p!!.next();
                 }
+            } else if ( key > p!!.key) {
+                if (p!!.right != null) {
+                    p = p!!.right!!
+                } else {
+                    return p!!.next();
+                }
+            } else {
+                return p!!.next();
+            }
             /*
             val cmp = compare(key, p!!.key)
             if (cmp > 0) {
@@ -371,22 +375,22 @@ public class RBTree {
         }
     }
 
-    fun first() : Node? {
-     //TODO
-        return null
-    }
-
-    fun last() : Node? {
+    fun first(): Node? {
         //TODO
         return null
     }
 
-    fun firstWhileNot(until: STATE) : Node? {
+    fun last(): Node? {
         //TODO
         return null
     }
 
-    fun lastWileNot(until: STATE) : Node? {
+    fun firstWhileNot(until: STATE): Node? {
+        //TODO
+        return null
+    }
+
+    fun lastWileNot(until: STATE): Node? {
         //TODO
         return null
     }
@@ -449,10 +453,11 @@ public class RBTree {
         if (oldn.parent == null) {
             root = newn
         } else {
-            if (oldn == oldn.parent!!.left)
+            if (oldn == oldn.parent!!.left) {
                 oldn.parent!!.left = newn
-            else
+            } else {
                 oldn.parent!!.right = newn
+            }
         }
         if (newn != null) {
             newn.parent = oldn.parent
@@ -495,10 +500,11 @@ public class RBTree {
         insertCase1(insertedNode)
     }
     private fun insertCase1(n: Node) {
-        if (n.parent == null)
+        if (n.parent == null) {
             n.color = Color.BLACK
-        else
+        } else {
             insertCase2(n)
+        }
     }
     private fun insertCase2(n: Node) {
         if (nodeColor(n.parent) == Color.BLACK) {
@@ -625,10 +631,10 @@ public class RBTree {
     }
 
     private fun nodeColor(n: Node?): Color {
-        return if (n == null) {
-            Color.BLACK
+        if (n == null) {
+            return Color.BLACK
         } else {
-            n.color
+            return n.color
         }
     }
 
