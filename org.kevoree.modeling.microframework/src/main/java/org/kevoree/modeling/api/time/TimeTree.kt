@@ -12,4 +12,10 @@ trait TimeTree {
     fun walkRangeAsc(walker : TimeWalker, from : Long?, to : Long?)
     fun walkRangeDesc(walker : TimeWalker, from : Long?, to : Long?)
 
+    fun first() : Long?
+    fun last() : Long?
+    fun next(from : Long) : Long?
+    fun previous(from : Long) : Long?
+
+    //TODO nextGeneration
 }
