@@ -7,3 +7,11 @@ object Long {
     }
 
 }
+
+object Integer {
+
+    fun parseInt(s : String) : kotlin.Int {
+        return s as kotlin.Int
+    }
+
+}

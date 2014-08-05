@@ -251,7 +251,7 @@ public class RBTree {
             i = i + 1
             ch = payload.get(i)
         }
-        size = java.lang.Long.parseLong(buffer.toString()).toInt()
+        size = java.lang.Integer.parseInt(buffer.toString())
         root = ReaderContext(payload, i).unserialize(true)
     }
 
