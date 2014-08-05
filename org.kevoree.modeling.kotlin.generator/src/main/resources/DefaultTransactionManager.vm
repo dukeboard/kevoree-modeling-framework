@@ -92,8 +92,11 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
         #if($ctx.persistence)
              override fun close() {
                 clear();
-                datastore!!.sync();
+                datastore.sync();
             }
+
+            override val originTransaction: Transaction = this
+
         #end
 
     #end

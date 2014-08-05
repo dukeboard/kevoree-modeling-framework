@@ -12,7 +12,7 @@ package ${packageName}.factory;
 import $helper.fqn($ctx, $class);
 #end
 
-#if($ctx.persistence) #if(!$ctx.timeAware) open #end #end class Default${formatedFactoryName}(#if($ctx.persistence)override var originTransaction: org.kevoree.modeling.api.Transaction, override val datastore : org.kevoree.modeling.api.persistence.DataStore #end #if($ctx.timeAware), override val sharedCache : org.kevoree.modeling.api.time.blob.SharedCache,override val relativeTime: Long   #end  ) : ${formatedFactoryName} #if($ctx.timeAware),org.kevoree.modeling.api.time.TimeAwareKMFFactory,${formatedTimeView} #else #if($ctx.persistence),org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
+#if($ctx.persistence) #if(!$ctx.timeAware) open abstract #end #end class Default${formatedFactoryName}(#if($ctx.persistence) #if($ctx.timeAware) override var originTransaction: org.kevoree.modeling.api.Transaction,#end override val datastore : org.kevoree.modeling.api.persistence.DataStore #end #if($ctx.timeAware), override val sharedCache : org.kevoree.modeling.api.time.blob.SharedCache,override val relativeTime: Long   #end  ) : ${formatedFactoryName} #if($ctx.timeAware),org.kevoree.modeling.api.time.TimeAwareKMFFactory,${formatedTimeView} #else #if($ctx.persistence),org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
 
 override fun getVersion() : String { return "${modelVersion}" }
 
@@ -21,6 +21,7 @@ override val elem_cache: MutableMap<String, org.kevoree.modeling.api.KMFContaine
 override val modified_elements: MutableMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.concurrent.ConcurrentHashMap<String, org.kevoree.modeling.api.KMFContainer>()
 override val elementsToBeRemoved : MutableSet<String> = java.util.HashSet<String>()
 override var dirty : Boolean = false;
+
 #end
 
 #if($ctx.timeAware)
