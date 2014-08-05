@@ -1,17 +1,20 @@
 package org.kevoree.modeling.idea.structure;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.StructureViewModelBase;
-import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.util.treeView.smartTree.ActionPresentation;
 import com.intellij.ide.util.treeView.smartTree.ActionPresentationData;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.event.DocumentAdapter;
+import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.util.Comparator;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by gregory.nain on 16/07/2014.
@@ -28,7 +31,7 @@ public class MetaModelStructureViewModel extends StructureViewModelBase {
                     if(o1.getClass() == o2.getClass()) {
                         if(o1 instanceof MetaModelStructureViewReferenceElement) {
                             if(((MetaModelStructureViewReferenceElement)o1).isAttribute() && !((MetaModelStructureViewReferenceElement)o2).isAttribute()) { //atr <-> !attr
-                               return -1;
+                                return -1;
                             } else if(!((MetaModelStructureViewReferenceElement)o1).isAttribute() && ((MetaModelStructureViewReferenceElement)o2).isAttribute()) {// !atr <-> attr
                                 return 1;
                             } else if(((MetaModelStructureViewReferenceElement)o1).isAttribute() && ((MetaModelStructureViewReferenceElement)o2).isAttribute()) {//atr <-> attr
@@ -79,13 +82,39 @@ public class MetaModelStructureViewModel extends StructureViewModelBase {
             return "METAMODEL_TYPE_SORTER";
         }
     };
+    private Boolean needRefresh = false;
+    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-
-    public MetaModelStructureViewModel(@NotNull PsiFile psiFile, @NotNull StructureViewTreeElement root) {
+    public MetaModelStructureViewModel(@NotNull PsiFile psiFile, @NotNull final MetaModelStructureViewRootElement root, Editor editor) {
         super(psiFile, root);
         withSorters(typeSorter, Sorter.ALPHA_SORTER);
+        editor.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            public void documentChanged(DocumentEvent event) {
+                synchronized (needRefresh) {
+                    needRefresh = true;
+                }
+            }
+        });
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                MetaModelStructureViewModel.this.refreshView();
+            }
+        }, 15, 5, TimeUnit.SECONDS);
+
     }
 
+    public void refreshView() {
+        boolean doRefresh;
+        synchronized (needRefresh) {
+            doRefresh = needRefresh;
+            needRefresh = false;
+        }
+        if(doRefresh) {
+            ((MetaModelStructureViewRootElement)MetaModelStructureViewModel.this.getRoot()).refresh();
+        }
+    }
 
 
 }

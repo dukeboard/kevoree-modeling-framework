@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.ScrollType;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kevoree.modeling.idea.psi.MetaModelClassDeclaration;
 import org.kevoree.modeling.idea.psi.MetaModelRelationDeclaration;
 import org.kevoree.modeling.util.PrimitiveTypes;
 

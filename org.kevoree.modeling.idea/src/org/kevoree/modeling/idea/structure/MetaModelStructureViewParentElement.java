@@ -6,13 +6,9 @@ import com.intellij.ide.util.treeView.smartTree.SortableTreeElement;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kevoree.modeling.idea.psi.MetaModelParentsDeclaration;
-import org.kevoree.modeling.idea.psi.MetaModelRelationDeclaration;
 import org.kevoree.modeling.idea.psi.MetaModelTypeDeclaration;
-import org.kevoree.modeling.util.PrimitiveTypes;
 
 import javax.swing.*;
 
