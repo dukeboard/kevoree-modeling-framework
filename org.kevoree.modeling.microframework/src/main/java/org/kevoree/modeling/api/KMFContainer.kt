@@ -29,6 +29,16 @@ trait KMFContainer {
     fun removeAllModelTreeListeners()
 
     fun visit(visitor: org.kevoree.modeling.api.util.ModelVisitor, recursive: Boolean, containedReference: Boolean, nonContainedReference: Boolean)
+
+    fun visitNotContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
+    fun visitContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
+    fun visitReferences(visitor: org.kevoree.modeling.api.util.ModelVisitor)
+
+    fun deepVisitNotContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
+    fun deepVisitContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
+    fun deepVisitReferences(visitor: org.kevoree.modeling.api.util.ModelVisitor)
+
+
     fun visitAttributes(visitor: org.kevoree.modeling.api.util.ModelAttributeVisitor)
 
     fun createTraces(similarObj: org.kevoree.modeling.api.KMFContainer?, isInter: Boolean, isMerge: Boolean, onlyReferences: Boolean, onlyAttributes: Boolean): List<org.kevoree.modeling.api.trace.ModelTrace>
