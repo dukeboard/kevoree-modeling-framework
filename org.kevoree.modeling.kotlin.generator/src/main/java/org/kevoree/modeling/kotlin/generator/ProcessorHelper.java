@@ -285,7 +285,7 @@ public class ProcessorHelper {
         String superTypeList = "";
 
         if (ctx.timeAware) {
-            superTypeList = " : org.kevoree.modeling.api.time.TimeAwareKMFContainer<"+cls.getName()+"> ";
+            superTypeList = " : org.kevoree.modeling.api.TimedContainer<"+cls.getName()+"> ";
         } else {
             superTypeList = " : " + ctx.kevoreeContainer;
         }

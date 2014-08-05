@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.time.blob.EntityMeta
 import org.kevoree.modeling.api.TimeTransaction
 import org.kevoree.modeling.api.time.blob.TimeMeta
 import org.kevoree.modeling.api.time.blob.STATE
+import org.kevoree.modeling.api.TimedContainer
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +14,7 @@ import org.kevoree.modeling.api.time.blob.STATE
  * Time: 16:01
  */
 
-public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
+public trait TimeAwareKMFContainer<A> : KMFContainerProxy,TimedContainer<A> {
 
     var meta: EntityMeta?
 
@@ -23,7 +24,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
         return ((originFactory as TimeAwareKMFFactory).originTransaction) as TimeTransaction
     }
 
-    fun previous(): A? {
+    override fun previous(): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
         val previousTime = timeTree().previous(now)
         if (previousTime != null) {
@@ -32,7 +33,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
         return null
     }
 
-    fun next(): A? {
+    override fun next(): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
         val previousTime = timeTree().next(now)
         if (previousTime != null) {
@@ -41,7 +42,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
         return null
     }
 
-    fun last(): A? {
+    override fun last(): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
         val previousTime = (timeTree() as TimeMeta).versionTree.lastWhileNot(now, STATE.DELETED)?.key
         if (previousTime != null) {
@@ -50,7 +51,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
         return null
     }
 
-    fun first(): A? {
+    override fun first(): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
         val previousTime = (timeTree() as TimeMeta).versionTree.firstWhileNot(now, STATE.DELETED)?.key
         if (previousTime != null) {
@@ -59,7 +60,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
         return null
     }
 
-    fun jump(time: Long): A? {
+    override fun jump(time: Long): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
         val previousTime = timeTree().previous(time)
         if (previousTime != null) {
@@ -87,7 +88,7 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy {
         }
     }*/
 
-    fun timeTree(): TimeTree {
+    override fun timeTree(): TimeTree {
         return (originFactory as TimeAwareKMFFactory).getTimeTree(path())
     }
 
