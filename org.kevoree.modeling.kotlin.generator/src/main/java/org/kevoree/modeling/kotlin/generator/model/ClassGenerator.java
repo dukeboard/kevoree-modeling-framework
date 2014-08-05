@@ -856,7 +856,7 @@ public class ClassGenerator {
         if (!ref.isRequired()) {
             res.append("if(" + "_" + ref.getName() + ".size() != 0 && " + "_" + ref.getName() + ".containsKey(" + ref.getName() + param_suf + ".internalGetKey())) {\n");
         } else {
-            res.append("if(" + "_" + ref.getName() + ".size == " + ref.getLowerBound() + "&& " + "_" + ref.getName() + ".containsKey((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey()) ) {\n");
+            res.append("if(" + "_" + ref.getName() + ".size == " + ref.getLowerBound() + "&& " + "_" + ref.getName() + ".containsKey(" + ref.getName() + param_suf + ".internalGetKey()) ) {\n");
             res.append("throw UnsupportedOperationException(\"The list of " + ref.getName() + param_suf + " must contain at least " + ref.getLowerBound() + " element. Can not remove sizeof(" + ref.getName() + param_suf + ")=\"+" + "_" + ref.getName() + ".size)\n");
             res.append("} else {\n");
         }
@@ -994,7 +994,7 @@ public class ClassGenerator {
                 res.append("} else {\n");
             }
 
-            res.append("_" + ref.getName() + ".remove((" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN + ").internalGetKey())\n");
+            res.append("_" + ref.getName() + ".remove(" + ref.getName() + param_suf +  ".internalGetKey())\n");
             res.append("(" + ref.getName() + param_suf + " as " + ctx.kevoreeContainerImplFQN+genericParam + ").removeInboundReference(this, " + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ")\n");
             if (ref.isContainment()) {
                 res.append("(" + ref.getName() + param_suf + "!! as " + ctx.kevoreeContainerImplFQN+genericParam + ").setEContainer(null,null,null)\n");

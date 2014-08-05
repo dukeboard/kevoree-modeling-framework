@@ -24,13 +24,11 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     var dirty: Boolean
 
-    val originTransaction : Transaction
+    val originTransaction: Transaction
 
     fun remove(elem: KMFContainer) {
-        if (datastore != null) {
-            datastore.remove(TimeSegment.RAW.name(), elem.path());
-            datastore.remove("type", elem.path());
-        }
+        datastore.remove(TimeSegment.RAW.name(), elem.path());
+        datastore.remove("type", elem.path());
         elem_cache.remove(elem.path())
         modified_elements.remove(elem.hashCode().toString() + elem.internalGetKey())
     }
@@ -47,46 +45,42 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             if (modified_elements.get(key) == null) {
                 modified_elements.put(key, elem)
             }
+            if(elem.path().startsWith("/")){
+                elem_cache.put(elem.path(),elem)
+            }
+        }
+        if(elem is KMFContainerProxy && !elem.isDirty){
+            elem.isDirty = true
         }
     }
 
     fun cleanUnusedPaths(path: String) {
-        if (datastore != null) {
-            datastore.remove(TimeSegment.RAW.name(), path);
-            datastore.remove("type", path);
-        }
+        datastore.remove(TimeSegment.RAW.name(), path);
+        datastore.remove("type", path);
         elem_cache.remove(path)
     }
 
     protected fun persist(elem: KMFContainer) {
-
         if (elem is KMFContainerProxy && !elem.isDirty) {
             return;
         }
-
         val elemPath = elem.path()
         if (elemPath == "") {
             throw Exception("Internal error, empty path found during persist method " + elem)
         }
-
         if (!elemPath.startsWith("/")) {
             throw Exception("Cannot persist, because the path of the element do not refer to a root: " + elemPath + " -> " + elem)
         }
-
-        if (datastore != null) {
-            val traces = elem.toTraces(true, true)
-            val traceSeq = TraceSequence(this)
-            traceSeq.populate(traces)
-            datastore.put(TimeSegment.RAW.name(), elemPath, traceSeq.exportToString())
-
-            val castedInBounds = elem as InboundRefAware
-            val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
-            datastore.put(TimeSegment.RAW.name(), "${elemPath}#", saved)
-
-            datastore.put("type", elemPath, elem.metaClassName())
-            if (elem is KMFContainerProxy) {
-                elem.originFactory = this
-            }
+        val traces = elem.toTraces(true, true)
+        val traceSeq = TraceSequence(this)
+        traceSeq.populate(traces)
+        datastore.put(TimeSegment.RAW.name(), elemPath, traceSeq.exportToString())
+        val castedInBounds = elem as InboundRefAware
+        val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
+        datastore.put(TimeSegment.RAW.name(), "${elemPath}#", saved)
+        datastore.put("type", elemPath, elem.metaClassName())
+        if (elem is KMFContainerProxy) {
+            elem.originFactory = this
         }
     }
 
@@ -135,7 +129,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     protected fun monitor(elem: KMFContainer) {
-        if(!dirty){
+        if (!dirty) {
             dirty = true
         }
         elem.addModelElementListener(this)
@@ -148,16 +142,14 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         if (elem_cache.containsKey(path)) {
             return elem_cache.get(path)
         }
-        if (datastore != null) {
-            val typeName = datastore.get("type", path)
-            if (typeName != null) {
-                val elem = create(typeName) as KMFContainerProxy
-                elem_cache.put(path, elem)
-                elem.isResolved = false
-                elem.setOriginPath(path)
-                monitor(elem)
-                return elem
-            }
+        val typeName = datastore.get("type", path)
+        if (typeName != null) {
+            val elem = create(typeName) as KMFContainerProxy
+            elem_cache.put(path, elem)
+            elem.isResolved = false
+            elem.setOriginPath(path)
+            monitor(elem)
+            return elem
         }
         return null
     }

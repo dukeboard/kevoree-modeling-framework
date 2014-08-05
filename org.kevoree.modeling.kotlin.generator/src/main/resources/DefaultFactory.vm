@@ -78,7 +78,7 @@ when(metaClassName){
     }
     (elem as ${ctx.getKevoreeContainerImplFQN()}#if($ctx.timeAware)<*>#end).is_root = true
     (elem as ${ctx.getKevoreeContainerImplFQN()}#if($ctx.timeAware)<*>#end).path_cache = "/"
-    modified_elements.put("/", elem)
+    modified_elements.put(elem.hashCode().toString() + elem.internalGetKey(), elem)
     elem_cache.put("/", elem)
     }
     #end

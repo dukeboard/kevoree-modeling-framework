@@ -164,14 +164,14 @@ public class TraceSequence(val factory : KMFFactory) {
     }
 
     fun applyOn(target: org.kevoree.modeling.api.KMFContainer): Boolean {
-        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, factory!!)
+        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, factory)
         traceApplicator.applyTraceOnModel(this)
         //TODO implements the result
         return true
     }
 
     fun silentlyApplyOn(target: org.kevoree.modeling.api.KMFContainer): Boolean {
-        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, factory!!)
+        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, factory)
         traceApplicator.fireEvents = false
         traceApplicator.applyTraceOnModel(this)
         return true
