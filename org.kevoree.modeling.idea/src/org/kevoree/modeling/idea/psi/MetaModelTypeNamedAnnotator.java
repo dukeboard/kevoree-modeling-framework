@@ -3,6 +3,7 @@ package org.kevoree.modeling.idea.psi;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.util.PrimitiveTypes;
@@ -12,7 +13,62 @@ import org.kevoree.modeling.util.PrimitiveTypes;
  */
 public class MetaModelTypeNamedAnnotator implements Annotator {
     @Override
-    public void annotate(@NotNull PsiElement psiElement, @NotNull AnnotationHolder annotationHolder) {
+    public void annotate(@NotNull final PsiElement psiElement, @NotNull final AnnotationHolder annotationHolder) {
+
+
+        if(psiElement instanceof MetaModelAnnotations){
+            MetaModelAnnotations annotations = (MetaModelAnnotations) psiElement;
+            Boolean isAttribute = false;
+            Boolean isReference = false;
+            if(annotations.getParent() instanceof MetaModelRelationDeclaration){
+                MetaModelRelationDeclaration declaration = (MetaModelRelationDeclaration) annotations.getParent();
+
+                for(PrimitiveTypes p : PrimitiveTypes.values()){
+                    if(p.name().equals(declaration.getTypeDeclaration().getName())){
+                        isAttribute = true;
+                    }
+                }
+                isReference = true;
+            } else {
+                annotationHolder.createErrorAnnotation(psiElement, "Annotation must be placed on references or attributes declaration");
+            }
+            final Boolean finalIsAttribute = isAttribute;
+            final Boolean finalIsReference = isReference;
+            annotations.acceptChildren(new PsiElementVisitor() {
+                @Override
+                public void visitElement(PsiElement element) {
+                    if ("@id".equals(element.getText())) {
+                        if(!finalIsAttribute){
+                            StringBuilder builder =new StringBuilder();
+                            for(PrimitiveTypes p : PrimitiveTypes.values()){
+                                if(builder.length()!=0){
+                                    builder.append(",");
+                                }
+                                builder.append(p.name());
+                            }
+                            annotationHolder.createErrorAnnotation(psiElement, "@id is only valid on attributes (reference with PrimitiveTypes: "+builder+")");
+                        }
+                    } else {
+                        if ("@contained".equals(element.getText())) {
+                            if(!finalIsReference){
+                                StringBuilder builder =new StringBuilder();
+                                for(PrimitiveTypes p : PrimitiveTypes.values()){
+                                    if(builder.length()!=0){
+                                        builder.append(",");
+                                    }
+                                    builder.append(p.name());
+                                }
+                                annotationHolder.createErrorAnnotation(psiElement, "@contained is only valid on references (reference WITHOUT PrimitiveTypes: "+builder+")");
+                            }
+                        } else {
+                            annotationHolder.createErrorAnnotation(psiElement, psiElement.getText()+" is not a valid annotation, @id or @contained expected");
+                        }
+                    }
+
+                }
+            });
+        }
+
         if (psiElement instanceof MetaModelTypeDeclaration) {
             if (((MetaModelTypeDeclaration) psiElement).getName().indexOf(".") < 1) {
                 for (PrimitiveTypes p : PrimitiveTypes.values()) {
