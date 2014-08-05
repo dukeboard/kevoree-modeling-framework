@@ -50,13 +50,6 @@ fun main(args: Array<String>) {
     println(btree.upperUntil(4,STATE.DELETED)?.key)
     */
 
-    println(">"+saved.length)
-    println(">"+saved2.length)
-
-    println("computed:"+btree.size()*2+btree.last()?.key.toString().size)
-    println("#"+saved2.toByteArray("UTF-8").size)
-
-
     /*
     var bb = ByteBuffer.allocate(saved2.length*2)
     for(c in saved2){

@@ -225,7 +225,7 @@ public class RBTree {
     }
 
     fun serialize(): String {
-        var builder = StringBuilder(size * (7 + 5))
+        var builder = StringBuilder()
         builder.append(size)
         root?.serialize(builder)
         return builder.toString()
@@ -244,7 +244,7 @@ public class RBTree {
             return
         }
         var i = 0
-        var buffer = StringBuffer()
+        var buffer = StringBuilder()
         var ch = payload.get(i)
         while (i < payload.length && ch != '|' ) {
             buffer.append(ch)
