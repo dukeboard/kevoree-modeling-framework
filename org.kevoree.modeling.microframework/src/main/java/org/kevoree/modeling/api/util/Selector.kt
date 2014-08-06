@@ -38,49 +38,55 @@ object Selector {
                             return false;
                         }
                         override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
-                            if (staticExtractedQuery.params.size > 0) {
-                                val subResult = Array<Boolean>(staticExtractedQuery.params.size) { i -> false }
-                                elem.visitAttributes(object : ModelAttributeVisitor {
-                                    override fun visit(value: Any?, name: String, parent: KMFContainer) {
-                                        for (att in staticExtractedQuery.params) {
-                                            if (att.key == "@id") {
-                                                throw Exception("Bad selector attribute without with @id  : " + att.value)
-                                            } else {
-                                                var keySelected = false
-                                                if (att.key == name) {
-                                                    keySelected = true
+                            if (staticExtractedQuery.params.size == 1 && staticExtractedQuery.params.get("@id") != null && staticExtractedQuery.params.get("@id")!!.name == null) {
+                                  if(elem.internalGetKey() == staticExtractedQuery.params.get("@id")?.value){
+                                      tempResult.add(elem)
+                                  }
+                            } else {
+                                if (staticExtractedQuery.params.size > 0) {
+                                    val subResult = Array<Boolean>(staticExtractedQuery.params.size) { i -> false }
+                                    elem.visitAttributes(object : ModelAttributeVisitor {
+                                        override fun visit(value: Any?, name: String, parent: KMFContainer) {
+                                            for (att in staticExtractedQuery.params) {
+                                                if (att.key == "@id") {
+                                                    throw Exception("Malformed KMFQuery, bad selector attribute without attribute name : " + att.value)
                                                 } else {
-                                                    if (att.key.contains("*") && name.matches(att.key.replace("*", ".*"))) {
+                                                    var keySelected = false
+                                                    if (att.key == name) {
                                                         keySelected = true
-                                                    }
-                                                }
-                                                //now check value
-                                                if (keySelected) {
-                                                    if (value == null) {
-                                                        if (att.value.negative) {
-                                                            if (att.value.value != "null") {
-                                                                subResult.set(att.value.idParam, true)
-                                                            }
-                                                        } else {
-                                                            if (att.value.value == "null") {
-                                                                subResult.set(att.value.idParam, true)
-                                                            }
-                                                        }
                                                     } else {
-                                                        if (att.value.negative) {
-                                                            if (!att.value.value.contains("*") && value != att.value.value) {
-                                                                subResult.set(att.value.idParam, true)
+                                                        if (att.key.contains("*") && name.matches(att.key.replace("*", ".*"))) {
+                                                            keySelected = true
+                                                        }
+                                                    }
+                                                    //now check value
+                                                    if (keySelected) {
+                                                        if (value == null) {
+                                                            if (att.value.negative) {
+                                                                if (att.value.value != "null") {
+                                                                    subResult.set(att.value.idParam, true)
+                                                                }
                                                             } else {
-                                                                if (!value.toString().matches(att.value.value.replace("*", ".*"))) {
+                                                                if (att.value.value == "null") {
                                                                     subResult.set(att.value.idParam, true)
                                                                 }
                                                             }
                                                         } else {
-                                                            if (value == att.value.value) {
-                                                                subResult.set(att.value.idParam, true)
-                                                            } else {
-                                                                if (value.toString().matches(att.value.value.replace("*", ".*"))) {
+                                                            if (att.value.negative) {
+                                                                if (!att.value.value.contains("*") && value != att.value.value) {
                                                                     subResult.set(att.value.idParam, true)
+                                                                } else {
+                                                                    if (!value.toString().matches(att.value.value.replace("*", ".*"))) {
+                                                                        subResult.set(att.value.idParam, true)
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                if (value == att.value.value) {
+                                                                    subResult.set(att.value.idParam, true)
+                                                                } else {
+                                                                    if (value.toString().matches(att.value.value.replace("*", ".*"))) {
+                                                                        subResult.set(att.value.idParam, true)
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -88,20 +94,20 @@ object Selector {
                                                 }
                                             }
                                         }
+                                    })
+                                    var finalRes = true
+                                    //Check final result
+                                    for (sub in subResult) {
+                                        if (!sub) {
+                                            finalRes = false
+                                        }
                                     }
-                                })
-                                var finalRes = true
-                                //Check final result
-                                for (sub in subResult) {
-                                    if (!sub) {
-                                        finalRes = false
+                                    if (finalRes) {
+                                        tempResult.add(elem)
                                     }
-                                }
-                                if (finalRes) {
+                                } else {
                                     tempResult.add(elem)
                                 }
-                            } else {
-                                tempResult.add(elem)
                             }
                         }
                     }, false, true, true)
