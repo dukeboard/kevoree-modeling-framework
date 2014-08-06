@@ -328,11 +328,8 @@ public class StandaloneParser {
                                 errors.add(element.getText() + " is not a valid annotation @id and @contained expected");
                             }
                         }
-
                     }
                 });
-
-
             }
 
             @Override

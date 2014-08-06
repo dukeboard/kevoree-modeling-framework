@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.time.TimeTree
  * Created by duke on 8/5/14.
  */
 
-trait TimedContainer<A> : org.kevoree.modeling.api.KMFContainer {
+trait TimedContainer<out A> : org.kevoree.modeling.api.KMFContainer {
 
     fun previous(): A?
 
