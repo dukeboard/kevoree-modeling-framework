@@ -17,14 +17,13 @@
  */
 package org.kevoree.modeling.kotlin.generator;
 
-import java.io.PrintWriter;
-import java.util.*;
-
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
-import org.kevoree.modeling.kotlin.generator.GenerationContext;
+
+import java.io.PrintWriter;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 
 /**
@@ -37,24 +36,20 @@ public class KMFQLFinder {
 
     public static void generateKMFQLMethods(PrintWriter pr, EClass cls, GenerationContext ctx, String pack) {
         pr.println("override fun internalGetKey() : String? {");
-
         pr.println("if(key_cache != null){");
         pr.println("return key_cache");
         pr.println("} else {");
-
         boolean first = true;
         pr.print("key_cache = ");
         SortedSet<String> idAttributes = new TreeSet<String>();
-
         for (EAttribute att : cls.getEAllAttributes()) {
             if (att.isID() && !att.getName().equals("generated_KMF_ID")) {
                 idAttributes.add(att.getName());
             }
         }
-
         if (idAttributes.size() > 0) {
             pr.print("\"");
-            if(idAttributes.size() == 1){
+            if (idAttributes.size() == 1) {
                 pr.print("$" + ProcessorHelper.getInstance().protectReservedWords(idAttributes.first()));
             } else {
                 for (String att : idAttributes) {
@@ -62,31 +57,51 @@ public class KMFQLFinder {
                         //pr.print("+\"/\"+")
                         pr.print(",");
                     }
-                    pr.print(att+"=$" + ProcessorHelper.getInstance().protectReservedWords(att));
+                    pr.print(att + "=$" + ProcessorHelper.getInstance().protectReservedWords(att));
                     first = false;
                 }
             }
-
-
-
             pr.print("\"");
-
         } else {
             pr.print(" generated_KMF_ID");
         }
-
         pr.println();
-
         pr.println("}");
         pr.println("return key_cache");
-
         pr.println("}");
-
         //GENERATE findByID methods
-        boolean generateReflexifMapper = false;
         for (EReference ref : cls.getEAllReferences()) {
             if (ref.isMany()) {
-                generateReflexifMapper = true;
+
+                //Check if multiple Key
+                SortedSet<String> idRefAttributes = new TreeSet<String>();
+                for (EAttribute att : ref.getEReferenceType().getEAllAttributes()) {
+                    if (att.isID() && !att.getName().equals("generated_KMF_ID")) {
+                        idRefAttributes.add(att.getName());
+                    }
+                }
+                if (idRefAttributes.size() > 1) {
+                    boolean first2 = true;
+                    StringBuilder builder = new StringBuilder();
+                    StringBuilder builder2 = new StringBuilder();
+                    StringBuilder builder3 = new StringBuilder();
+                    for (String att : idRefAttributes) {
+                        if (!first2) {
+                            builder.append(",");
+                            builder2.append(",");
+                        }
+                        builder.append(ProcessorHelper.getInstance().protectReservedWords(att) + ":String");
+                        builder2.append(att+"=$"+ProcessorHelper.getInstance().protectReservedWords(att));
+                        String name = att.substring(0,1).toUpperCase()+att.substring(1).toLowerCase();
+                        builder3.append(name);
+                        first2 = false;
+                    }
+                    pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By"+builder3+"("+builder+") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "? {");
+                    pr.println("return find"+ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1))+"ByID(\""+builder2+"\")");
+                    pr.println("}");
+                }
+
+
                 pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(key : String) : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "? {");
                 if (ctx.persistence) {
                     if (ref.isContainment()) {

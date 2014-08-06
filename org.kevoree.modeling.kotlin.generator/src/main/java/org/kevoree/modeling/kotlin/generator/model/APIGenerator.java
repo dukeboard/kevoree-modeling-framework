@@ -26,6 +26,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -127,6 +129,31 @@ public class APIGenerator {
                     generateRemoveMethod(pr, cls, ref, typeRefName);
                     generateRemoveAllMethod(pr, cls, ref, typeRefName);
                     pr.println("fun find" + ProcessorHelper.getInstance().toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType())) + "?");
+
+
+                    SortedSet<String> idRefAttributes = new TreeSet<String>();
+                    for (EAttribute att : ref.getEReferenceType().getEAllAttributes()) {
+                        if (att.isID() && !att.getName().equals("generated_KMF_ID")) {
+                            idRefAttributes.add(att.getName());
+                        }
+                    }
+                    if (idRefAttributes.size() > 1) {
+                        boolean first2 = true;
+                        StringBuilder builder = new StringBuilder();
+                        StringBuilder builder3 = new StringBuilder();
+                        for (String att : idRefAttributes) {
+                            if (!first2) {
+                                builder.append(",");
+                            }
+                            builder.append(ProcessorHelper.getInstance().protectReservedWords(att) + ":String");
+                            String name = att.substring(0,1).toUpperCase()+att.substring(1).toLowerCase();
+                            builder3.append(name);
+                            first2 = false;
+                        }
+                        pr.println("fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By"+builder3+"("+builder+") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "?;");
+                    }
+
+
                 } else {
                     pr.println("open var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + "?");
                     pr.print("public fun with");
