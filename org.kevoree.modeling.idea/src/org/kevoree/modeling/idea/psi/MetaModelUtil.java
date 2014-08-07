@@ -8,7 +8,6 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.Nullable;
 import org.kevoree.modeling.MetaModelIcons;
@@ -17,7 +16,6 @@ import org.kevoree.modeling.MetaModelLanguageType;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,6 +40,9 @@ public class MetaModelUtil {
                             if (declaration.getClassDeclaration() != null) {
                                 result.add(declaration.getClassDeclaration().getTypeDeclaration());
                             }
+                            if (declaration.getEnumDeclaration() != null) {
+                                result.add(declaration.getEnumDeclaration().getTypeDeclaration());
+                            }
                         }
                         super.visitElement(element);
                     }
@@ -57,15 +58,20 @@ public class MetaModelUtil {
                 GlobalSearchScope.allScope(project));
         for (VirtualFile virtualFile : virtualFiles) {
             MetaModelFile simpleFile = (MetaModelFile) PsiManager.getInstance(project).findFile(virtualFile);
-            if(simpleFile!= null){
+            if (simpleFile != null) {
                 simpleFile.acceptChildren(new PsiElementVisitor() {
                     @Override
                     public void visitElement(PsiElement element) {
                         if (element instanceof MetaModelDeclaration) {
                             MetaModelDeclaration declaration = (MetaModelDeclaration) element;
                             if (declaration.getClassDeclaration() != null && declaration.getClassDeclaration().getTypeDeclaration() != null) {
-                                if(key.equals(declaration.getClassDeclaration().getTypeDeclaration().getName())){
+                                if (key.equals(declaration.getClassDeclaration().getTypeDeclaration().getName())) {
                                     result.add(declaration.getClassDeclaration().getTypeDeclaration());
+                                }
+                            }
+                            if (declaration.getEnumDeclaration() != null && declaration.getEnumDeclaration().getTypeDeclaration() != null) {
+                                if (key.equals(declaration.getEnumDeclaration().getTypeDeclaration().getName())) {
+                                    result.add(declaration.getEnumDeclaration().getTypeDeclaration());
                                 }
                             }
                         }
@@ -79,9 +85,7 @@ public class MetaModelUtil {
 
 
     public static PsiElement setName(MetaModelTypeDeclaration element, String newName) {
-
         System.err.println("Rename not supported yet !!!");
-
         /*
         ASTNode keyNode = element.getNode().findChildByType(SimpleTypes.KEY);
         if (keyNode != null) {
