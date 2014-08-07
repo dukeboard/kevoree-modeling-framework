@@ -346,7 +346,7 @@ public class StandaloneParser {
                 final boolean[] isValidated = {false};
                 if (!isValidated[0]) {
                     PsiElement parent = o.getParent();
-                    if (!(parent instanceof MetaModelClassDeclaration)) {
+                    if (!(parent instanceof MetaModelClassDeclaration) && !(parent instanceof MetaModelEnumDeclaration)) {
                         PsiFile file = o.getContainingFile();
                         file.acceptChildren(new MetaModelVisitor() {
                             @Override
@@ -359,6 +359,13 @@ public class StandaloneParser {
 
                             @Override
                             public void visitClassDeclaration(@NotNull MetaModelClassDeclaration oo) {
+                                if (oo.getTypeDeclaration().getName().equals(o.getName())) {
+                                    isValidated[0] = true;
+                                }
+                            }
+
+                            @Override
+                            public void visitEnumDeclaration(@NotNull MetaModelEnumDeclaration oo) {
                                 if (oo.getTypeDeclaration().getName().equals(o.getName())) {
                                     isValidated[0] = true;
                                 }

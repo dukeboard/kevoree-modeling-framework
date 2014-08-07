@@ -88,7 +88,7 @@ public class MetaModelTypeNamedAnnotator implements Annotator {
                 }
                 if (!isValidated[0]) {
                     PsiElement parent = psiElement.getParent();
-                    if (!(parent instanceof MetaModelClassDeclaration)) {
+                    if (!(parent instanceof MetaModelClassDeclaration) && !(parent instanceof MetaModelEnumDeclaration)) {
                         PsiFile file = psiElement.getContainingFile();
                         file.acceptChildren(new MetaModelVisitor() {
                             @Override
@@ -104,6 +104,14 @@ public class MetaModelTypeNamedAnnotator implements Annotator {
                                     isValidated[0] = true;
                                 }
                             }
+
+                            @Override
+                            public void visitEnumDeclaration(@NotNull MetaModelEnumDeclaration o) {
+                                if(o != null && o.getTypeDeclaration() != null && o.getTypeDeclaration().getName() != null && o.getTypeDeclaration().getName().equals(casted.getName())){
+                                    isValidated[0] = true;
+                                }
+                            }
+
                         });
                         if(!isValidated[0]){
                             annotationHolder.createErrorAnnotation(psiElement, "Type identifier not found, please declare corresponding class");
