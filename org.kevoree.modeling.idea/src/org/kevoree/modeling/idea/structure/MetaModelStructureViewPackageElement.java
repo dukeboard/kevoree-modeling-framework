@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class MetaModelStructureViewPackageElement implements StructureViewTreeElement {
 
-    public List<MetaModelStructureViewClassElement> innerClasses = new ArrayList<MetaModelStructureViewClassElement>();
+    public List<StructureViewTreeElement> innerClasses = new ArrayList<StructureViewTreeElement>();
     public HashMap<String, MetaModelStructureViewPackageElement> packages = new HashMap<String, MetaModelStructureViewPackageElement>();
 
     private String packageName;

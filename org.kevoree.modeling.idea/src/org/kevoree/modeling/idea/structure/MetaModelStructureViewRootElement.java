@@ -10,10 +10,7 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.kevoree.modeling.MetaModelIcons;
-import org.kevoree.modeling.idea.psi.MetaModelClassDeclaration;
-import org.kevoree.modeling.idea.psi.MetaModelRelationDeclaration;
-import org.kevoree.modeling.idea.psi.MetaModelTypeDeclaration;
-import org.kevoree.modeling.idea.psi.MetaModelVisitor;
+import org.kevoree.modeling.idea.psi.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -28,7 +25,7 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
 
     private PsiFile element;
     private Editor editor;
-    public List<MetaModelStructureViewClassElement> innerClasses = new ArrayList<MetaModelStructureViewClassElement>();
+    public List<StructureViewTreeElement> innerClasses = new ArrayList<StructureViewTreeElement>();
     public HashMap<String, MetaModelStructureViewPackageElement> packages = new HashMap<String, MetaModelStructureViewPackageElement>();
 
     public MetaModelStructureViewRootElement(PsiFile element, Editor editor) {
@@ -57,9 +54,23 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
                             }
                             processReferences(o, classElement, editor);
                             if (o.getTypeDeclaration().getName().lastIndexOf(".") != -1) {
-                                processPackages(MetaModelStructureViewRootElement.this, o).innerClasses.add(classElement);
+                                processPackages(MetaModelStructureViewRootElement.this, o.getTypeDeclaration().getName()).innerClasses.add(classElement);
                             } else {
                                 MetaModelStructureViewRootElement.this.innerClasses.add(classElement);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void visitEnumDeclaration(@NotNull MetaModelEnumDeclaration o) {
+                        super.visitEnumDeclaration(o);
+                        if (o.getTypeDeclaration() != null) {
+                            MetaModelStructureViewEnumElement enumElement = new MetaModelStructureViewEnumElement(o, editor);
+                            processEnumValues(o, enumElement, editor);
+                            if (o.getTypeDeclaration().getName().lastIndexOf(".") != -1) {
+                                processPackages(MetaModelStructureViewRootElement.this, o.getTypeDeclaration().getName()).innerClasses.add(enumElement);
+                            } else {
+                                MetaModelStructureViewRootElement.this.innerClasses.add(enumElement);
                             }
                         }
                     }
@@ -127,10 +138,9 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
         return res.toArray(new TreeElement[res.size()]);
     }
 
-    private MetaModelStructureViewPackageElement processPackages(MetaModelStructureViewRootElement root, MetaModelClassDeclaration o) {
+    private MetaModelStructureViewPackageElement processPackages(MetaModelStructureViewRootElement root, String name) {
         MetaModelStructureViewPackageElement currentPackage = null;
-        String oName = o.getTypeDeclaration().getName();
-        String fqPackage = oName.substring(0, oName.lastIndexOf("."));
+        String fqPackage = name.substring(0, name.lastIndexOf("."));
         String[] packages = fqPackage.split(".");
 
         if(packages.length == 0) {
@@ -147,6 +157,7 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
         return currentPackage;
     }
 
+
     private MetaModelStructureViewPackageElement getOrPut(Map<String, MetaModelStructureViewPackageElement> packageMap, String packageName) {
         MetaModelStructureViewPackageElement pack = packageMap.get(packageName);
         if(pack == null) {
@@ -161,6 +172,14 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
         for(MetaModelRelationDeclaration relDec : o.getRelationDeclarationList()) {
             MetaModelStructureViewReferenceElement referenceElement = new MetaModelStructureViewReferenceElement(relDec, editor);
             classElement.references.add(referenceElement);
+        }
+    }
+
+    private void processEnumValues(MetaModelEnumDeclaration o, MetaModelStructureViewEnumElement enumElement, Editor editor) {
+
+        for(MetaModelEnumElemDeclaration enumValDec : o.getEnumElemDeclarationList()) {
+            MetaModelStructureViewEnumElementElement enumValElement = new MetaModelStructureViewEnumElementElement(enumValDec, editor);
+            enumElement.elements.add(enumValElement);
         }
     }
 }
