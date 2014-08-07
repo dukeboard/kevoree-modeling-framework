@@ -67,6 +67,10 @@ public class MetaModelBlock extends AbstractBlock {
                 return Spacing.createSpacing(1, 1, 0, false, 0);
             }
 
+            if (type1 == MetaModelTypes.ENUM && type2 == MetaModelTypes.TYPE_DECLARATION) {
+                return Spacing.createSpacing(1, 1, 0, false, 0);
+            }
+
             if (type1 == MetaModelTypes.TYPE_DECLARATION && type2 == MetaModelTypes.PARENTS_DECLARATION) {
                 return Spacing.createSpacing(1, 1, 0, false, 0);
             }

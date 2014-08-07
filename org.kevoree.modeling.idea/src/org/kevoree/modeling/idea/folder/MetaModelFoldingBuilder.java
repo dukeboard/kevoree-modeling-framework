@@ -28,7 +28,7 @@ public class MetaModelFoldingBuilder implements FoldingBuilder {
 
     private void appendDescriptors(final ASTNode node, final Document document, final List<FoldingDescriptor> descriptors) {
 
-        if(node.getElementType() == MetaModelTypes.CLASS_DECLARATION) {
+        if(node.getElementType() == MetaModelTypes.CLASS_DECLARATION || node.getElementType() == MetaModelTypes.ENUM_DECLARATION) {
             TextRange fullRange = node.getTextRange();
             if(fullRange.getEndOffset() - fullRange.getStartOffset() > 0) {
                 TextRange shortRange = new TextRange(fullRange.getStartOffset() + document.getText(fullRange).indexOf("{") + 1,
