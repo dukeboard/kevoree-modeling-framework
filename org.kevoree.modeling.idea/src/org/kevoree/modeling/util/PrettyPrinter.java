@@ -12,7 +12,6 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 
 /**
@@ -28,11 +27,23 @@ public class PrettyPrinter {
             if (notifier instanceof EClass) {
                 printClass(writer, (EClass) notifier);
             }
+            if (notifier instanceof EEnum) {
+                printEnum(writer, (EEnum) notifier);
+            }
         }
     }
 
     public String convertType(String typeName) {
         return PrimitiveTypes.convert(typeName);
+    }
+
+    private void printEnum(Writer sw, EEnum en) throws IOException {
+        sw.write("\n");
+        sw.write("enum " + fqn(en) + " {\n");
+        for (EEnumLiteral literal : en.getELiterals()) {
+            sw.append("    " + literal.getLiteral() + "\n");
+        }
+        sw.write("}\n");
     }
 
     private void printClass(Writer sw, EClass cls) throws IOException {
@@ -51,22 +62,22 @@ public class PrettyPrinter {
                 sw.write("    @id\n");
             }
             String multiplicity = "";
-            if(eAttribute.getUpperBound() != 1 && eAttribute.getLowerBound() != 1){
+            if (eAttribute.getUpperBound() != 1 && eAttribute.getLowerBound() != 1) {
                 multiplicity = multiplicity + "[";
-                if(eAttribute.getLowerBound() == -1){
+                if (eAttribute.getLowerBound() == -1) {
                     multiplicity = multiplicity + "*";
                 } else {
                     multiplicity = multiplicity + eAttribute.getLowerBound();
                 }
                 multiplicity = multiplicity + ",";
-                if(eAttribute.getUpperBound() == -1){
+                if (eAttribute.getUpperBound() == -1) {
                     multiplicity = multiplicity + "*";
                 } else {
                     multiplicity = multiplicity + eAttribute.getUpperBound();
                 }
                 multiplicity = multiplicity + "]";
             }
-            sw.append("    " + eAttribute.getName() + " : " + convertType(fqn(eAttribute.getEType())) +multiplicity+ "\n");
+            sw.append("    " + eAttribute.getName() + " : " + convertType(fqn(eAttribute.getEType())) + multiplicity + "\n");
         }
 
         for (EReference eRef : cls.getEReferences()) {
@@ -75,25 +86,25 @@ public class PrettyPrinter {
             }
             String multiplicity = "";
             String opposite = "";
-            if(eRef.getUpperBound() != 1 && eRef.getLowerBound() != 1){
+            if (eRef.getUpperBound() != 1 && eRef.getLowerBound() != 1) {
                 multiplicity = multiplicity + "[";
-                if(eRef.getLowerBound() == -1){
+                if (eRef.getLowerBound() == -1) {
                     multiplicity = multiplicity + "*";
                 } else {
                     multiplicity = multiplicity + eRef.getLowerBound();
                 }
                 multiplicity = multiplicity + ",";
-                if(eRef.getUpperBound() == -1){
+                if (eRef.getUpperBound() == -1) {
                     multiplicity = multiplicity + "*";
                 } else {
                     multiplicity = multiplicity + eRef.getUpperBound();
                 }
                 multiplicity = multiplicity + "]";
             }
-            if(eRef.getEOpposite()!= null){
-                opposite = " oppositeOf "+eRef.getEOpposite().getName();
+            if (eRef.getEOpposite() != null) {
+                opposite = " oppositeOf " + eRef.getEOpposite().getName();
             }
-            sw.append("    " + eRef.getName() + " : " + convertType(fqn(eRef.getEType())) +multiplicity+ opposite+ "\n");
+            sw.append("    " + eRef.getName() + " : " + convertType(fqn(eRef.getEType())) + multiplicity + opposite + "\n");
         }
 
         sw.write("}\n");
