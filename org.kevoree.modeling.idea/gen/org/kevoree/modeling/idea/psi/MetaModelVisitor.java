@@ -19,6 +19,14 @@ public class MetaModelVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitEnumDeclaration(@NotNull MetaModelEnumDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitEnumElemDeclaration(@NotNull MetaModelEnumElemDeclaration o) {
+    visitPsiElement(o);
+  }
+
   public void visitMultiplicityDeclaration(@NotNull MetaModelMultiplicityDeclaration o) {
     visitPsiElement(o);
   }

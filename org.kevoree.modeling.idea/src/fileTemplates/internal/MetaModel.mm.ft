@@ -1,7 +1,11 @@
-class Concept {
+class demo.Concept {
 
 }
 
-class Concept2 {
+class demo.Concept2 {
     @id name : String
+}
+
+enum Titi {
+
 }

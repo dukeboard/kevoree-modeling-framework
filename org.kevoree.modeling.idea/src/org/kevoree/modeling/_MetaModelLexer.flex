@@ -22,7 +22,6 @@ EOL="\r"|"\n"|"\r\n"
 LINE_WS=[\ \t\f]
 WHITE_SPACE=({LINE_WS}|{EOL})+
 
-NEWLINE=\n\t
 COMMENT="//".*
 NUMBER=[0-9\-]+
 IDENT=[\*\.a-zA-Z0-9_\-]+
@@ -34,6 +33,7 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   {WHITE_SPACE}      { return com.intellij.psi.TokenType.WHITE_SPACE; }
 
   "class"            { return CLASS; }
+  "enum"             { return ENUM; }
   "oppositeOf"       { return OPPOSITE; }
   ":"                { return COLON; }
   ","                { return COMMA; }
@@ -46,9 +46,9 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   "."                { return MULT_SEP; }
   "*"                { return STAR; }
   "<<EOF>>"          { return EOF; }
+  "newline"          { return NEWLINE; }
   "CRLF"             { return CRLF; }
 
-  {NEWLINE}          { return NEWLINE; }
   {COMMENT}          { return COMMENT; }
   {NUMBER}           { return NUMBER; }
   {IDENT}            { return IDENT; }

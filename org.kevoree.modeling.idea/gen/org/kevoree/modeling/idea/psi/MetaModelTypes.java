@@ -11,6 +11,8 @@ public interface MetaModelTypes {
   IElementType ANNOTATIONS = new MetaModelElementType("ANNOTATIONS");
   IElementType CLASS_DECLARATION = new MetaModelElementType("CLASS_DECLARATION");
   IElementType DECLARATION = new MetaModelElementType("DECLARATION");
+  IElementType ENUM_DECLARATION = new MetaModelElementType("ENUM_DECLARATION");
+  IElementType ENUM_ELEM_DECLARATION = new MetaModelElementType("ENUM_ELEM_DECLARATION");
   IElementType MULTIPLICITY_DECLARATION = new MetaModelElementType("MULTIPLICITY_DECLARATION");
   IElementType MULTIPLICITY_DECLARATION_LOWER = new MetaModelElementType("MULTIPLICITY_DECLARATION_LOWER");
   IElementType MULTIPLICITY_DECLARATION_UPPER = new MetaModelElementType("MULTIPLICITY_DECLARATION_UPPER");
@@ -28,6 +30,7 @@ public interface MetaModelTypes {
   IElementType COMMA = new MetaModelTokenType(",");
   IElementType COMMENT = new MetaModelTokenType("comment");
   IElementType CRLF = new MetaModelTokenType("CRLF");
+  IElementType ENUM = new MetaModelTokenType("enum");
   IElementType EOF = new MetaModelTokenType("<<EOF>>");
   IElementType EQ = new MetaModelTokenType("=");
   IElementType IDENT = new MetaModelTokenType("IDENT");
@@ -52,6 +55,12 @@ public interface MetaModelTypes {
       }
       else if (type == DECLARATION) {
         return new MetaModelDeclarationImpl(node);
+      }
+      else if (type == ENUM_DECLARATION) {
+        return new MetaModelEnumDeclarationImpl(node);
+      }
+      else if (type == ENUM_ELEM_DECLARATION) {
+        return new MetaModelEnumElemDeclarationImpl(node);
       }
       else if (type == MULTIPLICITY_DECLARATION) {
         return new MetaModelMultiplicityDeclarationImpl(node);

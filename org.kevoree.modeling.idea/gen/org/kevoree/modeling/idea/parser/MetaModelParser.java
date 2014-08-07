@@ -29,6 +29,12 @@ public class MetaModelParser implements PsiParser {
     else if (root_ == DECLARATION) {
       result_ = DECLARATION(builder_, 0);
     }
+    else if (root_ == ENUM_DECLARATION) {
+      result_ = ENUM_DECLARATION(builder_, 0);
+    }
+    else if (root_ == ENUM_ELEM_DECLARATION) {
+      result_ = ENUM_ELEM_DECLARATION(builder_, 0);
+    }
     else if (root_ == MULTIPLICITY_DECLARATION) {
       result_ = MULTIPLICITY_DECLARATION(builder_, 0);
     }
@@ -83,8 +89,8 @@ public class MetaModelParser implements PsiParser {
   // CLASS TYPE_DECLARATION PARENTS_DECLARATION? BODY_OPEN RELATION_DECLARATION* BODY_CLOSE
   public static boolean CLASS_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "CLASS_DECLARATION")) return false;
-    boolean result_ = false;
-    boolean pinned_ = false;
+    boolean result_;
+    boolean pinned_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<class declaration>");
     result_ = consumeToken(builder_, CLASS);
     pinned_ = result_; // pin = 1
@@ -117,16 +123,58 @@ public class MetaModelParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // CLASS_DECLARATION | eof | newline | CRLF
+  // CLASS_DECLARATION | ENUM_DECLARATION | eof | newline | CRLF
   public static boolean DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "DECLARATION")) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<declaration>");
     result_ = CLASS_DECLARATION(builder_, level_ + 1);
+    if (!result_) result_ = ENUM_DECLARATION(builder_, level_ + 1);
     if (!result_) result_ = consumeToken(builder_, EOF);
     if (!result_) result_ = consumeToken(builder_, NEWLINE);
     if (!result_) result_ = consumeToken(builder_, CRLF);
     exit_section_(builder_, level_, marker_, DECLARATION, result_, false, null);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // ENUM TYPE_DECLARATION BODY_OPEN ENUM_ELEM_DECLARATION* BODY_CLOSE
+  public static boolean ENUM_DECLARATION(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "ENUM_DECLARATION")) return false;
+    boolean result_;
+    boolean pinned_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, "<enum declaration>");
+    result_ = consumeToken(builder_, ENUM);
+    pinned_ = result_; // pin = 1
+    result_ = result_ && report_error_(builder_, TYPE_DECLARATION(builder_, level_ + 1));
+    result_ = pinned_ && report_error_(builder_, consumeToken(builder_, BODY_OPEN)) && result_;
+    result_ = pinned_ && report_error_(builder_, ENUM_DECLARATION_3(builder_, level_ + 1)) && result_;
+    result_ = pinned_ && consumeToken(builder_, BODY_CLOSE) && result_;
+    exit_section_(builder_, level_, marker_, ENUM_DECLARATION, result_, pinned_, rule_start_parser_);
+    return result_ || pinned_;
+  }
+
+  // ENUM_ELEM_DECLARATION*
+  private static boolean ENUM_DECLARATION_3(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "ENUM_DECLARATION_3")) return false;
+    int pos_ = current_position_(builder_);
+    while (true) {
+      if (!ENUM_ELEM_DECLARATION(builder_, level_ + 1)) break;
+      if (!empty_element_parsed_guard_(builder_, "ENUM_DECLARATION_3", pos_)) break;
+      pos_ = current_position_(builder_);
+    }
+    return true;
+  }
+
+  /* ********************************************************** */
+  // IDENT
+  public static boolean ENUM_ELEM_DECLARATION(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "ENUM_ELEM_DECLARATION")) return false;
+    if (!nextTokenIs(builder_, IDENT)) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, IDENT);
+    exit_section_(builder_, marker_, ENUM_ELEM_DECLARATION, result_);
     return result_;
   }
 
@@ -148,7 +196,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean MULTIPLICITY_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "MULTIPLICITY_DECLARATION")) return false;
     if (!nextTokenIs(builder_, MULT_OPEN)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, MULT_OPEN);
     result_ = result_ && MULTIPLICITY_DECLARATION_LOWER(builder_, level_ + 1);
@@ -164,7 +212,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean MULTIPLICITY_DECLARATION_LOWER(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "MULTIPLICITY_DECLARATION_LOWER")) return false;
     if (!nextTokenIs(builder_, "<multiplicity declaration lower>", NUMBER, STAR)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<multiplicity declaration lower>");
     result_ = STAR_OR_NB(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, MULTIPLICITY_DECLARATION_LOWER, result_, false, null);
@@ -176,7 +224,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean MULTIPLICITY_DECLARATION_UPPER(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "MULTIPLICITY_DECLARATION_UPPER")) return false;
     if (!nextTokenIs(builder_, "<multiplicity declaration upper>", NUMBER, STAR)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<multiplicity declaration upper>");
     result_ = STAR_OR_NB(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, MULTIPLICITY_DECLARATION_UPPER, result_, false, null);
@@ -188,7 +236,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean PARENTS_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "PARENTS_DECLARATION")) return false;
     if (!nextTokenIs(builder_, COLON)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, COLON);
     result_ = result_ && TYPE_DECLARATION(builder_, level_ + 1);
@@ -212,7 +260,7 @@ public class MetaModelParser implements PsiParser {
   // COMMA TYPE_DECLARATION
   private static boolean PARENTS_DECLARATION_2_0(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "PARENTS_DECLARATION_2_0")) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, COMMA);
     result_ = result_ && TYPE_DECLARATION(builder_, level_ + 1);
@@ -225,7 +273,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean RELATION_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "RELATION_DECLARATION")) return false;
     if (!nextTokenIs(builder_, "<relation declaration>", ANNOTATION, IDENT)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, "<relation declaration>");
     result_ = ANNOTATIONS(builder_, level_ + 1);
     result_ = result_ && RELATION_NAME(builder_, level_ + 1);
@@ -256,7 +304,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean RELATION_NAME(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "RELATION_NAME")) return false;
     if (!nextTokenIs(builder_, IDENT)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, IDENT);
     exit_section_(builder_, marker_, RELATION_NAME, result_);
@@ -268,7 +316,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean RELATION_OPPOSITE(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "RELATION_OPPOSITE")) return false;
     if (!nextTokenIs(builder_, OPPOSITE)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeTokens(builder_, 0, OPPOSITE, IDENT);
     exit_section_(builder_, marker_, RELATION_OPPOSITE, result_);
@@ -280,7 +328,7 @@ public class MetaModelParser implements PsiParser {
   static boolean STAR_OR_NB(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "STAR_OR_NB")) return false;
     if (!nextTokenIs(builder_, "", NUMBER, STAR)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, NUMBER);
     if (!result_) result_ = consumeToken(builder_, STAR);
@@ -293,7 +341,7 @@ public class MetaModelParser implements PsiParser {
   public static boolean TYPE_DECLARATION(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "TYPE_DECLARATION")) return false;
     if (!nextTokenIs(builder_, IDENT)) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, IDENT);
     exit_section_(builder_, marker_, TYPE_DECLARATION, result_);
@@ -301,13 +349,24 @@ public class MetaModelParser implements PsiParser {
   }
 
   /* ********************************************************** */
-  // !(CLASS)
+  // !(CLASS|ENUM)
   static boolean rule_start(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "rule_start")) return false;
-    boolean result_ = false;
+    boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NOT_, null);
-    result_ = !consumeToken(builder_, CLASS);
+    result_ = !rule_start_0(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, null, result_, false, null);
+    return result_;
+  }
+
+  // CLASS|ENUM
+  private static boolean rule_start_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "rule_start_0")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_);
+    result_ = consumeToken(builder_, CLASS);
+    if (!result_) result_ = consumeToken(builder_, ENUM);
+    exit_section_(builder_, marker_, null, result_);
     return result_;
   }
 

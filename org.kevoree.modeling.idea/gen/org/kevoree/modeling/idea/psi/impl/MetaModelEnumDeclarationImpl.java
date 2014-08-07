@@ -11,33 +11,27 @@ import static org.kevoree.modeling.idea.psi.MetaModelTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.kevoree.modeling.idea.psi.*;
 
-public class MetaModelDeclarationImpl extends ASTWrapperPsiElement implements MetaModelDeclaration {
+public class MetaModelEnumDeclarationImpl extends ASTWrapperPsiElement implements MetaModelEnumDeclaration {
 
-  public MetaModelDeclarationImpl(ASTNode node) {
+  public MetaModelEnumDeclarationImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof MetaModelVisitor) ((MetaModelVisitor)visitor).visitDeclaration(this);
+    if (visitor instanceof MetaModelVisitor) ((MetaModelVisitor)visitor).visitEnumDeclaration(this);
     else super.accept(visitor);
   }
 
   @Override
-  @Nullable
-  public MetaModelClassDeclaration getClassDeclaration() {
-    return findChildByClass(MetaModelClassDeclaration.class);
+  @NotNull
+  public List<MetaModelEnumElemDeclaration> getEnumElemDeclarationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, MetaModelEnumElemDeclaration.class);
   }
 
   @Override
   @Nullable
-  public MetaModelEnumDeclaration getEnumDeclaration() {
-    return findChildByClass(MetaModelEnumDeclaration.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getEof() {
-    return findChildByType(EOF);
+  public MetaModelTypeDeclaration getTypeDeclaration() {
+    return findChildByClass(MetaModelTypeDeclaration.class);
   }
 
 }
