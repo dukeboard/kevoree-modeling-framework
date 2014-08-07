@@ -31,7 +31,7 @@ public class MetaModelBlock extends AbstractBlock {
 
         while(child != null) {
             if(child.getElementType() != TokenType.WHITE_SPACE) {
-                if(child.getElementType() == MetaModelTypes.RELATION_DECLARATION) {
+                if(child.getElementType() == MetaModelTypes.RELATION_DECLARATION || child.getElementType() == MetaModelTypes.ENUM_ELEM_DECLARATION) {
                     blocks.add(new MetaModelBlock(child, innerBodyAlignment, getWrap()));
                 } else if(child.getElementType() == MetaModelTypes.ANNOTATIONS) {
                     if(child.getFirstChildNode() != null) {
@@ -50,7 +50,7 @@ public class MetaModelBlock extends AbstractBlock {
 
     @Override
     public Indent getIndent() {
-        if(getNode().getElementType() == MetaModelTypes.RELATION_DECLARATION ) {
+        if(getNode().getElementType() == MetaModelTypes.RELATION_DECLARATION || getNode().getElementType() == MetaModelTypes.ENUM_ELEM_DECLARATION ) {
             return Indent.getNormalIndent();
         }
         return super.getIndent();
@@ -139,6 +139,14 @@ public class MetaModelBlock extends AbstractBlock {
                 return Spacing.createSpacing(1, 1, 2, false, 1);
             }
 
+            if (type1 == MetaModelTypes.ENUM_ELEM_DECLARATION && type2 == MetaModelTypes.BODY_CLOSE) {
+                return newLine();
+            }
+
+            if (type1 == MetaModelTypes.ENUM_ELEM_DECLARATION && type2 == MetaModelTypes.ENUM_ELEM_DECLARATION) {
+                return newLine();
+            }
+
             if (type1 == MetaModelTypes.IDENT) {
                 return Spacing.createSpacing(1, 1, 0, false, 0);
             }
@@ -155,6 +163,16 @@ public class MetaModelBlock extends AbstractBlock {
             System.out.println("Formatting Warning. Spacing unspecified between t1:" + type1 + " type2:" + type2);
         }
         return Spacing.createSpacing(0, 0, 0, false, 0);
+    }
+
+    private Spacing noSpace() {
+        return Spacing.createSpacing(0, 0, 0, false, 0);
+    }
+    private Spacing newLine() {
+        return Spacing.createSpacing(1, 1, 1, false, 0);
+    }
+    private Spacing singleSpace() {
+        return Spacing.createSpacing(1, 1, 0, false, 0);
     }
 
     @Override
