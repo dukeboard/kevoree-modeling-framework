@@ -104,6 +104,33 @@ public class StandaloneParser {
         }
     }
 
+    private EClassifier get(String name, Resource r, EcoreFactory factory) {
+        EPackage previous = null;
+        String correctedName = name;
+        if (name.contains(".")) {
+            String[] packageName = name.split("\\.");
+            for (int i = 0; i < packageName.length - 1; i++) {
+                previous = getOrCreatePackage(previous, packageName[i], r, factory);
+            }
+            correctedName = packageName[packageName.length - 1];
+        }
+        if (previous != null) {
+            for (EClassifier lc : previous.getEClassifiers()) {
+                if (lc.getName().equals(correctedName)) {
+                    return lc;
+                }
+            }
+            return null;
+        } else {
+            for (EObject lc : r.getContents()) {
+                if (lc instanceof EClassifier && ((EClassifier) lc).getName().equals(correctedName)) {
+                    return (EClassifier) lc;
+                }
+            }
+            return null;
+        }
+    }
+
     private EClass getOrCreate(String name, Resource r, EcoreFactory factory) {
         EPackage previous = null;
         String correctedName = name;
@@ -137,6 +164,40 @@ public class StandaloneParser {
         }
     }
 
+    private EEnum getOrCreateEnum(String name, Resource r, EcoreFactory factory) {
+        EPackage previous = null;
+        String correctedName = name;
+        if (name.contains(".")) {
+            String[] packageName = name.split("\\.");
+            for (int i = 0; i < packageName.length - 1; i++) {
+                previous = getOrCreatePackage(previous, packageName[i], r, factory);
+            }
+            correctedName = packageName[packageName.length - 1];
+        }
+        if (previous != null) {
+            for (EClassifier lc : previous.getEClassifiers()) {
+                if (lc instanceof EEnum && lc.getName().equals(correctedName)) {
+                    return (EEnum) lc;
+                }
+            }
+            EEnum newEnum = factory.createEEnum();
+            newEnum.setName(correctedName);
+            previous.getEClassifiers().add(newEnum);
+            return newEnum;
+        } else {
+            for (EObject lc : r.getContents()) {
+                if (lc instanceof EEnum && ((EClass) lc).getName().equals(correctedName)) {
+                    return (EEnum) lc;
+                }
+            }
+            EEnum newEnum = factory.createEEnum();
+            newEnum.setName(correctedName);
+            r.getContents().add(newEnum);
+            return newEnum;
+        }
+    }
+
+
     public void convert2ecore(PsiFile psi, File target) throws Exception {
         if (!check(psi).isEmpty()) {
             throw new Exception("Error in PSI file, generation aborded !");
@@ -149,6 +210,25 @@ public class StandaloneParser {
         Resource r = rs.createResource(URI.createURI("file:///" + target.getAbsolutePath()));
 
         EcoreFactory factory = new EcoreFactoryImpl();
+        //First pass process enum
+        for (PsiElement element : psi.getChildren()) {
+            if (element instanceof MetaModelDeclaration) {
+                MetaModelDeclaration declaration = (MetaModelDeclaration) element;
+                MetaModelEnumDeclaration enumDeclaration = declaration.getEnumDeclaration();
+                if (enumDeclaration != null) {
+                    MetaModelTypeDeclaration typeDeclaration = enumDeclaration.getTypeDeclaration();
+                    EEnum newType = getOrCreateEnum(typeDeclaration.getIdent().getText(), r, factory);
+                    for (MetaModelEnumElemDeclaration elem : enumDeclaration.getEnumElemDeclarationList()) {
+                        EEnumLiteral literal = newType.getEEnumLiteralByLiteral(elem.getIdent().getText());
+                        if (literal == null) {
+                            literal = factory.createEEnumLiteral();
+                            literal.setLiteral(elem.getIdent().getText());
+                            newType.getELiterals().add(literal);
+                        }
+                    }
+                }
+            }
+        }
         for (PsiElement element : psi.getChildren()) {
             if (element instanceof MetaModelDeclaration) {
                 MetaModelDeclaration declaration = (MetaModelDeclaration) element;
@@ -211,8 +291,11 @@ public class StandaloneParser {
                             //Create ECore Reference
                             EReference ref = factory.createEReference();
                             ref.setContainment(isContained[0]);
-                            //TODO manage opposite
-                            ref.setEType(getOrCreate(relation.getTypeDeclaration().getIdent().getText(), r, factory));
+                            EClassifier founded = get(relation.getTypeDeclaration().getIdent().getText(), r, factory);
+                            if (founded == null) {
+                                founded = getOrCreate(relation.getTypeDeclaration().getIdent().getText(), r, factory);
+                            }
+                            ref.setEType(founded);
                             ref.setName(relation.getRelationName().getIdent().getText());
                             newType.getEStructuralFeatures().add(ref);
                             structuralFeature = ref;
