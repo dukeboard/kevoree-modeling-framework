@@ -378,7 +378,7 @@ public class ProcessorHelper {
     public String getPackageGenDir(GenerationContext ctx, EPackage pack) {
         String modelGenBaseDir = ctx.rootGenerationDirectory.getAbsolutePath() + "/";
         modelGenBaseDir += fqn(pack).replace(".", "/") + "/";
-        return modelGenBaseDir;
+        return modelGenBaseDir.toLowerCase();
     }
 
     /**

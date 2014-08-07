@@ -33,7 +33,6 @@ import java.io.UnsupportedEncodingException;
  * User: gregory.nain
  * Date: 20/03/12
  * Time: 13:31
- * To change this template use File | Settings | File Templates.
  */
 
 public class EnumGenerator {
@@ -43,7 +42,7 @@ public class EnumGenerator {
         String formattedEnumName = en.getName().substring(0, 1).toUpperCase();
         formattedEnumName += en.getName().substring(1);
 
-        File localFile  = null;
+        File localFile;
         localFile = new File(currentPackageDir + "/" + formattedEnumName + ".kt");
 
         PrintWriter pr = null;
