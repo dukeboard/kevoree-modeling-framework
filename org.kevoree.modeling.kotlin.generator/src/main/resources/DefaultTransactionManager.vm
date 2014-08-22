@@ -36,10 +36,18 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
             datastore.sync()
         }
     }
+
+    override fun listen(listener: org.kevoree.modeling.api.events.ModelElementListener, from: Long?, to: Long?, path : String) {
+        datastore.register(listener,from,to,path)
+    }
+
+    override fun disable(listener: org.kevoree.modeling.api.events.ModelElementListener) {
+        datastore.unregister(listener)
+    }
+
 }
 
 class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end internal val datastore : DataStore #end) : #if($ctx.timeAware) TimeTransaction #else Default${formatedFactoryNameImpl}(datastore),Transaction #end {
-
 
     #if($ctx.timeAware)
         val sharedCache = org.kevoree.modeling.api.time.blob.SharedCache()

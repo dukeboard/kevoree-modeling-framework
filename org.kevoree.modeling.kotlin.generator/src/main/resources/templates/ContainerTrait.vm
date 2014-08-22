@@ -188,6 +188,9 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KMFContainer
             if(eContainer() != null) {
                 (eContainer() as KMFContainerImpl).fireModelEventOnTree(evt)
             }
+            #if($ctx.persistence)
+                (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory?.datastore?.notify(evt)
+            #end
         }
 
     override fun addModelTreeListener(lst : org.kevoree.modeling.api.events.ModelElementListener){

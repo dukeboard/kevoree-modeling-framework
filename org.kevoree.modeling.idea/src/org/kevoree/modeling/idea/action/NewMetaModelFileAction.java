@@ -45,7 +45,7 @@ public class NewMetaModelFileAction extends CreateTemplateInPackageAction<PsiEle
         MetaModelTemplatesFactory.Template template = MetaModelTemplatesFactory.Template.MetaModel;
         String fileName = fileNameFromTypeName(typeName, parameterName);
         return MetaModelTemplatesFactory.createFromTemplate(psiDirectory, fileName, template,"class kmf.Concept {\n" +
-                "    @Contained\n" +
+                "    @contained\n" +
                 "    concepts : kmf.Concept2[0,*]\n" +
                 "}\n" +
                 "\n" +

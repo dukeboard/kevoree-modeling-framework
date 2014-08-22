@@ -2,6 +2,9 @@ package org.kevoree.modeling.api.persistence
 
 import java.util.HashMap
 import java.util.HashSet
+import org.kevoree.modeling.api.events.ModelEvent
+import org.kevoree.modeling.api.events.ModelElementListener
+import java.util.ArrayList
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,6 +14,20 @@ import java.util.HashSet
  */
 
 public open class MemoryDataStore : DataStore {
+
+    private val selector = EventDispatcher()
+
+    override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
+        selector.register(listener, from, to, path)
+    }
+
+    override fun unregister(listener: ModelElementListener) {
+        selector.unregister(listener)
+    }
+
+    override fun notify(event: ModelEvent) {
+        selector.dispatch(event)
+    }
 
     override fun getSegmentKeys(segment: String): Set<String> {
         if (maps.containsKey(segment)) {
