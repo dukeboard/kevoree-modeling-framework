@@ -50,14 +50,13 @@ public class KMFQLFinder {
         if (idAttributes.size() > 0) {
             pr.print("\"");
             if (idAttributes.size() == 1) {
-                pr.print("$" + ProcessorHelper.getInstance().protectReservedWords(idAttributes.first()));
+                pr.print("${org.kevoree.modeling.api.util.KevURLEncoder.encode(" + ProcessorHelper.getInstance().protectReservedWords(idAttributes.first()) + ")}");
             } else {
                 for (String att : idAttributes) {
                     if (!first) {
-                        //pr.print("+\"/\"+")
                         pr.print(",");
                     }
-                    pr.print(att + "=$" + ProcessorHelper.getInstance().protectReservedWords(att));
+                    pr.print(att + "=${org.kevoree.modeling.api.util.KevURLEncoder.encode(" + ProcessorHelper.getInstance().protectReservedWords(att) + ")}");
                     first = false;
                 }
             }
@@ -91,13 +90,13 @@ public class KMFQLFinder {
                             builder2.append(",");
                         }
                         builder.append(ProcessorHelper.getInstance().protectReservedWords(att) + ":String");
-                        builder2.append(att+"=$"+ProcessorHelper.getInstance().protectReservedWords(att));
-                        String name = att.substring(0,1).toUpperCase()+att.substring(1).toLowerCase();
+                        builder2.append(att + "=$" + ProcessorHelper.getInstance().protectReservedWords(att));
+                        String name = att.substring(0, 1).toUpperCase() + att.substring(1).toLowerCase();
                         builder3.append(name);
                         first2 = false;
                     }
-                    pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By"+builder3+"("+builder+") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "? {");
-                    pr.println("return find"+ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1))+"ByID(\""+builder2+"\")");
+                    pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By" + builder3 + "(" + builder + ") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "? {");
+                    pr.println("return find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(\"" + builder2 + "\")");
                     pr.println("}");
                 }
 

@@ -6,10 +6,6 @@ import java.util.HashMap
  * Created by duke on 8/25/14.
  */
 
-public fun main(args: Array<String>) {
-    System.out.println(KevURLEncoder.decode(KevURLEncoder.encode("Yop,Yop Yop/Yop")))
-}
-
 public object KevURLEncoder {
 
     private val nonEscaped = HashMap<Char, Boolean>();
@@ -33,21 +29,21 @@ public object KevURLEncoder {
             nonEscaped.put(i, true)
             i++
         }
-        escaped.put(' ', "%20");
+        //escaped.put(' ', "%20");
         escaped.put('!', "%21");
         escaped.put('"', "%22");
         escaped.put('#', "%23");
         escaped.put('$', "%24");
         escaped.put('%', "%25");
         escaped.put('&', "%26");
-        escaped.put('\'', "%27");
-        escaped.put('(', "%28");
-        escaped.put(')', "%29");
+        //escaped.put('\'', "%27");
+        //escaped.put('(', "%28");
+        //escaped.put(')', "%29");
         escaped.put('*', "%2A");
-        escaped.put('+', "%2B");
+        //escaped.put('+', "%2B");
         escaped.put(',', "%2C");
-        escaped.put('-', "%2D");
-        escaped.put('.', "%2E");
+        //escaped.put('-', "%2D");
+        //escaped.put('.', "%2E");
         escaped.put('/', "%2F");
         escaped.put(']', "%5B");
         escaped.put('\\', "%5c");
