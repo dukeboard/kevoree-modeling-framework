@@ -10,7 +10,7 @@ import java.util.HashSet
 object MetaHelper {
 
     val sep = "#"
-    val sep2 = ","
+    val sep2 = "%"
 
     fun serialize(p: java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>>): String {
         val buffer = StringBuilder()
@@ -42,6 +42,7 @@ object MetaHelper {
                 for (i in 1..elems.size - 1) {
                     payload.add(elems.get(i))
                 }
+                println(elems.get(0))
                 result.put(factory.lookup(elems.get(0))!!, payload)
             }
         }

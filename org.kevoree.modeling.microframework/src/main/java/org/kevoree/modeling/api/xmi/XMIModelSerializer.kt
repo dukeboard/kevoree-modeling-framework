@@ -34,7 +34,6 @@ class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java
     }
 }
 
-
 class AttributesVisitor(val ostream: java.io.PrintStream, val ignoreGeneratedID: Boolean) : ModelAttributeVisitor {
     public override fun visit(value: Any?, name: String, parent: KMFContainer) {
         if (value != null) {

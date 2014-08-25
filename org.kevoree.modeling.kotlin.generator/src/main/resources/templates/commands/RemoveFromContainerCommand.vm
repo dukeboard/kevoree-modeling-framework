@@ -12,10 +12,14 @@ class RemoveFromContainerCommand(val target : org.kevoree.modeling.api.KMFContai
             if(element!= null) {
                 (element as KMFContainerPersistenceImpl#if($ctx.timeAware)<*>#end).originFactory!!.elementsToBeRemoved.add((element as KMFContainerImpl).path())
             }
-            target.reflexiveMutator(mutatorType,refName, element,true,true)
+            if(!target.isDeleted()){
+                target.reflexiveMutator(mutatorType,refName, element,true,true)
+            }
         }
     #else
-        target.reflexiveMutator(mutatorType,refName, element,true,true)
+        if(!target.isDeleted()){
+            target.reflexiveMutator(mutatorType,refName, element,true,true)
+        }
 #end
 
     }

@@ -45,11 +45,11 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
             if (modified_elements.get(key) == null) {
                 modified_elements.put(key, elem)
             }
-            if(elem.path().startsWith("/")){
-                elem_cache.put(elem.path(),elem)
+            if (elem.path().startsWith("/")) {
+                elem_cache.put(elem.path(), elem)
             }
         }
-        if(elem is KMFContainerProxy && !elem.isDirty){
+        if (elem is KMFContainerProxy && !elem.isDirty) {
             elem.isDirty = true
         }
     }
@@ -96,12 +96,11 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         for (elem in keys) {
             val resolved = modified_elements.get(elem)
             if (resolved != null) {
-                if (resolved.path() == "") {
+                if (!resolved.path().startsWith("/")) {
                     if (!resolved.isDeleted()) {
                         resolved.delete()
-                    } else {
-                        modified_elements.remove(elem)
                     }
+                    modified_elements.remove(elem)
                 }
             }
         }
@@ -175,6 +174,11 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     override fun select(query: String): List<KMFContainer> {
         val localRoot = lookup("/")
+        if (localRoot != null && query == "/") {
+            val result = ArrayList<KMFContainer>()
+            result.add(localRoot)
+            return result
+        }
         if (localRoot != null) {
             return localRoot.select(query)
         } else {

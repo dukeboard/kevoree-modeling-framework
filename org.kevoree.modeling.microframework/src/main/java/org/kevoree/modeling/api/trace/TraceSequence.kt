@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.json.Type
 import org.kevoree.modeling.api.util.ByteConverter
 import org.kevoree.modeling.api.json.JSONString
 import java.util.ArrayList
+import org.kevoree.modeling.api.persistence.KMFContainerProxy
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +16,7 @@ import java.util.ArrayList
  * Time: 19:52
  */
 
-public class TraceSequence(val factory : KMFFactory) {
+public class TraceSequence(val factory: KMFFactory) {
 
     var traces: MutableList<org.kevoree.modeling.api.trace.ModelTrace> = ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
 
@@ -36,7 +37,6 @@ public class TraceSequence(val factory : KMFFactory) {
 
         var previousControlSrc: String? = null
         var previousControlTypeName: String? = null
-
 
         var lexer: Lexer = Lexer(inputStream)
         var currentToken = lexer.nextToken()
@@ -64,7 +64,7 @@ public class TraceSequence(val factory : KMFFactory) {
                 if (traceTypeRead == null) {
                     traceTypeRead = previousControlTypeName
                 }
-                when(traceTypeRead) {
+                when (traceTypeRead) {
                     ActionType.CONTROL.code -> {
                         val src = keys.get(ModelTraceConstants.src)
                         if (src != null) {
@@ -137,7 +137,7 @@ public class TraceSequence(val factory : KMFFactory) {
         buffer.append("[")
         var isFirst = true
         var previousSrc: String? = null
-        var previousType : String? = null
+        var previousType: String? = null
         for (trace in traces) {
             if (!isFirst) {
                 buffer.append(",\n")
@@ -163,15 +163,42 @@ public class TraceSequence(val factory : KMFFactory) {
         return exportToString()
     }
 
+    fun toVerboseString(): String {
+        val buffer = StringBuilder()
+        buffer.append("[")
+        var isFirst = true
+        for (trace in traces) {
+            if (!isFirst) {
+                buffer.append(",\n")
+            }
+            buffer.append(trace.toString())
+            isFirst = false
+        }
+        buffer.append("]")
+        return buffer.toString()
+    }
+
     fun applyOn(target: org.kevoree.modeling.api.KMFContainer): Boolean {
-        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, factory)
+        var bestFactory = factory
+        if (target is KMFContainerProxy) {
+            if (target.originFactory != null) {
+                bestFactory = target.originFactory!!
+            }
+        }
+        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, bestFactory)
         traceApplicator.applyTraceOnModel(this)
         //TODO implements the result
         return true
     }
 
     fun silentlyApplyOn(target: org.kevoree.modeling.api.KMFContainer): Boolean {
-        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, factory)
+        var bestFactory = factory
+        if (target is KMFContainerProxy) {
+            if (target.originFactory != null) {
+                bestFactory = target.originFactory!!
+            }
+        }
+        val traceApplicator = org.kevoree.modeling.api.trace.ModelTraceApplicator(target, bestFactory)
         traceApplicator.fireEvents = false
         traceApplicator.applyTraceOnModel(this)
         return true

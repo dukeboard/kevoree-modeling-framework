@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.server.Server
+import org.kevoree.modeling.api.persistence.EventDispatcher
+import org.kevoree.modeling.api.events.ModelElementListener
+import org.kevoree.modeling.api.events.ModelEvent
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +19,20 @@ import org.eclipse.jetty.server.Server
  */
 
 public class DataStoreHttpWrapper(val wrapped: DataStore, val port: Int) : AbstractHandler(), DataStore {
+
+    private val selector = EventDispatcher()
+
+    override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
+        selector.register(listener, from, to, path)
+    }
+
+    override fun unregister(listener: ModelElementListener) {
+        selector.unregister(listener)
+    }
+
+    override fun notify(event: ModelEvent) {
+        selector.dispatch(event)
+    }
 
     override fun getSegmentKeys(segment: String): Set<String> {
         return wrapped.getSegmentKeys(segment)

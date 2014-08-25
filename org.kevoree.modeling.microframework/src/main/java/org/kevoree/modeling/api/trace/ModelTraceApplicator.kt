@@ -40,8 +40,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             if(potentialTypeName == null){
                 throw Exception("Unknow typeName for potential path $previousPath, to store in $refName, unconsistency error")
             }
-
-            pendingObj = factory.create(potentialTypeName!!)
+            pendingObj = factory.create(potentialTypeName)
             pendingObjPath = previousPath;
             pendingParentRefName = refName;
             pendingParent = target;

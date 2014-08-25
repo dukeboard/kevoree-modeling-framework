@@ -54,7 +54,7 @@ public class JSONModelLoader(val factory : KMFFactory) : ModelLoader {
                 lexer.nextToken() //unpop :
                 currentToken = lexer.nextToken() //Two step for having the name
                 val name = currentToken.value?.toString()!!
-                currentObject = factory?.create(name)
+                currentObject = factory.create(name)
                 if (parent == null) {
                     roots.add(currentObject!!)
                 }

@@ -71,9 +71,11 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KMFContainer, org.ke
 
     protected fun advertiseInboundRefs(action : org.kevoree.modeling.api.util.ActionType, value : Any?) {
         for(inboundElem in internal_inboundReferences.keySet()) {
-            val refList = internal_inboundReferences.get(inboundElem)!!
-            for(ref in refList) {
-                inboundElem.reflexiveMutator(action, ref, value, false, true)
+            if(!inboundElem.isDeleted()){
+                val refList = internal_inboundReferences.get(inboundElem)!!
+                for(ref in refList) {
+                    inboundElem.reflexiveMutator(action, ref, value, false, true)
+                }
             }
         }
     }

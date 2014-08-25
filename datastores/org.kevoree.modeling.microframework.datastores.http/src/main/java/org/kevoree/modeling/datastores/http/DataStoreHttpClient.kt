@@ -4,6 +4,9 @@ import org.kevoree.modeling.api.persistence.DataStore
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.client.util.StringContentProvider
+import org.kevoree.modeling.api.persistence.EventDispatcher
+import org.kevoree.modeling.api.events.ModelElementListener
+import org.kevoree.modeling.api.events.ModelEvent
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +16,20 @@ import org.eclipse.jetty.client.util.StringContentProvider
  */
 
 public class DataStoreHttpClient(val ip: String, val port: Int) : DataStore {
+
+    private val selector = EventDispatcher()
+
+    override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
+        selector.register(listener, from, to, path)
+    }
+
+    override fun unregister(listener: ModelElementListener) {
+        selector.unregister(listener)
+    }
+
+    override fun notify(event: ModelEvent) {
+        selector.dispatch(event)
+    }
 
     override fun getSegmentKeys(segment: String): Set<String> {
         throw UnsupportedOperationException()
