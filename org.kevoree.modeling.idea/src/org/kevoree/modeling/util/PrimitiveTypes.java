@@ -46,6 +46,9 @@ public enum PrimitiveTypes {
         if (originalName.startsWith("ecore.")) {
             originalName = originalName.substring(6);
         }
+        if (originalName.startsWith("java.lang.")) {
+            originalName = originalName.substring(10);
+        }
         if (originalName.equals("String") || originalName.equals("EString") || originalName.equals("EStringObject")) {
             return "String";
         }

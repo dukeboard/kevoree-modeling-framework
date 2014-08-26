@@ -46,7 +46,7 @@ public class MetaModelTypeNamedAnnotator implements Annotator {
                                 }
                                 builder.append(p.name());
                             }
-                            annotationHolder.createErrorAnnotation(psiElement, "@id is only valid on attributes (reference with PrimitiveTypes: "+builder+")");
+                            annotationHolder.createErrorAnnotation(psiElement, "@id is only valid on attributes (with PrimitiveTypes: "+builder+")");
                         }
                     } else {
                         if ("@contained".equals(element.getText())) {
@@ -58,13 +58,25 @@ public class MetaModelTypeNamedAnnotator implements Annotator {
                                     }
                                     builder.append(p.name());
                                 }
-                                annotationHolder.createErrorAnnotation(psiElement, "@contained is only valid on references (reference WITHOUT PrimitiveTypes: "+builder+")");
+                                annotationHolder.createErrorAnnotation(psiElement, "@contained is only valid on references (WITHOUT PrimitiveTypes: "+builder+")");
                             }
                         } else {
-                            annotationHolder.createErrorAnnotation(psiElement, psiElement.getText()+" is not a valid annotation, @id or @contained expected");
+                            if (element.getText()!=null&&element.getText().startsWith("@learn")) {
+                                if(!finalIsAttribute){
+                                    StringBuilder builder =new StringBuilder();
+                                    for(PrimitiveTypes p : PrimitiveTypes.values()){
+                                        if(builder.length()!=0){
+                                            builder.append(",");
+                                        }
+                                        builder.append(p.name());
+                                    }
+                                    annotationHolder.createErrorAnnotation(psiElement, "@learn is only valid on attributes (WITHOUT PrimitiveTypes: "+builder+")");
+                                }
+                            } else {
+                                annotationHolder.createErrorAnnotation(psiElement, psiElement.getText()+" is not a valid annotation, @id,@learn or @contained expected");
+                            }
                         }
                     }
-
                 }
             });
         }

@@ -95,20 +95,20 @@ public class KMFQLFinder {
                         builder3.append(name);
                         first2 = false;
                     }
-                    pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By" + builder3 + "(" + builder + ") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "? {");
+                    pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By" + builder3 + "(" + builder + ") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()) + "? {");
                     pr.println("return find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(\"" + builder2 + "\")");
                     pr.println("}");
                 }
 
 
-                pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(key : String) : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "? {");
+                pr.println("override fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "ByID(key : String) : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()) + "? {");
                 if (ctx.persistence) {
                     if (ref.isContainment()) {
                         pr.println("val resolved = _" + ref.getName() + ".get(key)");
                         pr.println("if(resolved==null){");
                         //pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!");
                         pr.println("val result = relativeLookupFrom(this," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ",key)");
-                        pr.println("return result as? " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()));
+                        pr.println("return result as? " + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()));
                         pr.println("} else {");
                         pr.println("return resolved");
                         pr.println("}");

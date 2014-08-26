@@ -7,7 +7,15 @@ import com.intellij.psi.PsiElement;
 
 public class MetaModelVisitor extends PsiElementVisitor {
 
+  public void visitAnnotation(@NotNull MetaModelAnnotation o) {
+    visitPsiElement(o);
+  }
+
   public void visitAnnotations(@NotNull MetaModelAnnotations o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationParam(@NotNull MetaModelAnnotationParam o) {
     visitPsiElement(o);
   }
 

@@ -131,7 +131,7 @@ public class ClassGenerator {
                 }
             }
             for (EReference ref : ProcessorHelper.getInstance().noduplicateRef(cls.getEAllReferences())) {
-                String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
+                String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEType());
                 if (ref.isMany()) {
                     pr.println("override public fun get" + ProcessorHelper.getInstance().toCamelCase(ref) + "()" + " : List<" + typeRefName + ">" + "{ return " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + "}");
                     pr.println("override public fun set" + ProcessorHelper.getInstance().toCamelCase(ref) + "(internal_p" + " : List<" + typeRefName + ">){ " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " = internal_p }");
@@ -472,29 +472,25 @@ public class ClassGenerator {
                     pr.println("}");
                 }
                 pr.println("\t}//end of setter");
-
                 if (ctx.persistence) {
                     pr.println("get(){");
                     pr.println("checkLazyLoad()");
                     pr.println("return $" + ProcessorHelper.getInstance().protectReservedWords(att.getName()));
                     pr.println("}");
                 }
-
                 pr.println();
                 if (ctx.generateEvents) {
                     generateAttributeSetterWithParameter(pr, att, ctx, pack, idAttributes);
                 }
-
             }
         }
 
         for (EReference ref : ProcessorHelper.getInstance().noduplicateRef(cls.getEAllReferences())) {
-
-            String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
+            String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEType());
             if (ref.isMany()) {
                 //Declare internal cache (Hash Map);
                 pr.println("internal val " + "_" + ref.getName() + " : MutableMap<String," + typeRefName + "> = java.util.concurrent.ConcurrentHashMap<String," + typeRefName + ">()");
-                pr.println("override var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + ":List<" + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + ">");
+                pr.println("override var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + ":List<" + typeRefName + ">");
                 pr.println("\t  get(){");
                 if (ctx.persistence) {
                     pr.println("checkLazyLoad()");
@@ -505,7 +501,7 @@ public class ClassGenerator {
                 pr.println(generateAddMethod(cls, ref, typeRefName, ctx));
                 pr.println(generateRemoveMethod(cls, ref, typeRefName, true, ctx));
             } else {
-                pr.println("override var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + ":" + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "?=null");
+                pr.println("override var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + ":" + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()) + "?=null");
                 if (ctx.persistence) {
                     pr.println("get(){");
                     pr.println("checkLazyLoad()");

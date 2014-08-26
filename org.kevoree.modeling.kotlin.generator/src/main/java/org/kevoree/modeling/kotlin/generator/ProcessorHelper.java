@@ -515,7 +515,7 @@ public class ProcessorHelper {
         for (EClassifier classifier : allClassifiers) {
             if (classifier instanceof EClass) {
                 for (EReference containedRef : ((EClass) classifier).getEAllContainments()) {
-                    containedClassifiers.add(containedRef.getEReferenceType());
+                    containedClassifiers.add(containedRef.getEType());
                 }
             } else if (classifier instanceof EEnum) {
                 containedClassifiers.add((EEnum) classifier);

@@ -169,7 +169,7 @@ public class FlatReflexiveSetters {
         for(EReference ref : cls.getEAllReferences()) {
             pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + " -> {"); //START REF
             pr.println("when(mutationType) {");
-            String valueType = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
+            String valueType = ProcessorHelper.getInstance().fqn(ctx, ref.getEType());
             if (ref.isMany()) {
                 pr.println("org.kevoree.modeling.api.util.ActionType.ADD -> {");
                 String methodNameClean = "add" + ProcessorHelper.getInstance().toCamelCase(ref);

@@ -147,6 +147,16 @@ public class MetaModelBlock extends AbstractBlock {
                 return newLine();
             }
 
+            if (type1 == MetaModelTypes.TANNOTATION && type2 == MetaModelTypes.ANNOTATION_PARAM) {
+                return noSpace();
+            }
+            if (type1 == MetaModelTypes.ANNOT_PARAM_OPEN && type2 == MetaModelTypes.NUMBER) {
+                return noSpace();
+            }
+            if (type1 == MetaModelTypes.NUMBER && type2 == MetaModelTypes.ANNOT_PARAM_CLOSE) {
+                return noSpace();
+            }
+
             if (type1 == MetaModelTypes.IDENT) {
                 return Spacing.createSpacing(1, 1, 0, false, 0);
             }

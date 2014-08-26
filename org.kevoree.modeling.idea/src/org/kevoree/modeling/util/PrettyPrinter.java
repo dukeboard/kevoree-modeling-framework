@@ -58,6 +58,16 @@ public class PrettyPrinter {
         sw.write("class " + fqn(cls) + " " + superTypes + " {\n");
 
         for (EAttribute eAttribute : cls.getEAttributes()) {
+            for (EAnnotation ea : eAttribute.getEAnnotations()) {
+                if (ea.getSource().equals("learn")) {
+                    String level = ea.getDetails().get("level");
+                    if (level != null) {
+                        sw.write("    @learn(" + level + ")\n");
+                    } else {
+                        sw.write("    @learn\n");
+                    }
+                }
+            }
             if (eAttribute.isID()) {
                 sw.write("    @id\n");
             }

@@ -26,6 +26,7 @@ import org.kevoree.modeling.idea.psi.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -39,11 +40,19 @@ public class StandaloneParser {
 
     public static void main(String[] args) throws Exception {
         StandaloneParser parser = new StandaloneParser();
-        PsiFile psi = parser.parser(new File("/Users/duke/Documents/dev/kevoreeTeam/kmf-samples/tinycloud/cloud.kt/cloud.mm"));
+        PsiFile psi = parser.parser(new File("/Users/duke/Documents/dev/dukeboard/kevoree/kevoree-core/org.kevoree.model/metamodel/org.kevoree.mm"));
         File t = File.createTempFile("temp", ".ecore");
         t.deleteOnExit();
         parser.check(psi);
-        //parser.convert2ecore(psi,t);
+        parser.convert2ecore(psi, t);
+
+        PrettyPrinter prettyPrinter = new PrettyPrinter();
+        PrintWriter w = new PrintWriter(System.err);
+        prettyPrinter.prettyPrint(t, w);
+        w.flush();
+
+        //System.out.println(t.getAbsolutePath());
+
     }
 
 
@@ -223,6 +232,7 @@ public class StandaloneParser {
                         if (literal == null) {
                             literal = factory.createEEnumLiteral();
                             literal.setLiteral(elem.getIdent().getText());
+                            literal.setName(elem.getIdent().getText());
                             newType.getELiterals().add(literal);
                         }
                     }
@@ -252,6 +262,8 @@ public class StandaloneParser {
                         String typeName = relation.getTypeDeclaration().getText();
                         final boolean[] isID = {false};
                         final boolean[] isContained = {false};
+                        final boolean[] isLearn = {false};
+                        final String[] learnLevel = {""};
                         MetaModelAnnotations annotations = relation.getAnnotations();
                         if (annotations != null) {
                             annotations.acceptChildren(new PsiElementVisitor() {
@@ -262,6 +274,13 @@ public class StandaloneParser {
                                     }
                                     if ("@contained".equals(element.getText())) {
                                         isContained[0] = true;
+                                    }
+                                    if (element.getText() != null && element.getText().startsWith("@learn")) {
+                                        isLearn[0] = true;
+                                        MetaModelAnnotation annot = (MetaModelAnnotation) element;
+                                        if (annot.getAnnotationParam() != null) {
+                                            learnLevel[0] = annot.getAnnotationParam().getNumber().getText();
+                                        }
                                     }
                                 }
                             });
@@ -279,7 +298,8 @@ public class StandaloneParser {
                             }
                         }
                         EStructuralFeature structuralFeature = null;
-                        if (PrimitiveTypes.isPrimitive(typeName)) {
+                        EClassifier previousFound = get(relation.getTypeDeclaration().getIdent().getText(), r, factory);
+                        if (PrimitiveTypes.isPrimitive(typeName) || previousFound instanceof EEnum) {
                             //Create ECore Attribute
                             org.eclipse.emf.ecore.EAttribute eatt = factory.createEAttribute();
                             eatt.setName(relation.getRelationName().getIdent().getText());
@@ -287,6 +307,12 @@ public class StandaloneParser {
                             eatt.setID(isID[0]);
                             newType.getEStructuralFeatures().add(eatt);
                             structuralFeature = eatt;
+                            if (isLearn[0]) {
+                                EAnnotation annotation = factory.createEAnnotation();
+                                annotation.setSource("learn");
+                                annotation.getDetails().put("level", learnLevel[0]);
+                                eatt.getEAnnotations().add(annotation);
+                            }
                         } else {
                             //Create ECore Reference
                             EReference ref = factory.createEReference();
@@ -325,7 +351,6 @@ public class StandaloneParser {
                 }
             }
         }
-
         //process opposite link
         for (Map.Entry<EReference, String> entry : postProcess.entrySet()) {
             boolean found = false;
@@ -339,7 +364,6 @@ public class StandaloneParser {
                 throw new Exception("Opposite not found " + entry.getValue());
             }
         }
-
         try {
             r.save(Collections.EMPTY_MAP);
         } catch (IOException e) {
@@ -393,7 +417,7 @@ public class StandaloneParser {
                                     }
                                     builder.append(p.name());
                                 }
-                                errors.add("@id is only valid on attributes (reference with PrimitiveTypes: " + builder + ")");
+                                errors.add("@id is only valid on attributes (with PrimitiveTypes: " + builder + ")");
                             }
                         } else {
                             if ("@contained".equals(element.getText())) {
@@ -405,10 +429,23 @@ public class StandaloneParser {
                                         }
                                         builder.append(p.name());
                                     }
-                                    errors.add("@contained is only valid on references (reference WITHOUT PrimitiveTypes: " + builder + ")");
+                                    errors.add("@contained is only valid on references (WITHOUT PrimitiveTypes: " + builder + ")");
                                 }
                             } else {
-                                errors.add(element.getText() + " is not a valid annotation @id and @contained expected");
+                                if (element.getText() != null && element.getText().startsWith("@learn")) {
+                                    if (!finalIsAttribute) {
+                                        StringBuilder builder = new StringBuilder();
+                                        for (PrimitiveTypes p : PrimitiveTypes.values()) {
+                                            if (builder.length() != 0) {
+                                                builder.append(",");
+                                            }
+                                            builder.append(p.name());
+                                        }
+                                        errors.add("@learn is only valid on attributes (with PrimitiveTypes: " + builder + ")");
+                                    }
+                                } else {
+                                    errors.add(element.getText() + " is not a valid annotation @id, @learn and @contained expected");
+                                }
                             }
                         }
                     }

@@ -15,7 +15,7 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
             if(containedReference){
                     #set($firstGeneratedCont = false)
                 #end
-                if(visitor.beginVisitRef(${ctx.basePackageForUtilitiesGeneration}.util.Constants.Ref_${ref.getName()}, ${ctx.basePackageForUtilitiesGeneration}.util.Constants.${FQNHelper.fqn($ctx, $ref.getEReferenceType()).replace(".", "_")})){
+                if(visitor.beginVisitRef(${ctx.basePackageForUtilitiesGeneration}.util.Constants.Ref_${ref.getName()}, ${ctx.basePackageForUtilitiesGeneration}.util.Constants.${FQNHelper.fqn($ctx, $ref.getEType()).replace(".", "_")})){
                 #if($ref.isMany())
                     for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
                         internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,containedReference,nonContainedReference,${ctx.basePackageForUtilitiesGeneration}.util.Constants.Ref_${ref.getName()})
@@ -36,7 +36,7 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
            if(nonContainedReference){
                             #set($firstGeneratedRef = false)
                         #end
-                        if(visitor.beginVisitRef(${ctx.basePackageForUtilitiesGeneration}.util.Constants.Ref_${ref.getName()}, ${ctx.basePackageForUtilitiesGeneration}.util.Constants.${FQNHelper.fqn($ctx, $ref.getEReferenceType()).replace(".", "_")})){
+                        if(visitor.beginVisitRef(${ctx.basePackageForUtilitiesGeneration}.util.Constants.Ref_${ref.getName()}, ${ctx.basePackageForUtilitiesGeneration}.util.Constants.${FQNHelper.fqn($ctx, $ref.getEType()).replace(".", "_")})){
                         #if($ref.isMany())
                             for(KMFLoopEntryKey in _${ref.getName()}.keySet()){
                                 internal_visit(visitor,_${ref.getName()}.get(KMFLoopEntryKey),recursive,containedReference,nonContainedReference,${ctx.basePackageForUtilitiesGeneration}.util.Constants.Ref_${ref.getName()})

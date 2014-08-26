@@ -107,7 +107,7 @@ public class APIGenerator {
 
             for (EReference ref : cls.getEReferences()) {
                 if (!isReferenceAlreadyInParents(cls, ref)) {
-                    String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
+                    String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEType());
                     if (ref.isMany()) {
                         pr.println("public fun get" + ProcessorHelper.getInstance().toCamelCase(ref) + "()" + " : List<" + typeRefName + ">");
                         pr.println("public fun set" + ProcessorHelper.getInstance().toCamelCase(ref) + "(p" + " : List<" + typeRefName + ">)");
@@ -121,14 +121,14 @@ public class APIGenerator {
         //end kotlin workaround
         for (EReference ref : cls.getEReferences()) {
             if (!isReferenceAlreadyInParents(cls, ref)) {
-                String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType());
+                String typeRefName = ProcessorHelper.getInstance().fqn(ctx, ref.getEType());
                 if (ref.isMany()) {
                     pr.println("open var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : List<" + typeRefName + ">");
                     generateAddMethod(pr, cls, ref, typeRefName);
                     generateAddAllMethod(pr, cls, ref, typeRefName);
                     generateRemoveMethod(pr, cls, ref, typeRefName);
                     generateRemoveAllMethod(pr, cls, ref, typeRefName);
-                    pr.println("fun find" + ProcessorHelper.getInstance().toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType())) + "?");
+                    pr.println("fun find" + ProcessorHelper.getInstance().toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEType())) + "?");
 
 
                     SortedSet<String> idRefAttributes = new TreeSet<String>();
@@ -150,7 +150,7 @@ public class APIGenerator {
                             builder3.append(name);
                             first2 = false;
                         }
-                        pr.println("fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By"+builder3+"("+builder+") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEReferenceType()) + "?;");
+                        pr.println("fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By"+builder3+"("+builder+") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()) + "?;");
                     }
 
 

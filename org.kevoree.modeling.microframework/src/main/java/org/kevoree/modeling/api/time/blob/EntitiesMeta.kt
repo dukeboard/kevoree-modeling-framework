@@ -35,6 +35,7 @@ class EntitiesMeta() {
         if (payload.equals("")) {
             return;
         }
+        //TODO refactor this code for efficiency
         val elements = payload.split(sep)
         for (elem in elements) {
             list.put(elem, true)

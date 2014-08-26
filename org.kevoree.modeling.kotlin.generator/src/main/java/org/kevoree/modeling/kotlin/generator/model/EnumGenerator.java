@@ -60,9 +60,12 @@ public class EnumGenerator {
 
             //Class core
             pr.println("enum class " + formattedEnumName + " {");
-
-            for(EEnumLiteral enumLit : en.getELiterals() ) {
-                pr.println(enumLit.getName().toUpperCase());
+            for (EEnumLiteral enumLit : en.getELiterals()) {
+                if (enumLit.getName() == null) {
+                    pr.println(enumLit.getLiteral().toUpperCase());
+                } else {
+                    pr.println(enumLit.getName().toUpperCase());
+                }
             }
             pr.println("}");
 
@@ -71,7 +74,7 @@ public class EnumGenerator {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } finally {
-            if(pr != null) {
+            if (pr != null) {
                 pr.flush();
                 pr.close();
             }

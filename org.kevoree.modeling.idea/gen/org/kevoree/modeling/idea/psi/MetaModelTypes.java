@@ -8,7 +8,9 @@ import org.kevoree.modeling.idea.psi.impl.*;
 
 public interface MetaModelTypes {
 
+  IElementType ANNOTATION = new MetaModelElementType("ANNOTATION");
   IElementType ANNOTATIONS = new MetaModelElementType("ANNOTATIONS");
+  IElementType ANNOTATION_PARAM = new MetaModelElementType("ANNOTATION_PARAM");
   IElementType CLASS_DECLARATION = new MetaModelElementType("CLASS_DECLARATION");
   IElementType DECLARATION = new MetaModelElementType("DECLARATION");
   IElementType ENUM_DECLARATION = new MetaModelElementType("ENUM_DECLARATION");
@@ -22,7 +24,8 @@ public interface MetaModelTypes {
   IElementType RELATION_OPPOSITE = new MetaModelElementType("RELATION_OPPOSITE");
   IElementType TYPE_DECLARATION = new MetaModelElementType("TYPE_DECLARATION");
 
-  IElementType ANNOTATION = new MetaModelTokenType("ANNOTATION");
+  IElementType ANNOT_PARAM_CLOSE = new MetaModelTokenType(")");
+  IElementType ANNOT_PARAM_OPEN = new MetaModelTokenType("(");
   IElementType BODY_CLOSE = new MetaModelTokenType("}");
   IElementType BODY_OPEN = new MetaModelTokenType("{");
   IElementType CLASS = new MetaModelTokenType("class");
@@ -43,12 +46,19 @@ public interface MetaModelTypes {
   IElementType STAR = new MetaModelTokenType("*");
   IElementType STRING = new MetaModelTokenType("string");
   IElementType SUB = new MetaModelTokenType("/");
+  IElementType TANNOTATION = new MetaModelTokenType("TANNOTATION");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-       if (type == ANNOTATIONS) {
+       if (type == ANNOTATION) {
+        return new MetaModelAnnotationImpl(node);
+      }
+      else if (type == ANNOTATIONS) {
         return new MetaModelAnnotationsImpl(node);
+      }
+      else if (type == ANNOTATION_PARAM) {
+        return new MetaModelAnnotationParamImpl(node);
       }
       else if (type == CLASS_DECLARATION) {
         return new MetaModelClassDeclarationImpl(node);

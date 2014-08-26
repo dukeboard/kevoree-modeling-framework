@@ -23,9 +23,9 @@ LINE_WS=[\ \t\f]
 WHITE_SPACE=({LINE_WS}|{EOL})+
 
 COMMENT="//".*
-NUMBER=[0-9\-]+
+NUMBER=[\-]?[0-9]+[.]?[0-9]*
 IDENT=[\*\.a-zA-Z0-9_\-]+
-ANNOTATION=[@][\.a-zA-Z0-9_\-]+
+TANNOTATION=[@][\.a-zA-Z0-9_\-]+
 STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
 %%
@@ -43,6 +43,8 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   "{"                { return BODY_OPEN; }
   "]"                { return MULT_CLOSE; }
   "}"                { return BODY_CLOSE; }
+  "("                { return ANNOT_PARAM_OPEN; }
+  ")"                { return ANNOT_PARAM_CLOSE; }
   "."                { return MULT_SEP; }
   "*"                { return STAR; }
   "<<EOF>>"          { return EOF; }
@@ -52,7 +54,7 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   {COMMENT}          { return COMMENT; }
   {NUMBER}           { return NUMBER; }
   {IDENT}            { return IDENT; }
-  {ANNOTATION}       { return ANNOTATION; }
+  {TANNOTATION}      { return TANNOTATION; }
   {STRING}           { return STRING; }
 
   [^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }
