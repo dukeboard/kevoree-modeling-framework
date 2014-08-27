@@ -39,9 +39,9 @@ object Selector {
                         }
                         override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
                             if (staticExtractedQuery.params.size == 1 && staticExtractedQuery.params.get("@id") != null && staticExtractedQuery.params.get("@id")!!.name == null) {
-                                  if(elem.internalGetKey() == staticExtractedQuery.params.get("@id")?.value){
-                                      tempResult.add(elem)
-                                  }
+                                if (elem.internalGetKey() == staticExtractedQuery.params.get("@id")?.value) {
+                                    tempResult.add(elem)
+                                }
                             } else {
                                 if (staticExtractedQuery.params.size > 0) {
                                     val subResult = Array<Boolean>(staticExtractedQuery.params.size) { i -> false }
@@ -170,8 +170,11 @@ object Selector {
                 escaped = false
                 while (iParam < paramString.length) {
                     if (paramString.get(iParam) == ',' && !escaped) {
-                        val p = paramString.substring(lastStart, iParam).trim()
+                        var p = paramString.substring(lastStart, iParam).trim()
                         if (p != "" && p != "*") {
+                            if(p.endsWith("=")){
+                                p = p+"*"
+                            }
                             var pArray = p.split("=")
                             var pObject: KmfQueryParam
                             if (pArray.size > 1) {
@@ -194,8 +197,11 @@ object Selector {
                     }
                     iParam = iParam + 1
                 }
-                val lastParam = paramString.substring(lastStart, iParam).trim()
+                var lastParam = paramString.substring(lastStart, iParam).trim()
                 if (lastParam != "" && lastParam != "*") {
+                    if(lastParam.endsWith("=")){
+                        lastParam = lastParam+"*"
+                    }
                     var pArray = lastParam.split("=")
                     var pObject: KmfQueryParam
                     if (pArray.size > 1) {
