@@ -9,6 +9,9 @@ import org.kevoree.modeling.api.trace.ModelAddTrace
 
 /**
  * Created by duke on 8/27/14.
+ *
+ * special note for AngevinSacAVin :-)
+ *
  */
 
 public class ModelPruner(val factory: KMFFactory) {
