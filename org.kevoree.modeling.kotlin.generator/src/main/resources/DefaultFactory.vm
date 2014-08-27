@@ -103,4 +103,8 @@ when(metaClassName){
         return org.kevoree.modeling.api.ModelCloner(this)
     }
 
+    override fun createModelPruner() : org.kevoree.modeling.api.ModelPruner {
+        return org.kevoree.modeling.api.ModelPruner(this)
+    }
+
 }

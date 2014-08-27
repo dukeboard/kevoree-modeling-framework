@@ -31,6 +31,8 @@ trait KMFFactory {
 
     fun createModelCloner(): ModelCloner
 
+    fun createModelPruner(): ModelPruner
+
     fun select(query: String): List<KMFContainer>
 
 }
