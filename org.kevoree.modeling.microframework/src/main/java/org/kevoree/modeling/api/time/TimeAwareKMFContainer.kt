@@ -14,18 +14,14 @@ import org.kevoree.modeling.api.TimedContainer
  * Time: 16:01
  */
 
-public trait TimeAwareKMFContainer<A> : KMFContainerProxy,TimedContainer<A> {
+public trait TimeAwareKMFContainer<A> : KMFContainerProxy, TimedContainer<A> {
 
     var meta: EntityMeta?
 
-    var now: Long
+    override var now: Long
 
     internal fun getOriginTransaction(): TimeTransaction {
         return ((originFactory as TimeAwareKMFFactory).originTransaction) as TimeTransaction
-    }
-
-    override fun now():Long {
-        return now
     }
 
     override fun previous(): A? {
