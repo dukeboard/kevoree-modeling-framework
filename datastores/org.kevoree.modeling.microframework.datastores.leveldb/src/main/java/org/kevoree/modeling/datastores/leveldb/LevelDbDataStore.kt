@@ -19,6 +19,13 @@ import org.kevoree.modeling.api.events.ModelEvent
  */
 public class LevelDbDataStore(val dbStorageBasePath: String) : DataStore {
 
+    {
+        val location = File(dbStorageBasePath)
+        if (!location.exists()) {
+            location.mkdirs()
+        }
+    }
+
     override fun commit() {
         for (db in dbs.values()) {
             db.write(db.createWriteBatch())
@@ -66,76 +73,81 @@ public class LevelDbDataStore(val dbStorageBasePath: String) : DataStore {
         return keys(segment).toSet();
     }
 
-    {
-        val location = File(dbStorageBasePath)
-        if (!location.exists()) {
-            location.mkdirs()
-        }
-    }
-
-
     private val options = Options().createIfMissing(true)
     private val dbs = java.util.HashMap<String, DB>()
 
-    private fun internal_db(segment: String): DB {
-        var db: DB?
+    private fun internal_db(segment: String, create: Boolean): DB? {
         if (dbs.containsKey(segment)) {
-            db = dbs.get(segment)
+            return dbs.get(segment)
         } else {
-            db = JniDBFactory.factory.open(File(dbStorageBasePath + File.separator + segment), options)
+            val f = File(dbStorageBasePath + File.separator + segment)
+            if (!create) {
+                if (!f.exists()) {
+                    return null
+                }
+            }
+            val db = JniDBFactory.factory.open(f, options)
             dbs.put(segment, db!!)
+            return db
         }
-        return db!!
     }
 
-
     override fun get(segment: String, key: String): String? {
-        val db = internal_db(segment)
-        return JniDBFactory.asString(db.get(JniDBFactory.bytes(key)))
+        val db = internal_db(segment, false)
+        if (db != null) {
+            return JniDBFactory.asString(db.get(JniDBFactory.bytes(key)))
+        } else {
+            return null
+        }
     }
 
     override fun remove(segment: String, key: String) {
-        val db = internal_db(segment)
-        db.delete(JniDBFactory.bytes(key))
+        val db = internal_db(segment, false)
+        db?.delete(JniDBFactory.bytes(key))
     }
 
     override fun put(segment: String, key: String, value: String) {
-        val db = internal_db(segment)
-        db.put(JniDBFactory.bytes(key), JniDBFactory.bytes(value))
+        val db = internal_db(segment, true)
+        db!!.put(JniDBFactory.bytes(key), JniDBFactory.bytes(value))
     }
 
     fun keys(segment: String): List<String> {
         val keys = java.util.ArrayList<String>()
-
         var it: DBIterator? = null
         try {
-            val db = internal_db(segment)
-            it = db.iterator()
-            it!!.seekToFirst()
-            while (it!!.hasNext()) {
-                val key = JniDBFactory.asString(it!!.next().getKey())
-                keys.add(key!!)
+            val db = internal_db(segment, false)
+            it = db?.iterator()
+            val itt = it
+            if (itt != null) {
+                itt.seekToFirst()
+                while (itt.hasNext()) {
+                    val key = JniDBFactory.asString(itt.next().getKey())
+                    keys.add(key!!)
+                }
             }
         } finally {
-            it!!.close()
+            it?.close()
         }
         return keys
     }
 
     fun values(segment: String): List<String> {
         val values = java.util.ArrayList<String>()
-
         var it: DBIterator? = null
         try {
-            val db = internal_db(segment)
-            it = db.iterator()
-            it!!.seekToFirst()
-            for (item in it) {
-                val value = JniDBFactory.asString(it!!.peekNext()!!.getValue())
-                values.add(value!!)
+            val db = internal_db(segment,false)
+            it = db?.iterator()
+            val itt = it
+            if(itt != null){
+                itt.seekToFirst()
+                for (item in itt) {
+                    val value = JniDBFactory.asString(itt.peekNext()!!.getValue())
+                    values.add(value!!)
+                }
             }
+
         } finally {
-            it!!.close()
+            it?.close()
         }
         return values
     }
