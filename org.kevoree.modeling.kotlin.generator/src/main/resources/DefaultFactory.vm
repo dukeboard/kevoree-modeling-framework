@@ -16,6 +16,12 @@ import $helper.fqn($ctx, $class);
 
 override fun getVersion() : String { return "${modelVersion}" }
 
+#if(!$ctx.persistence)
+    override fun lookup(path: String): org.kevoree.modeling.api.KMFContainer? {
+        return null
+    }
+#end
+
 #if($ctx.persistence)
 override val elem_cache: MutableMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.concurrent.ConcurrentHashMap<String, org.kevoree.modeling.api.KMFContainer>()
 override val modified_elements: MutableMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.concurrent.ConcurrentHashMap<String, org.kevoree.modeling.api.KMFContainer>()

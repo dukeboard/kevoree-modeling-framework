@@ -7,9 +7,7 @@ import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import java.io.OutputStream
 import org.kevoree.modeling.api.ModelSerializer
 import java.io.ByteArrayOutputStream
-import java.util.ArrayList
 import org.kevoree.modeling.api.util.AttConverter
-import org.kevoree.modeling.api.KMFFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,7 +18,7 @@ import org.kevoree.modeling.api.KMFFactory
 
 
 class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
-    override fun beginVisitRef(refName: String, refType: String) : Boolean {
+    override fun beginVisitRef(refName: String, refType: String): Boolean {
         out.print(",\"" + refName + "\":[")
         isFirst = true
         return true
@@ -68,7 +66,7 @@ public class JSONModelSerializer() : ModelSerializer {
                 out.println("}")
                 isFirstInRef = false
             }
-            override fun beginVisitRef(refName: String, refType: String) : Boolean {
+            override fun beginVisitRef(refName: String, refType: String): Boolean {
                 out.print(",\"" + refName + "\":[")
                 isFirstInRef = true
                 return true
@@ -85,7 +83,11 @@ public class JSONModelSerializer() : ModelSerializer {
     }
 
     fun printAttName(elem: KMFContainer, out: PrintStream) {
-        out.print("\n{\"eClass\":\"" + elem.metaClassName() + "\"")
+        var isRoot = ""
+        if (elem.path().equals("/")) {
+            isRoot = "root:"
+        }
+        out.print("\n{\"class\":\"" + isRoot + elem.metaClassName() + "@" + elem.internalGetKey() + "\"")
         val attributeVisitor = object : ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: KMFContainer) {
                 if (value != null) {

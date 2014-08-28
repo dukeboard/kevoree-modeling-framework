@@ -35,4 +35,6 @@ trait KMFFactory {
 
     fun select(query: String): List<KMFContainer>
 
+    fun lookup(path: String) : KMFContainer?
+
 }

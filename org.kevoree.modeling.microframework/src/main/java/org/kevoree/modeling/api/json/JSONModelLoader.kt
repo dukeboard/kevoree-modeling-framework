@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.json
 
-import java.io.ByteArrayInputStream
 import java.io.InputStream
 import org.kevoree.modeling.api.KMFContainer
 import java.util.ArrayList
@@ -15,7 +14,7 @@ import org.kevoree.modeling.api.util.ByteConverter
  * Date: 28/08/13
  * Time: 13:08
  */
-public class JSONModelLoader(val factory : KMFFactory) : ModelLoader {
+public class JSONModelLoader(val factory: KMFFactory) : ModelLoader {
 
     override fun loadModelFromString(str: String): List<KMFContainer>? {
         return deserialize(ByteConverter.byteArrayInputStreamFromString(str))
@@ -50,11 +49,36 @@ public class JSONModelLoader(val factory : KMFFactory) : ModelLoader {
         var currentToken = lexer.nextToken()
         var currentObject: KMFContainer? = null
         if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE) {
-            if (currentToken.value == "eClass") {
+            if (currentToken.value == "class") {
                 lexer.nextToken() //unpop :
                 currentToken = lexer.nextToken() //Two step for having the name
-                val name = currentToken.value?.toString()!!
-                currentObject = factory.create(name)
+                var name = currentToken.value?.toString()!!
+                var typeName: String? = null
+                var isRoot = false
+                if (name.startsWith("root:")) {
+                    isRoot = true
+                    name = name.substring("root:".length)
+                }
+                if (name.contains("@")) {
+                    typeName = name.substring(0, name.indexOf("@"))
+                    val key = name.substring(name.indexOf("@") + 1)
+                    if (parent == null) {
+                        if (isRoot) {
+                            currentObject = factory.lookup("/")
+                        }
+                    } else {
+                        val path = parent.path() + "/" + nameInParent + "[" + key + "]"
+                        currentObject = factory.lookup(path)
+                    }
+                } else {
+                    typeName = name
+                }
+                if (currentObject == null) {
+                    currentObject = factory.create(typeName!!)
+                }
+                if (isRoot) {
+                    factory.root(currentObject!!)
+                }
                 if (parent == null) {
                     roots.add(currentObject!!)
                 }

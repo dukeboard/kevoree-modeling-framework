@@ -134,7 +134,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         elem.addModelElementListener(this)
     }
 
-    fun lookup(path: String): KMFContainer? {
+    override fun lookup(path: String): KMFContainer? {
         if (path == "") {
             return null
         }
