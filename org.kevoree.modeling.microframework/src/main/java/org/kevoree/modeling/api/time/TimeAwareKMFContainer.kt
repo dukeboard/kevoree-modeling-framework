@@ -24,6 +24,10 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy,TimedContainer<A> {
         return ((originFactory as TimeAwareKMFFactory).originTransaction) as TimeTransaction
     }
 
+    override fun now():Long {
+        return now
+    }
+
     override fun previous(): A? {
         //TODO optimize with a cache of RBTree node, warning potential memory leak !
         val previousTime = timeTree().previous(now)

@@ -8,6 +8,8 @@ import org.kevoree.modeling.api.time.TimeTree
 
 trait TimedContainer<out A> : org.kevoree.modeling.api.KMFContainer {
 
+    fun now(): Long
+
     fun previous(): A?
 
     fun next(): A?
