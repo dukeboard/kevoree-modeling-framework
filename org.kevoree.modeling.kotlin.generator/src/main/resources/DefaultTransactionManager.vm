@@ -33,7 +33,7 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
     override fun close() {
         if(!isClosed){
             isClosed = true
-            datastore.sync()
+            datastore.close()
         }
     }
 
@@ -94,17 +94,13 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
             (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.clear();
         }
         sharedCache.flush()
-        datastore.sync()
     }
     #else
         #if($ctx.persistence)
              override fun close() {
                 clear();
-                datastore.sync();
             }
-
             override val originTransaction: Transaction = this
-
         #end
 
     #end

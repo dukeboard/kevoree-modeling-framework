@@ -85,7 +85,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     fun endCommit() {
-
+        datastore.commit()
     }
 
     fun commit() {

@@ -63,6 +63,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             cleanUnusedPaths(e)
         }
         elementsToBeRemoved.clear()
+        datastore.commit()
     }
 
     override fun clear() {
