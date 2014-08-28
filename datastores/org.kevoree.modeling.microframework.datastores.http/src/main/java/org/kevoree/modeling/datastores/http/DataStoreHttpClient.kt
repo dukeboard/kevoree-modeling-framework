@@ -17,6 +17,7 @@ import org.kevoree.modeling.api.events.ModelEvent
 
 public class DataStoreHttpClient(val ip: String, val port: Int) : DataStore {
 
+
     private val selector = EventDispatcher()
 
     override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
@@ -58,7 +59,7 @@ public class DataStoreHttpClient(val ip: String, val port: Int) : DataStore {
         request.getHeaders()?.put("segmentName", segment)
         request.send()!!
     }
-    override fun sync() {
+    override fun close() {
         val request = client.newRequest("http://$ip:$port")!!
         request.method(HttpMethod.POST)!!
         request.send()!!
@@ -69,6 +70,9 @@ public class DataStoreHttpClient(val ip: String, val port: Int) : DataStore {
         request.getHeaders()?.put("elemPath", key)
         request.getHeaders()?.put("segmentName", segment)
         request.content(StringContentProvider(value))!!.send()
+    }
+
+    override fun commit() {
     }
 
 }

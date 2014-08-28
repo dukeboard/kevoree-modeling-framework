@@ -19,6 +19,20 @@ import org.kevoree.modeling.api.events.ModelEvent
  */
 public class LevelDbDataStore(val dbStorageBasePath: String) : DataStore {
 
+    override fun commit() {
+        for (db in dbs.values()) {
+            db.write(db.createWriteBatch())
+        }
+    }
+
+    override fun close() {
+        for (db in dbs.values()) {
+            db.write(db.createWriteBatch())
+            db.close()
+        }
+        dbs.clear()
+    }
+
     private val selector = EventDispatcher()
 
     override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
@@ -74,13 +88,6 @@ public class LevelDbDataStore(val dbStorageBasePath: String) : DataStore {
         return db!!
     }
 
-    override fun sync() {
-        for (db in dbs.values()) {
-            db.write(db.createWriteBatch())
-            db.close()
-        }
-        dbs.clear()
-    }
 
     override fun get(segment: String, key: String): String? {
         val db = internal_db(segment)

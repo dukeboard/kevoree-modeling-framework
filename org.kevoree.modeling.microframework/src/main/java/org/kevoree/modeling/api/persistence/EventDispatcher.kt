@@ -29,6 +29,10 @@ class EventDispatcher {
         }
     }
 
+    fun clear() {
+        listeners.clear()
+    }
+
 }
 
 data class TimedRegistration(val from: Long?, val to: Long?, val pathRegex: String) {

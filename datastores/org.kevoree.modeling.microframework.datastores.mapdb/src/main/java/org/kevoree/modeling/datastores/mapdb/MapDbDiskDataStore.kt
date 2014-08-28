@@ -53,9 +53,13 @@ public class MapDbDiskDataStore(directory: File) : DataStore {
         return cache!!
     }
 
-    override fun sync() {
+    override fun close() {
         db.commit()
         dbs.clear()
+    }
+
+    override fun commit() {
+        db.commit()
     }
 
     override fun get(segment: String, key: String): String? {

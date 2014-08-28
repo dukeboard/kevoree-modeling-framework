@@ -41,7 +41,7 @@ public class MapDbOffHeapDataStore() : DataStore {
 
     private fun internal_db(segment: String): MutableMap<String, String> {
         var cache: MutableMap<String, String>? = null
-        if(dbs.containsKey(segment)) {
+        if (dbs.containsKey(segment)) {
             cache = dbs.get(segment)
         } else {
             cache = db.getHashMap(segment)
@@ -50,7 +50,11 @@ public class MapDbOffHeapDataStore() : DataStore {
         return cache!!
     }
 
-    override fun sync() {
+    override fun commit() {
+        db.commit()
+    }
+
+    override fun close() {
         db.commit()
         dbs.clear()
     }

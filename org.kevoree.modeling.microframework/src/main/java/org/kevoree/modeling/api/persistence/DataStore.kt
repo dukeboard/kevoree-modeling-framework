@@ -18,7 +18,9 @@ public trait DataStore {
 
     fun remove(segment: String, key: String)
 
-    fun sync()
+    fun commit()
+
+    fun close()
 
     fun getSegments(): Set<String>
 

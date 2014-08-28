@@ -4,7 +4,6 @@ import java.util.HashMap
 import java.util.HashSet
 import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.events.ModelElementListener
-import java.util.ArrayList
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +13,10 @@ import java.util.ArrayList
  */
 
 public open class MemoryDataStore : DataStore {
+
+    override fun commit() {
+        //nothing todo
+    }
 
     private val selector = EventDispatcher()
 
@@ -40,7 +43,10 @@ public open class MemoryDataStore : DataStore {
         return maps.keySet()
     }
 
-    override fun sync() {
+    override fun close() {
+        selector.clear()
+        maps.clear()
+        //nothing to close in pure memory, wait for GC
     }
 
     var maps = HashMap<String, HashMap<String, String>>()
