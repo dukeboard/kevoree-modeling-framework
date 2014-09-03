@@ -22,8 +22,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 
 import java.io.PrintWriter;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 
 /**
@@ -41,22 +40,33 @@ public class KMFQLFinder {
         pr.println("} else {");
         boolean first = true;
         pr.print("key_cache = ");
-        SortedSet<String> idAttributes = new TreeSet<String>();
+        SortedMap<String, EAttribute> idAttributes = new TreeMap<String, EAttribute>();
         for (EAttribute att : cls.getEAllAttributes()) {
             if (att.isID() && !att.getName().equals("generated_KMF_ID")) {
-                idAttributes.add(att.getName());
+                idAttributes.put(att.getName(), att);
             }
         }
         if (idAttributes.size() > 0) {
             pr.print("\"");
             if (idAttributes.size() == 1) {
-                pr.print("${org.kevoree.modeling.api.util.KevURLEncoder.encode(" + ProcessorHelper.getInstance().protectReservedWords(idAttributes.first()) + ")}");
+
+                String attributeType = ProcessorHelper.getInstance().convertType(idAttributes.get(idAttributes.firstKey()).getEAttributeType().getInstanceClassName());
+                if(attributeType.equals("String") || attributeType.equals("Char")) {
+                    pr.print("${org.kevoree.modeling.api.util.KevURLEncoder.encode(" + ProcessorHelper.getInstance().protectReservedWords(idAttributes.firstKey()) + ")}");
+                } else {
+                    pr.print("${" + ProcessorHelper.getInstance().protectReservedWords(idAttributes.firstKey()) + "}");
+                }
             } else {
-                for (String att : idAttributes) {
+                for (Map.Entry<String, EAttribute> att : idAttributes.entrySet()) {
                     if (!first) {
                         pr.print(",");
                     }
-                    pr.print(att + "=${org.kevoree.modeling.api.util.KevURLEncoder.encode(" + ProcessorHelper.getInstance().protectReservedWords(att) + ")}");
+                    String attributeType = ProcessorHelper.getInstance().convertType(att.getValue().getEAttributeType().getInstanceClassName());
+                    if(attributeType.equals("String") || attributeType.equals("Char")) {
+                        pr.print(att.getKey() + "=${org.kevoree.modeling.api.util.KevURLEncoder.encode(" + ProcessorHelper.getInstance().protectReservedWords(att.getKey()) + ")}");
+                    } else {
+                        pr.print(att.getKey() + "=${" + ProcessorHelper.getInstance().protectReservedWords(att.getKey()) + "}");
+                    }
                     first = false;
                 }
             }
