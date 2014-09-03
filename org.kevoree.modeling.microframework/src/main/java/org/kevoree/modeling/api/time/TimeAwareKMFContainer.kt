@@ -18,8 +18,6 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy, TimedContainer<A> {
 
     var meta: EntityMeta?
 
-    override var now: Long
-
     internal fun getOriginTransaction(): TimeTransaction {
         return ((originFactory as TimeAwareKMFFactory).originTransaction) as TimeTransaction
     }
