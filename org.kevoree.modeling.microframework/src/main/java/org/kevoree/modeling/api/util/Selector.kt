@@ -24,7 +24,7 @@ object Selector {
                 if (resolved != null) {
                     tempResult.add(resolved)
                 } else {
-                    currentRoot.visit(object : ModelVisitor() {
+                    var visitor = object : ModelVisitor() {
                         override fun beginVisitRef(refName: String, refType: String): Boolean {
                             if (refName == staticExtractedQuery.relationName) {
                                 return true;
@@ -110,7 +110,12 @@ object Selector {
                                 }
                             }
                         }
-                    }, false, true, true)
+                    }
+                    if(staticExtractedQuery.previousIsDeep){
+                        currentRoot.visit(visitor, true, true, true)
+                    } else {
+                        currentRoot.visit(visitor, false, true, true)
+                    }
                 }
             }
             if (staticExtractedQuery.subQuery == null) {
@@ -130,7 +135,18 @@ object Selector {
                 subQuery = query.substring(1)
             }
             val params = HashMap<String, KmfQueryParam>()
-            return KmfQuery("", params, subQuery, "/")
+            return KmfQuery("", params, subQuery, "/", false)
+        }
+        if (query.startsWith("**/")) {
+            if (query.length > 3) {
+                val next = extractFirstQuery(query.substring(3))
+                if (next != null) {
+                    next.previousIsDeep = true
+                }
+                return next
+            } else {
+                return null
+            }
         }
         var i = 0
         var relationNameEnd = 0
@@ -172,8 +188,8 @@ object Selector {
                     if (paramString.get(iParam) == ',' && !escaped) {
                         var p = paramString.substring(lastStart, iParam).trim()
                         if (p != "" && p != "*") {
-                            if(p.endsWith("=")){
-                                p = p+"*"
+                            if (p.endsWith("=")) {
+                                p = p + "*"
                             }
                             var pArray = p.split("=")
                             var pObject: KmfQueryParam
@@ -199,8 +215,8 @@ object Selector {
                 }
                 var lastParam = paramString.substring(lastStart, iParam).trim()
                 if (lastParam != "" && lastParam != "*") {
-                    if(lastParam.endsWith("=")){
-                        lastParam = lastParam+"*"
+                    if (lastParam.endsWith("=")) {
+                        lastParam = lastParam + "*"
                     }
                     var pArray = lastParam.split("=")
                     var pObject: KmfQueryParam
@@ -215,14 +231,14 @@ object Selector {
                     }
                 }
             }
-            return KmfQuery(relName, params, subQuery, oldString)
+            return KmfQuery(relName, params, subQuery, oldString, false)
         }
         return null
     }
 
 }
 
-data class KmfQuery(val relationName: String, val params: Map<String, KmfQueryParam>, val subQuery: String?, val oldString: String)
+data class KmfQuery(val relationName: String, val params: Map<String, KmfQueryParam>, val subQuery: String?, val oldString: String, var previousIsDeep: Boolean)
 
 data class KmfQueryParam(val name: String?, val value: String, val idParam: Int, val negative: Boolean)
 
