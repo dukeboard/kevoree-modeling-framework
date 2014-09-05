@@ -191,8 +191,8 @@ public class GenerationContext {
     public String formattedName = null;
 
     public void setBaseLocationForUtilitiesGeneration(String targetName) throws Exception {
-        basePackageForUtilitiesGeneration = targetName;
-        baseLocationForUtilitiesGeneration = new File( (rootGenerationDirectory.getAbsolutePath() + File.separator + targetName.replace(".", File.separator)).toLowerCase() );
+        basePackageForUtilitiesGeneration = targetName.toLowerCase();
+        baseLocationForUtilitiesGeneration = new File( (rootGenerationDirectory.getAbsolutePath() + File.separator + basePackageForUtilitiesGeneration.replace(".", File.separator)).toLowerCase() );
         metaModelName = targetName;
         if (targetName.contains(".")) {
             formattedName = targetName.substring(targetName.lastIndexOf(".")+1);
