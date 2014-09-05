@@ -7,24 +7,11 @@ import org.mapdb.DBMaker
 import org.kevoree.modeling.api.persistence.EventDispatcher
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
+import org.kevoree.modeling.api.persistence.AbstractDataStore
 
-public class MapDbDiskDataStore(directory: File) : DataStore {
+public class MapDbDiskDataStore(directory: File) : AbstractDataStore() {
 
-    private val selector = EventDispatcher()
-
-    override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
-        selector.register(listener, from, to, path)
-    }
-
-    override fun unregister(listener: ModelElementListener) {
-        selector.unregister(listener)
-    }
-
-    override fun notify(event: ModelEvent) {
-        selector.dispatch(event)
-    }
-
-    override fun getSegmentKeys(segment: String): Set<String> {
+     override fun getSegmentKeys(segment: String): Set<String> {
         throw UnsupportedOperationException()
     }
     override fun getSegments(): Set<String> {

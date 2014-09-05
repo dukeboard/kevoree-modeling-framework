@@ -10,6 +10,7 @@ import java.util.HashSet
 import org.kevoree.modeling.api.persistence.EventDispatcher
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
+import org.kevoree.modeling.api.persistence.AbstractDataStore
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +18,7 @@ import org.kevoree.modeling.api.events.ModelEvent
  * Date: 11/7/13
  * Time: 2:37 PM
  */
-public class LevelDbDataStore(val dbStorageBasePath: String) : DataStore {
+public class LevelDbDataStore(val dbStorageBasePath: String) : AbstractDataStore() {
 
     {
         val location = File(dbStorageBasePath)
@@ -38,20 +39,6 @@ public class LevelDbDataStore(val dbStorageBasePath: String) : DataStore {
             db.close()
         }
         dbs.clear()
-    }
-
-    private val selector = EventDispatcher()
-
-    override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
-        selector.register(listener, from, to, path)
-    }
-
-    override fun unregister(listener: ModelElementListener) {
-        selector.unregister(listener)
-    }
-
-    override fun notify(event: ModelEvent) {
-        selector.dispatch(event)
     }
 
     override fun getSegments(): Set<String> {
