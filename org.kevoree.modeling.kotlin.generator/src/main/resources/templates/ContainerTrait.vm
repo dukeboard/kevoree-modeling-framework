@@ -371,6 +371,9 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KMFContainer
             var indexFirstClose = query.indexOf(']')
             while( indexFirstClose + 1 < query.length && query.charAt(indexFirstClose + 1) != '/'){
                 indexFirstClose = query.indexOf(']',indexFirstClose + 1)
+                if(indexFirstClose == -1){
+                    return null
+                }
             }
             queryID = query.substring(query.indexOf('[') + 1, indexFirstClose)
         }

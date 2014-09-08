@@ -20,9 +20,12 @@ object Selector {
             val clonedRound = tempResult
             tempResult = ArrayList<KMFContainer>()
             for (currentRoot in clonedRound) {
-                val resolved = currentRoot.findByPath(staticExtractedQuery.oldString)
+                var resolved: KMFContainer? = null
+                if (!staticExtractedQuery.oldString.contains("*")) {
+                    resolved = currentRoot.findByPath(staticExtractedQuery.oldString)
+                }
                 if (resolved != null) {
-                    tempResult.add(resolved)
+                    tempResult.add(resolved!!)
                 } else {
                     var visitor = object : ModelVisitor() {
                         override fun beginVisitRef(refName: String, refType: String): Boolean {
@@ -170,6 +173,7 @@ object Selector {
             }
             i = i + 1
         }
+
         if (i > 0 && relationNameEnd > 0) {
             val oldString = query.substring(0, i)
             var subQuery: String? = null
