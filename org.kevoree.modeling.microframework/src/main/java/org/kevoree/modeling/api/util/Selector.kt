@@ -47,45 +47,46 @@ object Selector {
                                     val subResult = Array<Boolean>(staticExtractedQuery.params.size) { i -> false }
                                     elem.visitAttributes(object : ModelAttributeVisitor {
                                         override fun visit(value: Any?, name: String, parent: KMFContainer) {
-                                            for (att in staticExtractedQuery.params) {
-                                                if (att.key == "@id") {
-                                                    throw Exception("Malformed KMFQuery, bad selector attribute without attribute name : " + att.value)
+                                            for (att in staticExtractedQuery.params.keySet()) {
+                                                if (att == "@id") {
+                                                    throw Exception("Malformed KMFQuery, bad selector attribute without attribute name : " + staticExtractedQuery.params.get(att))
                                                 } else {
                                                     var keySelected = false
-                                                    if (att.key == name) {
+                                                    if (att == name) {
                                                         keySelected = true
                                                     } else {
-                                                        if (att.key.contains("*") && name.matches(att.key.replace("*", ".*"))) {
+                                                        if (att.contains("*") && name.matches(att.replace("*", ".*"))) {
                                                             keySelected = true
                                                         }
                                                     }
+                                                    val attvalue = staticExtractedQuery.params.get(att)!!
                                                     //now check value
                                                     if (keySelected) {
                                                         if (value == null) {
-                                                            if (att.value.negative) {
-                                                                if (att.value.value != "null") {
-                                                                    subResult.set(att.value.idParam, true)
+                                                            if (attvalue.negative) {
+                                                                if (attvalue.value != "null") {
+                                                                    subResult.set(attvalue.idParam, true)
                                                                 }
                                                             } else {
-                                                                if (att.value.value == "null") {
-                                                                    subResult.set(att.value.idParam, true)
+                                                                if (attvalue.value == "null") {
+                                                                    subResult.set(attvalue.idParam, true)
                                                                 }
                                                             }
                                                         } else {
-                                                            if (att.value.negative) {
-                                                                if (!att.value.value.contains("*") && value != att.value.value) {
-                                                                    subResult.set(att.value.idParam, true)
+                                                            if (attvalue.negative) {
+                                                                if (!attvalue.value.contains("*") && value != attvalue.value) {
+                                                                    subResult.set(attvalue.idParam, true)
                                                                 } else {
-                                                                    if (!value.toString().matches(att.value.value.replace("*", ".*"))) {
-                                                                        subResult.set(att.value.idParam, true)
+                                                                    if (!value.toString().matches(attvalue.value.replace("*", ".*"))) {
+                                                                        subResult.set(attvalue.idParam, true)
                                                                     }
                                                                 }
                                                             } else {
-                                                                if (value == att.value.value) {
-                                                                    subResult.set(att.value.idParam, true)
+                                                                if (value == attvalue.value) {
+                                                                    subResult.set(attvalue.idParam, true)
                                                                 } else {
-                                                                    if (value.toString().matches(att.value.value.replace("*", ".*"))) {
-                                                                        subResult.set(att.value.idParam, true)
+                                                                    if (value.toString().matches(attvalue.value.replace("*", ".*"))) {
+                                                                        subResult.set(attvalue.idParam, true)
                                                                     }
                                                                 }
                                                             }
@@ -111,7 +112,7 @@ object Selector {
                             }
                         }
                     }
-                    if(staticExtractedQuery.previousIsDeep){
+                    if (staticExtractedQuery.previousIsDeep) {
                         currentRoot.visit(visitor, true, true, true)
                     } else {
                         currentRoot.visit(visitor, false, true, true)
