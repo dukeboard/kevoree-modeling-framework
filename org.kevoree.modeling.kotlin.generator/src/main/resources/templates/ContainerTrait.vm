@@ -268,6 +268,10 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KMFContainer
     var path_cache : String?
     var key_cache : String?
 
+    override fun isRoot() : Boolean {
+        return is_root;
+    }
+
     var is_root : Boolean
 
     override fun path(): String {

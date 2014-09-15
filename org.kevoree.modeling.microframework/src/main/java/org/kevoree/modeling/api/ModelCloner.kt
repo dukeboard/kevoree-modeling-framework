@@ -98,6 +98,9 @@ public class ModelCloner(val factory: KMFFactory) {
         if (readOnly) {
             clonedObject.setInternalReadOnly()
         }
+        if (o.isRoot()) {
+            factory.root(clonedObject)
+        }
         return clonedObject as A
     }
 

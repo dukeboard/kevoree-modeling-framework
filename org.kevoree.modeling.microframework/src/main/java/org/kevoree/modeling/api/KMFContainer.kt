@@ -46,4 +46,6 @@ trait KMFContainer {
 
     fun internalGetKey(): String?
 
+    fun isRoot() : Boolean
+
 }
