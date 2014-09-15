@@ -41,6 +41,9 @@ public class StandaloneParser {
     public static void main(String[] args) throws Exception {
         StandaloneParser parser = new StandaloneParser();
         PsiFile psi = parser.parser(new File("/Users/duke/Documents/dev/dukeboard/kevoree/kevoree-core/org.kevoree.model/metamodel/org.kevoree.mm"));
+        //PsiFile psi = parser.parser(new File("/Users/duke/Downloads/Polymer.mm"));
+
+
         File t = File.createTempFile("temp", ".ecore");
         t.deleteOnExit();
         parser.check(psi);
@@ -50,9 +53,6 @@ public class StandaloneParser {
         PrintWriter w = new PrintWriter(System.err);
         prettyPrinter.prettyPrint(t, w);
         w.flush();
-
-        //System.out.println(t.getAbsolutePath());
-
     }
 
 
@@ -377,7 +377,7 @@ public class StandaloneParser {
     }
 
     public PsiFile parser(VirtualFile input) throws IOException {
-        LightVirtualFile virtualFile = new LightVirtualFile("hello.mm", MetaModelLanguage.INSTANCE, new String(input.contentsToByteArray()));
+        LightVirtualFile virtualFile = new LightVirtualFile("hello.mm", MetaModelLanguage.INSTANCE, new String(input.contentsToByteArray()).replace("\r", ""));
         virtualFile.setCharset(CharsetToolkit.UTF8_CHARSET);
         return ((PsiFileFactoryImpl) PsiFileFactory.getInstance(project)).trySetupPsiForFile(virtualFile, MetaModelLanguage.INSTANCE, true, false);
     }
