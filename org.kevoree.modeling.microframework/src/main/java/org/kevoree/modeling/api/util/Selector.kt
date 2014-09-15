@@ -38,9 +38,28 @@ object Selector {
                                     }
                                 }
                             }
-                            return false;
+                            if(staticExtractedQuery.previousIsDeep){
+                                return true;  //we cannot filter here, to early in case of deep
+                            } else {
+                                return false;
+                            }
                         }
                         override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+                            if(staticExtractedQuery.previousIsDeep){  //we have to restest refName here because we cannot rely on previous filter
+                                if (refNameInParent == staticExtractedQuery.relationName) {
+                                    //continue
+                                } else {
+                                    if (staticExtractedQuery.relationName.contains("*")) {
+                                        if (refNameInParent.matches(staticExtractedQuery.relationName.replace("*", ".*"))) {
+                                            //continue
+                                        } else {
+                                            return;
+                                        }
+                                    } else {
+                                        return;
+                                    }
+                                }
+                            }
                             if (staticExtractedQuery.params.size == 1 && staticExtractedQuery.params.get("@id") != null && staticExtractedQuery.params.get("@id")!!.name == null) {
                                 if (elem.internalGetKey() == staticExtractedQuery.params.get("@id")?.value) {
                                     tempResult.add(elem)
