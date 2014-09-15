@@ -11,22 +11,19 @@ import org.kevoree.modeling.api.events.ModelElementListener
 trait TransactionManager {
     fun createTransaction(): Transaction
     fun close()
-
     fun listen(listener: ModelElementListener, from: Long?, to: Long?, path: String)
-
     fun disable(listener: ModelElementListener)
-
 }
 trait Transaction {
+    fun key(): String
+    fun parent(): Transaction
+    fun children(): Set<Transaction>
+    fun fork(): Transaction
     fun commit()
     fun close()
 }
 trait TimeTransaction : Transaction {
-
     fun time(timepoint: Long): TimeView
-
     fun globalTimeTree(): TimeTree
-
     fun timeTree(path: String): TimeTree
-
 }
