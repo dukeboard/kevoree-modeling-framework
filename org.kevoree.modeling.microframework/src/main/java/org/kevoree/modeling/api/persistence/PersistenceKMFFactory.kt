@@ -104,7 +104,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
                 }
             }
         }
-        for (elem in modified_elements.values()) {
+        for (elemKey in modified_elements.keySet()) {
+            val elem = modified_elements.get(elemKey)!!
             persist(elem)
             elementsToBeRemoved.remove(elem.path())
         }
@@ -114,7 +115,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     fun clear() {
-        for (elem in elem_cache.values()) {
+        for (elemKey in elem_cache.keySet()) {
+            val elem = elem_cache.get(elemKey)!!
             elem.removeModelElementListener(this)
         }
         elem_cache.clear()

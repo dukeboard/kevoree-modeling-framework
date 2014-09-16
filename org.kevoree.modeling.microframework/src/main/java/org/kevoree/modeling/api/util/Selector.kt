@@ -19,7 +19,8 @@ object Selector {
             val staticExtractedQuery = extractedQuery!!
             val clonedRound = tempResult
             tempResult = HashMap<String, KMFContainer>()
-            for (currentRoot in clonedRound.values()) {
+            for (currentRootKey in clonedRound.keySet()) {
+                val currentRoot = clonedRound.get(currentRootKey)!!
                 var resolved: KMFContainer? = null
                 if (!staticExtractedQuery.oldString.contains("*")) {
                     resolved = currentRoot.findByPath(staticExtractedQuery.oldString)
@@ -157,7 +158,9 @@ object Selector {
                 extractedQuery = extractFirstQuery(staticExtractedQuery.subQuery)
             }
         }
-        result.addAll(tempResult.values())
+        for (v in tempResult.keySet()) {
+            result.add(tempResult.get(v)!!)
+        }
         return result
     }
 
