@@ -68,7 +68,8 @@ public class ModelCompare(val factory: KMFFactory) {
         if (!inter) {
             //if diff
             if (!merge) {
-                for (diffChild in objectsMap.values()) {
+                for (diffChildKey in objectsMap.keySet()) {
+                    val diffChild = objectsMap.get(diffChildKey)!!
                     val src = (if (diffChild.eContainer() != null) {
                         diffChild.eContainer()!!.path()
                     } else {
