@@ -214,6 +214,14 @@ public class ProcessorHelper {
             return "`interfaces`";
         } else if (word.equals("package")) {
             return "`package`";
+        } else if (word.equals("val")) {
+            return "`val`";
+        } else if (word.equals("var")) {
+            return "`var`";
+        } else if (word.equals("class")) {
+            return "`class`";
+        } else if (word.equals("fun")) {
+            return "`fun`";
         } else {
             return word;
         }
