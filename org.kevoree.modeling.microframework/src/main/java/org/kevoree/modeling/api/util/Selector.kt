@@ -13,37 +13,58 @@ object Selector {
     fun select(root: KMFContainer, query: String): List<KMFContainer> {
         var extractedQuery = extractFirstQuery(query)
         var result = ArrayList<KMFContainer>()
-        var tempResult = ArrayList<KMFContainer>()
-        tempResult.add(root)
+        var tempResult = HashMap<String, KMFContainer>()
+        tempResult.put(root.path(), root)
         while (extractedQuery != null) {
             val staticExtractedQuery = extractedQuery!!
             val clonedRound = tempResult
-            tempResult = ArrayList<KMFContainer>()
-            for (currentRoot in clonedRound) {
+            tempResult = HashMap<String, KMFContainer>()
+            for (currentRoot in clonedRound.values()) {
                 var resolved: KMFContainer? = null
                 if (!staticExtractedQuery.oldString.contains("*")) {
                     resolved = currentRoot.findByPath(staticExtractedQuery.oldString)
                 }
                 if (resolved != null) {
-                    tempResult.add(resolved!!)
+                    tempResult.put(resolved!!.path(), resolved!!)
                 } else {
+                    var alreadyVisited = HashMap<String, Boolean>()
                     var visitor = object : ModelVisitor() {
+                        var refNameValided = false
                         override fun beginVisitRef(refName: String, refType: String): Boolean {
                             if (refName == staticExtractedQuery.relationName) {
+                                refNameValided = true;
                                 return true;
                             } else {
                                 if (staticExtractedQuery.relationName.contains("*")) {
                                     if (refName.matches(staticExtractedQuery.relationName.replace("*", ".*"))) {
+                                        refNameValided = true;
                                         return true;
                                     }
                                 }
                             }
-                            return false;
+                            refNameValided = false;
+                            if (staticExtractedQuery.previousIsDeep) {
+                                return true;  //we cannot filter here, to early in case of deep
+                            } else {
+                                return false;
+                            }
                         }
+
                         override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+                            if (staticExtractedQuery.previousIsRefDeep) {
+                                if (alreadyVisited.contains(parent.path() + "/" + refNameInParent + "[" + elem.internalGetKey() + "]")) {
+                                    return;
+                                }
+                            }
+                            if (staticExtractedQuery.previousIsDeep && !staticExtractedQuery.previousIsRefDeep) {
+                                //we have to restest refName here because we cannot rely on previous filter
+                                if (!refNameValided) {
+                                    return;
+                                }
+                            }
                             if (staticExtractedQuery.params.size == 1 && staticExtractedQuery.params.get("@id") != null && staticExtractedQuery.params.get("@id")!!.name == null) {
                                 if (elem.internalGetKey() == staticExtractedQuery.params.get("@id")?.value) {
-                                    tempResult.add(elem)
+                                    tempResult.put(elem.path(), elem)
                                 }
                             } else {
                                 if (staticExtractedQuery.params.size > 0) {
@@ -107,16 +128,24 @@ object Selector {
                                         }
                                     }
                                     if (finalRes) {
-                                        tempResult.add(elem)
+                                        tempResult.put(elem.path(), elem)
                                     }
                                 } else {
-                                    tempResult.add(elem)
+                                    tempResult.put(elem.path(), elem)
                                 }
+                            }
+                            if (staticExtractedQuery.previousIsRefDeep) {
+                                alreadyVisited.put(parent.path() + "/" + refNameInParent + "[" + elem.internalGetKey() + "]", true);
+                                elem.visit(this, false, true, true)
                             }
                         }
                     }
                     if (staticExtractedQuery.previousIsDeep) {
-                        currentRoot.visit(visitor, true, true, true)
+                        if (staticExtractedQuery.previousIsRefDeep) {
+                            currentRoot.visit(visitor, false, true, true)
+                        } else {
+                            currentRoot.visit(visitor, true, true, false)
+                        }
                     } else {
                         currentRoot.visit(visitor, false, true, true)
                     }
@@ -128,7 +157,7 @@ object Selector {
                 extractedQuery = extractFirstQuery(staticExtractedQuery.subQuery)
             }
         }
-        result.addAll(tempResult)
+        result.addAll(tempResult.values())
         return result
     }
 
@@ -139,13 +168,26 @@ object Selector {
                 subQuery = query.substring(1)
             }
             val params = HashMap<String, KmfQueryParam>()
-            return KmfQuery("", params, subQuery, "/", false)
+            return KmfQuery("", params, subQuery, "/", false, false)
         }
         if (query.startsWith("**/")) {
             if (query.length > 3) {
                 val next = extractFirstQuery(query.substring(3))
                 if (next != null) {
                     next.previousIsDeep = true
+                    next.previousIsRefDeep = false
+                }
+                return next
+            } else {
+                return null
+            }
+        }
+        if (query.startsWith("***/")) {
+            if (query.length > 4) {
+                val next = extractFirstQuery(query.substring(4))
+                if (next != null) {
+                    next.previousIsDeep = true
+                    next.previousIsRefDeep = true
                 }
                 return next
             } else {
@@ -236,14 +278,14 @@ object Selector {
                     }
                 }
             }
-            return KmfQuery(relName, params, subQuery, oldString, false)
+            return KmfQuery(relName, params, subQuery, oldString, false, false)
         }
         return null
     }
 
 }
 
-data class KmfQuery(val relationName: String, val params: Map<String, KmfQueryParam>, val subQuery: String?, val oldString: String, var previousIsDeep: Boolean)
+data class KmfQuery(val relationName: String, val params: Map<String, KmfQueryParam>, val subQuery: String?, val oldString: String, var previousIsDeep: Boolean, var previousIsRefDeep: Boolean)
 
 data class KmfQueryParam(val name: String?, val value: String, val idParam: Int, val negative: Boolean)
 
