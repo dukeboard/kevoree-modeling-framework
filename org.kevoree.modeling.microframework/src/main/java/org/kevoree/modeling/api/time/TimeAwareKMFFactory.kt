@@ -202,6 +202,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             return null;
         }
         val composedKey = "$askedTime/$path"
+        //TODO check parent cache
         if (elem_cache.containsKey(composedKey)) {
             return elem_cache.get(composedKey)
         }

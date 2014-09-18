@@ -18,6 +18,10 @@ trait TransactionManager {
 
 }
 trait Transaction {
+    fun key(): String
+    fun parent(): Transaction?
+    fun children(): Set<Transaction>
+    fun fork(): Transaction
     fun commit()
     fun close()
 }

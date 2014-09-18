@@ -23,11 +23,14 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
 
     private var isClosed : Boolean = false
 
+    private val random = java.util.Random()
+
     override fun createTransaction(): ${formatedName2} {
         if(isClosed){
             throw Exception("This TransactionManager is closed !");
         }
-        return ${formatedName2}(datastore);
+        val newKey = random.nextInt(10000).toString()
+        return ${formatedName2}(datastore,this,newKey,null);
     }
 
     override fun close() {
@@ -47,7 +50,27 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
 
 }
 
-class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end internal val datastore : DataStore #end) : #if($ctx.timeAware) TimeTransaction #else Default${formatedFactoryNameImpl}(datastore),Transaction #end {
+class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end internal val datastore : DataStore #end, internal val manager : TransactionManager,internal val k : String, internal val p : Transaction?) : #if($ctx.timeAware) TimeTransaction #else Default${formatedFactoryNameImpl}(datastore),Transaction #end {
+
+    val subs = java.util.HashSet<Transaction>()
+
+    private val random = java.util.Random()
+
+    override fun key(): String {
+        return k
+    }
+    override fun parent(): Transaction? {
+        return p
+    }
+    override fun children(): Set<Transaction> {
+        return subs
+    }
+    override fun fork(): Transaction {
+        val newKey = key()+"."+random.nextInt(10000).toString()
+        val newChild = ${formatedName2}(datastore,manager,newKey,this)
+        subs.add(newChild)
+        return newChild
+    }
 
     #if($ctx.timeAware)
         val sharedCache = org.kevoree.modeling.api.time.blob.SharedCache()
@@ -94,6 +117,9 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
             (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.clear();
         }
         sharedCache.flush()
+        for(child in children()){
+            child.close()
+        }
     }
     #else
         #if($ctx.persistence)
