@@ -26,7 +26,6 @@ import org.kevoree.modeling.idea.psi.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -45,14 +44,19 @@ public class StandaloneParser {
 
 
         File t = File.createTempFile("temp", ".ecore");
-        t.deleteOnExit();
+        //t.deleteOnExit();
         parser.check(psi);
         parser.convert2ecore(psi, t);
 
+        /*
         PrettyPrinter prettyPrinter = new PrettyPrinter();
         PrintWriter w = new PrintWriter(System.err);
         prettyPrinter.prettyPrint(t, w);
         w.flush();
+        */
+
+        System.out.println(t.getAbsolutePath());
+
     }
 
 
@@ -303,7 +307,11 @@ public class StandaloneParser {
                             //Create ECore Attribute
                             org.eclipse.emf.ecore.EAttribute eatt = factory.createEAttribute();
                             eatt.setName(relation.getRelationName().getIdent().getText());
-                            eatt.setEType(getOrCreateDataType(PrimitiveTypes.toEcoreType(relation.getTypeDeclaration().getIdent().getText()), r, factory));
+                            if (previousFound != null) {
+                                eatt.setEType(previousFound);
+                            } else {
+                                eatt.setEType(getOrCreateDataType(PrimitiveTypes.toEcoreType(relation.getTypeDeclaration().getIdent().getText()), r, factory));
+                            }
                             eatt.setID(isID[0]);
                             newType.getEStructuralFeatures().add(eatt);
                             structuralFeature = eatt;

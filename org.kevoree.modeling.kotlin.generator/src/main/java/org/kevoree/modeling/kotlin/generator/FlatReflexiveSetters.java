@@ -1,11 +1,10 @@
 package org.kevoree.modeling.kotlin.generator;
 
 import org.eclipse.emf.ecore.EAttribute;
-import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
-import org.kevoree.modeling.kotlin.generator.GenerationContext;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EReference;
+
 import java.io.PrintWriter;
 
 /**
@@ -19,14 +18,16 @@ public class FlatReflexiveSetters {
 
     public static void generateFlatReflexiveSetters(GenerationContext ctx, EClass cls, PrintWriter pr) {
         pr.println("override fun reflexiveMutator(mutationType : org.kevoree.modeling.api.util.ActionType, refName : String, value : Any?, setOpposite : Boolean, fireEvents : Boolean) {");
-        if(ctx.persistence){
+        if (ctx.persistence) {
             pr.println("checkLazyLoad()");
         }
         pr.println("when(refName) {");
-        for(EAttribute att : cls.getEAllAttributes()) {
+        for (EAttribute att : cls.getEAllAttributes()) {
             pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Att_" + att.getName() + " -> {"); //START ATTR
             String valueType = "";
+            Boolean isEnum = false;
             if (att.getEAttributeType() instanceof EEnum) {
+                isEnum = true;
                 valueType = ProcessorHelper.getInstance().fqn(ctx, att.getEAttributeType());
             } else {
                 valueType = ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx);
@@ -44,22 +45,22 @@ public class FlatReflexiveSetters {
                 pr.println("var tempArrayValues : MutableList<" + valueType + "> = java.util.ArrayList<" + valueType + ">()");
                 pr.println("for(eachV in splitted){");
                 if (ctx.js) {
-                    if(valueType.equals("Boolean")) {
+                    if (valueType.equals("Boolean")) {
                         pr.println("tempArrayValues.add(\"true\" == eachV || true == eachV)");
                     } else {
                         pr.println("tempArrayValues.add(eachV as " + valueType + ")");
                     }
                 } else {
-                    if(valueType.equals("Boolean")
+                    if (valueType.equals("Boolean")
                             || valueType.equals("Double")
                             || valueType.equals("Int")
                             || valueType.equals("Float")
                             || valueType.equals("Long")
                             || valueType.equals("Short")) {
                         pr.println("tempArrayValues.add(eachV.toString().to" + valueType + "())");
-                    } else if(valueType.equals("Byte")) {
+                    } else if (valueType.equals("Byte")) {
                         pr.println("tempArrayValues.add(eachV.toString().toInt().to" + valueType + "())");
-                    } else if(valueType.equals("ByteArray")) {
+                    } else if (valueType.equals("ByteArray")) {
                         pr.println("tempArrayValues.add(value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))");
                     } else {
                         pr.println("tempArrayValues.add(eachV as " + valueType + ")");
@@ -76,13 +77,13 @@ public class FlatReflexiveSetters {
             } else {
                 if (ctx.js) {
 
-                    if(valueType.equals("Boolean")) {
+                    if (valueType.equals("Boolean")) {
                         if (ctx.generateEvents) {
                             pr.println("this.internal_" + att.getName() + "((\"true\" == value || true == value), fireEvents)");
                         } else {
                             pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (\"true\" == value || true == value)");
                         }
-                    } else if(valueType.equals("java.util.Date")) {
+                    } else if (valueType.equals("java.util.Date")) {
                         pr.println("if(value is java.util.Date){");
                         if (ctx.generateEvents) {
                             pr.println("this.internal_" + att.getName() + "((value as? " + valueType + "), fireEvents)");
@@ -97,21 +98,35 @@ public class FlatReflexiveSetters {
                         }
                         pr.println("}");
                     } else {
-                        if (ctx.generateEvents) {
-                            pr.println("this.internal_" + att.getName() + "((value as? " + valueType + "), fireEvents)");
+                        if (isEnum) {
+                            pr.println("var convValue : " + valueType);
+                            pr.println("if(value is " + valueType + "){");
+                            pr.println("convValue=value as " + valueType);
+                            pr.println("} else {");
+                            pr.println("convValue=" + valueType + ".valueOf(value.toString())");
+                            pr.println("}");
+                            if (ctx.generateEvents) {
+                                pr.println("this.internal_" + att.getName() + "(convValue, fireEvents)");
+                            } else {
+                                pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = convValue");
+                            }
                         } else {
-                            pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value as? " + valueType + ")");
+                            if (ctx.generateEvents) {
+                                pr.println("this.internal_" + att.getName() + "((value as? " + valueType + "), fireEvents)");
+                            } else {
+                                pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value as? " + valueType + ")");
+                            }
                         }
                     }
                 } else {
 
-                    if(valueType.equals("String")) {
+                    if (valueType.equals("String")) {
                         if (ctx.generateEvents) {
                             pr.println("this.internal_" + att.getName() + "((value as? " + valueType + "), fireEvents)");
                         } else {
                             pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value as? " + valueType + ")");
                         }
-                    } else if(valueType.equals("Boolean")
+                    } else if (valueType.equals("Boolean")
                             || valueType.equals("Double")
                             || valueType.equals("Int")
                             || valueType.equals("Float")
@@ -122,19 +137,19 @@ public class FlatReflexiveSetters {
                         } else {
                             pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value.toString().to" + valueType + "())");
                         }
-                    } else if(valueType.equals("Byte")) {
+                    } else if (valueType.equals("Byte")) {
                         if (ctx.generateEvents) {
                             pr.println("this.internal_" + att.getName() + "((value.toString().toInt().to" + valueType + "()), fireEvents)");
                         } else {
                             pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value.toString().toInt().to" + valueType + "())");
                         }
-                    } else if(valueType.equals("ByteArray")) {
+                    } else if (valueType.equals("ByteArray")) {
                         if (ctx.generateEvents) {
                             pr.println("this.internal_" + att.getName() + "((value.toString().toByteArray(java.nio.charset.Charset.defaultCharset())), fireEvents)");
                         } else {
                             pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value.toString().toByteArray(java.nio.charset.Charset.defaultCharset()))");
                         }
-                    } else if(valueType.equals("java.util.Date")) {
+                    } else if (valueType.equals("java.util.Date")) {
                         pr.println("if(value is java.util.Date){");
                         if (ctx.generateEvents) {
                             pr.println("this.internal_" + att.getName() + "((value as? " + valueType + "), fireEvents)");
@@ -148,17 +163,31 @@ public class FlatReflexiveSetters {
                             pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = java.util.Date(value.toString().toLong())");
                         }
                         pr.println("}");
-                    } else if(valueType.equals("Any")) {
+                    } else if (valueType.equals("Any")) {
                         if (ctx.generateEvents) {
                             pr.println("this.internal_" + att.getName() + "((value.toString() as? " + valueType + "), fireEvents)");
                         } else {
                             pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value.toString() as? " + valueType + ")");
                         }
                     } else {
-                        if (ctx.generateEvents) {
-                            pr.println("this.internal_" + att.getName() + "((value as? " + valueType + "), fireEvents)");
+                        if (isEnum) {
+                            pr.println("var convValue : " + valueType);
+                            pr.println("if(value is " + valueType + "){");
+                            pr.println("convValue=value as " + valueType);
+                            pr.println("} else {");
+                            pr.println("convValue=" + valueType + ".valueOf(value.toString())");
+                            pr.println("}");
+                            if (ctx.generateEvents) {
+                                pr.println("this.internal_" + att.getName() + "(convValue, fireEvents)");
+                            } else {
+                                pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = convValue");
+                            }
                         } else {
-                            pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value as? " + valueType + ")");
+                            if (ctx.generateEvents) {
+                                pr.println("this.internal_" + att.getName() + "((value as? " + valueType + "), fireEvents)");
+                            } else {
+                                pr.println("this." + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " = (value as? " + valueType + ")");
+                            }
                         }
                     }
                 }
@@ -166,7 +195,7 @@ public class FlatReflexiveSetters {
             pr.println("}"); //END ATTR
         }
 
-        for(EReference ref : cls.getEAllReferences()) {
+        for (EReference ref : cls.getEAllReferences()) {
             pr.println(ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + " -> {"); //START REF
             pr.println("when(mutationType) {");
             String valueType = ProcessorHelper.getInstance().fqn(ctx, ref.getEType());
