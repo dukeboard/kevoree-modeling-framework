@@ -99,9 +99,9 @@ public class FlatReflexiveSetters {
                         pr.println("}");
                     } else {
                         if (isEnum) {
-                            pr.println("var convValue : " + valueType);
-                            pr.println("if(value is " + valueType + "){");
-                            pr.println("convValue=value as " + valueType);
+                            pr.println("var convValue : " + valueType+"?");
+                            pr.println("if(value is " + valueType + " || value == null){");
+                            pr.println("convValue=value as? " + valueType);
                             pr.println("} else {");
                             pr.println("convValue=" + valueType + ".valueOf(value.toString())");
                             pr.println("}");
@@ -171,9 +171,9 @@ public class FlatReflexiveSetters {
                         }
                     } else {
                         if (isEnum) {
-                            pr.println("var convValue : " + valueType);
-                            pr.println("if(value is " + valueType + "){");
-                            pr.println("convValue=value as " + valueType);
+                            pr.println("var convValue : " + valueType+"?");
+                            pr.println("if(value is " + valueType + " || value == null){");
+                            pr.println("convValue=value as? " + valueType);
                             pr.println("} else {");
                             pr.println("convValue=" + valueType + ".valueOf(value.toString())");
                             pr.println("}");
