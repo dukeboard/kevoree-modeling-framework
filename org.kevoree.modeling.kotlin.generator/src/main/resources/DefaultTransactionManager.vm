@@ -23,13 +23,11 @@ class ${formatedName}(val datastore : DataStore) : TransactionManager {
 
     private var isClosed : Boolean = false
 
-    private val random = java.util.Random()
-
     override fun createTransaction(): ${formatedName2} {
         if(isClosed){
             throw Exception("This TransactionManager is closed !");
         }
-        val newKey = random.nextInt(10000).toString()
+        val newKey = Math.random().toString()
         return ${formatedName2}(datastore,this,newKey,null);
     }
 
@@ -54,8 +52,6 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
 
     val subs = java.util.HashSet<Transaction>()
 
-    private val random = java.util.Random()
-
     override fun key(): String {
         return k
     }
@@ -66,7 +62,7 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
         return subs
     }
     override fun fork(): Transaction {
-        val newKey = key()+"."+random.nextInt(10000).toString()
+        val newKey = key()+"."+Math.random().toString()
         val newChild = ${formatedName2}(datastore,manager,newKey,this)
         subs.add(newChild)
         return newChild
