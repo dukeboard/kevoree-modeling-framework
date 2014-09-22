@@ -298,7 +298,7 @@
                 }
             }
             c.values$ = e;
-            c.valueOf_61zpoe$ = a;
+            c.valueOf_61zpoe$ = c.valueOf = a; // FIX because Enum.valueOf() is called instead of valueOf_61zpoe$()
             c.values = b;
             return c;
         };
