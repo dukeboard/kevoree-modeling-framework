@@ -262,99 +262,168 @@ public class StandaloneParser {
                         }
                     }
                     //Attributes and Relationships managements.
-                    for (MetaModelRelationDeclaration relation : classDeclaration.getRelationDeclarationList()) {
-                        String typeName = relation.getTypeDeclaration().getText();
-                        final boolean[] isID = {false};
-                        final boolean[] isContained = {false};
-                        final boolean[] isLearn = {false};
-                        final String[] learnLevel = {""};
-                        MetaModelAnnotations annotations = relation.getAnnotations();
-                        if (annotations != null) {
-                            annotations.acceptChildren(new PsiElementVisitor() {
-                                @Override
-                                public void visitElement(PsiElement element) {
-                                    if ("@id".equals(element.getText())) {
-                                        isID[0] = true;
-                                    }
-                                    if ("@contained".equals(element.getText())) {
-                                        isContained[0] = true;
-                                    }
-                                    if (element.getText() != null && element.getText().startsWith("@learn")) {
-                                        isLearn[0] = true;
-                                        MetaModelAnnotation annot = (MetaModelAnnotation) element;
-                                        if (annot.getAnnotationParam() != null) {
-                                            learnLevel[0] = annot.getAnnotationParam().getNumber().getText();
+                    for (MetaModelClassElemDeclaration decl : classDeclaration.getClassElemDeclarationList()) {
+                        if (decl instanceof MetaModelOperationDeclaration) {
+                            MetaModelOperationDeclaration operation = (MetaModelOperationDeclaration) decl;
+                            String returnType = "";
+                            if (operation.getOperationReturn() != null) {
+                                returnType = operation.getOperationReturn().getText();
+                            }
+                            //check if exists
+                            boolean exists = false;
+                            for (EOperation op : newType.getEAllOperations()) {
+                                if (op.getName().equals(operation.getOperationName().getIdent().getText())) {
+                                    boolean isAllFound = true;
+                                    if (operation.getOperationParams() != null) {
+                                        for (MetaModelOperationParam p : operation.getOperationParams().getOperationParamList()) {
+                                            boolean isFound = false;
+                                            EClassifier previousFound = get(p.getTypeDeclaration().getIdent().getText(), r, factory);
+                                            for (EParameter lparam : op.getEParameters()) {
+                                                if (lparam.getName().equals(p.getIdent().getText())) {
+                                                    if (lparam.getEType() == previousFound) {
+                                                        isFound = true;
+                                                    }
+                                                }
+                                            }
+                                            if (!isFound) {
+                                                isAllFound = false;
+                                            }
                                         }
                                     }
+                                    if (isAllFound) {
+                                        exists = true;
+                                    }
                                 }
-                            });
-                        }
-                        //Process multiplicity
-                        MetaModelMultiplicityDeclaration multiplicityDeclaration = relation.getMultiplicityDeclaration();
-                        String lower = null;
-                        String upper = null;
-                        if (multiplicityDeclaration != null) {
-                            if (multiplicityDeclaration.getMultiplicityDeclarationLower() != null) {
-                                lower = multiplicityDeclaration.getMultiplicityDeclarationLower().getText();
                             }
-                            if (multiplicityDeclaration.getMultiplicityDeclarationUpper() != null) {
-                                upper = multiplicityDeclaration.getMultiplicityDeclarationUpper().getText();
+                            if (!exists) {
+                                EOperation eopp = factory.createEOperation();
+                                eopp.setName(operation.getOperationName().getIdent().getText());
+                                newType.getEAllOperations().add(eopp);
+                                if (operation.getOperationReturn() != null) {
+                                    EClassifier previousFound = get(operation.getOperationReturn().getTypeDeclaration().getIdent().getText(), r, factory);
+                                    if (previousFound == null) {
+                                        if (PrimitiveTypes.isPrimitive(operation.getOperationReturn().getTypeDeclaration().getIdent().getText())) {
+                                            previousFound = getOrCreateDataType(operation.getOperationReturn().getTypeDeclaration().getIdent().getText(), r, factory);
+                                        } else {
+                                            previousFound = getOrCreate(operation.getOperationReturn().getTypeDeclaration().getIdent().getText(), r, factory);
+                                        }
+                                    }
+                                    eopp.setEType(previousFound);
+                                }
+                                if (operation.getOperationParams() != null) {
+                                    for (MetaModelOperationParam opp : operation.getOperationParams().getOperationParamList()) {
+                                        EParameter epp = factory.createEParameter();
+                                        epp.setName(opp.getIdent().getText());
+                                        EClassifier previousFound = get(opp.getTypeDeclaration().getIdent().getText(), r, factory);
+                                        if (previousFound == null) {
+                                            if (PrimitiveTypes.isPrimitive(opp.getTypeDeclaration().getIdent().getText())) {
+                                                previousFound = getOrCreateDataType(opp.getTypeDeclaration().getIdent().getText(), r, factory);
+                                            } else {
+                                                previousFound = getOrCreate(opp.getTypeDeclaration().getIdent().getText(), r, factory);
+                                            }
+                                        }
+                                        epp.setEType(previousFound);
+                                        eopp.getEParameters().add(epp);
+                                    }
+                                }
                             }
                         }
-                        EStructuralFeature structuralFeature = null;
-                        EClassifier previousFound = get(relation.getTypeDeclaration().getIdent().getText(), r, factory);
-                        if (PrimitiveTypes.isPrimitive(typeName) || previousFound instanceof EEnum) {
-                            //Create ECore Attribute
-                            org.eclipse.emf.ecore.EAttribute eatt = factory.createEAttribute();
-                            eatt.setName(relation.getRelationName().getIdent().getText());
-                            if (previousFound != null) {
-                                eatt.setEType(previousFound);
+                    }
+                    for (MetaModelClassElemDeclaration decl : classDeclaration.getClassElemDeclarationList()) {
+                        if (decl instanceof MetaModelRelationDeclaration) {
+                            MetaModelRelationDeclaration relation = (MetaModelRelationDeclaration) decl;
+                            String typeName = relation.getTypeDeclaration().getText();
+                            final boolean[] isID = {false};
+                            final boolean[] isContained = {false};
+                            final boolean[] isLearn = {false};
+                            final String[] learnLevel = {""};
+                            MetaModelAnnotations annotations = relation.getAnnotations();
+                            if (annotations != null) {
+                                annotations.acceptChildren(new PsiElementVisitor() {
+                                    @Override
+                                    public void visitElement(PsiElement element) {
+                                        if ("@id".equals(element.getText())) {
+                                            isID[0] = true;
+                                        }
+                                        if ("@contained".equals(element.getText())) {
+                                            isContained[0] = true;
+                                        }
+                                        if (element.getText() != null && element.getText().startsWith("@learn")) {
+                                            isLearn[0] = true;
+                                            MetaModelAnnotation annot = (MetaModelAnnotation) element;
+                                            if (annot.getAnnotationParam() != null) {
+                                                learnLevel[0] = annot.getAnnotationParam().getNumber().getText();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            //Process multiplicity
+                            MetaModelMultiplicityDeclaration multiplicityDeclaration = relation.getMultiplicityDeclaration();
+                            String lower = null;
+                            String upper = null;
+                            if (multiplicityDeclaration != null) {
+                                if (multiplicityDeclaration.getMultiplicityDeclarationLower() != null) {
+                                    lower = multiplicityDeclaration.getMultiplicityDeclarationLower().getText();
+                                }
+                                if (multiplicityDeclaration.getMultiplicityDeclarationUpper() != null) {
+                                    upper = multiplicityDeclaration.getMultiplicityDeclarationUpper().getText();
+                                }
+                            }
+                            EStructuralFeature structuralFeature = null;
+                            EClassifier previousFound = get(relation.getTypeDeclaration().getIdent().getText(), r, factory);
+                            if (PrimitiveTypes.isPrimitive(typeName) || previousFound instanceof EEnum) {
+                                //Create ECore Attribute
+                                org.eclipse.emf.ecore.EAttribute eatt = factory.createEAttribute();
+                                eatt.setName(relation.getRelationName().getIdent().getText());
+                                if (previousFound != null) {
+                                    eatt.setEType(previousFound);
+                                } else {
+                                    eatt.setEType(getOrCreateDataType(PrimitiveTypes.toEcoreType(relation.getTypeDeclaration().getIdent().getText()), r, factory));
+                                }
+                                eatt.setID(isID[0]);
+                                newType.getEStructuralFeatures().add(eatt);
+                                structuralFeature = eatt;
+                                if (isLearn[0]) {
+                                    EAnnotation annotation = factory.createEAnnotation();
+                                    annotation.setSource("learn");
+                                    annotation.getDetails().put("level", learnLevel[0]);
+                                    eatt.getEAnnotations().add(annotation);
+                                }
                             } else {
-                                eatt.setEType(getOrCreateDataType(PrimitiveTypes.toEcoreType(relation.getTypeDeclaration().getIdent().getText()), r, factory));
-                            }
-                            eatt.setID(isID[0]);
-                            newType.getEStructuralFeatures().add(eatt);
-                            structuralFeature = eatt;
-                            if (isLearn[0]) {
-                                EAnnotation annotation = factory.createEAnnotation();
-                                annotation.setSource("learn");
-                                annotation.getDetails().put("level", learnLevel[0]);
-                                eatt.getEAnnotations().add(annotation);
-                            }
-                        } else {
-                            //Create ECore Reference
-                            EReference ref = factory.createEReference();
-                            ref.setContainment(isContained[0]);
-                            EClassifier founded = get(relation.getTypeDeclaration().getIdent().getText(), r, factory);
-                            if (founded == null) {
-                                founded = getOrCreate(relation.getTypeDeclaration().getIdent().getText(), r, factory);
-                            }
-                            ref.setEType(founded);
-                            ref.setName(relation.getRelationName().getIdent().getText());
-                            newType.getEStructuralFeatures().add(ref);
-                            structuralFeature = ref;
+                                //Create ECore Reference
+                                EReference ref = factory.createEReference();
+                                ref.setContainment(isContained[0]);
+                                EClassifier founded = get(relation.getTypeDeclaration().getIdent().getText(), r, factory);
+                                if (founded == null) {
+                                    founded = getOrCreate(relation.getTypeDeclaration().getIdent().getText(), r, factory);
+                                }
+                                ref.setEType(founded);
+                                ref.setName(relation.getRelationName().getIdent().getText());
+                                newType.getEStructuralFeatures().add(ref);
+                                structuralFeature = ref;
 
-                            MetaModelRelationOpposite opposite = relation.getRelationOpposite();
-                            if (opposite != null) {
-                                postProcess.put(ref, opposite.getIdent().getText());
+                                MetaModelRelationOpposite opposite = relation.getRelationOpposite();
+                                if (opposite != null) {
+                                    postProcess.put(ref, opposite.getIdent().getText());
+                                }
+                            }
+
+                            if (lower != null) {
+                                if (lower.equals("*")) {
+                                    structuralFeature.setLowerBound(-1);
+                                } else {
+                                    structuralFeature.setLowerBound(Integer.parseInt(lower));
+                                }
+                            }
+                            if (upper != null) {
+                                if (upper.equals("*")) {
+                                    structuralFeature.setUpperBound(-1);
+                                } else {
+                                    structuralFeature.setUpperBound(Integer.parseInt(upper));
+                                }
                             }
                         }
-
-                        if (lower != null) {
-                            if (lower.equals("*")) {
-                                structuralFeature.setLowerBound(-1);
-                            } else {
-                                structuralFeature.setLowerBound(Integer.parseInt(lower));
-                            }
-                        }
-                        if (upper != null) {
-                            if (upper.equals("*")) {
-                                structuralFeature.setUpperBound(-1);
-                            } else {
-                                structuralFeature.setUpperBound(Integer.parseInt(upper));
-                            }
-                        }
-
                     }
                 }
             }

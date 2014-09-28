@@ -8,4 +8,10 @@ class p.ComponentType : p.TypeDefinition {
 class p.Property {
        @id name : String
        value : String
+
+       func myFunction(p : String,p: p.Property) : String
+
 }
+
+
+

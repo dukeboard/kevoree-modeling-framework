@@ -9,46 +9,62 @@ import com.intellij.openapi.editor.ScrollType;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.kevoree.modeling.idea.psi.MetaModelClassDeclaration;
+import org.kevoree.modeling.idea.psi.MetaModelOperationDeclaration;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by gregory.nain on 16/07/2014.
  */
-public class MetaModelStructureViewClassElement implements StructureViewTreeElement, SortableTreeElement {
+public class MetaModelStructureViewOperationElement implements StructureViewTreeElement, SortableTreeElement {
 
-    private MetaModelClassDeclaration classDecl;
-    private String presText;
+    private MetaModelOperationDeclaration opeDecl;
     private Editor editor;
-    public List<MetaModelStructureViewReferenceElement> references = new ArrayList<MetaModelStructureViewReferenceElement>();
-    public List<MetaModelStructureViewOperationElement> operations = new ArrayList<MetaModelStructureViewOperationElement>();
-    public List<MetaModelStructureViewParentElement> parents = new ArrayList<MetaModelStructureViewParentElement>();
+    private Icon myIcon = PlatformIcons.FIELD_ICON;
+    private String simpleType = null;
+    private boolean attribute = false;
+    private boolean id = false;
+    private boolean contained = false;
 
-    public MetaModelStructureViewClassElement(MetaModelClassDeclaration classDecl, Editor editor) {
-        this.classDecl = classDecl;
+
+    public MetaModelStructureViewOperationElement(MetaModelOperationDeclaration opeDecl, Editor editor) {
+        this.opeDecl = opeDecl;
         this.editor = editor;
-        int indexOfPoint = classDecl.getTypeDeclaration().getName().lastIndexOf(".");
-        if (indexOfPoint > 0) {
-            presText = classDecl.getTypeDeclaration().getName().substring(indexOfPoint + 1);
-        } else {
-            presText = classDecl.getTypeDeclaration().getName();
+        if (opeDecl.getOperationReturn() != null) {
+            simpleType = opeDecl.getOperationReturn().getTypeDeclaration().getText().substring(opeDecl.getOperationReturn().getTypeDeclaration().getText().lastIndexOf(".") + 1);
         }
+
+        setIcon();
+    }
+
+
+    private void setIcon() {
+        myIcon = PlatformIcons.METHOD_ICON;
+    }
+
+    public boolean isAttribute() {
+        return attribute;
+    }
+
+    public boolean isId() {
+        return id;
+    }
+
+    public boolean isContained() {
+        return contained;
     }
 
     @Override
     public Object getValue() {
-        return classDecl;
+        return opeDecl;
     }
 
     @Override
     public void navigate(boolean b) {
-        //System.out.println("Editor:" + editor.getClass());
-        editor.getCaretModel().moveToOffset(classDecl.getTextOffset());
+        editor.getCaretModel().moveToOffset(opeDecl.getTextOffset());
         editor.getScrollingModel().scrollToCaret(ScrollType.CENTER_UP);
     }
+
 
     @Override
     public boolean canNavigate() {
@@ -67,7 +83,7 @@ public class MetaModelStructureViewClassElement implements StructureViewTreeElem
             @Nullable
             @Override
             public String getPresentableText() {
-                return presText;
+                return opeDecl.getOperationName().getIdent().getText() + " : " + simpleType;
             }
 
             @Nullable
@@ -79,23 +95,19 @@ public class MetaModelStructureViewClassElement implements StructureViewTreeElem
             @Nullable
             @Override
             public Icon getIcon(boolean b) {
-                return PlatformIcons.CLASS_ICON;
+                return myIcon;
             }
         };
     }
 
     @Override
     public TreeElement[] getChildren() {
-        List<TreeElement> all = new ArrayList<TreeElement>();
-        all.addAll(parents);
-        all.addAll(references);
-        all.addAll(operations);
-        return all.toArray(new TreeElement[all.size()]);
+        return EMPTY_ARRAY;
     }
 
     @NotNull
     @Override
     public String getAlphaSortKey() {
-        return presText;
+        return opeDecl.getOperationName().getIdent().getText();
     }
 }

@@ -117,6 +117,25 @@ public class PrettyPrinter {
             sw.append("    " + eRef.getName() + " : " + convertType(fqn(eRef.getEType())) + multiplicity + opposite + "\n");
         }
 
+        for (EOperation eOperation : cls.getEOperations()) {
+            sw.append("    func " + eOperation.getName());
+            if (!eOperation.getEParameters().isEmpty()) {
+                sw.append("(");
+                boolean isFirst = true;
+                for (EParameter p : eOperation.getEParameters()) {
+                    if(!isFirst){
+                        sw.append(" ,");
+                    }
+                    sw.append(p.getName()+" : "+convertType(fqn(p.getEType())));
+                    isFirst = false;
+                }
+                sw.append(")");
+            }
+            if (eOperation.getEType() != null) {
+                sw.append(" : " + convertType(fqn(eOperation.getEType())));
+            }
+        }
+
         sw.write("}\n");
     }
 

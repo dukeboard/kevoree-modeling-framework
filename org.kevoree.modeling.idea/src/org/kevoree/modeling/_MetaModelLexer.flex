@@ -34,6 +34,7 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 
   "class"            { return CLASS; }
   "enum"             { return ENUM; }
+  "func"             { return FUNC; }
   "oppositeOf"       { return OPPOSITE; }
   ":"                { return COLON; }
   ","                { return COMMA; }

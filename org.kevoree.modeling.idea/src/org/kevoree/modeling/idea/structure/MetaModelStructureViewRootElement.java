@@ -143,7 +143,7 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
         String fqPackage = name.substring(0, name.lastIndexOf("."));
         String[] packages = fqPackage.split(".");
 
-        if(packages.length == 0) {
+        if (packages.length == 0) {
             currentPackage = getOrPut(root.packages, fqPackage);
         } else {
             for (String pack : packages) {
@@ -160,7 +160,7 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
 
     private MetaModelStructureViewPackageElement getOrPut(Map<String, MetaModelStructureViewPackageElement> packageMap, String packageName) {
         MetaModelStructureViewPackageElement pack = packageMap.get(packageName);
-        if(pack == null) {
+        if (pack == null) {
             pack = new MetaModelStructureViewPackageElement(packageName);
             packageMap.put(packageName, pack);
         }
@@ -168,16 +168,21 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
     }
 
     private void processReferences(MetaModelClassDeclaration o, MetaModelStructureViewClassElement classElement, Editor editor) {
-
-        for(MetaModelRelationDeclaration relDec : o.getRelationDeclarationList()) {
-            MetaModelStructureViewReferenceElement referenceElement = new MetaModelStructureViewReferenceElement(relDec, editor);
-            classElement.references.add(referenceElement);
+        for (MetaModelClassElemDeclaration relDec : o.getClassElemDeclarationList()) {
+            if (relDec instanceof MetaModelRelationDeclaration) {
+                MetaModelStructureViewReferenceElement referenceElement = new MetaModelStructureViewReferenceElement((MetaModelRelationDeclaration) relDec, editor);
+                classElement.references.add(referenceElement);
+            }
+            if (relDec instanceof MetaModelOperationDeclaration) {
+                MetaModelStructureViewOperationElement referenceElement = new MetaModelStructureViewOperationElement((MetaModelOperationDeclaration) relDec, editor);
+                classElement.operations.add(referenceElement);
+            }
         }
     }
 
     private void processEnumValues(MetaModelEnumDeclaration o, MetaModelStructureViewEnumElement enumElement, Editor editor) {
 
-        for(MetaModelEnumElemDeclaration enumValDec : o.getEnumElemDeclarationList()) {
+        for (MetaModelEnumElemDeclaration enumValDec : o.getEnumElemDeclarationList()) {
             MetaModelStructureViewEnumElementElement enumValElement = new MetaModelStructureViewEnumElementElement(enumValDec, editor);
             enumElement.elements.add(enumValElement);
         }
