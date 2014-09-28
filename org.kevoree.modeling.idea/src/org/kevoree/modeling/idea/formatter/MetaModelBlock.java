@@ -31,7 +31,7 @@ public class MetaModelBlock extends AbstractBlock {
 
         while(child != null) {
             if(child.getElementType() != TokenType.WHITE_SPACE) {
-                if(child.getElementType() == MetaModelTypes.RELATION_DECLARATION || child.getElementType() == MetaModelTypes.ENUM_ELEM_DECLARATION) {
+                if(child.getElementType() == MetaModelTypes.CLASS_ELEM_DECLARATION) {
                     blocks.add(new MetaModelBlock(child, innerBodyAlignment, getWrap()));
                 } else if(child.getElementType() == MetaModelTypes.ANNOTATIONS) {
                     if(child.getFirstChildNode() != null) {
@@ -50,7 +50,7 @@ public class MetaModelBlock extends AbstractBlock {
 
     @Override
     public Indent getIndent() {
-        if(getNode().getElementType() == MetaModelTypes.RELATION_DECLARATION || getNode().getElementType() == MetaModelTypes.ENUM_ELEM_DECLARATION ) {
+        if(getNode().getElementType() == MetaModelTypes.CLASS_ELEM_DECLARATION) {
             return Indent.getNormalIndent();
         }
         return super.getIndent();
@@ -64,35 +64,35 @@ public class MetaModelBlock extends AbstractBlock {
             IElementType type2 = ((AbstractBlock) child2).getNode().getElementType();
 
             if (type1 == MetaModelTypes.CLASS && type2 == MetaModelTypes.TYPE_DECLARATION) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.FUNC && type2 == MetaModelTypes.OPERATION_NAME) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.ENUM && type2 == MetaModelTypes.TYPE_DECLARATION) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.TYPE_DECLARATION && type2 == MetaModelTypes.PARENTS_DECLARATION) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.OPERATION_NAME && type2 == MetaModelTypes.OPERATION_RETURN) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.COLON && type2 == MetaModelTypes.TYPE_DECLARATION) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.TYPE_DECLARATION && type2 == MetaModelTypes.BODY_OPEN) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.PARENTS_DECLARATION && type2 == MetaModelTypes.BODY_OPEN) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.ANNOTATIONS && type2 == MetaModelTypes.RELATION_NAME) {
@@ -100,43 +100,43 @@ public class MetaModelBlock extends AbstractBlock {
             }
 
             if (type1 == MetaModelTypes.RELATION_NAME && type2 == MetaModelTypes.COLON) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.TYPE_DECLARATION && type2 == MetaModelTypes.MULTIPLICITY_DECLARATION) {
-                return Spacing.createSpacing(0, 0, 0, false, 0);
+                return noSpace();
             }
 
             if (type1 == MetaModelTypes.MULT_OPEN && type2 == MetaModelTypes.MULTIPLICITY_DECLARATION_LOWER) {
-                return Spacing.createSpacing(0, 0, 0, false, 0);
+                return noSpace();
             }
 
             if (type1 == MetaModelTypes.MULTIPLICITY_DECLARATION_LOWER && type2 == MetaModelTypes.COMMA) {
-                return Spacing.createSpacing(0, 0, 0, false, 0);
+                return noSpace();
             }
 
             if (type1 == MetaModelTypes.COMMA && type2 == MetaModelTypes.MULTIPLICITY_DECLARATION_UPPER) {
-                return Spacing.createSpacing(0, 0, 0, false, 0);
+                return noSpace();
             }
 
             if (type1 == MetaModelTypes.MULTIPLICITY_DECLARATION_UPPER && type2 == MetaModelTypes.MULT_CLOSE) {
-                return Spacing.createSpacing(0, 0, 0, false, 0);
+                return noSpace();
             }
 
             if (type1 == MetaModelTypes.MULTIPLICITY_DECLARATION && type2 == MetaModelTypes.RELATION_OPPOSITE) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.TYPE_DECLARATION && type2 == MetaModelTypes.RELATION_OPPOSITE) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.OPPOSITE && type2 == MetaModelTypes.IDENT) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             if (type1 == MetaModelTypes.RELATION_DECLARATION && type2 == MetaModelTypes.BODY_CLOSE) {
-                return Spacing.createSpacing(1, 1, 1, false, 0);
+                return newLine();
             }
 
             if (type1 == MetaModelTypes.RELATION_DECLARATION && type2 == MetaModelTypes.RELATION_DECLARATION) {
@@ -182,20 +182,20 @@ public class MetaModelBlock extends AbstractBlock {
                 return noSpace();
             }
             if (type1 == MetaModelTypes.COMMA && type2 == MetaModelTypes.OPERATION_PARAM) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
             if (type1 == MetaModelTypes.OPERATION_PARAMS && type2 == MetaModelTypes.ANNOT_PARAM_CLOSE) {
                 return noSpace();
             }
             if (type1 == MetaModelTypes.ANNOT_PARAM_CLOSE && type2 == MetaModelTypes.OPERATION_RETURN) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
 
 
 
             if (type1 == MetaModelTypes.IDENT) {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
             if (type1 == MetaModelTypes.BODY_OPEN) {
                 return Spacing.createSpacing(1, 1, 1, false, 1);
@@ -204,12 +204,12 @@ public class MetaModelBlock extends AbstractBlock {
                 return Spacing.createSpacing(1, 1, 1, false, 1);
             }
             if(type1 == TokenType.ERROR_ELEMENT || type2 == TokenType.ERROR_ELEMENT || type1 == GeneratedParserUtilBase.DUMMY_BLOCK || type2 == GeneratedParserUtilBase.DUMMY_BLOCK)  {
-                return Spacing.createSpacing(1, 1, 0, false, 0);
+                return singleSpace();
             }
 
             System.out.println("Formatting Warning. Spacing unspecified between t1:" + type1 + " type2:" + type2);
         }
-        return Spacing.createSpacing(0, 0, 0, false, 0);
+        return noSpace();
     }
 
     private Spacing noSpace() {
