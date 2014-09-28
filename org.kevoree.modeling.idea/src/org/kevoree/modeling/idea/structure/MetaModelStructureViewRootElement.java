@@ -169,13 +169,14 @@ public class MetaModelStructureViewRootElement implements StructureViewTreeEleme
 
     private void processReferences(MetaModelClassDeclaration o, MetaModelStructureViewClassElement classElement, Editor editor) {
         for (MetaModelClassElemDeclaration relDec : o.getClassElemDeclarationList()) {
-            if (relDec instanceof MetaModelRelationDeclaration) {
-                MetaModelStructureViewReferenceElement referenceElement = new MetaModelStructureViewReferenceElement((MetaModelRelationDeclaration) relDec, editor);
-                classElement.references.add(referenceElement);
-            }
-            if (relDec instanceof MetaModelOperationDeclaration) {
-                MetaModelStructureViewOperationElement referenceElement = new MetaModelStructureViewOperationElement((MetaModelOperationDeclaration) relDec, editor);
+            if(relDec.getOperationDeclaration() != null) {
+                MetaModelStructureViewOperationElement referenceElement = new MetaModelStructureViewOperationElement(relDec.getOperationDeclaration(), editor);
                 classElement.operations.add(referenceElement);
+            } else if(relDec.getRelationDeclaration() != null) {
+                MetaModelStructureViewReferenceElement referenceElement = new MetaModelStructureViewReferenceElement(relDec.getRelationDeclaration(), editor);
+                classElement.references.add(referenceElement);
+            } else {
+                System.err.println("Could not find appropriate ClassElem declaration type in processReference for Structure view");
             }
         }
     }
