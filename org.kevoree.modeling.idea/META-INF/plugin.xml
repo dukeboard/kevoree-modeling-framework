@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>org.kevoree.modeling.idea.plugin</id>
     <name>Kevoree Modeling Framework IDEA plugin</name>
-    <version>8</version>
+    <version>9</version>
     <vendor email="fouquet.f@gmail.com" url="http://www.kevoree.org">Kevoree</vendor>
 
     <description><![CDATA[
@@ -11,6 +11,7 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      V9: First version supporting Operation declaration in .mm
       V8: Fix Enum generation to ECore (attribute)
       V7: Fix Enum generation to ECore (eClassifier)
       V6: Add @learn management into ECore import/export

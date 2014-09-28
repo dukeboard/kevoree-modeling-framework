@@ -263,47 +263,24 @@ public class StandaloneParser {
                     }
                     //Attributes and Relationships managements.
                     for (MetaModelClassElemDeclaration decl : classDeclaration.getClassElemDeclarationList()) {
-                        if (decl instanceof MetaModelOperationDeclaration) {
-                            MetaModelOperationDeclaration operation = (MetaModelOperationDeclaration) decl;
-                            String returnType = "";
-                            if (operation.getOperationReturn() != null) {
-                                returnType = operation.getOperationReturn().getText();
-                            }
+                        if (decl.getOperationDeclaration() != null) {
+                            MetaModelOperationDeclaration operation = decl.getOperationDeclaration();
                             //check if exists
                             boolean exists = false;
                             for (EOperation op : newType.getEAllOperations()) {
                                 if (op.getName().equals(operation.getOperationName().getIdent().getText())) {
-                                    boolean isAllFound = true;
-                                    if (operation.getOperationParams() != null) {
-                                        for (MetaModelOperationParam p : operation.getOperationParams().getOperationParamList()) {
-                                            boolean isFound = false;
-                                            EClassifier previousFound = get(p.getTypeDeclaration().getIdent().getText(), r, factory);
-                                            for (EParameter lparam : op.getEParameters()) {
-                                                if (lparam.getName().equals(p.getIdent().getText())) {
-                                                    if (lparam.getEType() == previousFound) {
-                                                        isFound = true;
-                                                    }
-                                                }
-                                            }
-                                            if (!isFound) {
-                                                isAllFound = false;
-                                            }
-                                        }
-                                    }
-                                    if (isAllFound) {
-                                        exists = true;
-                                    }
+                                    exists = true;
                                 }
                             }
                             if (!exists) {
                                 EOperation eopp = factory.createEOperation();
                                 eopp.setName(operation.getOperationName().getIdent().getText());
-                                newType.getEAllOperations().add(eopp);
+                                newType.getEOperations().add(eopp);
                                 if (operation.getOperationReturn() != null) {
                                     EClassifier previousFound = get(operation.getOperationReturn().getTypeDeclaration().getIdent().getText(), r, factory);
                                     if (previousFound == null) {
                                         if (PrimitiveTypes.isPrimitive(operation.getOperationReturn().getTypeDeclaration().getIdent().getText())) {
-                                            previousFound = getOrCreateDataType(operation.getOperationReturn().getTypeDeclaration().getIdent().getText(), r, factory);
+                                            previousFound = getOrCreateDataType(PrimitiveTypes.toEcoreType(operation.getOperationReturn().getTypeDeclaration().getIdent().getText()), r, factory);
                                         } else {
                                             previousFound = getOrCreate(operation.getOperationReturn().getTypeDeclaration().getIdent().getText(), r, factory);
                                         }
@@ -317,7 +294,7 @@ public class StandaloneParser {
                                         EClassifier previousFound = get(opp.getTypeDeclaration().getIdent().getText(), r, factory);
                                         if (previousFound == null) {
                                             if (PrimitiveTypes.isPrimitive(opp.getTypeDeclaration().getIdent().getText())) {
-                                                previousFound = getOrCreateDataType(opp.getTypeDeclaration().getIdent().getText(), r, factory);
+                                                previousFound = getOrCreateDataType(PrimitiveTypes.toEcoreType(opp.getTypeDeclaration().getIdent().getText()), r, factory);
                                             } else {
                                                 previousFound = getOrCreate(opp.getTypeDeclaration().getIdent().getText(), r, factory);
                                             }
@@ -330,8 +307,8 @@ public class StandaloneParser {
                         }
                     }
                     for (MetaModelClassElemDeclaration decl : classDeclaration.getClassElemDeclarationList()) {
-                        if (decl instanceof MetaModelRelationDeclaration) {
-                            MetaModelRelationDeclaration relation = (MetaModelRelationDeclaration) decl;
+                        if (decl.getRelationDeclaration() != null) {
+                            MetaModelRelationDeclaration relation = decl.getRelationDeclaration();
                             String typeName = relation.getTypeDeclaration().getText();
                             final boolean[] isID = {false};
                             final boolean[] isContained = {false};

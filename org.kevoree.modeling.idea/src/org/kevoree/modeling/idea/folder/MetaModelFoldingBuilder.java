@@ -31,11 +31,17 @@ public class MetaModelFoldingBuilder implements FoldingBuilder {
         if(node.getElementType() == MetaModelTypes.CLASS_DECLARATION || node.getElementType() == MetaModelTypes.ENUM_DECLARATION) {
             TextRange fullRange = node.getTextRange();
             if(fullRange.getEndOffset() - fullRange.getStartOffset() > 0) {
-                TextRange shortRange = new TextRange(fullRange.getStartOffset() + document.getText(fullRange).indexOf("{") + 1,
-                        fullRange.getEndOffset() - 1);
-                if (shortRange.getEndOffset() - shortRange.getStartOffset() > 1) {
-                    descriptors.add(new FoldingDescriptor(node, shortRange));
+
+                try {
+                    TextRange shortRange = new TextRange(fullRange.getStartOffset() + document.getText(fullRange).indexOf("{") + 1,fullRange.getEndOffset() - 1);
+                    if (shortRange.getEndOffset() - shortRange.getStartOffset() > 1) {
+                        descriptors.add(new FoldingDescriptor(node, shortRange));
+                    }
+                } catch (Exception e){
+
                 }
+
+
             }
         }
 

@@ -134,6 +134,7 @@ public class PrettyPrinter {
             if (eOperation.getEType() != null) {
                 sw.append(" : " + convertType(fqn(eOperation.getEType())));
             }
+            sw.write("\n");
         }
 
         sw.write("}\n");
