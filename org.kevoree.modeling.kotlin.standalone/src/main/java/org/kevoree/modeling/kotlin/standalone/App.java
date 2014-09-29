@@ -90,7 +90,6 @@ public class App {
                         }, new File(libs, lib));
                     }
 
-                    ctx.rootSrcDirectory = srcIn;
                     ctx.persistence = true;
                     ctx.timeAware = true;
                     ctx.rootGenerationDirectory = srcOut;

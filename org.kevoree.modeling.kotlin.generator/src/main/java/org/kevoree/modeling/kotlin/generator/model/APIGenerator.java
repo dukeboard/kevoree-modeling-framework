@@ -81,13 +81,13 @@ public class APIGenerator {
                     pr.print("public fun with");
                     pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
                     pr.print("(p : ");
-                    pr.println("List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">) : "+cls.getName());
+                    pr.println("List<" + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ">) : " + cls.getName());
                 } else {
                     pr.println("public open var " + ProcessorHelper.getInstance().protectReservedWords(att.getName()) + " : " + ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + "?");
                     pr.print("public fun with");
                     pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(att)));
                     pr.print("(p : ");
-                    pr.println(ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ") : "+cls.getName());
+                    pr.println(ProcessorHelper.getInstance().convertType(att.getEAttributeType(), ctx) + ") : " + cls.getName());
                 }
             }
         }
@@ -130,7 +130,6 @@ public class APIGenerator {
                     generateRemoveAllMethod(pr, cls, ref, typeRefName);
                     pr.println("fun find" + ProcessorHelper.getInstance().toCamelCase(ref) + "ByID(key : String) : " + ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().fqn(ctx, ref.getEType())) + "?");
 
-
                     SortedSet<String> idRefAttributes = new TreeSet<String>();
                     for (EAttribute att : ref.getEReferenceType().getEAllAttributes()) {
                         if (att.isID() && !att.getName().equals("generated_KMF_ID")) {
@@ -146,11 +145,11 @@ public class APIGenerator {
                                 builder.append(",");
                             }
                             builder.append(ProcessorHelper.getInstance().protectReservedWords(att) + ":String");
-                            String name = att.substring(0,1).toUpperCase()+att.substring(1).toLowerCase();
+                            String name = att.substring(0, 1).toUpperCase() + att.substring(1).toLowerCase();
                             builder3.append(name);
                             first2 = false;
                         }
-                        pr.println("fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By"+builder3+"("+builder+") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()) + "?;");
+                        pr.println("fun find" + ProcessorHelper.getInstance().protectReservedWords(ref.getName().substring(0, 1).toUpperCase() + ref.getName().substring(1)) + "By" + builder3 + "(" + builder + ") : " + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()) + "?;");
                     }
 
 
@@ -158,14 +157,13 @@ public class APIGenerator {
                     pr.println("open var " + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + "?");
                     pr.print("public fun with");
                     pr.print(ProcessorHelper.getInstance().protectReservedWords(ProcessorHelper.getInstance().toCamelCase(ref)));
-                    pr.print("(ref : "+typeRefName+")");
-                    pr.println(" : "+cls.getName());
+                    pr.print("(ref : " + typeRefName + ")");
+                    pr.println(" : " + cls.getName());
                 }
             }
         }
     /* Then generated user method */
     /* next we generated custom method */
-
 
         ArrayList<EOperation> alreadyGenerated = new ArrayList<EOperation>();
 
@@ -198,21 +196,23 @@ public class APIGenerator {
                         pr.print(p.getName() + "P :" + returnTypeP);
                         isFirst = false;
                     }
+                    if (!op.getEParameters().isEmpty()) {
+                        pr.print(",");
+                    }
+                    String returnTypeOP ;
                     if (op.getEType() != null) {
 
-                        String returnTypeOP = ((op.getEType() instanceof EDataType) ?
+                        returnTypeOP = ((op.getEType() instanceof EDataType) ?
                                 ProcessorHelper.getInstance().convertType(op.getEType().getName()) :
                                 ProcessorHelper.getInstance().fqn(ctx, op.getEType()));
                         if (returnTypeOP == null || returnTypeOP.equals("null")) {
                             returnTypeOP = "Unit";
                         }
-                        if (op.getLowerBound() == 0) {
-                            returnTypeOP = returnTypeOP + "?";
-                        }
-                        pr.println("):" + returnTypeOP + ";");
                     } else {
-                        pr.println("):Unit;");
+                        returnTypeOP = "Unit";
                     }
+                    pr.println("callback : org.kevoree.modeling.api.Callback<" + returnTypeOP + ">, error : org.kevoree.modeling.api.Callback<Exception>);");
+
                 }
             }
 
@@ -256,19 +256,19 @@ public class APIGenerator {
     }
 
     private static void generateAddAllMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " :List<" + typeRefName + ">) : "+cls.getName());
+        pr.println("fun addAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " :List<" + typeRefName + ">) : " + cls.getName());
     }
 
     private static void generateAddMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ") : "+cls.getName());
+        pr.println("fun add" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ") : " + cls.getName());
     }
 
     private static void generateRemoveMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ") : "+cls.getName());
+        pr.println("fun remove" + ProcessorHelper.getInstance().toCamelCase(ref) + "(" + ProcessorHelper.getInstance().protectReservedWords(ref.getName()) + " : " + typeRefName + ") : " + cls.getName());
     }
 
     private static void generateRemoveAllMethod(PrintWriter pr, EClass cls, EReference ref, String typeRefName) {
-        pr.println("fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "() : "+cls.getName());
+        pr.println("fun removeAll" + ProcessorHelper.getInstance().toCamelCase(ref) + "() : " + cls.getName());
     }
 
 }

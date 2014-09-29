@@ -29,8 +29,6 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.kevoree.modeling.aspect.AspectClass;
-import org.kevoree.modeling.aspect.NewMetaClassCreation;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -58,10 +56,6 @@ public class GenerationContext {
 
     public Boolean ecma3compat = false;
 
-    public HashMap<String, AspectClass> aspects = new HashMap<String, AspectClass>();
-
-    public List<NewMetaClassCreation> newMetaClasses = new ArrayList<NewMetaClassCreation>();
-
     /**
      * Base folder for the generation process
      * example: "${project.build.directory}/generated-sources/kmf"
@@ -69,8 +63,6 @@ public class GenerationContext {
     public File rootGenerationDirectory = null;
 
     public File rootCompilationDirectory = null;
-
-    public File rootSrcDirectory = null;
 
     /**
      * Folder containing sources created by users
@@ -192,10 +184,10 @@ public class GenerationContext {
 
     public void setBaseLocationForUtilitiesGeneration(String targetName) throws Exception {
         basePackageForUtilitiesGeneration = targetName.toLowerCase();
-        baseLocationForUtilitiesGeneration = new File( (rootGenerationDirectory.getAbsolutePath() + File.separator + basePackageForUtilitiesGeneration.replace(".", File.separator)).toLowerCase() );
+        baseLocationForUtilitiesGeneration = new File((rootGenerationDirectory.getAbsolutePath() + File.separator + basePackageForUtilitiesGeneration.replace(".", File.separator)).toLowerCase());
         metaModelName = targetName;
         if (targetName.contains(".")) {
-            formattedName = targetName.substring(targetName.lastIndexOf(".")+1);
+            formattedName = targetName.substring(targetName.lastIndexOf(".") + 1);
         } else {
             formattedName = targetName;
         }

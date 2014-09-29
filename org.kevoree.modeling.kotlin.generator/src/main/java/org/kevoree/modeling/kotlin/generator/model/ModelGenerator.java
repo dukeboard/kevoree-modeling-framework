@@ -20,12 +20,10 @@ package org.kevoree.modeling.kotlin.generator.model;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.*;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.kevoree.modeling.aspect.NewMetaClassCreation;
 import org.kevoree.modeling.kotlin.generator.GenerationContext;
 import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -46,7 +44,7 @@ public class ModelGenerator {
     /**
      * Processes the generation of the model classes. Goes deep in packages hierarchy then generate files.
      *
-     * @param model        the XMIResource to be generated
+     * @param model the XMIResource to be generated
      */
     public void process(ResourceSet model) {
 
@@ -67,12 +65,6 @@ public class ModelGenerator {
                     ProcessorHelper.getInstance().checkOrCreateFolder(currentPackageDir + File.separator + "impl");
                 }
                 boolean isHiddenMetaclass = false;
-                for (NewMetaClassCreation m : ctx.newMetaClasses) {
-                    if ((m.packageName + "." + m.name).equals(ProcessorHelper.getInstance().fqn(ctx, potentialRoot))) {
-                        isHiddenMetaclass = true;
-                        break;
-                    }
-                }
                 process(currentPackageDir, currentPackage, potentialRoot, userPackageDir, isHiddenMetaclass);
             }
         }

@@ -19,11 +19,8 @@ import org.jetbrains.jet.cli.jvm.K2JVMCompiler;
 import org.jetbrains.k2js.config.EcmaVersion;
 import org.jetbrains.k2js.config.MetaInfServices;
 import org.jetbrains.k2js.translate.utils.TranslationUtils;
-import org.kevoree.modeling.aspect.AspectClass;
-import org.kevoree.modeling.aspect.KotlinLexerModule;
 
 import java.io.*;
-import java.net.URI;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -71,59 +68,7 @@ public class RootGenerator {
         deleteDirectory(output);
         output.mkdirs();
 
-        File sourceFile = ctx.rootSrcDirectory;
-
         File outputClasses = ctx.rootCompilationDirectory;
-
-        KotlinLexerModule analyzer = new KotlinLexerModule();
-        if (sourceFile.isDirectory() && sourceFile.exists()) {
-            try {
-                analyzer.analyze(sourceFile);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        List<File> sourceKotlinFileList = new ArrayList<File>();
-        if (sourceFile.isDirectory() && sourceFile.exists()) {
-            collectFiles(sourceFile, sourceKotlinFileList, ".kt");
-        }
-        for (File kotlinFile : sourceKotlinFileList) {
-            if (ctx.js) {
-                //copy file to util
-                URI relativeURI = sourceFile.toURI().relativize(kotlinFile.toURI());
-                File newFileTarget = new File(output + File.separator + relativeURI);
-                newFileTarget.getParentFile().mkdirs();
-                try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(newFileTarget));
-                    BufferedReader br = new BufferedReader(new FileReader(kotlinFile));
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        writer.write(line
-                                .replaceAll("(meta.*trait)", "trait")
-                                .replace("aspect trait", "trait")
-                                .replace("import org.kevoree.modeling.api.aspect;", "")
-                                .replace("import org.kevoree.modeling.api.aspect", "")
-                                .replace("import org.kevoree.modeling.api.meta;", "")
-                                .replace("import org.kevoree.modeling.api.meta", ""));
-                        writer.write("\n");
-                    }
-                    writer.close();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-        System.out.println("Collected Aspects : ");
-        for (AspectClass aspect : analyzer.cacheAspects.values()) {
-            System.out.println(aspect.toString());
-        }
-
-        ctx.aspects = analyzer.cacheAspects;
-        ctx.newMetaClasses = analyzer.newMetaClass;
-
         Generator gen = null;
         try {
             gen = new Generator(ctx, ecore, targetName);
@@ -284,10 +229,7 @@ public class RootGenerator {
 
             args.classpath = cpath.toString();
             String sources = ctx.rootGenerationDirectory.getAbsolutePath();
-            if (sourceFile.exists()) {
-                //getLog().info("Add directory : " + sourceFile.getAbsolutePath());
-                sources = sources + File.pathSeparator + sourceFile.getAbsolutePath();
-            }
+
             //args.src = sources
             args.outputDir = outputClasses.getPath();
             args.src = (sources);

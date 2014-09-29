@@ -23,9 +23,9 @@ public class ModelPruner(val factory: KMFFactory) {
         for (elem in elems) {
             internal_prune(elem, traces, tempMap, parentMap)
         }
-        for(toLinkKey in tempMap.keySet()){
+        for (toLinkKey in tempMap.keySet()) {
             val toLink = tempMap.get(toLinkKey)!!
-            traces.addAll(toLink.toTraces(false,true))
+            traces.addAll(toLink.toTraces(false, true))
         }
         return TraceSequence(factory).populate(traces)
     }

@@ -142,7 +142,6 @@ public class GenModelPlugin extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException {
         GenerationContext ctx = new GenerationContext();
-        ctx.rootSrcDirectory = sourceFile;
         if (timeAware) {
             persistence = true;
         }

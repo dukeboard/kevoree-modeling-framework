@@ -1,14 +1,17 @@
 package org.kevoree.modeling.kotlin.generator.model;
 
 import org.eclipse.emf.ecore.*;
-import org.kevoree.modeling.aspect.*;
-import org.kevoree.modeling.kotlin.generator.*;
+import org.kevoree.modeling.kotlin.generator.FlatReflexiveSetters;
+import org.kevoree.modeling.kotlin.generator.GenerationContext;
+import org.kevoree.modeling.kotlin.generator.KMFQLFinder;
+import org.kevoree.modeling.kotlin.generator.ProcessorHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,25 +40,6 @@ public class ClassGenerator {
         pr.println("package " + pack + ".impl");
         pr.println();
 
-        AspectList<AspectClass> aspects = new AspectList<AspectClass>();
-        ArrayList<String> aspectsName = new ArrayList<String>();
-
-        for (AspectClass v : ctx.aspects.values()) {
-            if (AspectMatcher.aspectMatcher(ctx, v, cls)) {
-                aspects.add(v);
-                aspectsName.add(v.packageName + "." + v.name);
-                pr.println("import " + v.packageName + ".*");
-                if (ctx.js) {
-                    for (String imp : v.imports) {
-                        if (!imp.equals("org.kevoree.modeling.api.aspect") && !imp.equals("org.kevoree.modeling.api.meta")) {
-                            pr.println("import " + imp + ";");
-                        }
-                    }
-                }
-            }
-        }
-
-
         pr.println(ProcessorHelper.getInstance().generateHeader(packElement));
         //case class name
         //ctx.classFactoryMap.put(pack + "." + cls.getName(), ctx.packageFactoryMap.get(pack));
@@ -64,24 +48,13 @@ public class ClassGenerator {
             pr.print("(override var now: Long)");
         }
 
-        String tempClassName = ProcessorHelper.getInstance().fqn(ctx, cls);
-        boolean newMetaClassExists = false;
-        for (NewMetaClassCreation m : ctx.newMetaClasses) {
-            if ((m.packageName + "." + m.name).equals(tempClassName)) {
-                newMetaClassExists = true;
-                break;
-            }
-        }
-
-        String resultAspectName = ((!aspectsName.isEmpty() && !newMetaClassExists) ? "," + ProcessorHelper.getInstance().mkString(aspectsName, ",") : "");
-
         String genericType = "";
         if (ctx.timeAware) {
             genericType = "<" + ProcessorHelper.getInstance().fqn(ctx, packElement) + "." + cls.getName() + ">";
         }
 
 
-        pr.println(" : " + ctx.kevoreeContainerImplFQN + genericType + ", " + ProcessorHelper.getInstance().fqn(ctx, packElement) + "." + cls.getName() + resultAspectName + " { ");
+        pr.println(" : " + ctx.kevoreeContainerImplFQN + genericType + ", " + ProcessorHelper.getInstance().fqn(ctx, packElement) + "." + cls.getName() + " { ");
 
         pr.println("override internal var internal_eContainer : " + ctx.kevoreeContainer + "? = null");
         pr.println("override internal var internal_containmentRefName : String? = null");
@@ -143,119 +116,45 @@ public class ClassGenerator {
         }
 
 
-        if (aspects.size() > 1) {
-            HashMap<String, List<String>> methodUsage = new HashMap<String, List<String>>(); //todo not only on method name
-            for (AspectClass aspect : aspects) {
-                for (AspectMethod method : aspect.methods) {
-                    if (!methodUsage.containsKey(method.name)) {
-                        methodUsage.put(method.name, new ArrayList<String>());
-                    }
-                    methodUsage.get(method.name).add(aspect.packageName + "." + aspect.name);
+        for (EOperation op : cls.getEAllOperations()) {
+            pr.print("override fun " + op.getName() + "(");
+            boolean isFirst = true;
+            for (EParameter p : op.getEParameters()) {
+                if (!isFirst) {
+                    pr.println(",");
                 }
+                String returnTypeP = ((p.getEType() instanceof EDataType) ?
+                        ProcessorHelper.getInstance().convertType(p.getEType().getName())
+                        :
+                        ProcessorHelper.getInstance().fqn(ctx, p.getEType()));
+
+                pr.print(p.getName() + param_suf + " :" + returnTypeP);
+                isFirst = false;
             }
 
-            for (Map.Entry<String, List<String>> t : methodUsage.entrySet()) {
-                if (t.getValue().size() > 1) {
-
-                    EOperation op = null;
-                    for (EOperation eop : cls.getEAllOperations()) {
-                        if (eop.getName().equals(t.getKey())) {
-                            op = eop;
-                            break;
-                        }
-                    }
-
-                    if (op != null) {
-                        pr.print("override fun " + op.getName() + "(");
-                        boolean isFirst = true;
-                        for (EParameter p : op.getEParameters()) {
-                            if (!isFirst) {
-                                pr.println(",");
-                            }
-                            String returnTypeP = ((p.getEType() instanceof EDataType) ?
-                                    ProcessorHelper.getInstance().convertType(p.getEType().getName())
-                                    :
-                                    ProcessorHelper.getInstance().fqn(ctx, p.getEType()));
-
-                            pr.print(p.getName() + param_suf + " :" + returnTypeP);
-                            isFirst = false;
-                        }
-                        if (op.getEType() != null) {
-
-                            String returnTypeOP = ((op.getEType() instanceof EDataType) ?
-                                    ProcessorHelper.getInstance().convertType(op.getEType().getName())
-                                    :
-                                    ProcessorHelper.getInstance().fqn(ctx, op.getEType()));
-
-                            if (op.getLowerBound() == 0) {
-                                returnTypeOP = returnTypeOP + "?";
-                            }
-
-                            pr.println("):" + returnTypeOP + "{");
-                        } else {
-                            pr.println("):Unit{");
-                        }
-
-                        if (!ctx.js) {
-                            int currentT = t.getValue().size();
-                            for (String superTrait : t.getValue()) {
-                                currentT = currentT - 1;
-                                if (currentT == 0) {
-                                    pr.print("return ");
-                                }
-                                pr.print("super<" + superTrait + ">." + op.getName() + "(");
-                                isFirst = true;
-                                for (EParameter param : op.getEParameters()) {
-                                    if (!isFirst) {
-                                        pr.println(",");
-                                    }
-                                    pr.print(param.getName() + param_suf);
-                                    isFirst = false;
-                                }
-                                pr.println(")");
-                            }
-                        } else {
-                            //JS generate plain method code inside method body
-
-                            try {
-                                int currentT = t.getValue().size();
-                                for (String superTrait : t.getValue()) {
-                                    currentT = currentT - 1;
-                                    AspectClass aspect = aspects.findByFqn(superTrait);
-                                    AspectMethod method = aspect.methods.findByName(op.getName());
-                                    if (currentT == 0) {
-                                        pr.println(aspect.getContent(method));
-                                    } else {
-                                        String content = null;
-                                        content = aspect.getContent(method).trim();
-                                        if (!content.startsWith("throw ")) {
-                                            pr.println(content.replace("return", ""));
-                                        }
-                                    }
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        pr.println("}");
-                    }
-                }
+            if (!op.getEParameters().isEmpty()) {
+                pr.print(",");
             }
+            String returnTypeOP ;
+            if (op.getEType() != null) {
+
+                returnTypeOP = ((op.getEType() instanceof EDataType) ?
+                        ProcessorHelper.getInstance().convertType(op.getEType().getName()) :
+                        ProcessorHelper.getInstance().fqn(ctx, op.getEType()));
+                if (returnTypeOP == null || returnTypeOP.equals("null")) {
+                    returnTypeOP = "Unit";
+                }
+            } else {
+                returnTypeOP = "Unit";
+            }
+            pr.println("callback : org.kevoree.modeling.api.Callback<" + returnTypeOP + ">, error : org.kevoree.modeling.api.Callback<Exception>){");
+
+
+            //TODO
+            pr.println("}");
+
         }
 
-        HashSet<String> hashSetVar = new HashSet<String>();
-        for (AspectClass aspect : aspects) {
-            for (AspectVar varD : aspect.vars) {
-                if (!hashSetVar.contains(varD.name) && varD.isPrivate) {
-                    String initString = "null";
-                    if (!varD.typeName.trim().endsWith("?")) {
-                        initString = ctx.basePackageForUtilitiesGeneration + ".util.Constants." + varD.typeName.toUpperCase() + "_DEFAULTVAL";
-                    }
-                    pr.println("override var " + varD.name + " : " + varD.typeName + " = " + initString);
-                    hashSetVar.add(varD.name);
-                }
-            }
-        }
 
         pr.println("}");
         pr.flush();
