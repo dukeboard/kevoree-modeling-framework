@@ -116,7 +116,7 @@ public class KMFQLFinder {
                     if (ref.isContainment()) {
                         pr.println("val resolved = _" + ref.getName() + ".get(key)");
                         pr.println("if(resolved==null){");
-                        //pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!");
+                        //pr.println("val originFactory = (this as org.kevoree.modeling.api.persistence.KObjectProxy).originFactory!!");
                         pr.println("val result = relativeLookupFrom(this," + ctx.basePackageForUtilitiesGeneration + ".util.Constants.Ref_" + ref.getName() + ",key)");
                         pr.println("return result as? " + ProcessorHelper.getInstance().fqn(ctx, ref.getEType()));
                         pr.println("} else {");
@@ -136,7 +136,7 @@ public class KMFQLFinder {
     }
 
     public static void generateFindByPathMethods(GenerationContext ctx, EClass cls, PrintWriter pr) {
-        pr.print("override fun findByID(relationName:String,idP : String) : org.kevoree.modeling.api.KMFContainer? {");
+        pr.print("override fun findByID(relationName:String,idP : String) : org.kevoree.modeling.api.KObject? {");
         pr.println("when(relationName) {");
         for (EReference ref : cls.getEAllReferences()) {
             if (ref.isMany()) {

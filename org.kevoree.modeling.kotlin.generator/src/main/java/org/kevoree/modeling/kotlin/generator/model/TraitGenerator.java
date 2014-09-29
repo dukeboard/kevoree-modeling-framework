@@ -41,13 +41,13 @@ import java.io.UnsupportedEncodingException;
 
 public class TraitGenerator {
 
-    private static final String kmfContainerName = "KMFContainer";
+    private static final String KObjectName = "KObject";
 
     public static void generateContainerTrait(GenerationContext ctx) {
         PrintWriter pr = null;
         try {
             ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "container");
-            File localFile = new File(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "container" + File.separator + kmfContainerName + "Impl.kt");
+            File localFile = new File(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "container" + File.separator + KObjectName + "Impl.kt");
             pr = new PrintWriter(localFile, "utf-8");
 
             VelocityEngine ve = new VelocityEngine();
@@ -57,7 +57,7 @@ public class TraitGenerator {
             ve.init();
             Template template = ve.getTemplate("templates/ContainerTrait.vm");
             VelocityContext ctxV = new VelocityContext();
-            ctxV.put("formatedFactoryName", kmfContainerName);
+            ctxV.put("formatedFactoryName", KObjectName);
             ctxV.put("packElem", ctx.basePackageForUtilitiesGeneration + ".container");
             ctxV.put("FQNHelper", ProcessorHelper.getInstance());
             ctxV.put("ctx", ctx);
@@ -74,13 +74,13 @@ public class TraitGenerator {
             }
         }
 
-        ctx.kevoreeContainer = "org.kevoree.modeling.api.KMFContainer";
-        ctx.kevoreeContainerImplFQN = ctx.basePackageForUtilitiesGeneration + ".container." + kmfContainerName + "Impl";
+        ctx.kevoreeContainer = "org.kevoree.modeling.api.KObject";
+        ctx.kevoreeContainerImplFQN = ctx.basePackageForUtilitiesGeneration + ".container." + KObjectName + "Impl";
     }
 
     public static void generateContainerPersistenceTrait(GenerationContext ctx) {
         ProcessorHelper.getInstance().checkOrCreateFolder(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "container");
-        File localFile = new File(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "container" + File.separator + kmfContainerName + "PersistenceImpl.kt");
+        File localFile = new File(ctx.getBaseLocationForUtilitiesGeneration().getAbsolutePath() + File.separator + "container" + File.separator + KObjectName + "PersistenceImpl.kt");
         PrintWriter pr = null;
         try {
             pr = new PrintWriter(localFile, "utf-8");
@@ -92,7 +92,7 @@ public class TraitGenerator {
             ve.init();
             Template template = ve.getTemplate("templates/ContainerPersistenceTrait.vm");
             VelocityContext ctxV = new VelocityContext();
-            ctxV.put("formatedFactoryName", kmfContainerName);
+            ctxV.put("formatedFactoryName", KObjectName);
             ctxV.put("packElem", ctx.basePackageForUtilitiesGeneration + ".container");
             ctxV.put("FQNHelper", ProcessorHelper.getInstance());
             ctxV.put("ctx", ctx);
@@ -107,8 +107,8 @@ public class TraitGenerator {
                 pr.close();
             }
         }
-        ctx.kevoreeContainer = "org.kevoree.modeling.api.KMFContainer";
-        ctx.kevoreeContainerImplFQN = ctx.basePackageForUtilitiesGeneration + ".container." + kmfContainerName + "PersistenceImpl";
+        ctx.kevoreeContainer = "org.kevoree.modeling.api.KObject";
+        ctx.kevoreeContainerImplFQN = ctx.basePackageForUtilitiesGeneration + ".container." + KObjectName + "PersistenceImpl";
     }
 
     public static void generateRemoveFromContainerCommand(GenerationContext ctx) {

@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.time.blob
 
-import org.kevoree.modeling.api.persistence.PersistenceKMFFactory
+import org.kevoree.modeling.api.persistence.PersistenceKFactory
 import java.util.HashSet
 
 /**
@@ -12,7 +12,7 @@ object MetaHelper {
     val sep = "#"
     val sep2 = "%"
 
-    fun serialize(p: java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>>): String {
+    fun serialize(p: java.util.HashMap<org.kevoree.modeling.api.KObject, MutableSet<String>>): String {
         val buffer = StringBuilder()
         var isFirst = true
         for (key in p.keySet()) {
@@ -32,8 +32,8 @@ object MetaHelper {
         return buffer.toString()
     }
 
-    fun unserialize(p: String, factory: PersistenceKMFFactory): java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>> {
-        val result = java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>>()
+    fun unserialize(p: String, factory: PersistenceKFactory): java.util.HashMap<org.kevoree.modeling.api.KObject, MutableSet<String>> {
+        val result = java.util.HashMap<org.kevoree.modeling.api.KObject, MutableSet<String>>()
         val lines = p.split(sep)
         for (l in lines) {
             val elems = l.split(sep2)

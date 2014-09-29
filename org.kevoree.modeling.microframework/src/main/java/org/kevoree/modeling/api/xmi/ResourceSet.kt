@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.xmi
 
 import java.util.HashMap
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,10 +12,10 @@ import org.kevoree.modeling.api.KMFContainer
 
 public class ResourceSet {
 
-    private val resources = HashMap<String, HashMap<String, KMFContainer>>()
-    private val invertedResources = HashMap<KMFContainer, XmiObjAddr>()
+    private val resources = HashMap<String, HashMap<String, KObject>>()
+    private val invertedResources = HashMap<KObject, XmiObjAddr>()
 
-    public fun registerXmiAddrMappedObjects(nsuri: String, xmiAddrs: HashMap<String, KMFContainer>) {
+    public fun registerXmiAddrMappedObjects(nsuri: String, xmiAddrs: HashMap<String, KObject>) {
         resources.put(nsuri, xmiAddrs)
         for(ad in xmiAddrs){
             if(invertedResources.containsKey(ad.value)){
@@ -29,7 +29,7 @@ public class ResourceSet {
         }
     }
 
-    public fun resolveObject(xmiAddr: String): KMFContainer? {
+    public fun resolveObject(xmiAddr: String): KObject? {
         //ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString
         val typeAndAddr = xmiAddr.split(" ")
         if(typeAndAddr.size > 1){
@@ -45,7 +45,7 @@ public class ResourceSet {
         return null
     }
 
-    public fun objToAddr(obj: KMFContainer): String? {
+    public fun objToAddr(obj: KObject): String? {
         val resolved = invertedResources.get(obj)
         if(resolved != null){
             val packName = formatMetaClassName(obj.metaClassName())

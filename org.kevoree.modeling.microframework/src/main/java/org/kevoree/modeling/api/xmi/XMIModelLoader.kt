@@ -1,9 +1,9 @@
 package org.kevoree.modeling.api.xmi
 
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import org.kevoree.modeling.api.util.ModelVisitor
-import org.kevoree.modeling.api.KMFFactory
+import org.kevoree.modeling.api.KFactory
 import java.io.InputStream
 import org.kevoree.modeling.api.util.ByteConverter
 import org.kevoree.modeling.api.util.ActionType
@@ -13,7 +13,7 @@ import java.util.HashMap
 * Author : Gregory Nain
 * Date : 30/08/13
 */
-public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.ModelLoader {
+public class XMIModelLoader(val factory: KFactory) : org.kevoree.modeling.api.ModelLoader {
 
     public var resourceSet: ResourceSet? = null
 
@@ -31,7 +31,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
     }
 
     private val attributeVisitor = object : ModelAttributeVisitor {
-        public override fun visit(value: Any?, name: String, parent: KMFContainer) {
+        public override fun visit(value: Any?, name: String, parent: KObject) {
             attributesHashmap.getOrPut(parent.metaClassName()) { java.util.HashMap<String, Boolean>() }.put(name, true)
         }
     }
@@ -40,17 +40,17 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
 
         var refMap: java.util.HashMap<String, String>? = null
 
-        override fun beginVisitElem(elem: KMFContainer) {
+        override fun beginVisitElem(elem: KObject) {
             refMap = referencesHashmap.getOrPut(elem.metaClassName()) { java.util.HashMap<String, String>() }
         }
-        override fun endVisitElem(elem: KMFContainer) {
+        override fun endVisitElem(elem: KObject) {
             refMap = null
         }
         override fun beginVisitRef(refName: String, refType: String): Boolean {
             refMap!!.put(refName, refType)
             return true
         }
-        public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+        public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
         }
     }
 
@@ -100,7 +100,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
         }
     }
 
-    override fun loadModelFromString(str: String): List<KMFContainer>? {
+    override fun loadModelFromString(str: String): List<KObject>? {
         val reader = XmlParser(ByteConverter.byteArrayInputStreamFromString(str))
         if (reader.hasNext()) {
             return deserialize(reader)
@@ -111,7 +111,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
 
     }
 
-    override fun loadModelFromStream(inputStream: InputStream): List<KMFContainer>? {
+    override fun loadModelFromStream(inputStream: InputStream): List<KObject>? {
         val reader = XmlParser(inputStream)
         if (reader.hasNext()) {
             return deserialize(reader)
@@ -121,10 +121,10 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
         }
     }
 
-    private fun loadObject(ctx: LoadingContext, xmiAddress: String, objectType: String? = null): KMFContainer {
+    private fun loadObject(ctx: LoadingContext, xmiAddress: String, objectType: String? = null): KObject {
         val elementTagName = ctx.xmiReader!!.getLocalName()
 
-        var modelElem: KMFContainer?
+        var modelElem: KObject?
         if (objectType != null) {
             modelElem = factory?.create(objectType)
 
@@ -257,7 +257,7 @@ public class XMIModelLoader(val factory: KMFFactory) : org.kevoree.modeling.api.
     }
 
 
-    private fun deserialize(reader: XmlParser): List<KMFContainer> {
+    private fun deserialize(reader: XmlParser): List<KObject> {
         var nsURI: String? = null
         val context = LoadingContext()
         context.xmiReader = reader
@@ -317,9 +317,9 @@ public class LoadingContext() {
 
     var xmiReader: XmlParser? = null
 
-    var loadedRoots: java.util.ArrayList<KMFContainer> = java.util.ArrayList<KMFContainer>()
+    var loadedRoots: java.util.ArrayList<KObject> = java.util.ArrayList<KObject>()
 
-    val map: java.util.HashMap<String, KMFContainer> = java.util.HashMap<String, KMFContainer>()
+    val map: java.util.HashMap<String, KObject> = java.util.HashMap<String, KObject>()
 
     val elementsCount: java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()
 
@@ -341,7 +341,7 @@ public class LoadingContext() {
 }
 
 
-public class XMIResolveCommand(val context: LoadingContext, val target: org.kevoree.modeling.api.KMFContainer, val mutatorType: ActionType, val refName: String, val ref: String, val resourceSet: ResourceSet?) {
+public class XMIResolveCommand(val context: LoadingContext, val target: org.kevoree.modeling.api.KObject, val mutatorType: ActionType, val refName: String, val ref: String, val resourceSet: ResourceSet?) {
     fun run() {
         var referencedElement = context.map.get(ref)
         if (referencedElement != null) {

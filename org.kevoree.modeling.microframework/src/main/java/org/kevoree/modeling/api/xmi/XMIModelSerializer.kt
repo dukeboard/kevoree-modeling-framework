@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.xmi
 
 import org.kevoree.modeling.api.util.ModelVisitor
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
 import org.kevoree.modeling.api.util.AttConverter
 
@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.util.AttConverter
 * Author : Gregory Nain
 * Date : 02/09/13
 */
-class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java.util.HashMap<KMFContainer, String>, val elementsCount: java.util.HashMap<String, Int>, val resourceSet: ResourceSet?) : ModelVisitor() {
+class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java.util.HashMap<KObject, String>, val elementsCount: java.util.HashMap<String, Int>, val resourceSet: ResourceSet?) : ModelVisitor() {
 
     var value: String? = null
 
@@ -20,7 +20,7 @@ class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java
         }
     }
 
-    public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+    public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
         var adjustedAddress = resourceSet?.objToAddr(elem)
         if (adjustedAddress == null) {
             adjustedAddress = addressTable.get(elem)
@@ -35,7 +35,7 @@ class ReferencesVisitor(val ostream: java.io.PrintStream, val addressTable: java
 }
 
 class AttributesVisitor(val ostream: java.io.PrintStream, val ignoreGeneratedID: Boolean) : ModelAttributeVisitor {
-    public override fun visit(value: Any?, name: String, parent: KMFContainer) {
+    public override fun visit(value: Any?, name: String, parent: KObject) {
         if (value != null) {
             if (ignoreGeneratedID && name == "generated_KMF_ID") {
                 return
@@ -81,11 +81,11 @@ class AttributesVisitor(val ostream: java.io.PrintStream, val ignoreGeneratedID:
 
 
 
-class ModelSerializationVisitor(val ostream: java.io.PrintStream, val addressTable: java.util.HashMap<org.kevoree.modeling.api.KMFContainer, String>, val elementsCount: java.util.HashMap<String, Int>, val resourceSet: ResourceSet?, ignoreGeneratedID: Boolean) : ModelVisitor() {
+class ModelSerializationVisitor(val ostream: java.io.PrintStream, val addressTable: java.util.HashMap<org.kevoree.modeling.api.KObject, String>, val elementsCount: java.util.HashMap<String, Int>, val resourceSet: ResourceSet?, ignoreGeneratedID: Boolean) : ModelVisitor() {
     val attributeVisitor = AttributesVisitor(ostream, ignoreGeneratedID)
     val referenceVisitor = ReferencesVisitor(ostream, addressTable, elementsCount, resourceSet)
 
-    public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+    public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
         ostream.print('<')
         ostream.print(refNameInParent)
         ostream.print(" xsi:type=\"" + formatMetaClassName(elem.metaClassName()) + "\"")
@@ -108,8 +108,8 @@ class ModelSerializationVisitor(val ostream: java.io.PrintStream, val addressTab
 }
 
 
-class ModelAddressVisitor(val addressTable: java.util.HashMap<KMFContainer, String>, val elementsCount: java.util.HashMap<String, Int>, val packageList: java.util.ArrayList<String>) : ModelVisitor() {
-    public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+class ModelAddressVisitor(val addressTable: java.util.HashMap<KObject, String>, val elementsCount: java.util.HashMap<String, Int>, val packageList: java.util.ArrayList<String>) : ModelVisitor() {
+    public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
 
         val parentXmiAddress = addressTable.get(parent)!!
         val i = elementsCount.get(parentXmiAddress + "/@" + refNameInParent) ?: 0
@@ -130,18 +130,18 @@ public class XMIModelSerializer() : org.kevoree.modeling.api.ModelSerializer {
 
     public var ignoreGeneratedID: Boolean = false
 
-    override fun serialize(oMS: org.kevoree.modeling.api.KMFContainer): String? {
+    override fun serialize(oMS: org.kevoree.modeling.api.KObject): String? {
         val oo = java.io.ByteArrayOutputStream()
         serializeToStream(oMS, oo)
         oo.flush()
         return oo.toString()
     }
-    override fun serializeToStream(oMS: org.kevoree.modeling.api.KMFContainer, ostream: java.io.OutputStream) {
+    override fun serializeToStream(oMS: org.kevoree.modeling.api.KObject, ostream: java.io.OutputStream) {
 
         val wt = java.io.PrintStream(java.io.BufferedOutputStream(ostream), false)
 
         //First Pass for building address table
-        val addressTable: java.util.HashMap<org.kevoree.modeling.api.KMFContainer, String> = java.util.HashMap<org.kevoree.modeling.api.KMFContainer, String>()
+        val addressTable: java.util.HashMap<org.kevoree.modeling.api.KObject, String> = java.util.HashMap<org.kevoree.modeling.api.KObject, String>()
         val packageList: java.util.ArrayList<String> = java.util.ArrayList<String>()
         addressTable.put(oMS, "/")
         val elementsCount: java.util.HashMap<String, Int> = java.util.HashMap<String, Int>()

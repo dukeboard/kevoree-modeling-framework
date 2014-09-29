@@ -2,38 +2,38 @@ package org.kevoree.modeling.api.compare
 
 import java.util.HashMap
 import java.util.ArrayList
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.trace.*;
-import org.kevoree.modeling.api.KMFFactory
+import org.kevoree.modeling.api.KFactory
 
 /**
  * Created by duke on 26/07/13.
  */
 
-public class ModelCompare(val factory: KMFFactory) {
+public class ModelCompare(val factory: KFactory) {
 
-    public fun diff(origin: KMFContainer, target: KMFContainer): TraceSequence {
+    public fun diff(origin: KObject, target: KObject): TraceSequence {
         return TraceSequence(factory).populate(internal_diff(origin, target, false, false));
     }
 
-    public fun merge(origin: KMFContainer, target: KMFContainer): TraceSequence {
+    public fun merge(origin: KObject, target: KObject): TraceSequence {
         return TraceSequence(factory).populate(internal_diff(origin, target, false, true));
     }
 
-    public fun inter(origin: KMFContainer, target: KMFContainer): TraceSequence {
+    public fun inter(origin: KObject, target: KObject): TraceSequence {
         return TraceSequence(factory).populate(internal_diff(origin, target, true, false));
     }
 
-    private fun internal_diff(origin: KMFContainer, target: KMFContainer, inter: Boolean, merge: Boolean): List<ModelTrace> {
+    private fun internal_diff(origin: KObject, target: KObject, inter: Boolean, merge: Boolean): List<ModelTrace> {
         val traces = ArrayList<ModelTrace>()
         val tracesRef = ArrayList<ModelTrace>()
-        val objectsMap = HashMap <String, org.kevoree.modeling.api.KMFContainer>()
+        val objectsMap = HashMap <String, org.kevoree.modeling.api.KObject>()
         traces.addAll(origin.createTraces(target, inter, merge, false, true))
         tracesRef.addAll(origin.createTraces(target, inter, merge, true, false))
 
 
         val visitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
-            override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+            override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                 val childPath = elem.path();
                 if (childPath != null) {
                     objectsMap.put(childPath, elem);
@@ -45,7 +45,7 @@ public class ModelCompare(val factory: KMFFactory) {
         origin.visit(visitor, true, true, false)
 
         val visitor2 = object : org.kevoree.modeling.api.util.ModelVisitor() {
-            override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+            override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                 val childPath = elem.path();
                 if (objectsMap.containsKey(childPath)) {
                     if (inter) {
@@ -80,7 +80,7 @@ public class ModelCompare(val factory: KMFFactory) {
                     } else {
                         "null"
                     })
-                    traces.add(ModelRemoveTrace(src, refNameInParent, (diffChild as KMFContainer).path()))
+                    traces.add(ModelRemoveTrace(src, refNameInParent, (diffChild as KObject).path()))
                 }
             }
         }

@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.time
 
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.trace.TraceSequence
 
 /**
@@ -11,9 +11,9 @@ public trait TimeView {
 
     fun now(): Long
 
-    fun lookup(path: String): KMFContainer?
+    fun lookup(path: String): KObject?
 
-    fun create(metaTypeName: String): KMFContainer?
+    fun create(metaTypeName: String): KObject?
 
     fun modified(): Set<String>
 
@@ -21,8 +21,8 @@ public trait TimeView {
 
     fun diff(other: TimeView): TraceSequence
 
-    fun select(query: String): List<KMFContainer>
+    fun select(query: String): List<KObject>
 
-    fun root(elem: KMFContainer)
+    fun root(elem: KObject)
 
 }

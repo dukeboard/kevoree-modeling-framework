@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.util
 
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -10,18 +10,18 @@ import java.util.HashMap
 
 object Selector {
 
-    fun select(root: KMFContainer, query: String): List<KMFContainer> {
+    fun select(root: KObject, query: String): List<KObject> {
         var extractedQuery = extractFirstQuery(query)
-        var result = ArrayList<KMFContainer>()
-        var tempResult = HashMap<String, KMFContainer>()
+        var result = ArrayList<KObject>()
+        var tempResult = HashMap<String, KObject>()
         tempResult.put(root.path(), root)
         while (extractedQuery != null) {
             val staticExtractedQuery = extractedQuery!!
             val clonedRound = tempResult
-            tempResult = HashMap<String, KMFContainer>()
+            tempResult = HashMap<String, KObject>()
             for (currentRootKey in clonedRound.keySet()) {
                 val currentRoot = clonedRound.get(currentRootKey)!!
-                var resolved: KMFContainer? = null
+                var resolved: KObject? = null
                 if (!staticExtractedQuery.oldString.contains("*")) {
                     resolved = currentRoot.findByPath(staticExtractedQuery.oldString)
                 }
@@ -47,7 +47,7 @@ object Selector {
                             }
                         }
 
-                        override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+                        override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
                             if (staticExtractedQuery.previousIsRefDeep) {
                                 if (alreadyVisited.containsKey(parent.path() + "/" + refNameInParent + "[" + elem.internalGetKey() + "]")) {
                                     return;
@@ -80,7 +80,7 @@ object Selector {
                                     if (staticExtractedQuery.params.size > 0) {
                                         val subResult = Array<Boolean>(staticExtractedQuery.params.size) { i -> false }
                                         elem.visitAttributes(object : ModelAttributeVisitor {
-                                            override fun visit(value: Any?, name: String, parent: KMFContainer) {
+                                            override fun visit(value: Any?, name: String, parent: KObject) {
                                                 for (att in staticExtractedQuery.params.keySet()) {
                                                     if (att == "@id") {
                                                         throw Exception("Malformed KMFQuery, bad selector attribute without attribute name : " + staticExtractedQuery.params.get(att))

@@ -18,8 +18,8 @@ override fun generateDiffTraces(similarObj : ${ctx.kevoreeContainer}?, kmf_inter
     var attVal : Any? = null;
     var attVal2 : Any? = null;
     var attVal2String : String? = null;
-    var hashLoop : java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>? = null;
-    var hashResult : java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>? = null;
+    var hashLoop : java.util.HashMap<String,org.kevoree.modeling.api.KObject>? = null;
+    var hashResult : java.util.HashMap<String,org.kevoree.modeling.api.KObject>? = null;
     if(!kmf_internal_ref){
      #foreach( $att in $currentClass.eAllAttributes )
         attVal = ${FQNHelper.protectReservedWords(${att.getName()})}
@@ -44,8 +44,8 @@ override fun generateDiffTraces(similarObj : ${ctx.kevoreeContainer}?, kmf_inter
      #foreach( $kmf_internal_ref in $currentClass.eAllReferences )
          #if(!$kmf_internal_ref.isContainment());
               #if($kmf_internal_ref.isMany())
-                  hashLoop = java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>()
-                  hashResult = java.util.HashMap<String,org.kevoree.modeling.api.KMFContainer>()
+                  hashLoop = java.util.HashMap<String,org.kevoree.modeling.api.KObject>()
+                  hashResult = java.util.HashMap<String,org.kevoree.modeling.api.KObject>()
                   for(elem in _${kmf_internal_ref.getName()}.values()){
                       val elemPath = elem.path()
                       if(elemPath != null){

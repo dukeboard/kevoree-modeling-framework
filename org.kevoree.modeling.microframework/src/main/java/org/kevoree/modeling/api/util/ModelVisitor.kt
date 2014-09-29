@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.util
 
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import java.util.HashMap
 
 /**
@@ -30,14 +30,14 @@ public abstract class ModelVisitor {
         visitReferences = false
     }
 
-    public abstract fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer)
+    public abstract fun visit(elem: KObject, refNameInParent: String, parent: KObject)
 
-    var alreadyVisited: HashMap<String, KMFContainer>? = null
+    var alreadyVisited: HashMap<String, KObject>? = null
 
-    open fun beginVisitElem(elem: KMFContainer) {
+    open fun beginVisitElem(elem: KObject) {
     }
 
-    open fun endVisitElem(elem: KMFContainer) {
+    open fun endVisitElem(elem: KObject) {
     }
 
     open fun beginVisitRef(refName: String, refType: String): Boolean {

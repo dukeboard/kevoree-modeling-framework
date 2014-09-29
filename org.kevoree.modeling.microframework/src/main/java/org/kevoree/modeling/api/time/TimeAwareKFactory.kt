@@ -1,14 +1,14 @@
 package org.kevoree.modeling.api.time
 
-import org.kevoree.modeling.api.KMFContainer
-import org.kevoree.modeling.api.persistence.PersistenceKMFFactory
+import org.kevoree.modeling.api.KObject
+import org.kevoree.modeling.api.persistence.PersistenceKFactory
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.time.blob.EntityMeta
 import org.kevoree.modeling.api.time.blob.TimeMeta
 import org.kevoree.modeling.api.time.blob.EntitiesMeta
 import org.kevoree.modeling.api.util.InboundRefAware
 import org.kevoree.modeling.api.time.blob.MetaHelper
-import org.kevoree.modeling.api.persistence.KMFContainerProxy
+import org.kevoree.modeling.api.persistence.KObjectProxy
 import org.kevoree.modeling.api.time.blob.STATE
 import org.kevoree.modeling.api.Transaction
 
@@ -19,7 +19,7 @@ import org.kevoree.modeling.api.Transaction
  * Time: 16:35
  */
 
-trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
+trait TimeAwareKFactory : PersistenceKFactory, TimeView {
 
     val relativeTime: Long
     val sharedCache: org.kevoree.modeling.api.time.blob.SharedCache
@@ -71,11 +71,11 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             println("WARNING :: CLOSED TimeView in dirty mode ! " + relativeTime)
         }
 
-        super<PersistenceKMFFactory>.clear()
+        super<PersistenceKFactory>.clear()
         entitiesCache = null
     }
 
-    override protected fun monitor(elem: KMFContainer) {
+    override protected fun monitor(elem: KObject) {
         if (!dirty) {
             dirty = true
             val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
@@ -107,8 +107,8 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         }
     }
 
-    override fun persist(elem: KMFContainer) {
-        if (elem is KMFContainerProxy && !elem.isDirty) {
+    override fun persist(elem: KObject) {
+        if (elem is KObjectProxy && !elem.isDirty) {
             return;
         }
         val currentPath = elem.path()
@@ -119,7 +119,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
             throw Exception("Cannot persist, because the path of the element do not refer to a root: " + currentPath + " -> " + elem)
         }
 
-        val casted = elem as TimeAwareKMFContainer<*>
+        val casted = elem as TimeAwareKObject<*>
         val traces = elem.toTraces(true, true)
         val traceSeq = TraceSequence(this)
         //TODO Incremental save hier
@@ -145,7 +145,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         }
     }
 
-    override fun remove(elem: KMFContainer) {
+    override fun remove(elem: KObject) {
         if (elem.isDeleted()) {
             return
         }
@@ -194,7 +194,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         }
     }
 
-    override fun lookup(path: String): KMFContainer? {
+    override fun lookup(path: String): KObject? {
         val timeTree = getTimeTree(path)
         val askedTimeResult = timeTree.versionTree.previousOrEqual(relativeTime)
         val askedTime = askedTimeResult?.key
@@ -214,7 +214,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         val meta = EntityMeta()
         meta.load(metaPayload)
         if (meta.metatype != null) {
-            val elem = create(meta.metatype!!) as TimeAwareKMFContainer<*>
+            val elem = create(meta.metatype!!) as TimeAwareKObject<*>
             elem.meta = meta
             elem_cache.put(composedKey, elem)
             elem.isResolved = false
@@ -227,10 +227,10 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         }
     }
 
-    override fun getTraces(origin: KMFContainer): TraceSequence? {
+    override fun getTraces(origin: KObject): TraceSequence? {
         val currentPath = origin.path()
         var sequence = TraceSequence(this)
-        val castedOrigin = origin as TimeAwareKMFContainer<*>
+        val castedOrigin = origin as TimeAwareKObject<*>
         if (castedOrigin.meta!!.latestPersisted == null) {
             return null
         }
@@ -250,9 +250,9 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
         return getEntitiesMeta().list.keySet()
     }
 
-    override fun loadInbounds(elem: KMFContainer) {
+    override fun loadInbounds(elem: KObject) {
         val castedInBounds = elem as InboundRefAware
-        val casted2 = elem as TimeAwareKMFContainer<*>
+        val casted2 = elem as TimeAwareKObject<*>
         val payload = datastore.get(TimeSegment.RAW.name(), "${casted2.meta!!.latestPersisted}/${elem.path()}#")
         if (payload != null) {
             castedInBounds.internal_inboundReferences = MetaHelper.unserialize(payload, this)
@@ -283,7 +283,7 @@ trait TimeAwareKMFFactory : PersistenceKMFFactory, TimeView {
 
 
     override fun diff(other: TimeView): TraceSequence {
-        val casted = other as TimeAwareKMFFactory
+        val casted = other as TimeAwareKFactory
         val sequence: TraceSequence = TraceSequence(this)
         val globalTime = getTimeTree(TimeSegmentConst.GLOBAL_TIMEMETA)
         var resolved1 = globalTime.versionTree.previousOrEqual(relativeTime)?.key

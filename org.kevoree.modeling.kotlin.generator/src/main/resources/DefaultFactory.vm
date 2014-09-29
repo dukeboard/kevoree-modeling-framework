@@ -12,19 +12,19 @@ package ${packageName}.factory;
 import $helper.fqn($ctx, $class);
 #end
 
-#if($ctx.persistence) #if(!$ctx.timeAware) open abstract #end #end class Default${formatedFactoryName}(#if($ctx.persistence) #if($ctx.timeAware) override var originTransaction: org.kevoree.modeling.api.Transaction,#end override val datastore : org.kevoree.modeling.api.persistence.DataStore #end #if($ctx.timeAware), override val sharedCache : org.kevoree.modeling.api.time.blob.SharedCache,override val relativeTime: Long   #end  ) : ${formatedFactoryName} #if($ctx.timeAware),org.kevoree.modeling.api.time.TimeAwareKMFFactory,${formatedTimeView} #else #if($ctx.persistence),org.kevoree.modeling.api.persistence.PersistenceKMFFactory #end #end {
+#if($ctx.persistence) #if(!$ctx.timeAware) open abstract #end #end class Default${formatedFactoryName}(#if($ctx.persistence) #if($ctx.timeAware) override var originTransaction: org.kevoree.modeling.api.Transaction,#end override val datastore : org.kevoree.modeling.api.persistence.DataStore #end #if($ctx.timeAware), override val sharedCache : org.kevoree.modeling.api.time.blob.SharedCache,override val relativeTime: Long   #end  ) : ${formatedFactoryName} #if($ctx.timeAware),org.kevoree.modeling.api.time.TimeAwareKFactory,${formatedTimeView} #else #if($ctx.persistence),org.kevoree.modeling.api.persistence.PersistenceKFactory #end #end {
 
 override fun getVersion() : String { return "${modelVersion}" }
 
 #if(!$ctx.persistence)
-    override fun lookup(path: String): org.kevoree.modeling.api.KMFContainer? {
+    override fun lookup(path: String): org.kevoree.modeling.api.KObject? {
         return null
     }
 #end
 
 #if($ctx.persistence)
-override val elem_cache: MutableMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.concurrent.ConcurrentHashMap<String, org.kevoree.modeling.api.KMFContainer>()
-override val modified_elements: MutableMap<String, org.kevoree.modeling.api.KMFContainer> = java.util.concurrent.ConcurrentHashMap<String, org.kevoree.modeling.api.KMFContainer>()
+override val elem_cache: MutableMap<String, org.kevoree.modeling.api.KObject> = java.util.concurrent.ConcurrentHashMap<String, org.kevoree.modeling.api.KObject>()
+override val modified_elements: MutableMap<String, org.kevoree.modeling.api.KObject> = java.util.concurrent.ConcurrentHashMap<String, org.kevoree.modeling.api.KObject>()
 override val elementsToBeRemoved : MutableSet<String> = java.util.HashSet<String>()
 override var dirty : Boolean = false;
 
@@ -53,30 +53,30 @@ when(metaClassName){
 }
 
 #if($ctx.persistence)
-    protected fun initObject(elem : org.kevoree.modeling.api.persistence.KMFContainerProxy){
+    protected fun initObject(elem : org.kevoree.modeling.api.persistence.KObjectProxy){
         elem.originFactory = this
         monitor(elem)
         #if($ctx.timeAware)
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).isResolved = true
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).now = relativeTime
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).meta = org.kevoree.modeling.api.time.blob.EntityMeta()
-        (elem as org.kevoree.modeling.api.time.TimeAwareKMFContainer<*>).meta!!.metatype = elem.metaClassName()
+        (elem as org.kevoree.modeling.api.time.TimeAwareKObject<*>).isResolved = true
+        (elem as org.kevoree.modeling.api.time.TimeAwareKObject<*>).now = relativeTime
+        (elem as org.kevoree.modeling.api.time.TimeAwareKObject<*>).meta = org.kevoree.modeling.api.time.blob.EntityMeta()
+        (elem as org.kevoree.modeling.api.time.TimeAwareKObject<*>).meta!!.metatype = elem.metaClassName()
         #end
     }
 #end
 
 #if(!$ctx.persistence)
-    override fun select(query: String): List<org.kevoree.modeling.api.KMFContainer> {
+    override fun select(query: String): List<org.kevoree.modeling.api.KObject> {
         //TODO
-        return java.util.ArrayList<org.kevoree.modeling.api.KMFContainer>();
+        return java.util.ArrayList<org.kevoree.modeling.api.KObject>();
     }
-    override fun root(elem : org.kevoree.modeling.api.KMFContainer){
+    override fun root(elem : org.kevoree.modeling.api.KObject){
     (elem as ${ctx.getKevoreeContainerImplFQN()}).is_root = true
     (elem as ${ctx.getKevoreeContainerImplFQN()}).path_cache = "/"
     }
     #else
-    override fun root(elem : org.kevoree.modeling.api.KMFContainer){
-    if(elem !is org.kevoree.modeling.api.persistence.KMFContainerProxy || (elem as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory != this){
+    override fun root(elem : org.kevoree.modeling.api.KObject){
+    if(elem !is org.kevoree.modeling.api.persistence.KObjectProxy || (elem as org.kevoree.modeling.api.persistence.KObjectProxy).originFactory != this){
         throw Exception("KMFObject created in another factory of TimeView cannot be set as root of this TimeView")
     }
     if(lookup("/") != elem){

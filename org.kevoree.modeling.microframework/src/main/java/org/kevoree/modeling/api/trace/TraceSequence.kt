@@ -1,13 +1,13 @@
 package org.kevoree.modeling.api.trace
 
-import org.kevoree.modeling.api.KMFFactory
+import org.kevoree.modeling.api.KFactory
 import org.kevoree.modeling.api.util.ActionType
 import org.kevoree.modeling.api.json.Lexer
 import org.kevoree.modeling.api.json.Type
 import org.kevoree.modeling.api.util.ByteConverter
 import org.kevoree.modeling.api.json.JSONString
 import java.util.ArrayList
-import org.kevoree.modeling.api.persistence.KMFContainerProxy
+import org.kevoree.modeling.api.persistence.KObjectProxy
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +16,7 @@ import org.kevoree.modeling.api.persistence.KMFContainerProxy
  * Time: 19:52
  */
 
-public class TraceSequence(val factory: KMFFactory) {
+public class TraceSequence(val factory: KFactory) {
 
     var traces: MutableList<org.kevoree.modeling.api.trace.ModelTrace> = ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
 
@@ -178,9 +178,9 @@ public class TraceSequence(val factory: KMFFactory) {
         return buffer.toString()
     }
 
-    fun applyOn(target: org.kevoree.modeling.api.KMFContainer): Boolean {
+    fun applyOn(target: org.kevoree.modeling.api.KObject): Boolean {
         var bestFactory = factory
-        if (target is KMFContainerProxy) {
+        if (target is KObjectProxy) {
             if (target.originFactory != null) {
                 bestFactory = target.originFactory!!
             }
@@ -191,9 +191,9 @@ public class TraceSequence(val factory: KMFFactory) {
         return true
     }
 
-    fun silentlyApplyOn(target: org.kevoree.modeling.api.KMFContainer): Boolean {
+    fun silentlyApplyOn(target: org.kevoree.modeling.api.KObject): Boolean {
         var bestFactory = factory
-        if (target is KMFContainerProxy) {
+        if (target is KObjectProxy) {
             if (target.originFactory != null) {
                 bestFactory = target.originFactory!!
             }

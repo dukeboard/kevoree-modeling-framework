@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.persistence
 
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,16 +9,16 @@ import org.kevoree.modeling.api.KMFContainer
  * Time: 11:28
  */
 
-public trait KMFContainerProxy : KMFContainer {
+public trait KObjectProxy : KObject {
 
     var isResolved: Boolean
     var inResolution: Boolean
     var isDirty : Boolean
-    var originFactory: PersistenceKMFFactory?
+    var originFactory: PersistenceKFactory?
 
     fun setOriginPath(path: String)
 
-    fun relativeLookupFrom(base: KMFContainer, relationInParent: String, key: String): KMFContainer? {
+    fun relativeLookupFrom(base: KObject, relationInParent: String, key: String): KObject? {
         val currentPath = base.path()
         if(currentPath == "/"){
             return originFactory?.lookup("/$relationInParent[$key]")

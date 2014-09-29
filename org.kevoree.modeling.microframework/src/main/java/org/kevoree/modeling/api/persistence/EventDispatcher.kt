@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.persistence
 import org.kevoree.modeling.api.events.ModelElementListener
 import java.util.HashMap
 import org.kevoree.modeling.api.events.ModelEvent
-import org.kevoree.modeling.api.time.TimeAwareKMFContainer
+import org.kevoree.modeling.api.time.TimeAwareKObject
 
 /**
  * Created by duke on 8/22/14.
@@ -38,7 +38,7 @@ class EventDispatcher {
 data class TimedRegistration(val from: Long?, val to: Long?, val pathRegex: String) {
 
     fun covered(event: ModelEvent): Boolean {
-        if (event.source is TimeAwareKMFContainer<*>) {
+        if (event.source is TimeAwareKObject<*>) {
             if (from != null) {
                 if (from < event.source.now) {
                     return false

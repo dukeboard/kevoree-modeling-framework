@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.trace
 
-import org.kevoree.modeling.api.KMFFactory
+import org.kevoree.modeling.api.KFactory
 import org.kevoree.modeling.api.util.ActionType
 import org.kevoree.modeling.api.json.Lexer
 import org.kevoree.modeling.api.json.Type
@@ -15,7 +15,7 @@ import org.kevoree.modeling.api.util.ByteConverter
  * Time: 19:52
  */
 
-public class TraceSequence(val factory : KMFFactory) {
+public class TraceSequence(val factory : KFactory) {
 
     var traces: MutableList<org.kevoree.modeling.api.trace.ModelTrace> = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
 

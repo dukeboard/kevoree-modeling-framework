@@ -61,7 +61,7 @@ public class ClassGenerator {
         pr.println("override internal var internal_unsetCmd : " + ctx.basePackageForUtilitiesGeneration + ".container.RemoveFromContainerCommand? = null");
         pr.println("override internal var internal_readOnlyElem : Boolean = false");
         pr.println("override internal var internal_recursive_readOnlyElem : Boolean = false");
-        pr.println("override internal var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer, MutableSet<String>> = java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableSet<String>>()");
+        pr.println("override internal var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KObject, MutableSet<String>> = java.util.HashMap<org.kevoree.modeling.api.KObject,  MutableSet<String>>()");
         pr.println("override internal var internal_deleteInProgress : Boolean = false");
 
         pr.println("override var internal_is_deleted : Boolean = false;");
@@ -75,7 +75,7 @@ public class ClassGenerator {
         if (ctx.persistence) {
             pr.println("override var isResolved: Boolean = true");
             pr.println("override var inResolution: Boolean = false");
-            pr.println("override var originFactory: org.kevoree.modeling.api.persistence.PersistenceKMFFactory? = null");
+            pr.println("override var originFactory: org.kevoree.modeling.api.persistence.PersistenceKFactory? = null");
             pr.println("override var isDirty = false;\n");
         }
         if (ctx.timeAware) {
@@ -181,7 +181,7 @@ public class ClassGenerator {
         }
         pr.println("internal_deleteInProgress = true");
         if (ctx.persistence) {
-            pr.println("(this as org.kevoree.modeling.api.persistence.KMFContainerProxy).originFactory!!.remove(this)");
+            pr.println("(this as org.kevoree.modeling.api.persistence.KObjectProxy).originFactory!!.remove(this)");
         } else {
             for (EReference ref : cls.getEAllReferences()) {
                 if (ref.isMany()) {

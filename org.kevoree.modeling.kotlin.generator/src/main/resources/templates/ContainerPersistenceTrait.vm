@@ -7,9 +7,9 @@
 package ${packElem}
 
 #if($ctx.timeAware)
- trait ${formatedFactoryName}PersistenceImpl<A> : ${formatedFactoryName}Impl,org.kevoree.modeling.api.time.TimeAwareKMFContainer<A> {
+ trait ${formatedFactoryName}PersistenceImpl<A> : ${formatedFactoryName}Impl,org.kevoree.modeling.api.time.TimeAwareKObject<A> {
 #else
-  trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KMFContainerProxy {
+  trait ${formatedFactoryName}PersistenceImpl : ${formatedFactoryName}Impl,org.kevoree.modeling.api.persistence.KObjectProxy {
 #end
 
     fun checkLazyLoad(){

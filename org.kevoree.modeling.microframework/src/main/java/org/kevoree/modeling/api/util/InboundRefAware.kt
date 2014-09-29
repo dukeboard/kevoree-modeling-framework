@@ -6,6 +6,6 @@ package org.kevoree.modeling.api.util
 
 trait InboundRefAware {
 
-    var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KMFContainer,  MutableSet<String>>
+    var internal_inboundReferences : java.util.HashMap<org.kevoree.modeling.api.KObject,  MutableSet<String>>
 
 }

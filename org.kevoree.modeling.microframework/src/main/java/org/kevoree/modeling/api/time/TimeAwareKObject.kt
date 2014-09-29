@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.time
 
-import org.kevoree.modeling.api.persistence.KMFContainerProxy
+import org.kevoree.modeling.api.persistence.KObjectProxy
 import org.kevoree.modeling.api.time.blob.EntityMeta
 import org.kevoree.modeling.api.TimeTransaction
 import org.kevoree.modeling.api.time.blob.TimeMeta
@@ -14,12 +14,12 @@ import org.kevoree.modeling.api.TimedContainer
  * Time: 16:01
  */
 
-public trait TimeAwareKMFContainer<A> : KMFContainerProxy, TimedContainer<A> {
+public trait TimeAwareKObject<A> : KObjectProxy, TimedContainer<A> {
 
     var meta: EntityMeta?
 
     internal fun getOriginTransaction(): TimeTransaction {
-        return ((originFactory as TimeAwareKMFFactory).originTransaction) as TimeTransaction
+        return ((originFactory as TimeAwareKFactory).originTransaction) as TimeTransaction
     }
 
     override fun previous(): A? {
@@ -70,8 +70,8 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy, TimedContainer<A> {
     /*
     fun floor(p: String): Long? {
         val tp = java.lang.Long.parseLong(p)
-        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
-            return (originFactory as TimeAwareKMFFactory).floor(path(), tp)
+        if (originFactory != null && originFactory is TimeAwareKFactory) {
+            return (originFactory as TimeAwareKFactory).floor(path(), tp)
         } else {
             return null
         }
@@ -79,15 +79,15 @@ public trait TimeAwareKMFContainer<A> : KMFContainerProxy, TimedContainer<A> {
 
     fun ceil(p: String): Long? {
         val tp = java.lang.Long.parseLong(p)
-        if (originFactory != null && originFactory is TimeAwareKMFFactory) {
-            return (originFactory as TimeAwareKMFFactory).ceil(path(), tp)
+        if (originFactory != null && originFactory is TimeAwareKFactory) {
+            return (originFactory as TimeAwareKFactory).ceil(path(), tp)
         } else {
             return null
         }
     }*/
 
     override fun timeTree(): TimeTree {
-        return (originFactory as TimeAwareKMFFactory).getTimeTree(path())
+        return (originFactory as TimeAwareKFactory).getTimeTree(path())
     }
 
 }

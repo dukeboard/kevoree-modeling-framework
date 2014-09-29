@@ -14,12 +14,12 @@ import org.kevoree.modeling.api.trace.ModelAddTrace
  *
  */
 
-public class ModelPruner(val factory: KMFFactory) {
+public class ModelPruner(val factory: KFactory) {
 
-    public fun prune(elems: List<KMFContainer>): TraceSequence {
+    public fun prune(elems: List<KObject>): TraceSequence {
         val traces = ArrayList<ModelTrace>()
-        val tempMap = HashMap<String, KMFContainer>()
-        val parentMap = HashMap<String, KMFContainer>()
+        val tempMap = HashMap<String, KObject>()
+        val parentMap = HashMap<String, KObject>()
         for (elem in elems) {
             internal_prune(elem, traces, tempMap, parentMap)
         }
@@ -30,9 +30,9 @@ public class ModelPruner(val factory: KMFFactory) {
         return TraceSequence(factory).populate(traces)
     }
 
-    private fun internal_prune(elem: KMFContainer, traces: MutableList<ModelTrace>, cache: MutableMap<String, KMFContainer>, parentMap: MutableMap<String, KMFContainer>) {
+    private fun internal_prune(elem: KObject, traces: MutableList<ModelTrace>, cache: MutableMap<String, KObject>, parentMap: MutableMap<String, KObject>) {
         //collect parent which as not be added already
-        val parents: MutableList<KMFContainer> = ArrayList<KMFContainer>()
+        val parents: MutableList<KObject> = ArrayList<KObject>()
         var currentParent = elem.eContainer()
         while (currentParent != null && parentMap.get(currentParent!!.path()) == null && cache.get(currentParent!!.path()) == null) {
             parents.add(currentParent!!)
@@ -57,7 +57,7 @@ public class ModelPruner(val factory: KMFFactory) {
         cache.put(elem.path(), elem)
         //We continue to all reachable elements, potentially here we can exclude references
         elem.visitReferences(object : ModelVisitor() {
-            override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+            override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
                 if (cache.get(elem.path()) == null) {
                     //break potential loop
                     internal_prune(elem, traces, cache, parentMap)

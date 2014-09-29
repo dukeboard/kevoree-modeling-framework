@@ -3,24 +3,24 @@ package org.kevoree.modeling.api;
 import org.kevoree.modeling.api.events.*
 import org.kevoree.modeling.api.util.ActionType
 
-trait KMFContainer {
+trait KObject {
 
     fun setRecursiveReadOnly(): Unit
-    fun eContainer(): KMFContainer?
+    fun eContainer(): KObject?
     fun isReadOnly(): Boolean
     fun isRecursiveReadOnly(): Boolean
     fun setInternalReadOnly()
     fun delete()
     fun isDeleted(): Boolean
-    fun modelEquals(similarObj: KMFContainer?): Boolean
-    fun deepModelEquals(similarObj: KMFContainer?): Boolean
+    fun modelEquals(similarObj: KObject?): Boolean
+    fun deepModelEquals(similarObj: KObject?): Boolean
     fun getRefInParent(): String?
-    fun findByPath(query: String): KMFContainer?
-    fun findByID(relationName: String, idP: String): KMFContainer?
+    fun findByPath(query: String): KObject?
+    fun findByID(relationName: String, idP: String): KObject?
     fun path(): String
     fun metaClassName(): String
     fun reflexiveMutator(mutatorType: ActionType, refName: String, value: Any?, setOpposite: Boolean, fireEvent: Boolean)
-    fun select(query: String): List<KMFContainer>
+    fun select(query: String): List<KObject>
     fun addModelElementListener(lst: ModelElementListener)
     fun removeModelElementListener(lst: ModelElementListener)
     fun removeAllModelElementListeners()
@@ -41,7 +41,7 @@ trait KMFContainer {
 
     fun visitAttributes(visitor: org.kevoree.modeling.api.util.ModelAttributeVisitor)
 
-    fun createTraces(similarObj: org.kevoree.modeling.api.KMFContainer?, isInter: Boolean, isMerge: Boolean, onlyReferences: Boolean, onlyAttributes: Boolean): List<org.kevoree.modeling.api.trace.ModelTrace>
+    fun createTraces(similarObj: org.kevoree.modeling.api.KObject?, isInter: Boolean, isMerge: Boolean, onlyReferences: Boolean, onlyAttributes: Boolean): List<org.kevoree.modeling.api.trace.ModelTrace>
     fun toTraces(attributes: Boolean, references: Boolean): List<org.kevoree.modeling.api.trace.ModelTrace>
 
     fun internalGetKey(): String?

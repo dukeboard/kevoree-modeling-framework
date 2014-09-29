@@ -6,7 +6,7 @@
 
 package ${packageName}.factory;
 
-trait ${formatedFactoryName} : org.kevoree.modeling.api.KMFFactory {
+trait ${formatedFactoryName} : org.kevoree.modeling.api.KFactory {
 
     fun getVersion() : String
 

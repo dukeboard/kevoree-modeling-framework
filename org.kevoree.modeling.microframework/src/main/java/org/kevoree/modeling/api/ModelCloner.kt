@@ -9,28 +9,28 @@ import java.util.ArrayList
  * Time: 16:53
  */
 
-public class ModelCloner(val factory: KMFFactory) {
+public class ModelCloner(val factory: KFactory) {
 
-    fun createContext(): MutableMap<KMFContainer, KMFContainer> {
-        return java.util.IdentityHashMap<org.kevoree.modeling.api.KMFContainer, org.kevoree.modeling.api.KMFContainer>()
+    fun createContext(): MutableMap<KObject, KObject> {
+        return java.util.IdentityHashMap<org.kevoree.modeling.api.KObject, org.kevoree.modeling.api.KObject>()
     }
 
-    fun clone<A : org.kevoree.modeling.api.KMFContainer>(o: A): A? {
+    fun clone<A : org.kevoree.modeling.api.KObject>(o: A): A? {
         return clone(o, false)
     }
 
-    fun clone<A : org.kevoree.modeling.api.KMFContainer>(o: A, readOnly: Boolean): A? {
+    fun clone<A : org.kevoree.modeling.api.KObject>(o: A, readOnly: Boolean): A? {
         return clone(o, readOnly, false)
     }
 
-    fun cloneMutableOnly<A : org.kevoree.modeling.api.KMFContainer>(o: A, readOnly: Boolean): A? {
+    fun cloneMutableOnly<A : org.kevoree.modeling.api.KObject>(o: A, readOnly: Boolean): A? {
         return clone(o, readOnly, true)
     }
 
-    private fun cloneModelElem(src: org.kevoree.modeling.api.KMFContainer): org.kevoree.modeling.api.KMFContainer {
+    private fun cloneModelElem(src: org.kevoree.modeling.api.KObject): org.kevoree.modeling.api.KObject {
         val clonedSrc = factory.create(src.metaClassName())!!
         val attributesCloner = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
-            public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KMFContainer) {
+            public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KObject) {
                 if (value != null) {
                     if (value is ArrayList<*>) {
                         val clonedList = ArrayList<Any>()
@@ -46,9 +46,9 @@ public class ModelCloner(val factory: KMFFactory) {
         return clonedSrc;
     }
 
-    private fun resolveModelElem(src: org.kevoree.modeling.api.KMFContainer, target: org.kevoree.modeling.api.KMFContainer, context: Map<KMFContainer, KMFContainer>, mutableOnly: Boolean) {
+    private fun resolveModelElem(src: org.kevoree.modeling.api.KObject, target: org.kevoree.modeling.api.KObject, context: Map<KObject, KObject>, mutableOnly: Boolean) {
         val refResolver = object : org.kevoree.modeling.api.util.ModelVisitor() {
-            public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+            public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
                 if (mutableOnly && elem.isRecursiveReadOnly()) {
                     target.reflexiveMutator(org.kevoree.modeling.api.util.ActionType.ADD, refNameInParent, elem, false, false)
                 } else {
@@ -63,12 +63,12 @@ public class ModelCloner(val factory: KMFFactory) {
         src.visit(refResolver, false, true, true);
     }
 
-    private fun clone<A : org.kevoree.modeling.api.KMFContainer>(o: A, readOnly: Boolean, mutableOnly: Boolean): A? {
+    private fun clone<A : org.kevoree.modeling.api.KObject>(o: A, readOnly: Boolean, mutableOnly: Boolean): A? {
         val context = createContext()
         val clonedObject = cloneModelElem(o);
         context.put(o, clonedObject)
         val cloneGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
-            override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+            override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                 if (mutableOnly && elem.isRecursiveReadOnly()) {
                     noChildrenVisit();
                 } else {
@@ -79,7 +79,7 @@ public class ModelCloner(val factory: KMFFactory) {
         //clone the entire object graph (i.e. object+attributes)
         o.visit(cloneGraphVisitor, true, true, false)
         val resolveGraphVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
-            override public fun visit(elem: org.kevoree.modeling.api.KMFContainer, refNameInParent: String, parent: org.kevoree.modeling.api.KMFContainer) {
+            override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                 if (mutableOnly && elem.isRecursiveReadOnly()) {
                     //noChildrenVisit(); TODO check this behavior on partial clone
                 } else {

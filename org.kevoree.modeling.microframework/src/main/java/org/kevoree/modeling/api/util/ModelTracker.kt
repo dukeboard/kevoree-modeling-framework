@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.compare.ModelCompare
 import org.kevoree.modeling.api.trace.Event2Trace
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.trace.TraceSequence
 
 /**
@@ -17,7 +17,7 @@ import org.kevoree.modeling.api.trace.TraceSequence
 public class ModelTracker(val compare: ModelCompare) : ModelElementListener {
 
     val convertor = Event2Trace(compare)
-    var currentModel: KMFContainer? = null
+    var currentModel: KObject? = null
 
     var invertedTraceSequence: TraceSequence? = null
     var traceSequence: TraceSequence? = null
@@ -31,7 +31,7 @@ public class ModelTracker(val compare: ModelCompare) : ModelElementListener {
         }
     }
 
-    fun track(model: KMFContainer) {
+    fun track(model: KObject) {
         currentModel = model
         currentModel!!.addModelTreeListener(this)
         traceSequence = TraceSequence(compare.factory)

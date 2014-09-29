@@ -13,11 +13,11 @@ import org.kevoree.modeling.api.compare.ModelCompare
  * Time: 21:00
  */
 
-trait KMFFactory {
+trait KFactory {
 
-    fun create(metaClassName: String): org.kevoree.modeling.api.KMFContainer?
+    fun create(metaClassName: String): org.kevoree.modeling.api.KObject?
 
-    fun root(elem: KMFContainer)
+    fun root(elem: KObject)
 
     fun createJSONSerializer(): JSONModelSerializer
 
@@ -33,8 +33,8 @@ trait KMFFactory {
 
     fun createModelPruner(): ModelPruner
 
-    fun select(query: String): List<KMFContainer>
+    fun select(query: String): List<KObject>
 
-    fun lookup(path: String) : KMFContainer?
+    fun lookup(path: String) : KObject?
 
 }

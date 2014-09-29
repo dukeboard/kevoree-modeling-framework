@@ -9,8 +9,8 @@ package org.kevoree.modeling.api
 
 public trait ModelSerializer {
 
-    fun serializeToStream(model : KMFContainer,raw : java.io.OutputStream)
+    fun serializeToStream(model : KObject,raw : java.io.OutputStream)
 
-    fun serialize(model : KMFContainer) : String?
+    fun serialize(model : KObject) : String?
 
 }

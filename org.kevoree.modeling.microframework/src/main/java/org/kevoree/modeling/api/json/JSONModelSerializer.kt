@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.json
 
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 import java.io.PrintStream
 import org.kevoree.modeling.api.util.ModelVisitor
 import org.kevoree.modeling.api.util.ModelAttributeVisitor
@@ -27,7 +27,7 @@ class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
         out.print("]")
     }
     var isFirst = true
-    public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+    public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
         if (!isFirst) {
             out.print(",")
         } else {
@@ -39,21 +39,21 @@ class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
 
 public class JSONModelSerializer() : ModelSerializer {
 
-    override fun serialize(model: KMFContainer): String? {
+    override fun serialize(model: KObject): String? {
         val outstream = ByteArrayOutputStream()
         serializeToStream(model, outstream)
         outstream.close()
         return outstream.toString()
     }
 
-    override public fun serializeToStream(model: KMFContainer, raw: OutputStream) {
+    override public fun serializeToStream(model: KObject, raw: OutputStream) {
         val out = PrintStream(java.io.BufferedOutputStream(raw), false)
         //visitor for printing reference
         val internalReferenceVisitor = ModelReferenceVisitor(out)
         //Visitor for Model naviguation
         var masterVisitor = object : ModelVisitor() {
             var isFirstInRef = true
-            override public fun beginVisitElem(elem: KMFContainer) {
+            override public fun beginVisitElem(elem: KObject) {
                 if (!isFirstInRef) {
                     out.print(",")
                     isFirstInRef = false
@@ -62,7 +62,7 @@ public class JSONModelSerializer() : ModelSerializer {
                 internalReferenceVisitor.alreadyVisited?.clear()
                 elem.visit(internalReferenceVisitor, false, false, true)
             }
-            override public fun endVisitElem(elem: KMFContainer) {
+            override public fun endVisitElem(elem: KObject) {
                 out.println("}")
                 isFirstInRef = false
             }
@@ -75,21 +75,21 @@ public class JSONModelSerializer() : ModelSerializer {
                 out.print("]")
                 isFirstInRef = false
             }
-            public override fun visit(elem: KMFContainer, refNameInParent: String, parent: KMFContainer) {
+            public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
             }
         }
         model.visit(masterVisitor, true, true, false)
         out.flush();
     }
 
-    fun printAttName(elem: KMFContainer, out: PrintStream) {
+    fun printAttName(elem: KObject, out: PrintStream) {
         var isRoot = ""
         if (elem.path().equals("/")) {
             isRoot = "root:"
         }
         out.print("\n{\"class\":\"" + isRoot + elem.metaClassName() + "@" + elem.internalGetKey() + "\"")
         val attributeVisitor = object : ModelAttributeVisitor {
-            public override fun visit(value: Any?, name: String, parent: KMFContainer) {
+            public override fun visit(value: Any?, name: String, parent: KObject) {
                 if (value != null) {
                     out.print(",\"" + name + "\":\"")
                     if (value is java.util.Date) {

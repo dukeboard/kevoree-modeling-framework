@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.util
 
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KObject
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,6 +10,6 @@ import org.kevoree.modeling.api.KMFContainer
  */
 public trait ModelAttributeVisitor {
 
-    public fun visit(value: Any?, name: String, parent: KMFContainer)
+    public fun visit(value: Any?, name: String, parent: KObject)
 
 }

@@ -199,7 +199,7 @@ public class APIGenerator {
                     if (!op.getEParameters().isEmpty()) {
                         pr.print(",");
                     }
-                    String returnTypeOP ;
+                    String returnTypeOP;
                     if (op.getEType() != null) {
 
                         returnTypeOP = ((op.getEType() instanceof EDataType) ?

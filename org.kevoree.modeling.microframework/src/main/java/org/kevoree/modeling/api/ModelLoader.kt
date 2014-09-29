@@ -9,8 +9,8 @@ package org.kevoree.modeling.api
 
 public trait ModelLoader {
 
-    fun loadModelFromString(str: String) : List<KMFContainer>?
+    fun loadModelFromString(str: String) : List<KObject>?
 
-    fun loadModelFromStream(inputStream: java.io.InputStream) : List<KMFContainer>?
+    fun loadModelFromStream(inputStream: java.io.InputStream) : List<KObject>?
 
 }

@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.persistence
 
-import org.kevoree.modeling.api.KMFFactory
-import org.kevoree.modeling.api.KMFContainer
+import org.kevoree.modeling.api.KFactory
+import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
@@ -18,7 +18,7 @@ import org.kevoree.modeling.api.Transaction
  * Time: 11:05
  */
 
-trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
+trait PersistenceKFactory : KFactory, ModelElementListener {
 
     val datastore: DataStore
 
@@ -26,20 +26,20 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
 
     val originTransaction: Transaction
 
-    fun remove(elem: KMFContainer) {
+    fun remove(elem: KObject) {
         datastore.remove(TimeSegment.RAW.name(), elem.path());
         datastore.remove("type", elem.path());
         elem_cache.remove(elem.path())
         modified_elements.remove(elem.hashCode().toString() + elem.internalGetKey())
     }
 
-    val elem_cache: MutableMap<String, KMFContainer>
+    val elem_cache: MutableMap<String, KObject>
 
     val elementsToBeRemoved: MutableSet<String>
 
-    val modified_elements: MutableMap<String, KMFContainer>
+    val modified_elements: MutableMap<String, KObject>
 
-    fun notify(elem: KMFContainer) {
+    fun notify(elem: KObject) {
         if (elem.internalGetKey() != null) {
             val key = elem.hashCode().toString() + elem.internalGetKey()
             if (modified_elements.get(key) == null) {
@@ -49,7 +49,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
                 elem_cache.put(elem.path(), elem)
             }
         }
-        if (elem is KMFContainerProxy && !elem.isDirty) {
+        if (elem is KObjectProxy && !elem.isDirty) {
             elem.isDirty = true
         }
     }
@@ -60,8 +60,8 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         elem_cache.remove(path)
     }
 
-    protected fun persist(elem: KMFContainer) {
-        if (elem is KMFContainerProxy && !elem.isDirty) {
+    protected fun persist(elem: KObject) {
+        if (elem is KObjectProxy && !elem.isDirty) {
             return;
         }
         val elemPath = elem.path()
@@ -79,7 +79,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         val saved = MetaHelper.serialize(castedInBounds.internal_inboundReferences)
         datastore.put(TimeSegment.RAW.name(), "${elemPath}#", saved)
         datastore.put("type", elemPath, elem.metaClassName())
-        if (elem is KMFContainerProxy) {
+        if (elem is KObjectProxy) {
             elem.originFactory = this
         }
     }
@@ -125,18 +125,18 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     override fun elementChanged(evt: ModelEvent) {
-        (evt.source as KMFContainerProxy).isDirty = true
+        (evt.source as KObjectProxy).isDirty = true
         notify(evt.source)
     }
 
-    protected fun monitor(elem: KMFContainer) {
+    protected fun monitor(elem: KObject) {
         if (!dirty) {
             dirty = true
         }
         elem.addModelElementListener(this)
     }
 
-    override fun lookup(path: String): KMFContainer? {
+    override fun lookup(path: String): KObject? {
         if (path == "") {
             return null
         }
@@ -145,7 +145,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         }
         val typeName = datastore.get("type", path)
         if (typeName != null) {
-            val elem = create(typeName) as KMFContainerProxy
+            val elem = create(typeName) as KObjectProxy
             elem_cache.put(path, elem)
             elem.isResolved = false
             elem.setOriginPath(path)
@@ -156,7 +156,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
     }
 
     /* potential optimisation, only load att or reference */
-    fun getTraces(origin: KMFContainer): TraceSequence? {
+    fun getTraces(origin: KObject): TraceSequence? {
         var sequence = TraceSequence(this)
         val traces = datastore.get(TimeSegment.RAW.name(), origin.path())
         if (traces != null) {
@@ -166,7 +166,7 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         return null
     }
 
-    fun loadInbounds(elem: KMFContainer) {
+    fun loadInbounds(elem: KObject) {
         val castedInBounds = elem as InboundRefAware
         val payload = datastore.get(TimeSegment.RAW.name(), "${elem.path()}#")
         if (payload != null) {
@@ -174,17 +174,17 @@ trait PersistenceKMFFactory : KMFFactory, ModelElementListener {
         }
     }
 
-    override fun select(query: String): List<KMFContainer> {
+    override fun select(query: String): List<KObject> {
         val localRoot = lookup("/")
         if (localRoot != null && query == "/") {
-            val result = ArrayList<KMFContainer>()
+            val result = ArrayList<KObject>()
             result.add(localRoot)
             return result
         }
         if (localRoot != null) {
             return localRoot.select(query)
         } else {
-            return ArrayList<KMFContainer>()
+            return ArrayList<KObject>()
         }
     }
 

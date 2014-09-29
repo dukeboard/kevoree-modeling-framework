@@ -1,8 +1,8 @@
 package org.kevoree.modeling.api.trace
 
 import org.kevoree.modeling.api.util.ActionType
-import org.kevoree.modeling.api.KMFContainer
-import org.kevoree.modeling.api.KMFFactory
+import org.kevoree.modeling.api.KObject
+import org.kevoree.modeling.api.KFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,10 +10,10 @@ import org.kevoree.modeling.api.KMFFactory
  * Date: 06/08/13
  * Time: 08:54
  */
-class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactory) {
+class ModelTraceApplicator(val targetModel: KObject, val factory: KFactory) {
 
-    var pendingObj: KMFContainer? = null
-    var pendingParent: KMFContainer? = null
+    var pendingObj: KObject? = null
+    var pendingParent: KObject? = null
     var pendingParentRefName: String? = null
     var pendingObjPath: String? = null
     var fireEvents: Boolean = true
@@ -28,7 +28,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
         }
     }
 
-    public fun createOrAdd(previousPath: String?, target: KMFContainer, refName: String, potentialTypeName: String?) {
+    public fun createOrAdd(previousPath: String?, target: KObject, refName: String, potentialTypeName: String?) {
         var targetElem: Any? = null
         if(previousPath!=null){
             targetElem = targetModel.findByPath(previousPath)
@@ -49,7 +49,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
 
     public fun applyTraceOnModel(traceSeq: TraceSequence) {
         for(trace in traceSeq.traces){
-            var target: KMFContainer = targetModel;
+            var target: KObject = targetModel;
             if(trace is ModelAddTrace){
                 tryClosePending(null);
                 if(trace.srcPath != ""){
@@ -71,9 +71,9 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             }
             if(trace is ModelRemoveTrace){
                 tryClosePending(trace.srcPath);
-                var tempTarget: KMFContainer? = targetModel;
+                var tempTarget: KObject? = targetModel;
                 if(trace.srcPath != ""){
-                    tempTarget = targetModel.findByPath(trace.srcPath) as? KMFContainer;
+                    tempTarget = targetModel.findByPath(trace.srcPath) as? KObject;
                 }
                 if(tempTarget != null){
                     //Potentially null if top tree already dropped
@@ -82,9 +82,9 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
             }
             if(trace is ModelRemoveAllTrace){
                 tryClosePending(trace.srcPath);
-                var tempTarget: KMFContainer? = targetModel;
+                var tempTarget: KObject? = targetModel;
                 if(trace.srcPath != ""){
-                    tempTarget = targetModel.findByPath(trace.srcPath) as? KMFContainer;
+                    tempTarget = targetModel.findByPath(trace.srcPath) as? KObject;
                 }
                 if(tempTarget != null){
                     tempTarget!!.reflexiveMutator(ActionType.REMOVE_ALL, trace.refName, null, true, fireEvents)
@@ -97,7 +97,7 @@ class ModelTraceApplicator(val targetModel: KMFContainer, val factory: KMFFactor
                     if(tempObject == null){
                         throw Exception("Set Trace source not found for path : " + trace.srcPath + " pending " + pendingObjPath + "\n" + trace.toString())
                     }
-                    target = tempObject as KMFContainer;
+                    target = tempObject as KObject;
                 } else {
                     if(trace.srcPath == pendingObjPath && pendingObj != null){
                         target = pendingObj!!;

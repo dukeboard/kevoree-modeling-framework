@@ -102,15 +102,15 @@ class ${formatedName2}(#if($ctx.persistence) #if(!$ctx.timeAware) override #end 
 
     override fun commit() {
         for (tv in sharedCache.keys()) {
-            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.commit();
+            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKFactory )?.commit();
         }
         for (tv in sharedCache.keys()) {
-            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.endCommit();
+            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKFactory )?.endCommit();
         }
     }
     override fun close() {
         for (tv in sharedCache.keys()) {
-            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKMFFactory )?.clear();
+            (sharedCache.get(tv) as? org.kevoree.modeling.api.persistence.PersistenceKFactory )?.clear();
         }
         sharedCache.flush()
         for(child in children()){
