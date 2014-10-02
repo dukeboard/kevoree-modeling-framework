@@ -26,14 +26,20 @@ public abstract class ModelVisitor {
 
     protected HashMap<String, KObject> alreadyVisited = null;
 
-    public abstract void beginVisitElem(KObject elem);
+    public void beginVisitElem(KObject elem) {
 
-    public abstract void endVisitElem(KObject elem);
+    }
+
+    public void endVisitElem(KObject elem) {
+
+    }
 
     public boolean beginVisitRef(String refName, String refType) {
         return true;
     }
 
-    public abstract void endVisitRef(String refName);
+    public void endVisitRef(String refName) {
+
+    }
 
 }
