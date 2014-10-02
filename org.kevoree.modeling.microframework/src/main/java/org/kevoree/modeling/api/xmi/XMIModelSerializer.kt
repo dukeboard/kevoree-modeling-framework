@@ -1,8 +1,8 @@
 package org.kevoree.modeling.api.xmi
 
-import org.kevoree.modeling.api.util.ModelVisitor
+import org.kevoree.modeling.api.ModelVisitor
 import org.kevoree.modeling.api.KObject
-import org.kevoree.modeling.api.util.ModelAttributeVisitor
+import org.kevoree.modeling.api.ModelAttributeVisitor
 import org.kevoree.modeling.api.util.AttConverter
 
 /*

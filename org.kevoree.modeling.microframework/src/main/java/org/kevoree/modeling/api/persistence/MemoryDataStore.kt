@@ -4,6 +4,7 @@ import java.util.HashMap
 import java.util.HashSet
 import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.events.ModelElementListener
+import org.kevoree.modeling.api.Callback
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +14,35 @@ import org.kevoree.modeling.api.events.ModelElementListener
  */
 
 public open class MemoryDataStore : DataStore {
+
+    override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
+        throw UnsupportedOperationException()
+    }
+    override fun unregister(listener: ModelElementListener) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun put(key: String, value: String, callback: Callback<String>, error: Callback<Exception>) {
+        throw UnsupportedOperationException()
+    }
+    override fun get(key: String, callback: Callback<String>, error: Callback<Exception>) {
+        throw UnsupportedOperationException()
+    }
+    override fun remove(key: String, callback: Callback<String>, error: Callback<Exception>) {
+        throw UnsupportedOperationException()
+    }
+    override fun commit(callback: Callback<String>, error: Callback<Exception>) {
+        throw UnsupportedOperationException()
+    }
+    override fun close(callback: Callback<String>, error: Callback<Exception>) {
+        throw UnsupportedOperationException()
+    }
+    override fun notify(event: ModelEvent) {
+        throw UnsupportedOperationException()
+    }
+
+
+    /*
 
     override fun commit() {
         //nothing todo
@@ -59,11 +89,9 @@ public open class MemoryDataStore : DataStore {
     }
 
     override fun put(segment: String, key: String, value: String) {
-
-        //println("put/"+segment+"_"+key+"="+value)
-
         getOrCreateSegment(segment).put(key, value)
     }
+
     override fun get(segment: String, key: String): String? {
         return getOrCreateSegment(segment).get(key)
     }
@@ -80,6 +108,9 @@ public open class MemoryDataStore : DataStore {
             }
         }
     }
+
+
+    */
 
 
 }

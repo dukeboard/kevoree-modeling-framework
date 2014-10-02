@@ -4,7 +4,7 @@
 #* @vtlvariable name="packElem" type="java.lang.String" *#
 
 ##if(!$currentClass.getEAllReferences().isEmpty())
-override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){
+override fun visit(visitor : org.kevoree.modeling.api.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){
             #if($ctx.persistence)
             checkLazyLoad()
             #end
@@ -56,7 +56,7 @@ override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursi
 ##end
 
 #if(!$currentClass.getEAllAttributes().isEmpty())
-override fun visitAttributes(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){
+override fun visitAttributes(visitor : org.kevoree.modeling.api.ModelAttributeVisitor){
     #if($ctx.persistence)
     checkLazyLoad()
     #end

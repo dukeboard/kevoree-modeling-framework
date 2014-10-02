@@ -1,14 +1,6 @@
-package org.kevoree.modeling.api.util
+package org.kevoree.modeling.api
 
-import org.kevoree.modeling.api.KObject
 import java.util.HashMap
-
-/**
- * Created with IntelliJ IDEA.
- * User: duke
- * Date: 26/08/13
- * Time: 08:36
- */
 
 public abstract class ModelVisitor {
 
@@ -30,14 +22,14 @@ public abstract class ModelVisitor {
         visitReferences = false
     }
 
-    public abstract fun visit(elem: KObject, refNameInParent: String, parent: KObject)
+    public abstract fun visit(elem: KObject<*>, refNameInParent: String, parent: KObject<*>)
 
-    var alreadyVisited: HashMap<String, KObject>? = null
+    var alreadyVisited: HashMap<String, KObject<*>>? = null
 
-    open fun beginVisitElem(elem: KObject) {
+    open fun beginVisitElem(elem: KObject<*>) {
     }
 
-    open fun endVisitElem(elem: KObject) {
+    open fun endVisitElem(elem: KObject<*>) {
     }
 
     open fun beginVisitRef(refName: String, refType: String): Boolean {

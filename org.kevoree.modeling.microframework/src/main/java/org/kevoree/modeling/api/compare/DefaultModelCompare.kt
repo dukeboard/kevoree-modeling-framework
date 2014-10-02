@@ -1,16 +1,29 @@
 package org.kevoree.modeling.api.compare
 
-import java.util.HashMap
-import java.util.ArrayList
-import org.kevoree.modeling.api.KObject
-import org.kevoree.modeling.api.trace.*;
 import org.kevoree.modeling.api.KFactory
+import org.kevoree.modeling.api.ModelCompare
+import org.kevoree.modeling.api.KObject
+import org.kevoree.modeling.api.trace.TraceSequence
+import org.kevoree.modeling.api.Callback
 
 /**
  * Created by duke on 26/07/13.
  */
 
-public class ModelCompare(val factory: KFactory) {
+public class DefaultModelCompare(val factory: KFactory) : ModelCompare {
+
+    override fun merge(origin: KObject<Any?>, target: KObject<Any?>, callback: Callback<TraceSequence>) {
+        throw UnsupportedOperationException()
+    }
+    override fun inter(origin: KObject<Any?>, target: KObject<Any?>, callback: Callback<TraceSequence>) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun diff(origin: KObject<Any?>, target: KObject<Any?>, callback: Callback<TraceSequence>) {
+        throw UnsupportedOperationException()
+    }
+
+    /*
 
     public fun diff(origin: KObject, target: KObject): TraceSequence {
         return TraceSequence(factory).populate(internal_diff(origin, target, false, false));
@@ -32,7 +45,7 @@ public class ModelCompare(val factory: KFactory) {
         tracesRef.addAll(origin.createTraces(target, inter, merge, true, false))
 
 
-        val visitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
+        val visitor = object : org.kevoree.modeling.api.ModelVisitor() {
             override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                 val childPath = elem.path();
                 if (childPath != null) {
@@ -44,7 +57,7 @@ public class ModelCompare(val factory: KFactory) {
         }
         origin.visit(visitor, true, true, false)
 
-        val visitor2 = object : org.kevoree.modeling.api.util.ModelVisitor() {
+        val visitor2 = object : org.kevoree.modeling.api.ModelVisitor() {
             override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                 val childPath = elem.path();
                 if (objectsMap.containsKey(childPath)) {
@@ -86,5 +99,7 @@ public class ModelCompare(val factory: KFactory) {
         }
         return traces;
     }
+
+    */
 
 }

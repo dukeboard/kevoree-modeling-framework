@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.persistence
 
 import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.events.ModelElementListener
+import org.kevoree.modeling.api.Callback
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,19 +13,15 @@ import org.kevoree.modeling.api.events.ModelElementListener
 
 public trait DataStore {
 
-    fun put(segment: String, key: String, value: String)
+    fun put(key: String, value: String, callback : Callback<String>, error : Callback<Exception>)
 
-    fun get(segment: String, key: String): String?
+    fun get(key: String, callback : Callback<String>, error : Callback<Exception>)
 
-    fun remove(segment: String, key: String)
+    fun remove(key: String, callback : Callback<String>, error : Callback<Exception>)
 
-    fun commit()
+    fun commit(callback : Callback<String>, error : Callback<Exception>)
 
-    fun close()
-
-    fun getSegments(): Set<String>
-
-    fun getSegmentKeys(segment: String): Set<String>
+    fun close(callback : Callback<String>, error : Callback<Exception>)
 
     fun notify(event: ModelEvent)
 

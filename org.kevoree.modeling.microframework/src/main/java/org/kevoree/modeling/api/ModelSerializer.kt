@@ -9,8 +9,8 @@ package org.kevoree.modeling.api
 
 public trait ModelSerializer {
 
-    fun serializeToStream(model : KObject,raw : java.io.OutputStream)
+    fun serializeToStream(model: KObject<*>, raw: java.io.OutputStream, callback: Callback<Boolean>, error: Callback<Exception>)
 
-    fun serialize(model : KObject) : String?
+    fun serialize(model: KObject<*>, callback: Callback<String>, error: Callback<Exception>)
 
 }

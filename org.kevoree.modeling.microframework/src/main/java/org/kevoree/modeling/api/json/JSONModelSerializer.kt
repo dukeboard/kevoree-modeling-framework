@@ -2,12 +2,13 @@ package org.kevoree.modeling.api.json
 
 import org.kevoree.modeling.api.KObject
 import java.io.PrintStream
-import org.kevoree.modeling.api.util.ModelVisitor
-import org.kevoree.modeling.api.util.ModelAttributeVisitor
+import org.kevoree.modeling.api.ModelVisitor
+import org.kevoree.modeling.api.ModelAttributeVisitor
 import java.io.OutputStream
 import org.kevoree.modeling.api.ModelSerializer
 import java.io.ByteArrayOutputStream
 import org.kevoree.modeling.api.util.AttConverter
+import org.kevoree.modeling.api.Callback
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,30 +40,37 @@ class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
 
 public class JSONModelSerializer() : ModelSerializer {
 
-    override fun serialize(model: KObject): String? {
+    override fun serialize(model: KObject<Any?>, callback: Callback<String>, error: Callback<Exception>) {
         val outstream = ByteArrayOutputStream()
-        serializeToStream(model, outstream)
-        outstream.close()
-        return outstream.toString()
+        serializeToStream(model, outstream, object : Callback<Boolean> {
+            override fun on(p: Boolean) {
+                outstream.close()
+                if (p) {
+                    callback.on(outstream.toString())
+                } else {
+                    error.on(Exception("Unknow Error while during model serialization !"));
+                }
+            }
+        }, error);
     }
 
-    override public fun serializeToStream(model: KObject, raw: OutputStream) {
+    override fun serializeToStream(model: KObject<Any?>, raw: OutputStream, callback: Callback<Boolean>, error: Callback<Exception>) {
         val out = PrintStream(java.io.BufferedOutputStream(raw), false)
         //visitor for printing reference
         val internalReferenceVisitor = ModelReferenceVisitor(out)
-        //Visitor for Model naviguation
+        //Visitor for Model navigation
         var masterVisitor = object : ModelVisitor() {
             var isFirstInRef = true
-            override public fun beginVisitElem(elem: KObject) {
+            override public fun beginVisitElem(elem: KObject<*>) {
                 if (!isFirstInRef) {
                     out.print(",")
                     isFirstInRef = false
                 }
                 printAttName(elem, out)
                 internalReferenceVisitor.alreadyVisited?.clear()
-                elem.visit(internalReferenceVisitor, false, false, true)
+                elem.visitNotContained(internalReferenceVisitor)
             }
-            override public fun endVisitElem(elem: KObject) {
+            override public fun endVisitElem(elem: KObject<*>) {
                 out.println("}")
                 isFirstInRef = false
             }
@@ -75,21 +83,22 @@ public class JSONModelSerializer() : ModelSerializer {
                 out.print("]")
                 isFirstInRef = false
             }
-            public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
+            public override fun visit(elem: KObject<*>, refNameInParent: String, parent: KObject<*>) {
+
             }
         }
-        model.visit(masterVisitor, true, true, false)
+        model.deepVisitContained(masterVisitor);
         out.flush();
     }
 
-    fun printAttName(elem: KObject, out: PrintStream) {
+    private fun printAttName(elem: KObject<*>, out: PrintStream) {
         var isRoot = ""
         if (elem.path().equals("/")) {
             isRoot = "root:"
         }
-        out.print("\n{\"class\":\"" + isRoot + elem.metaClassName() + "@" + elem.internalGetKey() + "\"")
+        out.print("\n{\"class\":\"" + isRoot + elem.metaClassName() + "@" + elem.key() + "\"")
         val attributeVisitor = object : ModelAttributeVisitor {
-            public override fun visit(value: Any?, name: String, parent: KObject) {
+            public override fun visit(value: Any?, name: String, parent: KObject<*>) {
                 if (value != null) {
                     out.print(",\"" + name + "\":\"")
                     if (value is java.util.Date) {

@@ -3,6 +3,8 @@ package org.kevoree.modeling.api.util
 import org.kevoree.modeling.api.KObject
 import java.util.ArrayList
 import java.util.HashMap
+import org.kevoree.modeling.api.ModelAttributeVisitor
+import org.kevoree.modeling.api.ModelVisitor
 
 /**
  * Created by duke on 7/22/14.

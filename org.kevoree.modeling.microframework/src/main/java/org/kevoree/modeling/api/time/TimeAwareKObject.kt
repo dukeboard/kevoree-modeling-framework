@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.time.blob.EntityMeta
 import org.kevoree.modeling.api.TimeTransaction
 import org.kevoree.modeling.api.time.blob.TimeMeta
 import org.kevoree.modeling.api.time.blob.STATE
-import org.kevoree.modeling.api.TimedContainer
+import org.kevoree.modeling.api.TimedKObject
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +14,7 @@ import org.kevoree.modeling.api.TimedContainer
  * Time: 16:01
  */
 
-public trait TimeAwareKObject<A> : KObjectProxy, TimedContainer<A> {
+public trait TimeAwareKObject<A> : KObjectProxy, TimedKObject<A> {
 
     var meta: EntityMeta?
 

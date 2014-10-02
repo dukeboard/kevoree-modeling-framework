@@ -9,8 +9,8 @@ package org.kevoree.modeling.api
 
 public trait ModelLoader {
 
-    fun loadModelFromString(str: String) : List<KObject>?
+    fun loadModelFromString(str: String, callback: Callback<KObject<*>?>, error: Callback<Exception>)
 
-    fun loadModelFromStream(inputStream: java.io.InputStream) : List<KObject>?
+    fun loadModelFromStream(inputStream: java.io.InputStream, callback: Callback<KObject<*>?>, error: Callback<Exception>)
 
 }

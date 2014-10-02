@@ -7,7 +7,7 @@
 package ${packElem}
 
 
-object cleanCacheVisitor : org.kevoree.modeling.api.util.ModelVisitor() {
+object cleanCacheVisitor : org.kevoree.modeling.api.ModelVisitor() {
     public override fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
     #if($ctx.persistence)
         (elem as org.kevoree.modeling.api.persistence.KObjectProxy).originFactory!!.elementsToBeRemoved.add((elem as KObjectImpl).path())
@@ -83,7 +83,7 @@ trait ${formatedFactoryName}Impl : org.kevoree.modeling.api.KObject, org.kevoree
     override fun setRecursiveReadOnly(){
         if(internal_recursive_readOnlyElem == true){return}
         setInternalRecursiveReadOnly()
-        val recVisitor = object : org.kevoree.modeling.api.util.ModelVisitor(){
+        val recVisitor = object : org.kevoree.modeling.api.ModelVisitor(){
             override fun visit(elem : org.kevoree.modeling.api.KObject, refNameInParent : String, parent : org.kevoree.modeling.api.KObject){
                 if(elem.isRecursiveReadOnly()){
                     noChildrenVisit()
@@ -239,10 +239,10 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
     }
 #end
 
-    override fun visit(visitor : org.kevoree.modeling.api.util.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){}
-    override fun visitAttributes(visitor : org.kevoree.modeling.api.util.ModelAttributeVisitor){}
+    override fun visit(visitor : org.kevoree.modeling.api.ModelVisitor, recursive : Boolean, containedReference : Boolean,nonContainedReference : Boolean){}
+    override fun visitAttributes(visitor : org.kevoree.modeling.api.ModelAttributeVisitor){}
 
-    fun internal_visit(visitor : org.kevoree.modeling.api.util.ModelVisitor,internalElem : org.kevoree.modeling.api.KObject?,recursive:Boolean,containedReference : Boolean,nonContainedReference : Boolean, refName : String){
+    fun internal_visit(visitor : org.kevoree.modeling.api.ModelVisitor,internalElem : org.kevoree.modeling.api.KObject?,recursive:Boolean,containedReference : Boolean,nonContainedReference : Boolean, refName : String){
         if(internalElem != null){
             if(nonContainedReference && recursive){
                 var elemPath = internalElem.path()
@@ -301,7 +301,7 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
         if(this == similarObj){return true}//same Object
         if(similarObj.metaClassName()!=metaClassName()){return false}
         val values = java.util.HashMap<String,String?>()
-        val attVisitor = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+        val attVisitor = object : org.kevoree.modeling.api.ModelAttributeVisitor {
             public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KObject){
                 if(values.containsKey(name)){
                     if(values.get(name) == value?.toString()){
@@ -316,7 +316,7 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
         similarObj.visitAttributes(attVisitor)
         if(!values.isEmpty()){return false}
         val payload = "";
-        val refVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
+        val refVisitor = object : org.kevoree.modeling.api.ModelVisitor() {
             public override fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                 val concatedKey = refNameInParent+"_"+elem.path()
                 if(values.containsKey(concatedKey)){
@@ -340,7 +340,7 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
         }
         var resultTest = true
         val finalRoot = similarRoot
-        val objVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
+        val objVisitor = object : org.kevoree.modeling.api.ModelVisitor() {
             public override fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                   var similarSubObj = finalRoot.findByPath(elem.path())
                   if(!elem.modelEquals(similarSubObj)){
@@ -402,13 +402,13 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
         val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
         val values = java.util.HashMap<String,String?>()
         if(onlyAttributes){
-            val attVisitorFill = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+            val attVisitorFill = object : org.kevoree.modeling.api.ModelAttributeVisitor {
                 public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KObject){
                     values.put(name,org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value))
                 }
             }
             this.visitAttributes(attVisitorFill)
-            val attVisitor = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+            val attVisitor = object : org.kevoree.modeling.api.ModelAttributeVisitor {
                 public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KObject){
                         var attVal2 : String? = org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value)
                         if(values.get(name) == attVal2){
@@ -432,14 +432,14 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
         }
         if(onlyReferences){
             val payload = "";
-            val refVisitorFill = object : org.kevoree.modeling.api.util.ModelVisitor() {
+            val refVisitorFill = object : org.kevoree.modeling.api.ModelVisitor() {
                 public override fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                     val concatedKey = refNameInParent+"_"+elem.path()
                     values.put(concatedKey,payload)
                 }
             }
             this.visit(refVisitorFill,false,false,true)
-            val refVisitor = object : org.kevoree.modeling.api.util.ModelVisitor() {
+            val refVisitor = object : org.kevoree.modeling.api.ModelVisitor() {
                 public override fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                     val concatedKey = refNameInParent+"_"+elem.path()
                     if(values.get(concatedKey) != null){
@@ -468,7 +468,7 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
         override fun toTraces(attributes : Boolean, references : Boolean) : List<org.kevoree.modeling.api.trace.ModelTrace> {
         val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
         if(attributes){
-            val attVisitorFill = object : org.kevoree.modeling.api.util.ModelAttributeVisitor {
+            val attVisitorFill = object : org.kevoree.modeling.api.ModelAttributeVisitor {
                 public override fun visit(value: Any?, name: String, parent: org.kevoree.modeling.api.KObject){
                     traces.add(org.kevoree.modeling.api.trace.ModelSetTrace(path(),name,null,org.kevoree.modeling.api.util.AttConverter.convFlatAtt(value),null))
                 }
@@ -476,7 +476,7 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
             this.visitAttributes(attVisitorFill)
         }
         if(references){
-            val refVisitorFill = object : org.kevoree.modeling.api.util.ModelVisitor() {
+            val refVisitorFill = object : org.kevoree.modeling.api.ModelVisitor() {
                 public override fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
                     traces.add(org.kevoree.modeling.api.trace.ModelAddTrace(path(),refNameInParent,elem.path(),null))
                 }
@@ -487,16 +487,16 @@ override fun select(query : String) : List<org.kevoree.modeling.api.KObject> {
     }
 
 
-    override fun visitNotContained(visitor: org.kevoree.modeling.api.util.ModelVisitor){ visit(visitor,false,false,true); }
+    override fun visitNotContained(visitor: org.kevoree.modeling.api.ModelVisitor){ visit(visitor,false,false,true); }
 
-    override fun visitContained(visitor: org.kevoree.modeling.api.util.ModelVisitor){ visit(visitor,false,true,false); }
+    override fun visitContained(visitor: org.kevoree.modeling.api.ModelVisitor){ visit(visitor,false,true,false); }
 
-    override fun visitReferences(visitor: org.kevoree.modeling.api.util.ModelVisitor){ visit(visitor,false,true,true); }
+    override fun visitReferences(visitor: org.kevoree.modeling.api.ModelVisitor){ visit(visitor,false,true,true); }
 
-    override fun deepVisitNotContained(visitor: org.kevoree.modeling.api.util.ModelVisitor){ visit(visitor,true,false,true); }
+    override fun deepVisitNotContained(visitor: org.kevoree.modeling.api.ModelVisitor){ visit(visitor,true,false,true); }
 
-    override fun deepVisitContained(visitor: org.kevoree.modeling.api.util.ModelVisitor){ visit(visitor,true,true,false); }
+    override fun deepVisitContained(visitor: org.kevoree.modeling.api.ModelVisitor){ visit(visitor,true,true,false); }
 
-    override fun deepVisitReferences(visitor: org.kevoree.modeling.api.util.ModelVisitor){ visit(visitor,true,true,true); }
+    override fun deepVisitReferences(visitor: org.kevoree.modeling.api.ModelVisitor){ visit(visitor,true,true,true); }
 
 }

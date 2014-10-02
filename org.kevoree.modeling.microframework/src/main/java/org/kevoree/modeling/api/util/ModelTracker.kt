@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.util
 
 import org.kevoree.modeling.api.events.ModelElementListener
 import org.kevoree.modeling.api.events.ModelEvent
-import org.kevoree.modeling.api.compare.ModelCompare
+import org.kevoree.modeling.api.compare.DefaultModelCompare
 import org.kevoree.modeling.api.trace.Event2Trace
 import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.trace.TraceSequence
@@ -14,7 +14,7 @@ import org.kevoree.modeling.api.trace.TraceSequence
  * Time: 20:24
  */
 
-public class ModelTracker(val compare: ModelCompare) : ModelElementListener {
+public class ModelTracker(val compare: DefaultModelCompare) : ModelElementListener {
 
     val convertor = Event2Trace(compare)
     var currentModel: KObject? = null

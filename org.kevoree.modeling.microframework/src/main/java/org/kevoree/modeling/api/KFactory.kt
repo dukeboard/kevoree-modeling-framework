@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.json.JSONModelSerializer
 import org.kevoree.modeling.api.json.JSONModelLoader
 import org.kevoree.modeling.api.xmi.XMIModelLoader
 import org.kevoree.modeling.api.xmi.XMIModelSerializer
-import org.kevoree.modeling.api.compare.ModelCompare
+import org.kevoree.modeling.api.compare.DefaultModelCompare
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,11 +13,11 @@ import org.kevoree.modeling.api.compare.ModelCompare
  * Time: 21:00
  */
 
-trait KFactory {
+public trait KFactory {
 
-    fun create(metaClassName: String): org.kevoree.modeling.api.KObject?
+    fun create(metaClassName: String, callback: Callback<org.kevoree.modeling.api.KObject<*>?>)
 
-    fun root(elem: KObject)
+    fun root(elem: KObject<*>, callback: Callback<Boolean>)
 
     fun createJSONSerializer(): JSONModelSerializer
 
@@ -31,10 +31,12 @@ trait KFactory {
 
     fun createModelCloner(): ModelCloner
 
-    fun createModelPruner(): ModelPruner
+    fun createModelSlicer(): ModelSlicer
 
-    fun select(query: String): List<KObject>
+    fun select(query: String, callback: Callback<List<KObject<*>>>)
 
-    fun lookup(path: String) : KObject?
+    fun lookup(path: String, callback: Callback<KObject<*>>)
+
+    fun stream(query: String, callback: Callback<KObject<*>>)
 
 }

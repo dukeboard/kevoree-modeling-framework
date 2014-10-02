@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.trace
 
 import java.util.HashMap
-import org.kevoree.modeling.api.compare.ModelCompare
+import org.kevoree.modeling.api.compare.DefaultModelCompare
 import java.util.ArrayList
 
 /**

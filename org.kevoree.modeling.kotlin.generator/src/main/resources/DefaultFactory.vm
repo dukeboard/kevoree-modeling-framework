@@ -105,8 +105,8 @@ when(metaClassName){
         return org.kevoree.modeling.api.compare.ModelCompare(this)
     }
 
-    override fun createModelCloner() : org.kevoree.modeling.api.ModelCloner {
-        return org.kevoree.modeling.api.ModelCloner(this)
+    override fun createModelCloner() : org.kevoree.modeling.api.clone.ModelCloner {
+        return org.kevoree.modeling.api.clone.ModelCloner(this)
     }
 
     override fun createModelPruner() : org.kevoree.modeling.api.ModelPruner {

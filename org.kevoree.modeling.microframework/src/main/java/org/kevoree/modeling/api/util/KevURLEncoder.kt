@@ -12,7 +12,6 @@ public object KevURLEncoder {
     private val escaped = HashMap<Char, String>();
     private val rescaped = HashMap<String, Char>();
 
-
     {
         var i = 'a'
         while (i < 'z') {
@@ -52,7 +51,6 @@ public object KevURLEncoder {
         for (c in escaped.keySet()) {
             rescaped.put(escaped.get(c)!!, c)
         }
-
     }
 
     public fun encode(chain: String?): String? {

@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.trace
 
 import java.util.ArrayList
-import org.kevoree.modeling.api.compare.ModelCompare
+import org.kevoree.modeling.api.compare.DefaultModelCompare
 import org.kevoree.modeling.api.events.ModelEvent
 import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.util.ElementAttributeType
@@ -11,7 +11,7 @@ import org.kevoree.modeling.api.util.ActionType
  * Created by duke on 25/07/13.
  */
 
-class Event2Trace(val compare: ModelCompare) {
+class Event2Trace(val compare: DefaultModelCompare) {
 
     public fun convert(event: ModelEvent): TraceSequence {
         val result = ArrayList<ModelTrace>()

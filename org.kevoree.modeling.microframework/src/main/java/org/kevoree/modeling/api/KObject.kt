@@ -2,25 +2,30 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.events.*
 import org.kevoree.modeling.api.util.ActionType
+import org.kevoree.modeling.api.time.TimeTree
 
-trait KObject {
+public trait KObject<out A> {
 
-    fun setRecursiveReadOnly(): Unit
-    fun eContainer(): KObject?
-    fun isReadOnly(): Boolean
-    fun isRecursiveReadOnly(): Boolean
-    fun setInternalReadOnly()
-    fun delete()
     fun isDeleted(): Boolean
-    fun modelEquals(similarObj: KObject?): Boolean
-    fun deepModelEquals(similarObj: KObject?): Boolean
-    fun getRefInParent(): String?
-    fun findByPath(query: String): KObject?
-    fun findByID(relationName: String, idP: String): KObject?
+    fun isRoot(): Boolean
     fun path(): String
     fun metaClassName(): String
-    fun reflexiveMutator(mutatorType: ActionType, refName: String, value: Any?, setOpposite: Boolean, fireEvent: Boolean)
-    fun select(query: String): List<KObject>
+    fun referenceInParent(): String?
+    fun key(): String?
+    fun dimension(): String
+
+    fun delete(callback: Callback<Boolean>)
+    fun parent(callback: Callback<KObject<out Any>?>)
+
+    fun modelEquals(similarObj: A): Boolean
+    fun deepModelEquals(similarObj: A, callback: Callback<Boolean>)
+
+    fun findByPath(query: String, callback: Callback<KObject<*>?>)
+    fun findByID(relationName: String, idP: String, callback: Callback<KObject<*>?>)
+    fun select(query: String, callback: Callback<List<KObject<*>>>)
+    fun stream(query: String, callback: Callback<KObject<*>>)
+
+    /* Listener management */
     fun addModelElementListener(lst: ModelElementListener)
     fun removeModelElementListener(lst: ModelElementListener)
     fun removeAllModelElementListeners()
@@ -28,24 +33,25 @@ trait KObject {
     fun removeModelTreeListener(lst: ModelElementListener)
     fun removeAllModelTreeListeners()
 
-    fun visit(visitor: org.kevoree.modeling.api.util.ModelVisitor, recursive: Boolean, containedReference: Boolean, nonContainedReference: Boolean)
+    /* Visit API */
+    fun visitNotContained(visitor: ModelVisitor)
+    fun visitContained(visitor: ModelVisitor)
+    fun visitAll(visitor: ModelVisitor)
+    fun deepVisitNotContained(visitor: ModelVisitor)
+    fun deepVisitContained(visitor: ModelVisitor)
+    fun deepVisitAll(visitor: ModelVisitor)
+    fun visitAttributes(visitor: ModelAttributeVisitor)
 
-    fun visitNotContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
-    fun visitContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
-    fun visitReferences(visitor: org.kevoree.modeling.api.util.ModelVisitor)
-
-    fun deepVisitNotContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
-    fun deepVisitContained(visitor: org.kevoree.modeling.api.util.ModelVisitor)
-    fun deepVisitReferences(visitor: org.kevoree.modeling.api.util.ModelVisitor)
-
-
-    fun visitAttributes(visitor: org.kevoree.modeling.api.util.ModelAttributeVisitor)
-
-    fun createTraces(similarObj: org.kevoree.modeling.api.KObject?, isInter: Boolean, isMerge: Boolean, onlyReferences: Boolean, onlyAttributes: Boolean): List<org.kevoree.modeling.api.trace.ModelTrace>
+    /* Powerful Trace API, maybe consider to hide TODO */
+    fun createTraces(similarObj: A, isInter: Boolean, isMerge: Boolean, onlyReferences: Boolean, onlyAttributes: Boolean): List<org.kevoree.modeling.api.trace.ModelTrace>
     fun toTraces(attributes: Boolean, references: Boolean): List<org.kevoree.modeling.api.trace.ModelTrace>
+    fun mutate(mutatorType: ActionType, refName: String, value: Any?, setOpposite: Boolean, fireEvent: Boolean, callback: Callback<Boolean>)
+    /* end to clean zone TODO */
 
-    fun internalGetKey(): String?
+    /* Time navigation */
+    fun now(): Long
+    fun jump(time: Long, callback: Callback<A?>)
+    fun timeTree(): TimeTree
 
-    fun isRoot() : Boolean
 
 }

@@ -1,25 +1,16 @@
-package org.kevoree.modeling.api
+package org.kevoree.modeling.api.slice
 
+import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.trace.TraceSequence
-import java.util.ArrayList
 import org.kevoree.modeling.api.trace.ModelTrace
-import java.util.HashMap
-import org.kevoree.modeling.api.util.ModelVisitor
-import org.kevoree.modeling.api.trace.ModelAddTrace
+import org.kevoree.modeling.api.Callback
 
-/**
- * Created by duke on 8/27/14.
- *
- * special note for AngevinSacAVin :-)
- *
- */
+public class DefaultModelSlicer(val factory: org.kevoree.modeling.api.KFactory) {
 
-public class ModelPruner(val factory: KFactory) {
-
-    public fun prune(elems: List<KObject>): TraceSequence {
-        val traces = ArrayList<ModelTrace>()
-        val tempMap = HashMap<String, KObject>()
-        val parentMap = HashMap<String, KObject>()
+    public fun prune(elems: List<KObject<*>>): org.kevoree.modeling.api.trace.TraceSequence {
+        val traces = java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>()
+        val tempMap = java.util.HashMap<String, KObject<*>>()
+        val parentMap = java.util.HashMap<String, KObject<*>>()
         for (elem in elems) {
             internal_prune(elem, traces, tempMap, parentMap)
         }
@@ -30,10 +21,14 @@ public class ModelPruner(val factory: KFactory) {
         return TraceSequence(factory).populate(traces)
     }
 
-    private fun internal_prune(elem: KObject, traces: MutableList<ModelTrace>, cache: MutableMap<String, KObject>, parentMap: MutableMap<String, KObject>) {
+    private fun internal_prune(elem: org.kevoree.modeling.api.KObject<*>, traces: MutableList<ModelTrace>, cache: MutableMap<String, KObject<*>>, parentMap: MutableMap<String, KObject<*>>) {
         //collect parent which as not be added already
-        val parents: MutableList<KObject> = ArrayList<KObject>()
-        var currentParent = elem.eContainer()
+        val parents: MutableList<KObject<*>> = java.util.ArrayList<KObject<*>>()
+        elem.parent()
+
+
+        /*
+        var currentParent = elem.parent()
         while (currentParent != null && parentMap.get(currentParent!!.path()) == null && cache.get(currentParent!!.path()) == null) {
             parents.add(currentParent!!)
             currentParent = currentParent!!.eContainer()
@@ -56,7 +51,7 @@ public class ModelPruner(val factory: KFactory) {
         //We register this element as reachable
         cache.put(elem.path(), elem)
         //We continue to all reachable elements, potentially here we can exclude references
-        elem.visitReferences(object : ModelVisitor() {
+        elem.visitAll(object : ModelVisitor() {
             override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
                 if (cache.get(elem.path()) == null) {
                     //break potential loop
@@ -64,6 +59,7 @@ public class ModelPruner(val factory: KFactory) {
                 }
             }
         })
+        */
     }
 
 
