@@ -1,13 +1,13 @@
-package org.kevoree.modeling.api
+package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.time.TimeView
-import org.kevoree.modeling.api.time.TimeTree
+import org.kevoree.modeling.api.time.TimeView;
+import org.kevoree.modeling.api.time.TimeTree;
 
 /**
  * Created by duke on 9/30/14.
  */
 
-public trait Dimension {
+public interface Dimension {
     fun key(): String
     fun parent(callback: Callback<Dimension?>)
     fun children(callback: Callback<Set<Dimension>>)
