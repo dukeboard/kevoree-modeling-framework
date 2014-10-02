@@ -1,14 +1,20 @@
-package org.kevoree.modeling.api.clone
+package org.kevoree.modeling.api.clone;
 
-import org.kevoree.modeling.api.KFactory
-import org.kevoree.modeling.api.KObject
-import org.kevoree.modeling.api.ModelCloner
-import org.kevoree.modeling.api.Callback
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KFactory;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelCloner;
 
-public class DefaultModelCloner(val factory: KFactory) : ModelCloner {
+public class DefaultModelCloner implements ModelCloner {
+    private KFactory factory;
 
-    override fun <A : KObject<Any?>> clone(o: A, callback: Callback<A>) {
-        throw UnsupportedOperationException()
+    public DefaultModelCloner(KFactory factory) {
+        this.factory = factory;
+    }
+
+    @Override
+    public void clone(KObject o, Callback callback) {
+        throw new UnsupportedOperationException();
     }
 
     /*

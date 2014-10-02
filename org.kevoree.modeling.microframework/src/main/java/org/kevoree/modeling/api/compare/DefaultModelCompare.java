@@ -1,26 +1,35 @@
-package org.kevoree.modeling.api.compare
+package org.kevoree.modeling.api.compare;
 
-import org.kevoree.modeling.api.KFactory
-import org.kevoree.modeling.api.ModelCompare
-import org.kevoree.modeling.api.KObject
-import org.kevoree.modeling.api.trace.TraceSequence
-import org.kevoree.modeling.api.Callback
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KFactory;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelCompare;
+import org.kevoree.modeling.api.trace.TraceSequence;
 
 /**
  * Created by duke on 26/07/13.
  */
 
-public class DefaultModelCompare(val factory: KFactory) : ModelCompare {
+public class DefaultModelCompare implements ModelCompare {
+    private KFactory factory;
 
-    override fun merge(origin: KObject<Any?>, target: KObject<Any?>, callback: Callback<TraceSequence>) {
-        throw UnsupportedOperationException()
-    }
-    override fun inter(origin: KObject<Any?>, target: KObject<Any?>, callback: Callback<TraceSequence>) {
-        throw UnsupportedOperationException()
+    public DefaultModelCompare(KFactory factory) {
+        this.factory = factory;
     }
 
-    override fun diff(origin: KObject<Any?>, target: KObject<Any?>, callback: Callback<TraceSequence>) {
-        throw UnsupportedOperationException()
+    @Override
+    public void diff(KObject origin, KObject target, Callback<TraceSequence> callback) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void merge(KObject origin, KObject target, Callback<TraceSequence> callback) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void inter(KObject origin, KObject target, Callback<TraceSequence> callback) {
+        throw new UnsupportedOperationException();
     }
 
     /*
