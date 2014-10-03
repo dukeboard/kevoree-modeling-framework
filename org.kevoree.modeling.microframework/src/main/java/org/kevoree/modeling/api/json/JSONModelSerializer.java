@@ -1,14 +1,20 @@
-package org.kevoree.modeling.api.json
+package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.KObject
-import java.io.PrintStream
-import org.kevoree.modeling.api.ModelVisitor
-import org.kevoree.modeling.api.ModelAttributeVisitor
-import java.io.OutputStream
-import org.kevoree.modeling.api.ModelSerializer
-import java.io.ByteArrayOutputStream
-import org.kevoree.modeling.api.util.AttConverter
-import org.kevoree.modeling.api.Callback
+import org.kevoree.modeling.api.KObject;
+
+import java.io.PrintStream;
+
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
+
+import java.io.OutputStream;
+
+import org.kevoree.modeling.api.ModelSerializer;
+
+import java.io.ByteArrayOutputStream;
+
+import org.kevoree.modeling.api.util.Converters;
+import org.kevoree.modeling.api.Callback;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,29 +24,41 @@ import org.kevoree.modeling.api.Callback
  */
 
 
-class ModelReferenceVisitor(val out: PrintStream) : ModelVisitor() {
-    override fun beginVisitRef(refName: String, refType: String): Boolean {
-        out.print(",\"" + refName + "\":[")
-        isFirst = true
-        return true
+class ModelReferenceVisitor implements ModelVisitor {
+    private PrintStream out;
+    boolean isFirst = true;
+
+    public ModelReferenceVisitor(PrintStream out) {
+        this.out = out;
     }
-    override fun endVisitRef(refName: String) {
-        out.print("]")
+
+    @Override
+    public boolean beginVisitRef(String refName, String refType) {
+        out.print(",\"" + refName + "\":[");
+        isFirst = true;
+        return true;
     }
-    var isFirst = true
-    public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
+
+    @Override
+    public void endVisitRef(String refName) {
+        out.print("]");
+    }
+
+    @Override
+    public void visit(KObject elem, String refNameInParent, KObject parent) {
         if (!isFirst) {
-            out.print(",")
+            out.print(",");
         } else {
-            isFirst = false
+            isFirst = false;
         }
-        out.print("\"" + elem.path() + "\"")
+        out.print("\"" + elem.path() + "\"");
     }
 }
 
-public class JSONModelSerializer() : ModelSerializer {
+class JSONModelSerializer implements ModelSerializer {
 
-    override fun serialize(model: KObject<Any?>, callback: Callback<String>, error: Callback<Exception>) {
+    @Override
+    public void serialize(KObject model, Callback<String> callback, Callback<Exception> error) {
         val outstream = ByteArrayOutputStream()
         serializeToStream(model, outstream, object : Callback<Boolean> {
             override fun on(p: Boolean) {

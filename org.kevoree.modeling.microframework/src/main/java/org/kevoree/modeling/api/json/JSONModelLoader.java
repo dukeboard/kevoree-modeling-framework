@@ -1,12 +1,14 @@
-package org.kevoree.modeling.api.json
+package org.kevoree.modeling.api.json;
 
-import java.io.InputStream
-import org.kevoree.modeling.api.KObject
-import java.util.ArrayList
-import org.kevoree.modeling.api.util.ActionType
-import org.kevoree.modeling.api.KFactory
-import org.kevoree.modeling.api.ModelLoader
-import org.kevoree.modeling.api.util.ByteConverter
+import java.io.InputStream;
+import org.kevoree.modeling.api.KObject;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KFactory;
+import org.kevoree.modeling.api.ModelLoader;
+import org.kevoree.modeling.api.util.ByteConverter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,24 +16,31 @@ import org.kevoree.modeling.api.util.ByteConverter
  * Date: 28/08/13
  * Time: 13:08
  */
-public class JSONModelLoader(val factory: KFactory) : ModelLoader {
+public class JSONModelLoader implements ModelLoader {
+        private KFactory factory;
 
-    override fun loadModelFromString(str: String): List<KObject>? {
-        return deserialize(ByteConverter.byteArrayInputStreamFromString(str))
+    public JSONModelLoader(KFactory factory) {
+        this.factory = factory;
     }
 
-    override fun loadModelFromStream(inputStream: InputStream): List<KObject>? {
-        return deserialize(inputStream)
+    @Override
+    public List<KObject> loadModelFromString(String str) {
+        return deserialize(ByteConverter.byteArrayInputStreamFromString(str));
     }
 
-    private fun deserialize(instream: InputStream): List<KObject> {
+    @Override
+    public List<KObject> loadModelFromStream(InputStream inputStream) {
+        return deserialize(inputStream);
+    }
+
+    private List<KObject> deserialize(InputStream instream) {
         if (instream == null) {
-            throw Exception("Null input Stream")
+            throw new RuntimeException("Null input Stream");
         }
-        var resolverCommands = ArrayList<ResolveCommand>()
-        var roots = ArrayList<KObject>()
-        var lexer: Lexer = Lexer(instream)
-        var currentToken = lexer.nextToken()
+        ArrayList<ResolveCommand> resolverCommands = new ArrayList<ResolveCommand>();
+        ArrayList<KObject> roots =  new ArrayList<KObject>();
+        Lexer lexer = Lexer(instream);
+        boolean currentToken = lexer.nextToken();
         if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
             loadObject(lexer, null, null, roots, resolverCommands)
         } else {
