@@ -35,7 +35,6 @@ public class DefaultModelSlicer {
     private void internal_prune(KObject elem, List<ModelTrace> traces, Map<String, KObject> cache, Map<String, KObject> parentMap) {
         //collect parent which as not be added already
         List<KObject> parents = new ArrayList<KObject>();
-
         final Callback<KObject> parentExplorer = new Callback<KObject>() {
             @Override
             public void on(KObject currentParent) {

@@ -10,30 +10,6 @@ import org.kevoree.modeling.api.json.JSONString
 
 //TODO optimize code redondency
 
-object ModelTraceConstants {
-    val traceType: String = "t"
-    val src: String = "s"
-    val refname: String = "r"
-    val previouspath: String = "p"
-    val typename: String = "n"
-    val objpath: String = "o"
-    val content: String = "c"
-    val openJSON: String = "{"
-    val closeJSON: String = "}"
-    val bb: String = "\""
-    val coma: String = ","
-    val dp: String = ":"
-}
-
-trait ModelTrace {
-    val refName: String
-    val traceType : ActionType
-    val srcPath: String
-    override fun toString(): String {
-        return toCString(true, true)
-    }
-    fun toCString(withTypeName: Boolean, withSrcPath: Boolean): String
-}
 
 class ModelControlTrace(override val srcPath: String, val traceTypeGlobal: String?) : ModelTrace {
 
