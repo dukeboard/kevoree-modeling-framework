@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Converters {
 
-    public String convFlatAtt(Object value) {
+    public static String convFlatAtt(Object value) {
         if (value == null) {
             return null;
         }
@@ -29,19 +29,19 @@ public class Converters {
         }
     }
 
-    public String[] convAttFlat(String value) {
+    public static String[] convAttFlat(String value) {
         return value.split("$");
     }
 
-    public char toChar(byte b) {
+    public static char toChar(byte b) {
         return (char) b;
     }
 
-    public byte fromChar(char c) {
+    public static byte fromChar(char c) {
         return (byte) c;
     }
 
-    public ByteArrayInputStream byteArrayInputStreamFromString(String s) {
+    public static ByteArrayInputStream byteArrayInputStreamFromString(String s) {
         return new ByteArrayInputStream(s.getBytes());
     }
 

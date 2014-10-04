@@ -8,46 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 
-enum Type {
-    VALUE(0),
-    LEFT_BRACE(1),
-    RIGHT_BRACE(2),
-    LEFT_BRACKET(3),
-    RIGHT_BRACKET(4),
-    COMMA(5),
-    COLON(6),
-    EOF(42);
-
-    private final int value;
-
-    private Type(int value) {
-        this.value = value;
-    }
-}
-
-class Token {
-    private Type tokenType;
-    private Object value;
-
-    public Token(Type tokenType, Object value) {
-        this.tokenType = tokenType;
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        String v;
-        if (value != null) {
-            v = " (" + value + ")";
-        } else {
-            v = "";
-        }
-        String result = tokenType.toString() + v;
-        return result;
-    }
-}
-
-class Lexer {
+public class Lexer {
     private InputStream inputStream;
     private byte[] bytes;
     private Token EOF;
@@ -120,7 +81,7 @@ class Lexer {
         return c == '-' || c == '+' || c == '.' || isDigit(c) || isBooleanLetter(c);
     }
 
-    private Token nextToken() {
+    public Token nextToken() {
         if (isDone()) {
             return EOF;
         }
