@@ -92,7 +92,7 @@ public class JSONString {
         }
     }
 
-    public String unescape(String src) {
+    public static String unescape(String src) {
         if (src == null) {
             return null;
         }

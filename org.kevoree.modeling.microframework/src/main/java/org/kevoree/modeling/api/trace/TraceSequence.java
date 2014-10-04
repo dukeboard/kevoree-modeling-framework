@@ -2,9 +2,11 @@ package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.KFactory;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.Token;
 import org.kevoree.modeling.api.json.Type;
+import org.kevoree.modeling.api.util.ActionType;
 import org.kevoree.modeling.api.util.Converters;
 
 import java.util.*;
@@ -70,16 +72,21 @@ public class TraceSequence {
                 if (traceTypeRead == null) {
                     traceTypeRead = previousControlTypeName;
                 }
+                if(traceTypeRead.equals(ActionType.CONTROL.toString())){
+                    String src = keys.get(ModelTraceConstants.src);
+                    if (src != null) {
+                        previousControlSrc = JSONString.unescape(src);
+                    }
+                    val globalTypeName = keys.get(ModelTraceConstants.refname)
+                    if (globalTypeName != null) {
+                        previousControlTypeName = globalTypeName;
+                    }
+                }
+
+
                 when(traceTypeRead) {
                     ActionType.CONTROL.code->{
-                        val src = keys.get(ModelTraceConstants.src)
-                        if (src != null) {
-                            previousControlSrc = JSONString.unescape(src) !!
-                        }
-                        val globalTypeName = keys.get(ModelTraceConstants.refname)
-                        if (globalTypeName != null) {
-                            previousControlTypeName = globalTypeName;
-                        }
+
                     }
                     ActionType.SET.code->{
                         var srcFound = keys.get(ModelTraceConstants.src)
