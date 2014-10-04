@@ -1,6 +1,8 @@
 package org.kevoree.modeling.api.json;
 
 import java.io.InputStream;
+
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
 import org.kevoree.modeling.api.util.ActionType;
 import org.kevoree.modeling.api.KFactory;
 import org.kevoree.modeling.api.ModelLoader;
-import org.kevoree.modeling.api.util.ByteConverter;
+import org.kevoree.modeling.api.util.Converters;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,14 +25,16 @@ public class JSONModelLoader implements ModelLoader {
         this.factory = factory;
     }
 
+    // TODO asynchronous implementation
     @Override
-    public List<KObject> loadModelFromString(String str) {
-        return deserialize(ByteConverter.byteArrayInputStreamFromString(str));
+    public void loadModelFromString(String str, Callback<KObject> callback, Callback<Exception> error) {
+        deserialize(new Converters().byteArrayInputStreamFromString(str));
     }
 
+    // TODO asynchronous implementation
     @Override
-    public List<KObject> loadModelFromStream(InputStream inputStream) {
-        return deserialize(inputStream);
+    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback, Callback<Exception> error) {
+        deserialize(inputStream);
     }
 
     private List<KObject> deserialize(InputStream instream) {
@@ -149,9 +153,17 @@ public class JSONModelLoader implements ModelLoader {
 
 }
 
-class ResolveCommand(val roots: ArrayList<KObject>, val ref: String, val currentRootElem: KObject, val refName: String) {
+class ResolveCommand {
+    private ArrayList<KObject> roots;
+    private String ref;
+    private
+
+    public ResolveCommand(ArrayList<KObject> roots, String ref, KObject currentRootElem, String refName) {
+
+    }
+
     fun run() {
-        var referencedElement: Any? = null
+        var referencedElement:Any ? = null
         var i = 0
         while (referencedElement == null && i < roots.size()) {
             referencedElement = roots.get(i++).findByPath(ref)

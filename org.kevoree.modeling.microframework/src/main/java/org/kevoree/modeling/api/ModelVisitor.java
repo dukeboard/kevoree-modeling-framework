@@ -24,7 +24,7 @@ public abstract class ModelVisitor {
 
     public abstract void visit(KObject elem, String refNameInParent, KObject parent);
 
-    protected HashMap<String, KObject> alreadyVisited = null;
+    public HashMap<String, KObject> alreadyVisited = null;
 
     public void beginVisitElem(KObject elem) {
 

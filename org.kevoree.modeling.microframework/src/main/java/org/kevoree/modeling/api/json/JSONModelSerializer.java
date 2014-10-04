@@ -1,20 +1,9 @@
 package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.KObject;
-
-import java.io.PrintStream;
-
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
-
-import java.io.OutputStream;
-
-import org.kevoree.modeling.api.ModelSerializer;
-
-import java.io.ByteArrayOutputStream;
-
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.util.Converters;
-import org.kevoree.modeling.api.Callback;
+
+import java.io.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,7 +13,7 @@ import org.kevoree.modeling.api.Callback;
  */
 
 
-class ModelReferenceVisitor implements ModelVisitor {
+class ModelReferenceVisitor extends ModelVisitor {
     private PrintStream out;
     boolean isFirst = true;
 
@@ -58,77 +47,97 @@ class ModelReferenceVisitor implements ModelVisitor {
 class JSONModelSerializer implements ModelSerializer {
 
     @Override
-    public void serialize(KObject model, Callback<String> callback, Callback<Exception> error) {
-        val outstream = ByteArrayOutputStream()
-        serializeToStream(model, outstream, object : Callback<Boolean> {
-            override fun on(p: Boolean) {
-                outstream.close()
-                if (p) {
-                    callback.on(outstream.toString())
-                } else {
-                    error.on(Exception("Unknow Error while during model serialization !"));
+    public void serialize(KObject model, final Callback<String> callback, final Callback<Exception> error) {
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        serializeToStream(model, outstream, new Callback<Boolean>() {
+            @Override
+            public void on(Boolean p) {
+                try {
+                    outstream.close();
+                    if (p) {
+                        callback.on(outstream.toString());
+                    } else {
+                        error.on(new Exception("Unknown error while model serialization !"));
+                    }
+
+                } catch (IOException e) {
+                    error.on(e);
                 }
             }
         }, error);
     }
 
-    override fun serializeToStream(model: KObject<Any?>, raw: OutputStream, callback: Callback<Boolean>, error: Callback<Exception>) {
-        val out = PrintStream(java.io.BufferedOutputStream(raw), false)
+    @Override
+    public void serializeToStream(KObject model, OutputStream raw, Callback<Boolean> callback, Callback<Exception> error) {
+        final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
+
         //visitor for printing reference
-        val internalReferenceVisitor = ModelReferenceVisitor(out)
+        final ModelReferenceVisitor internalReferenceVisitor = new ModelReferenceVisitor(out);
         //Visitor for Model navigation
-        var masterVisitor = object : ModelVisitor() {
-            var isFirstInRef = true
-            override public fun beginVisitElem(elem: KObject<*>) {
-                if (!isFirstInRef) {
-                    out.print(",")
-                    isFirstInRef = false
-                }
-                printAttName(elem, out)
-                internalReferenceVisitor.alreadyVisited?.clear()
-                elem.visitNotContained(internalReferenceVisitor)
-            }
-            override public fun endVisitElem(elem: KObject<*>) {
-                out.println("}")
-                isFirstInRef = false
-            }
-            override fun beginVisitRef(refName: String, refType: String): Boolean {
-                out.print(",\"" + refName + "\":[")
-                isFirstInRef = true
-                return true
-            }
-            override fun endVisitRef(refName: String) {
-                out.print("]")
-                isFirstInRef = false
-            }
-            public override fun visit(elem: KObject<*>, refNameInParent: String, parent: KObject<*>) {
+        ModelVisitor masterVisitor = new ModelVisitor() {
+            boolean isFirstInRef = true;
+
+            @Override
+            public void visit(KObject elem, String refNameInParent, KObject parent) {
 
             }
-        }
+
+            @Override
+            public void beginVisitElem(KObject elem) {
+                if (!isFirstInRef) {
+                    out.print(",");
+                    isFirstInRef = false;
+                }
+                printAttName(elem, out);
+                internalReferenceVisitor.alreadyVisited.clear();
+                elem.visitNotContained(internalReferenceVisitor);
+            }
+
+            @Override
+            public void endVisitElem(KObject elem) {
+                out.println("}");
+                isFirstInRef = false;
+            }
+
+            @Override
+            public boolean beginVisitRef(String refName, String refType) {
+                out.print(",\"" + refName + "\":[");
+                isFirstInRef = true;
+                return true;
+            }
+
+            @Override
+            public void endVisitRef(String refName) {
+                out.print("]");
+                isFirstInRef = false;
+            }
+        };
         model.deepVisitContained(masterVisitor);
         out.flush();
     }
 
-    private fun printAttName(elem: KObject<*>, out: PrintStream) {
-        var isRoot = ""
+    private void printAttName(KObject elem, final PrintStream out) {
+        String isRoot = "";
         if (elem.path().equals("/")) {
-            isRoot = "root:"
+            isRoot = "root:";
         }
-        out.print("\n{\"class\":\"" + isRoot + elem.metaClassName() + "@" + elem.key() + "\"")
-        val attributeVisitor = object : ModelAttributeVisitor {
-            public override fun visit(value: Any?, name: String, parent: KObject<*>) {
+        out.print("\n{\"class\":\"" + isRoot + elem.metaClassName() + "@" + elem.key() + "\"");
+        ModelAttributeVisitor attributeVisitor = new ModelAttributeVisitor() {
+
+            @Override
+            public void visit(String name, Object value) {
                 if (value != null) {
-                    out.print(",\"" + name + "\":\"")
-                    if (value is java.util.Date) {
-                        JSONString.encode(out, "" + value.getTime())
+                    out.print(",\"" + name + "\":\"");
+                    if (value instanceof java.util.Date) {
+                        JSONString.encode(out, "" + ((java.util.Date) value).getTime());
                     } else {
-                        JSONString.encode(out, AttConverter.convFlatAtt(value))
+                        JSONString.encode(out, new Converters().convFlatAtt(value));
                     }
-                    out.print("\"")
+                    out.print("\"");
                 }
             }
-        }
-        elem.visitAttributes(attributeVisitor)
+        };
+        elem.visitAttributes(attributeVisitor);
     }
 
 }
