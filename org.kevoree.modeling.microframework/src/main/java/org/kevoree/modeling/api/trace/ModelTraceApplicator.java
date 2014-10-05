@@ -1,8 +1,8 @@
-package org.kevoree.modeling.api.trace
+package org.kevoree.modeling.api.trace;
 
-import org.kevoree.modeling.api.util.ActionType
-import org.kevoree.modeling.api.KObject
-import org.kevoree.modeling.api.KFactory
+import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,23 +10,31 @@ import org.kevoree.modeling.api.KFactory
  * Date: 06/08/13
  * Time: 08:54
  */
-class ModelTraceApplicator(val targetModel: KObject, val factory: KFactory) {
+public class ModelTraceApplicator {
 
-    var pendingObj: KObject? = null
-    var pendingParent: KObject? = null
-    var pendingParentRefName: String? = null
-    var pendingObjPath: String? = null
-    var fireEvents: Boolean = true
+        private KObject targetModel;
 
-    private fun tryClosePending(srcPath: String?) {
+        public ModelTraceApplicator(KObject targetModel){
+           this.targetModel = targetModel;
+        }
+
+    private KObject pendingObj = null;
+    private KObject pendingParent = null;
+
+    private void tryClosePending(String srcPath) {
         if(pendingObj != null && pendingObjPath != srcPath){
-            pendingParent!!.reflexiveMutator(ActionType.ADD, pendingParentRefName!!, pendingObj, true, fireEvents)
+            pendingParent.reflexiveMutator(ActionType.ADD, pendingParentRefName!!, pendingObj, true, fireEvents)
             pendingObj = null
             pendingObjPath = null
             pendingParentRefName = null
             pendingParent = null
         }
     }
+
+
+    var pendingParentRefName: String? = null
+    var pendingObjPath: String? = null
+    var fireEvents: Boolean = true
 
     public fun createOrAdd(previousPath: String?, target: KObject, refName: String, potentialTypeName: String?) {
         var targetElem: Any? = null

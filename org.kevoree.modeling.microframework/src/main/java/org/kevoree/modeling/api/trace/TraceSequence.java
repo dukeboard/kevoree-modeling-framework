@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api.trace;
 
-import org.kevoree.modeling.api.KFactory;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.json.Lexer;
@@ -20,10 +19,7 @@ import java.util.*;
 
 public class TraceSequence {
 
-    private KFactory factory;
-
-    public TraceSequence(KFactory factory) {
-        this.factory = factory;
+    public TraceSequence() {
     }
 
     List<ModelTrace> traces = new ArrayList<ModelTrace>();
@@ -68,86 +64,69 @@ public class TraceSequence {
             }
 
             if (currentToken.getTokenType() == Type.RIGHT_BRACE) {
-                String traceTypeRead = keys.get(ModelTraceConstants.traceType);
+                String traceTypeRead = keys.get(ModelTraceConstants.traceType.toString());
                 if (traceTypeRead == null) {
                     traceTypeRead = previousControlTypeName;
                 }
-                if(traceTypeRead.equals(ActionType.CONTROL.toString())){
-                    String src = keys.get(ModelTraceConstants.src);
+                if (traceTypeRead.equals(ActionType.CONTROL.toString())) {
+                    String src = keys.get(ModelTraceConstants.src.toString());
                     if (src != null) {
                         previousControlSrc = JSONString.unescape(src);
                     }
-                    val globalTypeName = keys.get(ModelTraceConstants.refname)
+                    String globalTypeName = keys.get(ModelTraceConstants.refname.toString());
                     if (globalTypeName != null) {
                         previousControlTypeName = globalTypeName;
                     }
                 }
-
-
-                when(traceTypeRead) {
-                    ActionType.CONTROL.code->{
-
+                if (traceTypeRead.equals(ActionType.SET.toString())) {
+                    String srcFound = keys.get(ModelTraceConstants.src.toString());
+                    if (srcFound == null) {
+                        srcFound = previousControlSrc;
+                    } else {
+                        srcFound = JSONString.unescape(srcFound);
                     }
-                    ActionType.SET.code->{
-                        var srcFound = keys.get(ModelTraceConstants.src)
-                        if (srcFound == null) {
-                            srcFound = previousControlSrc
-                        } else {
-                            srcFound = JSONString.unescape(srcFound)
-                        }
-                        traces.add(ModelSetTrace(srcFound !!, keys.get(ModelTraceConstants.refname)
-                        !!, JSONString.unescape(keys.get(ModelTraceConstants.objpath)), JSONString.unescape(keys.get(ModelTraceConstants.content)), JSONString.unescape(keys.get(ModelTraceConstants.typename))))
-                        ;
+                    traces.add(new ModelSetTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.objpath.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString())), JSONString.unescape(keys.get(ModelTraceConstants.typename.toString()))));
+                }
+                if (traceTypeRead.equals(ActionType.ADD.toString())) {
+                    String srcFound = keys.get(ModelTraceConstants.src.toString());
+                    if (srcFound == null) {
+                        srcFound = previousControlSrc;
+                    } else {
+                        srcFound = JSONString.unescape(srcFound);
                     }
-                    ActionType.ADD.code->{
-                        var srcFound = keys.get(ModelTraceConstants.src)
-                        if (srcFound == null) {
-                            srcFound = previousControlSrc
-                        } else {
-                            srcFound = JSONString.unescape(srcFound)
-                        }
-                        traces.add(ModelAddTrace(srcFound !!, keys.get(ModelTraceConstants.refname)
-                        !!, JSONString.unescape(keys.get(ModelTraceConstants.previouspath) !!),
-                        keys.get(ModelTraceConstants.typename)));
+                    traces.add(new ModelAddTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.previouspath.toString())), keys.get(ModelTraceConstants.typename.toString())));
+                }
+                if (traceTypeRead.equals(ActionType.ADD_ALL.toString())) {
+                    String srcFound = keys.get(ModelTraceConstants.src.toString());
+                    if (srcFound == null) {
+                        srcFound = previousControlSrc;
+                    } else {
+                        srcFound = JSONString.unescape(srcFound);
                     }
-                    ActionType.ADD_ALL.code->{
-                        var srcFound = keys.get(ModelTraceConstants.src)
-                        if (srcFound == null) {
-                            srcFound = previousControlSrc
-                        } else {
-                            srcFound = JSONString.unescape(srcFound)
-                        }
-                        traces.add(ModelAddAllTrace(srcFound !!, keys.get(ModelTraceConstants.refname)
-                        !!, JSONString.unescape(keys.get(ModelTraceConstants.content)) ?.split(";") ?.
-                        toList(), JSONString.unescape(keys.get(ModelTraceConstants.typename)) ?.split(";") ?.toList()));
+                    traces.add(new ModelAddAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.content.toString())).split(";"), JSONString.unescape(keys.get(ModelTraceConstants.typename.toString())).split(";")));
+                }
+                if (traceTypeRead.equals(ActionType.RENEW_INDEX.toString())) {
+                }
+                if (traceTypeRead.equals(ActionType.REMOVE_ALL.toString())) {
+                    String srcFound = keys.get(ModelTraceConstants.src.toString());
+                    if (srcFound == null) {
+                        srcFound = previousControlSrc;
+                    } else {
+                        srcFound = JSONString.unescape(srcFound);
                     }
-                    ActionType.REMOVE.code->{
-                        var srcFound = keys.get(ModelTraceConstants.src)
-                        if (srcFound == null) {
-                            srcFound = previousControlSrc
-                        } else {
-                            srcFound = JSONString.unescape(srcFound)
-                        }
-                        traces.add(ModelRemoveTrace(srcFound !!, keys.get(ModelTraceConstants.refname)
-                        !!, JSONString.unescape(keys.get(ModelTraceConstants.objpath) !!)!!));
+                    traces.add(new ModelRemoveAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString())));
+                }
+                if (traceTypeRead.equals(ActionType.REMOVE.toString())) {
+                    String srcFound = keys.get(ModelTraceConstants.src.toString());
+                    if (srcFound == null) {
+                        srcFound = previousControlSrc;
+                    } else {
+                        srcFound = JSONString.unescape(srcFound);
                     }
-                    ActionType.REMOVE_ALL.code->{
-                        var srcFound = keys.get(ModelTraceConstants.src)
-                        if (srcFound == null) {
-                            srcFound = previousControlSrc
-                        } else {
-                            srcFound = JSONString.unescape(srcFound)
-                        }
-                        traces.add(ModelRemoveAllTrace(srcFound !!, keys.get(ModelTraceConstants.refname) !!));
-                    }
-                    ActionType.RENEW_INDEX.code->{
-                    }
-                    else->{
-                        println("Trace lost !!!")
-                    }
+                    traces.add(new ModelRemoveTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.objpath.toString()))));
                 }
             }
-            currentToken = lexer.nextToken()
+            currentToken = lexer.nextToken();
         }
         return this;
     }
@@ -196,26 +175,14 @@ public class TraceSequence {
     }
 
     public boolean applyOn(KObject target) {
-        KFactory bestFactory = factory;
-        if (target is KObjectProxy){
-            if (target.originFactory != null) {
-                bestFactory = target.originFactory;
-            }
-        }
-        ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target, bestFactory);
+        ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target);
         traceApplicator.applyTraceOnModel(this);
         //TODO implements the result
         return true;
     }
 
     public boolean silentlyApplyOn(KObject target) {
-        KFactory bestFactory = factory;
-        if (target instanceof KObjectProxy) {
-            if (target.originFactory != null) {
-                bestFactory = target.originFactory;
-            }
-        }
-        ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target, bestFactory);
+        ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target);
         traceApplicator.setFireEvents(false);
         traceApplicator.applyTraceOnModel(this);
         return true;

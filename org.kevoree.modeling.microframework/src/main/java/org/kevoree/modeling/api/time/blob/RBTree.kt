@@ -22,6 +22,7 @@ object RBCONST {
 }
 
 class Node(var key: Long, var value: STATE, var color: Color, var left: Node?, var right: Node?) {
+
     public var parent: Node? = null
 
     {

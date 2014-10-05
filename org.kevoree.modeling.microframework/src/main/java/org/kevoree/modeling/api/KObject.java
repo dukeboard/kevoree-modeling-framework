@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by thomas on 10/2/14.
  */
-public interface KObject<A> {
+public interface KObject<A, B extends KFactory> {
     public boolean isDeleted();
 
     public boolean isRoot();
@@ -24,6 +24,8 @@ public interface KObject<A> {
     public String key();
 
     public String dimension();
+
+    public B factory();
 
     public void delete(Callback<Boolean> callback);
 
@@ -83,5 +85,6 @@ public interface KObject<A> {
     public void jump(Long time, Callback<A> callback);
 
     public TimeTree timeTree();
+
 
 }

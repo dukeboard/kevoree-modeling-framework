@@ -16,18 +16,18 @@ public class ModelAddAllTrace implements ModelTrace {
 
     private String srcPath;
 
-    private List<String> previousPath;
+    private String[] previousPath;
 
-    private List<String> typeName;
+    private String[] typeName;
 
-    public ModelAddAllTrace(String srcPath, String refName, List<String> previousPath, List<String> typeName) {
+    public ModelAddAllTrace(String srcPath, String refName, String[] previousPath, String[] typeName) {
         this.srcPath = srcPath;
         this.refName = refName;
         this.previousPath = previousPath;
         this.typeName = typeName;
     }
 
-    private String mkString(List<String> ss) {
+    private String mkString(String[] ss) {
         if (ss == null) {
             return null;
         }
