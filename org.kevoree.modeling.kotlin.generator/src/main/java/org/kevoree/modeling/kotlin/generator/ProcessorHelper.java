@@ -384,9 +384,9 @@ public class ProcessorHelper {
      * @return The absolute path of the folder where to generate the content of the package.
      */
     public String getPackageGenDir(GenerationContext ctx, EPackage pack) {
-        String modelGenBaseDir = ctx.rootGenerationDirectory.getAbsolutePath() + "/";
-        modelGenBaseDir += fqn(pack).replace(".", "/") + "/";
-        return modelGenBaseDir.toLowerCase();
+        String modelGenBaseDir = ctx.rootGenerationDirectory.getAbsolutePath() + File.separator;
+        modelGenBaseDir += fqn(pack).toLowerCase().replace(".", File.separator) + File.separator;
+        return modelGenBaseDir;
     }
 
     /**
@@ -398,8 +398,8 @@ public class ProcessorHelper {
      */
     public String getPackageUserDir(GenerationContext ctx, EPackage pack) {
         if (ctx.rootUserDirectory != null) {
-            String modelGenBaseDir = ctx.rootUserDirectory.getAbsolutePath() + "/";
-            modelGenBaseDir += fqn(pack).replace(".", "/") + "/";
+            String modelGenBaseDir = ctx.rootUserDirectory.getAbsolutePath()+ File.separator;
+            modelGenBaseDir += fqn(pack).toLowerCase().replace(".", File.separator)+ File.separator;
             return modelGenBaseDir;
         } else {
             return "";
