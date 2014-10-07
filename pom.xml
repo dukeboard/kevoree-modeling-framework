@@ -76,6 +76,7 @@
         <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>
+        <module>datastores/org.kevoree.modeling.microframework.datastores.mongodb</module>
         <!--
         <module>datastores/org.kevoree.modeling.microframework.datastores.http</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.websocket</module>
