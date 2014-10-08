@@ -10,11 +10,8 @@ package org.kevoree.modeling.api.time.blob
 
 class EntityMeta() {
 
-    //var previous: TimePoint? = null
-    //var next: TimePoint? = null
     var latestPersisted: Long? = null
     var metatype: String? = null
-
     val sep = "/"
 
     override fun toString(): String {

@@ -1,4 +1,6 @@
-package org.kevoree.modeling.api;
+package org.kevoree.modeling.api.data;
+
+import org.kevoree.modeling.api.KObject;
 
 public interface DataCache {
 

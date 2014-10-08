@@ -11,11 +11,13 @@ import org.kevoree.modeling.api.KObject
 
 public trait KObjectProxy : KObject {
 
+    /*
     var isResolved: Boolean
     var inResolution: Boolean
     var isDirty : Boolean
     var originFactory: PersistenceKFactory?
-
+    */
+      /*
     fun setOriginPath(path: String)
 
     fun relativeLookupFrom(base: KObject, relationInParent: String, key: String): KObject? {
@@ -25,6 +27,6 @@ public trait KObjectProxy : KObject {
         } else {
             return originFactory?.lookup("$currentPath/$relationInParent[$key]")
         }
-    }
+    }   */
 
 }

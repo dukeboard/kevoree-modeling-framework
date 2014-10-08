@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.cache;
 
-import org.kevoree.modeling.api.DataCache;
+import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.KObject;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class DefaultMemoryCache implements DataCache {
     public Object getPayload(String key, int index) {
         Object[] previousArray = payload_cache.get(key);
         if (previousArray == null) {
-            throw new RuntimeException("Inconsistancy error, bad allocation");
+            throw new RuntimeException("Inconsistency error, bad allocation");
         }
         return previousArray[index];
     }
@@ -36,7 +36,7 @@ public class DefaultMemoryCache implements DataCache {
     public void putPayload(String key, int index, Object payload) {
         Object[] previousArray = payload_cache.get(key);
         if (previousArray == null) {
-            throw new RuntimeException("Inconsistancy error, bad allocation");
+            throw new RuntimeException("Inconsistency error, bad allocation");
         }
         previousArray[index] = payload;
     }

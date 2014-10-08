@@ -1,44 +1,49 @@
-package org.kevoree.modeling.api.persistence
+package org.kevoree.modeling.api.data;
 
-import java.util.HashMap
-import java.util.HashSet
-import org.kevoree.modeling.api.events.ModelEvent
-import org.kevoree.modeling.api.events.ModelElementListener
-import org.kevoree.modeling.api.Callback
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.events.ModelElementListener;
+import org.kevoree.modeling.api.events.ModelEvent;
 
-/**
- * Created with IntelliJ IDEA.
- * User: duke
- * Date: 05/11/2013
- * Time: 15:32
- */
+public class MemoryDataStore implements DataStore {
 
-public open class MemoryDataStore : DataStore {
+    @Override
+    public void put(String key, String value, Callback<String> callback, Callback<Exception> error) {
 
-    override fun register(listener: ModelElementListener, from: Long?, to: Long?, path: String) {
-        throw UnsupportedOperationException()
-    }
-    override fun unregister(listener: ModelElementListener) {
-        throw UnsupportedOperationException()
     }
 
-    override fun put(key: String, value: String, callback: Callback<String>, error: Callback<Exception>) {
-        throw UnsupportedOperationException()
+    @Override
+    public void get(String key, Callback<String> callback, Callback<Exception> error) {
+
     }
-    override fun get(key: String, callback: Callback<String>, error: Callback<Exception>) {
-        throw UnsupportedOperationException()
+
+    @Override
+    public void remove(String key, Callback<String> callback, Callback<Exception> error) {
+
     }
-    override fun remove(key: String, callback: Callback<String>, error: Callback<Exception>) {
-        throw UnsupportedOperationException()
+
+    @Override
+    public void commit(Callback<String> callback, Callback<Exception> error) {
+
     }
-    override fun commit(callback: Callback<String>, error: Callback<Exception>) {
-        throw UnsupportedOperationException()
+
+    @Override
+    public void close(Callback<String> callback, Callback<Exception> error) {
+
     }
-    override fun close(callback: Callback<String>, error: Callback<Exception>) {
-        throw UnsupportedOperationException()
+
+    @Override
+    public void notify(ModelEvent event) {
+
     }
-    override fun notify(event: ModelEvent) {
-        throw UnsupportedOperationException()
+
+    @Override
+    public void register(ModelElementListener listener, long from, long to, String path) {
+
+    }
+
+    @Override
+    public void unregister(ModelElementListener listener) {
+
     }
 
 

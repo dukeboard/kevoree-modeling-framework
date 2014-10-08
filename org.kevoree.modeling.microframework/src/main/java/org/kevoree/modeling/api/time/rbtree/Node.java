@@ -12,6 +12,10 @@ public class Node {
 
     protected long key;
 
+    public long getKey(){
+        return key;
+    }
+
     protected State value;
 
     protected Color color;
