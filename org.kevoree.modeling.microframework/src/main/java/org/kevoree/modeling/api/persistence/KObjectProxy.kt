@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.KObject
  * Time: 11:28
  */
 
+/*
 public trait KObjectProxy : KObject {
 
     /*
@@ -30,3 +31,5 @@ public trait KObjectProxy : KObject {
     }   */
 
 }
+
+*/

@@ -24,12 +24,44 @@ public class ModelEvent {
         this.previousPath = previousPath;
     }
 
+    public Object getValue() {
+        return value;
+    }
+
+    public KObject getSource() {
+        return source;
+    }
+
+    public String getPreviousPath() {
+        return previousPath;
+    }
+
+    public Object getPrevious_value() {
+        return previous_value;
+    }
+
+    public String getElementAttributeName() {
+        return elementAttributeName;
+    }
+
+    public ActionType getEtype() {
+        return etype;
+    }
+
+    public ElementAttributeType getElementAttributeType() {
+        return elementAttributeType;
+    }
+
     @Override
     public String toString() {
         if (source instanceof TimeAwareKObject) {
-            return "ModelEvent[src:[${source.now()}]${source.path()}, type:$etype, elementAttributeType:$elementAttributeType, elementAttributeName:$elementAttributeName, value:$value, previousValue:$previous_value]";
+            return "ModelEvent[src:[" + source.now() + "]" + source.path() + ", type:" + etype + ", elementAttributeType:" + elementAttributeType + ", elementAttributeName:" + elementAttributeName + ", value:" + value + ", previousValue:" + previous_value + "]";
         } else {
-            return "ModelEvent[src:${source?.path()}, type:$etype, elementAttributeType:$elementAttributeType, elementAttributeName:$elementAttributeName, value:$value, previousValue:$previous_value]";
+            String srcPath = "";
+            if (source != null) {
+                srcPath = source.path();
+            }
+            return "ModelEvent[src:" + srcPath + ", type:" + etype + ", elementAttributeType:" + elementAttributeType + ", elementAttributeName:" + elementAttributeName + ", value:" + value + ", previousValue:" + previous_value + "]";
         }
     }
 }

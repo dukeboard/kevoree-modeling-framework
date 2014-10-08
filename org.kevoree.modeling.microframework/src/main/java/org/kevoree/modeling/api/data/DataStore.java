@@ -13,11 +13,11 @@ import org.kevoree.modeling.api.events.ModelEvent;
 
 public interface DataStore {
 
-    public void put(String key, String value, Callback<String> callback, Callback<Exception> error);
-
     public void get(String key, Callback<String> callback, Callback<Exception> error);
 
-    public void remove(String key, Callback<String> callback, Callback<Exception> error);
+    public void put(String key, String value, Callback<Boolean> callback, Callback<Exception> error);
+
+    public void remove(String key, Callback<Boolean> callback, Callback<Exception> error);
 
     public void commit(Callback<String> callback, Callback<Exception> error);
 
