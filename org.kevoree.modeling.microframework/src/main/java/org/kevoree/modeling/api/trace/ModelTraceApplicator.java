@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.trace;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.util.Helper;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,124 +35,131 @@ public class ModelTraceApplicator {
         }
     }
 
-    public void createOrAdd(String previousPath, KObject target, String refName, String potentialTypeName, Callback<Boolean> callback) throws Exception {
-        Object targetElem = null;
+    public void createOrAdd(String previousPath, KObject target, String refName, String potentialTypeName, Callback<Throwable> callback) {
         if (previousPath != null) {
-            targetElem = targetModel.findByPath(previousPath);
-        }
-
-        if (targetElem != null) {
-            target.mutate(ActionType.ADD, refName, targetElem, true, fireEvents);
+            targetModel.findByPath(previousPath, (targetElem) -> {
+                if (targetElem != null) {
+                    target.mutate(ActionType.ADD, refName, targetElem, true, fireEvents);
+                    callback.on(null);
+                } else {
+                    if (potentialTypeName == null) {
+                        callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + refName + ", unconsistency error"));
+                    } else {
+                        pendingObj = targetModel.factory().create(potentialTypeName);
+                        pendingObjPath = previousPath;
+                        pendingParentRefName = refName;
+                        pendingParent = target;
+                        callback.on(null);
+                    }
+                }
+            });
         } else {
-            //add to pending
             if (potentialTypeName == null) {
-                throw new Exception("Unknow typeName for potential path "+previousPath+", to store in "+refName+", unconsistency error");
+                callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + refName + ", unconsistency error"));
+            } else {
+                pendingObj = targetModel.factory().create(potentialTypeName);
+                pendingObjPath = previousPath;
+                pendingParentRefName = refName;
+                pendingParent = target;
+                callback.on(null);
             }
-            pendingObj = targetModel.factory().create(potentialTypeName);
-            pendingObjPath = previousPath;
-            pendingParentRefName = refName;
-            pendingParent = target;
         }
     }
 
     public void applyTraceSequence(final TraceSequence traceSeq, final Callback<Throwable> callback) {
-
-        int i = 0;
-        Callback<Throwable> next = new Callback<Throwable>(){
-            @Override
-            public void on(Throwable throwable) {
-               if(throwable != null){
-                   callback.on(throwable);
-                   if()
-               }
+        Helper.forall(traceSeq.traces, (trace, next) -> applyTrace(trace, next), (t) -> {
+            if (t != null) {
+                callback.on(t);
+            } else {
+                tryClosePending(null);
+                callback.on(null);
             }
-        };
-        for (ModelTrace trace : traceSeq.traces) {
-
-        }
-        tryClosePending(null);
-
+        });
     }
 
-    public void applyTrace(ModelTrace trace, Callback<Throwable> callback){
-        /*
-        KObject target = targetModel;
-        if (trace instanceof ModelAddTrace){
+    public void applyTrace(ModelTrace trace, Callback<Throwable> callback) {
+        if (trace instanceof ModelAddTrace) {
+            ModelAddTrace addTrace = (ModelAddTrace) trace;
             tryClosePending(null);
-            if (!trace.getSrcPath().isEmpty()) {
-                var resolvedTarget = targetModel.findByPath(trace.srcPath);
+            targetModel.findByPath(trace.getSrcPath(), (resolvedTarget) -> {
                 if (resolvedTarget == null) {
-                    throw Exception("Add Trace source not found for path : " + trace.srcPath + " pending " + pendingObjPath + "\n" + trace.toString())
-                }
-                target = resolvedTarget !!
-            }
-            createOrAdd(trace.previousPath, target, trace.refName, trace.typeName)
-        }
-        if (trace instanceof ModelAddAllTrace){
-            tryClosePending(null);
-            var i = 0
-            for (path in trace.previousPath !!){
-                createOrAdd(path, target, trace.refName, trace.typeName.get(i))
-                i++
-            }
-        }
-        if (trace instanceof ModelRemoveTrace){
-            tryClosePending(trace.srcPath);
-            var tempTarget:KObject ? = targetModel;
-            if (trace.srcPath != "") {
-                tempTarget = targetModel.findByPath(trace.srcPath) as ? KObject;
-            }
-            if (tempTarget != null) {
-                //Potentially null if top tree already dropped
-                tempTarget !!.
-                reflexiveMutator(ActionType.REMOVE, trace.refName, targetModel.findByPath(trace.objPath), true, fireEvents)
-            }
-        }
-        if (trace instanceof ModelRemoveAllTrace){
-            tryClosePending(trace.srcPath);
-            var tempTarget:KObject ? = targetModel;
-            if (trace.srcPath != "") {
-                tempTarget = targetModel.findByPath(trace.srcPath) as ? KObject;
-            }
-            if (tempTarget != null) {
-                tempTarget !!.reflexiveMutator(ActionType.REMOVE_ALL, trace.refName, null, true, fireEvents)
-            }
-        }
-        if (trace instanceof ModelSetTrace){
-            tryClosePending(trace.srcPath);
-            if (!trace.getSrcPath().isEmpty() && !trace.getSrcPath().equals(pendingObjPath)) {
-                var tempObject = targetModel.findByPath(trace.srcPath);
-                if (tempObject == null) {
-                    throw Exception("Set Trace source not found for path : " + trace.srcPath + " pending " + pendingObjPath + "\n" + trace.toString())
-                }
-                target = tempObject as KObject;
-            } else {
-                if (trace.srcPath == pendingObjPath && pendingObj != null) {
-                    target = pendingObj !!;
-                }
-            }
-            if (trace.content != null) {
-                target.reflexiveMutator(ActionType.SET, trace.refName, trace.content, true, fireEvents)
-            } else {
-                Object targetContentPath = null;
-
-                var targetContentPath:Any ? = if (trace.objPath != null) {
-                    targetModel.findByPath(trace.objPath)
+                    callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                 } else {
-                    null
-                } ;
-                if (targetContentPath != null) {
-                    target.mutate(ActionType.SET, trace.refName, targetContentPath, true, fireEvents);
+                    createOrAdd(addTrace.getPreviousPath(), resolvedTarget, trace.getRefName(), addTrace.getTypeName(), callback);
+                }
+            });
+        } else if (trace instanceof ModelRemoveTrace) {
+            ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
+            tryClosePending(trace.getSrcPath());
+            targetModel.findByPath(trace.getSrcPath(), (targetElem) -> {
+                if (targetElem != null) {
+                    targetModel.findByPath(removeTrace.getObjPath(), (remoteObj) -> {
+                        targetElem.mutate(ActionType.REMOVE, trace.getRefName(), remoteObj, true, fireEvents);
+                        callback.on(null);
+                    });
                 } else {
-                    if (trace.typeName != null && trace.typeName != "") {
-                        createOrAdd(trace.objPath, target, trace.refName, trace.typeName) //must create the pending element
+                    callback.on(null);
+                }
+            });
+        } else if (trace instanceof ModelSetTrace) {
+            ModelSetTrace setTrace = (ModelSetTrace) trace;
+            tryClosePending(trace.getSrcPath());
+            if (!trace.getSrcPath().equals(pendingObjPath)) {
+                targetModel.findByPath(trace.getSrcPath(), (tempObject) -> {
+                    if (tempObject == null) {
+                        callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                     } else {
-                        target.reflexiveMutator(ActionType.SET, trace.refName, targetContentPath, true, fireEvents) //case real null content
+                        if (setTrace.getContent() != null) {
+                            tempObject.mutate(ActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
+                            callback.on(null);
+                        } else {
+                            if (setTrace.getObjPath() != null) {
+                                targetModel.findByPath(setTrace.getObjPath(), (targetObj) -> {
+                                    if (targetObj != null) {
+                                        tempObject.mutate(ActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
+                                        callback.on(null);
+                                    } else {
+                                        if (trace.getTraceType() != null) {
+                                            createOrAdd(setTrace.getObjPath(), tempObject, trace.getRefName(), setTrace.getTypeName(), callback); //must create the pending element
+                                        } else {
+                                            tempObject.mutate(ActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
+                                            callback.on(null);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            } else {
+                if (pendingObj == null) {
+                    callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
+                } else {
+                    if (setTrace.getContent() != null) {
+                        pendingObj.mutate(ActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
+                        callback.on(null);
+                    } else {
+                        if (setTrace.getObjPath() != null) {
+                            targetModel.findByPath(setTrace.getObjPath(), (targetObj) -> {
+                                if (targetObj != null) {
+                                    pendingObj.mutate(ActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
+                                    callback.on(null);
+                                } else {
+                                    if (trace.getTraceType() != null) {
+                                        createOrAdd(setTrace.getObjPath(), pendingObj, trace.getRefName(), setTrace.getTypeName(), callback); //must create the pending element
+                                    } else {
+                                        pendingObj.mutate(ActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
+                                        callback.on(null);
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
             }
+        } else {
+            callback.on(new Exception("Unknow trace "+trace));
         }
-        */
     }
 
 }

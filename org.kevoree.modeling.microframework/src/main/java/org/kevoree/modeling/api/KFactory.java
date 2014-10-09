@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface KFactory {
 
-    public void create(String metaClassName);
+    public KObject create(String metaClassName);
 
     public void root(KObject elem, Callback<Boolean> callback);
 

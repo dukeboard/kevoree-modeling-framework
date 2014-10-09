@@ -63,6 +63,30 @@ public class ModelSetTrace implements ModelTrace {
         return toCString(true, true);
     }
 
+    public String getObjPath() {
+        return objPath;
+    }
+
+    public void setObjPath(String objPath) {
+        this.objPath = objPath;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     @Override
     public String toCString(boolean withTypeName, boolean withSrcPath) {
         StringBuilder buffer = new StringBuilder();

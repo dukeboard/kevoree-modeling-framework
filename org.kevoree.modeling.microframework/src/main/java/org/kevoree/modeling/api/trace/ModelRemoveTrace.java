@@ -22,6 +22,14 @@ public class ModelRemoveTrace implements ModelTrace {
         this.objPath = objPath;
     }
 
+    public String getObjPath() {
+        return objPath;
+    }
+
+    public void setObjPath(String objPath) {
+        this.objPath = objPath;
+    }
+
     @Override
     public String getRefName() {
         return refName;
