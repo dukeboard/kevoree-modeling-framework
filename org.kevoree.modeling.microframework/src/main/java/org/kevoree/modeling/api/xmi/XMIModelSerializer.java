@@ -28,10 +28,7 @@ class ReferencesVisitor extends ModelVisitor {
 
     @Override
     public void visit(KObject elem, String refNameInParent, KObject parent) {
-        String adjustedAddress = context.resourceSet.objToAddr(elem);
-        if (adjustedAddress == null) {
-            adjustedAddress = context.addressTable.get(elem);
-        }
+        String adjustedAddress = context.addressTable.get(elem);
         value = (value == null ? adjustedAddress : value + " " + adjustedAddress);
     }
 
@@ -158,7 +155,6 @@ class ModelAddressVisitor extends ModelVisitor {
 
 
 class SerializationContext {
-    public ResourceSet resourceSet = null;
     public boolean ignoreGeneratedID = false;
     public KObject model;
     public OutputStream raw;

@@ -32,13 +32,6 @@ public class XMIResolveCommand {
                 return;
             }
         }
-        if (context.resourceSet != null) {
-            referencedElement = context.resourceSet.resolveObject(ref);
-            if (referencedElement != null) {
-                target.mutate(mutatorType, refName, referencedElement, true, false);
-                return;
-            }
-        }
         throw new Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " " + refName + "  on " + target.metaClassName() + "(path:" + target.path() + ")");
     }
 }
