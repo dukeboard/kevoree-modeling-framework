@@ -10,9 +10,9 @@ public class Node {
     public static final char RED_DELETE = '2';
     public static final char RED_EXISTS = '3';
 
-    protected Long key;
+    protected long key;
 
-    public Long getKey(){
+    public long getKey(){
         return key;
     }
 
