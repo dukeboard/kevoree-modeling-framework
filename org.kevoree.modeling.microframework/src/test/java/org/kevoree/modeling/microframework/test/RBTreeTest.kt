@@ -3,13 +3,12 @@ package org.kevoree.modeling.microframework.test
 import org.junit.Test
 import org.junit.BeforeClass
 import org.junit.Assert.assertTrue
-import org.kevoree.modeling.api.time.blob.RBTree
-import org.kevoree.modeling.api.time.blob.Node
-import org.kevoree.modeling.api.time.blob.STATE
 import kotlin.test.assertNull
 import kotlin.test.assertNotNull
 import java.util.Queue
 import java.util.LinkedList
+import org.kevoree.modeling.api.time.rbtree.RBTree
+import org.kevoree.modeling.api.time.rbtree.State
 
 /**
  * Created by gregory.nain on 01/08/2014.
@@ -24,9 +23,9 @@ public class RBTreeTest {
             val tree : RBTree = RBTree()
             for(i in MIN..j) {
                 if( (i % 3) == 0L ) {
-                    tree.insert(i,STATE.DELETED);
+                    tree.insert(i,State.DELETED);
                 } else {
-                    tree.insert(i,STATE.EXISTS);
+                    tree.insert(i,State.EXISTS);
                 }
             }
             //printTree(tree.root!!);

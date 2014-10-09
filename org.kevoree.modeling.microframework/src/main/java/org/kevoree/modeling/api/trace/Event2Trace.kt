@@ -50,7 +50,7 @@ class Event2Trace(val compare: DefaultModelCompare) {
                 throw Exception("Can't convert event : " + event);
             }
         }
-        return TraceSequence(compare.factory).populate(result);
+        return TraceSequence().populate(result);
     }
 
     public fun inverse(event: ModelEvent): TraceSequence {

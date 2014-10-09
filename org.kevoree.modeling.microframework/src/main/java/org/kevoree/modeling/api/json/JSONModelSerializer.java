@@ -44,7 +44,7 @@ class ModelReferenceVisitor extends ModelVisitor {
     }
 }
 
-class JSONModelSerializer implements ModelSerializer {
+public class JSONModelSerializer implements ModelSerializer {
 
     @Override
     public void serialize(KObject model, final Callback<String> callback, final Callback<Exception> error) {

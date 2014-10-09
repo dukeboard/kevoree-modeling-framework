@@ -76,7 +76,7 @@ public interface KObject<A, B extends KFactory> {
 
     public List<ModelTrace> toTraces(boolean attributes, boolean references);
 
-    public void mutate(ActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent, Callback<Boolean> callback);
+    public void mutate(ActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent);
     /* end to clean zone TODO */
 
     /* Time navigation */

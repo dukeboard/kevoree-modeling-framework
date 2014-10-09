@@ -11,7 +11,8 @@ import java.util.List;
  * Created by thomas on 10/2/14.
  */
 public interface KFactory {
-    public void create(String metaClassName, Callback<KObject> callback);
+
+    public void create(String metaClassName);
 
     public void root(KObject elem, Callback<Boolean> callback);
 
