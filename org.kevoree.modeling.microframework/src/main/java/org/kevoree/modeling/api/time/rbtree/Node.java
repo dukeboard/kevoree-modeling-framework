@@ -10,9 +10,9 @@ public class Node {
     public static final char RED_DELETE = '2';
     public static final char RED_EXISTS = '3';
 
-    protected long key;
+    protected Long key;
 
-    public long getKey(){
+    public Long getKey(){
         return key;
     }
 
@@ -68,6 +68,30 @@ public class Node {
         } else {
             return null;
         }
+    }
+
+    public Node getLeft() {
+        return left;
+    }
+
+    public void setLeft(Node left) {
+        this.left = left;
+    }
+
+    public Node getRight() {
+        return right;
+    }
+
+    public void setRight(Node right) {
+        this.right = right;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public void setParent(Node parent) {
+        this.parent = parent;
     }
 
     public void serialize(StringBuilder builder) {
