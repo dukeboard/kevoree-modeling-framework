@@ -35,8 +35,6 @@ public interface KObject<A, B extends KFactory> {
 
     public void deepModelEquals(A similarObj, Callback<Boolean> callback);
 
-    public void findByPath(String query, Callback<KObject> callback);
-
     public void findByID(String relationName, String idP, Callback<KObject> callback);
 
     public void select(String query, Callback<List<KObject>> callback);
