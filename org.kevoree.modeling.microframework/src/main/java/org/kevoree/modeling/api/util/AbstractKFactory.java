@@ -1,8 +1,11 @@
 package org.kevoree.modeling.api.util;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.clone.DefaultModelCloner;
+import org.kevoree.modeling.api.compare.DefaultModelCompare;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
+import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
@@ -22,27 +25,27 @@ public abstract class AbstractKFactory implements KFactory {
     }
 
     @Override
-    public XMIModelSerializer createXMISerializer() {
-        return null;
+    public ModelSerializer createXMISerializer() {
+        return new XMIModelSerializer();
     }
 
     @Override
-    public XMIModelLoader createXMILoader() {
-        return null;
+    public ModelLoader createXMILoader() {
+        return new XMIModelLoader(this);
     }
 
     @Override
     public ModelCompare createModelCompare() {
-        return null;
+        return new DefaultModelCompare(this);
     }
 
     @Override
     public ModelCloner createModelCloner() {
-        return null;
+        return new DefaultModelCloner(this);
     }
 
     @Override
     public ModelSlicer createModelSlicer() {
-        return null;
+        return new DefaultModelSlicer();
     }
 }
