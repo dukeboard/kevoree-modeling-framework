@@ -14,6 +14,7 @@ import java.util.List;
  * Created by thomas on 10/2/14.
  */
 public interface KObject<A, B extends KFactory> {
+
     public boolean isDeleted();
 
     public boolean isRoot();

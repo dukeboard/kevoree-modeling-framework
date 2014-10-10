@@ -39,4 +39,8 @@ public interface KFactory {
 
     public MetaClass[] metaClasses();
 
+    public String dimension();
+
+    public long now();
+
 }

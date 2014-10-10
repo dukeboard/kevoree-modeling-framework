@@ -14,6 +14,25 @@ import org.kevoree.modeling.api.xmi.XMIModelSerializer;
  */
 public abstract class AbstractKFactory implements KFactory {
 
+    private long now;
+
+    private String dimension;
+
+    protected AbstractKFactory(long now, String dimension) {
+        this.now = now;
+        this.dimension = dimension;
+    }
+
+    @Override
+    public long now() {
+        return now;
+    }
+
+    @Override
+    public String dimension() {
+        return dimension;
+    }
+
     @Override
     public ModelSerializer createJSONSerializer() {
         return new JSONModelSerializer();
