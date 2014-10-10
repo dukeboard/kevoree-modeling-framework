@@ -1,12 +1,13 @@
 package org.kevoree.modeling.api.util;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.ModelVisitor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by duke on 7/22/14.
@@ -14,186 +15,253 @@ import java.util.Map;
 
 public class Selector {
 
+    private class SelectorContext {
+
+        public Callback<List<KObject>> successCallback;
+        public Callback<Throwable> error;
+
+        public KmfQuery staticExtractedQuery;
+        public HashMap<String, Boolean> alreadyVisited;
+        public HashMap<String, KObject> tempResult;
+        public boolean[] subResult;
+        public ArrayList<KObject> result;
+
+    }
 
 
-    fun select(root:KObject, query:String)
+    private class SelectorModelVisitor extends ModelVisitor {
 
-    :List<KObject>
+        private SelectorContext context;
 
-    {
-        var extractedQuery = extractFirstQuery(query)
-        var result = ArrayList < KObject > ()
-        var tempResult = HashMap < String, KObject>()
-        tempResult.put(root.path(), root)
-        while (extractedQuery != null) {
-            val staticExtractedQuery = extractedQuery !!
-                    val clonedRound = tempResult
-            tempResult = HashMap < String, KObject > ()
-            for (currentRootKey in clonedRound.keySet()) {
-                val currentRoot = clonedRound.get(currentRootKey) !!
-                        var resolved:
-                KObject ? = null
-                if (!staticExtractedQuery.oldString.contains("*")) {
-                    resolved = currentRoot.findByPath(staticExtractedQuery.oldString)
-                }
-                if (resolved != null) {
-                    tempResult.put(resolved !!.path(), resolved !!)
+        public SelectorModelVisitor(SelectorContext context) {
+            this.context = context;
+        }
+
+        @Override
+        public boolean beginVisitRef(String refName, String refType) {
+            if (context.staticExtractedQuery.previousIsDeep) {
+                return true;  //we cannot filter here, to early in case of deep
+            } else {
+                if (refName.equals(context.staticExtractedQuery.relationName)) {
+                    return true;
                 } else {
-                    var alreadyVisited = HashMap < String, Boolean>()
-                    var visitor = object:ModelVisitor() {
-                        override fun beginVisitRef(refName:String, refType:String):Boolean {
-                            if (staticExtractedQuery.previousIsDeep) {
-                                return true;  //we cannot filter here, to early in case of deep
-                            } else {
-                                if (refName == staticExtractedQuery.relationName) {
-                                    return true;
-                                } else {
-                                    if (staticExtractedQuery.relationName.contains("*")) {
-                                        if (refName.matches(staticExtractedQuery.relationName.replace("*", ".*"))) {
-                                            return true;
-                                        }
-                                    }
-                                }
-                                return false;
+                    if (context.staticExtractedQuery.relationName.contains("*")) {
+                        if (refName.matches(context.staticExtractedQuery.relationName.replace("*", ".*"))) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+
+        @Override
+        public void visit(KObject elem, String refNameInParent, KObject parent) {
+            if (context.staticExtractedQuery.previousIsRefDeep) {
+                if (alreadyVisited.containsKey(parent.path() + "/" + refNameInParent + "[" + elem.key() + "]")) {
+                    return;
+                }
+            }
+            if (context.staticExtractedQuery.previousIsDeep && !context.staticExtractedQuery.previousIsRefDeep) {
+                if (alreadyVisited.containsKey(elem.path())) {
+                    return;
+                }
+            }
+            boolean selected = true;
+            if (context.staticExtractedQuery.previousIsDeep) {
+                selected = false;
+                if (refNameInParent.equals(context.staticExtractedQuery.relationName)) {
+                    selected = true;
+                } else {
+                    if (context.staticExtractedQuery.relationName.contains("*")) {
+                        if (refNameInParent.matches(context.staticExtractedQuery.relationName.replace("*", ".*"))) {
+                            selected = true;
+                        }
+                    }
+                }
+            }
+            if (selected) {
+                if (context.staticExtractedQuery.params.size() == 1 && context.staticExtractedQuery.params.get("@id") != null && context.staticExtractedQuery.params.get("@id").name == null){
+                    if (context.staticExtractedQuery.params.get("@id") != null && elem.key().equals(context.staticExtractedQuery.params.get("@id").value)){
+                        context.tempResult.put(elem.path(), elem);
+                    }
+                }else{
+                    if (context.staticExtractedQuery.params.size() > 0) {
+                        boolean[] subResult = new boolean[context.staticExtractedQuery.params.size()];
+                        Arrays.fill(subResult, false);
+                        context.subResult = subResult;
+
+                        elem.visitAttributes(new SelectorModelAttributeVisitor(context));
+                        boolean finalRes = true;
+                        //Check final result
+                        for (boolean sub : subResult) {
+                            if (!sub) {
+                                finalRes = false;
                             }
                         }
+                        if (finalRes) {
+                            context.tempResult.put(elem.path(), elem);
+                        }
+                    } else {
+                        context.tempResult.put(elem.path(), elem);
+                    }
+                }
+            }
+            if (context.staticExtractedQuery.previousIsDeep) {
+                if (context.staticExtractedQuery.previousIsRefDeep) {
+                    context.alreadyVisited.put(parent.path() + "/" + refNameInParent + "[" + elem.key() + "]", true);
+                    elem.visitAll(this, new Callback<Throwable>() {
+                        public void on(Throwable throwable) {
+                            //TODO: Something
+                        }
+                    });
+                    //elem.visit(this, false, true, true);
+                } else {
+                    context.alreadyVisited.put(elem.path(), true);
+                    elem.visitContained(this, new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable) {
+                            //TODO: Something
+                        }
+                    });
+                    //elem.visit(this, false, true, false);
+                }
+            }
+        }
+    }
 
-                        override fun visit(elem:KObject, refNameInParent:String, parent:KObject){
-                            if (staticExtractedQuery.previousIsRefDeep) {
-                                if (alreadyVisited.containsKey(parent.path() + "/" + refNameInParent + "[" + elem.internalGetKey() + "]")) {
-                                    return;
-                                }
+    private class SelectorModelAttributeVisitor implements ModelAttributeVisitor {
+
+        private SelectorContext context;
+
+        public SelectorModelAttributeVisitor(SelectorContext context) {
+            this.context = context;
+        }
+
+        public void visit(String name, Object value) {
+            for (String att : context.staticExtractedQuery.params.keySet()) {
+                if ("@id".equals(att)) {
+                    throw new RuntimeException("Malformed KMFQuery, bad selector attribute without attribute name : " + context.staticExtractedQuery.params.get(att));
+                } else {
+                    boolean keySelected = false;
+                    if (att.equals(name)) {
+                        keySelected = true;
+                    } else {
+                        if (att.contains("*") && name.matches(att.replace("*", ".*"))) {
+                            keySelected = true;
+                        }
+                    }
+                    KmfQueryParam attvalue = context.staticExtractedQuery.params.get(att);
+                    //now check value
+                    if (keySelected) {
+                        if (value == null) {
+                            if (attvalue.value.equals("null")) {
+                                context.subResult[attvalue.idParam] = true;
                             }
-                            if (staticExtractedQuery.previousIsDeep && !staticExtractedQuery.previousIsRefDeep) {
-                                if (alreadyVisited.containsKey(elem.path())) {
-                                    return;
-                                }
-                            }
-                            var selected = true
-                            if (staticExtractedQuery.previousIsDeep) {
-                                selected = false
-                                if (refNameInParent == staticExtractedQuery.relationName) {
-                                    selected = true;
+                                /*
+                                if (attvalue.negative) {
                                 } else {
-                                    if (staticExtractedQuery.relationName.contains("*")) {
-                                        if (refNameInParent.matches(staticExtractedQuery.relationName.replace("*", ".*"))) {
-                                            selected = true;
-                                        }
+                                    if (attvalue.value == "null") {
+                                        subResult.set(attvalue.idParam, true);
+                                    }
+                                }
+                                */
+                        } else {
+                            if (attvalue.negative) {
+                                if (!attvalue.value.contains("*") && value != attvalue.value) {
+                                    context.subResult[attvalue.idParam] = true;
+                                } else {
+                                    if (!value.toString().matches(attvalue.value.replace("*", ".*"))) {
+                                        context.subResult[attvalue.idParam] = true;
+                                    }
+                                }
+                            } else {
+                                if (value == attvalue.value) {
+                                    context.subResult[attvalue.idParam] = true;
+                                } else {
+                                    if (value.toString().matches(attvalue.value.replace("*", ".*"))) {
+                                        context.subResult[attvalue.idParam] = true;
                                     }
                                 }
                             }
-                            if (selected) {
-                                if (staticExtractedQuery.params.size == 1 && staticExtractedQuery.params.get("@id") != null && staticExtractedQuery.params.get("@id")
-                                !!.name == null){
-                                    if (elem.internalGetKey() == staticExtractedQuery.params.get("@id") ?.value){
-                                        tempResult.put(elem.path(), elem)
-                                    }
-                                }else{
-                                    if (staticExtractedQuery.params.size > 0) {
-                                        val subResult = Array < Boolean > (staticExtractedQuery.params.size) {i -> false}
-                                        elem.visitAttributes(object:ModelAttributeVisitor {
-                                            override fun visit(value:Any ?, name:String, parent:KObject){
-                                                for (att in staticExtractedQuery.params.keySet()) {
-                                                    if (att == "@id") {
-                                                        throw Exception("Malformed KMFQuery, bad selector attribute without attribute name : " + staticExtractedQuery.params.get(att))
-                                                    } else {
-                                                        var keySelected = false
-                                                        if (att == name) {
-                                                            keySelected = true
-                                                        } else {
-                                                            if (att.contains("*") && name.matches(att.replace("*", ".*"))) {
-                                                                keySelected = true
-                                                            }
-                                                        }
-                                                        val attvalue = staticExtractedQuery.params.get(att) !!
-                                                        //now check value
-                                                        if (keySelected) {
-                                                            if (value == null) {
-                                                                if (attvalue.negative) {
-                                                                    if (attvalue.value != "null") {
-                                                                        subResult.set(attvalue.idParam, true)
-                                                                    }
-                                                                } else {
-                                                                    if (attvalue.value == "null") {
-                                                                        subResult.set(attvalue.idParam, true)
-                                                                    }
-                                                                }
-                                                            } else {
-                                                                if (attvalue.negative) {
-                                                                    if (!attvalue.value.contains("*") && value != attvalue.value) {
-                                                                        subResult.set(attvalue.idParam, true)
-                                                                    } else {
-                                                                        if (!value.toString().matches(attvalue.value.replace("*", ".*"))) {
-                                                                            subResult.set(attvalue.idParam, true)
-                                                                        }
-                                                                    }
-                                                                } else {
-                                                                    if (value == attvalue.value) {
-                                                                        subResult.set(attvalue.idParam, true)
-                                                                    } else {
-                                                                        if (value.toString().matches(attvalue.value.replace("*", ".*"))) {
-                                                                            subResult.set(attvalue.idParam, true)
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        })
-                                        var finalRes = true
-                                        //Check final result
-                                        for (sub in subResult) {
-                                            if (!sub) {
-                                                finalRes = false
-                                            }
-                                        }
-                                        if (finalRes) {
-                                            tempResult.put(elem.path(), elem)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private ExecutorService executor = Executors.newCachedThreadPool();
+
+
+    public void select(KObject root, String query, Callback<List<KObject>> success, Callback<Throwable> error) {
+        executor.submit(()-> {
+            SelectorContext context = new SelectorContext();
+            context.error = error;
+            context.successCallback = success;
+            context.tempResult = new HashMap<>();
+            context.result = new ArrayList<>();
+            context.tempResult.put(root.path(), root);
+
+            try {
+                List<KmfQuery> queryPieces = new ArrayList<>();
+                KmfQuery extractedQuery = extractFirstQuery(query);
+                while (extractedQuery != null) {
+                    queryPieces.add(extractedQuery);
+                    extractedQuery = extractFirstQuery(extractedQuery.subQuery);
+                }
+
+                Helper.forall(queryPieces, (kmfQuery, next) -> {
+
+                    KmfQuery staticExtractedQuery = kmfQuery;
+                    HashMap<String, KObject> clonedRound = context.tempResult;
+                    context.tempResult = new HashMap<>();
+
+                    Helper.forall(new ArrayList<>(clonedRound.keySet()), (currentRootKey, next1) -> {
+                        KObject currentRoot = clonedRound.get(currentRootKey);
+                        if (!staticExtractedQuery.oldString.contains("*")) {
+                            currentRoot.factory().lookup(staticExtractedQuery.oldString, resolved -> {
+                                if (resolved != null) {
+                                    context.tempResult.put(resolved.path(), resolved);
+                                } else {
+                                    ModelVisitor visitor = new SelectorModelVisitor(context);
+                                    if (staticExtractedQuery.previousIsDeep) {
+                                        if(staticExtractedQuery.previousIsRefDeep) {
+                                            currentRoot.visitAll(visitor, next1);
+                                        } else {
+                                            currentRoot.visitContained(visitor, next1);
                                         }
                                     } else {
-                                        tempResult.put(elem.path(), elem)
+                                        currentRoot.visitAll(visitor, next1);
                                     }
                                 }
-                            }
-                            if (staticExtractedQuery.previousIsDeep) {
-                                if (staticExtractedQuery.previousIsRefDeep) {
-                                    alreadyVisited.put(parent.path() + "/" + refNameInParent + "[" + elem.internalGetKey() + "]", true);
-                                    elem.visit(this, false, true, true)
-                                } else {
-                                    alreadyVisited.put(elem.path(), true);
-                                    elem.visit(this, false, true, false)
-                                }
-                            }
+                            });
                         }
-                    }
-                    if (staticExtractedQuery.previousIsDeep) {
-                        currentRoot.visit(visitor, false, true, staticExtractedQuery.previousIsRefDeep)
+                    }, next);
+                }, (thowable)->{
+                    if(thowable == null) {
+                        context.result.addAll(context.tempResult.values());
+                        context.successCallback.on(context.result);
                     } else {
-                        currentRoot.visit(visitor, false, true, true)
+                        context.error.on(thowable);
                     }
-                }
+                });
+
+            } catch(Throwable t) {
+                context.error.on(t);
             }
-            if (staticExtractedQuery.subQuery == null) {
-                extractedQuery = null
-            } else {
-                extractedQuery = extractFirstQuery(staticExtractedQuery.subQuery)
-            }
-        }
-        for (v in tempResult.keySet()) {
-            result.add(tempResult.get(v) !!)
-        }
-        return result
+        });
     }
 
     public KmfQuery extractFirstQuery(String query) {
+        if(query == null) {return null;}
         if (query.charAt(0) == '/') {
             String subQuery = null;
             if (query.length() > 1) {
                 subQuery = query.substring(1);
             }
-            HashMap<String, KmfQueryParam> params = new HashMap<String, KmfQueryParam>();
+            HashMap<String, KmfQueryParam> params = new HashMap<>();
             return new KmfQuery("", params, subQuery, "/", false, false);
         }
         if (query.startsWith("**/")) {
