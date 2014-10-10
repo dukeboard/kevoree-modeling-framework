@@ -86,10 +86,8 @@ public class DefaultModelCompare implements ModelCompare {
                                 String refName = diffChild.referenceInParent();
                                 traces.add(new ModelRemoveTrace(src, refName, diffChild.path()));
                             }
-                            callback.on(new TraceSequence().populate(traces));
-                        } else {
-                            callback.on(new TraceSequence().populate(traces));
                         }
+                        callback.on(new TraceSequence().populate(traces));
                     }
                 });
             }

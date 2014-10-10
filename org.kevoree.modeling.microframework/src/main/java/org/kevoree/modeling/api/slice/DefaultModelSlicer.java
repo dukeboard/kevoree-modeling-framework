@@ -11,6 +11,10 @@ import org.kevoree.modeling.api.util.Helper;
 
 import java.util.*;
 
+/*
+ *  Special thanks to to #AngevinSacAVin
+  * */
+
 public class DefaultModelSlicer implements ModelSlicer {
 
     private void internal_prune(KObject elem, List<ModelTrace> traces, Map<String, KObject> cache, Map<String, KObject> parentMap, Callback<Throwable> callback) {

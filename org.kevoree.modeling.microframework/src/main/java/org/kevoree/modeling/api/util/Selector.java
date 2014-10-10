@@ -10,7 +10,7 @@ import org.kevoree.modeling.api.ModelVisitor
  * Created by duke on 7/22/14.
  */
 
-object Selector {
+public class Selector {
 
     fun select(root: KObject, query: String): List<KObject> {
         var extractedQuery = extractFirstQuery(query)
@@ -299,9 +299,25 @@ object Selector {
         return null
     }
 
+
+    private class KmfQueryParam {
+        private String name;
+        private String value;
+        private int idParam;
+        private boolean negative;
+
+        private KmfQueryParam(String name, String value, int idParam, boolean negative) {
+            this.name = name;
+            this.value = value;
+            this.idParam = idParam;
+            this.negative = negative;
+        }
+    }
+
+
+
 }
 
 data class KmfQuery(val relationName: String, val params: Map<String, KmfQueryParam>, val subQuery: String?, val oldString: String, var previousIsDeep: Boolean, var previousIsRefDeep: Boolean)
 
-data class KmfQueryParam(val name: String?, val value: String, val idParam: Int, val negative: Boolean)
 
