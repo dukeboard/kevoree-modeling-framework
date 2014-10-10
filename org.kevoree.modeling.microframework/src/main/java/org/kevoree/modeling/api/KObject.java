@@ -52,6 +52,7 @@ public interface KObject<A, B extends KFactory> {
     public void removeModelTreeListener(ModelElementListener lst);
 
     public void removeAllModelTreeListeners();
+    /* End Listener management */
 
     /* Visit API */
     public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end);
@@ -66,16 +67,8 @@ public interface KObject<A, B extends KFactory> {
 
     public void deepVisitAll(ModelVisitor visitor, Callback<Throwable> end);
 
-
     public void visitAttributes(ModelAttributeVisitor visitor);
-
-    /* Powerful Trace API, maybe consider to hide TODO */
-    public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes);
-
-    public List<ModelTrace> toTraces(boolean attributes, boolean references);
-
-    public void mutate(ActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent);
-    /* end to clean zone TODO */
+    /* End Visit API */
 
     /* Time navigation */
     public Long now();
@@ -83,7 +76,6 @@ public interface KObject<A, B extends KFactory> {
     public void jump(Long time, Callback<A> callback);
 
     public TimeTree timeTree();
-
 
     /* Reflexive API */
     public String referenceInParent();
@@ -98,5 +90,13 @@ public interface KObject<A, B extends KFactory> {
 
     public MetaReference[] metaNotContainedReferences();
     /* End Reflexive API */
+
+    /* Powerful Trace API, maybe consider to hide TODO */
+    public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes);
+
+    public List<ModelTrace> toTraces(boolean attributes, boolean references);
+
+    public void mutate(ActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent);
+    /* end to clean zone TODO */
 
 }
