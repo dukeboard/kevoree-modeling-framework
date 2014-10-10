@@ -13,7 +13,7 @@ import org.kevoree.modeling.microframework.test.poc.PocFactory;
 /**
  * Created by duke on 10/10/14.
  */
-public class NodeImpl extends AbstractKObject<Node,PocFactory> implements Node {
+public class NodeImpl extends AbstractKObject<Node, PocFactory> implements Node {
 
     public NodeImpl(PocFactory factory, String metaClassName, Long now, String dimension, TimeTree timeTree) {
         super(factory, metaClassName, now, dimension, timeTree);
@@ -61,7 +61,7 @@ public class NodeImpl extends AbstractKObject<Node,PocFactory> implements Node {
 
     @Override
     public MetaClass metaClass() {
-        return null;
+        return PocFactory.METACLASSES.org_kevoree_modeling_microframework_test_poc_Node;
     }
 
     @Override
