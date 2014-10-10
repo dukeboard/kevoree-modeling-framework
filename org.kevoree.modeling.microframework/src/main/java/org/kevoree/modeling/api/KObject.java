@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by thomas on 10/2/14.
  */
-public interface KObject<A, B extends KView> {
+public interface KObject<A extends KObject, B extends KView> {
 
     public boolean isDeleted();
 

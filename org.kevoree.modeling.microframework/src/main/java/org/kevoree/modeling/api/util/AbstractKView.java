@@ -17,7 +17,7 @@ public abstract class AbstractKView implements KView {
 
     private long now;
 
-    private String dimension;
+    private KDimension KDimension;
 
     private DataCache dataCache;
 
@@ -25,9 +25,9 @@ public abstract class AbstractKView implements KView {
         return dataCache;
     }
 
-    protected AbstractKView(long now, String dimension, DataCache dataCache) {
+    protected AbstractKView(long now, KDimension KDimension, DataCache dataCache) {
         this.now = now;
-        this.dimension = dimension;
+        this.KDimension = KDimension;
         this.dataCache = dataCache;
     }
 
@@ -37,8 +37,8 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public String dimension() {
-        return dimension;
+    public KDimension dimension() {
+        return KDimension;
     }
 
     @Override

@@ -1,11 +1,6 @@
 package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.data.DataCache;
-import org.kevoree.modeling.api.json.JSONModelLoader;
-import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.xmi.XMIModelLoader;
-import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
 import java.util.List;
 
@@ -40,7 +35,7 @@ public interface KView {
 
     public MetaClass[] metaClasses();
 
-    public String dimension();
+    public KDimension dimension();
 
     public long now();
 

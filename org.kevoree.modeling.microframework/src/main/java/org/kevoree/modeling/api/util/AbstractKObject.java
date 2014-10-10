@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by duke on 10/9/14.
  */
-public abstract class AbstractKObject<A, B extends KView> implements KObject<A, B> {
+public abstract class AbstractKObject<A extends KObject, B extends KView> implements KObject<A, B> {
 
     private B factory;
 
@@ -169,7 +169,9 @@ public abstract class AbstractKObject<A, B extends KView> implements KObject<A, 
 
     @Override
     public void jump(Long time, Callback<A> callback) {
-
+        factory().dimension().time(time).lookup(path(), (o) -> {
+            callback.on((A) o);
+        });
     }
 
     @Override
@@ -190,7 +192,7 @@ public abstract class AbstractKObject<A, B extends KView> implements KObject<A, 
         return builder.toString();
     }
 
-    //TODO optimize
+    //TODO optimize , maybe dangerous if cache is unloaded ...
     public Object get(MetaAttribute attribute) {
         //here potentially manage learned attributes
         long prevous = timeTree().resolve(now());
