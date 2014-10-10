@@ -2,6 +2,7 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
+import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
@@ -35,4 +36,7 @@ public interface KFactory {
     public void lookup(String path, Callback<KObject> callback);
 
     public void stream(String query, Callback<KObject> callback);
+
+    public MetaClass[] metaClasses();
+
 }

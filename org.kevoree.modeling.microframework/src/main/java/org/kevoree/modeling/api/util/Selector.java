@@ -1,10 +1,12 @@
-package org.kevoree.modeling.api.util
+package org.kevoree.modeling.api.util;
 
-import org.kevoree.modeling.api.KObject
-import java.util.ArrayList
-import java.util.HashMap
-import org.kevoree.modeling.api.ModelAttributeVisitor
-import org.kevoree.modeling.api.ModelVisitor
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
+import org.kevoree.modeling.api.ModelVisitor;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by duke on 7/22/14.
@@ -12,27 +14,34 @@ import org.kevoree.modeling.api.ModelVisitor
 
 public class Selector {
 
-    fun select(root: KObject, query: String): List<KObject> {
+
+
+    fun select(root:KObject, query:String)
+
+    :List<KObject>
+
+    {
         var extractedQuery = extractFirstQuery(query)
-        var result = ArrayList<KObject>()
-        var tempResult = HashMap<String, KObject>()
+        var result = ArrayList < KObject > ()
+        var tempResult = HashMap < String, KObject>()
         tempResult.put(root.path(), root)
         while (extractedQuery != null) {
-            val staticExtractedQuery = extractedQuery!!
-            val clonedRound = tempResult
-            tempResult = HashMap<String, KObject>()
+            val staticExtractedQuery = extractedQuery !!
+                    val clonedRound = tempResult
+            tempResult = HashMap < String, KObject > ()
             for (currentRootKey in clonedRound.keySet()) {
-                val currentRoot = clonedRound.get(currentRootKey)!!
-                var resolved: KObject? = null
+                val currentRoot = clonedRound.get(currentRootKey) !!
+                        var resolved:
+                KObject ? = null
                 if (!staticExtractedQuery.oldString.contains("*")) {
                     resolved = currentRoot.findByPath(staticExtractedQuery.oldString)
                 }
                 if (resolved != null) {
-                    tempResult.put(resolved!!.path(), resolved!!)
+                    tempResult.put(resolved !!.path(), resolved !!)
                 } else {
-                    var alreadyVisited = HashMap<String, Boolean>()
-                    var visitor = object : ModelVisitor() {
-                        override fun beginVisitRef(refName: String, refType: String): Boolean {
+                    var alreadyVisited = HashMap < String, Boolean>()
+                    var visitor = object:ModelVisitor() {
+                        override fun beginVisitRef(refName:String, refType:String):Boolean {
                             if (staticExtractedQuery.previousIsDeep) {
                                 return true;  //we cannot filter here, to early in case of deep
                             } else {
@@ -49,7 +58,7 @@ public class Selector {
                             }
                         }
 
-                        override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
+                        override fun visit(elem:KObject, refNameInParent:String, parent:KObject){
                             if (staticExtractedQuery.previousIsRefDeep) {
                                 if (alreadyVisited.containsKey(parent.path() + "/" + refNameInParent + "[" + elem.internalGetKey() + "]")) {
                                     return;
@@ -74,15 +83,16 @@ public class Selector {
                                 }
                             }
                             if (selected) {
-                                if (staticExtractedQuery.params.size == 1 && staticExtractedQuery.params.get("@id") != null && staticExtractedQuery.params.get("@id")!!.name == null) {
-                                    if (elem.internalGetKey() == staticExtractedQuery.params.get("@id")?.value) {
+                                if (staticExtractedQuery.params.size == 1 && staticExtractedQuery.params.get("@id") != null && staticExtractedQuery.params.get("@id")
+                                !!.name == null){
+                                    if (elem.internalGetKey() == staticExtractedQuery.params.get("@id") ?.value){
                                         tempResult.put(elem.path(), elem)
                                     }
-                                } else {
+                                }else{
                                     if (staticExtractedQuery.params.size > 0) {
-                                        val subResult = Array<Boolean>(staticExtractedQuery.params.size) { i -> false }
-                                        elem.visitAttributes(object : ModelAttributeVisitor {
-                                            override fun visit(value: Any?, name: String, parent: KObject) {
+                                        val subResult = Array < Boolean > (staticExtractedQuery.params.size) {i -> false}
+                                        elem.visitAttributes(object:ModelAttributeVisitor {
+                                            override fun visit(value:Any ?, name:String, parent:KObject){
                                                 for (att in staticExtractedQuery.params.keySet()) {
                                                     if (att == "@id") {
                                                         throw Exception("Malformed KMFQuery, bad selector attribute without attribute name : " + staticExtractedQuery.params.get(att))
@@ -95,7 +105,7 @@ public class Selector {
                                                                 keySelected = true
                                                             }
                                                         }
-                                                        val attvalue = staticExtractedQuery.params.get(att)!!
+                                                        val attvalue = staticExtractedQuery.params.get(att) !!
                                                         //now check value
                                                         if (keySelected) {
                                                             if (value == null) {
@@ -172,131 +182,131 @@ public class Selector {
             }
         }
         for (v in tempResult.keySet()) {
-            result.add(tempResult.get(v)!!)
+            result.add(tempResult.get(v) !!)
         }
         return result
     }
 
-    fun extractFirstQuery(query: String): KmfQuery? {
-        if (query.get(0) == '/') {
-            var subQuery: String? = null
-            if (query.length > 1) {
-                subQuery = query.substring(1)
+    public KmfQuery extractFirstQuery(String query) {
+        if (query.charAt(0) == '/') {
+            String subQuery = null;
+            if (query.length() > 1) {
+                subQuery = query.substring(1);
             }
-            val params = HashMap<String, KmfQueryParam>()
-            return KmfQuery("", params, subQuery, "/", false, false)
+            HashMap<String, KmfQueryParam> params = new HashMap<String, KmfQueryParam>();
+            return new KmfQuery("", params, subQuery, "/", false, false);
         }
         if (query.startsWith("**/")) {
-            if (query.length > 3) {
-                val next = extractFirstQuery(query.substring(3))
+            if (query.length() > 3) {
+                KmfQuery next = extractFirstQuery(query.substring(3));
                 if (next != null) {
-                    next.previousIsDeep = true
-                    next.previousIsRefDeep = false
+                    next.previousIsDeep = true;
+                    next.previousIsRefDeep = false;
                 }
-                return next
+                return next;
             } else {
-                return null
+                return null;
             }
         }
         if (query.startsWith("***/")) {
-            if (query.length > 4) {
-                val next = extractFirstQuery(query.substring(4))
+            if (query.length() > 4) {
+                KmfQuery next = extractFirstQuery(query.substring(4));
                 if (next != null) {
-                    next.previousIsDeep = true
-                    next.previousIsRefDeep = true
+                    next.previousIsDeep = true;
+                    next.previousIsRefDeep = true;
                 }
-                return next
+                return next;
             } else {
-                return null
+                return null;
             }
         }
-        var i = 0
-        var relationNameEnd = 0
-        var attsEnd = 0
-        var escaped = false
-        while (i < query.length && (query.get(i) != '/' || escaped)) {
+        int i = 0;
+        int relationNameEnd = 0;
+        int attsEnd = 0;
+        boolean escaped = false;
+        while (i < query.length() && ((query.charAt(i) != '/') || escaped)) {
             if (escaped) {
-                escaped = false
+                escaped = false;
             }
-            if (query.get(i) == '[') {
-                relationNameEnd = i
+            if (query.charAt(i) == '[') {
+                relationNameEnd = i;
             } else {
-                if (query.get(i) == ']') {
-                    attsEnd = i
+                if (query.charAt(i) == ']') {
+                    attsEnd = i;
                 } else {
-                    if (query.get(i) == '\\') {
-                        escaped = true
+                    if (query.charAt(i) == '\\') {
+                        escaped = true;
                     }
                 }
             }
-            i = i + 1
+            i = i + 1;
         }
 
         if (i > 0 && relationNameEnd > 0) {
-            val oldString = query.substring(0, i)
-            var subQuery: String? = null
-            if (i + 1 < query.length) {
-                subQuery = query.substring(i + 1)
+            String oldString = query.substring(0, i);
+            String subQuery = null;
+            if (i + 1 < query.length()) {
+                subQuery = query.substring(i + 1);
             }
-            var relName = query.substring(0, relationNameEnd)
-            val params = HashMap<String, KmfQueryParam>()
-            relName = relName.replace("\\", "")
+            String relName = query.substring(0, relationNameEnd);
+            HashMap<String, KmfQueryParam> params = new HashMap<String, KmfQueryParam>();
+            relName = relName.replace("\\", "");
             //parse param
             if (attsEnd != 0) {
-                val paramString = query.substring(relationNameEnd + 1, attsEnd)
-                var iParam = 0
-                var lastStart = iParam
-                escaped = false
-                while (iParam < paramString.length) {
-                    if (paramString.get(iParam) == ',' && !escaped) {
-                        var p = paramString.substring(lastStart, iParam).trim()
-                        if (p != "" && p != "*") {
+                String paramString = query.substring(relationNameEnd + 1, attsEnd);
+                int iParam = 0;
+                int lastStart = iParam;
+                escaped = false;
+                while (iParam < paramString.length()) {
+                    if (paramString.charAt(iParam) == ',' && !escaped) {
+                        String p = paramString.substring(lastStart, iParam).trim();
+                        if (p.equals("") && !p.equals("*")) {
                             if (p.endsWith("=")) {
-                                p = p + "*"
+                                p = p + "*";
                             }
-                            var pArray = p.split("=")
-                            var pObject: KmfQueryParam
-                            if (pArray.size > 1) {
-                                val paramKey = pArray.get(0).trim()
-                                val negative = paramKey.endsWith("!")
-                                pObject = KmfQueryParam(paramKey.replace("!", ""), pArray.get(1).trim(), params.size, negative)
-                                params.put(pObject.name!!, pObject)
+                            String[] pArray = p.split("=");
+                            KmfQueryParam pObject;
+                            if (pArray.length > 1) {
+                                String paramKey = pArray[0].trim();
+                                boolean negative = paramKey.endsWith("!");
+                                pObject = new KmfQueryParam(paramKey.replace("!", ""), pArray[1].trim(), params.size(), negative);
+                                params.put(pObject.name, pObject);
                             } else {
-                                pObject = KmfQueryParam(null, p, params.size, false)
-                                params.put("@id", pObject)
+                                pObject = new KmfQueryParam(null, p, params.size(), false);
+                                params.put("@id", pObject);
                             }
                         }
-                        lastStart = iParam + 1
+                        lastStart = iParam + 1;
                     } else {
-                        if (paramString.get(iParam) == '\\') {
-                            escaped = true
+                        if (paramString.charAt(iParam) == '\\') {
+                            escaped = true;
                         } else {
-                            escaped = false
+                            escaped = false;
                         }
                     }
-                    iParam = iParam + 1
+                    iParam = iParam + 1;
                 }
-                var lastParam = paramString.substring(lastStart, iParam).trim()
-                if (lastParam != "" && lastParam != "*") {
+                String lastParam = paramString.substring(lastStart, iParam).trim();
+                if (!lastParam.equals("") && !lastParam.equals("*")) {
                     if (lastParam.endsWith("=")) {
-                        lastParam = lastParam + "*"
+                        lastParam = lastParam + "*";
                     }
-                    var pArray = lastParam.split("=")
-                    var pObject: KmfQueryParam
-                    if (pArray.size > 1) {
-                        val paramKey = pArray.get(0).trim()
-                        val negative = paramKey.endsWith("!")
-                        pObject = KmfQueryParam(paramKey.replace("!", ""), pArray.get(1).trim(), params.size, negative)
-                        params.put(pObject.name!!, pObject)
+                    String[] pArray = lastParam.split("=");
+                    KmfQueryParam pObject;
+                    if (pArray.length > 1) {
+                        String paramKey = pArray[0].trim();
+                        boolean negative = paramKey.endsWith("!");
+                        pObject = new KmfQueryParam(paramKey.replace("!", ""), pArray[1].trim(), params.size(), negative);
+                        params.put(pObject.name, pObject);
                     } else {
-                        pObject = KmfQueryParam(null, lastParam, params.size, false)
-                        params.put("@id", pObject)
+                        pObject = new KmfQueryParam(null, lastParam, params.size(), false);
+                        params.put("@id", pObject);
                     }
                 }
             }
-            return KmfQuery(relName, params, subQuery, oldString, false, false)
+            return new KmfQuery(relName, params, subQuery, oldString, false, false);
         }
-        return null
+        return null;
     }
 
 
@@ -312,12 +322,43 @@ public class Selector {
             this.idParam = idParam;
             this.negative = negative;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public int getIdParam() {
+            return idParam;
+        }
+
+        public boolean isNegative() {
+            return negative;
+        }
     }
 
+    private class KmfQuery {
+        String relationName;
+        Map<String, KmfQueryParam> params;
+        String subQuery;
+        String oldString;
+        boolean previousIsDeep;
+        boolean previousIsRefDeep;
 
+        private KmfQuery(String relationName, Map<String, KmfQueryParam> params, String subQuery, String oldString, boolean previousIsDeep, boolean previousIsRefDeep) {
+            this.relationName = relationName;
+            this.params = params;
+            this.subQuery = subQuery;
+            this.oldString = oldString;
+            this.previousIsDeep = previousIsDeep;
+            this.previousIsRefDeep = previousIsRefDeep;
+        }
+    }
 
 }
 
-data class KmfQuery(val relationName: String, val params: Map<String, KmfQueryParam>, val subQuery: String?, val oldString: String, var previousIsDeep: Boolean, var previousIsRefDeep: Boolean)
 
 

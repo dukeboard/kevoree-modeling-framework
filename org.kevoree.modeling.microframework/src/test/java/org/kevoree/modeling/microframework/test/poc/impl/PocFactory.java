@@ -5,8 +5,4 @@ package org.kevoree.modeling.microframework.test.poc.impl;
  */
 public class PocFactory {
 
-    public Enum metaAttributes(){
-        return org.kevoree.modeling.microframework.test.poc.PocFactory.TaMere.v;
-    }
-
 }

@@ -1,6 +1,9 @@
 package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.events.ModelElementListener;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.ActionType;
@@ -16,12 +19,6 @@ public interface KObject<A, B extends KFactory> {
     public boolean isRoot();
 
     public String path();
-
-    public String metaClassName();
-
-    public String referenceInParent();
-
-    public String key();
 
     public String dimension();
 
@@ -87,5 +84,19 @@ public interface KObject<A, B extends KFactory> {
 
     public TimeTree timeTree();
 
+
+    /* Reflexive API */
+    public String referenceInParent();
+
+    public String key();
+
+    public MetaClass metaClass();
+
+    public MetaAttribute[] metaAttributes();
+
+    public MetaReference[] metaContainedReferences();
+
+    public MetaReference[] metaNotContainedReferences();
+    /* End Reflexive API */
 
 }
