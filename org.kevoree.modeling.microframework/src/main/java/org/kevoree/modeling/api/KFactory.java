@@ -17,13 +17,13 @@ public interface KFactory {
 
     public void root(KObject elem, Callback<Boolean> callback);
 
-    public JSONModelSerializer createJSONSerializer();
+    public ModelSerializer createJSONSerializer();
 
-    public JSONModelLoader createJSONLoader();
+    public ModelLoader createJSONLoader();
 
-    public XMIModelSerializer createXMISerializer();
+    public ModelSerializer createXMISerializer();
 
-    public XMIModelLoader createXMILoader();
+    public ModelLoader createXMILoader();
 
     public ModelCompare createModelCompare();
 
