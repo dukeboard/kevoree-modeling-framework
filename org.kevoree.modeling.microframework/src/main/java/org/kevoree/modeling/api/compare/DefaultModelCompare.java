@@ -1,10 +1,15 @@
 package org.kevoree.modeling.api.compare;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KFactory;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelCompare;
+import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.trace.ModelAddTrace;
+import org.kevoree.modeling.api.trace.ModelRemoveTrace;
+import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by duke on 26/07/13.
@@ -19,96 +24,76 @@ public class DefaultModelCompare implements ModelCompare {
 
     @Override
     public void diff(KObject origin, KObject target, Callback<TraceSequence> callback) {
-        throw new UnsupportedOperationException();
+        internal_diff(origin, target, false, false, callback);
     }
 
     @Override
     public void merge(KObject origin, KObject target, Callback<TraceSequence> callback) {
-        throw new UnsupportedOperationException();
+        internal_diff(origin, target, false, true, callback);
     }
 
     @Override
     public void inter(KObject origin, KObject target, Callback<TraceSequence> callback) {
-        throw new UnsupportedOperationException();
+        internal_diff(origin, target, true, false, callback);
     }
 
-    /*
-
-    public fun diff(origin: KObject, target: KObject): TraceSequence {
-        return TraceSequence(factory).populate(internal_diff(origin, target, false, false));
-    }
-
-    public fun merge(origin: KObject, target: KObject): TraceSequence {
-        return TraceSequence(factory).populate(internal_diff(origin, target, false, true));
-    }
-
-    public fun inter(origin: KObject, target: KObject): TraceSequence {
-        return TraceSequence(factory).populate(internal_diff(origin, target, true, false));
-    }
-
-    private fun internal_diff(origin: KObject, target: KObject, inter: Boolean, merge: Boolean): List<ModelTrace> {
-        val traces = ArrayList<ModelTrace>()
-        val tracesRef = ArrayList<ModelTrace>()
-        val objectsMap = HashMap <String, org.kevoree.modeling.api.KObject>()
-        traces.addAll(origin.createTraces(target, inter, merge, false, true))
-        tracesRef.addAll(origin.createTraces(target, inter, merge, true, false))
-
-
-        val visitor = object : org.kevoree.modeling.api.ModelVisitor() {
-            override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
-                val childPath = elem.path();
-                if (childPath != null) {
-                    objectsMap.put(childPath, elem);
-                } else {
-                    throw Exception("Null child path " + elem);
-                }
+    private void internal_diff(KObject origin, KObject target, boolean inter, boolean merge, Callback<TraceSequence> callback) {
+        List<ModelTrace> traces = new ArrayList<ModelTrace>();
+        List<ModelTrace> tracesRef = new ArrayList<ModelTrace>();
+        Map<String, KObject> objectsMap = new HashMap<String, KObject>();
+        traces.addAll(origin.createTraces(target, inter, merge, false, true));
+        tracesRef.addAll(origin.createTraces(target, inter, merge, true, false));
+        origin.deepVisitContained(new ModelVisitor() {
+            @Override
+            public void visit(KObject elem, String refNameInParent, KObject parent) {
+                objectsMap.put(elem.path(), elem);
             }
-        }
-        origin.visit(visitor, true, true, false)
-
-        val visitor2 = object : org.kevoree.modeling.api.ModelVisitor() {
-            override public fun visit(elem: org.kevoree.modeling.api.KObject, refNameInParent: String, parent: org.kevoree.modeling.api.KObject) {
-                val childPath = elem.path();
-                if (objectsMap.containsKey(childPath)) {
-                    if (inter) {
-                        traces.add(ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()))
+        }, (t) -> {
+            if (t != null) {
+                t.printStackTrace();
+                callback.on(null);
+            } else {
+                target.deepVisitContained(new ModelVisitor() {
+                    @Override
+                    public void visit(KObject elem, String refNameInParent, KObject parent) {
+                        String childPath = elem.path();
+                        if (objectsMap.containsKey(childPath)) {
+                            if (inter) {
+                                traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()));
+                            }
+                            traces.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, false, true));
+                            tracesRef.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, true, false));
+                            objectsMap.remove(childPath); //drop from to process elements
+                        } else {
+                            if (!inter) {
+                                traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()));
+                                traces.addAll(elem.createTraces(elem, true, merge, false, true));
+                                tracesRef.addAll(elem.createTraces(elem, true, merge, true, false));
+                            }
+                        }
                     }
-                    traces.addAll(objectsMap.get(childPath)!!.createTraces(elem, inter, merge, false, true))
-                    tracesRef.addAll(objectsMap.get(childPath)!!.createTraces(elem, inter, merge, true, false))
-                    objectsMap.remove(childPath) //drop from to process elements
-                } else {
-                    if (!inter) {
-                        traces.add(ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()))
-                        traces.addAll(elem.createTraces(elem, true, merge, false, true))
-                        tracesRef.addAll(elem.createTraces(elem, true, merge, true, false))
+                }, (t2) -> {
+                    if (t2 != null) {
+                        t2.printStackTrace();
+                        callback.on(null);
+                    } else {
+                        traces.addAll(tracesRef); //references should be deleted before, deletion of elements
+                        if (!inter && !merge) {
+                            //if diff
+                            for (String diffChildKey : objectsMap.keySet()) {
+                                KObject diffChild = objectsMap.get(diffChildKey);
+                                String src = diffChild.parentPath();
+                                String refName = diffChild.referenceInParent();
+                                traces.add(new ModelRemoveTrace(src, refName, diffChild.path()));
+                            }
+                            callback.on(new TraceSequence().populate(traces));
+                        } else {
+                            callback.on(new TraceSequence().populate(traces));
+                        }
                     }
-                }
+                });
             }
-        }
-        target.visit(visitor2, true, true, false)
-        traces.addAll(tracesRef); //references should be deleted before, deletion of elements
-        if (!inter) {
-            //if diff
-            if (!merge) {
-                for (diffChildKey in objectsMap.keySet()) {
-                    val diffChild = objectsMap.get(diffChildKey)!!
-                    val src = (if (diffChild.eContainer() != null) {
-                        diffChild.eContainer()!!.path()
-                    } else {
-                        "null"
-                    })
-                    val refNameInParent = (if (diffChild.getRefInParent() != null) {
-                        diffChild.getRefInParent()!!
-                    } else {
-                        "null"
-                    })
-                    traces.add(ModelRemoveTrace(src, refNameInParent, (diffChild as KObject).path()))
-                }
-            }
-        }
-        return traces;
+        });
     }
-
-    */
 
 }

@@ -31,6 +31,8 @@ public interface KObject<A, B extends KFactory> {
 
     public void parent(Callback<KObject> callback);
 
+    public String parentPath();
+
     public boolean modelEquals(A similarObj);
 
     public void deepModelEquals(A similarObj, Callback<Boolean> callback);
@@ -55,17 +57,18 @@ public interface KObject<A, B extends KFactory> {
     public void removeAllModelTreeListeners();
 
     /* Visit API */
-    public void visitNotContained(ModelVisitor visitor);
+    public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end);
 
-    public void visitContained(ModelVisitor visitor);
+    public void visitContained(ModelVisitor visitor, Callback<Throwable> end);
 
-    public void visitAll(ModelVisitor visitor);
+    public void visitAll(ModelVisitor visitor, Callback<Throwable> end);
 
-    public void deepVisitNotContained(ModelVisitor visitor);
+    public void deepVisitNotContained(ModelVisitor visitor, Callback<Throwable> end);
 
-    public void deepVisitContained(ModelVisitor visitor);
+    public void deepVisitContained(ModelVisitor visitor, Callback<Throwable> end);
 
-    public void deepVisitAll(ModelVisitor visitor);
+    public void deepVisitAll(ModelVisitor visitor, Callback<Throwable> end);
+
 
     public void visitAttributes(ModelAttributeVisitor visitor);
 
