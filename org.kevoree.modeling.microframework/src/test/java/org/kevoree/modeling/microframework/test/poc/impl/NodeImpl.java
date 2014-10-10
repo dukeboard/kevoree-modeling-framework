@@ -55,20 +55,13 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     }
 
     @Override
-    public String key() {
-
-
-        return null;
-    }
-
-    @Override
     public MetaClass metaClass() {
         return CloudView.METACLASSES.org_kevoree_modeling_microframework_test_poc_Node;
     }
 
     @Override
     public MetaAttribute[] metaAttributes() {
-        return new MetaAttribute[0];
+        return Node.METAATTRIBUTES.values();
     }
 
     @Override

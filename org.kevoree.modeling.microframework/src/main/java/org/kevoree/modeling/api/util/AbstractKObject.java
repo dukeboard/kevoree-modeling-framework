@@ -172,16 +172,36 @@ public abstract class AbstractKObject<A, B extends KView> implements KObject<A, 
 
     }
 
+    @Override
+    public String key() {
+        StringBuilder builder = new StringBuilder();
+        MetaAttribute[] atts = metaAttributes();
+        for (int i = 0; i < atts.length; i++) {
+            MetaAttribute att = atts[i];
+            if (att.key()) {
+                if (builder.length() != 0) {
+                    builder.append(",");
+                }
+                builder.append(att.metaName());
+                builder.append("=");
+                builder.append(get(att).toString());//TODO, forbid multiple cardinality as key
+            }
+        }
+        return builder.toString();
+    }
+
+    //TODO optimize
     public Object get(MetaAttribute attribute) {
         //here potentially manage learned attributes
         long prevous = timeTree().resolve(now());
         return ((AbstractKView) factory()).getDataCache().getPayload(dimension(), prevous, path(), attribute.index());
     }
 
-    public void set(MetaAttribute attribute, Object payload){
+    public void set(MetaAttribute attribute, Object payload) {
         //here potentially manage learned attributes
         long prevous = timeTree().resolve(now());
-        ((AbstractKView) factory()).getDataCache().putPayload(dimension(), prevous, path(), attribute.index(),payload);
+        ((AbstractKView) factory()).getDataCache().putPayload(dimension(), prevous, path(), attribute.index(), payload);
     }
+
 
 }
