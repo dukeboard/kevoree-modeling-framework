@@ -1,11 +1,16 @@
 package org.kevoree.modeling.api.json;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.kevoree.modeling.api.util.ActionType;
 import org.kevoree.modeling.api.KFactory;
@@ -18,8 +23,21 @@ import org.kevoree.modeling.api.util.Converters;
  * Date: 28/08/13
  * Time: 13:08
  */
+
+
+class JSONLoadingContext {
+    public Lexer lexer;
+    public ArrayList<ResolveCommand> resolveCommands;
+    public ArrayList<KObject> roots;
+    public Callback<KObject> successCallback;
+    public Callback<Exception> errorCallback;
+}
+
+
+
 public class JSONModelLoader implements ModelLoader {
-        private KFactory factory;
+    private KFactory factory;
+    private ExecutorService executor = Executors.newCachedThreadPool();
 
     public JSONModelLoader(KFactory factory) {
         this.factory = factory;
@@ -28,150 +46,173 @@ public class JSONModelLoader implements ModelLoader {
     // TODO asynchronous implementation
     @Override
     public void loadModelFromString(String str, Callback<KObject> callback, Callback<Exception> error) {
-        deserialize(new Converters().byteArrayInputStreamFromString(str));
+        loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback, error);
+        //deserialize(new Converters().byteArrayInputStreamFromString(str));
     }
 
     // TODO asynchronous implementation
     @Override
     public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback, Callback<Exception> error) {
-        deserialize(inputStream);
-    }
-
-    private List<KObject> deserialize(InputStream instream) {
-        if (instream == null) {
+        if (inputStream == null) {
             throw new RuntimeException("Null input Stream");
         }
-        ArrayList<ResolveCommand> resolverCommands = new ArrayList<ResolveCommand>();
-        ArrayList<KObject> roots =  new ArrayList<KObject>();
-        Lexer lexer = Lexer(instream);
-        boolean currentToken = lexer.nextToken();
-        if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
-            loadObject(lexer, null, null, roots, resolverCommands)
-        } else {
-            throw Exception("Bad Format / { expected")
+        executor.submit(createLoadingTask(inputStream, callback, error));
+        //deserialize(inputStream);
+    }
+
+    private Runnable createLoadingTask(final InputStream inputStream, final Callback<KObject> callback, final Callback<Exception> error) {
+        return () -> {
+
+            Lexer lexer = new Lexer(inputStream);
+            Token currentToken = lexer.nextToken();
+
+            if (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
+                error.on(new Exception("Bad Format. Expected '{' got " + currentToken.getTokenType().name()));
+            } else {
+                JSONLoadingContext context = new JSONLoadingContext();
+                context.lexer = lexer;
+                context.resolveCommands = new ArrayList<ResolveCommand>();
+                context.roots = new ArrayList<KObject>();
+                context.errorCallback = error;
+                context.successCallback = callback;
+
+                deserialize(context);
+            }
+        };
+    }
+
+    private void deserialize(JSONLoadingContext context) {
+        try {
+            loadObject(context, null, null);
+            for (ResolveCommand resol : context.resolveCommands) {
+                resol.run();
+            }
+            context.successCallback.on(context.roots.get(0));
+        } catch(Exception e) {
+            context.errorCallback.on(e);
         }
-        for (resol in resolverCommands) {
-            resol.run()
-        }
-        return roots
     }
 
 
-    fun loadObject(lexer: Lexer, nameInParent: String?, parent: KObject?, roots: ArrayList<KObject>, commands: ArrayList<ResolveCommand>) {
+    private void loadObject(JSONLoadingContext context, String nameInParent, KObject parent) throws Exception {
         //must ne currently on { at input
-        var currentToken = lexer.nextToken()
-        var currentObject: KObject? = null
-        if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE) {
-            if (currentToken.value == "class") {
-                lexer.nextToken() //unpop :
-                currentToken = lexer.nextToken() //Two step for having the name
-                var name = currentToken.value?.toString()!!
-                var typeName: String? = null
-                var isRoot = false
+        Token currentToken = context.lexer.nextToken();
+        KObject currentObject = null;
+        if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.VALUE) {
+            if (currentToken.getValue() == "class") {
+                context.lexer.nextToken(); //unpop :
+                currentToken = context.lexer.nextToken(); //Two step for having the name
+                String name = (currentToken.getValue() != null ? currentToken.getValue().toString():null);
+                String typeName = null;
+                boolean isRoot = false;
                 if (name.startsWith("root:")) {
-                    isRoot = true
-                    name = name.substring("root:".length)
+                    isRoot = true;
+                    name = name.substring("root:".length());
                 }
                 if (name.contains("@")) {
-                    typeName = name.substring(0, name.indexOf("@"))
-                    val key = name.substring(name.indexOf("@") + 1)
+                    typeName = name.substring(0, name.indexOf("@"));
+                    String key = name.substring(name.indexOf("@") + 1);
                     if (parent == null) {
                         if (isRoot) {
-                            currentObject = factory.lookup("/")
+                            currentObject = factory.lookup("/");
                         }
                     } else {
-                        val path = parent.path() + "/" + nameInParent + "[" + key + "]"
-                        currentObject = factory.lookup(path)
+                        String path = parent.path() + "/" + nameInParent + "[" + key + "]";
+                        currentObject = factory.lookup(path);
                     }
                 } else {
-                    typeName = name
+                    typeName = name;
                 }
                 if (currentObject == null) {
-                    currentObject = factory.create(typeName!!)
+                    currentObject = factory.create(typeName);
                 }
                 if (isRoot) {
-                    factory.root(currentObject!!)
+                    factory.root(currentObject);
                 }
                 if (parent == null) {
-                    roots.add(currentObject!!)
+                    context.roots.add(currentObject);
                 }
                 //next loop while begin a sub Elem
-                var currentNameAttOrRef: String? = null
-                var refModel = false
-                currentToken = lexer.nextToken()
-                while (currentToken.tokenType != org.kevoree.modeling.api.json.Type.EOF) {
-                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
-                        loadObject(lexer, currentNameAttOrRef!!, currentObject, roots, commands)
+                String currentNameAttOrRef = null;
+                boolean refModel = false;
+                currentToken = context.lexer.nextToken();
+                while (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.EOF) {
+                    if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
+                        loadObject(context, currentNameAttOrRef, currentObject);
                     }
-                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.COMMA) {
+                    if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.COMMA) {
                         //ignore
                     }
-                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE) {
+                    if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.VALUE) {
                         if (currentNameAttOrRef == null) {
-                            currentNameAttOrRef = currentToken.value.toString()
+                            currentNameAttOrRef = currentToken.getValue().toString();
                         } else {
                             if (refModel) {
-                                commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
+                                context.resolveCommands.add(new ResolveCommand(context, currentToken.getValue().toString(), currentObject, currentNameAttOrRef));
                             } else {
-                                val unscaped = JSONString.unescape(currentToken.value.toString())
-                                currentObject!!.reflexiveMutator(ActionType.SET, currentNameAttOrRef!!, unscaped, false, false)
-                                currentNameAttOrRef = null //unpop
+                                String unscaped = JSONString.unescape(currentToken.getValue().toString());
+                                currentObject.mutate(ActionType.SET, currentNameAttOrRef, unscaped, false, false);
+                                currentNameAttOrRef = null; //unpop
                             }
                         }
                     }
-                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACKET) {
-                        currentToken = lexer.nextToken()
-                        if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
-                            loadObject(lexer, currentNameAttOrRef!!, currentObject, roots, commands)
+                    if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACKET) {
+                        currentToken = context.lexer.nextToken();
+                        if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
+                            loadObject(context, currentNameAttOrRef, currentObject);
                         } else {
-                            refModel = true //wait for all ref to be found
-                            if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.VALUE) {
-                                commands.add(ResolveCommand(roots, currentToken.value!!.toString(), currentObject!!, currentNameAttOrRef!!))
+                            refModel = true; //wait for all ref to be found
+                            if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.VALUE) {
+                                context.resolveCommands.add(new ResolveCommand(context, currentToken.getValue().toString(), currentObject, currentNameAttOrRef));
                             }
                         }
                     }
-                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACKET) {
-                        currentNameAttOrRef = null //unpop
-                        refModel = false
+                    if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.RIGHT_BRACKET) {
+                        currentNameAttOrRef = null; //unpop
+                        refModel = false;
                     }
-                    if (currentToken.tokenType == org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
+                    if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
                         if (parent != null) {
-                            parent.reflexiveMutator(ActionType.ADD, nameInParent!!, currentObject, false, false)
+                            parent.mutate(ActionType.ADD, nameInParent, currentObject, false, false);
                         }
-                        return //go out
+                        return; //go out
                     }
-                    currentToken = lexer.nextToken()
+                    currentToken = context.lexer.nextToken();
                 }
             } else {
-                throw Exception("Bad Format / eClass att must be first")
+                throw new Exception("Bad Format. eClass att must be first");
                 //TODO save temp att
             }
         } else {
-            throw Exception("Bad Format")
+            throw new Exception("Bad Format");
         }
     }
 
 }
 
 class ResolveCommand {
-    private ArrayList<KObject> roots;
+    private JSONLoadingContext context;
     private String ref;
-    private
+    private KObject currentRootElem;
+    private String refName;
 
-    public ResolveCommand(ArrayList<KObject> roots, String ref, KObject currentRootElem, String refName) {
-
+    public ResolveCommand(JSONLoadingContext context, String ref, KObject currentRootElem, String refName) {
+        this.context = context;
+        this.ref = ref;
+        this.currentRootElem = currentRootElem;
+        this.refName = refName;
     }
 
-    fun run() {
-        var referencedElement:Any ? = null
-        var i = 0
-        while (referencedElement == null && i < roots.size()) {
-            referencedElement = roots.get(i++).findByPath(ref)
+    public void run() throws Exception {
+        KObject referencedElement = null;
+        int i = 0;
+        while (referencedElement == null && i < context.roots.size()) {
+            referencedElement = context.roots.get(i++).findByPath(ref);
         }
         if (referencedElement != null) {
-            currentRootElem.reflexiveMutator(ActionType.ADD, refName, referencedElement, false, false)
+            currentRootElem.mutate(ActionType.ADD, refName, referencedElement, false, false);
         } else {
-            throw Exception("Unresolved " + ref)
+            throw new Exception("Unresolved " + ref);
         }
     }
 }
