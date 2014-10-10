@@ -1,38 +1,19 @@
 package org.kevoree.modeling.api.slice;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KFactory;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelSlicer;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.util.Helper;
 
 import java.util.*;
 
-public class DefaultModelSlicer {
+public class DefaultModelSlicer implements ModelSlicer {
 
-    private KFactory factory;
-
-    public DefaultModelSlicer(KFactory f) {
-        this.factory = f;
-    }
-
-    public TraceSequence prune(List<KObject> elems) {
-        List<ModelTrace> traces = new ArrayList<ModelTrace>();
-        Map<String, KObject> tempMap = new HashMap<String, KObject>();
-        Map<String, KObject> parentMap = new HashMap<String, KObject>();
-        for (KObject elem : elems) {
-            internal_prune(elem, traces, tempMap, parentMap);
-        }
-        for (String toLinkKey : tempMap.keySet()) {
-            KObject toLink = tempMap.get(toLinkKey);
-            traces.addAll(toLink.toTraces(false, true));
-        }
-        return new TraceSequence(factory).populate(traces);
-    }
-
-    private void internal_prune(KObject elem, List<ModelTrace> traces, Map<String, KObject> cache, Map<String, KObject> parentMap) {
+    private void internal_prune(KObject elem, List<ModelTrace> traces, Map<String, KObject> cache, Map<String, KObject> parentMap, Callback<Throwable> callback) {
         //collect parent which as not be added already
         List<KObject> parents = new ArrayList<KObject>();
         final Callback<KObject> parentExplorer = new Callback<KObject>() {
@@ -41,19 +22,20 @@ public class DefaultModelSlicer {
                 if (currentParent != null && parentMap.get(currentParent.path()) == null && cache.get(currentParent.path()) == null) {
                     parents.add(currentParent);
                     currentParent.parent(this);
+                    callback.on(null);
                 } else {
                     Collections.reverse(parents);
                     for (KObject parent : parents) {
-                        if (parent.eContainer() != null) {
-                            traces.add(new ModelAddTrace(parent.eContainer().path(), parent.referenceInParent(), parent.path(), parent.metaClassName()));
+                        if (parent.parentPath() != null) {
+                            traces.add(new ModelAddTrace(parent.parentPath(), parent.referenceInParent(), parent.path(), parent.metaClassName()));
                         }
                         traces.addAll(parent.toTraces(true, false));
                         parentMap.put(parent.path(), parent);
                     }
                     //Add attributes and references of pruned object
                     if (cache.get(elem.path()) == null && parentMap.get(elem.path()) == null) {
-                        if (elem.eContainer() != null) {
-                            traces.add(new ModelAddTrace(elem.eContainer().path(), elem.referenceInParent(), elem.path(), elem.metaClassName()));
+                        if (elem.parentPath() != null) {
+                            traces.add(new ModelAddTrace(elem.parentPath(), elem.referenceInParent(), elem.path(), elem.metaClassName()));
                         }
                         traces.addAll(elem.toTraces(true, false));
                     }
@@ -65,9 +47,12 @@ public class DefaultModelSlicer {
                         public void visit(KObject elem, String refNameInParent, KObject parent) {
                             if (cache.get(elem.path()) == null) {
                                 //break potential loop
-                                internal_prune(elem, traces, cache, parentMap);
+                                internal_prune(elem, traces, cache, parentMap, (t) -> {
+                                });
                             }
                         }
+                    }, (t) -> {
+                        callback.on(null);
                     });
                 }
             }
@@ -75,4 +60,19 @@ public class DefaultModelSlicer {
         elem.parent(parentExplorer);
     }
 
+    @Override
+    public void slice(List<KObject> elems, Callback<TraceSequence> callback) {
+        List<ModelTrace> traces = new ArrayList<ModelTrace>();
+        Map<String, KObject> tempMap = new HashMap<String, KObject>();
+        Map<String, KObject> parentMap = new HashMap<String, KObject>();
+        Helper.forall(elems, (obj, next) -> {
+            internal_prune(obj, traces, tempMap, parentMap, next);
+        }, (t) -> {
+            for (String toLinkKey : tempMap.keySet()) {
+                KObject toLink = tempMap.get(toLinkKey);
+                traces.addAll(toLink.toTraces(false, true));
+            }
+            callback.on(new TraceSequence().populate(traces));
+        });
+    }
 }
