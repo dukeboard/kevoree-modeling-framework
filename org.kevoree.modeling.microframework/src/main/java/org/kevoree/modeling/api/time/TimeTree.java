@@ -16,13 +16,15 @@ public interface TimeTree {
 
     public void walkRangeDesc(TimeWalker walker, long from, long to);
 
-    public long first();
+    public Long first();
 
-    public long last();
+    public Long last();
 
-    public long next(long from);
+    public Long next(long from);
 
-    public long previous(long from);
+    public Long previous(long from);
+
+    public Long resolve(long time);
 
     //TODO nextGeneration
 }

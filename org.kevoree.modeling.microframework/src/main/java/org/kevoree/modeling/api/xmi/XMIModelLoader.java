@@ -51,7 +51,7 @@ class LoadingContext {
 
 public class XMIModelLoader implements ModelLoader {
 
-    private KFactory factory;
+    private KView factory;
     private ExecutorService executor = Executors.newCachedThreadPool();
 
     public static final String LOADER_XMI_LOCAL_NAME = "type";
@@ -59,7 +59,7 @@ public class XMIModelLoader implements ModelLoader {
     public static final String LOADER_XMI_NS_URI = "nsURI";
 
 
-    public XMIModelLoader(KFactory factory) {
+    public XMIModelLoader(KView factory) {
         this.factory = factory;
     }
 

@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.time.blob;
 
 
-import org.kevoree.modeling.api.KFactory;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.KObject;
 
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class MetaHelper {
         return buffer.toString();
     }
 
-    public static Map<KObject, Set<String>> unserialize(String p, KFactory factory) {
+    public static Map<KObject, Set<String>> unserialize(String p, KView factory) {
         HashMap<KObject, Set<String>> result = new HashMap<KObject, Set<String>>();
         String[] lines = p.split(sep);
         for (int i=0;i<lines.length;i++) {

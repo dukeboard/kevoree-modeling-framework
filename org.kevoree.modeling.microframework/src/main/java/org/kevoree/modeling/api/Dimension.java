@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.TimeView;
 
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public interface Dimension {
 
     public void unload(Callback<Boolean> callback);
 
-    public TimeView time(Long timePoint);
+    public KView time(Long timePoint);
 
     public TimeTree globalTimeTree();
 

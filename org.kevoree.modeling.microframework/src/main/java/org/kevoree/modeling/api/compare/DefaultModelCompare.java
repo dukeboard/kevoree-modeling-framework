@@ -16,9 +16,9 @@ import java.util.Map;
  */
 
 public class DefaultModelCompare implements ModelCompare {
-    private KFactory factory;
+    private KView factory;
 
-    public DefaultModelCompare(KFactory factory) {
+    public DefaultModelCompare(KView factory) {
         this.factory = factory;
     }
 

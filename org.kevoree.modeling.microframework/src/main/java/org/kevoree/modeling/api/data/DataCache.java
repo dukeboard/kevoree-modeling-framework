@@ -4,12 +4,12 @@ import org.kevoree.modeling.api.KObject;
 
 public interface DataCache {
 
-    public void put(String key, KObject value, int indexSize);
+    public void put(String dimension, long time,String path, KObject value, int indexSize);
 
-    public KObject get(String key);
+    public KObject get(String dimension, long time,String path);
 
-    public Object getPayload(String key, int index);
+    public Object getPayload(String dimension, long time, String key, int index);
 
-    public void putPayload(String key, int index, Object payload);
+    public void putPayload(String dimension, long time, String path, int index, Object payload);
 
 }

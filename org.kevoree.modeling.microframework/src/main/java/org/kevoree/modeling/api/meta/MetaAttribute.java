@@ -5,4 +5,8 @@ package org.kevoree.modeling.api.meta;
  */
 public interface MetaAttribute extends Meta {
 
+    boolean learned();
+
+    boolean key();
+
 }

@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api;
 
+import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by thomas on 10/2/14.
  */
-public interface KFactory {
+public interface KView {
 
     public KObject create(String metaClassName);
 

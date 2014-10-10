@@ -8,14 +8,12 @@ import org.kevoree.modeling.api.KObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.util.ActionType;
-import org.kevoree.modeling.api.KFactory;
 import org.kevoree.modeling.api.ModelLoader;
-import org.kevoree.modeling.api.util.Converters;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,10 +34,10 @@ class JSONLoadingContext {
 
 
 public class JSONModelLoader implements ModelLoader {
-    private KFactory factory;
+    private KView factory;
     private ExecutorService executor = Executors.newCachedThreadPool();
 
-    public JSONModelLoader(KFactory factory) {
+    public JSONModelLoader(KView factory) {
         this.factory = factory;
     }
 

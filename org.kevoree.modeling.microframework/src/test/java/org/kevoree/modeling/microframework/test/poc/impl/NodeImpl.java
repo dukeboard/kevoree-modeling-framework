@@ -7,15 +7,15 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.util.AbstractKObject;
+import org.kevoree.modeling.microframework.test.poc.CloudView;
 import org.kevoree.modeling.microframework.test.poc.Node;
-import org.kevoree.modeling.microframework.test.poc.PocFactory;
 
 /**
  * Created by duke on 10/10/14.
  */
-public class NodeImpl extends AbstractKObject<Node, PocFactory> implements Node {
+public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
-    public NodeImpl(PocFactory factory, String metaClassName, Long now, String dimension, TimeTree timeTree) {
+    public NodeImpl(CloudView factory, String metaClassName, Long now, String dimension, TimeTree timeTree) {
         super(factory, metaClassName, now, dimension, timeTree);
     }
 
@@ -56,12 +56,14 @@ public class NodeImpl extends AbstractKObject<Node, PocFactory> implements Node 
 
     @Override
     public String key() {
+
+
         return null;
     }
 
     @Override
     public MetaClass metaClass() {
-        return PocFactory.METACLASSES.org_kevoree_modeling_microframework_test_poc_Node;
+        return CloudView.METACLASSES.org_kevoree_modeling_microframework_test_poc_Node;
     }
 
     @Override

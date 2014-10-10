@@ -1,7 +1,11 @@
 package org.kevoree.modeling.api.util;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.events.ModelElementListener;
+import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 
@@ -10,7 +14,7 @@ import java.util.List;
 /**
  * Created by duke on 10/9/14.
  */
-public abstract class AbstractKObject<A, B extends KFactory> implements KObject<A, B> {
+public abstract class AbstractKObject<A, B extends KView> implements KObject<A, B> {
 
     private B factory;
 
@@ -19,11 +23,6 @@ public abstract class AbstractKObject<A, B extends KFactory> implements KObject<
     @Override
     public B factory() {
         return factory;
-    }
-
-    @Override
-    public String metaClassName() {
-        return null;
     }
 
     public AbstractKObject(B factory, String metaClassName, Long now, String dimension, TimeTree timeTree) {
@@ -149,36 +148,6 @@ public abstract class AbstractKObject<A, B extends KFactory> implements KObject<
     }
 
     @Override
-    public void visitNotContained(ModelVisitor visitor) {
-
-    }
-
-    @Override
-    public void visitContained(ModelVisitor visitor) {
-
-    }
-
-    @Override
-    public void visitAll(ModelVisitor visitor) {
-
-    }
-
-    @Override
-    public void deepVisitNotContained(ModelVisitor visitor) {
-
-    }
-
-    @Override
-    public void deepVisitContained(ModelVisitor visitor) {
-
-    }
-
-    @Override
-    public void deepVisitAll(ModelVisitor visitor) {
-
-    }
-
-    @Override
     public void visitAttributes(ModelAttributeVisitor visitor) {
 
     }
@@ -203,5 +172,16 @@ public abstract class AbstractKObject<A, B extends KFactory> implements KObject<
 
     }
 
+    public Object get(MetaAttribute attribute) {
+        //here potentially manage learned attributes
+        long prevous = timeTree().resolve(now());
+        return ((AbstractKView) factory()).getDataCache().getPayload(dimension(), prevous, path(), attribute.index());
+    }
+
+    public void set(MetaAttribute attribute, Object payload){
+        //here potentially manage learned attributes
+        long prevous = timeTree().resolve(now());
+        ((AbstractKView) factory()).getDataCache().putPayload(dimension(), prevous, path(), attribute.index(),payload);
+    }
 
 }

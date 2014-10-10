@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.cache;
+package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.KObject;

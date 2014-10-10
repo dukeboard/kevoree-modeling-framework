@@ -92,7 +92,7 @@ public class TimeMeta implements TimeTree {
     }
 
     @Override
-    public long first() {
+    public Long first() {
         Node firstNode = versionTree.first();
         if (firstNode != null) {
             return firstNode.getKey();
@@ -102,7 +102,7 @@ public class TimeMeta implements TimeTree {
     }
 
     @Override
-    public long last() {
+    public Long last() {
         Node lastNode = versionTree.last();
         if (lastNode != null) {
             return lastNode.getKey();
@@ -112,7 +112,7 @@ public class TimeMeta implements TimeTree {
     }
 
     @Override
-    public long next(long from) {
+    public Long next(long from) {
         Node nextNode = versionTree.next(from);
         if (nextNode != null) {
             return nextNode.getKey();
@@ -122,8 +122,18 @@ public class TimeMeta implements TimeTree {
     }
 
     @Override
-    public long previous(long from) {
+    public Long previous(long from) {
         Node previousNode = versionTree.previous(from);
+        if (previousNode != null) {
+            return previousNode.getKey();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Long resolve(long time) {
+        Node previousNode = versionTree.previousOrEqual(time);
         if (previousNode != null) {
             return previousNode.getKey();
         } else {

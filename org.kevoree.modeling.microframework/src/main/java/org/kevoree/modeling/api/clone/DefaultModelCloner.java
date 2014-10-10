@@ -1,14 +1,14 @@
 package org.kevoree.modeling.api.clone;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KFactory;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelCloner;
 
 public class DefaultModelCloner implements ModelCloner {
-    private KFactory factory;
+    private KView factory;
 
-    public DefaultModelCloner(KFactory factory) {
+    public DefaultModelCloner(KView factory) {
         this.factory = factory;
     }
 

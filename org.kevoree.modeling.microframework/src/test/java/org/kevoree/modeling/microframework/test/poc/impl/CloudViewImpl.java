@@ -2,19 +2,20 @@ package org.kevoree.modeling.microframework.test.poc.impl;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.util.AbstractKFactory;
-import org.kevoree.modeling.microframework.test.poc.PocFactory;
+import org.kevoree.modeling.api.util.AbstractKView;
+import org.kevoree.modeling.microframework.test.poc.CloudView;
 
 import java.util.List;
 
 /**
  * Created by duke on 10/9/14.
  */
-public class PocFactoryImpl extends AbstractKFactory {
+public class CloudViewImpl extends AbstractKView {
 
-    protected PocFactoryImpl(long now, String dimension) {
-        super(now, dimension);
+    protected CloudViewImpl(long now, String dimension, DataCache cache) {
+        super(now, dimension, cache);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class PocFactoryImpl extends AbstractKFactory {
 
     @Override
     public MetaClass[] metaClasses() {
-        return PocFactory.METACLASSES.values();
+        return CloudView.METACLASSES.values();
     }
 
 }

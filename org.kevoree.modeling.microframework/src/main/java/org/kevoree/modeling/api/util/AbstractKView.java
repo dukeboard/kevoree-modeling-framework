@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.util;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.clone.DefaultModelCloner;
 import org.kevoree.modeling.api.compare.DefaultModelCompare;
+import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
@@ -12,15 +13,22 @@ import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKFactory implements KFactory {
+public abstract class AbstractKView implements KView {
 
     private long now;
 
     private String dimension;
 
-    protected AbstractKFactory(long now, String dimension) {
+    private DataCache dataCache;
+
+    public DataCache getDataCache() {
+        return dataCache;
+    }
+
+    protected AbstractKView(long now, String dimension, DataCache dataCache) {
         this.now = now;
         this.dimension = dimension;
+        this.dataCache = dataCache;
     }
 
     @Override

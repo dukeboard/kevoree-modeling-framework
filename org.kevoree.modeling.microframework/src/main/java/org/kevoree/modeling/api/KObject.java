@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by thomas on 10/2/14.
  */
-public interface KObject<A, B extends KFactory> {
+public interface KObject<A, B extends KView> {
 
     public boolean isDeleted();
 
@@ -99,5 +99,7 @@ public interface KObject<A, B extends KFactory> {
 
     public void mutate(ActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent);
     /* end to clean zone TODO */
+
+    public Object get(MetaAttribute attribute);
 
 }

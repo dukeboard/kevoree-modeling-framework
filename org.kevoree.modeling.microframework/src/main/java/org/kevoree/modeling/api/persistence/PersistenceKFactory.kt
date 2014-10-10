@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.persistence
 
-import org.kevoree.modeling.api.KFactory
+import org.kevoree.modeling.api.KView
 import org.kevoree.modeling.api.KObject
 import org.kevoree.modeling.api.trace.TraceSequence
 import org.kevoree.modeling.api.events.ModelElementListener
@@ -19,7 +19,7 @@ import org.kevoree.modeling.api.data.DataStore
  * Time: 11:05
  */
 
-trait PersistenceKFactory : KFactory, ModelElementListener {
+trait PersistenceKFactory : KView, ModelElementListener {
 
     val datastore: DataStore
 

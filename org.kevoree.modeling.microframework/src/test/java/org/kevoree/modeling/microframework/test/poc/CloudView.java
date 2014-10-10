@@ -1,12 +1,12 @@
 package org.kevoree.modeling.microframework.test.poc;
 
-import org.kevoree.modeling.api.KFactory;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.meta.MetaClass;
 
 /**
  * Created by duke on 10/9/14.
  */
-public interface PocFactory extends KFactory {
+public interface CloudView extends KView {
 
     public enum METACLASSES implements MetaClass {
 
