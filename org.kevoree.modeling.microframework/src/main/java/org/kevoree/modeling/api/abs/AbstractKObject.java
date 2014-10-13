@@ -152,11 +152,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public void visitAttributes(ModelAttributeVisitor visitor) {
-
-    }
-
-    @Override
     public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes) {
         return null;
     }
@@ -251,8 +246,17 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     }
 
+    @Override
+    public void visitAttributes(ModelAttributeVisitor visitor) {
+        MetaAttribute[] metaAttributes = metaAttributes();
+        for (int i = 0; i < metaAttributes.length; i++) {
+            visitor.visit();
+        }
+    }
+
     private void internalVisit(boolean recursive, boolean onlyContained, ModelVisitor visitor, Callback<Throwable> end) {
 
     }
+
 
 }
