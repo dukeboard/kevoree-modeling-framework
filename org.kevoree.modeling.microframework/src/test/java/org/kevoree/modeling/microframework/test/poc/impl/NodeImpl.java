@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.util.AbstractKObject;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.microframework.test.poc.CloudView;
 import org.kevoree.modeling.microframework.test.poc.Node;
 

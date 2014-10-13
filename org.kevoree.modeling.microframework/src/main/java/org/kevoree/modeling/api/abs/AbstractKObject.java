@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.util;
+package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.events.ModelElementListener;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
+import org.kevoree.modeling.api.util.ActionType;
 
 import java.util.List;
 
@@ -195,14 +196,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     //TODO optimize , maybe dangerous if cache is unloaded ...
     public Object get(MetaAttribute attribute) {
         //here potentially manage learned attributes
-        long prevous = timeTree().resolve(now());
-        return ((AbstractKView) factory()).getDataCache().getPayload(dimension(), prevous, path(), attribute.index());
+        long previous = timeTree().resolve(now());
+        return ((AbstractKView) factory()).getDataCache().getPayload(dimension(), previous, path(), attribute.index());
     }
 
     public void set(MetaAttribute attribute, Object payload) {
-        //here potentially manage learned attributes
-        long prevous = timeTree().resolve(now());
-        ((AbstractKView) factory()).getDataCache().putPayload(dimension(), prevous, path(), attribute.index(), payload);
+        //TODO update timeTree
+        factory().dimension().univers().dataCache().putPayload(dimension(), now(), path(), attribute.index(), payload);
+        timeTree().insert(now());
+        factory().dimension().globalTimeTree().insert(now());
     }
 
 

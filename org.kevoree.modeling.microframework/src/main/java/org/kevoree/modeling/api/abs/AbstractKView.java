@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.util;
+package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.clone.DefaultModelCloner;

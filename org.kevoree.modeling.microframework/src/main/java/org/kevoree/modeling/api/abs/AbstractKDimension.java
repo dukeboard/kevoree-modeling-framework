@@ -1,18 +1,18 @@
-package org.kevoree.modeling.api.util;
+package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KManager;
+import org.kevoree.modeling.api.KUnivers;
 
 /**
  * Created by duke on 10/10/14.
  */
 public abstract class AbstractKDimension implements KDimension {
 
-    private KManager manager;
+    private KUnivers manager;
 
     private String key;
 
-    protected AbstractKDimension(KManager manager, String key) {
+    protected AbstractKDimension(KUnivers manager, String key) {
         this.manager = manager;
         this.key = key;
     }

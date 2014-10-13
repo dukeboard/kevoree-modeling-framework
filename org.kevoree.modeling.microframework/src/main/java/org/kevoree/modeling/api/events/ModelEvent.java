@@ -1,22 +1,21 @@
 package org.kevoree.modeling.api.events;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.time.TimeAwareKObject;
+import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.util.ActionType;
-import org.kevoree.modeling.api.util.ElementAttributeType;
 
 public class ModelEvent {
     private ActionType etype;
-    private ElementAttributeType elementAttributeType;
+    private Meta meta;
     private String elementAttributeName;
     private Object value;
     private Object previous_value;
     private KObject source;
     private String previousPath;
 
-    public ModelEvent(ActionType etype, ElementAttributeType elementAttributeType, String elementAttributeName, Object value, Object previous_value, KObject source, String previousPath) {
+    public ModelEvent(ActionType etype, Meta meta, String elementAttributeName, Object value, Object previous_value, KObject source, String previousPath) {
         this.etype = etype;
-        this.elementAttributeType = elementAttributeType;
+        this.meta = meta;
         this.elementAttributeName = elementAttributeName;
         this.value = value;
         this.previous_value = previous_value;
@@ -48,20 +47,12 @@ public class ModelEvent {
         return etype;
     }
 
-    public ElementAttributeType getElementAttributeType() {
-        return elementAttributeType;
+    public Meta getMeta() {
+        return meta;
     }
 
     @Override
     public String toString() {
-        if (source instanceof TimeAwareKObject) {
-            return "ModelEvent[src:[" + source.now() + "]" + source.path() + ", type:" + etype + ", elementAttributeType:" + elementAttributeType + ", elementAttributeName:" + elementAttributeName + ", value:" + value + ", previousValue:" + previous_value + "]";
-        } else {
-            String srcPath = "";
-            if (source != null) {
-                srcPath = source.path();
-            }
-            return "ModelEvent[src:" + srcPath + ", type:" + etype + ", elementAttributeType:" + elementAttributeType + ", elementAttributeName:" + elementAttributeName + ", value:" + value + ", previousValue:" + previous_value + "]";
-        }
+        return "ModelEvent[src:[" + source.now() + "]" + source.path() + ", type:" + etype + ", meta:" + getMeta() + ", elementAttributeName:" + elementAttributeName + ", value:" + value + ", previousValue:" + previous_value + "]";
     }
 }

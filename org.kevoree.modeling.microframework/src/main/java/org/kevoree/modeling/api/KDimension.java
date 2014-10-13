@@ -30,4 +30,6 @@ public interface KDimension {
 
     public TimeTree timeTree(String path);
 
+    public KUnivers univers();
+
 }

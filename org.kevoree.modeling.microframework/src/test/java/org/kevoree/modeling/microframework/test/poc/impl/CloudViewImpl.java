@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.util.AbstractKView;
+import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.microframework.test.poc.CloudView;
 
 import java.util.List;
