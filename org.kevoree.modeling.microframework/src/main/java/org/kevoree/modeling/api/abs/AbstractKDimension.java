@@ -8,12 +8,12 @@ import org.kevoree.modeling.api.KUnivers;
  */
 public abstract class AbstractKDimension implements KDimension {
 
-    private KUnivers manager;
+    private KUnivers univers;
 
     private String key;
 
-    protected AbstractKDimension(KUnivers manager, String key) {
-        this.manager = manager;
+    protected AbstractKDimension(KUnivers univers, String key) {
+        this.univers = univers;
         this.key = key;
     }
 
@@ -21,4 +21,10 @@ public abstract class AbstractKDimension implements KDimension {
     public String key() {
         return key;
     }
+
+    @Override
+    public KUnivers univers() {
+        return univers;
+    }
+
 }

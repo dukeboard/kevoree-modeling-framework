@@ -18,7 +18,7 @@ import java.util.List;
 public class CloudViewImpl extends AbstractKView implements CloudView {
 
     protected CloudViewImpl(long now, KDimension dimension, DataCache cache) {
-        super(now, dimension, cache);
+        super(now, dimension);
     }
 
     @Override

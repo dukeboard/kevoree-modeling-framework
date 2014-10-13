@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.data.DataStore;
  */
 public class CloudUnivers extends AbstractKUnivers {
 
-    protected CloudUnivers(DataStore dataStore) {
+    public CloudUnivers(DataStore dataStore) {
         super(dataStore);
     }
 }

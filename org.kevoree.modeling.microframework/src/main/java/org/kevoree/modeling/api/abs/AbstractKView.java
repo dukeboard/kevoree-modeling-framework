@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.clone.DefaultModelCloner;
 import org.kevoree.modeling.api.compare.DefaultModelCompare;
-import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
@@ -18,12 +17,10 @@ public abstract class AbstractKView implements KView {
 
     private KDimension KDimension;
 
-    private DataCache dataCache;
 
-    protected AbstractKView(long now, KDimension KDimension, DataCache dataCache) {
+    protected AbstractKView(long now, KDimension KDimension) {
         this.now = now;
         this.KDimension = KDimension;
-        this.dataCache = dataCache;
     }
 
     @Override
