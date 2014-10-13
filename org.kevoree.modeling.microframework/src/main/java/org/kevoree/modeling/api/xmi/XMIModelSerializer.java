@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.util.Converters;
 
 import java.io.BufferedOutputStream;
@@ -27,18 +28,20 @@ class ReferencesVisitor extends ModelVisitor {
     }
 
     @Override
-    public void visit(KObject elem, String refNameInParent, KObject parent) {
-        String adjustedAddress = context.addressTable.get(elem);
-        value = (value == null ? adjustedAddress : value + " " + adjustedAddress);
-    }
-
-    public void endVisitRef(String refName) {
+    public void endVisitRef(String refName, Callback<Throwable> continueVisit) {
         if (value != null) {
             context.wt.print(" " + refName + "=\"" + value + "\"");
             value = null;
         }
+        continueVisit.on(null);
     }
 
+    @Override
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+        String adjustedAddress = context.addressTable.get(elem);
+        value = (value == null ? adjustedAddress : value + " " + adjustedAddress);
+        continueVisit.on(null);
+    }
 }
 
 class AttributesVisitor implements ModelAttributeVisitor {
@@ -97,6 +100,7 @@ class AttributesVisitor implements ModelAttributeVisitor {
 
 class ModelSerializationVisitor extends ModelVisitor {
 
+
     SerializationContext context;
     AttributesVisitor attributeVisitor;
     ReferencesVisitor referenceVisitor;
@@ -115,18 +119,29 @@ class ModelSerializationVisitor extends ModelVisitor {
     }
 
     @Override
-    public void visit(KObject elem, String refNameInParent, KObject parent) {
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
         context.wt.print('<');
-        context.wt.print(refNameInParent);
+        context.wt.print(currentReference.metaName());
         context.wt.print(" xsi:type=\"" + formatMetaClassName(elem.metaClass().metaName()) + "\"");
         elem.visitAttributes(attributeVisitor);
-        elem.visitNotContained(referenceVisitor);
-        context.wt.println('>');
-        elem.visitContained(this);
-        context.wt.print("</");
-        context.wt.print(refNameInParent);
-        context.wt.print('>');
-        context.wt.println();
+        elem.visitNotContained(referenceVisitor, (throwable) -> {
+            if(throwable!=null){
+                continueVisit.on(throwable);
+            }else {
+                context.wt.println('>');
+                elem.visitContained(this, (throwable2) -> {
+                    if(throwable2!=null){
+                        continueVisit.on(throwable2);
+                    }else {
+                        context.wt.print("</");
+                        context.wt.print(currentReference.metaName());
+                        context.wt.print('>');
+                        context.wt.println();
+                        continueVisit.on(null);
+                    }
+                });
+            }
+        });
     }
 }
 
@@ -140,14 +155,16 @@ class ModelAddressVisitor extends ModelVisitor {
     }
 
     @Override
-    public void visit(KObject elem, String refNameInParent, KObject parent) {
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
         String parentXmiAddress = context.addressTable.get(parent);
-        int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + refNameInParent, (s) ->0);
-        context.addressTable.put(elem, parentXmiAddress + "/@" + refNameInParent + "." + i);
-        context.elementsCount.put(parentXmiAddress + "/@" + refNameInParent, i + 1);
+        int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + currentReference.metaName(), (s)->0);
+        context.addressTable.put(elem, parentXmiAddress + "/@" + currentReference.metaName() + "." + i);
+        context.elementsCount.put(parentXmiAddress + "/@" + currentReference.metaName(), i + 1);
         String pack = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));
-        if (!context.packageList.contains(pack))
+        if (!context.packageList.contains(pack)) {
             context.packageList.add(pack);
+        }
+        continueVisit.on(null);
     }
 }
 
@@ -158,8 +175,7 @@ class SerializationContext {
     public boolean ignoreGeneratedID = false;
     public KObject model;
     public OutputStream raw;
-    public Callback<Boolean> callback;
-    public  Callback<Exception> error;
+    public  Callback<Throwable> finishCallback;
     public PrintStream wt;
 
     HashMap<KObject, String> addressTable = new HashMap<>();
@@ -172,60 +188,73 @@ public class XMIModelSerializer implements ModelSerializer {
     ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
-    public void serialize(KObject model, Callback<String> callback, Callback<Exception> error) {
+    public void serialize(KObject model, Callback<String> callback, Callback<Throwable> error) {
         ByteArrayOutputStream oo = new ByteArrayOutputStream();
-        serializeToStream(model, oo, res -> {
-            try {
-                oo.flush();
-                callback.on(oo.toString());
-            } catch(Exception e) {
-                error.on(e);
+        serializeToStream(model, oo, err -> {
+            if(err == null) {
+                try {
+                    oo.flush();
+                    callback.on(oo.toString());
+                } catch (Exception e) {
+                    error.on(e);
+                }
+            }else {
+                error.on(err);
             }
-        }, error::on);
+        });
     }
 
     @Override
-    public void serializeToStream(final KObject model, final OutputStream raw, final Callback<Boolean> callback, final Callback<Exception> error) {
+    public void serializeToStream(final KObject model, final OutputStream raw, final Callback<Throwable> finishCallback) {
         executor.submit(() -> {
             SerializationContext context = new SerializationContext();
             context.model = model;
             context.raw = raw;
-            context.callback = callback;
-            context.error = error;
+            context.finishCallback = finishCallback;
 
             context.wt = new PrintStream(new BufferedOutputStream(raw), false);
 
             //First Pass for building address table
             context.addressTable.put(model, "/");
             ModelAddressVisitor addressBuilderVisitor = new ModelAddressVisitor(context);
-            model.deepVisitContained(addressBuilderVisitor);
+            model.deepVisitContained(addressBuilderVisitor,(end)->{
+                if(end != null) {
+                    context.finishCallback.on(end);
+                } else {
+                    ModelSerializationVisitor masterVisitor = new ModelSerializationVisitor(context);
 
+                    context.wt.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
+                    context.wt.print("<" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_"));
+                    context.wt.print(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
+                    context.wt.print(" xmi:version=\"2.0\"");
+                    context.wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"");
 
-            ModelSerializationVisitor masterVisitor = new ModelSerializationVisitor(context);
+                    int index = 0;
+                    while (index < context.packageList.size()) {
+                        context.wt.print(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
+                        index++;
+                    }
 
-            context.wt.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                    model.visitAttributes(new AttributesVisitor(context));
+                    model.visitNotContained(new ReferencesVisitor(context), (end2)->{
+                        if(end2 != null) {
+                            context.finishCallback.on(end2);
+                        } else {
+                            context.wt.println(">");
 
-            context.wt.print("<" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_"));
-            context.wt.print(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
-            context.wt.print(" xmi:version=\"2.0\"");
-            context.wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"");
-
-            int index = 0;
-            while (index < context.packageList.size()) {
-                context.wt.print(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
-                index++;
-            }
-
-            model.visitAttributes(new AttributesVisitor(context));
-            model.visitNotContained(new ReferencesVisitor(context));
-            context.wt.println(">");
-
-            model.visitContained(masterVisitor);
-
-            context.wt.println("</" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_") + ">");
-
-            context.wt.flush();
+                            model.visitContained(masterVisitor, (end3)->{
+                                if(end3 != null) {
+                                    context.finishCallback.on(end3);
+                                } else {
+                                    context.wt.println("</" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_") + ">");
+                                    context.wt.flush();
+                                }
+                            });
+                        }
+                    });
+                }
+            });
         });
     }
 

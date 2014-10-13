@@ -112,7 +112,7 @@ public class JSONModelLoader implements ModelLoader {
                     String key = name.substring(name.indexOf("@") + 1);
                     if (parent == null) {
                         if (isRoot) {
-                            currentObject = factory.lookup("/");
+                            currentObject = factory.lookup("/",);
                         }
                     } else {
                         String path = parent.path() + "/" + nameInParent + "[" + key + "]";
