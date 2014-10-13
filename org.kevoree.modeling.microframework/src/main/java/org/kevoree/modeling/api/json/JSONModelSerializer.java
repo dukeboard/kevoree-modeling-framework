@@ -47,28 +47,27 @@ class ModelReferenceVisitor extends ModelVisitor {
 public class JSONModelSerializer implements ModelSerializer {
 
     @Override
-    public void serialize(KObject model, final Callback<String> callback, final Callback<Exception> error) {
+    public void serialize(KObject model, final Callback<String> callback, final Callback<Throwable> error) {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        serializeToStream(model, outstream, new Callback<Boolean>() {
+        serializeToStream(model, outstream, new Callback<Throwable>() {
             @Override
-            public void on(Boolean p) {
+            public void on(Throwable e) {
                 try {
                     outstream.close();
-                    if (p) {
+                    if (e == null) {
                         callback.on(outstream.toString());
                     } else {
-                        error.on(new Exception("Unknown error while model serialization !"));
+                        error.on(e);
                     }
-
-                } catch (IOException e) {
-                    error.on(e);
+                } catch (IOException e2) {
+                    error.on(e2);
                 }
             }
-        }, error);
+        });
     }
 
     @Override
-    public void serializeToStream(KObject model, OutputStream raw, Callback<Boolean> callback, Callback<Exception> error) {
+    public void serializeToStream(KObject model, OutputStream raw, Callback<Throwable> error) {
         final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
 
         //visitor for printing reference
@@ -90,7 +89,7 @@ public class JSONModelSerializer implements ModelSerializer {
                 }
                 printAttName(elem, out);
                 internalReferenceVisitor.alreadyVisited.clear();
-                elem.visitNotContained(internalReferenceVisitor);
+                elem.visitNotContained(internalReferenceVisitor,null); //TODO visitor has to be compatible with continue like interface
             }
 
             @Override
@@ -112,8 +111,13 @@ public class JSONModelSerializer implements ModelSerializer {
                 isFirstInRef = false;
             }
         };
-        model.deepVisitContained(masterVisitor);
-        out.flush();
+        model.deepVisitContained(masterVisitor,new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                out.flush();
+                error.on(throwable);
+            }
+        });
     }
 
     private void printAttName(KObject elem, final PrintStream out) {
@@ -121,23 +125,18 @@ public class JSONModelSerializer implements ModelSerializer {
         if (elem.path().equals("/")) {
             isRoot = "root:";
         }
-        out.print("\n{\"class\":\"" + isRoot + elem.metaClassName() + "@" + elem.key() + "\"");
-        ModelAttributeVisitor attributeVisitor = new ModelAttributeVisitor() {
-
-            @Override
-            public void visit(String name, Object value) {
-                if (value != null) {
-                    out.print(",\"" + name + "\":\"");
-                    if (value instanceof java.util.Date) {
-                        JSONString.encode(out, "" + ((java.util.Date) value).getTime());
-                    } else {
-                        JSONString.encode(out, new Converters().convFlatAtt(value));
-                    }
-                    out.print("\"");
+        out.print("\n{\"class\":\"" + isRoot + elem.metaClass().metaName() + "@" + elem.key() + "\"");
+        elem.visitAttributes((name,value)->{
+            if (value != null) {
+                out.print(",\"" + name + "\":\"");
+                if (value instanceof java.util.Date) {
+                    JSONString.encode(out, "" + ((java.util.Date) value).getTime());
+                } else {
+                    JSONString.encode(out, Converters.convFlatAtt(value));
                 }
+                out.print("\"");
             }
-        };
-        elem.visitAttributes(attributeVisitor);
+        });
     }
 
 }

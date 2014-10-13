@@ -4,11 +4,9 @@ import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.clone.DefaultModelCloner;
 import org.kevoree.modeling.api.compare.DefaultModelCompare;
 import org.kevoree.modeling.api.data.DataCache;
-import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
-import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
 /**
  * Created by duke on 10/10/14.
@@ -48,12 +46,14 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public ModelLoader createJSONLoader() {
-        return new JSONModelLoader(this);
+        return null;
+        //return new JSONModelLoader(this);
     }
 
     @Override
     public ModelSerializer createXMISerializer() {
-        return new XMIModelSerializer();
+        return null;
+        //return new XMIModelSerializer();
     }
 
     @Override

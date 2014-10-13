@@ -43,53 +43,60 @@ public class DefaultModelCompare implements ModelCompare {
         Map<String, KObject> objectsMap = new HashMap<String, KObject>();
         traces.addAll(origin.createTraces(target, inter, merge, false, true));
         tracesRef.addAll(origin.createTraces(target, inter, merge, true, false));
+
         origin.deepVisitContained(new ModelVisitor() {
             @Override
             public void visit(KObject elem, String refNameInParent, KObject parent) {
                 objectsMap.put(elem.path(), elem);
             }
-        }, (t) -> {
-            if (t != null) {
-                t.printStackTrace();
-                callback.on(null);
-            } else {
-                target.deepVisitContained(new ModelVisitor() {
-                    @Override
-                    public void visit(KObject elem, String refNameInParent, KObject parent) {
-                        String childPath = elem.path();
-                        if (objectsMap.containsKey(childPath)) {
-                            if (inter) {
-                                traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()));
-                            }
-                            traces.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, false, true));
-                            tracesRef.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, true, false));
-                            objectsMap.remove(childPath); //drop from to process elements
-                        } else {
-                            if (!inter) {
-                                traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClassName()));
-                                traces.addAll(elem.createTraces(elem, true, merge, false, true));
-                                tracesRef.addAll(elem.createTraces(elem, true, merge, true, false));
-                            }
-                        }
-                    }
-                }, (t2) -> {
-                    if (t2 != null) {
-                        t2.printStackTrace();
-                        callback.on(null);
-                    } else {
-                        traces.addAll(tracesRef); //references should be deleted before, deletion of elements
-                        if (!inter && !merge) {
-                            //if diff
-                            for (String diffChildKey : objectsMap.keySet()) {
-                                KObject diffChild = objectsMap.get(diffChildKey);
-                                String src = diffChild.parentPath();
-                                String refName = diffChild.referenceInParent();
-                                traces.add(new ModelRemoveTrace(src, refName, diffChild.path()));
+        }, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable != null) {
+                    throwable.printStackTrace();
+                    callback.on(null);
+                } else {
+                    target.deepVisitContained(new ModelVisitor() {
+                        @Override
+                        public void visit(KObject elem, String refNameInParent, KObject parent) {
+                            String childPath = elem.path();
+                            if (objectsMap.containsKey(childPath)) {
+                                if (inter) {
+                                    traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClass().metaName()));
+                                }
+                                traces.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, false, true));
+                                tracesRef.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, true, false));
+                                objectsMap.remove(childPath); //drop from to process elements
+                            } else {
+                                if (!inter) {
+                                    traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClass().metaName()));
+                                    traces.addAll(elem.createTraces(elem, true, merge, false, true));
+                                    tracesRef.addAll(elem.createTraces(elem, true, merge, true, false));
+                                }
                             }
                         }
-                        callback.on(new TraceSequence().populate(traces));
-                    }
-                });
+                    }, new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable) {
+                            if (throwable != null) {
+                                throwable.printStackTrace();
+                                callback.on(null);
+                            } else {
+                                traces.addAll(tracesRef); //references should be deleted before, deletion of elements
+                                if (!inter && !merge) {
+                                    //if diff
+                                    for (String diffChildKey : objectsMap.keySet()) {
+                                        KObject diffChild = objectsMap.get(diffChildKey);
+                                        String src = diffChild.parentPath();
+                                        String refName = diffChild.referenceInParent();
+                                        traces.add(new ModelRemoveTrace(src, refName, diffChild.path()));
+                                    }
+                                }
+                                callback.on(new TraceSequence().populate(traces));
+                            }
+                        }
+                    });
+                }
             }
         });
     }

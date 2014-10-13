@@ -200,12 +200,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public Object get(MetaAttribute attribute) {
         //here potentially manage learned attributes
         long previous = timeTree().resolve(now());
-        return ((AbstractKView) factory()).getDataCache().getPayload(dimension().key(), previous, path(), attribute.index());
+        return ((AbstractKView) factory()).getDataCache().getPayload(dimension(), previous, path(), attribute.index());
     }
 
     public void set(MetaAttribute attribute, Object payload) {
         //TODO update timeTree
-        factory().dimension().univers().dataCache().putPayload(dimension().key(), now(), path(), attribute.index(), payload);
+        factory().dimension().univers().dataCache().putPayload(dimension(), now(), path(), attribute.index(), payload);
         timeTree().insert(now());
         factory().dimension().globalTimeTree().insert(now());
     }

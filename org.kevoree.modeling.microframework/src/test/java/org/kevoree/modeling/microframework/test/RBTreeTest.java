@@ -34,7 +34,7 @@ public class RBTreeTest {
             for(long i = MIN ; i < j-1; i++) {
                 assertTrue("I: " + i + " -> " + tree.next(i).getKey() + " != " + (i+1), tree.next(i).getKey() == i+1);
             }
-            assertTrue("I: " + j + " -> " + tree.next(j).getKey() + " != null", tree.next(j) == null);
+            assertTrue("I: " + j + " -> " + tree.next(j) + " != null", tree.next(j) == null);
         }
     }
 

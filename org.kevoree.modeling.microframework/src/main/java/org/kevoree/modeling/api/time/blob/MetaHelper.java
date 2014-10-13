@@ -38,6 +38,7 @@ public class MetaHelper {
         return buffer.toString();
     }
 
+    /*
     public static Map<KObject, Set<String>> unserialize(String p, KView factory) {
         HashMap<KObject, Set<String>> result = new HashMap<KObject, Set<String>>();
         String[] lines = p.split(sep);
@@ -53,5 +54,6 @@ public class MetaHelper {
         }
         return result;
     }
+    */
 
 }
