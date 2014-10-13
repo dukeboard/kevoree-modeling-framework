@@ -23,9 +23,9 @@ public class RBTreeTest {
     public void nextTest() {
         long MIN = 0L;
         long MAX = 99L;
-        for(long j = MIN ; j < MAX; j++) {
+        for(long j = MIN ; j <= MAX; j++) {
             RBTree tree = new RBTree();
-            for(long i = MIN ; i < j; i++) {
+            for(long i = MIN ; i <= j; i++) {
                 if( (i % 3) == 0L ) {
                     tree.insert(i, State.DELETED);
                 } else {
@@ -67,9 +67,9 @@ public class RBTreeTest {
         long MIN = 0L;
         long MAX = 99L;
 
-        for(long j = MIN+1 ; j < MAX; j++) {
+        for(long j = MIN+1 ; j <= MAX; j++) {
             RBTree tree = new RBTree();
-            for(long i = MIN ; i < j; i++) {
+            for(long i = MIN ; i <= j; i++) {
                 if( (i % 7) == 0L ) {
                     tree.insert(i, State.DELETED);
                 } else {
@@ -87,7 +87,7 @@ public class RBTreeTest {
     public void nextWhileNotTest() {
 
         RBTree tree = new RBTree();
-        for(long i = 0; i < 6 ; i++) {
+        for(long i = 0; i <= 6 ; i++) {
             tree.insert(i,State.EXISTS);
         }
         tree.insert(8L,State.DELETED);
@@ -112,7 +112,7 @@ public class RBTreeTest {
     public void previousWhileNotTest() {
 
         RBTree tree = new RBTree();
-        for(long i = 0; i < 6 ; i++) {
+        for(long i = 0; i <= 6 ; i++) {
             tree.insert(i,State.EXISTS);
         }
         tree.insert(8L,State.DELETED);
@@ -135,9 +135,9 @@ public class RBTreeTest {
     public void firstTest() {
         long MIN = 0L;
         long MAX = 99L;
-        for(long j = MIN+1 ; j < MAX; j++) {
+        for(long j = MIN+1 ; j <= MAX; j++) {
             RBTree tree = new RBTree();
-            for(long i = MIN ; i < j; i++) {
+            for(long i = MIN ; i <= j; i++) {
                 if( (i % 3) == 0L ) {
                     tree.insert(i,State.DELETED);
                 } else {
@@ -152,9 +152,9 @@ public class RBTreeTest {
     public void lastTest() {
         long MIN = 0L;
         long MAX = 99L;
-        for(long j = MIN+1; j < MAX; j++) {
+        for(long j = MIN+1; j <= MAX; j++) {
             RBTree tree = new RBTree();
-            for(long i = MIN; i < j; i++) {
+            for(long i = MIN; i <= j; i++) {
                 if( (i % 3) == 0L ) {
                     tree.insert(i,State.DELETED);
                 } else {
@@ -168,7 +168,7 @@ public class RBTreeTest {
     @Test
     public void firstWhileNot() {
         RBTree tree = new RBTree();
-        for(long i = 0; i < 6 ; i++) {
+        for(long i = 0; i <= 6 ; i++) {
             tree.insert(i,State.EXISTS);
         }
         tree.insert(8L,State.DELETED);
@@ -190,7 +190,7 @@ public class RBTreeTest {
     @Test
     public void lastWhileNot() {
         RBTree tree = new RBTree();
-        for(long i = 0; i < 6 ; i++) {
+        for(long i = 0; i <= 6 ; i++) {
             tree.insert(i,State.EXISTS);
         }
         tree.insert(8L,State.DELETED);
@@ -214,14 +214,14 @@ public class RBTreeTest {
     @Test
     public void previousOrEqualTest() {
         RBTree tree = new RBTree();
-        for(long i = 0; i < 6 ; i++) {
+        for(long i = 0; i <= 6 ; i++) {
             tree.insert(i,State.EXISTS);
         }
         tree.insert(8L,State.DELETED);
         tree.insert(10L,State.EXISTS);
         tree.insert(11L,State.EXISTS);
         tree.insert(13L,State.EXISTS);
-        //printTree(tree.root!!)
+        //printTree(tree.root);
         assertNull(tree.previousOrEqual(-1));
 
         assertEquals(tree.previousOrEqual(0).getKey(),0L);
@@ -237,7 +237,7 @@ public class RBTreeTest {
     @Test
     public void nextOrEqualTest() {
         RBTree tree = new RBTree();
-        for(long i = 0; i < 6 ; i++) {
+        for(long i = 0; i <= 6 ; i++) {
             tree.insert(i,State.EXISTS);
         }
         tree.insert(8L,State.DELETED);
