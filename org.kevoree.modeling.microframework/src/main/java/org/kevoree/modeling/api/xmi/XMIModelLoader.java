@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -22,8 +23,12 @@ class LoadingContext {
 
     public XmlParser xmiReader;
 
+    /*
     public XmiLoaderAttributeVisitor attributeVisitor;
     public XmiLoaderReferenceVisitor referenceVisitor;
+    public HashMap<String, HashMap<String, Boolean>> attributesHashmap = new HashMap<String, HashMap<String, Boolean>>();
+    public HashMap<String, HashMap<String, String>> referencesHashmap = new HashMap<String, HashMap<String, String>>();
+    */
 
     public ArrayList<KObject> loadedRoots = new ArrayList<KObject>();
     public ArrayList<XMIResolveCommand> resolvers = new ArrayList<XMIResolveCommand>();
@@ -34,8 +39,6 @@ class LoadingContext {
     public HashMap<String, Integer> stats = new HashMap<String, Integer>();
     public HashMap<String, Boolean> oppositesAlreadySet = new HashMap<String, Boolean>();
 
-    public HashMap<String, HashMap<String, Boolean>> attributesHashmap = new HashMap<String, HashMap<String, Boolean>>();
-    public HashMap<String, HashMap<String, String>> referencesHashmap = new HashMap<String, HashMap<String, String>>();
 
     public Callback<KObject> successCallback;
     public Callback<Throwable> errorCallback;
@@ -136,8 +139,10 @@ public class XMIModelLoader implements ModelLoader {
                 context.successCallback = callback;
                 context.errorCallback = error;
                 context.xmiReader = parser;
+                /*
                 context.attributeVisitor = new XmiLoaderAttributeVisitor(context);
                 context.referenceVisitor = new XmiLoaderReferenceVisitor(context);
+                */
                 deserialize(context);
             }
         };
@@ -244,7 +249,7 @@ public class XMIModelLoader implements ModelLoader {
 
 
 
-        /* Preparation of maps */
+        /* Preparation of maps
         if (!ctx.attributesHashmap.containsKey(modelElem.metaClass().metaName())) {
             ctx.attributeVisitor.setParent(modelElem);
             modelElem.visitAttributes(ctx.attributeVisitor);
@@ -254,7 +259,8 @@ public class XMIModelLoader implements ModelLoader {
         if (!ctx.referencesHashmap.containsKey(modelElem.metaClass().metaName())) {
             modelElem.visitAll(ctx.referenceVisitor,null);  //TODO check if not a dangerous synchronous call
         }
-        HashMap<String, String> elemReferencesMap = ctx.referencesHashmap.get(modelElem.metaClass().metaName());
+        * */
+        //HashMap<String, String> elemReferencesMap = ctx.referencesHashmap.get(modelElem.metaClass().metaName());
 
 
         /* Read attributes and References */
@@ -264,34 +270,37 @@ public class XMIModelLoader implements ModelLoader {
                 String attrName = ctx.xmiReader.getAttributeLocalName(i).trim();
                 String valueAtt = ctx.xmiReader.getAttributeValue(i).trim();
                 if ( valueAtt != null) {
-                    if (elemAttributesMap.containsKey(attrName)) {
-                        modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, attrName, (unescapeXml(valueAtt)), false, false);
-                        if (namedElementSupportActivated && attrName.equals("name")) {
-                            KObject parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")));
-                            ctx.map.entrySet().forEach(entry -> {
-                                if (entry.getValue() == parent) {
-                                    String refT = entry.getKey() + "/" + unescapeXml(valueAtt);
-                                    ctx.map.put(refT, modelElem);
-                                }
-                            });
+
+                    String[] referenceArray = valueAtt.split(" ");
+                    if(referenceArray.length > 1) {
+                        String xmiRef = referenceArray[0];
+                        for(int j = 0; j < referenceArray.length; j++) {
+                            String adjustedRef = (xmiRef.startsWith("#")?xmiRef.substring(1):xmiRef);
+
+                            adjustedRef = (adjustedRef.startsWith("//")?"/0" + adjustedRef.substring(1):adjustedRef);
+                            adjustedRef = adjustedRef.replace(".0", "");
+                            KObject ref = ctx.map.get(adjustedRef);
+                            if ( ref != null) {
+                                modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, attrName, ref, true, false);
+                            } else {
+                                ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, org.kevoree.modeling.api.util.ActionType.ADD, attrName, adjustedRef));
+                            }
                         }
                     } else {
                         //reference, can be remote
                         if (!valueAtt.startsWith("#") && !valueAtt.startsWith("/")) {
                             throw new UnsupportedOperationException("ResourceSet not supported " + valueAtt);
                         } else {
-                            Arrays.asList(valueAtt.split(" ")).forEach(xmiRef -> {
-                                String adjustedRef = (xmiRef.startsWith("#")?xmiRef.substring(1):xmiRef);
-
-                                adjustedRef = (adjustedRef.startsWith("//")?"/0" + adjustedRef.substring(1):adjustedRef);
-                                adjustedRef = adjustedRef.replace(".0", "");
-                                KObject ref = ctx.map.get(adjustedRef);
-                                if ( ref != null) {
-                                    modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, attrName, ref, true, false);
-                                } else {
-                                    ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, org.kevoree.modeling.api.util.ActionType.ADD, attrName, adjustedRef));
-                                }
-                            });
+                            modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, attrName, (unescapeXml(valueAtt)), false, false);
+                            if (namedElementSupportActivated && attrName.equals("name")) {
+                                KObject parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")));
+                                ctx.map.entrySet().forEach(entry -> {
+                                    if (entry.getValue() == parent) {
+                                        String refT = entry.getKey() + "/" + unescapeXml(valueAtt);
+                                        ctx.map.put(refT, modelElem);
+                                    }
+                                });
+                            }
                         }
                     }
                 }
@@ -305,7 +314,7 @@ public class XMIModelLoader implements ModelLoader {
                     String subElemName = ctx.xmiReader.getLocalName();
                     int i = ctx.elementsCount.computeIfAbsent(xmiAddress + "/@" + subElemName, (s)->0);
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i:"");
-                    KObject containedElement = loadObject(ctx, subElementId, elemReferencesMap.get(subElemName));
+                    KObject containedElement = loadObject(ctx, subElementId, subElemName);
                     modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, subElemName, containedElement, true, false);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
                 }
@@ -324,10 +333,10 @@ public class XMIModelLoader implements ModelLoader {
 
 }
 
-
+/*
 class XmiLoaderReferenceVisitor extends ModelVisitor {
 
-    public HashMap<String, String> refMap;
+    public List<MetaReference refMap;
     private LoadingContext context;
 
     public XmiLoaderReferenceVisitor(LoadingContext context) {
@@ -344,7 +353,10 @@ class XmiLoaderReferenceVisitor extends ModelVisitor {
         refMap.put(refName, refType);
         return true;
     }
-    public void visit(KObject elem, String refNameInParent, KObject parent) {
+
+    @Override
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+
     }
 }
 
@@ -367,5 +379,6 @@ class XmiLoaderAttributeVisitor implements ModelAttributeVisitor {
         context.attributesHashmap.get(parent.metaClass().metaName()).put(name, true);
     }
 }
+*/
 
 
