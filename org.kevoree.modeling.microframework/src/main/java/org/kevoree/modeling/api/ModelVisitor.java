@@ -14,12 +14,12 @@ public abstract class ModelVisitor {
         continueVisit.on(true);
     }
 
-    public boolean beginVisitRef(MetaReference currentreference, Callback<Boolean> continueVisit, Callback<Boolean> skipElem) {
-        return true;
+    public void beginVisitRef(MetaReference currentreference, Callback<Boolean> continueVisit, Callback<Boolean> skipElem) {
+        continueVisit.on(true);
     }
 
     public void endVisitRef(String refName, Callback<Boolean> continueVisit) {
-
+        continueVisit.on(true);
     }
 
 }
