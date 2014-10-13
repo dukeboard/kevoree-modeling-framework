@@ -27,6 +27,16 @@ public abstract class AbstractKUnivers implements KUnivers {
     }
 
     @Override
+    public DataStore dataStore() {
+        return dataStore;
+    }
+
+    @Override
+    public DataCache dataCache() {
+        return dataCache;
+    }
+
+    @Override
     public KDimension create() {
         return null;
     }

@@ -8,16 +8,39 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.microframework.test.poc.CloudView;
-import org.kevoree.modeling.microframework.test.poc.Node;
+import org.kevoree.modeling.microframework.test.poc.Element;
+
+import java.util.List;
 
 /**
- * Created by duke on 10/10/14.
+ * Created by duke on 10/13/14.
  */
-public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
+public class ElementImpl extends AbstractKObject<Element, CloudView> implements Element {
 
-    public NodeImpl(CloudView factory, MetaClass metaClass, Long now, KDimension dimension, TimeTree timeTree) {
+    public ElementImpl(CloudView factory, MetaClass metaClass, Long now, KDimension dimension, TimeTree timeTree) {
         super(factory, metaClass, now, dimension, timeTree);
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public String setName(String name) {
+        return null;
+    }
+
+    @Override
+    public String getValue() {
+        return null;
+    }
+
+    @Override
+    public String setValue(String name) {
+        return null;
     }
 
     @Override
@@ -57,31 +80,27 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public MetaAttribute[] metaAttributes() {
-        return Node.METAATTRIBUTES.values();
+        return Element.METAATTRIBUTES.values();
     }
 
     @Override
     public MetaReference[] metaReferences() {
-        return Node.METAREFERENCES.values();
+        return new MetaReference[0];
     }
 
     @Override
-    public String getName() {
+    public List<ModelTrace> createTraces(Element similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes) {
         return null;
     }
 
+
     @Override
-    public String setName(String name) {
-        return null;
+    public boolean modelEquals(Element similarObj) {
+        return false;
     }
 
     @Override
-    public String getValue() {
-        return null;
-    }
+    public void deepModelEquals(Element similarObj, Callback<Boolean> callback) {
 
-    @Override
-    public String setValue(String name) {
-        return null;
     }
 }

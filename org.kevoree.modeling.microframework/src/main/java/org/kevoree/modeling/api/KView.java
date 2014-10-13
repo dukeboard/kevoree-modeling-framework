@@ -9,7 +9,9 @@ import java.util.List;
  */
 public interface KView {
 
-    public KObject create(String metaClassName);
+    public KObject createFQN(String metaClassName);
+
+    public KObject create(MetaClass clazz);
 
     public void root(KObject elem, Callback<Boolean> callback);
 

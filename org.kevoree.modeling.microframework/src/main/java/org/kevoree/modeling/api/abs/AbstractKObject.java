@@ -1,11 +1,9 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelAttributeVisitor;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.events.ModelElementListener;
 import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.ActionType;
@@ -19,19 +17,24 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     private B factory;
 
-    private String metaClassName;
+    private MetaClass metaClass;
 
     @Override
     public B factory() {
         return factory;
     }
 
-    public AbstractKObject(B factory, String metaClassName, Long now, String dimension, TimeTree timeTree) {
+    public AbstractKObject(B factory, MetaClass metaClass, Long now, KDimension dimension, TimeTree timeTree) {
         this.factory = factory;
-        this.metaClassName = metaClassName;
+        this.metaClass = metaClass;
         this.now = now;
         this.dimension = dimension;
         this.timeTree = timeTree;
+    }
+
+    @Override
+    public MetaClass metaClass() {
+        return this.metaClass;
     }
 
     private boolean isDeleted = false;
@@ -62,10 +65,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return timeTree;
     }
 
-    private String dimension;
+    private KDimension dimension;
 
     @Override
-    public String dimension() {
+    public KDimension dimension() {
         return dimension;
     }
 
@@ -197,12 +200,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public Object get(MetaAttribute attribute) {
         //here potentially manage learned attributes
         long previous = timeTree().resolve(now());
-        return ((AbstractKView) factory()).getDataCache().getPayload(dimension(), previous, path(), attribute.index());
+        return ((AbstractKView) factory()).getDataCache().getPayload(dimension().key(), previous, path(), attribute.index());
     }
 
     public void set(MetaAttribute attribute, Object payload) {
         //TODO update timeTree
-        factory().dimension().univers().dataCache().putPayload(dimension(), now(), path(), attribute.index(), payload);
+        factory().dimension().univers().dataCache().putPayload(dimension().key(), now(), path(), attribute.index(), payload);
         timeTree().insert(now());
         factory().dimension().globalTimeTree().insert(now());
     }

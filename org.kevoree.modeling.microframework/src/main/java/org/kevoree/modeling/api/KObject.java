@@ -21,7 +21,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public String path();
 
-    public String dimension();
+    public KDimension dimension();
 
     public B factory();
 
@@ -87,9 +87,8 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public MetaAttribute[] metaAttributes();
 
-    public MetaReference[] metaContainedReferences();
+    public MetaReference[] metaReferences();
 
-    public MetaReference[] metaNotContainedReferences();
     /* End Reflexive API */
 
     /* Powerful Trace API, maybe consider to hide TODO */
