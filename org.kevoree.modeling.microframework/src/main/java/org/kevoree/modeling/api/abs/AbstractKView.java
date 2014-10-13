@@ -19,10 +19,6 @@ public abstract class AbstractKView implements KView {
 
     private DataCache dataCache;
 
-    public DataCache getDataCache() {
-        return dataCache;
-    }
-
     protected AbstractKView(long now, KDimension KDimension, DataCache dataCache) {
         this.now = now;
         this.KDimension = KDimension;

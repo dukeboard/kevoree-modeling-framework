@@ -200,10 +200,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public Object get(MetaAttribute attribute) {
         //here potentially manage learned attributes
         long previous = timeTree().resolve(now());
-        return ((AbstractKView) factory()).getDataCache().getPayload(dimension(), previous, path(), attribute.index());
-
-
-
+        return factory().dimension().univers().dataCache().getPayload(dimension(), previous, path(), attribute.index());
     }
 
     public void set(MetaAttribute attribute, Object payload) {
@@ -254,10 +251,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     }
 
-    private void internalVisit(boolean recursive, boolean onlyContained, ModelVisitor visitor, Callback<Throwable> end){
+    private void internalVisit(boolean recursive, boolean onlyContained, ModelVisitor visitor, Callback<Throwable> end) {
 
     }
-
-
 
 }
