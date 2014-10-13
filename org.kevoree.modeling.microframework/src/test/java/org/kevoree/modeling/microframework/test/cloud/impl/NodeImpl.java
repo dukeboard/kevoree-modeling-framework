@@ -1,8 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -21,41 +19,6 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     }
 
     @Override
-    public String parentPath() {
-        return null;
-    }
-
-    @Override
-    public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void visitContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void visitAll(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void deepVisitNotContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void deepVisitContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void deepVisitAll(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
     public MetaAttribute[] metaAttributes() {
         return Node.METAATTRIBUTES.values();
     }
@@ -67,22 +30,23 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public String getName() {
-        return null;
+        return (String) get(METAATTRIBUTES.NAME);
     }
 
     @Override
-    public String setName(String name) {
+    public Node setName(String name) {
         set(METAATTRIBUTES.NAME,name);
-        return null;
+        return this;
     }
 
     @Override
     public String getValue() {
-        return null;
+        return (String) get(METAATTRIBUTES.VALUE);
     }
 
     @Override
-    public String setValue(String name) {
-        return null;
+    public Node setValue(String name) {
+        set(METAATTRIBUTES.VALUE,name);
+        return this;
     }
 }

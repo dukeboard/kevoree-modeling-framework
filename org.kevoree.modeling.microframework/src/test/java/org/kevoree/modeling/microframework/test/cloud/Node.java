@@ -78,10 +78,10 @@ public interface Node extends KObject<Node, CloudView> {
 
     public String getName();
 
-    public String setName(String name);
+    public Node setName(String name);
 
     public String getValue();
 
-    public String setValue(String name);
+    public Node setValue(String name);
 
 }

@@ -219,5 +219,40 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     }
 
+    @Override
+    public String parentPath() {
+        return null;
+    }
+
+    @Override
+    public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end) {
+
+    }
+
+    @Override
+    public void visitContained(ModelVisitor visitor, Callback<Throwable> end) {
+
+    }
+
+    @Override
+    public void visitAll(ModelVisitor visitor, Callback<Throwable> end) {
+
+    }
+
+    @Override
+    public void deepVisitNotContained(ModelVisitor visitor, Callback<Throwable> end) {
+
+    }
+
+    @Override
+    public void deepVisitContained(ModelVisitor visitor, Callback<Throwable> end) {
+
+    }
+
+    @Override
+    public void deepVisitAll(ModelVisitor visitor, Callback<Throwable> end) {
+
+    }
+
 
 }

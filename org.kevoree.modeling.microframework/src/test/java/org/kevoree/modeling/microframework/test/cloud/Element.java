@@ -48,10 +48,10 @@ public interface Element extends KObject<Element, CloudView> {
 
     public String getName();
 
-    public String setName(String name);
+    public Element setName(String name);
 
     public String getValue();
 
-    public String setValue(String name);
+    public Element setValue(String name);
 
 }
