@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.compare;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelRemoveTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
@@ -46,8 +47,9 @@ public class DefaultModelCompare implements ModelCompare {
 
         origin.deepVisitContained(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, String refNameInParent, KObject parent) {
+            public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Boolean> continueVisit) throws Throwable {
                 objectsMap.put(elem.path(), elem);
+                continueVisit.on(true);
             }
         }, new Callback<Throwable>() {
             @Override
@@ -58,22 +60,23 @@ public class DefaultModelCompare implements ModelCompare {
                 } else {
                     target.deepVisitContained(new ModelVisitor() {
                         @Override
-                        public void visit(KObject elem, String refNameInParent, KObject parent) {
+                        public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Boolean> continueVisit) throws Throwable {
                             String childPath = elem.path();
                             if (objectsMap.containsKey(childPath)) {
                                 if (inter) {
-                                    traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClass().metaName()));
+                                    traces.add(new ModelAddTrace(parent.path(), currentReference.metaName(), elem.path(), elem.metaClass().metaName()));
                                 }
                                 traces.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, false, true));
                                 tracesRef.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, true, false));
                                 objectsMap.remove(childPath); //drop from to process elements
                             } else {
                                 if (!inter) {
-                                    traces.add(new ModelAddTrace(parent.path(), refNameInParent, elem.path(), elem.metaClass().metaName()));
+                                    traces.add(new ModelAddTrace(parent.path(), currentReference.metaName(), elem.path(), elem.metaClass().metaName()));
                                     traces.addAll(elem.createTraces(elem, true, merge, false, true));
                                     tracesRef.addAll(elem.createTraces(elem, true, merge, true, false));
                                 }
                             }
+                            continueVisit.on(true);
                         }
                     }, new Callback<Throwable>() {
                         @Override

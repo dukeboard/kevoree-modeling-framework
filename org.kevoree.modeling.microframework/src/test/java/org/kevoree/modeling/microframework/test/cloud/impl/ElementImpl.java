@@ -83,9 +83,11 @@ public class ElementImpl extends AbstractKObject<Element, CloudView> implements 
         return Element.METAATTRIBUTES.values();
     }
 
+    private final MetaReference[] mataReferences = new MetaReference[0];
+
     @Override
     public MetaReference[] metaReferences() {
-        return new MetaReference[0];
+        return mataReferences;
     }
 
     @Override

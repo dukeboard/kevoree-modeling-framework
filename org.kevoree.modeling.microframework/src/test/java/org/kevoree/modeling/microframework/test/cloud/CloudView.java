@@ -10,8 +10,8 @@ public interface CloudView extends KView {
 
     public enum METACLASSES implements MetaClass {
 
-        org_kevoree_modeling_microframework_test_poc_Node("org.kevoree.modeling.microframework.test.cloud.Node", 0),
-        org_kevoree_modeling_microframework_test_poc_Element("org.kevoree.modeling.microframework.test.cloud.Element", 1);
+        ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE("org.kevoree.modeling.microframework.test.cloud.Node", 0),
+        ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT("org.kevoree.modeling.microframework.test.cloud.Element", 1);
 
         private String name;
 

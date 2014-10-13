@@ -30,9 +30,9 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
     public KObject create(MetaClass clazz) {
         switch (clazz.index()) {
             case 0:
-                return internal_create(new NodeImpl(this, CloudView.METACLASSES.org_kevoree_modeling_microframework_test_poc_Node, now(), dimension(), null));
+                return internal_create(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, now(), dimension(), null));
             case 1:
-                return internal_create(new ElementImpl(this, METACLASSES.org_kevoree_modeling_microframework_test_poc_Element, now(), dimension(), null));
+                return internal_create(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, now(), dimension(), null));
             default:
                 return null;
         }
@@ -70,11 +70,11 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
 
     @Override
     public Node createNode() {
-        return (Node) create(METACLASSES.org_kevoree_modeling_microframework_test_poc_Node);
+        return (Node) create(METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE);
     }
 
     @Override
     public Element createElement() {
-        return (Element) create(METACLASSES.org_kevoree_modeling_microframework_test_poc_Element);
+        return (Element) create(METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT);
     }
 }

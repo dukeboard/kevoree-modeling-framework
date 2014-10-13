@@ -1,44 +1,24 @@
 package org.kevoree.modeling.api;
 
-import java.util.HashMap;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 public abstract class ModelVisitor {
 
-    boolean visitStopped = false;
+    public abstract void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Boolean> continueVisit) throws Throwable;
 
-    public void stopVisit() {
-        visitStopped = true;
+    public void beginVisitElem(KObject elem, Callback<Boolean> continueVisit, Callback<Boolean> skipElem) {
+        continueVisit.on(true);
     }
 
-    boolean visitChildren = true;
-
-    boolean visitReferences = true;
-
-    public void noChildrenVisit() {
-        visitChildren = false;
+    public void endVisitElem(KObject elem, Callback<Boolean> continueVisit) {
+        continueVisit.on(true);
     }
 
-    public void noReferencesVisit() {
-        visitReferences = false;
-    }
-
-    public abstract void visit(KObject elem, String refNameInParent, KObject parent);
-
-    public HashMap<String, KObject> alreadyVisited = null;
-
-    public void beginVisitElem(KObject elem) {
-
-    }
-
-    public void endVisitElem(KObject elem) {
-
-    }
-
-    public boolean beginVisitRef(String refName, String refType) {
+    public boolean beginVisitRef(MetaReference currentreference, Callback<Boolean> continueVisit, Callback<Boolean> skipElem) {
         return true;
     }
 
-    public void endVisitRef(String refName) {
+    public void endVisitRef(String refName, Callback<Boolean> continueVisit) {
 
     }
 

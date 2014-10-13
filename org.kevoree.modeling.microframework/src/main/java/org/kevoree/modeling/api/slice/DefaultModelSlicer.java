@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelSlicer;
 import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
@@ -48,12 +49,13 @@ public class DefaultModelSlicer implements ModelSlicer {
                     //We continue to all reachable elements, potentially here we can exclude references
                     elem.visitAll(new ModelVisitor() {
                         @Override
-                        public void visit(KObject elem, String refNameInParent, KObject parent) {
+                        public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Boolean> continueVisit) throws Throwable {
                             if (cache.get(elem.path()) == null) {
                                 //break potential loop
                                 internal_prune(elem, traces, cache, parentMap, (t) -> {
                                 });
                             }
+                            continueVisit.on(true);
                         }
                     }, (t) -> {
                         callback.on(null);

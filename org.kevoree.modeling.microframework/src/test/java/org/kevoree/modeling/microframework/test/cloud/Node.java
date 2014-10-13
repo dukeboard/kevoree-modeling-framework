@@ -12,8 +12,8 @@ public interface Node extends KObject<Node, CloudView> {
     /* Reflexive API Attributes */
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 3, false, true),
-        VALUE("value", 4, true, false); //lexicographic order
+        NAME("name", 0, false, true),
+        VALUE("value", 1, true, false); //lexicographic order
 
         private String name;
 
