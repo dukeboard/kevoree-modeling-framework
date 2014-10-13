@@ -38,7 +38,7 @@ class LoadingContext {
     public HashMap<String, HashMap<String, String>> referencesHashmap = new HashMap<String, HashMap<String, String>>();
 
     public Callback<KObject> successCallback;
-    public Callback<Exception> errorCallback;
+    public Callback<Throwable> errorCallback;
 
     public Boolean isOppositeAlreadySet(String localRef, String oppositeRef) {
         return (oppositesAlreadySet.get(oppositeRef + "_" + localRef) != null || (oppositesAlreadySet.get(localRef + "_" + oppositeRef) != null));
@@ -117,16 +117,16 @@ public class XMIModelLoader implements ModelLoader {
 
 
     @Override
-    public void loadModelFromString(String str, Callback<KObject> callback, Callback<Exception> error) {
+    public void loadModelFromString(String str, Callback<KObject> callback, Callback<Throwable> error) {
         loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback, error);
     }
 
     @Override
-    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback, Callback<Exception> error) {
+    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback, Callback<Throwable> error) {
         executor.submit(createLoadingTask(inputStream, callback, error));
     }
 
-    private Runnable createLoadingTask(final InputStream inputStream, final Callback<KObject> callback, final Callback<Exception> error) {
+    private Runnable createLoadingTask(final InputStream inputStream, final Callback<KObject> callback, final Callback<Throwable> error) {
         return () -> {
             XmlParser parser = new XmlParser(inputStream);
             if(!parser.hasNext()) {

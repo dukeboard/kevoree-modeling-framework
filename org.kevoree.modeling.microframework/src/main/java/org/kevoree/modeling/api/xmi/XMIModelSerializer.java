@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.util.Converters;
 
@@ -52,24 +53,6 @@ class AttributesVisitor implements ModelAttributeVisitor {
         this.context = context;
     }
 
-    @Override
-    public void visit(String name, Object value) {
-        if (value != null) {
-            if (context.ignoreGeneratedID && name.equals("generated_KMF_ID")) {
-                return;
-            }
-            if (value instanceof String && value.equals("")) {
-                return;
-            }
-            context.wt.print(" " + name + "=\"");
-            if (value instanceof java.util.Date) {
-                escapeXml(context.wt, "" + ((Date)value).getTime());
-            } else {
-                escapeXml(context.wt, Converters.convFlatAtt(value));
-            }
-            context.wt.print("\"");
-        }
-    }
     private void escapeXml(PrintStream ostream, String chain) {
         if (chain == null) {
             return;
@@ -92,6 +75,25 @@ class AttributesVisitor implements ModelAttributeVisitor {
                 ostream.print(c);
             }
             i = i + 1;
+        }
+    }
+
+    @Override
+    public void visit(MetaAttribute metaAttribute, Object value) {
+        if (value != null) {
+            if (context.ignoreGeneratedID && metaAttribute.metaName().equals("generated_KMF_ID")) {
+                return;
+            }
+            if (value instanceof String && value.equals("")) {
+                return;
+            }
+            context.wt.print(" " + metaAttribute.metaName() + "=\"");
+            if (value instanceof java.util.Date) {
+                escapeXml(context.wt, "" + ((Date)value).getTime());
+            } else {
+                escapeXml(context.wt, Converters.convFlatAtt(value));
+            }
+            context.wt.print("\"");
         }
     }
 }
