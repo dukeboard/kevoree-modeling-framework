@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.time.rbtree.State;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -78,7 +79,7 @@ public class RBTreeTest {
             for(long i = j ; i > MIN; i--) {
                 assertTrue("I: " + i + " -> " + tree.previous(i).getKey() + " != " + (i-1), tree.previous(i).getKey() == i-1);
             }
-            assertTrue("I: " + j + " -> " + tree.previous(MIN).getKey() + " != null", tree.previous(MIN) == null);
+            assertTrue("I: " + j + " -> " + tree.previous(MIN) + " != null", tree.previous(MIN) == null);
         }
     }
 
@@ -222,14 +223,15 @@ public class RBTreeTest {
         tree.insert(13L,State.EXISTS);
         //printTree(tree.root!!)
         assertNull(tree.previousOrEqual(-1));
-        assertTrue(tree.previousOrEqual(0).getKey() == 0L);
-        assertTrue(tree.previousOrEqual(1).getKey() == 1L);
-        assertTrue(tree.previousOrEqual(7).getKey() == 6L);
-        assertTrue(tree.previousOrEqual(8).getKey() == 8L);
-        assertTrue(tree.previousOrEqual(9).getKey() == 8L);
-        assertTrue(tree.previousOrEqual(10).getKey() == 10L);
-        assertTrue(tree.previousOrEqual(13).getKey() == 13L);
-        assertTrue(tree.previousOrEqual(14).getKey() == 13L);
+
+        assertEquals(tree.previousOrEqual(0).getKey(),0L);
+        assertEquals(tree.previousOrEqual(1).getKey(),1L);
+        assertEquals(tree.previousOrEqual(7).getKey(),6L);
+        assertEquals(tree.previousOrEqual(8).getKey(),8L);
+        assertEquals(tree.previousOrEqual(9).getKey(),8L);
+        assertEquals(tree.previousOrEqual(10).getKey(),10L);
+        assertEquals(tree.previousOrEqual(13).getKey(),13L);
+        assertEquals(tree.previousOrEqual(14).getKey(),13L);
     }
 
     @Test
