@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.util.Converters;
 
 import java.io.*;
@@ -21,27 +22,31 @@ class ModelReferenceVisitor extends ModelVisitor {
         this.out = out;
     }
 
-    @Override
-    public boolean beginVisitRef(String refName, String refType) {
-        out.print(",\"" + refName + "\":[");
-        isFirst = true;
-        return true;
-    }
 
     @Override
-    public void endVisitRef(String refName) {
-        out.print("]");
-    }
-
-    @Override
-    public void visit(KObject elem, String refNameInParent, KObject parent) {
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
         if (!isFirst) {
             out.print(",");
         } else {
             isFirst = false;
         }
         out.print("\"" + elem.path() + "\"");
+        continueVisit.on(null);
     }
+
+    @Override
+    public void beginVisitRef(MetaReference currentreference, Callback<Throwable> continueVisit, Callback<Boolean> skipElem) {
+        out.print(",\"" + currentreference.metaName() + "\":[");
+        isFirst = true;
+        continueVisit.on(null);
+    }
+
+    @Override
+    public void endVisitRef(String refName, Callback<Throwable> continueVisit) {
+        out.print("]");
+        continueVisit.on(null);
+    }
+
 }
 
 public class JSONModelSerializer implements ModelSerializer {
@@ -77,38 +82,38 @@ public class JSONModelSerializer implements ModelSerializer {
             boolean isFirstInRef = true;
 
             @Override
-            public void visit(KObject elem, String refNameInParent, KObject parent) {
-
-            }
-
-            @Override
-            public void beginVisitElem(KObject elem) {
+            public void beginVisitElem(KObject elem, Callback<Throwable> continueVisit, Callback<Boolean> skipElem) {
                 if (!isFirstInRef) {
                     out.print(",");
                     isFirstInRef = false;
                 }
                 printAttName(elem, out);
-                internalReferenceVisitor.alreadyVisited.clear();
-                elem.visitNotContained(internalReferenceVisitor,null); //TODO visitor has to be compatible with continue like interface
+                elem.visitNotContained(internalReferenceVisitor,continueVisit);
             }
 
             @Override
-            public void endVisitElem(KObject elem) {
+            public void endVisitElem(KObject elem, Callback<Throwable> continueVisit) {
                 out.println("}");
                 isFirstInRef = false;
+                continueVisit.on(null);
             }
 
             @Override
-            public boolean beginVisitRef(String refName, String refType) {
-                out.print(",\"" + refName + "\":[");
+            public void beginVisitRef(MetaReference currentreference, Callback<Throwable> continueVisit, Callback<Boolean> skipElem) {
+                out.print(",\"" + currentreference.metaName() + "\":[");
                 isFirstInRef = true;
-                return true;
+                continueVisit.on(null);
             }
 
             @Override
-            public void endVisitRef(String refName) {
+            public void endVisitRef(String refName, Callback<Throwable> continueVisit) {
                 out.print("]");
                 isFirstInRef = false;
+            }
+
+            @Override
+            public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+
             }
         };
         model.deepVisitContained(masterVisitor,new Callback<Throwable>() {
