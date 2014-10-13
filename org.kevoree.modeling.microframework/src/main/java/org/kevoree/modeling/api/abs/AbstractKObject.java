@@ -254,5 +254,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     }
 
+    private void internalVisit(boolean recursive, boolean onlyContained, ModelVisitor visitor, Callback<Throwable> end){
+
+    }
+
+
 
 }
