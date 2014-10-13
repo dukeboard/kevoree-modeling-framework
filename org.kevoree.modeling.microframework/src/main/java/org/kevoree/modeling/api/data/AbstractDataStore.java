@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.events.ModelElementListener;
 import org.kevoree.modeling.api.events.ModelEvent;
-import org.kevoree.modeling.api.persistence.EventDispatcher;
 
 public abstract class AbstractDataStore implements DataStore {
 

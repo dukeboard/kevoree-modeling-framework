@@ -25,6 +25,10 @@ public class ModelTraceApplicator {
     private String pendingParentRefName = null;
     private String pendingObjPath = null;
 
+    public void setFireEvents(boolean fireEvents) {
+        this.fireEvents = fireEvents;
+    }
+
     private void tryClosePending(String srcPath) {
         if (pendingObj != null && !(pendingObjPath.equals(srcPath))) {
             pendingParent.mutate(ActionType.ADD, pendingParentRefName, pendingObj, true, fireEvents);
@@ -37,7 +41,7 @@ public class ModelTraceApplicator {
 
     public void createOrAdd(String previousPath, KObject target, String refName, String potentialTypeName, Callback<Throwable> callback) {
         if (previousPath != null) {
-            targetModel.findByPath(previousPath, (targetElem) -> {
+            targetModel.factory().lookup(previousPath, (targetElem) -> {
                 if (targetElem != null) {
                     target.mutate(ActionType.ADD, refName, targetElem, true, fireEvents);
                     callback.on(null);
@@ -45,7 +49,7 @@ public class ModelTraceApplicator {
                     if (potentialTypeName == null) {
                         callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + refName + ", unconsistency error"));
                     } else {
-                        pendingObj = targetModel.factory().create(potentialTypeName);
+                        pendingObj = targetModel.factory().createFQN(potentialTypeName);
                         pendingObjPath = previousPath;
                         pendingParentRefName = refName;
                         pendingParent = target;
@@ -57,7 +61,7 @@ public class ModelTraceApplicator {
             if (potentialTypeName == null) {
                 callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + refName + ", unconsistency error"));
             } else {
-                pendingObj = targetModel.factory().create(potentialTypeName);
+                pendingObj = targetModel.factory().createFQN(potentialTypeName);
                 pendingObjPath = previousPath;
                 pendingParentRefName = refName;
                 pendingParent = target;
@@ -81,7 +85,7 @@ public class ModelTraceApplicator {
         if (trace instanceof ModelAddTrace) {
             ModelAddTrace addTrace = (ModelAddTrace) trace;
             tryClosePending(null);
-            targetModel.findByPath(trace.getSrcPath(), (resolvedTarget) -> {
+            targetModel.factory().lookup(trace.getSrcPath(), (resolvedTarget) -> {
                 if (resolvedTarget == null) {
                     callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                 } else {
@@ -91,9 +95,9 @@ public class ModelTraceApplicator {
         } else if (trace instanceof ModelRemoveTrace) {
             ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
             tryClosePending(trace.getSrcPath());
-            targetModel.findByPath(trace.getSrcPath(), (targetElem) -> {
+            targetModel.factory().lookup(trace.getSrcPath(), (targetElem) -> {
                 if (targetElem != null) {
-                    targetModel.findByPath(removeTrace.getObjPath(), (remoteObj) -> {
+                    targetModel.factory().lookup(removeTrace.getObjPath(), (remoteObj) -> {
                         targetElem.mutate(ActionType.REMOVE, trace.getRefName(), remoteObj, true, fireEvents);
                         callback.on(null);
                     });
@@ -105,7 +109,7 @@ public class ModelTraceApplicator {
             ModelSetTrace setTrace = (ModelSetTrace) trace;
             tryClosePending(trace.getSrcPath());
             if (!trace.getSrcPath().equals(pendingObjPath)) {
-                targetModel.findByPath(trace.getSrcPath(), (tempObject) -> {
+                targetModel.factory().lookup(trace.getSrcPath(), (tempObject) -> {
                     if (tempObject == null) {
                         callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                     } else {
@@ -114,7 +118,7 @@ public class ModelTraceApplicator {
                             callback.on(null);
                         } else {
                             if (setTrace.getObjPath() != null) {
-                                targetModel.findByPath(setTrace.getObjPath(), (targetObj) -> {
+                                targetModel.factory().lookup(setTrace.getObjPath(), (targetObj) -> {
                                     if (targetObj != null) {
                                         tempObject.mutate(ActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
                                         callback.on(null);
@@ -140,7 +144,7 @@ public class ModelTraceApplicator {
                         callback.on(null);
                     } else {
                         if (setTrace.getObjPath() != null) {
-                            targetModel.findByPath(setTrace.getObjPath(), (targetObj) -> {
+                            targetModel.factory().lookup(setTrace.getObjPath(), (targetObj) -> {
                                 if (targetObj != null) {
                                     pendingObj.mutate(ActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
                                     callback.on(null);

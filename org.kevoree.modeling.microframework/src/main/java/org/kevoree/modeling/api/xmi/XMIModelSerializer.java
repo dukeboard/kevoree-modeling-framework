@@ -118,7 +118,7 @@ class ModelSerializationVisitor extends ModelVisitor {
     public void visit(KObject elem, String refNameInParent, KObject parent) {
         context.wt.print('<');
         context.wt.print(refNameInParent);
-        context.wt.print(" xsi:type=\"" + formatMetaClassName(elem.metaClassName()) + "\"");
+        context.wt.print(" xsi:type=\"" + formatMetaClassName(elem.metaClass().metaName()) + "\"");
         elem.visitAttributes(attributeVisitor);
         elem.visitNotContained(referenceVisitor);
         context.wt.println('>');
@@ -145,7 +145,7 @@ class ModelAddressVisitor extends ModelVisitor {
         int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + refNameInParent, (s) ->0);
         context.addressTable.put(elem, parentXmiAddress + "/@" + refNameInParent + "." + i);
         context.elementsCount.put(parentXmiAddress + "/@" + refNameInParent, i + 1);
-        String pack = elem.metaClassName().substring(0, elem.metaClassName().lastIndexOf('.'));
+        String pack = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));
         if (!context.packageList.contains(pack))
             context.packageList.add(pack);
     }
@@ -168,9 +168,6 @@ class SerializationContext {
 }
 
 public class XMIModelSerializer implements ModelSerializer {
-
-
-
 
     ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -203,11 +200,13 @@ public class XMIModelSerializer implements ModelSerializer {
             ModelAddressVisitor addressBuilderVisitor = new ModelAddressVisitor(context);
             model.deepVisitContained(addressBuilderVisitor);
 
+
+
             ModelSerializationVisitor masterVisitor = new ModelSerializationVisitor(context);
 
             context.wt.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
-            context.wt.print("<" + formatMetaClassName(model.metaClassName()).replace(".", "_"));
+            context.wt.print("<" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_"));
             context.wt.print(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
             context.wt.print(" xmi:version=\"2.0\"");
             context.wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"");
@@ -224,7 +223,7 @@ public class XMIModelSerializer implements ModelSerializer {
 
             model.visitContained(masterVisitor);
 
-            context.wt.println("</" + formatMetaClassName(model.metaClassName()).replace(".", "_") + ">");
+            context.wt.println("</" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_") + ">");
 
             context.wt.flush();
         });

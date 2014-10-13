@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.TimeWalker;
 import org.kevoree.modeling.api.time.rbtree.Node;
 import org.kevoree.modeling.api.time.rbtree.RBTree;
+import org.kevoree.modeling.api.time.rbtree.State;
 
 /**
  * Created by duke on 6/4/14.
@@ -139,6 +140,11 @@ public class TimeMeta implements TimeTree {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void insert(long time) {
+        versionTree.insert(time, State.EXISTS);
     }
 
     @Override

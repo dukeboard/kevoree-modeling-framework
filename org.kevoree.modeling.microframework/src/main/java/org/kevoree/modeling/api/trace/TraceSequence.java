@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.trace;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.json.Lexer;
@@ -96,6 +97,7 @@ public class TraceSequence {
                     }
                     traces.add(new ModelAddTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.previouspath.toString())), keys.get(ModelTraceConstants.typename.toString())));
                 }
+                /*
                 if (traceTypeRead.equals(ActionType.ADD_ALL.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     if (srcFound == null) {
@@ -105,8 +107,10 @@ public class TraceSequence {
                     }
                     traces.add(new ModelAddAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.content.toString())).split(";"), JSONString.unescape(keys.get(ModelTraceConstants.typename.toString())).split(";")));
                 }
+                */
                 if (traceTypeRead.equals(ActionType.RENEW_INDEX.toString())) {
                 }
+                /*
                 if (traceTypeRead.equals(ActionType.REMOVE_ALL.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     if (srcFound == null) {
@@ -116,6 +120,7 @@ public class TraceSequence {
                     }
                     traces.add(new ModelRemoveAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString())));
                 }
+                */
                 if (traceTypeRead.equals(ActionType.REMOVE.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     if (srcFound == null) {
@@ -174,17 +179,17 @@ public class TraceSequence {
         return buffer.toString();
     }
 
-    public boolean applyOn(KObject target) {
+    public boolean applyOn(KObject target, Callback<Throwable> callback) {
         ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target);
-        traceApplicator.applyTraceOnModel(this);
+        traceApplicator.applyTraceSequence(this, callback);
         //TODO implements the result
         return true;
     }
 
-    public boolean silentlyApplyOn(KObject target) {
+    public boolean silentlyApplyOn(KObject target, Callback<Throwable> callback) {
         ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target);
         traceApplicator.setFireEvents(false);
-        traceApplicator.applyTraceOnModel(this);
+        traceApplicator.applyTraceSequence(this, callback);
         return true;
     }
 

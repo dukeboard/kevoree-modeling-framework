@@ -32,6 +32,6 @@ public class XMIResolveCommand {
                 return;
             }
         }
-        throw new Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " " + refName + "  on " + target.metaClassName() + "(path:" + target.path() + ")");
+        throw new Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " " + refName + "  on " + target.metaClass().metaName() + "(path:" + target.path() + ")");
     }
 }

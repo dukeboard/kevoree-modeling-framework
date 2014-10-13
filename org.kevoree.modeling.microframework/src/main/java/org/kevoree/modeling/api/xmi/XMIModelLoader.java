@@ -205,7 +205,7 @@ public class XMIModelLoader implements ModelLoader {
     private KObject callFactory(LoadingContext ctx, String objectType) {
         KObject modelElem = null;
         if (objectType != null) {
-            modelElem = factory.create(objectType);
+            modelElem = factory.createFQN(objectType);
             if (modelElem == null) {
                 String xsiType = null;
                 for(int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1) ; i++) {
@@ -219,12 +219,12 @@ public class XMIModelLoader implements ModelLoader {
                 if (xsiType != null) {
                     String realTypeName = xsiType.substring(0, xsiType.lastIndexOf(":"));
                     String realName = xsiType.substring(xsiType.lastIndexOf(":") + 1, xsiType.length());
-                    modelElem = factory.create(realTypeName + "." + realName);
+                    modelElem = factory.createFQN(realTypeName + "." + realName);
                 }
             }
 
         } else {
-            modelElem = factory.create(ctx.xmiReader.getLocalName());
+            modelElem = factory.createFQN(ctx.xmiReader.getLocalName());
         }
         return modelElem;
     }
@@ -245,16 +245,16 @@ public class XMIModelLoader implements ModelLoader {
 
 
         /* Preparation of maps */
-        if (!ctx.attributesHashmap.containsKey(modelElem.metaClassName())) {
+        if (!ctx.attributesHashmap.containsKey(modelElem.metaClass().metaName())) {
             ctx.attributeVisitor.setParent(modelElem);
             modelElem.visitAttributes(ctx.attributeVisitor);
         }
-        HashMap elemAttributesMap = ctx.attributesHashmap.get(modelElem.metaClassName());
+        HashMap elemAttributesMap = ctx.attributesHashmap.get(modelElem.metaClass().metaName());
 
-        if (!ctx.referencesHashmap.containsKey(modelElem.metaClassName())) {
-            modelElem.visitAll(ctx.referenceVisitor);
+        if (!ctx.referencesHashmap.containsKey(modelElem.metaClass().metaName())) {
+            modelElem.visitAll(ctx.referenceVisitor,null);  //TODO check if not a dangerous synchronous call
         }
-        HashMap<String, String> elemReferencesMap = ctx.referencesHashmap.get(modelElem.metaClassName());
+        HashMap<String, String> elemReferencesMap = ctx.referencesHashmap.get(modelElem.metaClass().metaName());
 
 
         /* Read attributes and References */
@@ -335,7 +335,7 @@ class XmiLoaderReferenceVisitor extends ModelVisitor {
     }
 
     public void beginVisitElem(KObject elem ) {
-        refMap = context.referencesHashmap.computeIfAbsent(elem.metaClassName(), s -> new HashMap<>());
+        refMap = context.referencesHashmap.computeIfAbsent(elem.metaClass().metaName(), s -> new HashMap<>());
     }
     public void endVisitElem(KObject elem) {
         refMap = null;
@@ -360,11 +360,11 @@ class XmiLoaderAttributeVisitor implements ModelAttributeVisitor {
 
     public void setParent(KObject parent) {
         this.parent = parent;
-        context.attributesHashmap.computeIfAbsent(parent.metaClassName(), s -> new HashMap<>());
+        context.attributesHashmap.computeIfAbsent(parent.metaClass().metaName(), s -> new HashMap<>());
     }
 
     public void visit(String name, Object value) {
-        context.attributesHashmap.get(parent.metaClassName()).put(name, true);
+        context.attributesHashmap.get(parent.metaClass().metaName()).put(name, true);
     }
 }
 
