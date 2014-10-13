@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.clone.DefaultModelCloner;
 import org.kevoree.modeling.api.compare.DefaultModelCompare;
 import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
+import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 
@@ -71,4 +72,20 @@ public abstract class AbstractKView implements KView {
     public ModelSlicer createModelSlicer() {
         return new DefaultModelSlicer();
     }
+
+    public MetaClass metaClass(String fqName){
+        MetaClass[] metaClasses = metaClasses();
+        for(int i=0;i<metaClasses.length;i++){
+           if(metaClasses[i].metaName().equals(fqName)){
+               return metaClasses[i];
+           }
+        }
+        return null;
+    }
+
+    @Override
+    public KObject createFQN(String metaClassName) {
+        return create(metaClass(metaClassName));
+    }
+
 }

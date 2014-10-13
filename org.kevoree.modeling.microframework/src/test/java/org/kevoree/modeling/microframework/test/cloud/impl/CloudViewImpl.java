@@ -22,12 +22,10 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
     }
 
     @Override
-    public KObject createFQN(String metaClassName) {
-        return null;
-    }
-
-    @Override
     public KObject create(MetaClass clazz) {
+        if(clazz==null){
+            return null;
+        }
         switch (clazz.index()) {
             case 0:
                 return internal_create(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, now(), dimension(), null));

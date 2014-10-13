@@ -250,7 +250,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public void visitAttributes(ModelAttributeVisitor visitor) {
         MetaAttribute[] metaAttributes = metaAttributes();
         for (int i = 0; i < metaAttributes.length; i++) {
-            visitor.visit();
+            visitor.visit(metaAttributes[i],get(metaAttributes[i]));
         }
     }
 

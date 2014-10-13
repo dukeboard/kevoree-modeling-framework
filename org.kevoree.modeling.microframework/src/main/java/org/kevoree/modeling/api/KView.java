@@ -37,6 +37,8 @@ public interface KView {
 
     public MetaClass[] metaClasses();
 
+    public MetaClass metaClass(String fqName);
+
     public KDimension dimension();
 
     public long now();
