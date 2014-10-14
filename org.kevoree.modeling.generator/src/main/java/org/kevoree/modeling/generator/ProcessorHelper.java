@@ -17,19 +17,12 @@
  */
 package org.kevoree.modeling.generator;
 
-
-import org.eclipse.emf.common.notify.Notifier;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.*;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.kevoree.modeling.generator.misc.OrderedClassDeclarationLists;
-import org.kevoree.modeling.idea.psi.MetaModelClassDeclaration;
-import org.kevoree.modeling.idea.psi.MetaModelRelationDeclaration;
+import org.kevoree.modeling.ast.MModelClass;
 import org.kevoree.modeling.idea.psi.MetaModelTypeDeclaration;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -59,22 +52,24 @@ public class ProcessorHelper {
     }
 
 
-    public void consolidateEnumIndexes(HashMap<String, OrderedClassDeclarationLists> enumIndexes) {
-        enumIndexes.forEach((clazz,decl)->{if(!decl.consolidated){consolidate(decl,enumIndexes);}});
+    public void consolidateEnumIndexes(HashMap<String, MModelClass> enumIndexes) {
+        ArrayList<MModelClass> consolidated = new ArrayList<>();
+        enumIndexes.forEach((clazz,decl)->{if(!consolidated.contains(decl)){consolidate(decl,enumIndexes, consolidated);}});
     }
 
-    private void consolidate(OrderedClassDeclarationLists classRelDecls, HashMap<String, OrderedClassDeclarationLists> enumIndexes) {
-        if(!classRelDecls.consolidated){
-            classRelDecls.sort();
-            classRelDecls.parents.forEach(parent->{
-                OrderedClassDeclarationLists parentDecl = enumIndexes.get(parent);
-                if(!parentDecl.consolidated) {
+    private void consolidate(MModelClass classRelDecls, HashMap<String, MModelClass> enumIndexes, ArrayList<MModelClass> consolidated) {
+        if(!consolidated.contains(classRelDecls)){
+            classRelDecls.sortAttributes();
+            classRelDecls.sortReferences();
+            classRelDecls.getParents().forEach(parent->{
+                MModelClass parentDecl = enumIndexes.get(parent);
+                if(!consolidated.contains(classRelDecls)) {
                     //TODO: Circularity check and cut
-                    consolidate(parentDecl, enumIndexes);
+                    consolidate(parentDecl, enumIndexes, consolidated);
                 }
                 //TODO: Diamond inheritance check and merge
-                classRelDecls.attributes.addAll(0, parentDecl.attributes);
-                classRelDecls.relations.addAll(0, parentDecl.relations);
+                classRelDecls.getAttributes().addAll(0, parentDecl.getAttributes());
+                classRelDecls.getReferences().addAll(0, parentDecl.getReferences());
             });
         }
     }

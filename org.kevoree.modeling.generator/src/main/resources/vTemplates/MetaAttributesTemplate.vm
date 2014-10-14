@@ -1,13 +1,12 @@
 /* Reflexive API Attributes */
 public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
-#if($context.delarationsList.attributes.size() == 0)
+#if($context.classDeclaration.attributes.size() == 0)
 ;//Nothing in this ENUM
 #{else}
 #set($attIdx = 0)
-#set($attIdxMax = $context.delarationsList.attributes.size() - 1)
-#foreach($attribute in $context.delarationsList.attributes)
-    $attribute.getAnnotations().getAnnotationList()
-    ${attribute.getRelationName().getText().toUpperCase()}("$attribute.getRelationName().getText()",$attIdx,false, false)#if($attIdx < $attIdxMax),
+#set($attIdxMax = $context.classDeclaration.attributes.size() - 1)
+#foreach($attribute in $context.classDeclaration.attributes)
+    ${attribute.getName().toUpperCase()}("$attribute.getName()",$attIdx,#if($attribute.learned)true#{else}false#end, #if($attribute.id)true#{else}false#end)#if($attIdx < $attIdxMax),
 #{else};
 #end
 #set($attIdx = $attIdx + 1)
@@ -15,36 +14,36 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
 #end
 
 
-private String name;
+    private String name;
 
-private int index;
+    private int index;
 
-private boolean learned;
+    private boolean learned;
 
-private boolean key;
+    private boolean key;
 
-public int index() {
-return index;
-}
+    public int index() {
+        return index;
+    }
 
-public String metaName() {
-return name;
-}
+    public String metaName() {
+        return name;
+    }
 
-public boolean learned() {
-return learned;
-}
+    public boolean learned() {
+        return learned;
+    }
 
-public boolean key() {
-return key;
-}
+    public boolean key() {
+        return key;
+    }
 
-METAATTRIBUTES(String name, int index, boolean learned, boolean key) {
-this.name = name;
-this.index = index;
-this.learned = learned;
-this.key = key;
-}
+    METAATTRIBUTES(String name, int index, boolean learned, boolean key) {
+        this.name = name;
+        this.index = index;
+        this.learned = learned;
+        this.key = key;
+    }
 }
 
 

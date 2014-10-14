@@ -73,6 +73,7 @@
         <module>org.kevoree.modeling.dsl</module>
         <module>org.kevoree.modeling.generator.mavenplugin</module>
         <module>org.kevoree.modeling.generator</module>
+        <module>org.kevoree.modeling.ast</module>
         <!--
         <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
         <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>

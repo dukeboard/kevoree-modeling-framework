@@ -1,6 +1,6 @@
 package org.kevoree.modeling.generator;
 
-import org.kevoree.modeling.generator.misc.OrderedClassDeclarationLists;
+import org.kevoree.modeling.ast.MModelClass;
 
 /**
  * Created by gregory.nain on 14/10/2014.
@@ -8,26 +8,14 @@ import org.kevoree.modeling.generator.misc.OrderedClassDeclarationLists;
 public class ClassGenerationContext {
 
     public GenerationContext generationContext;
-    public String classPackage, classFqn, className;
-    public OrderedClassDeclarationLists delarationsList;
+    //public String classPackage, classFqn, className;
+    public MModelClass classDeclaration;
 
     public GenerationContext getGenerationContext() {
         return generationContext;
     }
 
-    public String getClassPackage() {
-        return classPackage;
-    }
-
-    public String getClassFqn() {
-        return classFqn;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public OrderedClassDeclarationLists getDelarationsList() {
-        return delarationsList;
+    public MModelClass getClassDeclaration() {
+        return classDeclaration;
     }
 }

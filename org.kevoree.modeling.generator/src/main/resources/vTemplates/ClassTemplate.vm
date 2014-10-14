@@ -1,14 +1,14 @@
-package $context.classPackage;
+package $context.classDeclaration.pack;
 
-public interface $context.className extends org.kevoree.modeling.api.KObject<$context.className, ${context.generationContext.metaModelName}View> {
+public interface $context.classDeclaration.name extends org.kevoree.modeling.api.KObject<$context.classDeclaration.name, ${context.generationContext.metaModelName}View> {
 
 #parse("vTemplates/MetaAttributesTemplate.vm")
 
 #parse("vTemplates/MetaReferencesTemplate.vm")
 
-#foreach($attribute in $context.delarationsList.attributes)
-    public $attribute.getTypeDeclaration().getName() get${context.generationContext.helper.toCamelCase(${attribute.getRelationName().getText()})}();
-    public ${context.classPackage}.${context.className} set${context.generationContext.helper.toCamelCase(${attribute.getRelationName().getText()})}($attribute.getTypeDeclaration().getName() _value);
+#foreach($attribute in $context.classDeclaration.attributes)
+    public $attribute.getType() get${context.generationContext.helper.toCamelCase($attribute.getName())}();
+    public ${context.classDeclaration.pack}.${context.classDeclaration.name} set${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
 
 #end
 }

@@ -1,8 +1,8 @@
-package ${context.classPackage}.impl;
+package ${context.classDeclaration.pack}.impl;
 
-public class ${context.className}Impl extends org.kevoree.modeling.api.abs.AbstractKObject<${context.classPackage}.${context.className}, ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View> implements ${context.classPackage}.${context.className} {
+public class ${context.classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.AbstractKObject<${context.classDeclaration.pack}.${context.classDeclaration.name}, ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View> implements ${context.classDeclaration.pack}.${context.classDeclaration.name} {
 
-    public ${context.className}Impl(${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View factory, org.kevoree.modeling.api.meta.MetaClass metaClass, String path, Long now, org.kevoree.modeling.api.KDimension dimension, org.kevoree.modeling.api.time.TimeTree timeTree) {
+    public ${context.classDeclaration.name}Impl(${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View factory, org.kevoree.modeling.api.meta.MetaClass metaClass, String path, Long now, org.kevoree.modeling.api.KDimension dimension, org.kevoree.modeling.api.time.TimeTree timeTree) {
         super(factory, metaClass, path, now, dimension, timeTree);
     }
 
@@ -18,16 +18,16 @@ public class ${context.className}Impl extends org.kevoree.modeling.api.abs.Abstr
         return metaReferences;
     }
 
-#foreach($attribute in $context.delarationsList.attributes)
+#foreach($attribute in $context.classDeclaration.attributes)
 
     @Override
-    public $attribute.getTypeDeclaration().getName() get${context.generationContext.helper.toCamelCase(${attribute.getRelationName().getText()})}() {
-        return ($attribute.getTypeDeclaration().getName()) get(METAATTRIBUTES.$attribute.getRelationName().getText().toUpperCase());
+    public ${attribute.getType()} get${context.generationContext.helper.toCamelCase($attribute.getName())}() {
+        return ($attribute.getType()) get(METAATTRIBUTES.$attribute.getName().toUpperCase());
     }
 
     @Override
-    public ${context.classPackage}.${context.className} set${context.generationContext.helper.toCamelCase(${attribute.getRelationName().getText()})}($attribute.getTypeDeclaration().getName() _value) {
-        set(METAATTRIBUTES.$attribute.getRelationName().getText().toUpperCase(), _value);
+    public ${context.classDeclaration.pack}.${context.classDeclaration.name} set${context.generationContext.helper.toCamelCase(${attribute.getName()})}($attribute.getType() _value) {
+        set(METAATTRIBUTES.$attribute.getName().toUpperCase(), _value);
         return this;
     }
 #end

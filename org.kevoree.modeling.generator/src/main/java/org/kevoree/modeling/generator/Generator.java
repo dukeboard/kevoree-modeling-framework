@@ -47,7 +47,65 @@ public class Generator {
             generateUtilities();
 
             System.out.println("Generating Classes");
-            psi.acceptChildren(new ClassGenerationVisitor(context));
+
+            context.classDeclarationsList.values().forEach(classDecl-> {
+                ClassGenerationContext cgc = new ClassGenerationContext();
+                cgc.generationContext = context;
+                cgc.classDeclaration = context.classDeclarationsList.get(classDecl.getFqn());
+
+
+                ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator));
+                File localFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
+                PrintWriter pr = null;
+                try {
+                    pr = new PrintWriter(localFile, "utf-8");
+                    VelocityEngine ve = new VelocityEngine();
+                    ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
+                    ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
+                    ve.init();
+                    Template template = ve.getTemplate("vTemplates/ClassTemplate.vm");
+                    VelocityContext ctxV = new VelocityContext();
+                    ctxV.put("context", cgc);
+                    ctxV.put("FQNHelper",ProcessorHelper.getInstance());
+                    template.merge(ctxV, pr);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } finally {
+                    if(pr != null) {
+                        pr.flush();
+                        pr.close();
+                    }
+                }
+
+                ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl");
+                File implFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
+                PrintWriter implPr = null;
+                try {
+                    implPr = new PrintWriter(implFile, "utf-8");
+                    VelocityEngine ve = new VelocityEngine();
+                    ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
+                    ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
+                    ve.init();
+                    Template template = ve.getTemplate("vTemplates/ClassImplTemplate.vm");
+                    VelocityContext ctxV = new VelocityContext();
+                    ctxV.put("context", cgc);
+                    ctxV.put("FQNHelper",ProcessorHelper.getInstance());
+                    template.merge(ctxV, implPr);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } finally {
+                    if(implPr != null) {
+                        implPr.flush();
+                        implPr.close();
+                    }
+                }
+            });
 
 
         } catch (Exception e) {

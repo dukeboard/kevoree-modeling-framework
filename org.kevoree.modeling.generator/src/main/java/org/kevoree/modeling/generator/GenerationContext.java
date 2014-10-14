@@ -1,10 +1,8 @@
 package org.kevoree.modeling.generator;
 
-import org.kevoree.modeling.generator.misc.OrderedClassDeclarationLists;
-import org.kevoree.modeling.idea.psi.MetaModelRelationDeclaration;
+import org.kevoree.modeling.ast.MModelClass;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GenerationContext {
@@ -31,12 +29,11 @@ public class GenerationContext {
     /*
     GENERATION DATA
     */
-    public HashMap<String, OrderedClassDeclarationLists> classDeclarationsList = new HashMap<>();
+    public HashMap<String, MModelClass> classDeclarationsList = new HashMap<>();
     public ProcessorHelper helper = ProcessorHelper.getInstance();
 
 
-
-    public HashMap<String, OrderedClassDeclarationLists> getClassDeclarationsList() {
+    public HashMap<String, MModelClass> getClassDeclarationsList() {
         return classDeclarationsList;
     }
 

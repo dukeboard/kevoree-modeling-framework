@@ -1,10 +1,10 @@
 package org.kevoree.modeling.generator;
 
 import org.jetbrains.annotations.NotNull;
-import org.kevoree.modeling.generator.misc.OrderedClassDeclarationLists;
+import org.kevoree.modeling.ast.MModelAttribute;
+import org.kevoree.modeling.ast.MModelClass;
+import org.kevoree.modeling.ast.MModelReference;
 import org.kevoree.modeling.idea.psi.*;
-
-import static org.kevoree.modeling.generator.GenerationContext.*;
 
 
 /**
@@ -26,20 +26,82 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
     @Override
     public void visitClassDeclaration(@NotNull MetaModelClassDeclaration o) {
 
-        OrderedClassDeclarationLists thisClassDeclarations = context.classDeclarationsList.computeIfAbsent(o.getTypeDeclaration().getName(), (name) -> new OrderedClassDeclarationLists());
+        String classFqn = o.getTypeDeclaration().getName();
+
+        MModelClass thisClassDeclaration = context.classDeclarationsList.computeIfAbsent(classFqn, (t) -> {
+            String classPackage = classFqn.substring(0, classFqn.lastIndexOf("."));
+            String className = classFqn.substring(classFqn.lastIndexOf(".") + 1);
+            MModelClass cls = new MModelClass(className);
+            cls.setPack(classPackage);
+            return cls;
+        });
 
         o.getClassElemDeclarationList().forEach(decl -> {
             if (decl.getRelationDeclaration() != null) {
                 MetaModelRelationDeclaration relationDecl = decl.getRelationDeclaration();
                 if (ProcessorHelper.getInstance().isPrimitive(relationDecl.getTypeDeclaration())) {
-                    thisClassDeclarations.attributes.add(relationDecl);
+                    MModelAttribute attribute = new MModelAttribute(relationDecl.getRelationName().getText(), relationDecl.getTypeDeclaration().getName());
+                    if(relationDecl.getAnnotations()!=null) {
+                        relationDecl.getAnnotations().getAnnotationList().forEach(ann->{
+                            if(ann.getText().equalsIgnoreCase("@id")){
+                                attribute.setId(true);
+                            } else if(ann.getText().equalsIgnoreCase("@learned")){
+                                attribute.setLearned(true);
+                            } else {
+                                System.out.println("Unrecognized Annotation on Attribute:" + ann.getText());
+                            }
+                        });
+                    }
+                    if(relationDecl.getMultiplicityDeclaration() != null) {
+                        if(relationDecl.getMultiplicityDeclaration().getMultiplicityDeclarationUpper().getText().equals("*")) {
+                            attribute.setSingle(false);
+                        }
+                    }
+                    thisClassDeclaration.addAttribute(attribute);
                 } else {
-                    thisClassDeclarations.relations.add(relationDecl);
+
+                    String relationTypeFqn = relationDecl.getTypeDeclaration().getName();
+                    MModelClass relationType = context.classDeclarationsList.computeIfAbsent(relationTypeFqn, (t) -> {
+                        String relationTypePackage = relationTypeFqn.substring(0, relationTypeFqn.lastIndexOf("."));
+                        String relationTypeName = relationTypeFqn.substring(relationTypeFqn.lastIndexOf(".") + 1);
+                        MModelClass cls = new MModelClass(relationTypeName);
+                        cls.setPack(relationTypePackage);
+                        return cls;
+                    });
+
+                    MModelReference reference = new MModelReference(relationDecl.getRelationName().getText(), relationType);
+                    if(relationDecl.getAnnotations() != null) {
+                        relationDecl.getAnnotations().getAnnotationList().forEach(ann->{
+                            if(ann.getText().equalsIgnoreCase("@contained")){
+                                reference.setContained(true);
+                            } else {
+                                System.out.println("Unrecognized Annotation on Reference:" + ann.getText());
+                            }
+                        });
+                    }
+                    if(relationDecl.getMultiplicityDeclaration() != null) {
+                        if(relationDecl.getMultiplicityDeclaration().getMultiplicityDeclarationUpper().getText().equals("*")) {
+                            reference.setSingle(false);
+                        }
+                    }
+                    thisClassDeclaration.addReference(reference);
                 }
             }
         });
+
         if (o.getParentsDeclaration() != null && o.getParentsDeclaration().getTypeDeclarationList() != null) {
-            o.getParentsDeclaration().getTypeDeclarationList().forEach(parent -> thisClassDeclarations.parents.add(parent.getName()));
+            o.getParentsDeclaration().getTypeDeclarationList().forEach(parent -> {
+
+                String parentTypeFqn = parent.getName();
+                MModelClass parentType = context.classDeclarationsList.computeIfAbsent(parentTypeFqn, (t) -> {
+                    String parentTypePackage = parentTypeFqn.substring(0, parentTypeFqn.lastIndexOf("."));
+                    String parentTypeName = parentTypeFqn.substring(parentTypeFqn.lastIndexOf(".") + 1);
+                    MModelClass cls = new MModelClass(parentTypeName);
+                    cls.setPack(parentTypePackage);
+                    return cls;
+                });
+                thisClassDeclaration.addParent(parentType);
+            });
 
         }
     }

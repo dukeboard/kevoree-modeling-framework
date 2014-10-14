@@ -1,39 +1,57 @@
 public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReference {
-#if($context.delarationsList.relations.size() == 0)
+#if($context.classDeclaration.references.size() == 0)
 ;//Nothing in this ENUM
 #{else}
 #set($relIdx = 0)
-#set($relIdxMax = $context.delarationsList.relations.size() - 1)
-#foreach($rel in $context.delarationsList.relations)
-    ${rel.getRelationName().getText().toUpperCase()}("$rel.getRelationName().getText()",$relIdx,false)#if($relIdx < $relIdxMax),
+#set($relIdxMax = $context.classDeclaration.references.size() - 1)
+#foreach($rel in $context.classDeclaration.references)
+    ${rel.getName().toUpperCase()}("$rel.getName()",$relIdx,#if($rel.contained)true#{else}false#end, #if($rel.single)true#{else}false#end, ${context.generationContext.metaModelName}View.METACLASSES.${rel.getType().getFqn().toUpperCase().replace(".","_")}, #if(!$rel.opposite)null#{else}${rel.opposite.type.getFqn()}.METAREFERENCES.${rel.opposite.name.toUpperCase()}#end)#if($relIdx < $relIdxMax),
 #{else};
 #end
     #set($relIdx = $relIdx + 1)
 #end
 #end
-private String name;
+    private String name;
 
-private int index;
+    private int index;
 
-private boolean contained;
+    private boolean contained;
+    private boolean single;
+    private org.kevoree.modeling.api.meta.MetaClass metaType;
+    private org.kevoree.modeling.api.meta.MetaReference opposite;
 
-public int index() {
-return index;
-}
+    public int index() {
+        return index;
+    }
 
-public String metaName() {
-return name;
-}
+    public String metaName() {
+        return name;
+    }
 
-public boolean contained() {
-return contained;
-}
+    public boolean contained() {
+        return contained;
+    }
 
-METAREFERENCES(String name, int index, boolean contained) {
-this.name = name;
-this.index = index;
-this.contained = contained;
-}
+    public boolean single() {
+        return single;
+    }
+
+    public org.kevoree.modeling.api.meta.MetaClass metaType() {
+        return metaType;
+    }
+
+    public org.kevoree.modeling.api.meta.MetaReference opposite() {
+        return opposite;
+    }
+
+    METAREFERENCES(String name, int index, boolean contained, boolean single, org.kevoree.modeling.api.meta.MetaClass metaType, org.kevoree.modeling.api.meta.MetaReference opposite) {
+        this.name = name;
+        this.index = index;
+        this.contained = contained;
+        this.single = single;
+        this.metaType = metaType;
+        this.opposite = opposite;
+    }
 }
 
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
