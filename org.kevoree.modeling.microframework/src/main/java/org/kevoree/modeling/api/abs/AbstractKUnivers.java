@@ -24,6 +24,7 @@ public abstract class AbstractKUnivers<A extends KDimension> implements KUnivers
 
     protected AbstractKUnivers(DataStore dataStore) {
         this.dataStore = dataStore;
+        //TODO load previous existing and open dimensions
     }
 
     @Override
@@ -38,8 +39,18 @@ public abstract class AbstractKUnivers<A extends KDimension> implements KUnivers
 
     @Override
     public A create() {
+        //TODO optimize
+        for (int i = 0; i < 1000000; i++) {
+            if (!dimensions.containsKey("" + i)) {
+                A newDimension = internal_create(i + "");
+                dimensions.put(newDimension.key(), newDimension);
+                return newDimension;
+            }
+        }
         return null;
     }
+
+    protected abstract A internal_create(String key);
 
     @Override
     public A get(String key) {

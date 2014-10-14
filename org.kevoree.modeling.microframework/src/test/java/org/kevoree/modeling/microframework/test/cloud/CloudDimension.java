@@ -8,8 +8,8 @@ import org.kevoree.modeling.api.abs.AbstractKDimension;
  */
 public class CloudDimension extends AbstractKDimension<CloudView, CloudDimension, CloudUnivers> {
 
-    protected CloudDimension(KUnivers manager, String key) {
-        super(manager, key);
+    protected CloudDimension(KUnivers univers, String key) {
+        super(univers, key);
     }
 
 }

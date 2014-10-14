@@ -11,4 +11,9 @@ public class CloudUnivers extends AbstractKUnivers<CloudDimension> {
     public CloudUnivers(DataStore dataStore) {
         super(dataStore);
     }
+
+    @Override
+    protected CloudDimension internal_create(String key) {
+        return new CloudDimension(this,key);
+    }
 }
