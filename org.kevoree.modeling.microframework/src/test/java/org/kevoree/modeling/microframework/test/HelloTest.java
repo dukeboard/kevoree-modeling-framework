@@ -36,7 +36,7 @@ public class HelloTest {
         assertNull(nodeT0.parentPath());
 
         Element child0 = t0.createElement();
-
+        System.out.println(child0.path());
 
 
 

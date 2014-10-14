@@ -44,9 +44,7 @@ public class DefaultModelCompare implements ModelCompare {
         Map<String, KObject> objectsMap = new HashMap<String, KObject>();
         traces.addAll(origin.createTraces(target, inter, merge, false, true));
         tracesRef.addAll(origin.createTraces(target, inter, merge, true, false));
-
         origin.deepVisitContained(new ModelVisitor() {
-
             @Override
             public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
                 objectsMap.put(elem.path(), elem);
