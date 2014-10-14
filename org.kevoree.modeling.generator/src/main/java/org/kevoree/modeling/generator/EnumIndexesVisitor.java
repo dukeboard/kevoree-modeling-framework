@@ -32,10 +32,8 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
             if (decl.getRelationDeclaration() != null) {
                 MetaModelRelationDeclaration relationDecl = decl.getRelationDeclaration();
                 if (ProcessorHelper.getInstance().isPrimitive(relationDecl.getTypeDeclaration())) {
-                    System.out.println("Attribute Add:" + relationDecl.getRelationName() + " to " + o.getTypeDeclaration().getName());
                     thisClassDeclarations.attributes.add(relationDecl);
                 } else {
-                    System.out.println("Relation Add:" + relationDecl.getRelationName() + " to " + o.getTypeDeclaration().getName());
                     thisClassDeclarations.relations.add(relationDecl);
                 }
             }
