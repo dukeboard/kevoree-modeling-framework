@@ -3,10 +3,12 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.clone.DefaultModelCloner;
 import org.kevoree.modeling.api.compare.DefaultModelCompare;
+import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
+import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
 /**
  * Created by duke on 10/10/14.
@@ -16,7 +18,6 @@ public abstract class AbstractKView implements KView {
     private long now;
 
     private KDimension KDimension;
-
 
     protected AbstractKView(long now, KDimension KDimension) {
         this.now = now;
@@ -40,14 +41,12 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public ModelLoader createJSONLoader() {
-        return null;
-        //return new JSONModelLoader(this);
+        return new JSONModelLoader(this);
     }
 
     @Override
     public ModelSerializer createXMISerializer() {
-        return null;
-        //return new XMIModelSerializer();
+        return new XMIModelSerializer();
     }
 
     @Override
@@ -70,12 +69,12 @@ public abstract class AbstractKView implements KView {
         return new DefaultModelSlicer();
     }
 
-    public MetaClass metaClass(String fqName){
+    public MetaClass metaClass(String fqName) {
         MetaClass[] metaClasses = metaClasses();
-        for(int i=0;i<metaClasses.length;i++){
-           if(metaClasses[i].metaName().equals(fqName)){
-               return metaClasses[i];
-           }
+        for (int i = 0; i < metaClasses.length; i++) {
+            if (metaClasses[i].metaName().equals(fqName)) {
+                return metaClasses[i];
+            }
         }
         return null;
     }

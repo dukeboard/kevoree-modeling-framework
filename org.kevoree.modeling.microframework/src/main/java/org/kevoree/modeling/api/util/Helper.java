@@ -34,5 +34,19 @@ public class Helper {
         }
     }
 
+    private static final char pathSep = '/';
+
+    public static String parentPath(String currentPath) {
+        if (currentPath.charAt(0) == pathSep) {
+            int lastIndex = currentPath.lastIndexOf(pathSep);
+            if (lastIndex != -1 && lastIndex > 1) {
+                return currentPath.substring(0, lastIndex);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 
 }

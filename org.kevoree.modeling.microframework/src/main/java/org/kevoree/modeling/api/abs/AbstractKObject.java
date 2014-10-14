@@ -79,6 +79,31 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return path;
     }
 
+    protected void setParent(String newPath) {
+        this.path = newPath;
+    }
+
+    @Override
+    public String parentPath() {
+        if (path.length() > 1 && path.contains("/")) {
+            int lastindex = path.lastIndexOf(pathSep)
+
+            ;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public void parent(Callback<KObject> callback) {
+        String parentPath = parentPath();
+        if (parentPath == null) {
+            callback.on(null);
+        } else {
+            factory.lookup(parentPath, callback);
+        }
+    }
+
     private String referenceInParent = null;
 
     @Override
@@ -91,10 +116,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     }
 
-    @Override
-    public void parent(Callback<KObject> callback) {
-
-    }
 
     @Override
     public boolean modelEquals(A similarObj) {
@@ -212,11 +233,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public String parentPath() {
-        return null;
-    }
-
-    @Override
     public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end) {
 
     }
@@ -250,13 +266,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public void visitAttributes(ModelAttributeVisitor visitor) {
         MetaAttribute[] metaAttributes = metaAttributes();
         for (int i = 0; i < metaAttributes.length; i++) {
-            visitor.visit(metaAttributes[i],get(metaAttributes[i]));
+            visitor.visit(metaAttributes[i], get(metaAttributes[i]));
         }
     }
 
     private void internalVisit(boolean recursive, boolean onlyContained, ModelVisitor visitor, Callback<Throwable> end) {
 
     }
-
 
 }
