@@ -8,15 +8,15 @@ import java.util.Set;
  * Created by duke on 9/30/14.
  */
 
-public interface KDimension<A extends KView> {
+public interface KDimension<A extends KView, B extends KDimension> {
 
     public String key();
 
-    public void parent(Callback<KDimension> callback);
+    public void parent(Callback<B> callback);
 
-    public void children(Callback<Set<KDimension>> callback);
+    public void children(Callback<Set<B>> callback);
 
-    public void fork(Callback<KDimension> callback);
+    public void fork(Callback<B> callback);
 
     public void save(Callback<Boolean> callback);
 

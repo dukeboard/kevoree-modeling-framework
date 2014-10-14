@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKDimension<A extends KView> implements KDimension<A> {
+public abstract class AbstractKDimension<A extends KView, B extends KDimension> implements KDimension<A, B> {
 
     private KUnivers univers;
 
@@ -58,17 +58,17 @@ public abstract class AbstractKDimension<A extends KView> implements KDimension<
     }
 
     @Override
-    public void parent(Callback<KDimension> callback) {
+    public void parent(Callback<B> callback) {
 
     }
 
     @Override
-    public void children(Callback<Set<KDimension>> callback) {
+    public void children(Callback<Set<B>> callback) {
 
     }
 
     @Override
-    public void fork(Callback<KDimension> callback) {
+    public void fork(Callback<B> callback) {
 
     }
 
