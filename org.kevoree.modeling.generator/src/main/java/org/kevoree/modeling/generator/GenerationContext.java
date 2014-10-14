@@ -14,6 +14,7 @@ public class GenerationContext {
      */
     public File metaModel;
     public String metaModelName;
+    public String utilityPackage;
 
     /*
     Project
@@ -30,8 +31,8 @@ public class GenerationContext {
     /*
     GENERATION DATA
     */
-
     public HashMap<String, OrderedClassDeclarationLists> classDeclarationsList = new HashMap<>();
+    public ProcessorHelper helper = ProcessorHelper.getInstance();
 
 
 
@@ -57,5 +58,13 @@ public class GenerationContext {
 
     public File getClassesDirectory() {
         return classesDirectory;
+    }
+
+    public String getUtilityPackage() {
+        return utilityPackage;
+    }
+
+    public ProcessorHelper getHelper() {
+        return helper;
     }
 }

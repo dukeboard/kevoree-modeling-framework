@@ -1,6 +1,8 @@
 /* Reflexive API Attributes */
 public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
-
+#if($context.delarationsList.attributes.size() == 0)
+;//Nothing in this ENUM
+#{else}
 #set($attIdx = 0)
 #set($attIdxMax = $context.delarationsList.attributes.size() - 1)
 #foreach($attribute in $context.delarationsList.attributes)
@@ -8,6 +10,7 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
 #{else};
 #end
 #set($attIdx = $attIdx + 1)
+#end
 #end
 
 

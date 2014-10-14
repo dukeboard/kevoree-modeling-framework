@@ -1,0 +1,16 @@
+package ${context.utilityPackage};
+
+public class ${context.metaModelName}Dimension extends org.kevoree.modeling.api.abs.AbstractKDimension<${context.metaModelName}View, ${context.metaModelName}Dimension, ${context.metaModelName}Universe> {
+
+    protected ${context.metaModelName}Dimension(org.kevoree.modeling.api.KUnivers universe, String key) {
+        super(universe, key);
+    }
+
+    @Override
+    protected ${context.metaModelName}View internal_create(Long timePoint) {
+        return new ${context.utilityPackage}.impl.${context.metaModelName}ViewImpl(timePoint,this);
+    }
+
+}
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

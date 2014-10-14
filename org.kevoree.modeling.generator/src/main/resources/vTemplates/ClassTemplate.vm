@@ -6,13 +6,11 @@ public interface $context.className extends org.kevoree.modeling.api.KObject<$co
 
 #parse("vTemplates/MetaReferencesTemplate.vm")
 
-public String getName();
+#foreach($attribute in $context.delarationsList.attributes)
+    public $attribute.getTypeDeclaration().getName() get${context.generationContext.helper.toCamelCase(${attribute.getRelationName().getText()})}();
+    public ${context.classPackage}.${context.className} set${context.generationContext.helper.toCamelCase(${attribute.getRelationName().getText()})}($attribute.getTypeDeclaration().getName() _value);
 
-public Node setName(String name);
-
-public String getValue();
-
-public Node setValue(String name);
-
+#end
 }
+
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#

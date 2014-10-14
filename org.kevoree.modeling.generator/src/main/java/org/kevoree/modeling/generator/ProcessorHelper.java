@@ -79,4 +79,8 @@ public class ProcessorHelper {
         }
     }
 
+
+    public String toCamelCase(String ref) {
+        return ref.substring(0, 1).toUpperCase() + ref.substring(1);
+    }
 }

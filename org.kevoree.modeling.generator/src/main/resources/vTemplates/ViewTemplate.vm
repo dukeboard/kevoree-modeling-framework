@@ -1,0 +1,42 @@
+package $context.utilityPackage;
+
+public interface ${context.metaModelName}View extends org.kevoree.modeling.api.KView {
+
+    public enum METACLASSES implements org.kevoree.modeling.api.meta.MetaClass {
+
+#set($classIdx = 0)
+#set($classIdxMax = $context.classDeclarationsList.keySet().size() - 1)
+#foreach($class in $context.classDeclarationsList.keySet())
+        ${class.toUpperCase().replace(".","_")}("$class",$classIdx)#if($classIdx < $classIdxMax),
+#{else};
+#end
+#set($classIdx = $classIdx + 1)
+#end
+        private String name;
+
+        private int index;
+
+        public int index() {
+            return index;
+        }
+
+        public String metaName() {
+            return name;
+        }
+
+        METACLASSES(String name, int index) {
+            this.name = name;
+            this.index = index;
+        }
+
+    }
+
+#foreach($class in $context.classDeclarationsList.keySet())
+#set($lastIdx = $class.lastIndexOf(".")+1)
+    public $class create$class.substring($lastIdx)();
+#end
+
+}
+
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

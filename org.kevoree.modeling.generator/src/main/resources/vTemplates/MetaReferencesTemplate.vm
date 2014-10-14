@@ -1,5 +1,7 @@
 public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReference {
-
+#if($context.delarationsList.relations.size() == 0)
+;//Nothing in this ENUM
+#{else}
 #set($relIdx = 0)
 #set($relIdxMax = $context.delarationsList.relations.size() - 1)
 #foreach($rel in $context.delarationsList.relations)
@@ -8,7 +10,7 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
 #end
     #set($relIdx = $relIdx + 1)
 #end
-
+#end
 private String name;
 
 private int index;

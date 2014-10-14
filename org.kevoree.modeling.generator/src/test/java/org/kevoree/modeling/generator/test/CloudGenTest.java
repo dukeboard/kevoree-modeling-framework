@@ -22,6 +22,7 @@ public class CloudGenTest {
             GenerationContext ctx = new GenerationContext();
             ctx.metaModel = new File(getClass().getClassLoader().getResource("Cloud.mm").toURI());
             ctx.metaModelName = "Cloud";
+            ctx.utilityPackage = "org.kevoree.cloud";
 
             ctx.kmfSrcGenerationDirectory = new File(ctx.metaModel.getParentFile().getParent() + File.separator + "generated-kmf-test");
 
