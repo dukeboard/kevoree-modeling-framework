@@ -1,11 +1,8 @@
-package org.kevoree.modeling.api.time.blob;
+package org.kevoree.modeling.api.time.impl;
 
 
-import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.KObject;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 

@@ -26,7 +26,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return factory;
     }
 
-    public AbstractKObject(B factory, MetaClass metaClass, String path, Long now, KDimension dimension, TimeTree timeTree) {
+    public AbstractKObject(B factory, MetaClass metaClass, String path, long now, KDimension dimension, TimeTree timeTree) {
         this.factory = factory;
         this.metaClass = metaClass;
         this.path = path;
@@ -54,10 +54,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return isRoot;
     }
 
-    private Long now;
+    private long now;
 
     @Override
-    public Long now() {
+    public long now() {
         return now;
     }
 
@@ -207,7 +207,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 }
                 builder.append(att.metaName());
                 builder.append("=");
-                builder.append(get(att).toString());//TODO, forbid multiple cardinality as key
+                Object payload = get(att);
+                if (payload != null) {
+                    builder.append(payload.toString());//TODO, forbid multiple cardinality as key
+                }
             }
         }
         return builder.toString();

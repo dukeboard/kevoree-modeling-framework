@@ -2,13 +2,9 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.data.MemoryDataStore;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
-import org.kevoree.modeling.microframework.test.cloud.CloudUnivers;
-import org.kevoree.modeling.microframework.test.cloud.CloudView;
-import org.kevoree.modeling.microframework.test.cloud.Node;
+import org.kevoree.modeling.microframework.test.cloud.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Created by duke on 10/13/14.
@@ -27,9 +23,22 @@ public class HelloTest {
         assertEquals("Time0 should be created with time 0", t0.now(), 0l);
 
         Node nodeT0 = t0.createNode();
-        System.out.println(nodeT0);
+        assertNotNull(nodeT0);
+        assertNotNull(nodeT0.path());
 
-        System.out.println(nodeT0.path());
+        assertNull(nodeT0.getName());
+        assertEquals("name=", nodeT0.key());
+        nodeT0.setName("node0");
+        assertEquals("node0", nodeT0.getName());
+        assertEquals("name=node0", nodeT0.key());
+        assertEquals(0l,nodeT0.now());
+
+        assertNull(nodeT0.parentPath());
+
+        Element child0 = t0.createElement();
+
+
+
 
     }
 

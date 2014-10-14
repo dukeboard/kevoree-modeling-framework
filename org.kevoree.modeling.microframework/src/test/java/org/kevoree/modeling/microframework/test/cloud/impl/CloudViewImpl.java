@@ -5,6 +5,8 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 import org.kevoree.modeling.api.util.Helper;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
@@ -26,11 +28,12 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
         if (clazz == null) {
             return null;
         }
+        TimeTree newTimeTree = new DefaultTimeTree().insert(now());
         switch (clazz.index()) {
             case 0:
-                return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, Helper.newPath(), now(), dimension(), null));
+                return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, Helper.newPath(), now(), dimension(), newTimeTree));
             case 1:
-                return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, Helper.newPath(), now(), dimension(), null));
+                return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, Helper.newPath(), now(), dimension(), newTimeTree));
             default:
                 return null;
         }

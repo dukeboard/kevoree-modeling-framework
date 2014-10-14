@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KUnivers;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,9 +50,11 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     }
 
+    private TimeTree globalTimeTree = new DefaultTimeTree(); //TODO
+
     @Override
     public TimeTree globalTimeTree() {
-        return null;
+        return globalTimeTree;
     }
 
     @Override

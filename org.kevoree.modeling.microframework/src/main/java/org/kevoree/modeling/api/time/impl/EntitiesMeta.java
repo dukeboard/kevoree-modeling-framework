@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.time.blob;
+package org.kevoree.modeling.api.time.impl;
 
 import java.util.HashSet;
 

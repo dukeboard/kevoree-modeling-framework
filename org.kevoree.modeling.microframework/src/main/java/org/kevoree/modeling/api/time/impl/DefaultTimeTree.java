@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.time.blob;
+package org.kevoree.modeling.api.time.impl;
 
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.TimeWalker;
@@ -14,13 +14,7 @@ import org.kevoree.modeling.api.time.rbtree.State;
  *  key : path
   * */
 
-public class TimeMeta implements TimeTree {
-
-    public static final short GO_DOWN_LEFT = 0;
-    public static final short GO_DOWN_RIGHT = 1;
-    public static final short PROCESS_PREFIX = 2;
-    public static final short PROCESS_INFIX = 3;
-    public static final short PROCESS_POSTFIX = 4;
+public class DefaultTimeTree implements TimeTree {
 
     boolean dirty = true;
 
@@ -88,7 +82,6 @@ public class TimeMeta implements TimeTree {
                     return;
                 }
             }
-
         }
     }
 
@@ -143,8 +136,9 @@ public class TimeMeta implements TimeTree {
     }
 
     @Override
-    public void insert(long time) {
+    public TimeTree insert(long time) {
         versionTree.insert(time, State.EXISTS);
+        return this;
     }
 
     @Override

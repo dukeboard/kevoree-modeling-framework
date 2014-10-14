@@ -26,7 +26,7 @@ public interface TimeTree {
 
     public Long resolve(long time);
 
-    public void insert(long time);
+    public TimeTree insert(long time);
 
     //TODO nextGeneration
 }

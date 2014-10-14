@@ -49,7 +49,7 @@ public interface Node extends KObject<Node, CloudView> {
 
     public enum METAREFERENCES implements MetaReference {
 
-        CHILDREN("children", 0, true);
+        CHILDREN("children", 2, true);
 
         private String name;
 

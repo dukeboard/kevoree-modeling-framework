@@ -72,7 +72,7 @@ public interface KObject<A extends KObject, B extends KView> {
     /* End Visit API */
 
     /* Time navigation */
-    public Long now();
+    public long now();
 
     public void jump(Long time, Callback<A> callback);
 
