@@ -1,0 +1,37 @@
+public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReference {
+
+#set($relIdx = 0)
+#set($relIdxMax = $context.delarationsList.relations.size() - 1)
+#foreach($rel in $context.delarationsList.relations)
+    ${rel.getRelationName().getText().toUpperCase()}("$rel.getRelationName().getText()",$relIdx,false)#if($relIdx < $relIdxMax),
+#{else};
+#end
+    #set($relIdx = $relIdx + 1)
+#end
+
+private String name;
+
+private int index;
+
+private boolean contained;
+
+public int index() {
+return index;
+}
+
+public String metaName() {
+return name;
+}
+
+public boolean contained() {
+return contained;
+}
+
+METAREFERENCES(String name, int index, boolean contained) {
+this.name = name;
+this.index = index;
+this.contained = contained;
+}
+}
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#

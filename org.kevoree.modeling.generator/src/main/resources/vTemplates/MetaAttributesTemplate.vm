@@ -1,0 +1,47 @@
+/* Reflexive API Attributes */
+public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
+
+#set($attIdx = 0)
+#set($attIdxMax = $context.delarationsList.attributes.size() - 1)
+#foreach($attribute in $context.delarationsList.attributes)
+    ${attribute.getRelationName().getText().toUpperCase()}("$attribute.getRelationName().getText()",$attIdx,false, false)#if($attIdx < $attIdxMax),
+#{else};
+#end
+#set($attIdx = $attIdx + 1)
+#end
+
+
+private String name;
+
+private int index;
+
+private boolean learned;
+
+private boolean key;
+
+public int index() {
+return index;
+}
+
+public String metaName() {
+return name;
+}
+
+public boolean learned() {
+return learned;
+}
+
+public boolean key() {
+return key;
+}
+
+METAATTRIBUTES(String name, int index, boolean learned, boolean key) {
+this.name = name;
+this.index = index;
+this.learned = learned;
+this.key = key;
+}
+}
+
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#

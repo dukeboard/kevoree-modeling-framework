@@ -1,0 +1,18 @@
+package $context.classPackage;
+
+public interface $context.className extends org.kevoree.modeling.api.KObject<$context.className, ${context.generationContext.metaModelName}View> {
+
+#parse("vTemplates/MetaAttributesTemplate.vm")
+
+#parse("vTemplates/MetaReferencesTemplate.vm")
+
+public String getName();
+
+public Node setName(String name);
+
+public String getValue();
+
+public Node setValue(String name);
+
+}
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
