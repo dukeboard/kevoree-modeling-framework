@@ -32,7 +32,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                     Collections.reverse(parents);
                     for (KObject parent : parents) {
                         if (parent.parentPath() != null) {
-                            traces.add(new ModelAddTrace(parent.parentPath(), parent.referenceInParent(), parent.path(), parent.metaClass().metaName()));
+                            traces.add(new ModelAddTrace(parent.parentPath(), parent.referenceInParent().metaName(), parent.path(), parent.metaClass().metaName()));
                         }
                         traces.addAll(parent.toTraces(true, false));
                         parentMap.put(parent.path(), parent);
@@ -40,7 +40,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                     //Add attributes and references of pruned object
                     if (cache.get(elem.path()) == null && parentMap.get(elem.path()) == null) {
                         if (elem.parentPath() != null) {
-                            traces.add(new ModelAddTrace(elem.parentPath(), elem.referenceInParent(), elem.path(), elem.metaClass().metaName()));
+                            traces.add(new ModelAddTrace(elem.parentPath(), elem.referenceInParent().metaName(), elem.path(), elem.metaClass().metaName()));
                         }
                         traces.addAll(elem.toTraces(true, false));
                     }

@@ -92,8 +92,7 @@ public class DefaultModelCompare implements ModelCompare {
                                     for (String diffChildKey : objectsMap.keySet()) {
                                         KObject diffChild = objectsMap.get(diffChildKey);
                                         String src = diffChild.parentPath();
-                                        String refName = diffChild.referenceInParent();
-                                        traces.add(new ModelRemoveTrace(src, refName, diffChild.path()));
+                                        traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent().metaName(), diffChild.path()));
                                     }
                                 }
                                 callback.on(new TraceSequence().populate(traces));

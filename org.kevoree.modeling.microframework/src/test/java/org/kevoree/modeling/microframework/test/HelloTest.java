@@ -29,7 +29,7 @@ public class HelloTest {
         Node nodeT0 = t0.createNode();
         System.out.println(nodeT0);
 
-        nodeT0.path();
+        System.out.println(nodeT0.path());
 
     }
 
