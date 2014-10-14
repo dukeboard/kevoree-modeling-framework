@@ -8,7 +8,7 @@ import java.util.Set;
  * Created by duke on 9/30/14.
  */
 
-public interface KDimension<A extends KView, B extends KDimension, C extends KUnivers> {
+public interface KDimension<A extends KView, B extends KDimension, C extends KUniverse> {
 
     public String key();
 

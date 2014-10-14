@@ -1,12 +1,7 @@
 package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
-import org.kevoree.modeling.api.data.MemoryDataStore;
 import org.kevoree.modeling.api.util.Helper;
-import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
-import org.kevoree.modeling.microframework.test.cloud.CloudUnivers;
-import org.kevoree.modeling.microframework.test.cloud.CloudView;
-import org.kevoree.modeling.microframework.test.cloud.Node;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

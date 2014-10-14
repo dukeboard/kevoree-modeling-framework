@@ -13,7 +13,7 @@ public class HelloTest {
 
     @Test
     public void helloTest() {
-        CloudUnivers univers = new CloudUnivers(new MemoryDataStore());
+        CloudUniverse univers = new CloudUniverse(new MemoryDataStore());
         CloudDimension dimension0 = univers.create();
         assertNotNull("Dimension should be created", dimension0);
         assertEquals("Dimension should be created with ID 0", dimension0.key(), "0");

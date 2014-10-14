@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KUnivers;
+import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.data.DataStore;
 import org.kevoree.modeling.api.data.DefaultMemoryCache;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKUnivers<A extends KDimension> implements KUnivers<A> {
+public abstract class AbstractKUniverse<A extends KDimension> implements KUniverse<A> {
 
     private HashMap<String, A> dimensions = new HashMap<String, A>();
 
@@ -22,7 +22,7 @@ public abstract class AbstractKUnivers<A extends KDimension> implements KUnivers
 
     private final DataCache dataCache = new DefaultMemoryCache();
 
-    protected AbstractKUnivers(DataStore dataStore) {
+    protected AbstractKUniverse(DataStore dataStore) {
         this.dataStore = dataStore;
         //TODO load previous existing and open dimensions
     }

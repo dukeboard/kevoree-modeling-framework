@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KUnivers;
+import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
@@ -14,13 +14,13 @@ import java.util.Set;
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKDimension<A extends KView, B extends KDimension, C extends KUnivers> implements KDimension<A, B, C> {
+public abstract class AbstractKDimension<A extends KView, B extends KDimension, C extends KUniverse> implements KDimension<A, B, C> {
 
-    private KUnivers univers;
+    private KUniverse univers;
 
     private String key;
 
-    protected AbstractKDimension(KUnivers univers, String key) {
+    protected AbstractKDimension(KUniverse univers, String key) {
         this.univers = univers;
         this.key = key;
     }

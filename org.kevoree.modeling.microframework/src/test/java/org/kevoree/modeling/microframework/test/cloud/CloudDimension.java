@@ -1,15 +1,15 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
-import org.kevoree.modeling.api.KUnivers;
+import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.abs.AbstractKDimension;
 import org.kevoree.modeling.microframework.test.cloud.impl.CloudViewImpl;
 
 /**
  * Created by duke on 10/13/14.
  */
-public class CloudDimension extends AbstractKDimension<CloudView, CloudDimension, CloudUnivers> {
+public class CloudDimension extends AbstractKDimension<CloudView, CloudDimension, CloudUniverse> {
 
-    protected CloudDimension(KUnivers univers, String key) {
+    protected CloudDimension(KUniverse univers, String key) {
         super(univers, key);
     }
 

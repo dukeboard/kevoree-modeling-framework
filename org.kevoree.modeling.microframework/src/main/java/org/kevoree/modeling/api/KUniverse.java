@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.events.ModelElementListener;
  * Created by duke on 9/30/14.
  */
 
-public interface KUnivers<A extends KDimension> {
+public interface KUniverse<A extends KDimension> {
 
     public A create();
 

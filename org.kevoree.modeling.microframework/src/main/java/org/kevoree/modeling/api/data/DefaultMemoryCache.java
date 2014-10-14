@@ -2,8 +2,10 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by thomas on 10/2/14.
@@ -12,8 +14,9 @@ public class DefaultMemoryCache implements DataCache {
 
     private static final char sep = '/';
 
-    private HashMap<String, KObject> obj_cache = new HashMap<String, KObject>();
-    private HashMap<String, Object[]> payload_cache = new HashMap<String, Object[]>();
+    private Map<String, KObject> obj_cache = new HashMap<String, KObject>();
+    private Map<String, Object[]> payload_cache = new HashMap<String, Object[]>();
+    private Map<String, TimeTree> timeTreeCache = new HashMap<String, TimeTree>();
 
     @Override
     public void put(KDimension dimension, long time, String path, KObject value, int indexSize) {
@@ -47,5 +50,15 @@ public class DefaultMemoryCache implements DataCache {
             throw new RuntimeException("Inconsistency error, bad allocation");
         }
         previousArray[index] = payload;
+    }
+
+    @Override
+    public TimeTree getTimeTree(KDimension dimension, String key) {
+        return null;
+    }
+
+    @Override
+    public TimeTree putTimeTree(KDimension dimension, String key, TimeTree payload) {
+        return null;
     }
 }
