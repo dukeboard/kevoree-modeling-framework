@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKDimension<A extends KView, B extends KDimension> implements KDimension<A, B> {
+public abstract class AbstractKDimension<A extends KView, B extends KDimension, C extends KUnivers> implements KDimension<A, B,C> {
 
     private KUnivers univers;
 
@@ -28,8 +28,8 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension> 
     }
 
     @Override
-    public KUnivers univers() {
-        return univers;
+    public C univers() {
+        return (C) univers;
     }
 
     @Override

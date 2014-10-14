@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.abs.AbstractKDimension;
 /**
  * Created by duke on 10/13/14.
  */
-public class CloudDimension extends AbstractKDimension<CloudView> {
+public class CloudDimension extends AbstractKDimension<CloudView, CloudDimension, CloudUnivers> {
 
     protected CloudDimension(KUnivers manager, String key) {
         super(manager, key);

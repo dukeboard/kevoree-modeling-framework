@@ -8,7 +8,7 @@ import java.util.Set;
  * Created by duke on 9/30/14.
  */
 
-public interface KDimension<A extends KView, B extends KDimension> {
+public interface KDimension<A extends KView, B extends KDimension, C extends KUnivers> {
 
     public String key();
 
@@ -30,6 +30,6 @@ public interface KDimension<A extends KView, B extends KDimension> {
 
     public TimeTree timeTree(String path);
 
-    public KUnivers univers();
+    public C univers();
 
 }
