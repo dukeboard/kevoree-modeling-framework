@@ -8,8 +8,6 @@ public enum ActionType {
     SET("S"),
     ADD("a"),
     REMOVE("r"),
-    ADD_ALL("A"),
-    REMOVE_ALL("R"),
     RENEW_INDEX("I"),
     CONTROL("C");
 

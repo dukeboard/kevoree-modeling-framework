@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -7,6 +8,7 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
+import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
 /**
@@ -48,5 +50,30 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     public Node setValue(String name) {
         set(METAATTRIBUTES.VALUE, name);
         return this;
+    }
+
+    @Override
+    public void addChildren(Node obj, Callback<Boolean> callback) {
+
+    }
+
+    @Override
+    public void removeChildren(Node obj, Callback<Boolean> callback) {
+
+    }
+
+    @Override
+    public void eachChildren(Callback<Node> callback, Callback<Boolean> end) {
+
+    }
+
+    @Override
+    public void setElement(Element obj, Callback<Boolean> callback) {
+
+    }
+
+    @Override
+    public void getElement(Callback<Element> obj) {
+
     }
 }

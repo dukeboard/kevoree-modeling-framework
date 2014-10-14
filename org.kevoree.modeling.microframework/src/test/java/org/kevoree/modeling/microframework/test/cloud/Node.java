@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -50,7 +51,8 @@ public interface Node extends KObject<Node, CloudView> {
 
     public enum METAREFERENCES implements MetaReference {
 
-        CHILDREN("children", 2, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null);
+        CHILDREN("children", 2, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null),
+        ELEMENT("element", 3, true, true, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
 
         private String name;
 
@@ -106,6 +108,13 @@ public interface Node extends KObject<Node, CloudView> {
 
     public Node setValue(String name);
 
-    public void addChildren();
+    public void addChildren(Node obj, Callback<Boolean> callback);
 
+    public void removeChildren(Node obj, Callback<Boolean> callback);
+
+    public void eachChildren(Callback<Node> callback, Callback<Boolean> end);
+
+    public void setElement(Element obj, Callback<Boolean> callback);
+
+    public void getElement(Callback<Element> obj);
 }
