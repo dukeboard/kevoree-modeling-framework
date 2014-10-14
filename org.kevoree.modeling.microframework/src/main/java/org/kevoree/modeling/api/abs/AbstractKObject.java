@@ -4,9 +4,11 @@ import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.events.ModelElementListener;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.util.Helper;
 
 import java.util.List;
 
@@ -79,19 +81,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return path;
     }
 
-    protected void setParent(String newPath) {
+    protected void setPath(String newPath) {
         this.path = newPath;
     }
 
     @Override
     public String parentPath() {
-        if (path.length() > 1 && path.contains("/")) {
-            int lastindex = path.lastIndexOf(pathSep)
-
-            ;
-        } else {
-            return null;
-        }
+        return Helper.parentPath(path());
     }
 
     @Override
@@ -104,10 +100,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         }
     }
 
-    private String referenceInParent = null;
+    protected void setReferenceInParent(MetaReference referenceInParent) {
+        this.referenceInParent = referenceInParent;
+    }
+
+    private MetaReference referenceInParent = null;
 
     @Override
-    public String referenceInParent() {
+    public MetaReference referenceInParent() {
         return referenceInParent;
     }
 

@@ -79,7 +79,7 @@ public interface KObject<A extends KObject, B extends KView> {
     public TimeTree timeTree();
 
     /* Reflexive API */
-    public String referenceInParent();
+    public MetaReference referenceInParent();
 
     public String key();
 
