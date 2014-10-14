@@ -14,8 +14,8 @@ public interface DataCache {
 
     public void putPayload(KDimension dimension, long time, String path, int index, Object payload);
 
-    public TimeTree getTimeTree(KDimension dimension, String key);
+    public TimeTree getTimeTree(KDimension dimension, String path);
 
-    public TimeTree putTimeTree(KDimension dimension, String key, TimeTree payload);
+    public void putTimeTree(KDimension dimension, String path, TimeTree payload);
 
 }

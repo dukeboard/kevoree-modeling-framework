@@ -53,12 +53,12 @@ public class DefaultMemoryCache implements DataCache {
     }
 
     @Override
-    public TimeTree getTimeTree(KDimension dimension, String key) {
-        return null;
+    public TimeTree getTimeTree(KDimension dimension, String path) {
+        return timeTreeCache.get(dimension.key() + path);
     }
 
     @Override
-    public TimeTree putTimeTree(KDimension dimension, String key, TimeTree payload) {
-        return null;
+    public void putTimeTree(KDimension dimension, String path, TimeTree payload) {
+        timeTreeCache.put(dimension.key() + path, payload);
     }
 }

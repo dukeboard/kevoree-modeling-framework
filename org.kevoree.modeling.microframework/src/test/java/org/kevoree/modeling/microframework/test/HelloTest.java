@@ -36,8 +36,9 @@ public class HelloTest {
         assertNull(nodeT0.parentPath());
 
         Element child0 = t0.createElement();
-        System.out.println(child0.path());
-
+        assertNotNull(child0.timeTree());
+        assertTrue(child0.timeTree().last().equals(0l));
+        assertTrue(child0.timeTree().first().equals(0l));
 
 
 
