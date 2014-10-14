@@ -46,10 +46,11 @@ public class DefaultModelCompare implements ModelCompare {
         tracesRef.addAll(origin.createTraces(target, inter, merge, true, false));
 
         origin.deepVisitContained(new ModelVisitor() {
+
             @Override
-            public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Boolean> continueVisit) throws Throwable {
+            public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
                 objectsMap.put(elem.path(), elem);
-                continueVisit.on(true);
+                continueVisit.on(null);
             }
         }, new Callback<Throwable>() {
             @Override
@@ -60,7 +61,7 @@ public class DefaultModelCompare implements ModelCompare {
                 } else {
                     target.deepVisitContained(new ModelVisitor() {
                         @Override
-                        public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Boolean> continueVisit) throws Throwable {
+                        public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
                             String childPath = elem.path();
                             if (objectsMap.containsKey(childPath)) {
                                 if (inter) {
@@ -76,7 +77,7 @@ public class DefaultModelCompare implements ModelCompare {
                                     tracesRef.addAll(elem.createTraces(elem, true, merge, true, false));
                                 }
                             }
-                            continueVisit.on(true);
+                            continueVisit.on(null);
                         }
                     }, new Callback<Throwable>() {
                         @Override
