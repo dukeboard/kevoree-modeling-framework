@@ -4,6 +4,8 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -38,21 +40,26 @@ public class Selector {
         }
 
         @Override
-        public boolean beginVisitRef(String refName, String refType) {
+        public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
             if (context.staticExtractedQuery.previousIsDeep) {
                 return true;  //we cannot filter here, to early in case of deep
             } else {
-                if (refName.equals(context.staticExtractedQuery.relationName)) {
-                    return true;
+                if (currentReference.metaName().equals(context.staticExtractedQuery.relationName)) {
+                    continueVisit.on(null);
                 } else {
                     if (context.staticExtractedQuery.relationName.contains("*")) {
-                        if (refName.matches(context.staticExtractedQuery.relationName.replace("*", ".*"))) {
+                        if (currentReference.metaName().matches(context.staticExtractedQuery.relationName.replace("*", ".*"))) {
                             return true;
                         }
                     }
                 }
                 return false;
             }
+        }
+
+        @Override
+        public boolean beginVisitRef(String refName, String refType) {
+
         }
 
 
@@ -129,6 +136,7 @@ public class Selector {
                 }
             }
         }
+
     }
 
     private class SelectorModelAttributeVisitor implements ModelAttributeVisitor {
@@ -139,16 +147,17 @@ public class Selector {
             this.context = context;
         }
 
-        public void visit(String name, Object value) {
+        @Override
+        public void visit(MetaAttribute metaAttribute, Object value) {
             for (String att : context.staticExtractedQuery.params.keySet()) {
                 if ("@id".equals(att)) {
                     throw new RuntimeException("Malformed KMFQuery, bad selector attribute without attribute name : " + context.staticExtractedQuery.params.get(att));
                 } else {
                     boolean keySelected = false;
-                    if (att.equals(name)) {
+                    if (att.equals(metaAttribute.metaName())) {
                         keySelected = true;
                     } else {
-                        if (att.contains("*") && name.matches(att.replace("*", ".*"))) {
+                        if (att.contains("*") && metaAttribute.metaName().matches(att.replace("*", ".*"))) {
                             keySelected = true;
                         }
                     }

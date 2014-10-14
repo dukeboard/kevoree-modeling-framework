@@ -90,7 +90,7 @@ class AttributesVisitor implements ModelAttributeVisitor {
             }
             context.wt.print(" " + metaAttribute.metaName() + "=\"");
             if (value instanceof java.util.Date) {
-                escapeXml(context.wt, "" + ((Date)value).getTime());
+                escapeXml(context.wt, "" + ((Date) value).getTime());
             } else {
                 escapeXml(context.wt, Converters.convFlatAtt(value));
             }
@@ -98,7 +98,6 @@ class AttributesVisitor implements ModelAttributeVisitor {
         }
     }
 }
-
 
 
 class ModelSerializationVisitor extends ModelVisitor {
@@ -127,22 +126,28 @@ class ModelSerializationVisitor extends ModelVisitor {
         context.wt.print(currentReference.metaName());
         context.wt.print(" xsi:type=\"" + formatMetaClassName(elem.metaClass().metaName()) + "\"");
         elem.visitAttributes(attributeVisitor);
-        elem.visitNotContained(referenceVisitor, (throwable) -> {
-            if(throwable!=null){
-                continueVisit.on(throwable);
-            }else {
-                context.wt.println('>');
-                elem.visitContained(this, (throwable2) -> {
-                    if(throwable2!=null){
-                        continueVisit.on(throwable2);
-                    }else {
-                        context.wt.print("</");
-                        context.wt.print(currentReference.metaName());
-                        context.wt.print('>');
-                        context.wt.println();
-                        continueVisit.on(null);
-                    }
-                });
+        elem.visitNotContained(referenceVisitor, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable != null) {
+                    continueVisit.on(throwable);
+                } else {
+                    context.wt.println('>');
+                    elem.visitContained(referenceVisitor, new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable2) {
+                            if (throwable2 != null) {
+                                continueVisit.on(throwable2);
+                            } else {
+                                context.wt.print("</");
+                                context.wt.print(currentReference.metaName());
+                                context.wt.print('>');
+                                context.wt.println();
+                                continueVisit.on(null);
+                            }
+                        }
+                    });
+                }
             }
         });
     }
@@ -160,7 +165,7 @@ class ModelAddressVisitor extends ModelVisitor {
     @Override
     public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
         String parentXmiAddress = context.addressTable.get(parent);
-        int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + currentReference.metaName(), (s)->0);
+        int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + currentReference.metaName(), (s) -> 0);
         context.addressTable.put(elem, parentXmiAddress + "/@" + currentReference.metaName() + "." + i);
         context.elementsCount.put(parentXmiAddress + "/@" + currentReference.metaName(), i + 1);
         String pack = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));
@@ -172,13 +177,11 @@ class ModelAddressVisitor extends ModelVisitor {
 }
 
 
-
-
 class SerializationContext {
     public boolean ignoreGeneratedID = false;
     public KObject model;
     public OutputStream raw;
-    public  Callback<Throwable> finishCallback;
+    public Callback<Throwable> finishCallback;
     public PrintStream wt;
 
     HashMap<KObject, String> addressTable = new HashMap<>();
@@ -194,14 +197,14 @@ public class XMIModelSerializer implements ModelSerializer {
     public void serialize(KObject model, Callback<String> callback, Callback<Throwable> error) {
         ByteArrayOutputStream oo = new ByteArrayOutputStream();
         serializeToStream(model, oo, err -> {
-            if(err == null) {
+            if (err == null) {
                 try {
                     oo.flush();
                     callback.on(oo.toString());
                 } catch (Exception e) {
                     error.on(e);
                 }
-            }else {
+            } else {
                 error.on(err);
             }
         });
@@ -220,42 +223,51 @@ public class XMIModelSerializer implements ModelSerializer {
             //First Pass for building address table
             context.addressTable.put(model, "/");
             ModelAddressVisitor addressBuilderVisitor = new ModelAddressVisitor(context);
-            model.deepVisitContained(addressBuilderVisitor,(end)->{
-                if(end != null) {
-                    context.finishCallback.on(end);
-                } else {
-                    ModelSerializationVisitor masterVisitor = new ModelSerializationVisitor(context);
+            model.deepVisitContained(addressBuilderVisitor, new Callback<Throwable>() {
+                @Override
+                public void on(Throwable end) {
+                    if (end != null) {
+                        context.finishCallback.on(end);
+                    } else {
+                        ModelSerializationVisitor masterVisitor = new ModelSerializationVisitor(context);
 
-                    context.wt.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                        context.wt.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
-                    context.wt.print("<" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_"));
-                    context.wt.print(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
-                    context.wt.print(" xmi:version=\"2.0\"");
-                    context.wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"");
+                        context.wt.print("<" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_"));
+                        context.wt.print(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
+                        context.wt.print(" xmi:version=\"2.0\"");
+                        context.wt.print(" xmlns:xmi=\"http://www.omg.org/XMI\"");
 
-                    int index = 0;
-                    while (index < context.packageList.size()) {
-                        context.wt.print(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
-                        index++;
-                    }
-
-                    model.visitAttributes(new AttributesVisitor(context));
-                    model.visitNotContained(new ReferencesVisitor(context), (end2)->{
-                        if(end2 != null) {
-                            context.finishCallback.on(end2);
-                        } else {
-                            context.wt.println(">");
-
-                            model.visitContained(masterVisitor, (end3)->{
-                                if(end3 != null) {
-                                    context.finishCallback.on(end3);
-                                } else {
-                                    context.wt.println("</" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_") + ">");
-                                    context.wt.flush();
-                                }
-                            });
+                        int index = 0;
+                        while (index < context.packageList.size()) {
+                            context.wt.print(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
+                            index++;
                         }
-                    });
+
+                        model.visitAttributes(new AttributesVisitor(context));
+                        model.visitNotContained(new ReferencesVisitor(context), new Callback<Throwable>() {
+                            @Override
+                            public void on(Throwable end2) {
+                                if (end2 != null) {
+                                    context.finishCallback.on(end2);
+                                } else {
+                                    context.wt.println(">");
+
+                                    model.visitContained(masterVisitor, new Callback<Throwable>() {
+                                        @Override
+                                        public void on(Throwable end3) {
+                                            if (end3 != null) {
+                                                context.finishCallback.on(end3);
+                                            } else {
+                                                context.wt.println("</" + formatMetaClassName(model.metaClass().metaName()).replace(".", "_") + ">");
+                                                context.wt.flush();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
                 }
             });
         });

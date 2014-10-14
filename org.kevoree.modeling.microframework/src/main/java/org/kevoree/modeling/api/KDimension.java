@@ -8,7 +8,7 @@ import java.util.Set;
  * Created by duke on 9/30/14.
  */
 
-public interface KDimension {
+public interface KDimension<A extends KView> {
 
     public String key();
 
@@ -24,7 +24,7 @@ public interface KDimension {
 
     public void unload(Callback<Boolean> callback);
 
-    public KView time(Long timePoint);
+    public A time(Long timePoint);
 
     public TimeTree globalTimeTree();
 
