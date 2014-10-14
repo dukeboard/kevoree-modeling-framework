@@ -31,7 +31,7 @@ public class HelloTest {
         nodeT0.setName("node0");
         assertEquals("node0", nodeT0.getName());
         assertEquals("name=node0", nodeT0.key());
-        assertEquals(0l,nodeT0.now());
+        assertEquals(0l, nodeT0.now());
 
         assertNull(nodeT0.parentPath());
 
@@ -39,8 +39,6 @@ public class HelloTest {
         assertNotNull(child0.timeTree());
         assertTrue(child0.timeTree().last().equals(0l));
         assertTrue(child0.timeTree().first().equals(0l));
-
-
 
     }
 

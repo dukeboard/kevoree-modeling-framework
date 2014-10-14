@@ -7,4 +7,10 @@ public interface MetaReference extends Meta {
 
     boolean contained();
 
+    boolean single();
+
+    MetaClass metaType();
+
+    MetaReference opposite();
+
 }

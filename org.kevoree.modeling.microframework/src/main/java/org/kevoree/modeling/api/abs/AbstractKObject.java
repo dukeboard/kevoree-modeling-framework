@@ -233,8 +233,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if(attribute.opposite()!= null){
             ((KObject)payload).mu
         }*/
-
     }
+
+    /*
+    public void getRef(MetaReference reference, Callback<KObject> callback){
+
+    } */
+
 
     @Override
     public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end) {

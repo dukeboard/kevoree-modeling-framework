@@ -2,6 +2,7 @@ package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 
 /**
@@ -49,13 +50,31 @@ public interface Node extends KObject<Node, CloudView> {
 
     public enum METAREFERENCES implements MetaReference {
 
-        CHILDREN("children", 2, true);
+        CHILDREN("children", 2, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null);
 
         private String name;
 
         private int index;
 
         private boolean contained;
+
+        private boolean single;
+
+        public boolean single() {
+            return single;
+        }
+
+        private MetaClass metaType;
+
+        public MetaClass metaType() {
+            return metaType;
+        }
+
+        private MetaReference opposite;
+
+        public MetaReference opposite() {
+            return opposite;
+        }
 
         public int index() {
             return index;
@@ -69,10 +88,13 @@ public interface Node extends KObject<Node, CloudView> {
             return contained;
         }
 
-        METAREFERENCES(String name, int index, boolean contained) {
+        METAREFERENCES(String name, int index, boolean contained, boolean single, MetaClass metaType, MetaReference opposite) {
             this.name = name;
             this.index = index;
             this.contained = contained;
+            this.single = single;
+            this.metaType = metaType;
+            this.opposite = opposite;
         }
     }
 
@@ -83,5 +105,7 @@ public interface Node extends KObject<Node, CloudView> {
     public String getValue();
 
     public Node setValue(String name);
+
+    public void addChildren();
 
 }
