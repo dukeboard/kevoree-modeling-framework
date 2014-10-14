@@ -14,9 +14,9 @@ import java.util.HashMap;
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKUnivers implements KUnivers {
+public abstract class AbstractKUnivers<A extends KDimension> implements KUnivers<A> {
 
-    private HashMap<String, KDimension> dimensions = new HashMap<String, KDimension>();
+    private HashMap<String, A> dimensions = new HashMap<String, A>();
 
     private DataStore dataStore;
 
@@ -37,13 +37,13 @@ public abstract class AbstractKUnivers implements KUnivers {
     }
 
     @Override
-    public KDimension create() {
+    public A create() {
         return null;
     }
 
     @Override
-    public KDimension get(String key) {
-        return dimensions.get(key);
+    public A get(String key) {
+        return (A) dimensions.get(key);
     }
 
     @Override

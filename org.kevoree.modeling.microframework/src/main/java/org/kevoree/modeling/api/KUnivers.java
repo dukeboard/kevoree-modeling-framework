@@ -8,11 +8,11 @@ import org.kevoree.modeling.api.events.ModelElementListener;
  * Created by duke on 9/30/14.
  */
 
-public interface KUnivers {
+public interface KUnivers<A extends KDimension> {
 
-    public KDimension create();
+    public A create();
 
-    public KDimension get(String key);
+    public A get(String key);
 
     public void saveAll(Callback<Boolean> callback);
 
