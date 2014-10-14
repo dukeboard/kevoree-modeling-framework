@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by duke on 10/8/14.
@@ -43,12 +44,12 @@ public class Helper {
             return null;
         }
         if (currentPath.charAt(0) == pathSep) {
-            if(currentPath.length()==1){
+            if (currentPath.length() == 1) {
                 return null;
             }
             int lastIndex = currentPath.lastIndexOf(pathSep);
             if (lastIndex != -1) {
-                if(lastIndex == 0){
+                if (lastIndex == 0) {
                     return rootPath;
                 } else {
                     return currentPath.substring(0, lastIndex);
@@ -59,6 +60,10 @@ public class Helper {
         } else {
             return null;
         }
+    }
+
+    public static String newPath() {
+        return UUID.randomUUID().toString();
     }
 
 }

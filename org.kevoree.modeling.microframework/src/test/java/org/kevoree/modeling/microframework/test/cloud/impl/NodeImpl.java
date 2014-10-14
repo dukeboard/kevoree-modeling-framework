@@ -14,8 +14,8 @@ import org.kevoree.modeling.microframework.test.cloud.Node;
  */
 public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
-    public NodeImpl(CloudView factory, MetaClass metaClass, Long now, KDimension dimension, TimeTree timeTree) {
-        super(factory, metaClass, now, dimension, timeTree);
+    public NodeImpl(CloudView factory, MetaClass metaClass, String path, Long now, KDimension dimension, TimeTree timeTree) {
+        super(factory, metaClass, path, now, dimension, timeTree);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public Node setName(String name) {
-        set(METAATTRIBUTES.NAME,name);
+        set(METAATTRIBUTES.NAME, name);
         return this;
     }
 
@@ -46,7 +46,7 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public Node setValue(String name) {
-        set(METAATTRIBUTES.VALUE,name);
+        set(METAATTRIBUTES.VALUE, name);
         return this;
     }
 }

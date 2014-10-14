@@ -84,4 +84,10 @@ public abstract class AbstractKView implements KView {
         return create(metaClass(metaClassName));
     }
 
+    protected KObject manageCache(KObject obj) {
+        int nbIndexes = obj.metaAttributes().length + obj.metaReferences().length + 1; //+1 for outbounds references
+        dimension().univers().dataCache().put(dimension(), now(), obj.path(), obj, nbIndexes);
+        return obj;
+    }
+
 }

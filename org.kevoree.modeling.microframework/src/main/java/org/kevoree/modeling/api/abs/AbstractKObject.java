@@ -26,9 +26,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return factory;
     }
 
-    public AbstractKObject(B factory, MetaClass metaClass, Long now, KDimension dimension, TimeTree timeTree) {
+    public AbstractKObject(B factory, MetaClass metaClass, String path, Long now, KDimension dimension, TimeTree timeTree) {
         this.factory = factory;
         this.metaClass = metaClass;
+        this.path = path;
         this.now = now;
         this.dimension = dimension;
         this.timeTree = timeTree;
