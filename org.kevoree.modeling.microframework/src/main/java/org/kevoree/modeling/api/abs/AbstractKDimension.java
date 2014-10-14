@@ -6,12 +6,14 @@ import org.kevoree.modeling.api.KUnivers;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.time.TimeTree;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by duke on 10/10/14.
  */
-public abstract class AbstractKDimension<A extends KView, B extends KDimension, C extends KUnivers> implements KDimension<A, B,C> {
+public abstract class AbstractKDimension<A extends KView, B extends KDimension, C extends KUnivers> implements KDimension<A, B, C> {
 
     private KUnivers univers;
 
@@ -72,9 +74,19 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     }
 
+    private Map<Long, A> timesCache = new HashMap<Long, A>();
+
     @Override
-    public A time(Long timePoint) {
-        return null;
+    public synchronized A time(Long timePoint) {
+        if (timesCache.containsKey(timePoint)) {
+            return timesCache.get(timePoint);
+        } else {
+            A newCreatedTime = internal_create(timePoint);
+            timesCache.put(timePoint,newCreatedTime);
+            return newCreatedTime;
+        }
     }
+
+    protected abstract A internal_create(Long timePoint);
 
 }

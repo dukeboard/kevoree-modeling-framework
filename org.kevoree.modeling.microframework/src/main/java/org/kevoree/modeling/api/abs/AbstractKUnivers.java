@@ -38,7 +38,7 @@ public abstract class AbstractKUnivers<A extends KDimension> implements KUnivers
     }
 
     @Override
-    public A create() {
+    public synchronized A create() {
         //TODO optimize
         for (int i = 0; i < 1000000; i++) {
             if (!dimensions.containsKey("" + i)) {

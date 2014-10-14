@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.data.DataCache;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public class CloudViewImpl extends AbstractKView implements CloudView {
 
-    protected CloudViewImpl(long now, KDimension dimension, DataCache cache) {
+    public CloudViewImpl(long now, KDimension dimension) {
         super(now, dimension);
     }
 
