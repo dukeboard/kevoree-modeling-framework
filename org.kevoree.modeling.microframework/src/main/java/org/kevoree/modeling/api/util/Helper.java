@@ -52,19 +52,15 @@ public class Helper {
         if (currentPath == null || currentPath.length() == 0) {
             return null;
         }
-        if (currentPath.charAt(0) == pathSep) {
-            if (currentPath.length() == 1) {
-                return null;
-            }
-            int lastIndex = currentPath.lastIndexOf(pathSep);
-            if (lastIndex != -1) {
-                if (lastIndex == 0) {
-                    return rootPath;
-                } else {
-                    return currentPath.substring(0, lastIndex);
-                }
+        if (currentPath.length() == 1) {
+            return null;
+        }
+        int lastIndex = currentPath.lastIndexOf(pathSep);
+        if (lastIndex != -1) {
+            if (lastIndex == 0) {
+                return rootPath;
             } else {
-                return null;
+                return currentPath.substring(0, lastIndex);
             }
         } else {
             return null;

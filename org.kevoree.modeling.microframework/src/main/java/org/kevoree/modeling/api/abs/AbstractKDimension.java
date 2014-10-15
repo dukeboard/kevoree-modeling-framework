@@ -31,7 +31,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
     }
 
     @Override
-    public C univers() {
+    public C universe() {
         return (C) univers;
     }
 

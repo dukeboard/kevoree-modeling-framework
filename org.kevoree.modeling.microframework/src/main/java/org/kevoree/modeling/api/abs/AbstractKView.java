@@ -87,8 +87,8 @@ public abstract class AbstractKView implements KView {
     }
 
     protected KObject manageCache(KObject obj) {
-        dimension().univers().dataCache().put(dimension(), now(), obj.path(), obj);
-        dimension().univers().dataCache().putTimeTree(dimension(), obj.path(), obj.timeTree());
+        dimension().universe().dataCache().put(dimension(), now(), obj.path(), obj);
+        dimension().universe().dataCache().putTimeTree(dimension(), obj.path(), obj.timeTree());
         return obj;
     }
 
@@ -104,7 +104,12 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void lookup(String path, Callback<KObject> callback) {
-
+        KObject resolved = dimension().universe().dataCache().get(dimension(),now(),path);
+        if(resolved!= null){
+            callback.on(resolved);
+        } else {
+            //TODO more complex
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.MemoryDataStore;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
@@ -42,14 +43,28 @@ public class HelloTest {
 
         Node nodeT1 = t0.createNode();
         nodeT1.setName("n1");
-        nodeT0.addChildren(nodeT1,(t)->{
-            System.out.println("Added");
-            System.out.println(nodeT1.path());
-        });
+        nodeT0.addChildren(nodeT1, null);
 
-        nodeT0.eachChildren((n)->{
-            System.out.println("Child="+n.path());
-        },null);
+        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
+        final int[] i={0};
+        nodeT0.eachChildren((n) -> {
+           i[0]++;
+        }, null);
+        assertEquals(1,i[0]);
+
+        Node nodeT3 = t0.createNode();
+        nodeT3.setName("n3");
+        nodeT1.addChildren(nodeT3, null);
+
+        assertTrue(nodeT3.path().endsWith("/children[name=n1]/children[name=n3]"));
+        assertTrue(nodeT3.parentPath().endsWith("/children[name=n1]"));
+
+        KObject[] parent = new KObject[1];
+        nodeT3.parent((p)->{
+            parent[0] = p;
+        });
+        assertTrue(parent[0] == nodeT1);
+
 
     }
 

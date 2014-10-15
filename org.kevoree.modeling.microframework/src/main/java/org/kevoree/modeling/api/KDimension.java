@@ -30,6 +30,6 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
 
     public TimeTree timeTree(String path);
 
-    public C univers();
+    public C universe();
 
 }
