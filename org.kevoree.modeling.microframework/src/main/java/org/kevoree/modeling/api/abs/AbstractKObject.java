@@ -60,7 +60,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public long now() {
-        return now;
+        return timeTree().resolve(now);
     }
 
     private TimeTree timeTree;
@@ -216,29 +216,28 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     //TODO optimize , maybe dangerous if cache is unloaded ...
     public Object get(MetaAttribute attribute) {
         //here potentially manage learned attributes
-        long previous = timeTree().resolve(now());
-        return factory().dimension().univers().dataCache().getPayload(dimension(), previous, path(), attribute.index());
+        return factory().dimension().univers().dataCache().getPayload(dimension(), now(), path(), attribute.index());
     }
 
     public void set(MetaAttribute attribute, Object payload) {
-        factory().dimension().univers().dataCache().putPayload(dimension(), now(), path(), attribute.index(), payload);
+        factory().dimension().univers().dataCache().putPayload(dimension(), now, path(), attribute.index(), payload);
         internalUpdateTimeTrees();
     }
 
     private void internalUpdateTimeTrees() {
-        timeTree().insert(now());
-        factory().dimension().globalTimeTree().insert(now());
+        timeTree().insert(now);
+        factory().dimension().globalTimeTree().insert(now);
     }
 
     private void attach(MetaReference metaReference, KObject param, boolean fireEvent, Callback<Boolean> callback) {
         if (metaReference.contained()) {
             String newPath = Helper.path(this, metaReference, param);
-            factory().dimension().univers().dataCache().put(dimension(), now(), newPath, param);
+            factory().dimension().univers().dataCache().put(dimension(), now, newPath, param);
             param.visitAttributes(new ModelAttributeVisitor() {
                 @Override
                 public void visit(MetaAttribute metaAttribute, Object value) {
                     //TODO optimize for copy the object
-                    factory().dimension().univers().dataCache().putPayload(dimension(), now(), newPath, metaAttribute.index(), value);
+                    factory().dimension().univers().dataCache().putPayload(dimension(), now, newPath, metaAttribute.index(), value);
                 }
             });
             ((AbstractKObject) param).setPath(newPath);
@@ -254,12 +253,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     private void detach(MetaReference metaReference, KObject param, boolean fireEvent, Callback<Boolean> callback) {
         if (metaReference.contained()) {
             String newPath = Helper.newPath();
-            factory().dimension().univers().dataCache().put(dimension(), now(), newPath, param);
+            factory().dimension().univers().dataCache().put(dimension(), now, newPath, param);
             param.visitAttributes(new ModelAttributeVisitor() {
                 @Override
                 public void visit(MetaAttribute metaAttribute, Object value) {
                     //TODO optimize for copy the object
-                    factory().dimension().univers().dataCache().putPayload(dimension(), now(), newPath, metaAttribute.index(), value);
+                    factory().dimension().univers().dataCache().putPayload(dimension(), now, newPath, metaAttribute.index(), value);
                 }
             });
             ((AbstractKObject) param).setPath(newPath);
@@ -279,14 +278,17 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (metaReference.single()) {
                     mutate(KActionType.SET, metaReference, param, setOpposite, fireEvent, callback);
                 } else {
-                    long lastLocalTime = timeTree().resolve(now());
-                    Object previous = factory().dimension().univers().dataCache().getPayload(dimension(), lastLocalTime, path(), metaReference.index());
+                    Object previous = factory().dimension().univers().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
                     if (previous == null) {
                         previous = new HashSet<String>();
-                        factory().dimension().univers().dataCache().putPayload(dimension(), lastLocalTime, path(), metaReference.index(), previous);
                     }
                     Set<String> previousList = (Set<String>) previous;
+                    if (now() != now) {
+                        previousList = new HashSet<String>(previousList);
+                        factory().dimension().univers().dataCache().putPayload(dimension(), now, path(), metaReference.index(), previous);
+                    }
                     previousList.add(param.path());
+                    internalUpdateTimeTrees();
                     attach(metaReference, param, fireEvent, (res) -> {
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
@@ -300,9 +302,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (!metaReference.single()) {
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent, callback);
                 } else {
-                    long lastLocalTime = timeTree().resolve(now());
-                    Object previous = factory().dimension().univers().dataCache().getPayload(dimension(), lastLocalTime, path(), metaReference.index());
-                    factory().dimension().univers().dataCache().putPayload(dimension(), now(), path(), metaReference.index(), param.path());
+                    Object previous = factory().dimension().univers().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
+                    factory().dimension().univers().dataCache().putPayload(dimension(), now, path(), metaReference.index(), param.path());
+                    internalUpdateTimeTrees();
                     attach(metaReference, param, fireEvent, (res) -> {
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous == null) {
@@ -324,7 +326,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 break;
             case REMOVE:
                 if (metaReference.single()) {
-                    factory().dimension().univers().dataCache().putPayload(dimension(), now(), path(), metaReference.index(), null);
+                    factory().dimension().univers().dataCache().putPayload(dimension(), now, path(), metaReference.index(), null);
+                    internalUpdateTimeTrees();
                     detach(metaReference, param, fireEvent, (res2) -> {
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
@@ -333,19 +336,25 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                     });
                 } else {
-                    long lastLocalTime = timeTree().resolve(now());
-                    Object previous = factory().dimension().univers().dataCache().getPayload(dimension(), lastLocalTime, path(), metaReference.index());
+                    Object previous = factory().dimension().univers().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
                     if (previous != null) {
                         Set<String> previousList = (Set<String>) previous;
-                        previousList.remove(param.now());
-                    }
-                    detach(metaReference, param, fireEvent, (res2) -> {
-                        if (metaReference.opposite() != null && setOpposite) {
-                            param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
-                        } else {
-                            callback.on(true);
+                        if (now() != now) {
+                            previousList = new HashSet<String>(previousList);
+                            factory().dimension().univers().dataCache().putPayload(dimension(), now, path(), metaReference.index(), previousList);
                         }
-                    });
+                        previousList.remove(param.path());
+                        internalUpdateTimeTrees();
+                        detach(metaReference, param, fireEvent, (res2) -> {
+                            if (metaReference.opposite() != null && setOpposite) {
+                                param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
+                            } else {
+                                callback.on(true);
+                            }
+                        });
+                    } else {
+                        callback.on(false);
+                    }
                 }
                 break;
             default:
