@@ -27,7 +27,6 @@ import org.kevoree.modeling.util.PrimitiveTypes;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -87,13 +86,11 @@ public class ProcessorHelper {
                         //TODO: Circularity check and cut
                         consolidate(parent, consolidated);
                     }
-                    //TODO: Diamond inheritance check and merge
                     parent.getAttributes().forEach(parentAttribute-> {
                         if(!parentsAttributes.contains(parentAttribute)){
                             parentsAttributes.add(parentAttribute);
                         }
                     });
-
                     parent.getReferences().forEach(parentReference-> {
                         if(!parentsReferences.contains(parentReference)){
                             parentsReferences.add(parentReference);
