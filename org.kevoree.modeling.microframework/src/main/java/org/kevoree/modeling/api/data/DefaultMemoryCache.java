@@ -19,10 +19,11 @@ public class DefaultMemoryCache implements DataCache {
     private Map<String, TimeTree> timeTreeCache = new HashMap<String, TimeTree>();
 
     @Override
-    public void put(KDimension dimension, long time, String path, KObject value, int indexSize) {
+    public void put(KDimension dimension, long time, String path, KObject obj) {
+        int nbIndexes = obj.metaAttributes().length + obj.metaReferences().length + 1; //+1 for outbounds references
         String key = dimension.key() + sep + time + sep + path;
-        obj_cache.put(key, value);
-        payload_cache.put(key, new Object[indexSize]);
+        obj_cache.put(key, obj);
+        payload_cache.put(key, new Object[nbIndexes]);
     }
 
     @Override

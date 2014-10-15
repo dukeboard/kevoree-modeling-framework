@@ -2,11 +2,12 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
 public interface DataCache {
 
-    public void put(KDimension dimension, long time, String path, KObject value, int indexSize);
+    public void put(KDimension dimension, long time, String path, KObject value);
 
     public KObject get(KDimension dimension, long time, String path);
 

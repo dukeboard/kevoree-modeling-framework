@@ -1,6 +1,8 @@
 package org.kevoree.modeling.api.util;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,9 @@ import java.util.UUID;
 public class Helper {
 
     public static <A> void forall(List<A> in, final CallBackChain<A> each, final Callback<Throwable> end) {
+        if (in == null) {
+            return;
+        }
         final List<A> cloned = new ArrayList<A>(in);
         final int max = cloned.size();
         process(cloned, 0, max, each, end);
@@ -19,14 +24,18 @@ public class Helper {
 
     private static <A> void process(final List<A> cloned, final int index, final int max, final CallBackChain<A> each, final Callback<Throwable> end) {
         if (index >= max) {
-            end.on(null);
+            if (end != null) {
+                end.on(null);
+            }
         } else {
             A obj = cloned.get(index);
             each.on(obj, new Callback<Throwable>() {
                 @Override
                 public void on(Throwable err) {
                     if (err != null) {
-                        end.on(err);
+                        if (end != null) {
+                            end.on(err);
+                        }
                     } else {
                         process(cloned, index + 1, max, each, end);
                     }
@@ -36,6 +45,10 @@ public class Helper {
     }
 
     private static final char pathSep = '/';
+
+    private static final char pathIDOpen = '[';
+    private static final char pathIDClose = ']';
+
 
     private static final String rootPath = "/";
 
@@ -64,6 +77,14 @@ public class Helper {
 
     public static String newPath() {
         return UUID.randomUUID().toString();
+    }
+
+    public static boolean attachedToRoot(String path) {
+        return path.length() > 0 && path.charAt(0) == pathSep;
+    }
+
+    public static String path(KObject parent,MetaReference reference, KObject target){
+        return parent.path()+pathSep+reference.metaName()+pathIDOpen+target.key()+pathIDClose;
     }
 
 }
