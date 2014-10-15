@@ -88,14 +88,16 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public MetaReference[] metaReferences();
 
+    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent, Callback<Boolean> callback);
+
+    public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
+
     /* End Reflexive API */
 
     /* Powerful Trace API, maybe consider to hide TODO */
     public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes);
 
     public List<ModelTrace> toTraces(boolean attributes, boolean references);
-
-    public void mutate(KActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent);
     /* end to clean zone TODO */
 
     public Object get(MetaAttribute attribute);

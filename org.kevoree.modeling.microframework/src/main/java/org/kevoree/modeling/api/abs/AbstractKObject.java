@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 
 import java.util.List;
@@ -184,11 +184,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public void mutate(KActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent) {
-
-    }
-
-    @Override
     public void jump(Long time, Callback<A> callback) {
         factory().dimension().time(time).lookup(path(), (o) -> {
             callback.on((A) o);
@@ -224,22 +219,66 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public void set(MetaAttribute attribute, Object payload) {
-        //TODO update timeTree
         factory().dimension().univers().dataCache().putPayload(dimension(), now(), path(), attribute.index(), payload);
-        timeTree().insert(now());
-        factory().dimension().globalTimeTree().insert(now());
-
-        /*
-        if(attribute.opposite()!= null){
-            ((KObject)payload).mu
-        }*/
+        internalUpdateTimeTrees();
     }
 
-    /*
-    public void getRef(MetaReference reference, Callback<KObject> callback){
+    private void internalUpdateTimeTrees() {
+        timeTree().insert(now());
+        factory().dimension().globalTimeTree().insert(now());
+    }
 
-    } */
+    @Override
+    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent, Callback<Boolean> callback) {
+        boolean mutationAction = false;
+        if (actionType.equals(KActionType.SET)) {
+            mutationAction = true;
+        }
 
+        if (mutationAction) {
+            internalUpdateTimeTrees();
+        }
+    }
+
+    public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
+        long previous = timeTree().resolve(now());
+        Object o = factory().dimension().univers().dataCache().getPayload(dimension(), previous, path(), metaReference.index());
+        if (o instanceof String) {
+            factory().lookup((String) o, new Callback<KObject>() {
+                @Override
+                public void on(KObject resolved) {
+                    if(callback!= null){
+                        callback.on((C)resolved);
+                    }
+                    if(end != null){
+                        end.on(null);
+                    }
+                }
+            });
+        } else {
+            if (o instanceof List) {
+                List objs = (List) o;
+                Helper.forall(objs, new CallBackChain() {
+                    @Override
+                    public void on(Object o, Callback next) {
+                        if(callback != null){
+                            callback.on((C) o);
+                        }
+                        next.on(null);
+                    }
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable throwable) {
+                        if(end != null){
+                            end.on(throwable);
+                        }
+                    }
+                });
+            } else {
+                end.on(new Exception("Inconsistent storage, Internal Error"));
+            }
+        }
+    }
 
     @Override
     public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end) {

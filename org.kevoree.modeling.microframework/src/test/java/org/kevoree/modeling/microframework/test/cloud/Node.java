@@ -112,7 +112,7 @@ public interface Node extends KObject<Node, CloudView> {
 
     public void removeChildren(Node obj, Callback<Boolean> callback);
 
-    public void eachChildren(Callback<Node> callback, Callback<Boolean> end);
+    public void eachChildren(Callback<Node> callback, Callback<Throwable> end);
 
     public void setElement(Element obj, Callback<Boolean> callback);
 
