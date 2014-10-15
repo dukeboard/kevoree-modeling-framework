@@ -1,8 +1,8 @@
 package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.util.Helper;
 
 /**
@@ -31,7 +31,7 @@ public class ModelTraceApplicator {
 
     private void tryClosePending(String srcPath) {
         if (pendingObj != null && !(pendingObjPath.equals(srcPath))) {
-            pendingParent.mutate(KActionType.ADD, pendingParentRefName, pendingObj, true, fireEvents);
+            pendingParent.mutate(KActionType.ADD, pendingParent.metaReference(pendingParentRefName), pendingObj, true, fireEvents, null);
             pendingObj = null;
             pendingObjPath = null;
             pendingParentRefName = null;
@@ -43,8 +43,7 @@ public class ModelTraceApplicator {
         if (previousPath != null) {
             targetModel.factory().lookup(previousPath, (targetElem) -> {
                 if (targetElem != null) {
-                    target.mutate(KActionType.ADD, refName, targetElem, true, fireEvents);
-                    callback.on(null);
+                    target.mutate(KActionType.ADD, target.metaReference(refName), targetElem, true, fireEvents, callback);
                 } else {
                     if (potentialTypeName == null) {
                         callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + refName + ", unconsistency error"));
@@ -98,8 +97,7 @@ public class ModelTraceApplicator {
             targetModel.factory().lookup(trace.getSrcPath(), (targetElem) -> {
                 if (targetElem != null) {
                     targetModel.factory().lookup(removeTrace.getObjPath(), (remoteObj) -> {
-                        targetElem.mutate(KActionType.REMOVE, trace.getRefName(), remoteObj, true, fireEvents);
-                        callback.on(null);
+                        targetElem.mutate(KActionType.REMOVE, targetElem.metaReference(trace.getRefName()), remoteObj, true, fireEvents, callback);
                     });
                 } else {
                     callback.on(null);
@@ -114,20 +112,18 @@ public class ModelTraceApplicator {
                         callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                     } else {
                         if (setTrace.getContent() != null) {
-                            tempObject.mutate(KActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
+                            tempObject.set(tempObject.metaAttribute(setTrace.getRefName()), setTrace.getContent(), fireEvents);
                             callback.on(null);
                         } else {
                             if (setTrace.getObjPath() != null) {
                                 targetModel.factory().lookup(setTrace.getObjPath(), (targetObj) -> {
                                     if (targetObj != null) {
-                                        tempObject.mutate(KActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
-                                        callback.on(null);
+                                        tempObject.mutate(KActionType.SET, tempObject.metaReference(trace.getRefName()), targetObj, true, fireEvents, callback);
                                     } else {
                                         if (trace.getTraceType() != null) {
                                             createOrAdd(setTrace.getObjPath(), tempObject, trace.getRefName(), setTrace.getTypeName(), callback); //must create the pending element
                                         } else {
-                                            tempObject.mutate(KActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
-                                            callback.on(null);
+                                            tempObject.mutate(KActionType.SET, tempObject.metaReference(trace.getRefName()), null, true, fireEvents, callback); //case real null content
                                         }
                                     }
                                 });
@@ -140,20 +136,18 @@ public class ModelTraceApplicator {
                     callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                 } else {
                     if (setTrace.getContent() != null) {
-                        pendingObj.mutate(KActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
+                        pendingObj.set(pendingObj.metaAttribute(setTrace.getRefName()), setTrace.getContent(), fireEvents);
                         callback.on(null);
                     } else {
                         if (setTrace.getObjPath() != null) {
                             targetModel.factory().lookup(setTrace.getObjPath(), (targetObj) -> {
                                 if (targetObj != null) {
-                                    pendingObj.mutate(KActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
-                                    callback.on(null);
+                                    pendingObj.mutate(KActionType.SET, pendingObj.metaReference(trace.getRefName()), targetObj, true, fireEvents, callback);
                                 } else {
                                     if (trace.getTraceType() != null) {
                                         createOrAdd(setTrace.getObjPath(), pendingObj, trace.getRefName(), setTrace.getTypeName(), callback); //must create the pending element
                                     } else {
-                                        pendingObj.mutate(KActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
-                                        callback.on(null);
+                                        pendingObj.mutate(KActionType.SET, pendingObj.metaReference(trace.getRefName()), null, true, fireEvents, callback); //case real null content
                                     }
                                 }
                             });
@@ -162,7 +156,7 @@ public class ModelTraceApplicator {
                 }
             }
         } else {
-            callback.on(new Exception("Unknow trace "+trace));
+            callback.on(new Exception("Unknow trace " + trace));
         }
     }
 

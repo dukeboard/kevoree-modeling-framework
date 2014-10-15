@@ -1,20 +1,14 @@
 package org.kevoree.modeling.api.json;
 
+import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.util.Helper;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.ModelLoader;
-import org.kevoree.modeling.api.util.Helper;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,7 +25,6 @@ class JSONLoadingContext {
     public Callback<KObject> successCallback;
     public Callback<Throwable> errorCallback;
 }
-
 
 
 public class JSONModelLoader implements ModelLoader {
@@ -85,17 +78,17 @@ public class JSONModelLoader implements ModelLoader {
             loadObject(context, null, null);
 
 
-            Helper.forall(context.resolveCommands, (resol, err)->{
+            Helper.forall(context.resolveCommands, (resol, err) -> {
                 resol.run(err);
             }, end -> {
-                if(end != null) {
+                if (end != null) {
                     context.errorCallback.on(end);
                 } else {
                     context.successCallback.on(context.roots.get(0));
                 }
             });
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             context.errorCallback.on(e);
         }
     }
@@ -108,13 +101,14 @@ public class JSONModelLoader implements ModelLoader {
         public Token currentToken;
         KObject parent;
         String nameInParent;
+
         @Override
         public void on(KObject kObject) {
             currentObject = kObject;
 
             if (isRoot) {
-                factory.root(currentObject, (success)->{
-                    if(!success) {
+                factory.root(currentObject, (success) -> {
+                    if (!success) {
                         context.errorCallback.on(new Exception("Could not set root with currentObject:" + currentObject.key()));
                     } else {
                         try {
@@ -140,7 +134,7 @@ public class JSONModelLoader implements ModelLoader {
                                             context.resolveCommands.add(new ResolveCommand(context, currentToken.getValue().toString(), currentObject, currentNameAttOrRef));
                                         } else {
                                             String unscaped = JSONString.unescape(currentToken.getValue().toString());
-                                            currentObject.mutate(KActionType.SET, currentNameAttOrRef, unscaped, false, false);
+                                            currentObject.mutate(KActionType.SET, currentObject.metaReference(currentNameAttOrRef), unscaped, false, false);
                                             currentNameAttOrRef = null; //unpop
                                         }
                                     }
@@ -162,17 +156,17 @@ public class JSONModelLoader implements ModelLoader {
                                 }
                                 if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
                                     if (parent != null) {
-                                        parent.mutate(KActionType.ADD, nameInParent, currentObject, false, false);
+                                        parent.mutate(KActionType.ADD, parent.metaReference(nameInParent), currentObject, false, false);
                                     }
                                     return; //go out
                                 }
                                 currentToken = context.lexer.nextToken();
                             }
-                        }catch(Throwable t) {
+                        } catch (Throwable t) {
                             context.errorCallback.on(t);
                         }
                     }
-                } );
+                });
             }
 
 
@@ -192,7 +186,7 @@ public class JSONModelLoader implements ModelLoader {
             if (currentToken.getValue() == "class") {
                 context.lexer.nextToken(); //unpop :
                 currentToken = context.lexer.nextToken(); //Two step for having the name
-                String name = (currentToken.getValue() != null ? currentToken.getValue().toString():null);
+                String name = (currentToken.getValue() != null ? currentToken.getValue().toString() : null);
                 //String typeName = null;
                 boolean isRoot = false;
                 if (name.startsWith("root:")) {
@@ -206,11 +200,11 @@ public class JSONModelLoader implements ModelLoader {
                     String key = name.substring(name.indexOf("@") + 1);
                     if (parent == null) {
                         if (isRoot) {
-                            factory.lookup("/",currentObjectCallback);
+                            factory.lookup("/", currentObjectCallback);
                         }
                     } else {
                         String path = parent.path() + "/" + nameInParent + "[" + key + "]";
-                        factory.lookup(path,currentObjectCallback);
+                        factory.lookup(path, currentObjectCallback);
                     }
                 } else {
                     //typeName = name;
@@ -242,10 +236,9 @@ class ResolveCommand {
     }
 
     public void run(Callback<Throwable> error) {
-        context.roots.get(0).factory().lookup(ref, (referencedElement)->{
+        context.roots.get(0).factory().lookup(ref, (referencedElement) -> {
             if (referencedElement != null) {
-                currentRootElem.mutate(KActionType.ADD, refName, referencedElement, false, false);
-                error.on(null);
+                currentRootElem.mutate(KActionType.ADD, currentRootElem.metaReference(refName), referencedElement, false, false, error);
             } else {
                 error.on(new Exception("Unresolved " + ref));
             }

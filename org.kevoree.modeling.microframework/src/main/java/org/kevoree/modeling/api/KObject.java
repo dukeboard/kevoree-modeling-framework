@@ -88,7 +88,11 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public MetaReference[] metaReferences();
 
-    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent, Callback<Boolean> callback);
+    public MetaAttribute metaAttribute(String name);
+
+    public MetaReference metaReference(String name);
+
+    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent, Callback<Throwable> callback);
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
 
@@ -101,5 +105,7 @@ public interface KObject<A extends KObject, B extends KView> {
     /* end to clean zone TODO */
 
     public Object get(MetaAttribute attribute);
+
+    public void set(MetaAttribute attribute, Object payload, boolean fireEvents);
 
 }
