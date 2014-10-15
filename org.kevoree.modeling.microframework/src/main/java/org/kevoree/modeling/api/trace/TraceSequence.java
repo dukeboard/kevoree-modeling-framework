@@ -23,7 +23,11 @@ public class TraceSequence {
     public TraceSequence() {
     }
 
-    List<ModelTrace> traces = new ArrayList<ModelTrace>();
+    public ModelTrace[] getTraces(){
+        return traces.toArray(new ModelTrace[traces.size()]);
+    }
+
+    private List<ModelTrace> traces = new ArrayList<ModelTrace>();
 
     public TraceSequence populate(List<ModelTrace> addtraces) {
         traces.addAll(addtraces);

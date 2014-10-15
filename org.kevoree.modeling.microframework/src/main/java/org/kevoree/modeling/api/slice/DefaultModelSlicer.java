@@ -71,7 +71,8 @@ public class DefaultModelSlicer implements ModelSlicer {
         List<ModelTrace> traces = new ArrayList<ModelTrace>();
         Map<String, KObject> tempMap = new HashMap<String, KObject>();
         Map<String, KObject> parentMap = new HashMap<String, KObject>();
-        Helper.forall(elems, (obj, next) -> {
+        KObject[] elemsArr = elems.toArray(new KObject[elems.size()]);
+        Helper.forall(elemsArr, (obj, next) -> {
             internal_prune(obj, traces, tempMap, parentMap, next);
         }, (t) -> {
             for (String toLinkKey : tempMap.keySet()) {

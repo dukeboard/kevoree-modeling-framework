@@ -76,9 +76,8 @@ public class JSONModelLoader implements ModelLoader {
     private void deserialize(JSONLoadingContext context) {
         try {
             loadObject(context, null, null);
-
-
-            Helper.forall(context.resolveCommands, (resol, err) -> {
+            ResolveCommand[] cmds = context.resolveCommands.toArray(new ResolveCommand[context.resolveCommands.size()]);
+            Helper.forall(cmds, (resol, err) -> {
                 resol.run(err);
             }, end -> {
                 if (end != null) {

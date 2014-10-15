@@ -4,8 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaReference;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -13,22 +11,20 @@ import java.util.UUID;
  */
 public class Helper {
 
-    public static <A> void forall(List<A> in, final CallBackChain<A> each, final Callback<Throwable> end) {
+    public static <A> void forall(A[] in, final CallBackChain<A> each, final Callback<Throwable> end) {
         if (in == null) {
             return;
         }
-        final List<A> cloned = new ArrayList<A>(in);
-        final int max = cloned.size();
-        process(cloned, 0, max, each, end);
+        process(in, 0, each, end);
     }
 
-    private static <A> void process(final List<A> cloned, final int index, final int max, final CallBackChain<A> each, final Callback<Throwable> end) {
-        if (index >= max) {
+    private static <A> void process(final A[] arr, final int index, final CallBackChain<A> each, final Callback<Throwable> end) {
+        if (index >= arr.length) {
             if (end != null) {
                 end.on(null);
             }
         } else {
-            A obj = cloned.get(index);
+            A obj = arr[index];
             each.on(obj, new Callback<Throwable>() {
                 @Override
                 public void on(Throwable err) {
@@ -37,7 +33,7 @@ public class Helper {
                             end.on(err);
                         }
                     } else {
-                        process(cloned, index + 1, max, each, end);
+                        process(arr, index + 1, each, end);
                     }
                 }
             });
@@ -83,8 +79,8 @@ public class Helper {
         return path.length() > 0 && path.charAt(0) == pathSep;
     }
 
-    public static String path(KObject parent,MetaReference reference, KObject target){
-        return parent.path()+pathSep+reference.metaName()+pathIDOpen+target.key()+pathIDClose;
+    public static String path(KObject parent, MetaReference reference, KObject target) {
+        return parent.path() + pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;
     }
 
 }

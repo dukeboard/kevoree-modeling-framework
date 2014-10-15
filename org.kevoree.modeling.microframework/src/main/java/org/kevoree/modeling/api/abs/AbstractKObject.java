@@ -283,6 +283,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Object previous = factory().dimension().univers().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
                     if (previous == null) {
                         previous = new HashSet<String>();
+                        factory().dimension().univers().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), previous);
                     }
                     Set<String> previousList = (Set<String>) previous;
                     if (now() != factoryNow) {
@@ -365,8 +366,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
-        long previous = timeTree().resolve(now());
-        Object o = factory().dimension().univers().dataCache().getPayload(dimension(), previous, path(), metaReference.index());
+        Object o = factory().dimension().univers().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
         if (o instanceof String) {
             factory().lookup((String) o, new Callback<KObject>() {
                 @Override
@@ -380,15 +380,18 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 }
             });
         } else {
-            if (o instanceof List) {
-                List objs = (List) o;
-                Helper.forall(objs, new CallBackChain() {
+            if (o instanceof Set) {
+                Set<String> objs = (Set<String>) o;
+                String[] forArray = objs.toArray(new String[objs.size()]);
+                Helper.forall(forArray, new CallBackChain<String>() {
                     @Override
-                    public void on(Object o, Callback next) {
-                        if (callback != null) {
-                            callback.on((C) o);
-                        }
-                        next.on(null);
+                    public void on(String o, Callback next) {
+                        factory().lookup(o,(resolved)->{
+                            if (callback != null) {
+                                callback.on((C) resolved);
+                            }
+                            next.on(null);
+                        });
                     }
                 }, new Callback<Throwable>() {
                     @Override
@@ -399,7 +402,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                 });
             } else {
-                end.on(new Exception("Inconsistent storage, Internal Error"));
+                if (end != null) {
+                    end.on(new Exception("Inconsistent storage, Internal Error"));
+                }
             }
         }
     }

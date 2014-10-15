@@ -70,7 +70,7 @@ public class ModelTraceApplicator {
     }
 
     public void applyTraceSequence(final TraceSequence traceSeq, final Callback<Throwable> callback) {
-        Helper.forall(traceSeq.traces, (trace, next) -> applyTrace(trace, next), (t) -> {
+        Helper.forall(traceSeq.getTraces(), (trace, next) -> applyTrace(trace, next), (t) -> {
             if (t != null) {
                 callback.on(t);
             } else {

@@ -10,6 +10,8 @@ import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
+import java.util.List;
+
 /**
  * Created by duke on 10/10/14.
  */
@@ -88,6 +90,26 @@ public abstract class AbstractKView implements KView {
         dimension().univers().dataCache().put(dimension(), now(), obj.path(), obj);
         dimension().univers().dataCache().putTimeTree(dimension(), obj.path(), obj.timeTree());
         return obj;
+    }
+
+    @Override
+    public void root(KObject elem, Callback<Boolean> callback) {
+
+    }
+
+    @Override
+    public void select(String query, Callback<List<KObject>> callback) {
+
+    }
+
+    @Override
+    public void lookup(String path, Callback<KObject> callback) {
+
+    }
+
+    @Override
+    public void stream(String query, Callback<KObject> callback) {
+
     }
 
 }

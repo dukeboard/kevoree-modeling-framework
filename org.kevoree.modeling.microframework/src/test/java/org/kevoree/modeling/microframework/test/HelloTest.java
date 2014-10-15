@@ -40,6 +40,17 @@ public class HelloTest {
         assertTrue(child0.timeTree().last().equals(0l));
         assertTrue(child0.timeTree().first().equals(0l));
 
+        Node nodeT1 = t0.createNode();
+        nodeT1.setName("n1");
+        nodeT0.addChildren(nodeT1,(t)->{
+            System.out.println("Added");
+            System.out.println(nodeT1.path());
+        });
+
+        nodeT0.eachChildren((n)->{
+            System.out.println("Child="+n.path());
+        },null);
+
     }
 
 }
