@@ -1,6 +1,9 @@
 package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelSerializer;
+import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.util.Converters;
 
@@ -14,6 +17,7 @@ import java.io.*;
  */
 
 
+/*
 class ModelReferenceVisitor extends ModelVisitor {
     private PrintStream out;
     boolean isFirst = true;
@@ -24,35 +28,37 @@ class ModelReferenceVisitor extends ModelVisitor {
 
 
     @Override
-    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Result> visitor) {
         if (!isFirst) {
             out.print(",");
         } else {
             isFirst = false;
         }
         out.print("\"" + elem.path() + "\"");
-        continueVisit.on(null);
+        visitor.on(Result.CONTINUE);
     }
 
     @Override
-    public void beginVisitRef(MetaReference currentreference, Callback<Throwable> continueVisit, Callback<Boolean> skipElem) {
+    public void beginVisitRef(MetaReference currentreference, Callback<Result> visitor) {
         out.print(",\"" + currentreference.metaName() + "\":[");
         isFirst = true;
-        continueVisit.on(null);
+        visitor.on(Result.CONTINUE);
     }
 
     @Override
-    public void endVisitRef(String refName, Callback<Throwable> continueVisit) {
+    public void endVisitRef(MetaReference currentreference, Callback<Result> visitor) {
         out.print("]");
-        continueVisit.on(null);
+        visitor.on(Result.CONTINUE);
     }
 
-}
+}*/
 
 public class JSONModelSerializer implements ModelSerializer {
 
     @Override
     public void serialize(KObject model, final Callback<String> callback, final Callback<Throwable> error) {
+        /*
+
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         serializeToStream(model, outstream, new Callback<Throwable>() {
             @Override
@@ -69,10 +75,13 @@ public class JSONModelSerializer implements ModelSerializer {
                 }
             }
         });
+        */
     }
 
     @Override
     public void serializeToStream(KObject model, OutputStream raw, Callback<Throwable> error) {
+
+        /*
         final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
 
         //visitor for printing reference
@@ -82,47 +91,48 @@ public class JSONModelSerializer implements ModelSerializer {
             boolean isFirstInRef = true;
 
             @Override
-            public void beginVisitElem(KObject elem, Callback<Throwable> continueVisit, Callback<Boolean> skipElem) {
+            public void beginVisitElem(KObject elem, Callback<Result> visitor) {
                 if (!isFirstInRef) {
                     out.print(",");
                     isFirstInRef = false;
                 }
                 printAttName(elem, out);
-                elem.visitNotContained(internalReferenceVisitor,continueVisit);
+                elem.visitNotContained(internalReferenceVisitor, visitor);
             }
 
             @Override
-            public void endVisitElem(KObject elem, Callback<Throwable> continueVisit) {
+            public void endVisitElem(KObject elem, Callback<Result> visitor) {
                 out.println("}");
                 isFirstInRef = false;
-                continueVisit.on(null);
+                visitor.on(Result.CONTINUE);
             }
 
             @Override
-            public void beginVisitRef(MetaReference currentreference, Callback<Throwable> continueVisit, Callback<Boolean> skipElem) {
+            public void beginVisitRef(MetaReference currentreference, Callback<Result> visitor) {
                 out.print(",\"" + currentreference.metaName() + "\":[");
                 isFirstInRef = true;
-                continueVisit.on(null);
+                visitor.on(Result.CONTINUE);
             }
 
             @Override
-            public void endVisitRef(String refName, Callback<Throwable> continueVisit) {
+            public void endVisitRef(MetaReference currentreference, Callback<Result> visitor) {
                 out.print("]");
                 isFirstInRef = false;
             }
 
             @Override
-            public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
-
+            public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Result> visitor) {
+                visitor.on(Result.CONTINUE);
             }
         };
-        model.deepVisitContained(masterVisitor,new Callback<Throwable>() {
+        model.deepVisitContained(masterVisitor, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
                 out.flush();
                 error.on(throwable);
             }
         });
+        */
     }
 
     private void printAttName(KObject elem, final PrintStream out) {
@@ -131,7 +141,7 @@ public class JSONModelSerializer implements ModelSerializer {
             isRoot = "root:";
         }
         out.print("\n{\"class\":\"" + isRoot + elem.metaClass().metaName() + "@" + elem.key() + "\"");
-        elem.visitAttributes((name,value)->{
+        elem.visitAttributes((name, value) -> {
             if (value != null) {
                 out.print(",\"" + name + "\":\"");
                 if (value instanceof java.util.Date) {

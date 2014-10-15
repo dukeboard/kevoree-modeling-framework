@@ -55,19 +55,13 @@ public interface KObject<A extends KObject, B extends KView> {
     /* End Listener management */
 
     /* Visit API */
-    public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end);
-
-    public void visitContained(ModelVisitor visitor, Callback<Throwable> end);
-
-    public void visitAll(ModelVisitor visitor, Callback<Throwable> end);
-
-    public void deepVisitNotContained(ModelVisitor visitor, Callback<Throwable> end);
-
-    public void deepVisitContained(ModelVisitor visitor, Callback<Throwable> end);
-
-    public void deepVisitAll(ModelVisitor visitor, Callback<Throwable> end);
-
     public void visitAttributes(ModelAttributeVisitor visitor);
+
+    public void visit(ModelVisitor visitor, Callback<Throwable> end);
+
+    public void graphVisit(ModelVisitor visitor, Callback<Throwable> end);
+
+    public void treeVisit(ModelVisitor visitor, Callback<Throwable> end);
     /* End Visit API */
 
     /* Time navigation */
@@ -107,5 +101,7 @@ public interface KObject<A extends KObject, B extends KView> {
     public Object get(MetaAttribute attribute);
 
     public void set(MetaAttribute attribute, Object payload, boolean fireEvents);
+
+    public String toJSON();
 
 }

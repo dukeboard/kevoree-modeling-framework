@@ -47,15 +47,15 @@ public class DefaultModelSlicer implements ModelSlicer {
                     //We register this element as reachable
                     cache.put(elem.path(), elem);
                     //We continue to all reachable elements, potentially here we can exclude references
-                    elem.visitAll(new ModelVisitor() {
+                    elem.graphVisit(new ModelVisitor() {
                         @Override
-                        public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+                        public void visit(KObject elem, Callback<Result> visitor) {
                             if (cache.get(elem.path()) == null) {
                                 //break potential loop
                                 internal_prune(elem, traces, cache, parentMap, (t) -> {
                                 });
                             }
-                            continueVisit.on(null);
+                            visitor.on(Result.CONTINUE);
                         }
                     }, (t) -> {
                         callback.on(null);

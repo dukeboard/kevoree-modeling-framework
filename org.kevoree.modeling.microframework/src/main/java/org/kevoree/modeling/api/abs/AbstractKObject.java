@@ -119,7 +119,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     }
 
-
     @Override
     public boolean modelEquals(A similarObj) {
         return false;
@@ -222,7 +221,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void set(MetaAttribute attribute, Object payload, boolean fireEvents) {
-        factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), attribute.index(), payload);
+        factory().dimension().universe().dataCache().putPayload(dimension, factoryNow, path(), attribute.index(), payload);
         internalUpdateTimeTrees();
     }
 
@@ -290,13 +289,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         previousList = new HashSet<String>(previousList);
                         factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), previous);
                     }
-                    previousList.add(param.path());
                     internalUpdateTimeTrees();
+                    final Set<String> finalPreviousList = previousList;
                     attach(metaReference, param, fireEvent, (res) -> {
+                        finalPreviousList.add(param.path());
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
                         } else {
-                            if(callback!= null){
+                            if (callback != null) {
                                 callback.on(null);
                             }
                         }
@@ -308,9 +308,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent, callback);
                 } else {
                     Object previous = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
-                    factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), param.path());
                     internalUpdateTimeTrees();
                     attach(metaReference, param, fireEvent, (res) -> {
+                        factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), param.path());
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous == null) {
                                 param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
@@ -324,7 +324,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                 });
                             }
                         } else {
-                            if(callback!= null){
+                            if (callback != null) {
                                 callback.on(null);
                             }
                         }
@@ -339,7 +339,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
                         } else {
-                            if(callback!= null){
+                            if (callback != null) {
                                 callback.on(null);
                             }
                         }
@@ -358,13 +358,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             if (metaReference.opposite() != null && setOpposite) {
                                 param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
                             } else {
-                                if(callback!=null){
+                                if (callback != null) {
                                     callback.on(null);
                                 }
                             }
                         });
                     } else {
-                        if(callback!=null){
+                        if (callback != null) {
                             callback.on(null);
                         }
                     }
@@ -396,7 +396,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 Helper.forall(forArray, new CallBackChain<String>() {
                     @Override
                     public void on(String o, Callback next) {
-                        factory().lookup(o,(resolved)->{
+                        factory().lookup(o, (resolved) -> {
                             if (callback != null) {
                                 callback.on((C) resolved);
                             }
@@ -417,36 +417,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 }
             }
         }
-    }
-
-    @Override
-    public void visitNotContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void visitContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void visitAll(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void deepVisitNotContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void deepVisitContained(ModelVisitor visitor, Callback<Throwable> end) {
-
-    }
-
-    @Override
-    public void deepVisitAll(ModelVisitor visitor, Callback<Throwable> end) {
-
     }
 
     @Override
@@ -477,8 +447,146 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return null;
     }
 
-    private void internalVisit(boolean recursive, boolean onlyContained, ModelVisitor visitor, Callback<Throwable> end) {
+    public void visit(ModelVisitor visitor, Callback<Throwable> end) {
+        internal_visit(visitor, end, false, false, null);
+    }
 
+    private void internal_visit(ModelVisitor visitor, Callback<Throwable> end, boolean deep, boolean treeOnly, HashSet<String> alreadyVisited) {
+        if (alreadyVisited != null) {
+            alreadyVisited.add(path());
+        }
+        Helper.forall(metaReferences(), new CallBackChain<MetaReference>() {
+            @Override
+            public void on(MetaReference metaReference, Callback<Throwable> nextReference) {
+                if (treeOnly && !metaReference.contained()) {
+                    nextReference.on(null);
+                } else {
+                    Object o = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
+                    if (o instanceof String) {
+                        factory().lookup((String) o, (resolved) -> {
+                            visitor.visit(resolved, (res) -> {
+                                if (res.equals(ModelVisitor.Result.STOP)) {
+                                    end.on(null);
+                                } else {
+                                    if (deep) {
+                                        if (res.equals(ModelVisitor.Result.CONTINUE)) {
+                                            if (alreadyVisited == null || !alreadyVisited.contains(resolved.path())) {
+                                                ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
+                                                    nextReference.on(null);
+                                                }, deep, treeOnly, alreadyVisited);
+                                            } else {
+                                                nextReference.on(null);
+                                            }
+                                        } else {
+                                            nextReference.on(null);
+                                        }
+                                    } else {
+                                        nextReference.on(null);
+                                    }
+                                }
+                            });
+                        });
+                    } else if (o instanceof Set) {
+                        Set<String> elems = (Set<String>) o;
+                        final boolean[] aborded = {false};
+                        Helper.forall(elems.toArray(new String[elems.size()]), new CallBackChain<String>() {
+                            @Override
+                            public void on(String s, Callback<Throwable> nextElemInRef) {
+                                factory().lookup(s, (resolved) -> {
+                                    if (resolved == null) {
+                                        nextElemInRef.on(null);
+                                    } else {
+                                        visitor.visit(resolved, (res) -> {
+                                            if (res.equals(ModelVisitor.Result.STOP)) {
+                                                end.on(null);
+                                            } else {
+                                                if (res.equals(ModelVisitor.Result.SKIP)) {
+                                                    aborded[0] = true;
+                                                    nextReference.on(null);
+                                                } else {
+                                                    if (deep) {
+                                                        if (alreadyVisited == null || !alreadyVisited.contains(resolved.path())) {
+                                                            ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
+                                                                nextElemInRef.on(null);
+                                                            }, deep, treeOnly, alreadyVisited);
+                                                        } else {
+                                                            nextElemInRef.on(null);
+                                                        }
+                                                    } else {
+                                                        nextElemInRef.on(null);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }, new Callback<Throwable>() {
+                            @Override
+                            public void on(Throwable throwable) {
+                                if (!aborded[0]) {
+                                    nextReference.on(null);
+                                }
+                            }
+                        });
+                    } else if (o == null) {
+                        nextReference.on(null);
+                        //noop
+                    } else {
+                        end.on(new Exception("Internal error, " + o));
+                    }
+                }
+            }
+        }, end);
+    }
+
+    public void graphVisit(ModelVisitor visitor, Callback<Throwable> end) {
+        internal_visit(visitor, end, true, false, new HashSet<String>());
+    }
+
+    public void treeVisit(ModelVisitor visitor, Callback<Throwable> end) {
+        internal_visit(visitor, end, true, true, null);
+    }
+
+    public String toJSON() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(metaClass().metaName());
+        builder.append(": {\n");
+        for (int i = 0; i < metaAttributes().length; i++) {
+            Object payload = get(metaAttributes()[i]);
+            if (payload != null) {
+                builder.append("\t");
+                builder.append("\"");
+                builder.append(metaAttributes()[i].metaName());
+                builder.append("\":\"");
+                builder.append(payload);
+                builder.append("\",\n");
+            }
+        }
+        for (int i = 0; i < metaReferences().length; i++) {
+            Object payload = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReferences()[i].index());
+            if (payload != null) {
+                builder.append("\t");
+                builder.append("\"");
+                builder.append(metaReferences()[i].metaName());
+                builder.append("\":");
+                if (metaReferences()[i].single()) {
+                    builder.append("\"");
+                    builder.append(payload);
+                    builder.append("\"");
+                } else {
+                    builder.append(payload);
+                }
+                builder.append(",\n");
+            }
+        }
+        builder.append("}\n");
+        return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toJSON();
     }
 
 }

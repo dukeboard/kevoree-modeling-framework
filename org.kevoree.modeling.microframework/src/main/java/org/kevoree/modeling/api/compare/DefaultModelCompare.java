@@ -44,11 +44,11 @@ public class DefaultModelCompare implements ModelCompare {
         Map<String, KObject> objectsMap = new HashMap<String, KObject>();
         traces.addAll(origin.createTraces(target, inter, merge, false, true));
         tracesRef.addAll(origin.createTraces(target, inter, merge, true, false));
-        origin.deepVisitContained(new ModelVisitor() {
+        origin.treeVisit(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+            public void visit(KObject elem, Callback<Result> visitor) {
                 objectsMap.put(elem.path(), elem);
-                continueVisit.on(null);
+                visitor.on(Result.CONTINUE);
             }
         }, new Callback<Throwable>() {
             @Override
@@ -57,25 +57,29 @@ public class DefaultModelCompare implements ModelCompare {
                     throwable.printStackTrace();
                     callback.on(null);
                 } else {
-                    target.deepVisitContained(new ModelVisitor() {
+                    target.treeVisit(new ModelVisitor() {
                         @Override
-                        public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+                        public void visit(KObject elem, Callback<Result> visitor) {
                             String childPath = elem.path();
                             if (objectsMap.containsKey(childPath)) {
                                 if (inter) {
-                                    traces.add(new ModelAddTrace(parent.path(), currentReference.metaName(), elem.path(), elem.metaClass().metaName()));
+                                    //TODO
+                                    MetaReference currentReference = null;
+                                    traces.add(new ModelAddTrace(elem.parentPath(), currentReference.metaName(), elem.path(), elem.metaClass().metaName()));
                                 }
                                 traces.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, false, true));
                                 tracesRef.addAll(objectsMap.get(childPath).createTraces(elem, inter, merge, true, false));
                                 objectsMap.remove(childPath); //drop from to process elements
                             } else {
                                 if (!inter) {
-                                    traces.add(new ModelAddTrace(parent.path(), currentReference.metaName(), elem.path(), elem.metaClass().metaName()));
+                                    //TODO
+                                    MetaReference currentReference = null;
+                                    traces.add(new ModelAddTrace(elem.parentPath(), currentReference.metaName(), elem.path(), elem.metaClass().metaName()));
                                     traces.addAll(elem.createTraces(elem, true, merge, false, true));
                                     tracesRef.addAll(elem.createTraces(elem, true, merge, true, false));
                                 }
                             }
-                            continueVisit.on(null);
+                            visitor.on(Result.CONTINUE);
                         }
                     }, new Callback<Throwable>() {
                         @Override

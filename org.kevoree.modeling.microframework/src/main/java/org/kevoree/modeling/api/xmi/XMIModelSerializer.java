@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 * Date : 02/09/13
 */
 
+/*
 class ReferencesVisitor extends ModelVisitor {
 
     private SerializationContext context;
@@ -30,19 +31,19 @@ class ReferencesVisitor extends ModelVisitor {
     }
 
     @Override
-    public void endVisitRef(String refName, Callback<Throwable> continueVisit) {
+    public void endVisitRef(MetaReference currentReference, Callback<Result> visitor) {
         if (value != null) {
-            context.wt.print(" " + refName + "=\"" + value + "\"");
+            context.wt.print(" " + currentReference.metaName() + "=\"" + value + "\"");
             value = null;
         }
-        continueVisit.on(null);
+        visitor.on(Result.CONTINUE);
     }
 
     @Override
-    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Result> visitor) {
         String adjustedAddress = context.addressTable.get(elem);
         value = (value == null ? adjustedAddress : value + " " + adjustedAddress);
-        continueVisit.on(null);
+        visitor.on(Result.CONTINUE);
     }
 }
 
@@ -121,7 +122,7 @@ class ModelSerializationVisitor extends ModelVisitor {
     }
 
     @Override
-    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Result> visitor) {
         context.wt.print('<');
         context.wt.print(currentReference.metaName());
         context.wt.print(" xsi:type=\"" + formatMetaClassName(elem.metaClass().metaName()) + "\"");
@@ -130,20 +131,20 @@ class ModelSerializationVisitor extends ModelVisitor {
             @Override
             public void on(Throwable throwable) {
                 if (throwable != null) {
-                    continueVisit.on(throwable);
+                    visitor.on(Result.STOP);
                 } else {
                     context.wt.println('>');
                     elem.visitContained(referenceVisitor, new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable2) {
                             if (throwable2 != null) {
-                                continueVisit.on(throwable2);
+                                visitor.on(Result.STOP);
                             } else {
                                 context.wt.print("</");
                                 context.wt.print(currentReference.metaName());
                                 context.wt.print('>');
                                 context.wt.println();
-                                continueVisit.on(null);
+                                visitor.on(Result.CONTINUE);
                             }
                         }
                     });
@@ -163,7 +164,7 @@ class ModelAddressVisitor extends ModelVisitor {
     }
 
     @Override
-    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
+    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Result> visitor) {
         String parentXmiAddress = context.addressTable.get(parent);
         int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + currentReference.metaName(), (s) -> 0);
         context.addressTable.put(elem, parentXmiAddress + "/@" + currentReference.metaName() + "." + i);
@@ -172,9 +173,9 @@ class ModelAddressVisitor extends ModelVisitor {
         if (!context.packageList.contains(pack)) {
             context.packageList.add(pack);
         }
-        continueVisit.on(null);
+        visitor.on(Result.CONTINUE);
     }
-}
+}  */
 
 
 class SerializationContext {
@@ -212,6 +213,8 @@ public class XMIModelSerializer implements ModelSerializer {
 
     @Override
     public void serializeToStream(final KObject model, final OutputStream raw, final Callback<Throwable> finishCallback) {
+        /*
+
         executor.submit(() -> {
             SerializationContext context = new SerializationContext();
             context.model = model;
@@ -271,6 +274,7 @@ public class XMIModelSerializer implements ModelSerializer {
                 }
             });
         });
+        */
     }
 
     private String formatMetaClassName(String metaClassName) {

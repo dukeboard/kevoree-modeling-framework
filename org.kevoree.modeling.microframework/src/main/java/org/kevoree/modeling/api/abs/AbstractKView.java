@@ -104,11 +104,14 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void lookup(String path, Callback<KObject> callback) {
-        KObject resolved = dimension().universe().dataCache().get(dimension(),now(),path);
-        if(resolved!= null){
+        KObject resolved = dimension().universe().dataCache().get(dimension(), now(), path);
+        if (resolved != null) {
             callback.on(resolved);
         } else {
+            System.err.println("WARNING: not resolved path=" + path + ",dimension=" + dimension() + ", time=" + now());
             //TODO more complex
+
+            callback.on(null);
         }
     }
 
