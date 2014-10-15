@@ -22,11 +22,11 @@ public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject
 
 #foreach($rel in $classDeclaration.references)
 #if($rel.single)
-    public void set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value, org.kevoree.modeling.api.Callback<Boolean> callback);
+    public void set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value, org.kevoree.modeling.api.Callback<Throwable> callback);
     public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> _value);
 #{else}
-    public void add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value, org.kevoree.modeling.api.Callback<Boolean> callback);
-    public void remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value, org.kevoree.modeling.api.Callback<Boolean> callback);
+    public void add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value, org.kevoree.modeling.api.Callback<Throwable> callback);
+    public void remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value, org.kevoree.modeling.api.Callback<Throwable> callback);
     public void each${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> callback, org.kevoree.modeling.api.Callback<Throwable> end);
 #end
 #end
