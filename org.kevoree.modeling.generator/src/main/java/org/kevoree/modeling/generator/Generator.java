@@ -6,14 +6,14 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.MetaModelLanguageType;
 import org.kevoree.modeling.generator.misc.VelocityLog;
 import org.kevoree.modeling.util.StandaloneParser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class Generator {
 
@@ -32,8 +32,35 @@ public class Generator {
 
 
         File output = context.kmfSrcGenerationDirectory;
-        deleteDirectory(output);
-        output.mkdirs();
+        Files.walkFileTree(output.toPath(),new FileVisitor<Path>() {
+            @NotNull
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
+
+            @NotNull
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
+
+            @NotNull
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        Files.deleteIfExists(output.toPath());
+        Files.createDirectories(output.toPath());
+
 
         try {
 
@@ -53,58 +80,12 @@ public class Generator {
                 cgc.generationContext = context;
                 cgc.classDeclaration = context.classDeclarationsList.get(classDecl.getFqn());
 
+                Path apiFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
+                callVelocity(apiFilePath, "vTemplates/ClassTemplate.vm", cgc);
 
-                ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator));
-                File localFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
-                PrintWriter pr = null;
-                try {
-                    pr = new PrintWriter(localFile, "utf-8");
-                    VelocityEngine ve = new VelocityEngine();
-                    ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+                Path implFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
+                callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
 
-                    ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-                    ve.init();
-                    Template template = ve.getTemplate("vTemplates/ClassTemplate.vm");
-                    VelocityContext ctxV = new VelocityContext();
-                    ctxV.put("context", cgc);
-                    ctxV.put("FQNHelper",ProcessorHelper.getInstance());
-                    template.merge(ctxV, pr);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } finally {
-                    if(pr != null) {
-                        pr.flush();
-                        pr.close();
-                    }
-                }
-
-                ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl");
-                File implFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
-                PrintWriter implPr = null;
-                try {
-                    implPr = new PrintWriter(implFile, "utf-8");
-                    VelocityEngine ve = new VelocityEngine();
-                    ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
-
-                    ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-                    ve.init();
-                    Template template = ve.getTemplate("vTemplates/ClassImplTemplate.vm");
-                    VelocityContext ctxV = new VelocityContext();
-                    ctxV.put("context", cgc);
-                    ctxV.put("FQNHelper",ProcessorHelper.getInstance());
-                    template.merge(ctxV, implPr);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } finally {
-                    if(implPr != null) {
-                        implPr.flush();
-                        implPr.close();
-                    }
-                }
             });
 
 
@@ -115,126 +96,19 @@ public class Generator {
     }
 
     private void generateUtilities() {
-        generateUniverse();
-        generateDimension();
-        generateView();
-    }
 
-    private void generateUniverse() {
-        ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator));
-        File localFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "Universe.java");
-        PrintWriter pr = null;
-        try {
-            pr = new PrintWriter(localFile, "utf-8");
-            VelocityEngine ve = new VelocityEngine();
-            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+        Path universeFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "Universe.java");
+        callVelocity(universeFilePath, "vTemplates/UniverseTemplate.vm", context);
 
-            ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-            ve.init();
-            Template template = ve.getTemplate("vTemplates/UniverseTemplate.vm");
-            VelocityContext ctxV = new VelocityContext();
-            ctxV.put("context", context);
-            ctxV.put("FQNHelper",ProcessorHelper.getInstance());
-            template.merge(ctxV, pr);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } finally {
-            if(pr != null) {
-                pr.flush();
-                pr.close();
-            }
-        }
-    }
+        Path dimensionFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "Dimension.java");
+        callVelocity(dimensionFilePath, "vTemplates/DimensionTemplate.vm", context);
 
-    private void generateDimension() {
-        ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator));
-        File localFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "Dimension.java");
-        PrintWriter pr = null;
-        try {
-            pr = new PrintWriter(localFile, "utf-8");
-            VelocityEngine ve = new VelocityEngine();
-            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+        Path viewFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "View.java");
+        callVelocity(viewFilePath, "vTemplates/ViewTemplate.vm", context);
 
-            ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-            ve.init();
-            Template template = ve.getTemplate("vTemplates/DimensionTemplate.vm");
-            VelocityContext ctxV = new VelocityContext();
-            ctxV.put("context", context);
-            ctxV.put("FQNHelper",ProcessorHelper.getInstance());
-            template.merge(ctxV, pr);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } finally {
-            if(pr != null) {
-                pr.flush();
-                pr.close();
-            }
-        }
-    }
+        Path viewImplFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + "impl" + File.separator + context.getMetaModelName() + "ViewImpl.java");
+        callVelocity(viewImplFilePath, "vTemplates/ViewImplTemplate.vm", context);
 
-    private void generateView() {
-        ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator));
-        File localFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "View.java");
-        PrintWriter pr = null;
-        try {
-            pr = new PrintWriter(localFile, "utf-8");
-            VelocityEngine ve = new VelocityEngine();
-            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
-
-            ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-            ve.init();
-            Template template = ve.getTemplate("vTemplates/ViewTemplate.vm");
-            VelocityContext ctxV = new VelocityContext();
-            ctxV.put("context", context);
-            ctxV.put("FQNHelper",ProcessorHelper.getInstance());
-            template.merge(ctxV, pr);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } finally {
-            if(pr != null) {
-                pr.flush();
-                pr.close();
-            }
-        }
-
-
-        generateViewImpl();
-
-    }
-
-
-    private void generateViewImpl() {
-        ProcessorHelper.getInstance().checkOrCreateFolder(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + "impl");
-        File localFile = new File(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + "impl" + File.separator + context.getMetaModelName() + "ViewImpl.java");
-        PrintWriter pr = null;
-        try {
-            pr = new PrintWriter(localFile, "utf-8");
-            VelocityEngine ve = new VelocityEngine();
-            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
-
-            ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-            ve.init();
-            Template template = ve.getTemplate("vTemplates/ViewImplTemplate.vm");
-            VelocityContext ctxV = new VelocityContext();
-            ctxV.put("context", context);
-            ctxV.put("FQNHelper",ProcessorHelper.getInstance());
-            template.merge(ctxV, pr);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } finally {
-            if(pr != null) {
-                pr.flush();
-                pr.close();
-            }
-        }
     }
 
     private boolean deleteDirectory(File path) {
@@ -250,5 +124,33 @@ public class Generator {
         }
         return (path.delete());
     }
+
+
+    private void callVelocity(Path location, String templateRelativePath, Object context) {
+        ProcessorHelper.getInstance().checkOrCreateFolder(location.getParent());
+        File localFile = location.toFile();
+        PrintWriter pr = null;
+        try {
+            pr = new PrintWriter(localFile, "utf-8");
+            VelocityEngine ve = new VelocityEngine();
+            ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, VelocityLog.INSTANCE);
+
+            ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
+            ve.init();
+            Template template = ve.getTemplate(templateRelativePath);
+            VelocityContext ctxV = new VelocityContext();
+            ctxV.put("context", context);
+            template.merge(ctxV, pr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(pr != null) {
+                pr.flush();
+                pr.close();
+            }
+        }
+    }
+
+
 
 }

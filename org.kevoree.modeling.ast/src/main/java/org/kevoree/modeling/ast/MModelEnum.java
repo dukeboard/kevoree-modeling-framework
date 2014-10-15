@@ -7,28 +7,10 @@ import java.util.*;
  */
 public class MModelEnum  extends MModelClassifier{
 
-    private String name;
-    private String pack = null;
     private SortedSet<String> litterals = new TreeSet<>();
 
     public MModelEnum(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPack() {
-        return pack;
-    }
-
-    public void setPack(String pack) {
-        this.pack = pack;
-    }
-
-    public String getFqn() {
-        return (pack != null ? pack+"."+name:name);
     }
 
     public void addLitteral(String lit) {
@@ -38,7 +20,6 @@ public class MModelEnum  extends MModelClassifier{
     public SortedSet<String> getLitterals() {
         return litterals;
     }
-
 
 
 }

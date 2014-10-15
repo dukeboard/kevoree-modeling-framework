@@ -1,6 +1,6 @@
 package org.kevoree.modeling.generator;
 
-import org.kevoree.modeling.ast.MModelClass;
+import org.kevoree.modeling.ast.MModelClassifier;
 
 import java.io.File;
 import java.util.HashMap;
@@ -29,11 +29,11 @@ public class GenerationContext {
     /*
     GENERATION DATA
     */
-    public HashMap<String, MModelClass> classDeclarationsList = new HashMap<>();
+    public HashMap<String, MModelClassifier> classDeclarationsList = new HashMap<>();
     public ProcessorHelper helper = ProcessorHelper.getInstance();
 
 
-    public HashMap<String, MModelClass> getClassDeclarationsList() {
+    public HashMap<String, MModelClassifier> getClassDeclarationsList() {
         return classDeclarationsList;
     }
 

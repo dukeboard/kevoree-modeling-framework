@@ -28,7 +28,7 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
 
         String classFqn = o.getTypeDeclaration().getName();
 
-        MModelClass thisClassDeclaration = context.classDeclarationsList.computeIfAbsent(classFqn, (t) -> {
+        MModelClass thisClassDeclaration = (MModelClass) context.classDeclarationsList.computeIfAbsent(classFqn, (t) -> {
             String classPackage = classFqn.substring(0, classFqn.lastIndexOf("."));
             String className = classFqn.substring(classFqn.lastIndexOf(".") + 1);
             MModelClass cls = new MModelClass(className);
@@ -61,7 +61,7 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
                 } else {
 
                     String relationTypeFqn = relationDecl.getTypeDeclaration().getName();
-                    MModelClass relationType = context.classDeclarationsList.computeIfAbsent(relationTypeFqn, (t) -> {
+                    MModelClass relationType = (MModelClass) context.classDeclarationsList.computeIfAbsent(relationTypeFqn, (t) -> {
                         String relationTypePackage = relationTypeFqn.substring(0, relationTypeFqn.lastIndexOf("."));
                         String relationTypeName = relationTypeFqn.substring(relationTypeFqn.lastIndexOf(".") + 1);
                         MModelClass cls = new MModelClass(relationTypeName);
@@ -93,7 +93,7 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
             o.getParentsDeclaration().getTypeDeclarationList().forEach(parent -> {
 
                 String parentTypeFqn = parent.getName();
-                MModelClass parentType = context.classDeclarationsList.computeIfAbsent(parentTypeFqn, (t) -> {
+                MModelClass parentType = (MModelClass) context.classDeclarationsList.computeIfAbsent(parentTypeFqn, (t) -> {
                     String parentTypePackage = parentTypeFqn.substring(0, parentTypeFqn.lastIndexOf("."));
                     String parentTypeName = parentTypeFqn.substring(parentTypeFqn.lastIndexOf(".") + 1);
                     MModelClass cls = new MModelClass(parentTypeName);

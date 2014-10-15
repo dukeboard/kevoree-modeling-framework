@@ -5,9 +5,10 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
 #set($relIdx = 0)
 #set($relIdxMax = $context.classDeclaration.references.size() - 1)
 #foreach($rel in $context.classDeclaration.references)
-    ${rel.getName().toUpperCase()}("$rel.getName()",$relIdx,#if($rel.contained)true#{else}false#end, #if($rel.single)true#{else}false#end, ${context.generationContext.metaModelName}View.METACLASSES.${rel.getType().getFqn().toUpperCase().replace(".","_")}, #if(!$rel.opposite)null#{else}${rel.opposite.type.getFqn()}.METAREFERENCES.${rel.opposite.name.toUpperCase()}#end)#if($relIdx < $relIdxMax),
+    ${rel.getName().toUpperCase()}("$rel.getName()",$enumIdx,#if($rel.contained)true#{else}false#end, #if($rel.single)true#{else}false#end, ${context.generationContext.metaModelName}View.METACLASSES.${rel.getType().getFqn().toUpperCase().replace(".","_")}, #if(!$rel.opposite)null#{else}${rel.opposite.type.getFqn()}.METAREFERENCES.${rel.opposite.name.toUpperCase()}#end)#if($relIdx < $relIdxMax),
 #{else};
 #end
+    #set($enumIdx = $enumIdx + 1)
     #set($relIdx = $relIdx + 1)
 #end
 #end

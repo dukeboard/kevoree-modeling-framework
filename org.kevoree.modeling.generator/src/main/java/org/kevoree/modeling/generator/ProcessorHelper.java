@@ -17,10 +17,17 @@
  */
 package org.kevoree.modeling.generator;
 
+import org.kevoree.modeling.ast.MModelAttribute;
 import org.kevoree.modeling.ast.MModelClass;
+import org.kevoree.modeling.ast.MModelClassifier;
+import org.kevoree.modeling.ast.MModelReference;
 import org.kevoree.modeling.idea.psi.MetaModelTypeDeclaration;
+import org.kevoree.modeling.util.PrimitiveTypes;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,38 +46,67 @@ public class ProcessorHelper {
         return INSTANCE;
     }
 
-    public void checkOrCreateFolder(String path) {
-        File file = new File(path);
-        if (!file.exists()) file.mkdirs();
+    public void checkOrCreateFolder(Path path) {
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //if (!file.exists()) file.mkdirs();
     }
 
     public boolean isPrimitive(MetaModelTypeDeclaration tDecl) {
-        switch(tDecl.getName()) {
-            case "String":case "Int":return true;
-            default:return false;
-        }
+        return PrimitiveTypes.isPrimitive(tDecl.getName());
     }
 
 
-    public void consolidateEnumIndexes(HashMap<String, MModelClass> enumIndexes) {
-        ArrayList<MModelClass> consolidated = new ArrayList<>();
-        enumIndexes.forEach((clazz,decl)->{if(!consolidated.contains(decl)){consolidate(decl,enumIndexes, consolidated);}});
+    public void consolidateEnumIndexes(HashMap<String, MModelClassifier> enumIndexes) {
+        ArrayList<MModelClassifier> consolidated = new ArrayList<>();
+        enumIndexes.forEach((clazz,decl)->{
+            if(decl == null) {
+                throw new NullPointerException("Classifier Null for FQN:" + clazz);
+            }
+            if(!consolidated.contains(decl)){
+                consolidate(decl, consolidated);
+            }
+        });
     }
 
-    private void consolidate(MModelClass classRelDecls, HashMap<String, MModelClass> enumIndexes, ArrayList<MModelClass> consolidated) {
-        if(!consolidated.contains(classRelDecls)){
-            classRelDecls.sortAttributes();
-            classRelDecls.sortReferences();
-            classRelDecls.getParents().forEach(parent->{
-                MModelClass parentDecl = enumIndexes.get(parent);
-                if(!consolidated.contains(classRelDecls)) {
-                    //TODO: Circularity check and cut
-                    consolidate(parentDecl, enumIndexes, consolidated);
-                }
-                //TODO: Diamond inheritance check and merge
-                classRelDecls.getAttributes().addAll(0, parentDecl.getAttributes());
-                classRelDecls.getReferences().addAll(0, parentDecl.getReferences());
-            });
+    private void consolidate(MModelClassifier classifierRelDecls, ArrayList<MModelClassifier> consolidated) {
+        if(!consolidated.contains(classifierRelDecls)){
+            if(classifierRelDecls instanceof MModelClass) {
+                MModelClass classRelDecls = (MModelClass) classifierRelDecls;
+                classRelDecls.sortAttributes();
+                classRelDecls.sortReferences();
+
+                ArrayList<MModelAttribute> parentsAttributes = new ArrayList<>();
+                ArrayList<MModelReference> parentsReferences = new ArrayList<>();
+
+                classRelDecls.getParents().forEach(parent -> {
+                    if (!consolidated.contains(classRelDecls)) {
+                        //TODO: Circularity check and cut
+                        consolidate(parent, consolidated);
+                    }
+                    //TODO: Diamond inheritance check and merge
+                    parent.getAttributes().forEach(parentAttribute-> {
+                        if(!parentsAttributes.contains(parentAttribute)){
+                            parentsAttributes.add(parentAttribute);
+                        }
+                    });
+
+                    parent.getReferences().forEach(parentReference-> {
+                        if(!parentsReferences.contains(parentReference)){
+                            parentsReferences.add(parentReference);
+                        }
+                    });
+
+                });
+                classRelDecls.getAttributes().addAll(0, parentsAttributes);
+                classRelDecls.getReferences().addAll(0, parentsReferences);
+            } else {
+                throw new UnsupportedOperationException("Enums not yet supported:" + classifierRelDecls.getClass());
+            }
+            consolidated.add(classifierRelDecls);
         }
     }
 

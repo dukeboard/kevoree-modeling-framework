@@ -2,6 +2,7 @@ package $context.classDeclaration.pack;
 
 public interface $context.classDeclaration.name extends org.kevoree.modeling.api.KObject<$context.classDeclaration.name, ${context.generationContext.metaModelName}View> {
 
+#set($enumIdx = 0)
 #parse("vTemplates/MetaAttributesTemplate.vm")
 
 #parse("vTemplates/MetaReferencesTemplate.vm")
@@ -9,7 +10,6 @@ public interface $context.classDeclaration.name extends org.kevoree.modeling.api
 #foreach($attribute in $context.classDeclaration.attributes)
     public $attribute.getType() get${context.generationContext.helper.toCamelCase($attribute.getName())}();
     public ${context.classDeclaration.pack}.${context.classDeclaration.name} set${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
-
 #end
 }
 

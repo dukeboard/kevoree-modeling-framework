@@ -7,31 +7,12 @@ import java.util.*;
  */
 public class MModelClass extends MModelClassifier{
 
-    private String name;
-    private String pack = null;
-
     private ArrayList<MModelAttribute> attributes = new ArrayList<>();
     private ArrayList<MModelReference> references = new ArrayList<>();
     private List<MModelClass> parents = new ArrayList<>();
 
     public MModelClass(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPack() {
-        return pack;
-    }
-
-    public void setPack(String pack) {
-        this.pack = pack;
-    }
-
-    public String getFqn() {
-       return (pack != null ? pack+"."+name:name);
     }
 
     public void addAttribute(MModelAttribute att) {
@@ -65,8 +46,5 @@ public class MModelClass extends MModelClassifier{
         return parents;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof MModelClass && this.getFqn().equals(((MModelClass)obj).getFqn());
-    }
+
 }

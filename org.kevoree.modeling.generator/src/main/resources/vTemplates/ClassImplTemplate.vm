@@ -11,15 +11,12 @@ public class ${context.classDeclaration.name}Impl extends org.kevoree.modeling.a
         return METAATTRIBUTES.values();
     }
 
-    private final org.kevoree.modeling.api.meta.MetaReference[] metaReferences = new org.kevoree.modeling.api.meta.MetaReference[0];
-
     @Override
     public org.kevoree.modeling.api.meta.MetaReference[] metaReferences() {
-        return metaReferences;
+        return METAREFERENCES.values();
     }
 
 #foreach($attribute in $context.classDeclaration.attributes)
-
     @Override
     public ${attribute.getType()} get${context.generationContext.helper.toCamelCase($attribute.getName())}() {
         return ($attribute.getType()) get(METAATTRIBUTES.$attribute.getName().toUpperCase());
