@@ -134,7 +134,7 @@ public class JSONModelLoader implements ModelLoader {
                                             context.resolveCommands.add(new ResolveCommand(context, currentToken.getValue().toString(), currentObject, currentNameAttOrRef));
                                         } else {
                                             String unscaped = JSONString.unescape(currentToken.getValue().toString());
-                                            currentObject.mutate(KActionType.SET, currentObject.metaReference(currentNameAttOrRef), unscaped, false, false);
+                                            currentObject.set(currentObject.metaAttribute(currentNameAttOrRef), unscaped,false);
                                             currentNameAttOrRef = null; //unpop
                                         }
                                     }
@@ -156,7 +156,7 @@ public class JSONModelLoader implements ModelLoader {
                                 }
                                 if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
                                     if (parent != null) {
-                                        parent.mutate(KActionType.ADD, parent.metaReference(nameInParent), currentObject, false, false);
+                                        parent.mutate(KActionType.ADD, parent.metaReference(nameInParent), currentObject, false, false,null);
                                     }
                                     return; //go out
                                 }

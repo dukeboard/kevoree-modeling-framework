@@ -1,8 +1,6 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KActionType;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -131,7 +129,7 @@ public class XMIModelLoader implements ModelLoader {
     private Runnable createLoadingTask(final InputStream inputStream, final Callback<KObject> callback, final Callback<Throwable> error) {
         return () -> {
             XmlParser parser = new XmlParser(inputStream);
-            if(!parser.hasNext()) {
+            if (!parser.hasNext()) {
                 error.on(new Exception("Empty stream. Can not load model."));
             } else {
                 LoadingContext context = new LoadingContext();
@@ -148,7 +146,7 @@ public class XMIModelLoader implements ModelLoader {
     }
 
 
-    private void deserialize(LoadingContext context){
+    private void deserialize(LoadingContext context) {
         try {
             String nsURI;
             XmlParser reader = context.xmiReader;
@@ -201,7 +199,7 @@ public class XMIModelLoader implements ModelLoader {
             resourceSet!!.registerXmiAddrMappedObjects(nsURI!!, context.map)
         }*/
             context.successCallback.on(context.loadedRoots.get(0));
-        } catch(Exception e) {
+        } catch (Exception e) {
             context.errorCallback.on(e);
         }
     }
@@ -212,7 +210,7 @@ public class XMIModelLoader implements ModelLoader {
             modelElem = factory.createFQN(objectType);
             if (modelElem == null) {
                 String xsiType = null;
-                for(int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1) ; i++) {
+                for (int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
                     String localName = ctx.xmiReader.getAttributeLocalName(i);
                     String xsi = ctx.xmiReader.getAttributePrefix(i);
                     if (localName.equals(LOADER_XMI_LOCAL_NAME) && xsi.equals(LOADER_XMI_XSI)) {
@@ -263,24 +261,23 @@ public class XMIModelLoader implements ModelLoader {
 
 
         /* Read attributes and References */
-        for(int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
+        for (int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
             String prefix = ctx.xmiReader.getAttributePrefix(i);
             if (prefix == null || prefix.equals("")) {
                 String attrName = ctx.xmiReader.getAttributeLocalName(i).trim();
                 String valueAtt = ctx.xmiReader.getAttributeValue(i).trim();
-                if ( valueAtt != null) {
-
+                if (valueAtt != null) {
                     String[] referenceArray = valueAtt.split(" ");
-                    if(referenceArray.length > 1) {
+                    if (referenceArray.length > 1) {
                         String xmiRef = referenceArray[0];
-                        for(int j = 0; j < referenceArray.length; j++) {
-                            String adjustedRef = (xmiRef.startsWith("#")?xmiRef.substring(1):xmiRef);
+                        for (int j = 0; j < referenceArray.length; j++) {
+                            String adjustedRef = (xmiRef.startsWith("#") ? xmiRef.substring(1) : xmiRef);
 
-                            adjustedRef = (adjustedRef.startsWith("//")?"/0" + adjustedRef.substring(1):adjustedRef);
+                            adjustedRef = (adjustedRef.startsWith("//") ? "/0" + adjustedRef.substring(1) : adjustedRef);
                             adjustedRef = adjustedRef.replace(".0", "");
                             KObject ref = ctx.map.get(adjustedRef);
-                            if ( ref != null) {
-                                modelElem.mutate(KActionType.ADD, attrName, ref, true, false);
+                            if (ref != null) {
+                                modelElem.mutate(KActionType.ADD, modelElem.metaReference(attrName), ref, true, false, null);
                             } else {
                                 ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, KActionType.ADD, attrName, adjustedRef));
                             }
@@ -290,7 +287,7 @@ public class XMIModelLoader implements ModelLoader {
                         if (!valueAtt.startsWith("#") && !valueAtt.startsWith("/")) {
                             throw new UnsupportedOperationException("ResourceSet not supported " + valueAtt);
                         } else {
-                            modelElem.mutate(KActionType.ADD, attrName, (unescapeXml(valueAtt)), false, false);
+                            modelElem.set(modelElem.metaAttribute(attrName), unescapeXml(valueAtt), false);
                             if (namedElementSupportActivated && attrName.equals("name")) {
                                 KObject parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")));
                                 ctx.map.entrySet().forEach(entry -> {
@@ -309,15 +306,15 @@ public class XMIModelLoader implements ModelLoader {
         boolean done = false;
         while (!done) {
             switch (ctx.xmiReader.next()) {
-                case START_TAG : {
+                case START_TAG: {
                     String subElemName = ctx.xmiReader.getLocalName();
-                    int i = ctx.elementsCount.computeIfAbsent(xmiAddress + "/@" + subElemName, (s)->0);
-                    String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i:"");
+                    int i = ctx.elementsCount.computeIfAbsent(xmiAddress + "/@" + subElemName, (s) -> 0);
+                    String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
                     KObject containedElement = loadObject(ctx, subElementId, subElemName);
-                    modelElem.mutate(KActionType.ADD, subElemName, containedElement, true, false);
+                    modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true, false, null);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
                 }
-                case END_TAG : {
+                case END_TAG: {
                     if (ctx.xmiReader.getLocalName().equals(elementTagName)) {
                         done = true;
                     }

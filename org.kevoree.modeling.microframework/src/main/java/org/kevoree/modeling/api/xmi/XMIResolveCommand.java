@@ -22,13 +22,13 @@ public class XMIResolveCommand {
     void run() throws Exception {
         KObject referencedElement = context.map.get(ref);
         if (referencedElement != null) {
-            target.mutate(mutatorType, refName, referencedElement, true, false);
+            target.mutate(mutatorType, target.metaReference(refName), referencedElement, true, false,null);
             return;
         }
         if (ref.equals("/0/") || ref.equals("/")) {
             referencedElement = context.map.get("/0");
             if (referencedElement != null) {
-                target.mutate(mutatorType, refName, referencedElement, true, false);
+                target.mutate(mutatorType, target.metaReference(refName), referencedElement, true, false,null);
                 return;
             }
         }

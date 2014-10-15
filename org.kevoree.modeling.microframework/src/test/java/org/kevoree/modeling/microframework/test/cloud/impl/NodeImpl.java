@@ -38,7 +38,7 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public Node setName(String name) {
-        set(METAATTRIBUTES.NAME, name);
+        set(METAATTRIBUTES.NAME, name,true);
         return this;
     }
 
@@ -49,17 +49,17 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public Node setValue(String name) {
-        set(METAATTRIBUTES.VALUE, name);
+        set(METAATTRIBUTES.VALUE, name,true);
         return this;
     }
 
     @Override
-    public void addChildren(Node obj, Callback<Boolean> callback) {
+    public void addChildren(Node obj, Callback<Throwable> callback) {
         mutate(KActionType.ADD, METAREFERENCES.CHILDREN, obj, true, true, callback);
     }
 
     @Override
-    public void removeChildren(Node obj, Callback<Boolean> callback) {
+    public void removeChildren(Node obj, Callback<Throwable> callback) {
         mutate(KActionType.REMOVE, METAREFERENCES.CHILDREN, obj, true, true, callback);
     }
 
@@ -69,7 +69,7 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     }
 
     @Override
-    public void setElement(Element obj, Callback<Boolean> callback) {
+    public void setElement(Element obj, Callback<Throwable> callback) {
         mutate(KActionType.SET, METAREFERENCES.ELEMENT, obj, true, true, callback);
     }
 
