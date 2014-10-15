@@ -1,19 +1,19 @@
-package org.kevoree.modeling.api.util;
+package org.kevoree.modeling.api;
 
 /**
  * Created by duke on 10/2/14.
  */
-public enum ActionType {
+public enum KActionType {
 
     SET("S"),
-    ADD("a"),
-    REMOVE("r"),
+    ADD("A"),
+    REMOVE("R"),
     RENEW_INDEX("I"),
     CONTROL("C");
 
     private String code = "";
 
-    ActionType(String code) {
+    KActionType(String code) {
         this.code = code;
     }
 

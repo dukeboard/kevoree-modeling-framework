@@ -2,13 +2,12 @@ package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.KActionType;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -281,9 +280,9 @@ public class XMIModelLoader implements ModelLoader {
                             adjustedRef = adjustedRef.replace(".0", "");
                             KObject ref = ctx.map.get(adjustedRef);
                             if ( ref != null) {
-                                modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, attrName, ref, true, false);
+                                modelElem.mutate(KActionType.ADD, attrName, ref, true, false);
                             } else {
-                                ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, org.kevoree.modeling.api.util.ActionType.ADD, attrName, adjustedRef));
+                                ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, KActionType.ADD, attrName, adjustedRef));
                             }
                         }
                     } else {
@@ -291,7 +290,7 @@ public class XMIModelLoader implements ModelLoader {
                         if (!valueAtt.startsWith("#") && !valueAtt.startsWith("/")) {
                             throw new UnsupportedOperationException("ResourceSet not supported " + valueAtt);
                         } else {
-                            modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, attrName, (unescapeXml(valueAtt)), false, false);
+                            modelElem.mutate(KActionType.ADD, attrName, (unescapeXml(valueAtt)), false, false);
                             if (namedElementSupportActivated && attrName.equals("name")) {
                                 KObject parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")));
                                 ctx.map.entrySet().forEach(entry -> {
@@ -315,7 +314,7 @@ public class XMIModelLoader implements ModelLoader {
                     int i = ctx.elementsCount.computeIfAbsent(xmiAddress + "/@" + subElemName, (s)->0);
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i:"");
                     KObject containedElement = loadObject(ctx, subElementId, subElemName);
-                    modelElem.mutate(org.kevoree.modeling.api.util.ActionType.ADD, subElemName, containedElement, true, false);
+                    modelElem.mutate(KActionType.ADD, subElemName, containedElement, true, false);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
                 }
                 case END_TAG : {

@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.util.Helper;
 
 import java.util.List;
@@ -184,7 +184,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public void mutate(ActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent) {
+    public void mutate(KActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent) {
 
     }
 

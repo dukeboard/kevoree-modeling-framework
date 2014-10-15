@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.trace;
 
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 
 /**
  * Created by duke on 10/2/14.
@@ -11,9 +11,9 @@ public interface ModelTrace {
 
     public void setRefName(String refName);
 
-    public ActionType getTraceType();
+    public KActionType getTraceType();
 
-    public void setTraceType(ActionType traceType);
+    public void setTraceType(KActionType traceType);
 
     public String getSrcPath();
 

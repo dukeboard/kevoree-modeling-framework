@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.Token;
 import org.kevoree.modeling.api.json.Type;
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.util.Converters;
 
 import java.util.*;
@@ -69,7 +69,7 @@ public class TraceSequence {
                 if (traceTypeRead == null) {
                     traceTypeRead = previousControlTypeName;
                 }
-                if (traceTypeRead.equals(ActionType.CONTROL.toString())) {
+                if (traceTypeRead.equals(KActionType.CONTROL.toString())) {
                     String src = keys.get(ModelTraceConstants.src.toString());
                     if (src != null) {
                         previousControlSrc = JSONString.unescape(src);
@@ -79,7 +79,7 @@ public class TraceSequence {
                         previousControlTypeName = globalTypeName;
                     }
                 }
-                if (traceTypeRead.equals(ActionType.SET.toString())) {
+                if (traceTypeRead.equals(KActionType.SET.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     if (srcFound == null) {
                         srcFound = previousControlSrc;
@@ -88,7 +88,7 @@ public class TraceSequence {
                     }
                     traces.add(new ModelSetTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.objpath.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString())), JSONString.unescape(keys.get(ModelTraceConstants.typename.toString()))));
                 }
-                if (traceTypeRead.equals(ActionType.ADD.toString())) {
+                if (traceTypeRead.equals(KActionType.ADD.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     if (srcFound == null) {
                         srcFound = previousControlSrc;
@@ -108,7 +108,7 @@ public class TraceSequence {
                     traces.add(new ModelAddAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.content.toString())).split(";"), JSONString.unescape(keys.get(ModelTraceConstants.typename.toString())).split(";")));
                 }
                 */
-                if (traceTypeRead.equals(ActionType.RENEW_INDEX.toString())) {
+                if (traceTypeRead.equals(KActionType.RENEW_INDEX.toString())) {
                 }
                 /*
                 if (traceTypeRead.equals(ActionType.REMOVE_ALL.toString())) {
@@ -121,7 +121,7 @@ public class TraceSequence {
                     traces.add(new ModelRemoveAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString())));
                 }
                 */
-                if (traceTypeRead.equals(ActionType.REMOVE.toString())) {
+                if (traceTypeRead.equals(KActionType.REMOVE.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     if (srcFound == null) {
                         srcFound = previousControlSrc;

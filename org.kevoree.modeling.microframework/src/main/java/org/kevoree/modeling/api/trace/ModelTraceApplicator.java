@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.util.Helper;
 
 /**
@@ -31,7 +31,7 @@ public class ModelTraceApplicator {
 
     private void tryClosePending(String srcPath) {
         if (pendingObj != null && !(pendingObjPath.equals(srcPath))) {
-            pendingParent.mutate(ActionType.ADD, pendingParentRefName, pendingObj, true, fireEvents);
+            pendingParent.mutate(KActionType.ADD, pendingParentRefName, pendingObj, true, fireEvents);
             pendingObj = null;
             pendingObjPath = null;
             pendingParentRefName = null;
@@ -43,7 +43,7 @@ public class ModelTraceApplicator {
         if (previousPath != null) {
             targetModel.factory().lookup(previousPath, (targetElem) -> {
                 if (targetElem != null) {
-                    target.mutate(ActionType.ADD, refName, targetElem, true, fireEvents);
+                    target.mutate(KActionType.ADD, refName, targetElem, true, fireEvents);
                     callback.on(null);
                 } else {
                     if (potentialTypeName == null) {
@@ -98,7 +98,7 @@ public class ModelTraceApplicator {
             targetModel.factory().lookup(trace.getSrcPath(), (targetElem) -> {
                 if (targetElem != null) {
                     targetModel.factory().lookup(removeTrace.getObjPath(), (remoteObj) -> {
-                        targetElem.mutate(ActionType.REMOVE, trace.getRefName(), remoteObj, true, fireEvents);
+                        targetElem.mutate(KActionType.REMOVE, trace.getRefName(), remoteObj, true, fireEvents);
                         callback.on(null);
                     });
                 } else {
@@ -114,19 +114,19 @@ public class ModelTraceApplicator {
                         callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                     } else {
                         if (setTrace.getContent() != null) {
-                            tempObject.mutate(ActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
+                            tempObject.mutate(KActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
                             callback.on(null);
                         } else {
                             if (setTrace.getObjPath() != null) {
                                 targetModel.factory().lookup(setTrace.getObjPath(), (targetObj) -> {
                                     if (targetObj != null) {
-                                        tempObject.mutate(ActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
+                                        tempObject.mutate(KActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
                                         callback.on(null);
                                     } else {
                                         if (trace.getTraceType() != null) {
                                             createOrAdd(setTrace.getObjPath(), tempObject, trace.getRefName(), setTrace.getTypeName(), callback); //must create the pending element
                                         } else {
-                                            tempObject.mutate(ActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
+                                            tempObject.mutate(KActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
                                             callback.on(null);
                                         }
                                     }
@@ -140,19 +140,19 @@ public class ModelTraceApplicator {
                     callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
                 } else {
                     if (setTrace.getContent() != null) {
-                        pendingObj.mutate(ActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
+                        pendingObj.mutate(KActionType.SET, setTrace.getRefName(), setTrace.getContent(), true, fireEvents);
                         callback.on(null);
                     } else {
                         if (setTrace.getObjPath() != null) {
                             targetModel.factory().lookup(setTrace.getObjPath(), (targetObj) -> {
                                 if (targetObj != null) {
-                                    pendingObj.mutate(ActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
+                                    pendingObj.mutate(KActionType.SET, trace.getRefName(), targetObj, true, fireEvents);
                                     callback.on(null);
                                 } else {
                                     if (trace.getTraceType() != null) {
                                         createOrAdd(setTrace.getObjPath(), pendingObj, trace.getRefName(), setTrace.getTypeName(), callback); //must create the pending element
                                     } else {
-                                        pendingObj.mutate(ActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
+                                        pendingObj.mutate(KActionType.SET, trace.getRefName(), null, true, fireEvents); //case real null content
                                         callback.on(null);
                                     }
                                 }

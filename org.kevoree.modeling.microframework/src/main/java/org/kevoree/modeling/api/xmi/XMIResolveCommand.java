@@ -1,17 +1,17 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 
 public class XMIResolveCommand {
 
     private LoadingContext context;
     private KObject target;
-    private ActionType mutatorType;
+    private KActionType mutatorType;
     private String refName;
     private String ref;
 
-    public XMIResolveCommand(LoadingContext context, KObject target, ActionType mutatorType, String refName, String ref) {
+    public XMIResolveCommand(LoadingContext context, KObject target, KActionType mutatorType, String refName, String ref) {
         this.context = context;
         this.target = target;
         this.mutatorType = mutatorType;

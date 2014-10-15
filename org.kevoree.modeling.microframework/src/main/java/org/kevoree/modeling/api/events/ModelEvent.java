@@ -2,10 +2,10 @@ package org.kevoree.modeling.api.events;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.Meta;
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 
 public class ModelEvent {
-    private ActionType etype;
+    private KActionType etype;
     private Meta meta;
     private String elementAttributeName;
     private Object value;
@@ -13,7 +13,7 @@ public class ModelEvent {
     private KObject source;
     private String previousPath;
 
-    public ModelEvent(ActionType etype, Meta meta, String elementAttributeName, Object value, Object previous_value, KObject source, String previousPath) {
+    public ModelEvent(KActionType etype, Meta meta, String elementAttributeName, Object value, Object previous_value, KObject source, String previousPath) {
         this.etype = etype;
         this.meta = meta;
         this.elementAttributeName = elementAttributeName;
@@ -43,7 +43,7 @@ public class ModelEvent {
         return elementAttributeName;
     }
 
-    public ActionType getEtype() {
+    public KActionType getEtype() {
         return etype;
     }
 

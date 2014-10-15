@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.json.JSONString;
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 
 /**
  * Created by duke on 10/3/14.
@@ -10,7 +10,7 @@ public class ModelSetTrace implements ModelTrace {
 
     private String refName = "";
 
-    private ActionType traceType = ActionType.SET;
+    private KActionType traceType = KActionType.SET;
 
     private String srcPath;
 
@@ -39,12 +39,12 @@ public class ModelSetTrace implements ModelTrace {
     }
 
     @Override
-    public ActionType getTraceType() {
+    public KActionType getTraceType() {
         return traceType;
     }
 
     @Override
-    public void setTraceType(ActionType traceType) {
+    public void setTraceType(KActionType traceType) {
         this.traceType = traceType;
     }
 
@@ -97,7 +97,7 @@ public class ModelSetTrace implements ModelTrace {
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            buffer.append(ActionType.SET);
+            buffer.append(KActionType.SET);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.coma);
         }

@@ -6,7 +6,6 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.util.ActionType;
 
 import java.util.List;
 
@@ -96,7 +95,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public List<ModelTrace> toTraces(boolean attributes, boolean references);
 
-    public void mutate(ActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent);
+    public void mutate(KActionType mutatorType, String refName, Object value, boolean setOpposite, boolean fireEvent);
     /* end to clean zone TODO */
 
     public Object get(MetaAttribute attribute);

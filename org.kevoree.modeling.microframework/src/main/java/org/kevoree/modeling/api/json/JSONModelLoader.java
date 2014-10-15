@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.util.ActionType;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.modeling.api.util.Helper;
 
@@ -140,7 +140,7 @@ public class JSONModelLoader implements ModelLoader {
                                             context.resolveCommands.add(new ResolveCommand(context, currentToken.getValue().toString(), currentObject, currentNameAttOrRef));
                                         } else {
                                             String unscaped = JSONString.unescape(currentToken.getValue().toString());
-                                            currentObject.mutate(ActionType.SET, currentNameAttOrRef, unscaped, false, false);
+                                            currentObject.mutate(KActionType.SET, currentNameAttOrRef, unscaped, false, false);
                                             currentNameAttOrRef = null; //unpop
                                         }
                                     }
@@ -162,7 +162,7 @@ public class JSONModelLoader implements ModelLoader {
                                 }
                                 if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
                                     if (parent != null) {
-                                        parent.mutate(ActionType.ADD, nameInParent, currentObject, false, false);
+                                        parent.mutate(KActionType.ADD, nameInParent, currentObject, false, false);
                                     }
                                     return; //go out
                                 }
@@ -244,7 +244,7 @@ class ResolveCommand {
     public void run(Callback<Throwable> error) {
         context.roots.get(0).factory().lookup(ref, (referencedElement)->{
             if (referencedElement != null) {
-                currentRootElem.mutate(ActionType.ADD, refName, referencedElement, false, false);
+                currentRootElem.mutate(KActionType.ADD, refName, referencedElement, false, false);
                 error.on(null);
             } else {
                 error.on(new Exception("Unresolved " + ref));
