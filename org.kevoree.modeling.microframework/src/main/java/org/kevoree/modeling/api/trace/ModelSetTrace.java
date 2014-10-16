@@ -45,33 +45,24 @@ public class ModelSetTrace implements ModelTrace {
 
     @Override
     public String toString() {
-        return toCString(true, true);
-    }
-
-    @Override
-    public String toCString(boolean withTypeName, boolean withSrcPath) {
         StringBuilder buffer = new StringBuilder();
         buffer.append(ModelTraceConstants.openJSON);
-        if (withTypeName) {
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.traceType);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.dp);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(KActionType.SET);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.coma);
-        }
-        if (withSrcPath) {
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.src);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.dp);
-            buffer.append(ModelTraceConstants.bb);
-            JSONString.encodeBuffer(buffer, srcPath);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.coma);
-        }
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.traceType);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.dp);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(KActionType.SET);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.coma);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.src);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.dp);
+        buffer.append(ModelTraceConstants.bb);
+        JSONString.encodeBuffer(buffer, srcPath);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.meta);
         buffer.append(ModelTraceConstants.bb);

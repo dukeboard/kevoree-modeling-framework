@@ -47,8 +47,6 @@ public class TraceSequence {
     }
 
     public TraceSequence populateFromStream(java.io.InputStream inputStream) throws Exception {
-        String previousControlSrc = null;
-        String previousControlTypeName = null;
         Lexer lexer = new Lexer(inputStream);
         Token currentToken = lexer.nextToken();
         if (currentToken.getTokenType() != Type.LEFT_BRACKET) {
@@ -71,46 +69,19 @@ public class TraceSequence {
             }
             if (currentToken.getTokenType() == Type.RIGHT_BRACE) {
                 String traceTypeRead = keys.get(ModelTraceConstants.traceType.toString());
-                if (traceTypeRead == null) {
-                    traceTypeRead = previousControlTypeName;
-                }
-                if (traceTypeRead.equals(KActionType.CONTROL.toString())) {
-                    String src = keys.get(ModelTraceConstants.src.toString());
-                    if (src != null) {
-                        previousControlSrc = JSONString.unescape(src);
-                    }
-                    String globalTypeName = keys.get(ModelTraceConstants.meta.toString());
-                    if (globalTypeName != null) {
-                        previousControlTypeName = globalTypeName;
-                    }
-                }
                 if (traceTypeRead.equals(KActionType.SET.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    if (srcFound == null) {
-                        srcFound = previousControlSrc;
-                    } else {
-                        srcFound = JSONString.unescape(srcFound);
-                    }
+                    srcFound = JSONString.unescape(srcFound);
                     traces.add(new ModelSetTrace(srcFound, new UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString()))));
                 }
                 if (traceTypeRead.equals(KActionType.ADD.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    if (srcFound == null) {
-                        srcFound = previousControlSrc;
-                    } else {
-                        srcFound = JSONString.unescape(srcFound);
-                    }
+                    srcFound = JSONString.unescape(srcFound);
                     traces.add(new ModelAddTrace(srcFound, new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.previouspath.toString())), new UnresolvedMetaClass(keys.get(ModelTraceConstants.typename.toString()))));
-                }
-                if (traceTypeRead.equals(KActionType.RENEW_INDEX.toString())) {
                 }
                 if (traceTypeRead.equals(KActionType.REMOVE.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    if (srcFound == null) {
-                        srcFound = previousControlSrc;
-                    } else {
-                        srcFound = JSONString.unescape(srcFound);
-                    }
+                    srcFound = JSONString.unescape(srcFound);
                     traces.add(new ModelRemoveTrace(srcFound, new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.objpath.toString()))));
                 }
             }
@@ -124,38 +95,11 @@ public class TraceSequence {
         StringBuilder buffer = new StringBuilder();
         buffer.append("[");
         boolean isFirst = true;
-        String previousSrc = null;
-        String previousType = null;
         for (ModelTrace trace : traces) {
             if (!isFirst) {
                 buffer.append(",\n");
             }
-            if (previousSrc == null || !(previousSrc.equals(trace.getSrcPath()))) {
-                buffer.append(new ModelControlTrace(trace.getSrcPath(), null).toString());
-                buffer.append(",\n");
-                previousSrc = trace.getSrcPath();
-            }
-            if (previousType == null || !(previousType.equals(trace.getTraceType().toString()))) {
-                buffer.append(new ModelControlTrace("", trace.getTraceType().toString()).toString());
-                buffer.append(",\n");
-                previousType = trace.getTraceType().toString();
-            }
-            buffer.append(trace.toCString(false, false));
-            isFirst = false;
-        }
-        buffer.append("]");
-        return buffer.toString();
-    }
-
-    public String toVerboseString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("[");
-        boolean isFirst = true;
-        for (ModelTrace trace : traces) {
-            if (!isFirst) {
-                buffer.append(",\n");
-            }
-            buffer.append(trace.toString());
+            buffer.append(trace);
             isFirst = false;
         }
         buffer.append("]");

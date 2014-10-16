@@ -14,6 +14,4 @@ public interface ModelTrace {
 
     public String getSrcPath();
 
-    public String toCString(boolean withTypeName, boolean withSrcPath);
-
 }

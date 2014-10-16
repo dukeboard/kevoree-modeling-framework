@@ -1,7 +1,9 @@
 package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.MemoryDataStore;
+import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -30,7 +32,10 @@ public class TraceTest {
         root.addChildren(n1, null);
         root.addChildren(n2, null);
 
-
+        ModelTrace[] traces = root.traces(KObject.TraceRequest.ATTRIBUTES_ONLY);
+        for (ModelTrace trace : traces) {
+            System.err.println(trace);
+        }
 
     }
 

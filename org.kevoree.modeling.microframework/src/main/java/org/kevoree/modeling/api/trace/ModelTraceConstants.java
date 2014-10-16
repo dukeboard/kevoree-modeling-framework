@@ -5,13 +5,13 @@ package org.kevoree.modeling.api.trace;
  */
 public enum ModelTraceConstants {
 
-    traceType("t"),
-    src("s"),
-    meta("m"),
-    previouspath("p"),
-    typename("n"),
-    objpath("o"),
-    content("c"),
+    traceType("type"),
+    src("src"),
+    meta("meta"),
+    previouspath("prev"),
+    typename("class"),
+    objpath("orig"),
+    content("val"),
     openJSON("{"),
     closeJSON("}"),
     bb("\""),

@@ -5,11 +5,9 @@ package org.kevoree.modeling.api;
  */
 public enum KActionType {
 
-    SET("S"),
-    ADD("A"),
-    REMOVE("R"),
-    RENEW_INDEX("I"),
-    CONTROL("C");
+    SET("SET"),
+    ADD("ADD"),
+    REMOVE("DEL");
 
     private String code = "";
 

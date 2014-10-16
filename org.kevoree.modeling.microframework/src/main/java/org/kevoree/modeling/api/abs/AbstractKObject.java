@@ -92,6 +92,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             this.isRoot = true;
         }
         factory().dimension().universe().dataCache().put(dimension(), factoryNow, newPath, this);
+        //TODO change to a move payload command
         this.visitAttributes(new ModelAttributeVisitor() {
             @Override
             public void visit(MetaAttribute metaAttribute, Object value) {
