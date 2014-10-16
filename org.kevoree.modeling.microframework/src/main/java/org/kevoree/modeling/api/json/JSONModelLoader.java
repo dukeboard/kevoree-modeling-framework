@@ -18,38 +18,32 @@ import java.util.concurrent.Executors;
  */
 
 
-class JSONLoadingContext {
-    public Lexer lexer;
-    public ArrayList<ResolveCommand> resolveCommands;
-    public ArrayList<KObject> roots;
-    public Callback<KObject> successCallback;
-    public Callback<Throwable> errorCallback;
-}
-
-
 public class JSONModelLoader implements ModelLoader {
-    private KView factory;
-    private ExecutorService executor = Executors.newCachedThreadPool();
 
+    private KView factory;
     public JSONModelLoader(KView factory) {
         this.factory = factory;
     }
 
-    // TODO asynchronous implementation
     @Override
-    public void loadModelFromString(String str, Callback<KObject> callback, Callback<Throwable> error) {
-        loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback, error);
-        //deserialize(new Converters().byteArrayInputStreamFromString(str));
+    public void loadModelFromString(String str, Callback<KObject> callback) {
+        if (str == null) {
+            callback.on(null);
+        }
+        loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback);
     }
 
-    // TODO asynchronous implementation
     @Override
-    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback, Callback<Throwable> error) {
+    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback) {
         if (inputStream == null) {
             throw new RuntimeException("Null input Stream");
         }
-        executor.submit(createLoadingTask(inputStream, callback, error));
-        //deserialize(inputStream);
+        Lexer lexer = new Lexer(inputStream);
+        Token currentToken = lexer.nextToken();
+        if (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
+            callback.on(null);
+        }
+
     }
 
     private Runnable createLoadingTask(final InputStream inputStream, final Callback<KObject> callback, final Callback<Throwable> error) {
@@ -133,7 +127,7 @@ public class JSONModelLoader implements ModelLoader {
                                             context.resolveCommands.add(new ResolveCommand(context, currentToken.getValue().toString(), currentObject, currentNameAttOrRef));
                                         } else {
                                             String unscaped = JSONString.unescape(currentToken.getValue().toString());
-                                            currentObject.set(currentObject.metaAttribute(currentNameAttOrRef), unscaped,false);
+                                            currentObject.set(currentObject.metaAttribute(currentNameAttOrRef), unscaped, false);
                                             currentNameAttOrRef = null; //unpop
                                         }
                                     }
@@ -155,7 +149,7 @@ public class JSONModelLoader implements ModelLoader {
                                 }
                                 if (currentToken.getTokenType() == org.kevoree.modeling.api.json.Type.RIGHT_BRACE) {
                                     if (parent != null) {
-                                        parent.mutate(KActionType.ADD, parent.metaReference(nameInParent), currentObject, false, false,null);
+                                        parent.mutate(KActionType.ADD, parent.metaReference(nameInParent), currentObject, false, false, null);
                                     }
                                     return; //go out
                                 }

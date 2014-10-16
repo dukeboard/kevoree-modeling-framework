@@ -9,8 +9,8 @@ package org.kevoree.modeling.api;
 
 public interface ModelLoader {
 
-    public void loadModelFromString(String str, Callback<KObject> callback, Callback<Throwable> error);
+    public void loadModelFromString(String str, Callback<KObject> callback);
 
-    public void loadModelFromStream(java.io.InputStream inputStream, Callback<KObject> callback, Callback<Throwable> error);
+    public void loadModelFromStream(java.io.InputStream inputStream, Callback<KObject> callback);
 
 }

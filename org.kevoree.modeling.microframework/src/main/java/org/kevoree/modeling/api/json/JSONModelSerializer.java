@@ -40,15 +40,14 @@ public class JSONModelSerializer implements ModelSerializer {
     public void serializeToStream(KObject model, OutputStream raw, Callback<Throwable> error) {
         final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
         out.print("[\n");
-        boolean isFirst = true;
+        out.print(model.toJSON());
         model.graphVisit((elem, visitor) -> {
-            if (!isFirst) {
-                out.print(",");
-                out.print(elem.toJSON());
-            }
+            out.print(",");
+            out.print(elem.toJSON());
             visitor.on(ModelVisitor.Result.CONTINUE);
         }, (t) -> {
             out.print("]\n");
+            out.flush();
             error.on(null);
         });
     }

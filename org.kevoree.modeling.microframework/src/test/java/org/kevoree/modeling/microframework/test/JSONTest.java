@@ -30,10 +30,29 @@ public class JSONTest {
         root.addChildren(n1, null);
         root.addChildren(n2, null);
 
-        time0.createJSONSerializer().serialize(root,(model)->{
-
+        final String[] result = new String[1];
+        time0.createJSONSerializer().serialize(root, (model) -> {
+            result[0] = model;
         });
 
+        result[0].equals("[\n" +
+                "{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@path\" : \"/\",\n" +
+                "\t\"name\":\"root\",\n" +
+                "\t\"children\": [\"/children[name=n2]\",\"/children[name=n1]\"] \n" +
+                "}\n" +
+                ",{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@path\" : \"/children[name=n2]\",\n" +
+                "\t\"name\":\"n2\" \n" +
+                "}\n" +
+                ",{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@path\" : \"/children[name=n1]\",\n" +
+                "\t\"name\":\"n1\" \n" +
+                "}\n" +
+                "]");
 
     }
 
