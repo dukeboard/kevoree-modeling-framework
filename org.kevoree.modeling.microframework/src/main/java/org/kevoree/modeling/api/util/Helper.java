@@ -40,7 +40,7 @@ public class Helper {
         }
     }
 
-    private static final char pathSep = '/';
+    public static final char pathSep = '/';
 
     private static final char pathIDOpen = '[';
     private static final char pathIDClose = ']';

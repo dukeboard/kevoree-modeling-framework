@@ -88,6 +88,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     protected void setPath(String newPath) {
         this.path = newPath;
+        if (this.path.length() == 1 && this.path.charAt(0) == Helper.pathSep) {
+            this.isRoot = true;
+        }
     }
 
     @Override

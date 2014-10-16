@@ -94,7 +94,11 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void root(KObject elem, Callback<Boolean> callback) {
+        ((AbstractKObject)elem).setPath("/");
+        ((AbstractKObject)elem).setReferenceInParent(null);
 
+
+        //TODO manage rename
     }
 
     @Override
