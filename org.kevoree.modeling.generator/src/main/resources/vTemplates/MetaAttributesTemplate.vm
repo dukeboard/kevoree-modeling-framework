@@ -1,11 +1,11 @@
-/* Reflexive API Attributes */
+#set($classDeclaration = $context.classDeclaration)
 public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
-#if($context.classDeclaration.attributes.size() == 0)
+#if($classDeclaration.attributes.size() == 0)
 ;//Nothing in this ENUM
 #{else}
 #set($attIdx = 0)
-#set($attIdxMax = $context.classDeclaration.attributes.size() - 1)
-#foreach($attribute in $context.classDeclaration.attributes)
+#set($attIdxMax = $classDeclaration.attributes.size() - 1)
+#foreach($attribute in $classDeclaration.attributes)
     ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx,#if($attribute.get)true#{else}false#end, #if($attribute.id)true#{else}false#end)#if($attIdx < $attIdxMax),
 #{else};
 #end
@@ -39,6 +39,10 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
         return key;
     }
 
+    public org.kevoree.modeling.api.meta.MetaClass origin(){
+        return ${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
+    }
+
     METAATTRIBUTES(String name, int index, boolean learned, boolean key) {
         this.name = name;
         this.index = index;
@@ -49,3 +53,4 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
 
 
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
+#* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

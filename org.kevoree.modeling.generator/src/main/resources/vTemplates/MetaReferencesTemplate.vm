@@ -1,10 +1,11 @@
+#set($classDeclaration = $context.classDeclaration)
 public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReference {
-#if($context.classDeclaration.references.size() == 0)
+#if($classDeclaration.references.size() == 0)
 ;//Nothing in this ENUM
 #{else}
 #set($relIdx = 0)
-#set($relIdxMax = $context.classDeclaration.references.size() - 1)
-#foreach($rel in $context.classDeclaration.references)
+#set($relIdxMax = $classDeclaration.references.size() - 1)
+#foreach($rel in $classDeclaration.references)
     ${rel.getName().toUpperCase()}("$rel.getName()",$enumIdx,#if($rel.contained)true#{else}false#end, #if($rel.single)true#{else}false#end, ${context.generationContext.metaModelName}View.METACLASSES.${rel.getType().getFqn().toUpperCase().replace(".","_")}, #if(!$rel.opposite)null#{else}${rel.opposite.type.getFqn()}.METAREFERENCES.${rel.opposite.name.toUpperCase()}#end)#if($relIdx < $relIdxMax),
 #{else};
 #end
@@ -45,6 +46,10 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
         return opposite;
     }
 
+    public org.kevoree.modeling.api.meta.MetaClass origin(){
+        return ${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
+    }
+
     METAREFERENCES(String name, int index, boolean contained, boolean single, org.kevoree.modeling.api.meta.MetaClass metaType, org.kevoree.modeling.api.meta.MetaReference opposite) {
         this.name = name;
         this.index = index;
@@ -56,3 +61,4 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
 }
 
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
+#* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

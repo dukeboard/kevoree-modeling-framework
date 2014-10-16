@@ -13,7 +13,7 @@ import org.kevoree.modeling.generator.Generator;
 
 import java.io.File;
 
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class GenModelPlugin extends AbstractMojo {
 
     /**
@@ -35,6 +35,12 @@ public class GenModelPlugin extends AbstractMojo {
     private String metaModelQualifiedName;
 
     /**
+     * code containerRoot package
+     */
+    @Parameter
+    private String utilityPackage;
+
+    /**
      * The maven project.
      */
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -49,7 +55,6 @@ public class GenModelPlugin extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-
 
 
         try {
@@ -73,6 +78,7 @@ public class GenModelPlugin extends AbstractMojo {
             GenerationContext ctx = new GenerationContext();
             ctx.metaModel = metaModelFile;
             ctx.metaModelName = targetName;
+            ctx.utilityPackage = utilityPackage;
 
             ctx.kmfSrcGenerationDirectory = kmfSrcGenerationDirectory;
             ctx.classesDirectory = classesDirectory;
