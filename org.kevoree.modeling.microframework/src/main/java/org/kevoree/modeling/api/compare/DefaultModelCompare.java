@@ -39,7 +39,7 @@ public class DefaultModelCompare implements ModelCompare {
         List<ModelTrace> tracesRef = new ArrayList<ModelTrace>();
         Map<String, KObject> objectsMap = new HashMap<String, KObject>();
         traces.addAll(internal_createTraces(origin, target, inter, merge, false, true));
-        tracesRef.addAll(internal_createTraces(origin,target, inter, merge, true, false));
+        tracesRef.addAll(internal_createTraces(origin, target, inter, merge, true, false));
         origin.treeVisit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
@@ -169,7 +169,9 @@ public class DefaultModelCompare implements ModelCompare {
                         }
                         if (isEquals) {
                             if (inter) {
-                                traces.add(new ModelAddTrace(current.path(), reference, payload2.toString(), null));
+                                if(payload2!= null){
+                                    traces.add(new ModelAddTrace(current.path(), reference, payload2.toString(), null));
+                                }
                             }
                         } else {
                             if (!inter) {
@@ -185,20 +187,22 @@ public class DefaultModelCompare implements ModelCompare {
                                 }
                             }
                         } else {
-                            Set<String> currentPaths = (Set<String>) payload1;
-                            for (String currentPath : currentPaths) {
-                                boolean isFound = false;
-                                if (payload2 != null) {
-                                    Set<String> siblingPaths = (Set<String>) payload2;
-                                    isFound = siblingPaths.contains(currentPath);
-                                }
-                                if (isFound) {
-                                    if (inter) {
-                                        traces.add(new ModelAddTrace(current.path(), reference, currentPath, null));
+                            if(payload1 != null){
+                                Set<String> currentPaths = (Set<String>) payload1;
+                                for (String currentPath : currentPaths) {
+                                    boolean isFound = false;
+                                    if (payload2 != null) {
+                                        Set<String> siblingPaths = (Set<String>) payload2;
+                                        isFound = siblingPaths.contains(currentPath);
                                     }
-                                } else {
-                                    if (!inter) {
-                                        traces.add(new ModelRemoveTrace(current.path(), reference, currentPath));
+                                    if (isFound) {
+                                        if (inter) {
+                                            traces.add(new ModelAddTrace(current.path(), reference, currentPath, null));
+                                        }
+                                    } else {
+                                        if (!inter) {
+                                            traces.add(new ModelRemoveTrace(current.path(), reference, currentPath));
+                                        }
                                     }
                                 }
                             }
