@@ -17,7 +17,7 @@ import java.io.*;
 public class JSONModelSerializer implements ModelSerializer {
 
     @Override
-    public void serialize(KObject model, final Callback<String> callback, final Callback<Throwable> error) {
+    public void serialize(KObject model, final Callback<String> callback) {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         serializeToStream(model, outstream, new Callback<Throwable>() {
             @Override
@@ -27,10 +27,10 @@ public class JSONModelSerializer implements ModelSerializer {
                     if (e == null) {
                         callback.on(outstream.toString());
                     } else {
-                        error.on(e);
+                        callback.on(null);
                     }
                 } catch (IOException e2) {
-                    error.on(e2);
+                    callback.on(null);
                 }
             }
         });

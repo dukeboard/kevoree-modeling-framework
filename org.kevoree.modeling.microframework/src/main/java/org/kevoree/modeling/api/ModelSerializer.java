@@ -11,6 +11,6 @@ public interface ModelSerializer {
 
     public void serializeToStream(KObject model, java.io.OutputStream raw, Callback<Throwable> result);
 
-    public void serialize(KObject model, Callback<String> callback, Callback<Throwable> error);
+    public void serialize(KObject model, Callback<String> callback);
 
 }
