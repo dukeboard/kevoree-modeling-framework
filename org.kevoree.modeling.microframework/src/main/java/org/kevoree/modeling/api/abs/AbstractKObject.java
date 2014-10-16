@@ -533,14 +533,16 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public String toJSON() {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
-        builder.append("\t\"");
+        builder.append("\t\"@meta\" : \"");
         builder.append(metaClass().metaName());
-        builder.append("\"");
-        builder.append(" : {\n");
+        builder.append("\",\n");
+        builder.append("\t\"@path\" : \"");
+        builder.append(path());
+        builder.append("\",\n");
         for (int i = 0; i < metaAttributes().length; i++) {
             Object payload = get(metaAttributes()[i]);
             if (payload != null) {
-                builder.append("\t\t");
+                builder.append("\t");
                 builder.append("\"");
                 builder.append(metaAttributes()[i].metaName());
                 builder.append("\":\"");
@@ -551,7 +553,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         for (int i = 0; i < metaReferences().length; i++) {
             Object payload = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReferences()[i].index());
             if (payload != null) {
-                builder.append("\t\t");
+                builder.append("\t");
                 builder.append("\"");
                 builder.append(metaReferences()[i].metaName());
                 builder.append("\":");
@@ -580,7 +582,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         }
         int lastcomma = builder.lastIndexOf(",");
         builder.setCharAt(lastcomma, ' ');
-        builder.append("\t}\n");
         builder.append("}\n");
         return builder.toString();
     }
