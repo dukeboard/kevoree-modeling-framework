@@ -360,7 +360,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
         Object o = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
-        if (o instanceof String) {
+        if(o == null) {
+            end.on(null);
+        } else if (o instanceof String) {
             factory().lookup((String) o, new Callback<KObject>() {
                 @Override
                 public void on(KObject resolved) {
@@ -372,32 +374,30 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                 }
             });
-        } else {
-            if (o instanceof Set) {
-                Set<String> objs = (Set<String>) o;
-                String[] forArray = objs.toArray(new String[objs.size()]);
-                Helper.forall(forArray, new CallBackChain<String>() {
-                    @Override
-                    public void on(String o, Callback next) {
-                        factory().lookup(o, (resolved) -> {
-                            if (callback != null) {
-                                callback.on((C) resolved);
-                            }
-                            next.on(null);
-                        });
-                    }
-                }, new Callback<Throwable>() {
-                    @Override
-                    public void on(Throwable throwable) {
-                        if (end != null) {
-                            end.on(throwable);
+        } else if (o instanceof Set) {
+            Set<String> objs = (Set<String>) o;
+            String[] forArray = objs.toArray(new String[objs.size()]);
+            Helper.forall(forArray, new CallBackChain<String>() {
+                @Override
+                public void on(String o, Callback next) {
+                    factory().lookup(o, (resolved) -> {
+                        if (callback != null) {
+                            callback.on((C) resolved);
                         }
-                    }
-                });
-            } else {
-                if (end != null) {
-                    end.on(new Exception("Inconsistent storage, Internal Error"));
+                        next.on(null);
+                    });
                 }
+            }, new Callback<Throwable>() {
+                @Override
+                public void on(Throwable throwable) {
+                    if (end != null) {
+                        end.on(throwable);
+                    }
+                }
+            });
+        } else {
+            if (end != null) {
+                end.on(new Exception("Inconsistent storage, Internal Error"));
             }
         }
     }
