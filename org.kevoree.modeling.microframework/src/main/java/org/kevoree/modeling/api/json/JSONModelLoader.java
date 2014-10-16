@@ -40,53 +40,19 @@ public class JSONModelLoader implements ModelLoader {
         }
         Lexer lexer = new Lexer(inputStream);
         Token currentToken = lexer.nextToken();
-        if (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
+        if (currentToken.getTokenType() != Type.LEFT_BRACKET) {
             callback.on(null);
         }
+        while (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.EOF) {
 
-    }
-
-    private Runnable createLoadingTask(final InputStream inputStream, final Callback<KObject> callback, final Callback<Throwable> error) {
-        return () -> {
-
-            Lexer lexer = new Lexer(inputStream);
-            Token currentToken = lexer.nextToken();
-
-            if (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
-                error.on(new Exception("Bad Format. Expected '{' got " + currentToken.getTokenType().name()));
-            } else {
-                JSONLoadingContext context = new JSONLoadingContext();
-                context.lexer = lexer;
-                context.resolveCommands = new ArrayList<ResolveCommand>();
-                context.roots = new ArrayList<KObject>();
-                context.errorCallback = error;
-                context.successCallback = callback;
-
-                deserialize(context);
-            }
-        };
-    }
-
-    private void deserialize(JSONLoadingContext context) {
-        try {
-            loadObject(context, null, null);
-            ResolveCommand[] cmds = context.resolveCommands.toArray(new ResolveCommand[context.resolveCommands.size()]);
-            Helper.forall(cmds, (resol, err) -> {
-                resol.run(err);
-            }, end -> {
-                if (end != null) {
-                    context.errorCallback.on(end);
-                } else {
-                    context.successCallback.on(context.roots.get(0));
-                }
-            });
-
-        } catch (Exception e) {
-            context.errorCallback.on(e);
+            currentToken = lexer.nextToken();
         }
+
+        System.out.println(currentToken);
+
     }
 
-
+    /*
     class MyCallback implements Callback<KObject> {
         public KObject currentObject = null;
         public JSONLoadingContext context;
@@ -211,32 +177,7 @@ public class JSONModelLoader implements ModelLoader {
         } else {
             throw new Exception("Bad Format");
         }
-    }
+    }*/
 
-}
-
-class ResolveCommand {
-    private JSONLoadingContext context;
-    private String ref;
-    private KObject currentRootElem;
-    private String refName;
-
-    public ResolveCommand(JSONLoadingContext context, String ref, KObject currentRootElem, String refName) {
-        this.context = context;
-        this.ref = ref;
-        this.currentRootElem = currentRootElem;
-        this.refName = refName;
-    }
-
-    public void run(Callback<Throwable> error) {
-        context.roots.get(0).factory().lookup(ref, (referencedElement) -> {
-            if (referencedElement != null) {
-                currentRootElem.mutate(KActionType.ADD, currentRootElem.metaReference(refName), referencedElement, false, false, error);
-            } else {
-                error.on(new Exception("Unresolved " + ref));
-            }
-        });
-
-    }
 }
 
