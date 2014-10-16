@@ -28,11 +28,11 @@ public class Serializer {
             CloudView t0 = dimension0.time(0l);
             Node nodeT0 = t0.createNode();
             nodeT0.setName("node0");
-            String t0Path = nodeT0.path();
            /*
+           */
             t0.root(nodeT0,(ok)->{s.release();});
             s.acquire();
-           */
+            String t0Path = nodeT0.path();
             Element child0 = t0.createElement();
             nodeT0.setElement(child0, (ok) -> {
                 s.release();
