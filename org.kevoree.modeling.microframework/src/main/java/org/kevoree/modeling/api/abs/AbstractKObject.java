@@ -125,32 +125,23 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void delete(Callback<Boolean> callback) {
-
+        //TODO
     }
 
-    @Override
-    public boolean modelEquals(A similarObj) {
-        return false;
-    }
-
-    @Override
-    public void deepModelEquals(A similarObj, Callback<Boolean> callback) {
-
-    }
 
     @Override
     public void findByID(String relationName, String idP, Callback<KObject> callback) {
-
+        //TODO
     }
 
     @Override
     public void select(String query, Callback<List<KObject>> callback) {
-
+        //TODO
     }
 
     @Override
     public void stream(String query, Callback<KObject> callback) {
-
+        //TODO
     }
 
     @Override
@@ -597,11 +588,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     @Override
     public String toString() {
         return toJSON();
-    }
-
-    @Override
-    public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes) {
-        return null;
     }
 
     @Override

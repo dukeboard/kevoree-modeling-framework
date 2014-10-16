@@ -30,10 +30,6 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public String parentPath();
 
-    public boolean modelEquals(A similarObj);
-
-    public void deepModelEquals(A similarObj, Callback<Boolean> callback);
-
     public void findByID(String relationName, String idP, Callback<KObject> callback);
 
     public void select(String query, Callback<List<KObject>> callback);
@@ -91,16 +87,11 @@ public interface KObject<A extends KObject, B extends KView> {
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
 
     /* End Reflexive API */
-
-    /* Powerful Trace API, maybe consider to hide TODO */
-    public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes);
-
     public enum TraceRequest {
         ATTRIBUTES_ONLY, REFERENCES_ONLY, ATTRIBUTES_REFERENCES
     }
 
     public List<ModelTrace> traces(TraceRequest request);
-    /* end to clean zone TODO */
 
     public Object get(MetaAttribute attribute);
 
