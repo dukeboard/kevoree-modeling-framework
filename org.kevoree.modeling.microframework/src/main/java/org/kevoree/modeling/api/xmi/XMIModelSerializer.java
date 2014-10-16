@@ -155,7 +155,7 @@ public class XMIModelSerializer implements ModelSerializer {
     ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
-    public void serialize(KObject model, Callback<String> callback, Callback<Throwable> error) {
+    public void serialize(KObject model, Callback<String> callback) {
         ByteArrayOutputStream oo = new ByteArrayOutputStream();
         serializeToStream(model, oo, err -> {
             if (err == null) {
@@ -163,10 +163,10 @@ public class XMIModelSerializer implements ModelSerializer {
                     oo.flush();
                     callback.on(oo.toString());
                 } catch (Exception e) {
-                    error.on(e);
+                    callback.on(err.getMessage());
                 }
             } else {
-                error.on(err);
+                callback.on(err.getMessage());
             }
         });
     }
