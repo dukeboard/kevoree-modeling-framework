@@ -116,19 +116,18 @@ public class XMIModelLoader implements ModelLoader {
 
 
     @Override
-    public void loadModelFromString(String str, Callback<KObject> callback, Callback<Throwable> error) {
-        loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback, error);
+    public void loadModelFromString(String str, Callback<KObject> callback) {
+        loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback);
     }
 
     @Override
-    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback, Callback<Throwable> error) {
+    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback) {
         XmlParser parser = new XmlParser(inputStream);
         if (!parser.hasNext()) {
-            error.on(new Exception("Empty stream. Can not load model."));
+            callback.on(null);
         } else {
             LoadingContext context = new LoadingContext();
             context.successCallback = callback;
-            context.errorCallback = error;
             context.xmiReader = parser;
                 /*
                 context.attributeVisitor = new XmiLoaderAttributeVisitor(context);
