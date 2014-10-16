@@ -109,14 +109,10 @@ class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
                     context.printStream.print(ref.metaName());
                     context.printStream.print(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
                     elem.visitAttributes(context.attributesVisitor);
-                    System.out.println("["+elem.metaClass().metaName()+"] finished attributes");
-
                     Helper.forall(elem.metaReferences(),new NonContainedReferencesCallbackChain(context,elem), (err)->{
-                        System.out.println("["+elem.metaClass().metaName()+"] finished not contained references");
                         if(err == null) {
                             context.printStream.println('>');
                             Helper.forall(elem.metaReferences(),new ContainedReferencesCallbackChain(context, elem), containedRefsEnd -> {
-                                System.out.println("["+elem.metaClass().metaName()+"] finished contained references");
                                 if(containedRefsEnd == null) {
                                     context.printStream.print("</");
                                     context.printStream.print(ref.metaName());
@@ -162,7 +158,6 @@ public class XMIModelSerializer implements ModelSerializer {
     public void serialize(KObject model, Callback<String> callback, Callback<Throwable> error) {
         ByteArrayOutputStream oo = new ByteArrayOutputStream();
         serializeToStream(model, oo, err -> {
-            System.out.println("Internal return");
             if (err == null) {
                 try {
                     oo.flush();
@@ -180,7 +175,6 @@ public class XMIModelSerializer implements ModelSerializer {
     public void serializeToStream(final KObject model, final OutputStream raw, final Callback<Throwable> finishCallback) {
 
         executor.submit(() -> {
-            System.out.println("Starting Serialization");
             SerializationContext context = new SerializationContext();
             context.model = model;
             context.finishCallback = finishCallback;
@@ -189,11 +183,9 @@ public class XMIModelSerializer implements ModelSerializer {
 
             //First Pass for building address table
             context.addressTable.put(model.path(), "/");
-            System.out.println("Starting TreeVisit");
             model.treeVisit(new ModelVisitor() {
                 @Override
                 public void visit(KObject elem, Callback<Result> visitor) {
-                    System.out.println("ParentPath:" + elem.parentPath() + " Path:" + elem.path());
                     String parentXmiAddress = context.addressTable.get(elem.parentPath());
 
                     int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + elem.referenceInParent(), (s) -> 0);
@@ -222,7 +214,6 @@ public class XMIModelSerializer implements ModelSerializer {
         @Override
         public void on(Throwable throwable) {
 
-            System.out.println("PrettyPrintStart");
             if(throwable != null) {
                 context.finishCallback.on(throwable);
             } else {
@@ -234,26 +225,18 @@ public class XMIModelSerializer implements ModelSerializer {
                 context.printStream.print(" xmi:version=\"2.0\"");
                 context.printStream.print(" xmlns:xmi=\"http://www.omg.org/XMI\"");
 
-                System.out.println("Root Headers");
-
                 int index = 0;
                 while (index < context.packageList.size()) {
                     context.printStream.print(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
                     index++;
                 }
 
-                System.out.println("["+context.model.metaClass().metaName()+"]Attributes");
-
                 context.model.visitAttributes(context.attributesVisitor);
 
-                System.out.println("["+context.model.metaClass().metaName()+"]References");
-
                 Helper.forall(context.model.metaReferences(),new NonContainedReferencesCallbackChain(context, context.model), (err)->{
-                    System.out.println("["+context.model.metaClass().metaName()+"]finished not contained refences");
                     if(err == null) {
                         context.printStream.println('>');
                         Helper.forall(context.model.metaReferences(),new ContainedReferencesCallbackChain(context, context.model), containedRefsEnd -> {
-                            System.out.println("["+context.model.metaClass().metaName()+"]finished contained refences");
                             if(containedRefsEnd == null) {
                                 context.printStream.println("</" + formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">");
                                 context.printStream.flush();

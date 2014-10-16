@@ -34,10 +34,11 @@ public class TraceTest {
         root.addChildren(n2, null);
 
         ModelCompare compare = time0.createModelCompare();
+/*
         compare.inter(root,root,(seq)->{
            System.err.println(seq);
         });
-
+*/
 
     }
 

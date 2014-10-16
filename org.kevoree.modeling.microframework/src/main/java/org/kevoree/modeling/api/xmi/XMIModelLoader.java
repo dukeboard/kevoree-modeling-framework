@@ -27,7 +27,7 @@ class LoadingContext {
     public HashMap<String, HashMap<String, String>> referencesHashmap = new HashMap<String, HashMap<String, String>>();
     */
 
-    public ArrayList<KObject> loadedRoots = new ArrayList<KObject>();
+    public KObject loadedRoots = null;
     public ArrayList<XMIResolveCommand> resolvers = new ArrayList<XMIResolveCommand>();
 
     public HashMap<String, KObject> map = new HashMap<String, KObject>();
@@ -156,7 +156,7 @@ public class XMIModelLoader implements ModelLoader {
                     case START_TAG: {
                         String localName = reader.getLocalName();
                         if (localName != null) {
-                            int loadedRootsSize = context.loadedRoots.size();
+                            //int loadedRootsSize = context.loadedRoots.size();
 
                             HashMap<String, String> ns = new HashMap<String, String>();
 
@@ -174,7 +174,7 @@ public class XMIModelLoader implements ModelLoader {
                             if (realTypeName == null) {
                                 realTypeName = xsiType;
                             }
-                            context.loadedRoots.add(loadObject(context, "/" + loadedRootsSize, xsiType + "." + localName));
+                            context.loadedRoots = loadObject(context, "/", xsiType + "." + localName);
 
                         } else {
                             System.err.println("Tried to read a tag with null tag_name.");
@@ -198,7 +198,7 @@ public class XMIModelLoader implements ModelLoader {
         if (context.resourceSet != null && nsURI != null) {
             resourceSet!!.registerXmiAddrMappedObjects(nsURI!!, context.map)
         }*/
-            context.successCallback.on(context.loadedRoots.get(0));
+            context.successCallback.on(context.loadedRoots);
         } catch (Exception e) {
             context.errorCallback.on(e);
         }

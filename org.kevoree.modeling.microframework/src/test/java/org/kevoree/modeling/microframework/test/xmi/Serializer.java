@@ -50,11 +50,8 @@ public class Serializer {
             t0.lookup(t0Path, (root) -> {
                 try {
                     t0.createXMISerializer().serializeToStream(root, new FileOutputStream(new File("XMISerialized.xmi")), (error) -> {
-                        System.out.println("Return");
                         if(error != null) {
                             error.printStackTrace();
-                        }else {
-                            System.out.println("Success");
                         }
                         s.release();
                     });
