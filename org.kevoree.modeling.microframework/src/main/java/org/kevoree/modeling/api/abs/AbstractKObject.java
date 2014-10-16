@@ -550,8 +550,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     public String toJSON() {
         StringBuilder builder = new StringBuilder();
+        builder.append("\"");
         builder.append(metaClass().metaName());
-        builder.append(": {\n");
+        builder.append("\"");
+        builder.append(" : {\n");
         for (int i = 0; i < metaAttributes().length; i++) {
             Object payload = get(metaAttributes()[i]);
             if (payload != null) {
@@ -575,11 +577,26 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     builder.append(payload);
                     builder.append("\"");
                 } else {
-                    builder.append(payload);
+                    Set<String> elems = (Set<String>) payload;
+                    String[] elemsArr = elems.toArray(new String[elems.size()]);
+                    boolean isFirst = true;
+                    builder.append(" [");
+                    for (int j = 0; j < elemsArr.length; j++) {
+                        if (!isFirst) {
+                            builder.append(",");
+                        }
+                        builder.append("\"");
+                        builder.append(elemsArr[j]);
+                        builder.append("\"");
+                        isFirst = false;
+                    }
+                    builder.append("]");
                 }
                 builder.append(",\n");
             }
         }
+        int lastcomma = builder.lastIndexOf(",");
+        builder.setCharAt(lastcomma, ' ');
         builder.append("}\n");
         return builder.toString();
     }

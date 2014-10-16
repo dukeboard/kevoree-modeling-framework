@@ -67,40 +67,87 @@ public class HelloTest {
         });
         assertTrue(parent[0] == nodeT1);
 
+        i[0] = 0;
+        final int[] j = {0};
         nodeT0.visit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
-                System.out.println("visit: "+elem.path());
+                i[0]++;
                 visitor.on(Result.CONTINUE);
             }
-        },(t)->{
-            System.out.println("After Visit nodeT0 "+t);
+        }, (t) -> {
+            j[0]++;
         });
+        assertEquals(1, i[0]);
+        assertEquals(1, j[0]);
 
+        i[0] = 0;
+        j[0] = 0;
         nodeT1.visit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
-                System.out.println("visit: "+elem.path());
+                i[0]++;
                 visitor.on(Result.CONTINUE);
             }
-        },(t)->{
-            System.out.println("After Visit nodeT1 "+t);
+        }, (t) -> {
+            j[0]++;
         });
+        assertEquals(1, i[0]);
+        assertEquals(1, j[0]);
 
+        i[0] = 0;
+        j[0] = 0;
         nodeT3.visit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
-                System.out.println("visit: "+elem.path());
+                i[0]++;
                 visitor.on(Result.CONTINUE);
             }
-        },(t)->{
-            System.out.println("After Visit nodeT3 "+t);
+        }, (t) -> {
+            j[0]++;
         });
+        assertEquals(0, i[0]);
+        assertEquals(1, j[0]);
 
-        System.out.println(nodeT0);
-        System.out.println(nodeT1.path());
-        System.out.println(nodeT1);
-        System.out.println(nodeT3);
+        i[0] = 0;
+        j[0] = 0;
+        nodeT0.treeVisit(new ModelVisitor() {
+            @Override
+            public void visit(KObject elem, Callback<Result> visitor) {
+                i[0]++;
+                visitor.on(Result.CONTINUE);
+            }
+        }, (t) -> {
+            j[0]++;
+        });
+        assertEquals(2, i[0]);
+        assertEquals(1, j[0]);
+
+        i[0] = 0;
+        j[0] = 0;
+        nodeT0.graphVisit(new ModelVisitor() {
+            @Override
+            public void visit(KObject elem, Callback<Result> visitor) {
+                i[0]++;
+                visitor.on(Result.CONTINUE);
+            }
+        }, (t) -> {
+            j[0]++;
+        });
+        assertEquals(2, i[0]);
+        assertEquals(1, j[0]);
+
+
+        i[0] = 0;
+        j[0] = 0;
+        nodeT0.graphVisit((elem, callback) -> {
+            i[0]++;
+            callback.on(ModelVisitor.Result.CONTINUE);
+        }, (t) -> {
+            j[0]++;
+        });
+        assertEquals(2, i[0]);
+        assertEquals(1, j[0]);
 
 
     }
