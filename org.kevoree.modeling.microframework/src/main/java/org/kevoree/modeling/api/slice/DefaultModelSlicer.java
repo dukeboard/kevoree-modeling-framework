@@ -62,6 +62,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                 }
             }
         };
+        traces.add(new ModelAddTrace(elem.path(),null,elem.path(),elem.metaClass()));
         elem.parent(parentExplorer);
     }
 

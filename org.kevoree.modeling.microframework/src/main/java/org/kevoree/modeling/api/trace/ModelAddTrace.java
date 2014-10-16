@@ -55,14 +55,16 @@ public class ModelAddTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         JSONString.encodeBuffer(buffer, srcPath);
         buffer.append(ModelTraceConstants.bb);
-        buffer.append(ModelTraceConstants.coma);
-        buffer.append(ModelTraceConstants.bb);
-        buffer.append(ModelTraceConstants.meta);
-        buffer.append(ModelTraceConstants.bb);
-        buffer.append(ModelTraceConstants.dp);
-        buffer.append(ModelTraceConstants.bb);
-        buffer.append(reference.metaName());
-        buffer.append(ModelTraceConstants.bb);
+        if (reference != null) {
+            buffer.append(ModelTraceConstants.coma);
+            buffer.append(ModelTraceConstants.bb);
+            buffer.append(ModelTraceConstants.meta);
+            buffer.append(ModelTraceConstants.bb);
+            buffer.append(ModelTraceConstants.dp);
+            buffer.append(ModelTraceConstants.bb);
+            buffer.append(reference.metaName());
+            buffer.append(ModelTraceConstants.bb);
+        }
         if (previousPath != null) {
             buffer.append(ModelTraceConstants.coma);
             buffer.append(ModelTraceConstants.bb);

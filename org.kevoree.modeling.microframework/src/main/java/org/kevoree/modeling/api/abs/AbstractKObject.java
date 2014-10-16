@@ -88,9 +88,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     protected void setPath(String newPath) {
-        Object[] payload = factory().dimension().universe().dataCache().getAllPayload(dimension(),now(),path);
+        Object[] payload = factory().dimension().universe().dataCache().getAllPayload(dimension(), now(), path);
         factory().dimension().universe().dataCache().put(dimension, factoryNow, newPath, this);
-        factory().dimension().universe().dataCache().putAllPayload(dimension,factoryNow,newPath,payload);
+        factory().dimension().universe().dataCache().putAllPayload(dimension, factoryNow, newPath, payload);
         this.path = newPath;
         if (Helper.isRoot(this.path)) {
             isRoot = true;
@@ -622,14 +622,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 Object o = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), ref.index());
                 if (o instanceof Set) {
                     Set<String> contents = (Set<String>) o;
-                    String[] contentsArr = new String[contents.size()];
+                    String[] contentsArr = contents.toArray(new String[contents.size()]);
                     for (int j = 0; j < contentsArr.length; j++) {
                         traces.add(new ModelAddTrace(path(), ref, contentsArr[j], null));
                     }
                 } else if (o != null) {
                     traces.add(new ModelAddTrace(path(), ref, o.toString(), null));
-                } else {
-                    //traces[currentIndex] = new ModelAddTrace(path(), ref, null, null);
                 }
             }
         }

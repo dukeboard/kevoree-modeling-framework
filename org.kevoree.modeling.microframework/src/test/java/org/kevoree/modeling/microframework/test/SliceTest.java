@@ -31,21 +31,13 @@ public class SliceTest {
         Node n2 = time0.createNode();
         n2.setName("n2");
 
-        System.err.println(n2.getName());
-
-
         root.addChildren(n1, null);
         root.addChildren(n2, null);
 
-
-        System.err.println(n2.getName());
-
-
         ModelSlicer slicer = time0.createModelSlicer();
-        slicer.slice(Arrays.asList(root),(seq)->{
-           System.err.println(seq);
+        slicer.slice(Arrays.asList(root), (seq) -> {
+            System.err.println(seq);
         });
-
 
     }
 
