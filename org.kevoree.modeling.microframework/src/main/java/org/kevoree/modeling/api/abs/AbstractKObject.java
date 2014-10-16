@@ -6,6 +6,8 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.trace.ModelAddTrace;
+import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
@@ -172,16 +174,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     @Override
     public void removeAllModelTreeListeners() {
 
-    }
-
-    @Override
-    public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes) {
-        return null;
-    }
-
-    @Override
-    public List<ModelTrace> toTraces(boolean attributes, boolean references) {
-        return null;
     }
 
     @Override
@@ -550,14 +542,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     public String toJSON() {
         StringBuilder builder = new StringBuilder();
-        builder.append("\"");
+        builder.append("{\n");
+        builder.append("\t\"");
         builder.append(metaClass().metaName());
         builder.append("\"");
         builder.append(" : {\n");
         for (int i = 0; i < metaAttributes().length; i++) {
             Object payload = get(metaAttributes()[i]);
             if (payload != null) {
-                builder.append("\t");
+                builder.append("\t\t");
                 builder.append("\"");
                 builder.append(metaAttributes()[i].metaName());
                 builder.append("\":\"");
@@ -568,7 +561,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         for (int i = 0; i < metaReferences().length; i++) {
             Object payload = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReferences()[i].index());
             if (payload != null) {
-                builder.append("\t");
+                builder.append("\t\t");
                 builder.append("\"");
                 builder.append(metaReferences()[i].metaName());
                 builder.append("\":");
@@ -597,6 +590,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         }
         int lastcomma = builder.lastIndexOf(",");
         builder.setCharAt(lastcomma, ' ');
+        builder.append("\t}\n");
         builder.append("}\n");
         return builder.toString();
     }
@@ -604,6 +598,48 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     @Override
     public String toString() {
         return toJSON();
+    }
+
+    @Override
+    public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes) {
+        return null;
+    }
+
+    @Override
+    public ModelTrace[] traces(TraceRequest request) {
+        int totalTraceSize = 0;
+        if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
+            totalTraceSize = totalTraceSize + metaAttributes().length;
+        }
+        if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
+            totalTraceSize = totalTraceSize + metaReferences().length;
+        }
+        int currentIndex = 0;
+        ModelTrace[] traces = new ModelTrace[totalTraceSize];
+        if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
+            for (int i = 0; i < metaAttributes().length; i++) {
+                MetaAttribute current = metaAttributes()[i];
+                traces[currentIndex] = new ModelSetTrace(path(), current, get(current));
+                currentIndex++;
+            }
+        }
+        if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
+            for (int i = 0; i < metaReferences().length; i++) {
+                MetaReference ref = metaReferences()[i];
+                Object o = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), ref.index());
+                if (o instanceof Set) {
+                    Set<String> contents = (Set<String>) o;
+                    String[] contentsArr = new String[contents.size()];
+                    for (int j = 0; j < contentsArr.length; j++) {
+                        traces[currentIndex] = new ModelAddTrace(path(), ref, contentsArr[j], null);
+                    }
+                } else {
+                    traces[currentIndex] = new ModelAddTrace(path(), ref, o.toString(), null);
+                }
+                currentIndex++;
+            }
+        }
+        return traces;
     }
 
 }

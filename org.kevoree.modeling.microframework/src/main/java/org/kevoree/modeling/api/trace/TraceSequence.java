@@ -1,12 +1,15 @@
 package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.Token;
 import org.kevoree.modeling.api.json.Type;
-import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaAttribute;
+import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaClass;
+import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaReference;
 import org.kevoree.modeling.api.util.Converters;
 
 import java.util.*;
@@ -23,7 +26,7 @@ public class TraceSequence {
     public TraceSequence() {
     }
 
-    public ModelTrace[] getTraces(){
+    public ModelTrace[] traces() {
         return traces.toArray(new ModelTrace[traces.size()]);
     }
 
@@ -44,7 +47,6 @@ public class TraceSequence {
     }
 
     public TraceSequence populateFromStream(java.io.InputStream inputStream) throws Exception {
-
         String previousControlSrc = null;
         String previousControlTypeName = null;
         Lexer lexer = new Lexer(inputStream);
@@ -67,7 +69,6 @@ public class TraceSequence {
                     previousName = currentToken.getValue().toString();
                 }
             }
-
             if (currentToken.getTokenType() == Type.RIGHT_BRACE) {
                 String traceTypeRead = keys.get(ModelTraceConstants.traceType.toString());
                 if (traceTypeRead == null) {
@@ -78,7 +79,7 @@ public class TraceSequence {
                     if (src != null) {
                         previousControlSrc = JSONString.unescape(src);
                     }
-                    String globalTypeName = keys.get(ModelTraceConstants.refname.toString());
+                    String globalTypeName = keys.get(ModelTraceConstants.meta.toString());
                     if (globalTypeName != null) {
                         previousControlTypeName = globalTypeName;
                     }
@@ -90,7 +91,7 @@ public class TraceSequence {
                     } else {
                         srcFound = JSONString.unescape(srcFound);
                     }
-                    traces.add(new ModelSetTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.objpath.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString())), JSONString.unescape(keys.get(ModelTraceConstants.typename.toString()))));
+                    traces.add(new ModelSetTrace(srcFound, new UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString()))));
                 }
                 if (traceTypeRead.equals(KActionType.ADD.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
@@ -99,32 +100,10 @@ public class TraceSequence {
                     } else {
                         srcFound = JSONString.unescape(srcFound);
                     }
-                    traces.add(new ModelAddTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.previouspath.toString())), keys.get(ModelTraceConstants.typename.toString())));
+                    traces.add(new ModelAddTrace(srcFound, new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.previouspath.toString())), new UnresolvedMetaClass(keys.get(ModelTraceConstants.typename.toString()))));
                 }
-                /*
-                if (traceTypeRead.equals(ActionType.ADD_ALL.toString())) {
-                    String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    if (srcFound == null) {
-                        srcFound = previousControlSrc;
-                    } else {
-                        srcFound = JSONString.unescape(srcFound);
-                    }
-                    traces.add(new ModelAddAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.content.toString())).split(";"), JSONString.unescape(keys.get(ModelTraceConstants.typename.toString())).split(";")));
-                }
-                */
                 if (traceTypeRead.equals(KActionType.RENEW_INDEX.toString())) {
                 }
-                /*
-                if (traceTypeRead.equals(ActionType.REMOVE_ALL.toString())) {
-                    String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    if (srcFound == null) {
-                        srcFound = previousControlSrc;
-                    } else {
-                        srcFound = JSONString.unescape(srcFound);
-                    }
-                    traces.add(new ModelRemoveAllTrace(srcFound, keys.get(ModelTraceConstants.refname.toString())));
-                }
-                */
                 if (traceTypeRead.equals(KActionType.REMOVE.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     if (srcFound == null) {
@@ -132,7 +111,7 @@ public class TraceSequence {
                     } else {
                         srcFound = JSONString.unescape(srcFound);
                     }
-                    traces.add(new ModelRemoveTrace(srcFound, keys.get(ModelTraceConstants.refname.toString()), JSONString.unescape(keys.get(ModelTraceConstants.objpath.toString()))));
+                    traces.add(new ModelRemoveTrace(srcFound, new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.objpath.toString()))));
                 }
             }
             currentToken = lexer.nextToken();

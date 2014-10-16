@@ -1,14 +1,17 @@
 package org.kevoree.modeling.api.trace;
 
-import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.json.JSONString;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 /**
  * Created by duke on 10/3/14.
  */
 public class ModelAddTrace implements ModelTrace {
 
-    private String refName = "";
+    private MetaReference reference;
 
     private KActionType traceType = KActionType.ADD;
 
@@ -18,37 +21,29 @@ public class ModelAddTrace implements ModelTrace {
         return previousPath;
     }
 
-    public void setPreviousPath(String previousPath) {
-        this.previousPath = previousPath;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
     private String previousPath;
 
-    private String typeName;
+    public MetaClass getMetaClass() {
+        return metaClass;
+    }
 
-    public ModelAddTrace(String srcPath, String refName, String previousPath, String typeName) {
+    private MetaClass metaClass;
+
+    public ModelAddTrace(String srcPath, MetaReference reference, String previousPath, MetaClass metaClass) {
         this.srcPath = srcPath;
-        this.refName = refName;
+        this.reference = reference;
         this.previousPath = previousPath;
-        this.typeName = typeName;
+        this.metaClass = metaClass;
     }
 
     @Override
-    public String getRefName() {
-        return refName;
+    public String toString() {
+        return toCString(true, true);
     }
 
     @Override
-    public void setRefName(String refName) {
-        this.refName = refName;
+    public Meta getMeta() {
+        return reference;
     }
 
     @Override
@@ -57,23 +52,8 @@ public class ModelAddTrace implements ModelTrace {
     }
 
     @Override
-    public void setTraceType(KActionType traceType) {
-        this.traceType = traceType;
-    }
-
-    @Override
     public String getSrcPath() {
         return srcPath;
-    }
-
-    @Override
-    public void setSrcPath(String srcPath) {
-        this.srcPath = srcPath;
-    }
-
-    @Override
-    public String toString() {
-        return toCString(true, true);
     }
 
     @Override
@@ -101,11 +81,11 @@ public class ModelAddTrace implements ModelTrace {
             buffer.append(ModelTraceConstants.coma);
         }
         buffer.append(ModelTraceConstants.bb);
-        buffer.append(ModelTraceConstants.refname);
+        buffer.append(ModelTraceConstants.meta);
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        buffer.append(refName);
+        buffer.append(reference.metaName());
         buffer.append(ModelTraceConstants.bb);
         if (previousPath != null) {
             buffer.append(ModelTraceConstants.coma);
@@ -117,14 +97,14 @@ public class ModelAddTrace implements ModelTrace {
             JSONString.encodeBuffer(buffer, previousPath);
             buffer.append(ModelTraceConstants.bb);
         }
-        if (typeName != null) {
+        if (metaClass != null) {
             buffer.append(ModelTraceConstants.coma);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.typename);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            JSONString.encodeBuffer(buffer, typeName);
+            JSONString.encodeBuffer(buffer, metaClass.metaName());
             buffer.append(ModelTraceConstants.bb);
         }
         buffer.append(ModelTraceConstants.closeJSON);

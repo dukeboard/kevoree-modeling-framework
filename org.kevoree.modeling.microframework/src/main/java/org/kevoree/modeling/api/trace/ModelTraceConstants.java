@@ -7,7 +7,7 @@ public enum ModelTraceConstants {
 
     traceType("t"),
     src("s"),
-    refname("r"),
+    meta("m"),
     previouspath("p"),
     typename("n"),
     objpath("o"),

@@ -1,14 +1,14 @@
 package org.kevoree.modeling.api.trace;
 
-import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.json.JSONString;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 /**
  * Created by duke on 10/3/14.
  */
 public class ModelRemoveTrace implements ModelTrace {
-
-    private String refName = "";
 
     private KActionType traceType = KActionType.REMOVE;
 
@@ -16,9 +16,11 @@ public class ModelRemoveTrace implements ModelTrace {
 
     private String objPath;
 
-    public ModelRemoveTrace(String srcPath, String refName, String objPath) {
+    private MetaReference reference;
+
+    public ModelRemoveTrace(String srcPath, MetaReference reference, String objPath) {
         this.srcPath = srcPath;
-        this.refName = refName;
+        this.reference = reference;
         this.objPath = objPath;
     }
 
@@ -26,18 +28,9 @@ public class ModelRemoveTrace implements ModelTrace {
         return objPath;
     }
 
-    public void setObjPath(String objPath) {
-        this.objPath = objPath;
-    }
-
     @Override
-    public String getRefName() {
-        return refName;
-    }
-
-    @Override
-    public void setRefName(String refName) {
-        this.refName = refName;
+    public Meta getMeta() {
+        return reference;
     }
 
     @Override
@@ -46,18 +39,8 @@ public class ModelRemoveTrace implements ModelTrace {
     }
 
     @Override
-    public void setTraceType(KActionType traceType) {
-        this.traceType = traceType;
-    }
-
-    @Override
     public String getSrcPath() {
         return srcPath;
-    }
-
-    @Override
-    public void setSrcPath(String srcPath) {
-        this.srcPath = srcPath;
     }
 
     @Override
@@ -90,11 +73,11 @@ public class ModelRemoveTrace implements ModelTrace {
             buffer.append(ModelTraceConstants.coma);
         }
         buffer.append(ModelTraceConstants.bb);
-        buffer.append(ModelTraceConstants.refname);
+        buffer.append(ModelTraceConstants.meta);
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        buffer.append(refName);
+        buffer.append(reference.metaName());
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);

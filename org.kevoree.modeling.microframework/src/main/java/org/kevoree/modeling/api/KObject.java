@@ -95,7 +95,11 @@ public interface KObject<A extends KObject, B extends KView> {
     /* Powerful Trace API, maybe consider to hide TODO */
     public List<ModelTrace> createTraces(A similarObj, boolean isInter, boolean isMerge, boolean onlyReferences, boolean onlyAttributes);
 
-    public List<ModelTrace> toTraces(boolean attributes, boolean references);
+    public enum TraceRequest {
+        ATTRIBUTES_ONLY, REFERENCES_ONLY, ATTRIBUTES_REFERENCES
+    }
+
+    public ModelTrace[] traces(TraceRequest request);
     /* end to clean zone TODO */
 
     public Object get(MetaAttribute attribute);

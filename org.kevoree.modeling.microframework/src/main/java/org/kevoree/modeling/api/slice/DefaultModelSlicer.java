@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelSlicer;
 import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
@@ -32,17 +31,17 @@ public class DefaultModelSlicer implements ModelSlicer {
                     Collections.reverse(parents);
                     for (KObject parent : parents) {
                         if (parent.parentPath() != null) {
-                            traces.add(new ModelAddTrace(parent.parentPath(), parent.referenceInParent().metaName(), parent.path(), parent.metaClass().metaName()));
+                            traces.add(new ModelAddTrace(parent.parentPath(), parent.referenceInParent(), parent.path(), parent.metaClass()));
                         }
-                        traces.addAll(parent.toTraces(true, false));
+                        traces.addAll(Arrays.asList(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY)));
                         parentMap.put(parent.path(), parent);
                     }
                     //Add attributes and references of pruned object
                     if (cache.get(elem.path()) == null && parentMap.get(elem.path()) == null) {
                         if (elem.parentPath() != null) {
-                            traces.add(new ModelAddTrace(elem.parentPath(), elem.referenceInParent().metaName(), elem.path(), elem.metaClass().metaName()));
+                            traces.add(new ModelAddTrace(elem.parentPath(), elem.referenceInParent(), elem.path(), elem.metaClass()));
                         }
-                        traces.addAll(elem.toTraces(true, false));
+                        traces.addAll(Arrays.asList(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY)));
                     }
                     //We register this element as reachable
                     cache.put(elem.path(), elem);
@@ -77,7 +76,8 @@ public class DefaultModelSlicer implements ModelSlicer {
         }, (t) -> {
             for (String toLinkKey : tempMap.keySet()) {
                 KObject toLink = tempMap.get(toLinkKey);
-                traces.addAll(toLink.toTraces(false, true));
+                ModelTrace[] relationTraces = toLink.traces(KObject.TraceRequest.REFERENCES_ONLY);
+                traces.addAll(Arrays.asList(relationTraces));
             }
             callback.on(new TraceSequence().populate(traces));
         });

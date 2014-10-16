@@ -9,4 +9,6 @@ public interface MetaAttribute extends Meta {
 
     boolean key();
 
+    MetaClass origin();
+
 }

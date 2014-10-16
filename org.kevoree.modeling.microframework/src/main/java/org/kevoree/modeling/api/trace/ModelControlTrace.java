@@ -2,13 +2,12 @@ package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.meta.Meta;
 
 /**
  * Created by duke on 10/3/14.
  */
 public class ModelControlTrace implements ModelTrace {
-
-    private String refName = "";
 
     private KActionType traceType = KActionType.CONTROL;
 
@@ -22,13 +21,8 @@ public class ModelControlTrace implements ModelTrace {
     }
 
     @Override
-    public String getRefName() {
-        return refName;
-    }
-
-    @Override
-    public void setRefName(String refName) {
-        this.refName = refName;
+    public Meta getMeta() {
+        return null;
     }
 
     @Override
@@ -37,18 +31,8 @@ public class ModelControlTrace implements ModelTrace {
     }
 
     @Override
-    public void setTraceType(KActionType traceType) {
-        this.traceType = traceType;
-    }
-
-    @Override
     public String getSrcPath() {
         return srcPath;
-    }
-
-    @Override
-    public void setSrcPath(String srcPath) {
-        this.srcPath = srcPath;
     }
 
     @Override
@@ -78,7 +62,7 @@ public class ModelControlTrace implements ModelTrace {
             buffer.append(ModelTraceConstants.bb);
         } else {
             buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.refname);
+            buffer.append(ModelTraceConstants.meta);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);

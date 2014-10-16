@@ -25,6 +25,10 @@ public interface Node extends KObject<Node, CloudView> {
 
         private boolean key;
 
+        public MetaClass origin(){
+            return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
+        }
+
         public int index() {
             return index;
         }
@@ -88,6 +92,10 @@ public interface Node extends KObject<Node, CloudView> {
 
         public boolean contained() {
             return contained;
+        }
+
+        public MetaClass origin(){
+            return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
         }
 
         METAREFERENCES(String name, int index, boolean contained, boolean single, MetaClass metaType, MetaReference opposite) {

@@ -13,4 +13,6 @@ public interface MetaReference extends Meta {
 
     MetaReference opposite();
 
+    MetaClass origin();
+
 }
