@@ -91,6 +91,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (this.path.length() == 1 && this.path.charAt(0) == Helper.pathSep) {
             this.isRoot = true;
         }
+        factory().dimension().universe().dataCache().put(dimension(), factoryNow, newPath, this);
+        this.visitAttributes(new ModelAttributeVisitor() {
+            @Override
+            public void visit(MetaAttribute metaAttribute, Object value) {
+                //TODO optimize for copy the object
+                factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, newPath, metaAttribute.index(), value);
+            }
+        });
     }
 
     @Override
@@ -228,14 +236,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     private void attach(MetaReference metaReference, KObject param, boolean fireEvent, Callback<Boolean> callback) {
         if (metaReference.contained()) {
             String newPath = Helper.path(this, metaReference, param);
-            factory().dimension().universe().dataCache().put(dimension(), factoryNow, newPath, param);
-            param.visitAttributes(new ModelAttributeVisitor() {
-                @Override
-                public void visit(MetaAttribute metaAttribute, Object value) {
-                    //TODO optimize for copy the object
-                    factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, newPath, metaAttribute.index(), value);
-                }
-            });
             ((AbstractKObject) param).setPath(newPath);
             ((AbstractKObject) param).setReferenceInParent(metaReference);
             //TODO rename here, process inbounds reference and so on
