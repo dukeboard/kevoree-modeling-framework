@@ -2,6 +2,7 @@ package org.kevoree.modeling.microframework.test.json;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.ModelLoader;
+import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.data.MemoryDataStore;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -37,6 +38,14 @@ public class JSONLoadTest {
                 "\t\"name\":\"n1\" \n" +
                 "}\n" +
                 "]", (res) -> {
+
+            time0.lookup("/", (r) -> {
+                System.err.println(r);
+                r.treeVisit((elem,v)->{
+                    System.err.println(elem);
+                    v.on(ModelVisitor.Result.CONTINUE);
+                },null);
+            });
 
         });
     }

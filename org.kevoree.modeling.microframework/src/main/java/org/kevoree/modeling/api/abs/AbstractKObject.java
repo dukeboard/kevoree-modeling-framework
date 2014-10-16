@@ -87,7 +87,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return path;
     }
 
-    protected void setPath(String newPath) {
+    public void setPath(String newPath) {
         Object[] payload = factory().dimension().universe().dataCache().getAllPayload(dimension(), now(), path);
         factory().dimension().universe().dataCache().put(dimension, factoryNow, newPath, this);
         factory().dimension().universe().dataCache().putAllPayload(dimension, factoryNow, newPath, payload);

@@ -112,7 +112,7 @@ public abstract class AbstractKView implements KView {
         if (resolved != null) {
             callback.on(resolved);
         } else {
-            System.err.println("WARNING: not resolved path=" + path + ",dimension=" + dimension() + ", time=" + now());
+            //System.err.println("WARNING: not resolved path=" + path + ",dimension=" + dimension() + ", time=" + now());
             //TODO more complex
 
             callback.on(null);
