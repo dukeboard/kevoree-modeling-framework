@@ -52,7 +52,6 @@ class LoadingContext {
 public class XMIModelLoader implements ModelLoader {
 
     private KView factory;
-    private ExecutorService executor = Executors.newCachedThreadPool();
 
     public static final String LOADER_XMI_LOCAL_NAME = "type";
     public static final String LOADER_XMI_XSI = "xsi";
@@ -123,26 +122,20 @@ public class XMIModelLoader implements ModelLoader {
 
     @Override
     public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback, Callback<Throwable> error) {
-        executor.submit(createLoadingTask(inputStream, callback, error));
-    }
-
-    private Runnable createLoadingTask(final InputStream inputStream, final Callback<KObject> callback, final Callback<Throwable> error) {
-        return () -> {
-            XmlParser parser = new XmlParser(inputStream);
-            if (!parser.hasNext()) {
-                error.on(new Exception("Empty stream. Can not load model."));
-            } else {
-                LoadingContext context = new LoadingContext();
-                context.successCallback = callback;
-                context.errorCallback = error;
-                context.xmiReader = parser;
+        XmlParser parser = new XmlParser(inputStream);
+        if (!parser.hasNext()) {
+            error.on(new Exception("Empty stream. Can not load model."));
+        } else {
+            LoadingContext context = new LoadingContext();
+            context.successCallback = callback;
+            context.errorCallback = error;
+            context.xmiReader = parser;
                 /*
                 context.attributeVisitor = new XmiLoaderAttributeVisitor(context);
                 context.referenceVisitor = new XmiLoaderReferenceVisitor(context);
                 */
-                deserialize(context);
-            }
-        };
+            deserialize(context);
+        }
     }
 
 
