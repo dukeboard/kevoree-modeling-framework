@@ -26,26 +26,6 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
     }
 
     @Override
-    public void root(org.kevoree.modeling.api.KObject elem, org.kevoree.modeling.api.Callback<Boolean> callback) {
-
-    }
-
-    @Override
-    public void select(String query, org.kevoree.modeling.api.Callback<java.util.List<org.kevoree.modeling.api.KObject>> callback) {
-
-    }
-
-    @Override
-    public void lookup(String path, org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject> callback) {
-
-    }
-
-    @Override
-    public void stream(String query, org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject> callback) {
-
-    }
-
-    @Override
     public org.kevoree.modeling.api.meta.MetaClass[] metaClasses() {
         return ${context.utilityPackage}.${context.metaModelName}View.METACLASSES.values();
     }
