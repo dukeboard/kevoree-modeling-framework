@@ -62,7 +62,7 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
     @Override
     public void on(MetaReference ref, Callback<Throwable> next) {
         if(!ref.contained()) {
-            final String[] value = new String[1];
+            final String[] value = {""};
             currentElement.each(ref, new Callback() {
                 @Override
                 public void on(Object o) {
@@ -108,13 +108,13 @@ class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
                     context.printStream.print("<");
                     context.printStream.print(ref.metaName());
                     context.printStream.print(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-                    System.out.println("["+elem.metaClass().metaName()+"] Attributes");
+                    System.out.println("["+elem.metaClass().metaName() + ":" + elem.get(elem.metaAttribute("name"))+"] Attributes");
                     elem.visitAttributes(context.attributesVisitor);
-                    System.out.println("["+elem.metaClass().metaName()+"] References");
+                    System.out.println("["+elem.metaClass().metaName()+ ":" + elem.get(elem.metaAttribute("name"))+"] References");
                     Helper.forall(elem.metaReferences(),new NonContainedReferencesCallbackChain(context,elem), (err)->{
                         if(err == null) {
                             context.printStream.println('>');
-                            System.out.println("["+elem.metaClass().metaName()+"] Contained");
+                            System.out.println("["+elem.metaClass().metaName()+ ":" + elem.get(elem.metaAttribute("name"))+"] Contained");
                             Helper.forall(elem.metaReferences(),new ContainedReferencesCallbackChain(context, elem), containedRefsEnd -> {
                                 if(containedRefsEnd == null) {
                                     context.printStream.print("</");
@@ -187,7 +187,6 @@ public class XMIModelSerializer implements ModelSerializer {
         model.treeVisit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
-                System.out.println("Visit:" + elem.path());
                 String parentXmiAddress = context.addressTable.get(elem.parentPath());
 
                 int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + elem.referenceInParent(), (s) -> 0);
