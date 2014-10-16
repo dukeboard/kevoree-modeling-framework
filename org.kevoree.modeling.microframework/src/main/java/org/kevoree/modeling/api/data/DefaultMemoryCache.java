@@ -44,6 +44,12 @@ public class DefaultMemoryCache implements DataCache {
     }
 
     @Override
+    public Object[] getAllPayload(KDimension dimension, long time, String path) {
+        String key = dimension.key() + sep + time + sep + path;
+        return payload_cache.get(key);
+    }
+
+    @Override
     public void putPayload(KDimension dimension, long time, String path, int index, Object payload) {
         String key = dimension.key() + sep + time + sep + path;
         Object[] previousArray = payload_cache.get(key);
@@ -51,6 +57,12 @@ public class DefaultMemoryCache implements DataCache {
             throw new RuntimeException("Inconsistency error, bad allocation");
         }
         previousArray[index] = payload;
+    }
+
+    @Override
+    public void putAllPayload(KDimension dimension, long time, String path, Object[] payload) {
+        String key = dimension.key() + sep + time + sep + path;
+        payload_cache.put(key, payload);
     }
 
     @Override
@@ -62,7 +74,6 @@ public class DefaultMemoryCache implements DataCache {
     public void putTimeTree(KDimension dimension, String path, TimeTree payload) {
         timeTreeCache.put(dimension.key() + path, payload);
     }
-
 
 
 }

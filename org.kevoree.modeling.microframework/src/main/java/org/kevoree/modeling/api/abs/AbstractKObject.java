@@ -88,19 +88,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     protected void setPath(String newPath) {
+        Object[] payload = factory().dimension().universe().dataCache().getAllPayload(dimension(),now(),path);
+        factory().dimension().universe().dataCache().put(dimension, factoryNow, newPath, this);
+        factory().dimension().universe().dataCache().putAllPayload(dimension,factoryNow,newPath,payload);
         this.path = newPath;
         if (Helper.isRoot(this.path)) {
             isRoot = true;
         }
-        factory().dimension().universe().dataCache().put(dimension(), factoryNow, newPath, this);
-        //TODO change to a move payload command
-        this.visitAttributes(new ModelAttributeVisitor() {
-            @Override
-            public void visit(MetaAttribute metaAttribute, Object value) {
-                //TODO optimize for copy the object
-                factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, newPath, metaAttribute.index(), value);
-            }
-        });
     }
 
     @Override
@@ -286,9 +280,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         previousList = new HashSet<String>(previousList);
                         factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), previous);
                     }
-                    internalUpdateTimeTrees();
                     final Set<String> finalPreviousList = previousList;
                     attach(metaReference, param, fireEvent, (res) -> {
+                        internalUpdateTimeTrees();
                         finalPreviousList.add(param.path());
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
@@ -305,9 +299,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent, callback);
                 } else {
                     Object previous = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
-                    internalUpdateTimeTrees();
                     attach(metaReference, param, fireEvent, (res) -> {
-                        factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), param.path());
+                        internalUpdateTimeTrees();
+                        factory().dimension().universe().dataCache().putPayload(dimension, factoryNow, path(), metaReference.index(), param.path());
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous == null) {
                                 param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
@@ -331,8 +325,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             case REMOVE:
                 if (metaReference.single()) {
                     factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), null);
-                    internalUpdateTimeTrees();
                     detach(metaReference, param, fireEvent, (res2) -> {
+                        internalUpdateTimeTrees();
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
                         } else {
@@ -350,8 +344,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), previousList);
                         }
                         previousList.remove(param.path());
-                        internalUpdateTimeTrees();
                         detach(metaReference, param, fireEvent, (res2) -> {
+                            internalUpdateTimeTrees();
                             if (metaReference.opposite() != null && setOpposite) {
                                 param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
                             } else {

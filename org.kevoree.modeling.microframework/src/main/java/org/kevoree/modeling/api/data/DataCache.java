@@ -11,12 +11,17 @@ public interface DataCache {
 
     public KObject get(KDimension dimension, long time, String path);
 
-    public Object getPayload(KDimension dimension, long time, String key, int index);
+    public Object getPayload(KDimension dimension, long time, String path, int index);
+
+    public Object[] getAllPayload(KDimension dimension, long time, String path);
 
     public void putPayload(KDimension dimension, long time, String path, int index, Object payload);
+
+    public void putAllPayload(KDimension dimension, long time, String path, Object[] payload);
 
     public TimeTree getTimeTree(KDimension dimension, String path);
 
     public void putTimeTree(KDimension dimension, String path, TimeTree payload);
+
 
 }
