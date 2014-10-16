@@ -99,7 +99,7 @@ public interface KObject<A extends KObject, B extends KView> {
         ATTRIBUTES_ONLY, REFERENCES_ONLY, ATTRIBUTES_REFERENCES
     }
 
-    public ModelTrace[] traces(TraceRequest request);
+    public List<ModelTrace> traces(TraceRequest request);
     /* end to clean zone TODO */
 
     public Object get(MetaAttribute attribute);

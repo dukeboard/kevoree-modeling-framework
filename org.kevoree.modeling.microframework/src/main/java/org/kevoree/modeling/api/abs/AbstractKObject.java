@@ -12,6 +12,7 @@ import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,8 +89,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     protected void setPath(String newPath) {
         this.path = newPath;
-        if (this.path.length() == 1 && this.path.charAt(0) == Helper.pathSep) {
-            this.isRoot = true;
+        if (Helper.isRoot(this.path)) {
+            isRoot = true;
         }
         factory().dimension().universe().dataCache().put(dimension(), factoryNow, newPath, this);
         //TODO change to a move payload command
@@ -610,21 +611,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public ModelTrace[] traces(TraceRequest request) {
-        int totalTraceSize = 0;
-        if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-            totalTraceSize = totalTraceSize + metaAttributes().length;
-        }
-        if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-            totalTraceSize = totalTraceSize + metaReferences().length;
-        }
-        int currentIndex = 0;
-        ModelTrace[] traces = new ModelTrace[totalTraceSize];
+    public List<ModelTrace> traces(TraceRequest request) {
+        List<ModelTrace> traces = new ArrayList<ModelTrace>();
         if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaAttributes().length; i++) {
                 MetaAttribute current = metaAttributes()[i];
-                traces[currentIndex] = new ModelSetTrace(path(), current, get(current));
-                currentIndex++;
+                Object payload = get(current);
+                if (payload != null) {
+                    traces.add(new ModelSetTrace(path(), current, payload));
+                }
             }
         }
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
@@ -635,12 +630,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Set<String> contents = (Set<String>) o;
                     String[] contentsArr = new String[contents.size()];
                     for (int j = 0; j < contentsArr.length; j++) {
-                        traces[currentIndex] = new ModelAddTrace(path(), ref, contentsArr[j], null);
+                        traces.add(new ModelAddTrace(path(), ref, contentsArr[j], null));
                     }
+                } else if (o != null) {
+                    traces.add(new ModelAddTrace(path(), ref, o.toString(), null));
                 } else {
-                    traces[currentIndex] = new ModelAddTrace(path(), ref, o.toString(), null);
+                    //traces[currentIndex] = new ModelAddTrace(path(), ref, null, null);
                 }
-                currentIndex++;
             }
         }
         return traces;

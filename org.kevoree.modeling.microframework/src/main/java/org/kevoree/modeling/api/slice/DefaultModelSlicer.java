@@ -33,7 +33,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                         if (parent.parentPath() != null) {
                             traces.add(new ModelAddTrace(parent.parentPath(), parent.referenceInParent(), parent.path(), parent.metaClass()));
                         }
-                        traces.addAll(Arrays.asList(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY)));
+                        traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                         parentMap.put(parent.path(), parent);
                     }
                     //Add attributes and references of pruned object
@@ -41,7 +41,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                         if (elem.parentPath() != null) {
                             traces.add(new ModelAddTrace(elem.parentPath(), elem.referenceInParent(), elem.path(), elem.metaClass()));
                         }
-                        traces.addAll(Arrays.asList(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY)));
+                        traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                     }
                     //We register this element as reachable
                     cache.put(elem.path(), elem);
@@ -76,8 +76,7 @@ public class DefaultModelSlicer implements ModelSlicer {
         }, (t) -> {
             for (String toLinkKey : tempMap.keySet()) {
                 KObject toLink = tempMap.get(toLinkKey);
-                ModelTrace[] relationTraces = toLink.traces(KObject.TraceRequest.REFERENCES_ONLY);
-                traces.addAll(Arrays.asList(relationTraces));
+                traces.addAll(toLink.traces(KObject.TraceRequest.REFERENCES_ONLY));
             }
             callback.on(new TraceSequence().populate(traces));
         });

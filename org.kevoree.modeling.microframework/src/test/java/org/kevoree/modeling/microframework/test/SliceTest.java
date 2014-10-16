@@ -1,22 +1,23 @@
 package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
-import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelCompare;
+import org.kevoree.modeling.api.ModelSlicer;
 import org.kevoree.modeling.api.data.MemoryDataStore;
-import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
+import java.util.Arrays;
+
 /**
  * Created by duke on 10/16/14.
  */
-public class TraceTest {
+public class SliceTest {
 
     @Test
-    public void traceTest() {
+    public void slideTest() {
         CloudUniverse universe = new CloudUniverse(new MemoryDataStore());
         CloudDimension dimension0 = universe.create();
         CloudView time0 = dimension0.time(0l);
@@ -30,11 +31,18 @@ public class TraceTest {
         Node n2 = time0.createNode();
         n2.setName("n2");
 
+        System.err.println(n2.getName());
+
+
         root.addChildren(n1, null);
         root.addChildren(n2, null);
 
-        ModelCompare compare = time0.createModelCompare();
-        compare.inter(root,root,(seq)->{
+
+        System.err.println(n2.getName());
+
+
+        ModelSlicer slicer = time0.createModelSlicer();
+        slicer.slice(Arrays.asList(root),(seq)->{
            System.err.println(seq);
         });
 
