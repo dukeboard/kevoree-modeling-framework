@@ -75,12 +75,12 @@ public class Helper {
         return path.length() > 0 && path.charAt(0) == pathSep;
     }
 
-    public static boolean isRoot(String path){
+    public static boolean isRoot(String path) {
         return path.length() == 1 && path.charAt(0) == Helper.pathSep;
     }
 
     public static String path(KObject parent, MetaReference reference, KObject target) {
-        if(isRoot(parent.path())){
+        if (isRoot(parent.path())) {
             return pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;
         } else {
             return parent.path() + pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;

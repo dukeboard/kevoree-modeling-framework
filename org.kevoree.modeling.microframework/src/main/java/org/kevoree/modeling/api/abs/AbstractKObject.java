@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
+import org.kevoree.modeling.api.util.InternalInboundRef;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -619,6 +620,39 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
         return traces;
+    }
+
+    public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end) {
+        int maxIndex = metaAttributes().length + metaReferences().length;
+        Object payload = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), maxIndex);
+        if (payload != null) {
+            Set<InternalInboundRef> refs = (Set<InternalInboundRef>) payload;
+            Helper.forall(refs.toArray(new InternalInboundRef[refs.size()]), new CallBackChain<InternalInboundRef>() {
+                @Override
+                public void on(InternalInboundRef internalInboundRef, Callback<Throwable> next) {
+                    factory().lookup(internalInboundRef.getPath(), (resolved) -> {
+                        if (resolved != null) {
+                            InboundReference reference = new InboundReference(resolved.metaReference(internalInboundRef.getMeta()), resolved);
+                            try {
+                                callback.on(reference);
+                                next.on(null);
+                            } catch (Throwable t) {
+                                end.on(t);
+                            }
+                        } else {
+                            next.on(new Exception("Path not resolvable " + internalInboundRef.getPath()));
+                        }
+                    });
+                }
+            }, new Callback<Throwable>() {
+                @Override
+                public void on(Throwable throwable) {
+                    end.on(throwable);
+                }
+            });
+        } else {
+            end.on(null);
+        }
     }
 
 }

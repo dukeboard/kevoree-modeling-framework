@@ -41,10 +41,10 @@ public class JSONLoadTest {
 
             time0.lookup("/", (r) -> {
                 System.err.println(r);
-                r.treeVisit((elem,v)->{
+                r.treeVisit((elem, v) -> {
                     System.err.println(elem);
                     v.on(ModelVisitor.Result.CONTINUE);
-                },null);
+                }, null);
             });
 
         });

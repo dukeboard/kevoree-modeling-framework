@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by thomas on 10/2/14.
@@ -85,6 +86,8 @@ public interface KObject<A extends KObject, B extends KView> {
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent, Callback<Throwable> callback);
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
+
+    public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end);
 
     /* End Reflexive API */
     public enum TraceRequest {
