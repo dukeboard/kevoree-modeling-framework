@@ -29,6 +29,7 @@ public class XmlParser {
 
     public XmlParser(InputStream inputStream) {
         this.inputStream = inputStream;
+        currentChar = readChar();
     }
 
     //private val bytes = inputStream.readBytes()
@@ -40,6 +41,7 @@ public class XmlParser {
 
     public Boolean hasNext() {
         try {
+            read_lessThan();
             return inputStream.available() > 0;
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,7 +72,9 @@ public class XmlParser {
 
     private char readChar() {
         try {
-            return (char)inputStream.read();
+            if(inputStream.available() > 0) {
+                return (char) inputStream.read();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -120,7 +124,7 @@ public class XmlParser {
     }
 
     private void read_lessThan() {
-        do{ currentChar = readChar(); }while(currentChar!= '<');
+        while(currentChar != '<' && currentChar != '\0'){ currentChar = readChar(); }
     }
 
     private void read_upperThan() {
@@ -206,8 +210,6 @@ public class XmlParser {
                     end_of_tag = true;
                 }
             } while(!end_of_tag && currentChar == ' ');
-
-
 
         }
 

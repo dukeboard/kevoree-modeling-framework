@@ -1,6 +1,8 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaReference;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -36,9 +38,7 @@ class LoadingContext {
     public HashMap<String, Integer> stats = new HashMap<String, Integer>();
     public HashMap<String, Boolean> oppositesAlreadySet = new HashMap<String, Boolean>();
 
-
     public Callback<KObject> successCallback;
-    public Callback<Throwable> errorCallback;
 
     public Boolean isOppositeAlreadySet(String localRef, String oppositeRef) {
         return (oppositesAlreadySet.get(oppositeRef + "_" + localRef) != null || (oppositesAlreadySet.get(localRef + "_" + oppositeRef) != null));
@@ -60,12 +60,6 @@ public class XMIModelLoader implements ModelLoader {
 
     public XMIModelLoader(KView factory) {
         this.factory = factory;
-    }
-
-    private boolean namedElementSupportActivated = false;
-
-    public void activateSupportForNamedElements(boolean activate) {
-        namedElementSupportActivated = activate;
     }
 
     private String unescapeXml(String src) {
@@ -114,7 +108,6 @@ public class XMIModelLoader implements ModelLoader {
         }
     }
 
-
     @Override
     public void loadModelFromString(String str, Callback<KObject> callback) {
         loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback);
@@ -129,10 +122,6 @@ public class XMIModelLoader implements ModelLoader {
             LoadingContext context = new LoadingContext();
             context.successCallback = callback;
             context.xmiReader = parser;
-                /*
-                context.attributeVisitor = new XmiLoaderAttributeVisitor(context);
-                context.referenceVisitor = new XmiLoaderReferenceVisitor(context);
-                */
             deserialize(context);
         }
     }
@@ -148,7 +137,6 @@ public class XMIModelLoader implements ModelLoader {
                     case START_TAG: {
                         String localName = reader.getLocalName();
                         if (localName != null) {
-                            //int loadedRootsSize = context.loadedRoots.size();
 
                             HashMap<String, String> ns = new HashMap<String, String>();
 
@@ -167,7 +155,6 @@ public class XMIModelLoader implements ModelLoader {
                                 realTypeName = xsiType;
                             }
                             context.loadedRoots = loadObject(context, "/", xsiType + "." + localName);
-
                         } else {
                             System.err.println("Tried to read a tag with null tag_name.");
                         }
@@ -179,20 +166,17 @@ public class XMIModelLoader implements ModelLoader {
                         break;
                     }
                     default: {
-                    /*println("Default case :" + nextTag.toString())*/
+                       // System.err.println("Default case :" + nextTag.toString());
                     }
                 }
             }
             for (XMIResolveCommand res : context.resolvers) {
                 res.run();
             }
-        /*
-        if (context.resourceSet != null && nsURI != null) {
-            resourceSet!!.registerXmiAddrMappedObjects(nsURI!!, context.map)
-        }*/
             context.successCallback.on(context.loadedRoots);
         } catch (Exception e) {
-            context.errorCallback.on(e);
+            e.printStackTrace();
+            context.successCallback.on(null);
         }
     }
 
@@ -226,69 +210,41 @@ public class XMIModelLoader implements ModelLoader {
 
     private KObject loadObject(LoadingContext ctx, String xmiAddress, String objectType) throws Exception {
         String elementTagName = ctx.xmiReader.getLocalName();
-
         KObject modelElem = callFactory(ctx, objectType);
-
         if (modelElem == null) {
             throw new Exception("Could not create an object for local name " + elementTagName);
         }
         ctx.map.put(xmiAddress, modelElem);
-        //ctx.map.put(xmiAddress.replace(".0",""), modelElem!!)
-        //println("Registering " + xmiAddress)
-
-
-
-        /* Preparation of maps
-        if (!ctx.attributesHashmap.containsKey(modelElem.metaClass().metaName())) {
-            ctx.attributeVisitor.setParent(modelElem);
-            modelElem.visitAttributes(ctx.attributeVisitor);
-        }
-        HashMap elemAttributesMap = ctx.attributesHashmap.get(modelElem.metaClass().metaName());
-
-        if (!ctx.referencesHashmap.containsKey(modelElem.metaClass().metaName())) {
-            modelElem.visitAll(ctx.referenceVisitor,null);  //TODO check if not a dangerous synchronous call
-        }
-        * */
-        //HashMap<String, String> elemReferencesMap = ctx.referencesHashmap.get(modelElem.metaClass().metaName());
-
 
         /* Read attributes and References */
-        for (int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
+        for (int i = 0; i < ctx.xmiReader.getAttributeCount(); i++) {
             String prefix = ctx.xmiReader.getAttributePrefix(i);
             if (prefix == null || prefix.equals("")) {
                 String attrName = ctx.xmiReader.getAttributeLocalName(i).trim();
                 String valueAtt = ctx.xmiReader.getAttributeValue(i).trim();
                 if (valueAtt != null) {
-                    String[] referenceArray = valueAtt.split(" ");
-                    if (referenceArray.length > 1) {
-                        String xmiRef = referenceArray[0];
-                        for (int j = 0; j < referenceArray.length; j++) {
-                            String adjustedRef = (xmiRef.startsWith("#") ? xmiRef.substring(1) : xmiRef);
-
-                            adjustedRef = (adjustedRef.startsWith("//") ? "/0" + adjustedRef.substring(1) : adjustedRef);
-                            adjustedRef = adjustedRef.replace(".0", "");
-                            KObject ref = ctx.map.get(adjustedRef);
-                            if (ref != null) {
-                                modelElem.mutate(KActionType.ADD, modelElem.metaReference(attrName), ref, true, false, null);
-                            } else {
-                                ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, KActionType.ADD, attrName, adjustedRef));
-                            }
-                        }
+                    MetaAttribute kAttribute = modelElem.metaAttribute(attrName);
+                    if (kAttribute != null) {
+                        modelElem.set(kAttribute, unescapeXml(valueAtt), false);
                     } else {
-                        //reference, can be remote
-                        if (!valueAtt.startsWith("#") && !valueAtt.startsWith("/")) {
-                            throw new UnsupportedOperationException("ResourceSet not supported " + valueAtt);
-                        } else {
-                            modelElem.set(modelElem.metaAttribute(attrName), unescapeXml(valueAtt), false);
-                            if (namedElementSupportActivated && attrName.equals("name")) {
-                                KObject parent = ctx.map.get(xmiAddress.substring(0, xmiAddress.lastIndexOf("/")));
-                                ctx.map.entrySet().forEach(entry -> {
-                                    if (entry.getValue() == parent) {
-                                        String refT = entry.getKey() + "/" + unescapeXml(valueAtt);
-                                        ctx.map.put(refT, modelElem);
-                                    }
-                                });
+                        MetaReference kreference = modelElem.metaReference(attrName);
+                        if (kreference != null) {
+                            String[] referenceArray = valueAtt.split(" ");
+                            for (int j = 0; j < referenceArray.length; j++) {
+                                String xmiRef = referenceArray[j];
+
+                                String adjustedRef = (xmiRef.startsWith("#") ? xmiRef.substring(1) : xmiRef);
+                                //adjustedRef = (adjustedRef.startsWith("//") ? "/0" + adjustedRef.substring(1) : adjustedRef);
+                                adjustedRef = adjustedRef.replace(".0", "");
+                                KObject ref = ctx.map.get(adjustedRef);
+                                if (ref != null) {
+                                    modelElem.mutate(KActionType.ADD, kreference, ref, true, false, null);
+                                } else {
+                                    ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, KActionType.ADD, attrName, adjustedRef));
+                                }
                             }
+                        } else {
+                            //attribute ignored
                         }
                     }
                 }
@@ -318,55 +274,6 @@ public class XMIModelLoader implements ModelLoader {
         return modelElem;
 
     }
-
 }
-
-/*
-class XmiLoaderReferenceVisitor extends ModelVisitor {
-
-    public List<MetaReference refMap;
-    private LoadingContext context;
-
-    public XmiLoaderReferenceVisitor(LoadingContext context) {
-        this.context = context;
-    }
-
-    public void beginVisitElem(KObject elem ) {
-        refMap = context.referencesHashmap.computeIfAbsent(elem.metaClass().metaName(), s -> new HashMap<>());
-    }
-    public void endVisitElem(KObject elem) {
-        refMap = null;
-    }
-    public boolean beginVisitRef(String refName, String refType) {
-        refMap.put(refName, refType);
-        return true;
-    }
-
-    @Override
-    public void visit(KObject elem, MetaReference currentReference, KObject parent, Callback<Throwable> continueVisit) {
-
-    }
-}
-
-
-class XmiLoaderAttributeVisitor implements ModelAttributeVisitor {
-
-    private LoadingContext context;
-    private KObject parent;
-
-    public XmiLoaderAttributeVisitor(LoadingContext context) {
-        this.context = context;
-    }
-
-    public void setParent(KObject parent) {
-        this.parent = parent;
-        context.attributesHashmap.computeIfAbsent(parent.metaClass().metaName(), s -> new HashMap<>());
-    }
-
-    public void visit(String name, Object value) {
-        context.attributesHashmap.get(parent.metaClass().metaName()).put(name, true);
-    }
-}
-*/
 
 

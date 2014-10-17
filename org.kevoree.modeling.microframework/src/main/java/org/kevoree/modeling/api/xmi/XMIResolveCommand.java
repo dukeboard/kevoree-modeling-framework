@@ -25,12 +25,10 @@ public class XMIResolveCommand {
             target.mutate(mutatorType, target.metaReference(refName), referencedElement, true, false,null);
             return;
         }
-        if (ref.equals("/0/") || ref.equals("/")) {
-            referencedElement = context.map.get("/0");
-            if (referencedElement != null) {
-                target.mutate(mutatorType, target.metaReference(refName), referencedElement, true, false,null);
-                return;
-            }
+        referencedElement = context.map.get("/");
+        if (referencedElement != null) {
+            target.mutate(mutatorType, target.metaReference(refName), referencedElement, true, false,null);
+            return;
         }
         throw new Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " " + refName + "  on " + target.metaClass().metaName() + "(path:" + target.path() + ")");
     }
