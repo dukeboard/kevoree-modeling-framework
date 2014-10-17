@@ -87,28 +87,26 @@ public abstract class AbstractKView implements KView {
     }
 
     protected KObject manageCache(KObject obj) {
-        dimension().universe().dataCache().put(dimension(), now(), obj.path(), obj);
-        dimension().universe().dataCache().putTimeTree(dimension(), obj.path(), obj.timeTree());
+        dimension().universe().storage().initKObject(obj, dimension(), now);
         return obj;
     }
 
     @Override
     public void root(KObject elem, Callback<Boolean> callback) {
-        ((AbstractKObject)elem).setPath("/");
-        ((AbstractKObject)elem).setReferenceInParent(null);
-
-
-        //TODO manage rename
+        ((AbstractKObject) elem).setReferenceInParent(null);
+        ((AbstractKObject) elem).setRoot(true);
     }
 
     @Override
     public void select(String query, Callback<List<KObject>> callback) {
-
+        //TODO
     }
 
     @Override
     public void lookup(String path, Callback<KObject> callback) {
-        KObject resolved = dimension().universe().dataCache().get(dimension(), now(), path);
+        long index = -1;
+        //TODO resolve the right one
+        KObject resolved = dimension().universe().storage().cacheLookup(dimension(), now(), index);
         if (resolved != null) {
             callback.on(resolved);
         } else {

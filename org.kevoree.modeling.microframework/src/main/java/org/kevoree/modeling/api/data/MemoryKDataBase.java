@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.Callback;
 
 import java.util.HashMap;
 
-public class MemoryDataStore extends AbstractDataStore {
+public class MemoryKDataBase extends AbstractKDataBase {
 
     private HashMap<String, String> backend = new HashMap<String, String>();
 

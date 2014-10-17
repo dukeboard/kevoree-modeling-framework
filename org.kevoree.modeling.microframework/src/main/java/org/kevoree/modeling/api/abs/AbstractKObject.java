@@ -32,10 +32,16 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return factory;
     }
 
-    public AbstractKObject(B factory, MetaClass metaClass, String path, long now, KDimension dimension, TimeTree timeTree) {
+    private long kid;
+
+    public long kid() {
+        return kid;
+    }
+
+    public AbstractKObject(B factory, MetaClass metaClass, long kid, long now, KDimension dimension, TimeTree timeTree) {
         this.factory = factory;
         this.metaClass = metaClass;
-        this.path = path;
+        this.kid = kid;
         this.factoryNow = now;
         this.dimension = dimension;
         this.timeTree = timeTree;
@@ -60,6 +66,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return isRoot;
     }
 
+    public void setRoot(boolean isRoot) {
+        this.isRoot = isRoot;
+    }
+
     private long factoryNow;
 
     @Override
@@ -78,25 +88,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public KDimension dimension() {
+        //TODO resolve the best local dimension
         return dimension;
     }
 
-    private String path = null;
-
     @Override
     public String path() {
-        return path;
+        throw new RuntimeException("Not implemented yet");
     }
 
-    public void setPath(String newPath) {
-        Object[] payload = factory().dimension().universe().dataCache().getAllPayload(dimension(), now(), path);
-        factory().dimension().universe().dataCache().put(dimension, factoryNow, newPath, this);
-        factory().dimension().universe().dataCache().putAllPayload(dimension, factoryNow, newPath, payload);
-        this.path = newPath;
-        if (Helper.isRoot(this.path)) {
-            isRoot = true;
-        }
-    }
 
     @Override
     public String parentPath() {
@@ -206,13 +206,22 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     //TODO optimize , maybe dangerous if cache is unloaded ...
     @Override
     public Object get(MetaAttribute attribute) {
-        //here potentially manage learned attributes
-        return factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), attribute.index());
+        Object[] payload = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+        if (payload != null) {
+            return payload[attribute.index()];
+        } else {
+            return null;
+        }
     }
 
     @Override
     public void set(MetaAttribute attribute, Object payload, boolean fireEvents) {
-        factory().dimension().universe().dataCache().putPayload(dimension, factoryNow, path(), attribute.index(), payload);
+        Object[] internalPayload = factory().dimension().universe().storage().raw(dimension, factoryNow, kid);
+        if (internalPayload != null) {
+            internalPayload[attribute.index()] = payload;
+        } else {
+            throw new RuntimeException("Storage damaged");
+        }
         internalUpdateTimeTrees();
     }
 
@@ -222,6 +231,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     private void attach(MetaReference metaReference, KObject param, boolean fireEvent, Callback<Boolean> callback) {
+        /*
         if (metaReference.contained()) {
             String newPath = Helper.path(this, metaReference, param);
             ((AbstractKObject) param).setPath(newPath);
@@ -231,10 +241,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             callback.on(true);
         } else {
             callback.on(true);
-        }
+        }*/
+        callback.on(true);
     }
 
     private void detach(MetaReference metaReference, KObject param, boolean fireEvent, Callback<Boolean> callback) {
+        /*
         if (metaReference.contained()) {
             String newPath = Helper.newPath();
             factory().dimension().universe().dataCache().put(dimension(), factoryNow, newPath, param);
@@ -252,7 +264,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             callback.on(true);
         } else {
             callback.on(true);
-        }
+        }*/
+        callback.on(true);
     }
 
     @Override
@@ -262,20 +275,20 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (metaReference.single()) {
                     mutate(KActionType.SET, metaReference, param, setOpposite, fireEvent, callback);
                 } else {
-                    Object previous = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
+                    Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
                     if (previous == null) {
                         previous = new HashSet<String>();
-                        factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), previous);
+                        factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previous;
                     }
-                    Set<String> previousList = (Set<String>) previous;
+                    Set<Long> previousList = (Set<Long>) previous;
                     if (now() != factoryNow) {
-                        previousList = new HashSet<String>(previousList);
-                        factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), previous);
+                        previousList = new HashSet<Long>(previousList);
+                        factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previous;
                     }
-                    final Set<String> finalPreviousList = previousList;
+                    final Set<Long> finalPreviousList = previousList;
                     attach(metaReference, param, fireEvent, (res) -> {
                         internalUpdateTimeTrees();
-                        finalPreviousList.add(param.path());
+                        finalPreviousList.add(param.kid());
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
                         } else {
@@ -290,10 +303,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (!metaReference.single()) {
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent, callback);
                 } else {
-                    Object previous = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
+                    Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
                     attach(metaReference, param, fireEvent, (res) -> {
                         internalUpdateTimeTrees();
-                        factory().dimension().universe().dataCache().putPayload(dimension, factoryNow, path(), metaReference.index(), param.path());
+                        factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous == null) {
                                 param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
@@ -316,7 +329,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 break;
             case REMOVE:
                 if (metaReference.single()) {
-                    factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), null);
+                    factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = null;
                     detach(metaReference, param, fireEvent, (res2) -> {
                         internalUpdateTimeTrees();
                         if (metaReference.opposite() != null && setOpposite) {
@@ -328,14 +341,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                     });
                 } else {
-                    Object previous = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
+                    Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
                     if (previous != null) {
-                        Set<String> previousList = (Set<String>) previous;
+                        Set<Long> previousList = (Set<Long>) previous;
                         if (now() != factoryNow) {
-                            previousList = new HashSet<String>(previousList);
-                            factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, path(), metaReference.index(), previousList);
+                            previousList = new HashSet<Long>(previousList);
+                            factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previousList;
                         }
-                        previousList.remove(param.path());
+                        previousList.remove(param.kid());
                         detach(metaReference, param, fireEvent, (res2) -> {
                             internalUpdateTimeTrees();
                             if (metaReference.opposite() != null && setOpposite) {
@@ -359,10 +372,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
-        Object o = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
-        if(o == null) {
-            end.on(null);
-        } else if (o instanceof String) {
+        Object o = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
+        if (o instanceof String) {
             factory().lookup((String) o, new Callback<KObject>() {
                 @Override
                 public void on(KObject resolved) {
@@ -374,30 +385,27 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                 }
             });
-        } else if (o instanceof Set) {
-            Set<String> objs = (Set<String>) o;
-            String[] forArray = objs.toArray(new String[objs.size()]);
-            Helper.forall(forArray, new CallBackChain<String>() {
-                @Override
-                public void on(String o, Callback next) {
-                    factory().lookup(o, (resolved) -> {
-                        if (callback != null) {
+        } else {
+            if (o instanceof Set) {
+                Set<Long> objs = (Set<Long>) o;
+                factory().dimension().universe().storage().lookupAll(dimension(), now(), objs, (result) -> {
+                    boolean endAlreadyCalled = false;
+                    try {
+                        for (KObject resolved : result) {
                             callback.on((C) resolved);
                         }
-                        next.on(null);
-                    });
-                }
-            }, new Callback<Throwable>() {
-                @Override
-                public void on(Throwable throwable) {
-                    if (end != null) {
-                        end.on(throwable);
+                        endAlreadyCalled = true;
+                        end.on(null);
+                    } catch (Throwable t) {
+                        if (!endAlreadyCalled) {
+                            end.on(t);
+                        }
                     }
+                });
+            } else {
+                if (end != null) {
+                    end.on(new Exception("Inconsistent storage, Internal Error"));
                 }
-            });
-        } else {
-            if (end != null) {
-                end.on(new Exception("Inconsistent storage, Internal Error"));
             }
         }
     }
@@ -444,7 +452,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (treeOnly && !metaReference.contained()) {
                     nextReference.on(null);
                 } else {
-                    Object o = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReference.index());
+                    Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+                    Object o = null;
+                    if (raw != null) {
+                        o = raw[metaReference.index()];
+                    }
                     if (o instanceof String) {
                         factory().lookup((String) o, (resolved) -> {
                             visitor.visit(resolved, (res) -> {
@@ -552,7 +564,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
         for (int i = 0; i < metaReferences().length; i++) {
-            Object payload = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), metaReferences()[i].index());
+            Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+            Object payload = null;
+            if (raw != null) {
+                payload = raw[metaReferences()[i].index()];
+            }
             if (payload != null) {
                 builder.append("\t");
                 builder.append("\"");
@@ -607,7 +623,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaReferences().length; i++) {
                 MetaReference ref = metaReferences()[i];
-                Object o = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), ref.index());
+                Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+                Object o = null;
+                if (raw != null) {
+                    o = raw[ref.index()];
+                }
                 if (o instanceof Set) {
                     Set<String> contents = (Set<String>) o;
                     String[] contentsArr = contents.toArray(new String[contents.size()]);
@@ -624,7 +644,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end) {
         int maxIndex = metaAttributes().length + metaReferences().length;
-        Object payload = factory().dimension().universe().dataCache().getPayload(dimension(), now(), path(), maxIndex);
+        Object[] rawPayload = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+        Object payload = null;
+        if (rawPayload != null) {
+            payload = rawPayload[maxIndex];
+        }
         if (payload != null) {
             Set<InternalInboundRef> refs = (Set<InternalInboundRef>) payload;
             Helper.forall(refs.toArray(new InternalInboundRef[refs.size()]), new CallBackChain<InternalInboundRef>() {

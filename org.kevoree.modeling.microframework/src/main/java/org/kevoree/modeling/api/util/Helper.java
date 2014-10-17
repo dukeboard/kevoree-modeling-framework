@@ -67,10 +67,6 @@ public class Helper {
         }
     }
 
-    public static String newPath() {
-        return UUID.randomUUID().toString();
-    }
-
     public static boolean attachedToRoot(String path) {
         return path.length() > 0 && path.charAt(0) == pathSep;
     }

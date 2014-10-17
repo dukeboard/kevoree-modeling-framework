@@ -11,7 +11,7 @@ import org.kevoree.modeling.api.events.ModelEvent;
  * Time: 11:30
  */
 
-public interface DataStore {
+public interface KDataBase {
 
     public void get(String key, Callback<String> callback, Callback<Exception> error);
 

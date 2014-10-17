@@ -1,7 +1,7 @@
 package org.kevoree.modeling.microframework.test.xmi;
 
 import org.junit.Test;
-import org.kevoree.modeling.api.data.MemoryDataStore;
+import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
 import java.io.File;
@@ -23,7 +23,7 @@ public class Serializer {
             Semaphore s = new Semaphore(0);
 
 
-            CloudUniverse universe = new CloudUniverse(new MemoryDataStore());
+            CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
             CloudDimension dimension0 = universe.create();
             CloudView t0 = dimension0.time(0l);
             Node nodeT0 = t0.createNode();

@@ -31,9 +31,9 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
         TimeTree newTimeTree = new DefaultTimeTree().insert(now());
         switch (clazz.index()) {
             case 0:
-                return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, Helper.newPath(), now(), dimension(), newTimeTree));
+                return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
             case 1:
-                return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, Helper.newPath(), now(), dimension(), newTimeTree));
+                return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
             default:
                 return null;
         }

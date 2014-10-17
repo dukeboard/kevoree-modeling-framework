@@ -148,13 +148,13 @@ public class DefaultModelCompare implements ModelCompare {
         if (references) {
             for (int i = 0; i < current.metaReferences().length; i++) {
                 MetaReference reference = current.metaReferences()[i];
-                Object payload = current.factory().dimension().universe().dataCache().getPayload(current.dimension(), current.now(), current.path(), reference.index());
+                Object payload = current.factory().dimension().universe().storage().raw(current.dimension(), current.now(), current.kid())[reference.index()];
                 valuesRef.put(reference, payload);
             }
             if (sibling != null) {
                 for (int i = 0; i < sibling.metaReferences().length; i++) {
                     MetaReference reference = sibling.metaReferences()[i];
-                    Object payload2 = sibling.factory().dimension().universe().dataCache().getPayload(sibling.dimension(), sibling.now(), sibling.path(), reference.index());
+                    Object payload2 = sibling.factory().dimension().universe().storage().raw(sibling.dimension(), sibling.now(), sibling.kid())[reference.index()];
                     Object payload1 = valuesRef.get(reference);
                     if (reference.single()) {
                         boolean isEquals = true;
@@ -169,7 +169,7 @@ public class DefaultModelCompare implements ModelCompare {
                         }
                         if (isEquals) {
                             if (inter) {
-                                if(payload2!= null){
+                                if (payload2 != null) {
                                     traces.add(new ModelAddTrace(current.path(), reference, payload2.toString(), null));
                                 }
                             }
@@ -187,7 +187,7 @@ public class DefaultModelCompare implements ModelCompare {
                                 }
                             }
                         } else {
-                            if(payload1 != null){
+                            if (payload1 != null) {
                                 Set<String> currentPaths = (Set<String>) payload1;
                                 for (String currentPath : currentPaths) {
                                     boolean isFound = false;

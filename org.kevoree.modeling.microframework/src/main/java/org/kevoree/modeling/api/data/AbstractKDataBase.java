@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.data;
 import org.kevoree.modeling.api.events.ModelElementListener;
 import org.kevoree.modeling.api.events.ModelEvent;
 
-public abstract class AbstractDataStore implements DataStore {
+public abstract class AbstractKDataBase implements KDataBase {
 
     private final EventDispatcher selector = new EventDispatcher();
 

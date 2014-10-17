@@ -4,57 +4,41 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.data.DataCache;
-import org.kevoree.modeling.api.data.DataStore;
-import org.kevoree.modeling.api.data.DefaultMemoryCache;
+import org.kevoree.modeling.api.data.DefaultKStore;
+import org.kevoree.modeling.api.data.KDataBase;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.events.ModelElementListener;
-
-import java.util.HashMap;
 
 /**
  * Created by duke on 10/10/14.
  */
 public abstract class AbstractKUniverse<A extends KDimension> implements KUniverse<A> {
 
-    private HashMap<String, A> dimensions = new HashMap<String, A>();
+    private final KStore storage;
 
-    private DataStore dataStore;
-
-    private final DataCache dataCache = new DefaultMemoryCache();
-
-    protected AbstractKUniverse(DataStore dataStore) {
-        this.dataStore = dataStore;
+    protected AbstractKUniverse(KDataBase kDataBase) {
+        storage = new DefaultKStore(kDataBase);
         //TODO load previous existing and open dimensions
     }
 
     @Override
-    public DataStore dataStore() {
-        return dataStore;
-    }
-
-    @Override
-    public DataCache dataCache() {
-        return dataCache;
+    public KStore storage() {
+        return storage;
     }
 
     @Override
     public synchronized A create() {
-        //TODO optimize
-        for (int i = 0; i < 1000000; i++) {
-            if (!dimensions.containsKey("" + i)) {
-                A newDimension = internal_create(i + "");
-                dimensions.put(newDimension.key(), newDimension);
-                return newDimension;
-            }
-        }
-        return null;
+        long nextKey = storage.nextDimensionKey();
+        A newDimension = internal_create(nextKey);
+        storage().initDimension(newDimension);
+        return newDimension;
     }
 
-    protected abstract A internal_create(String key);
+    protected abstract A internal_create(long key);
 
     @Override
-    public A get(String key) {
-        return (A) dimensions.get(key);
+    public A get(long key) {
+        return (A) storage.getDimension(key);
     }
 
     @Override
@@ -86,6 +70,5 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     public void stream(String query, Callback<KObject> callback) {
 
     }
-
 
 }

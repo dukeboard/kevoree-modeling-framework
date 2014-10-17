@@ -9,7 +9,7 @@ import org.kevoree.modeling.microframework.test.cloud.impl.CloudViewImpl;
  */
 public class CloudDimension extends AbstractKDimension<CloudView, CloudDimension, CloudUniverse> {
 
-    protected CloudDimension(KUniverse univers, String key) {
+    protected CloudDimension(KUniverse univers, long key) {
         super(univers, key);
     }
 

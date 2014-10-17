@@ -84,6 +84,7 @@ public class JSONModelLoader implements ModelLoader {
                 currentToken = lexer.nextToken();
             }
 
+            /*
             Helper.forall(alls.toArray(new Map[alls.size()]), new CallBackChain<Map>() {
                 @Override
                 public void on(Map map, Callback<Throwable> next) {
@@ -96,8 +97,9 @@ public class JSONModelLoader implements ModelLoader {
                         } else {
                             resolved = r;
                         }
-                        ((AbstractKObject) resolved).setPath(payloads.get("@path").toString());
-                        Object[] payloadObj = factory.dimension().universe().dataCache().getAllPayload(resolved.dimension(), resolved.now(), resolved.path());
+                      //  long
+                        //((AbstractKObject) resolved).setPath();
+                        Object[] payloadObj = factory.dimension().universe().storage().raw(resolved.dimension(), resolved.now(), (Long)resolved.path());
                         for (String k : payloads.keySet()) {
                             MetaAttribute att = resolved.metaAttribute(k);
                             if (att != null) {
@@ -119,6 +121,7 @@ public class JSONModelLoader implements ModelLoader {
                     callback.on(null);//TODO
                 }
             });
+            */
         }
     }
 

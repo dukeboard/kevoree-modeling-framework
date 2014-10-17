@@ -18,15 +18,15 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     private KUniverse univers;
 
-    private String key;
+    private long key;
 
-    protected AbstractKDimension(KUniverse univers, String key) {
+    protected AbstractKDimension(KUniverse univers, long key) {
         this.univers = univers;
         this.key = key;
     }
 
     @Override
-    public String key() {
+    public long key() {
         return key;
     }
 
@@ -85,7 +85,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
             return timesCache.get(timePoint);
         } else {
             A newCreatedTime = internal_create(timePoint);
-            timesCache.put(timePoint,newCreatedTime);
+            timesCache.put(timePoint, newCreatedTime);
             return newCreatedTime;
         }
     }

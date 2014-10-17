@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface KDimension<A extends KView, B extends KDimension, C extends KUniverse> {
 
-    public String key();
+    public long key();
 
     public void parent(Callback<B> callback);
 

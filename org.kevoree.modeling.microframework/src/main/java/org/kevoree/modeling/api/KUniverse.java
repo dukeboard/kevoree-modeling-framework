@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.data.DataCache;
-import org.kevoree.modeling.api.data.DataStore;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.events.ModelElementListener;
 
 /**
@@ -12,7 +11,7 @@ public interface KUniverse<A extends KDimension> {
 
     public A create();
 
-    public A get(String key);
+    public A get(long key);
 
     public void saveAll(Callback<Boolean> callback);
 
@@ -26,8 +25,6 @@ public interface KUniverse<A extends KDimension> {
 
     public void stream(String query, Callback<KObject> callback);
 
-    public DataStore dataStore();
-
-    public DataCache dataCache();
+    public KStore storage();
 
 }
