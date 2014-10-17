@@ -11,7 +11,6 @@ import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
-import org.kevoree.modeling.api.util.InternalInboundRef;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -111,14 +110,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void parent(Callback<KObject> callback) {
-        /*
-        String parentPath = parentPath();
-        if (parentPath == null) {
+        Long parentKID = parentKID();
+        if (parentKID == null) {
             callback.on(null);
         } else {
-            factory.lookup(parentPath, callback);
+            factory.lookup(parentKID, callback);
         }
-        */
+
     }
 
     protected void setReferenceInParent(MetaReference referenceInParent) {
@@ -260,9 +258,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     if (metaReference.opposite() != null && setOpposite) {
                         param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
                     }
-                    if(metaReference.contained()){
-                        ((AbstractKObject)param).setReferenceInParent(metaReference);
-                        ((AbstractKObject)param).setParentKID(kid);
+                    if (metaReference.contained()) {
+                        ((AbstractKObject) param).setReferenceInParent(metaReference);
+                        ((AbstractKObject) param).setParentKID(kid);
                     }
                     internalUpdateTimeTrees();
                 }
@@ -273,9 +271,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 } else {
                     Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
                     factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
-                    if(metaReference.contained()){
-                        ((AbstractKObject)param).setReferenceInParent(metaReference);
-                        ((AbstractKObject)param).setParentKID(kid);
+                    if (metaReference.contained()) {
+                        ((AbstractKObject) param).setReferenceInParent(metaReference);
+                        ((AbstractKObject) param).setParentKID(kid);
                     }
                     internalUpdateTimeTrees();
                     if (metaReference.opposite() != null && setOpposite) {
@@ -294,9 +292,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             case REMOVE:
                 if (metaReference.single()) {
                     factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = null;
-                    if(metaReference.contained()){
-                        ((AbstractKObject)param).setReferenceInParent(null);
-                        ((AbstractKObject)param).setParentKID(null);
+                    if (metaReference.contained()) {
+                        ((AbstractKObject) param).setReferenceInParent(null);
+                        ((AbstractKObject) param).setParentKID(null);
                     }
                     internalUpdateTimeTrees();
                     if (metaReference.opposite() != null && setOpposite) {
@@ -311,9 +309,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previousList;
                         }
                         previousList.remove(param.kid());
-                        if(metaReference.contained()){
-                            ((AbstractKObject)param).setReferenceInParent(null);
-                            ((AbstractKObject)param).setParentKID(null);
+                        if (metaReference.contained()) {
+                            ((AbstractKObject) param).setReferenceInParent(null);
+                            ((AbstractKObject) param).setParentKID(null);
                         }
                         internalUpdateTimeTrees();
                         if (metaReference.opposite() != null && setOpposite) {
