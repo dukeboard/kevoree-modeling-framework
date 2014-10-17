@@ -23,7 +23,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public long kid();
 
-    public String path();
+    public void path(Callback<String> callback);
 
     public B factory();
 

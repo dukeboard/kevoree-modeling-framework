@@ -92,8 +92,20 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public String path() {
-        throw new RuntimeException("Not implemented yet");
+    public void path(Callback<String> callback) {
+        if(isRoot) {
+            callback.on("/");
+        } else {
+            parent((parent) -> {
+                if (parent == null) {
+                    callback.on(null);
+                } else {
+                    parent.path((parentPath) -> {
+                        callback.on(Helper.path(parentPath, referenceInParent, this));
+                    });
+                }
+            });
+        }
     }
 
     final static int PARENT_INDEX = 0;
@@ -504,7 +516,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         builder.append(metaClass().metaName());
         builder.append("\",\n");
         builder.append("\t\"@path\" : \"");
-        builder.append(path());
+        //builder.append(path());
         builder.append("\",\n");
         for (int i = 0; i < metaAttributes().length; i++) {
             Object payload = get(metaAttributes()[i]);

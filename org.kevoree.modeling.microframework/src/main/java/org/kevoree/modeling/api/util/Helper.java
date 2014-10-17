@@ -75,11 +75,11 @@ public class Helper {
         return path.length() == 1 && path.charAt(0) == Helper.pathSep;
     }
 
-    public static String path(KObject parent, MetaReference reference, KObject target) {
-        if (isRoot(parent.path())) {
+    public static String path(String parent, MetaReference reference, KObject target) {
+        if (isRoot(parent)) {
             return pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;
         } else {
-            return parent.path() + pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;
+            return parent + pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;
         }
     }
 
