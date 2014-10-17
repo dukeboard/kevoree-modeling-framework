@@ -12,6 +12,6 @@ public interface ModelTrace {
 
     public KActionType getTraceType();
 
-    public String getSrcPath();
+    public Long getSrcKID();
 
 }

@@ -7,6 +7,9 @@ import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
+import static org.junit.Assert.*;
+
+
 /**
  * Created by duke on 10/16/14.
  */
@@ -35,24 +38,27 @@ public class JSONSaveTest {
             result[0] = model;
         });
 
-        result[0].equals("[\n" +
+        String payloadResult = "[\n" +
                 "{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@path\" : \"/\",\n" +
+                "\t\"@kid\" : \"1\",\n" +
                 "\t\"name\":\"root\",\n" +
-                "\t\"children\": [\"/children[name=n2]\",\"/children[name=n1]\"] \n" +
+                "\t\"children\": [\"2\",\"3\"],\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@path\" : \"/children[name=n2]\",\n" +
-                "\t\"name\":\"n2\" \n" +
+                "\t\"@kid\" : \"2\",\n" +
+                "\t\"name\":\"n1\",\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@path\" : \"/children[name=n1]\",\n" +
-                "\t\"name\":\"n1\" \n" +
+                "\t\"@kid\" : \"3\",\n" +
+                "\t\"name\":\"n2\",\n" +
                 "}\n" +
-                "]");
+                "]\n";
+
+        assertEquals(result[0], payloadResult);
+
 
     }
 

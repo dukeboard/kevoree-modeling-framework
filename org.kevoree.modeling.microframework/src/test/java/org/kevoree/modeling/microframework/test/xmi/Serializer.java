@@ -27,14 +27,13 @@ public class Serializer {
            /*
            */
         t0.root(nodeT0);
-        String t0Path = nodeT0.path();
         Element child0 = t0.createElement();
         nodeT0.setElement(child0);
         Node nodeT1 = t0.createNode();
         nodeT1.setName("n1");
         nodeT0.addChildren(nodeT1);
 
-        t0.lookup(t0Path, (root) -> {
+        t0.lookup(nodeT0.kid(), (root) -> {
             try {
                 t0.createXMISerializer().serializeToStream(root, new FileOutputStream(new File("XMISerialized.xmi")), (error) -> {
                     if (error != null) {

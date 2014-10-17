@@ -61,7 +61,7 @@ public class DefaultModelCompare implements ModelCompare {
                                 if (inter) {
                                     //TODO
                                     MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentPath(), currentReference, elem.path(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.kid(), elem.metaClass()));
                                 }
                                 traces.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
                                 tracesRef.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
@@ -70,7 +70,7 @@ public class DefaultModelCompare implements ModelCompare {
                                 if (!inter) {
                                     //TODO
                                     MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentPath(), currentReference, elem.path(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.kid(), elem.metaClass()));
                                     traces.addAll(internal_createTraces(elem, elem, true, merge, false, true));
                                     tracesRef.addAll(internal_createTraces(elem, elem, true, merge, true, false));
                                 }
@@ -89,8 +89,8 @@ public class DefaultModelCompare implements ModelCompare {
                                     //if diff
                                     for (String diffChildKey : objectsMap.keySet()) {
                                         KObject diffChild = objectsMap.get(diffChildKey);
-                                        String src = diffChild.parentPath();
-                                        traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.path()));
+                                        Long src = diffChild.parentKID();
+                                        traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.kid()));
                                     }
                                 }
                                 callback.on(new TraceSequence().populate(traces));
@@ -127,11 +127,11 @@ public class DefaultModelCompare implements ModelCompare {
                     }
                     if (isEquals) {
                         if (inter) {
-                            traces.add(new ModelSetTrace(current.path(), att, flatAtt2));
+                            traces.add(new ModelSetTrace(current.kid(), att, flatAtt2));
                         }
                     } else {
                         if (!inter) {
-                            traces.add(new ModelSetTrace(current.path(), att, flatAtt2));
+                            traces.add(new ModelSetTrace(current.kid(), att, flatAtt2));
                         }
                     }
                     values.remove(att);
@@ -139,7 +139,7 @@ public class DefaultModelCompare implements ModelCompare {
             }
             if (!inter && !merge && !values.isEmpty()) {
                 for (MetaAttribute hashLoopRes : values.keySet()) {
-                    traces.add(new ModelSetTrace(current.path(), hashLoopRes, null));
+                    traces.add(new ModelSetTrace(current.kid(), hashLoopRes, null));
                     values.remove(hashLoopRes);
                 }
             }
@@ -170,38 +170,38 @@ public class DefaultModelCompare implements ModelCompare {
                         if (isEquals) {
                             if (inter) {
                                 if (payload2 != null) {
-                                    traces.add(new ModelAddTrace(current.path(), reference, payload2.toString(), null));
+                                    traces.add(new ModelAddTrace(current.kid(), reference, (Long) payload2, null));
                                 }
                             }
                         } else {
                             if (!inter) {
-                                traces.add(new ModelAddTrace(current.path(), reference, payload2.toString(), null));
+                                traces.add(new ModelAddTrace(current.kid(), reference, (Long) payload2, null));
                             }
                         }
                     } else {
                         if (payload1 == null && payload2 != null) {
-                            Set<String> siblingToAdd = (Set<String>) payload2;
-                            for (String siblingElem : siblingToAdd) {
+                            Set<Long> siblingToAdd = (Set<Long>) payload2;
+                            for (Long siblingElem : siblingToAdd) {
                                 if (!inter) {
-                                    traces.add(new ModelAddTrace(current.path(), reference, siblingElem, null));
+                                    traces.add(new ModelAddTrace(current.kid(), reference, siblingElem, null));
                                 }
                             }
                         } else {
                             if (payload1 != null) {
-                                Set<String> currentPaths = (Set<String>) payload1;
-                                for (String currentPath : currentPaths) {
+                                Set<Long> currentPaths = (Set<Long>) payload1;
+                                for (Long currentPath : currentPaths) {
                                     boolean isFound = false;
                                     if (payload2 != null) {
-                                        Set<String> siblingPaths = (Set<String>) payload2;
+                                        Set<Long> siblingPaths = (Set<Long>) payload2;
                                         isFound = siblingPaths.contains(currentPath);
                                     }
                                     if (isFound) {
                                         if (inter) {
-                                            traces.add(new ModelAddTrace(current.path(), reference, currentPath, null));
+                                            traces.add(new ModelAddTrace(current.kid(), reference, currentPath, null));
                                         }
                                     } else {
                                         if (!inter) {
-                                            traces.add(new ModelRemoveTrace(current.path(), reference, currentPath));
+                                            traces.add(new ModelRemoveTrace(current.kid(), reference, currentPath));
                                         }
                                     }
                                 }
@@ -213,12 +213,12 @@ public class DefaultModelCompare implements ModelCompare {
                 if (!inter && !merge && !values.isEmpty()) {
                     for (MetaReference hashLoopRes : valuesRef.keySet()) {
                         Object payload = valuesRef.get(hashLoopRes);
-                        if (payload instanceof String) {
-                            traces.add(new ModelRemoveTrace(current.path(), hashLoopRes, (String) payload));
+                        if (payload instanceof Long) {
+                            traces.add(new ModelRemoveTrace(current.kid(), hashLoopRes, (Long) payload));
                         } else if (payload != null) {
-                            Set<String> toRemoveSet = (Set<String>) payload;
-                            for (String toRemovePath : toRemoveSet) {
-                                traces.add(new ModelRemoveTrace(current.path(), hashLoopRes, toRemovePath));
+                            Set<Long> toRemoveSet = (Set<Long>) payload;
+                            for (Long toRemovePath : toRemoveSet) {
+                                traces.add(new ModelRemoveTrace(current.kid(), hashLoopRes, toRemovePath));
                             }
                         }
                     }

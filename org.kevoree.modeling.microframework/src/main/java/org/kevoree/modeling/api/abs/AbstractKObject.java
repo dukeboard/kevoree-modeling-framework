@@ -97,20 +97,28 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         throw new RuntimeException("Not implemented yet");
     }
 
+    final static int PARENT_INDEX = 0;
 
     @Override
-    public String parentPath() {
-        return Helper.parentPath(path());
+    public Long parentKID() {
+        Object[] raw = factory.dimension().universe().storage().raw(dimension(), now(), kid);
+        return (Long) raw[PARENT_INDEX];
+    }
+
+    public void setParentKID(Long parentKID) {
+        factory.dimension().universe().storage().raw(dimension(), now(), kid)[PARENT_INDEX] = parentKID;
     }
 
     @Override
     public void parent(Callback<KObject> callback) {
+        /*
         String parentPath = parentPath();
         if (parentPath == null) {
             callback.on(null);
         } else {
             factory.lookup(parentPath, callback);
         }
+        */
     }
 
     protected void setReferenceInParent(MetaReference referenceInParent) {
@@ -177,7 +185,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void jump(Long time, Callback<A> callback) {
-        factory().dimension().time(time).lookup(path(), (o) -> {
+        factory().dimension().time(time).lookup(kid, (o) -> {
             callback.on((A) o);
         });
     }
@@ -252,10 +260,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     if (metaReference.opposite() != null && setOpposite) {
                         param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
                     }
-
-
+                    if(metaReference.contained()){
+                        ((AbstractKObject)param).setReferenceInParent(metaReference);
+                        ((AbstractKObject)param).setParentKID(kid);
+                    }
                     internalUpdateTimeTrees();
-
                 }
                 break;
             case SET:
@@ -263,13 +272,17 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent);
                 } else {
                     Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-                    internalUpdateTimeTrees();
                     factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
+                    if(metaReference.contained()){
+                        ((AbstractKObject)param).setReferenceInParent(metaReference);
+                        ((AbstractKObject)param).setParentKID(kid);
+                    }
+                    internalUpdateTimeTrees();
                     if (metaReference.opposite() != null && setOpposite) {
                         if (previous == null) {
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
                         } else {
-                            factory().lookup(previous.toString(), (resolved) -> {
+                            factory().lookup((Long) previous, (resolved) -> {
                                 //TODO detach
                                 resolved.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
                                 param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
@@ -281,6 +294,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             case REMOVE:
                 if (metaReference.single()) {
                     factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = null;
+                    if(metaReference.contained()){
+                        ((AbstractKObject)param).setReferenceInParent(null);
+                        ((AbstractKObject)param).setParentKID(null);
+                    }
                     internalUpdateTimeTrees();
                     if (metaReference.opposite() != null && setOpposite) {
                         param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
@@ -294,6 +311,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previousList;
                         }
                         previousList.remove(param.kid());
+                        if(metaReference.contained()){
+                            ((AbstractKObject)param).setReferenceInParent(null);
+                            ((AbstractKObject)param).setParentKID(null);
+                        }
                         internalUpdateTimeTrees();
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
@@ -308,8 +329,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
         Object o = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-        if (o instanceof String) {
-            factory().lookup((String) o, new Callback<KObject>() {
+        if (o instanceof Long) {
+            factory().lookup((Long) o, new Callback<KObject>() {
                 @Override
                 public void on(KObject resolved) {
                     if (callback != null) {
@@ -377,9 +398,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         internal_visit(visitor, end, false, false, null);
     }
 
-    private void internal_visit(ModelVisitor visitor, Callback<Throwable> end, boolean deep, boolean treeOnly, HashSet<String> alreadyVisited) {
+    private void internal_visit(ModelVisitor visitor, Callback<Throwable> end, boolean deep, boolean treeOnly, HashSet<Long> alreadyVisited) {
         if (alreadyVisited != null) {
-            alreadyVisited.add(path());
+            alreadyVisited.add(kid());
         }
         Helper.forall(metaReferences(), new CallBackChain<MetaReference>() {
             @Override
@@ -392,15 +413,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     if (raw != null) {
                         o = raw[metaReference.index()];
                     }
-                    if (o instanceof String) {
-                        factory().lookup((String) o, (resolved) -> {
+                    if (o instanceof Long) {
+                        factory().lookup((Long) o, (resolved) -> {
                             visitor.visit(resolved, (res) -> {
                                 if (res.equals(ModelVisitor.Result.STOP)) {
                                     end.on(null);
                                 } else {
                                     if (deep) {
                                         if (res.equals(ModelVisitor.Result.CONTINUE)) {
-                                            if (alreadyVisited == null || !alreadyVisited.contains(resolved.path())) {
+                                            if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
                                                 ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
                                                     nextReference.on(null);
                                                 }, deep, treeOnly, alreadyVisited);
@@ -417,11 +438,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             });
                         });
                     } else if (o instanceof Set) {
-                        Set<String> elems = (Set<String>) o;
+                        Set<Long> elems = (Set<Long>) o;
                         final boolean[] aborded = {false};
-                        Helper.forall(elems.toArray(new String[elems.size()]), new CallBackChain<String>() {
+                        Helper.forall(elems.toArray(new Long[elems.size()]), new CallBackChain<Long>() {
                             @Override
-                            public void on(String s, Callback<Throwable> nextElemInRef) {
+                            public void on(Long s, Callback<Throwable> nextElemInRef) {
                                 factory().lookup(s, (resolved) -> {
                                     if (resolved == null) {
                                         nextElemInRef.on(null);
@@ -435,7 +456,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                                     nextReference.on(null);
                                                 } else {
                                                     if (deep) {
-                                                        if (alreadyVisited == null || !alreadyVisited.contains(resolved.path())) {
+                                                        if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
                                                             ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
                                                                 nextElemInRef.on(null);
                                                             }, deep, treeOnly, alreadyVisited);
@@ -471,7 +492,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public void graphVisit(ModelVisitor visitor, Callback<Throwable> end) {
-        internal_visit(visitor, end, true, false, new HashSet<String>());
+        internal_visit(visitor, end, true, false, new HashSet<Long>());
     }
 
     public void treeVisit(ModelVisitor visitor, Callback<Throwable> end) {
@@ -551,7 +572,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 MetaAttribute current = metaAttributes()[i];
                 Object payload = get(current);
                 if (payload != null) {
-                    traces.add(new ModelSetTrace(path(), current, payload));
+                    traces.add(new ModelSetTrace(kid, current, payload));
                 }
             }
         }
@@ -564,13 +585,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     o = raw[ref.index()];
                 }
                 if (o instanceof Set) {
-                    Set<String> contents = (Set<String>) o;
-                    String[] contentsArr = contents.toArray(new String[contents.size()]);
+                    Set<Long> contents = (Set<Long>) o;
+                    Long[] contentsArr = contents.toArray(new Long[contents.size()]);
                     for (int j = 0; j < contentsArr.length; j++) {
-                        traces.add(new ModelAddTrace(path(), ref, contentsArr[j], null));
+                        traces.add(new ModelAddTrace(kid, ref, contentsArr[j], null));
                     }
                 } else if (o != null) {
-                    traces.add(new ModelAddTrace(path(), ref, o.toString(), null));
+                    traces.add(new ModelAddTrace(kid, ref, (Long) o, null));
                 }
             }
         }
@@ -578,6 +599,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end) {
+        /*
         int maxIndex = metaAttributes().length + metaReferences().length;
         Object[] rawPayload = factory().dimension().universe().storage().raw(dimension(), now(), kid());
         Object payload = null;
@@ -611,7 +633,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             });
         } else {
             end.on(null);
-        }
+        }*/
     }
 
 }

@@ -12,20 +12,20 @@ public class ModelRemoveTrace implements ModelTrace {
 
     private KActionType traceType = KActionType.REMOVE;
 
-    private String srcPath;
+    private Long srcKID;
 
-    private String objPath;
+    private Long objKID;
 
     private MetaReference reference;
 
-    public ModelRemoveTrace(String srcPath, MetaReference reference, String objPath) {
-        this.srcPath = srcPath;
+    public ModelRemoveTrace(Long srcKID, MetaReference reference, Long objKID) {
+        this.srcKID = srcKID;
         this.reference = reference;
-        this.objPath = objPath;
+        this.objKID = objKID;
     }
 
-    public String getObjPath() {
-        return objPath;
+    public Long getObjKID() {
+        return objKID;
     }
 
     @Override
@@ -39,8 +39,8 @@ public class ModelRemoveTrace implements ModelTrace {
     }
 
     @Override
-    public String getSrcPath() {
-        return srcPath;
+    public Long getSrcKID() {
+        return srcKID;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ModelRemoveTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JSONString.encodeBuffer(buffer, srcPath);
+        JSONString.encodeBuffer(buffer, srcKID+"");
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);
@@ -76,7 +76,7 @@ public class ModelRemoveTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JSONString.encodeBuffer(buffer, objPath);
+        JSONString.encodeBuffer(buffer, objKID+"");
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.closeJSON);
         return buffer.toString();

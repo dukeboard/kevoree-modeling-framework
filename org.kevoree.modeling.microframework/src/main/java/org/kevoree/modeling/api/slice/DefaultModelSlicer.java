@@ -30,16 +30,16 @@ public class DefaultModelSlicer implements ModelSlicer {
                 } else {
                     Collections.reverse(parents);
                     for (KObject parent : parents) {
-                        if (parent.parentPath() != null) {
-                            traces.add(new ModelAddTrace(parent.parentPath(), parent.referenceInParent(), parent.path(), parent.metaClass()));
+                        if (parent.parentKID() != null) {
+                            traces.add(new ModelAddTrace(parent.parentKID(), parent.referenceInParent(), parent.kid(), parent.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                         parentMap.put(parent.path(), parent);
                     }
                     //Add attributes and references of pruned object
                     if (cache.get(elem.path()) == null && parentMap.get(elem.path()) == null) {
-                        if (elem.parentPath() != null) {
-                            traces.add(new ModelAddTrace(elem.parentPath(), elem.referenceInParent(), elem.path(), elem.metaClass()));
+                        if (elem.parentKID() != null) {
+                            traces.add(new ModelAddTrace(elem.parentKID(), elem.referenceInParent(), elem.kid(), elem.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                     }
@@ -62,7 +62,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                 }
             }
         };
-        traces.add(new ModelAddTrace(elem.path(), null, elem.path(), elem.metaClass()));
+        traces.add(new ModelAddTrace(elem.kid(), null, elem.kid(), elem.metaClass()));
         elem.parent(parentExplorer);
     }
 

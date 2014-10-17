@@ -25,23 +25,23 @@ public class ModelTraceApplicator {
     private KObject pendingParent = null;
     private boolean fireEvents = true;
     private MetaReference pendingParentRef = null;
-    private String pendingObjPath = null;
+    private Long pendingObjKID = null;
 
     public void setFireEvents(boolean fireEvents) {
         this.fireEvents = fireEvents;
     }
 
-    private void tryClosePending(String srcPath) {
-        if (pendingObj != null && !(pendingObjPath.equals(srcPath))) {
+    private void tryClosePending(Long srcKID) {
+        if (pendingObj != null && !(pendingObjKID.equals(srcKID))) {
             pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj, true, fireEvents);
             pendingObj = null;
-            pendingObjPath = null;
+            pendingObjKID = null;
             pendingParentRef = null;
             pendingParent = null;
         }
     }
 
-    public void createOrAdd(String previousPath, KObject target, MetaReference reference, MetaClass metaClass, Callback<Throwable> callback) {
+    public void createOrAdd(Long previousPath, KObject target, MetaReference reference, MetaClass metaClass, Callback<Throwable> callback) {
         if (previousPath != null) {
             targetModel.factory().lookup(previousPath, (targetElem) -> {
                 if (targetElem != null) {
@@ -52,7 +52,7 @@ public class ModelTraceApplicator {
                         callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
                     } else {
                         pendingObj = targetModel.factory().createFQN(metaClass.metaName());
-                        pendingObjPath = previousPath;
+                        pendingObjKID = previousPath;
                         pendingParentRef = reference;
                         pendingParent = target;
                         callback.on(null);
@@ -64,7 +64,7 @@ public class ModelTraceApplicator {
                 callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
             } else {
                 pendingObj = targetModel.factory().createFQN(metaClass.metaName());
-                pendingObjPath = previousPath;
+                pendingObjKID = previousPath;
                 pendingParentRef = reference;
                 pendingParent = target;
                 callback.on(null);
@@ -87,19 +87,19 @@ public class ModelTraceApplicator {
         if (trace instanceof ModelAddTrace) {
             ModelAddTrace addTrace = (ModelAddTrace) trace;
             tryClosePending(null);
-            targetModel.factory().lookup(trace.getSrcPath(), (resolvedTarget) -> {
+            targetModel.factory().lookup(trace.getSrcKID(), (resolvedTarget) -> {
                 if (resolvedTarget == null) {
-                    callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
+                    callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                 } else {
-                    createOrAdd(addTrace.getPreviousPath(), resolvedTarget, (MetaReference) trace.getMeta(), addTrace.getMetaClass(), callback);
+                    createOrAdd(addTrace.getPreviousKID(), resolvedTarget, (MetaReference) trace.getMeta(), addTrace.getMetaClass(), callback);
                 }
             });
         } else if (trace instanceof ModelRemoveTrace) {
             ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
-            tryClosePending(trace.getSrcPath());
-            targetModel.factory().lookup(trace.getSrcPath(), (targetElem) -> {
+            tryClosePending(trace.getSrcKID());
+            targetModel.factory().lookup(trace.getSrcKID(), (targetElem) -> {
                 if (targetElem != null) {
-                    targetModel.factory().lookup(removeTrace.getObjPath(), (remoteObj) -> {
+                    targetModel.factory().lookup(removeTrace.getObjKID(), (remoteObj) -> {
                         targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true, fireEvents);
                         callback.on(null);
                     });
@@ -109,11 +109,11 @@ public class ModelTraceApplicator {
             });
         } else if (trace instanceof ModelSetTrace) {
             ModelSetTrace setTrace = (ModelSetTrace) trace;
-            tryClosePending(trace.getSrcPath());
-            if (!trace.getSrcPath().equals(pendingObjPath)) {
-                targetModel.factory().lookup(trace.getSrcPath(), (tempObject) -> {
+            tryClosePending(trace.getSrcKID());
+            if (!trace.getSrcKID().equals(pendingObjKID)) {
+                targetModel.factory().lookup(trace.getSrcKID(), (tempObject) -> {
                     if (tempObject == null) {
-                        callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
+                        callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                     } else {
                         tempObject.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent(), fireEvents);
                         callback.on(null);
@@ -121,7 +121,7 @@ public class ModelTraceApplicator {
                 });
             } else {
                 if (pendingObj == null) {
-                    callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcPath() + " pending " + pendingObjPath + "\n" + trace.toString()));
+                    callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                 } else {
                     pendingObj.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent(), fireEvents);
                     callback.on(null);

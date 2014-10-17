@@ -104,10 +104,8 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void lookup(String path, Callback<KObject> callback) {
-        long index = -1;
-        //TODO resolve the right one
-        KObject resolved = dimension().universe().storage().cacheLookup(dimension(), now(), index);
+    public void lookup(long kid, Callback<KObject> callback) {
+        KObject resolved = dimension().universe().storage().cacheLookup(dimension(), now(), kid);
         if (resolved != null) {
             callback.on(resolved);
         } else {

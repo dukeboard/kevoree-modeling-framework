@@ -15,13 +15,13 @@ public class ModelAddTrace implements ModelTrace {
 
     private KActionType traceType = KActionType.ADD;
 
-    private String srcPath;
+    private Long srcKID;
 
-    public String getPreviousPath() {
-        return previousPath;
+    public Long getPreviousKID() {
+        return previousKID;
     }
 
-    private String previousPath;
+    private Long previousKID;
 
     public MetaClass getMetaClass() {
         return metaClass;
@@ -29,10 +29,10 @@ public class ModelAddTrace implements ModelTrace {
 
     private MetaClass metaClass;
 
-    public ModelAddTrace(String srcPath, MetaReference reference, String previousPath, MetaClass metaClass) {
-        this.srcPath = srcPath;
+    public ModelAddTrace(Long srcKID, MetaReference reference, Long previousKID, MetaClass metaClass) {
+        this.srcKID = srcKID;
         this.reference = reference;
-        this.previousPath = previousPath;
+        this.previousKID = previousKID;
         this.metaClass = metaClass;
     }
 
@@ -53,7 +53,7 @@ public class ModelAddTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JSONString.encodeBuffer(buffer, srcPath);
+        JSONString.encodeBuffer(buffer, srcKID+"");
         buffer.append(ModelTraceConstants.bb);
         if (reference != null) {
             buffer.append(ModelTraceConstants.coma);
@@ -65,14 +65,14 @@ public class ModelAddTrace implements ModelTrace {
             buffer.append(reference.metaName());
             buffer.append(ModelTraceConstants.bb);
         }
-        if (previousPath != null) {
+        if (previousKID != null) {
             buffer.append(ModelTraceConstants.coma);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.previouspath);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            JSONString.encodeBuffer(buffer, previousPath);
+            JSONString.encodeBuffer(buffer, previousKID+"");
             buffer.append(ModelTraceConstants.bb);
         }
         if (metaClass != null) {
@@ -100,8 +100,8 @@ public class ModelAddTrace implements ModelTrace {
     }
 
     @Override
-    public String getSrcPath() {
-        return srcPath;
+    public Long getSrcKID() {
+        return srcKID;
     }
 
 }

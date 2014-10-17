@@ -48,7 +48,7 @@ public class DefaultKStore implements KStore {
             dimensionCache.timesCaches.put(currentNow, timeCache);
         }
         timeCache.obj_cache.put(obj.kid(), obj);
-        timeCache.payload_cache.put(obj.kid(), new Object[obj.metaAttributes().length + obj.metaReferences().length + 1]);
+        timeCache.payload_cache.put(obj.kid(), new Object[obj.metaAttributes().length + obj.metaReferences().length + 2]);
         dimensionCache.timeTreeCache.put(obj.kid(), obj.timeTree());
     }
 

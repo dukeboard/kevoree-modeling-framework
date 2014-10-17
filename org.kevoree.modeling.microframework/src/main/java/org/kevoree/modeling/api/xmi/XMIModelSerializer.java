@@ -147,10 +147,10 @@ class SerializationContext {
     public AttributesVisitor attributesVisitor;
 
     // KPath -> XMIPath
-    HashMap<String, String> addressTable = new HashMap<>();
+    HashMap<Long, String> addressTable = new HashMap<Long, String>();
     // KPath -> Count
-    HashMap<String, Integer> elementsCount = new HashMap<>();
-    ArrayList<String> packageList = new ArrayList<>();
+    HashMap<String, Integer> elementsCount = new HashMap<String, Integer>();
+    ArrayList<String> packageList = new ArrayList<String>();
 }
 
 public class XMIModelSerializer implements ModelSerializer {
@@ -182,15 +182,14 @@ public class XMIModelSerializer implements ModelSerializer {
         context.printStream = new PrintStream(new BufferedOutputStream(raw), false);
 
         //First Pass for building address table
-        context.addressTable.put(model.path(), "/");
+        context.addressTable.put(model.kid(), "/");
         //ystem.out.println("Addresses Visit");
         model.treeVisit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
-                String parentXmiAddress = context.addressTable.get(elem.parentPath());
-
+                String parentXmiAddress = context.addressTable.get(elem.parentKID());
                 int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), (s) -> 0);
-                context.addressTable.put(elem.path(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
+                context.addressTable.put(elem.kid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
                 context.elementsCount.put(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), i + 1);
                 String pack = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));
                 if (!context.packageList.contains(pack)) {

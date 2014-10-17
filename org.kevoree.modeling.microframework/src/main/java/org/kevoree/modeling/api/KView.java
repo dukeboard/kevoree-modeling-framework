@@ -31,7 +31,7 @@ public interface KView {
 
     public void select(String query, Callback<List<KObject>> callback);
 
-    public void lookup(String path, Callback<KObject> callback);
+    public void lookup(long path, Callback<KObject> callback);
 
     public void stream(String query, Callback<KObject> callback);
 

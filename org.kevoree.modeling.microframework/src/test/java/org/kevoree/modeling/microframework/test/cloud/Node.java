@@ -14,8 +14,8 @@ public interface Node extends KObject<Node, CloudView> {
     /* Reflexive API Attributes */
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 0, false, true),
-        VALUE("value", 1, true, false); //lexicographic order
+        NAME("name", 2, false, true),
+        VALUE("value", 3, true, false); //lexicographic order
 
         private String name;
 
@@ -55,8 +55,8 @@ public interface Node extends KObject<Node, CloudView> {
 
     public enum METAREFERENCES implements MetaReference {
 
-        CHILDREN("children", 2, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null),
-        ELEMENT("element", 3, true, true, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
+        CHILDREN("children", 4, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null),
+        ELEMENT("element", 5, true, true, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
 
         private String name;
 

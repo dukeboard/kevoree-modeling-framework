@@ -12,14 +12,14 @@ public class ModelSetTrace implements ModelTrace {
 
     private KActionType traceType = KActionType.SET;
 
-    private String srcPath;
+    private Long srcKID;
 
     private MetaAttribute attribute;
 
     private Object content;
 
-    public ModelSetTrace(String srcPath, MetaAttribute attribute, Object content) {
-        this.srcPath = srcPath;
+    public ModelSetTrace(Long srcKID, MetaAttribute attribute, Object content) {
+        this.srcKID = srcKID;
         this.attribute = attribute;
         this.content = content;
     }
@@ -30,8 +30,8 @@ public class ModelSetTrace implements ModelTrace {
     }
 
     @Override
-    public String getSrcPath() {
-        return srcPath;
+    public Long getSrcKID() {
+        return srcKID;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ModelSetTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JSONString.encodeBuffer(buffer, srcPath);
+        JSONString.encodeBuffer(buffer, srcKID+"");
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);

@@ -31,7 +31,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public void parent(Callback<KObject> callback);
 
-    public String parentPath();
+    public Long parentKID();
 
     public void findByID(String relationName, String idP, Callback<KObject> callback);
 
