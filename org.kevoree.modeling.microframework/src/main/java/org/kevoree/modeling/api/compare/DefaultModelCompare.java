@@ -37,13 +37,13 @@ public class DefaultModelCompare implements ModelCompare {
     private void internal_diff(KObject origin, KObject target, boolean inter, boolean merge, Callback<TraceSequence> callback) {
         List<ModelTrace> traces = new ArrayList<ModelTrace>();
         List<ModelTrace> tracesRef = new ArrayList<ModelTrace>();
-        Map<String, KObject> objectsMap = new HashMap<String, KObject>();
+        Map<Long, KObject> objectsMap = new HashMap<Long, KObject>();
         traces.addAll(internal_createTraces(origin, target, inter, merge, false, true));
         tracesRef.addAll(internal_createTraces(origin, target, inter, merge, true, false));
         origin.treeVisit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
-                objectsMap.put(elem.path(), elem);
+                objectsMap.put(elem.kid(), elem);
                 visitor.on(Result.CONTINUE);
             }
         }, new Callback<Throwable>() {
@@ -56,7 +56,7 @@ public class DefaultModelCompare implements ModelCompare {
                     target.treeVisit(new ModelVisitor() {
                         @Override
                         public void visit(KObject elem, Callback<Result> visitor) {
-                            String childPath = elem.path();
+                            Long childPath = elem.kid();
                             if (objectsMap.containsKey(childPath)) {
                                 if (inter) {
                                     //TODO
@@ -87,7 +87,7 @@ public class DefaultModelCompare implements ModelCompare {
                                 traces.addAll(tracesRef); //references should be deleted before, deletion of elements
                                 if (!inter && !merge) {
                                     //if diff
-                                    for (String diffChildKey : objectsMap.keySet()) {
+                                    for (Long diffChildKey : objectsMap.keySet()) {
                                         KObject diffChild = objectsMap.get(diffChildKey);
                                         Long src = diffChild.parentKID();
                                         traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.kid()));

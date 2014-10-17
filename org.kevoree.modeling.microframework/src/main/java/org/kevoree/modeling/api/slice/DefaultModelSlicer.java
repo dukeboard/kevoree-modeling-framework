@@ -17,13 +17,13 @@ import java.util.*;
 
 public class DefaultModelSlicer implements ModelSlicer {
 
-    private void internal_prune(KObject elem, List<ModelTrace> traces, Map<String, KObject> cache, Map<String, KObject> parentMap, Callback<Throwable> callback) {
+    private void internal_prune(KObject elem, List<ModelTrace> traces, Map<Long, KObject> cache, Map<Long, KObject> parentMap, Callback<Throwable> callback) {
         //collect parent which as not be added already
         List<KObject> parents = new ArrayList<KObject>();
         final Callback<KObject> parentExplorer = new Callback<KObject>() {
             @Override
             public void on(KObject currentParent) {
-                if (currentParent != null && parentMap.get(currentParent.path()) == null && cache.get(currentParent.path()) == null) {
+                if (currentParent != null && parentMap.get(currentParent.kid()) == null && cache.get(currentParent.kid()) == null) {
                     parents.add(currentParent);
                     currentParent.parent(this);
                     callback.on(null);
@@ -34,22 +34,22 @@ public class DefaultModelSlicer implements ModelSlicer {
                             traces.add(new ModelAddTrace(parent.parentKID(), parent.referenceInParent(), parent.kid(), parent.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
-                        parentMap.put(parent.path(), parent);
+                        parentMap.put(parent.kid(), parent);
                     }
                     //Add attributes and references of pruned object
-                    if (cache.get(elem.path()) == null && parentMap.get(elem.path()) == null) {
+                    if (cache.get(elem.kid()) == null && parentMap.get(elem.kid()) == null) {
                         if (elem.parentKID() != null) {
                             traces.add(new ModelAddTrace(elem.parentKID(), elem.referenceInParent(), elem.kid(), elem.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                     }
                     //We register this element as reachable
-                    cache.put(elem.path(), elem);
+                    cache.put(elem.kid(), elem);
                     //We continue to all reachable elements, potentially here we can exclude references
                     elem.graphVisit(new ModelVisitor() {
                         @Override
                         public void visit(KObject elem, Callback<Result> visitor) {
-                            if (cache.get(elem.path()) == null) {
+                            if (cache.get(elem.kid()) == null) {
                                 //break potential loop
                                 internal_prune(elem, traces, cache, parentMap, (t) -> {
                                 });
@@ -69,13 +69,13 @@ public class DefaultModelSlicer implements ModelSlicer {
     @Override
     public void slice(List<KObject> elems, Callback<TraceSequence> callback) {
         List<ModelTrace> traces = new ArrayList<ModelTrace>();
-        Map<String, KObject> tempMap = new HashMap<String, KObject>();
-        Map<String, KObject> parentMap = new HashMap<String, KObject>();
+        Map<Long, KObject> tempMap = new HashMap<Long, KObject>();
+        Map<Long, KObject> parentMap = new HashMap<Long, KObject>();
         KObject[] elemsArr = elems.toArray(new KObject[elems.size()]);
         Helper.forall(elemsArr, (obj, next) -> {
             internal_prune(obj, traces, tempMap, parentMap, next);
         }, (t) -> {
-            for (String toLinkKey : tempMap.keySet()) {
+            for (Long toLinkKey : tempMap.keySet()) {
                 KObject toLink = tempMap.get(toLinkKey);
                 traces.addAll(toLink.traces(KObject.TraceRequest.REFERENCES_ONLY));
             }

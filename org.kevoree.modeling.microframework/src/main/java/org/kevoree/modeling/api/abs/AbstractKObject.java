@@ -93,15 +93,19 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void path(Callback<String> callback) {
-        if(isRoot) {
+        if (isRoot) {
             callback.on("/");
         } else {
             parent((parent) -> {
                 if (parent == null) {
                     callback.on(null);
                 } else {
-                    parent.path((parentPath) -> {
-                        callback.on(Helper.path(parentPath, referenceInParent, this));
+                    parent.path(new Callback<String>() {
+                        @Override
+                        public void on(String parentPath) {
+                            callback.on(Helper.path(parentPath, referenceInParent, AbstractKObject.this));
+
+                        }
                     });
                 }
             });
@@ -339,7 +343,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
         Object o = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-        if(o == null) {
+        if (o == null) {
             end.on(null);
         } else if (o instanceof Long) {
             factory().lookup((Long) o, new Callback<KObject>() {
@@ -545,8 +549,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     builder.append(payload);
                     builder.append("\"");
                 } else {
-                    Set<String> elems = (Set<String>) payload;
-                    String[] elemsArr = elems.toArray(new String[elems.size()]);
+                    Set<Long> elems = (Set<Long>) payload;
+                    Long[] elemsArr = elems.toArray(new Long[elems.size()]);
                     boolean isFirst = true;
                     builder.append(" [");
                     for (int j = 0; j < elemsArr.length; j++) {

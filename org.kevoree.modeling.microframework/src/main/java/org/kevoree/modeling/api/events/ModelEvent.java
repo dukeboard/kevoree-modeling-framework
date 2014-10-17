@@ -53,6 +53,6 @@ public class ModelEvent {
 
     @Override
     public String toString() {
-        return "ModelEvent[src:[" + source.now() + "]" + source.path() + ", type:" + etype + ", meta:" + getMeta() + ", elementAttributeName:" + elementAttributeName + ", value:" + value + ", previousValue:" + previous_value + "]";
+        return "ModelEvent[src:[" + source.now() + "]" + source.kid() + ", type:" + etype + ", meta:" + getMeta() + ", elementAttributeName:" + elementAttributeName + ", value:" + value + ", previousValue:" + previous_value + "]";
     }
 }

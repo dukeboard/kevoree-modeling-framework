@@ -59,6 +59,23 @@ public class JSONSaveTest {
 
         assertEquals(result[0], payloadResult);
 
+        final String[] pathN2 = {null};
+        n2.path((p)->{
+            pathN2[0] = p;
+        });
+        assertEquals("/children[name=n2]",pathN2[0]);
+
+        final String[] pathN1 = {null};
+        n1.path((p)->{
+            pathN1[0] = p;
+        });
+        assertEquals("/children[name=n1]",pathN1[0]);
+
+        final String[] pathR = {null};
+        root.path((p) -> {
+            pathR[0] = p;
+        });
+        assertEquals("/",pathR[0]);
 
     }
 

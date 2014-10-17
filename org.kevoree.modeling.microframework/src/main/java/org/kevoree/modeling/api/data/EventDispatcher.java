@@ -57,16 +57,19 @@ public class EventDispatcher {
                     return false;
                 }
             }
+            /*
             if (event.getSource() != null) {
                 if (pathRegex.contains("*")) {
                     String regexPath = pathRegex.replace("*", ".*");
-                    return event.getSource().path().matches(regexPath);
+                    return event.getSource().kid().matches(regexPath);
                 } else {
-                    return event.getSource().path().equals(pathRegex);
+                    return event.getSource().kid().equals(pathRegex);
                 }
             } else {
                 return false;
-            }
+            }*/
+
+            return false;
         }
 
     }
