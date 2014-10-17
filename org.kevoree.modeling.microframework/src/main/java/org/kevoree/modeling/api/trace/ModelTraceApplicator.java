@@ -33,7 +33,7 @@ public class ModelTraceApplicator {
 
     private void tryClosePending(String srcPath) {
         if (pendingObj != null && !(pendingObjPath.equals(srcPath))) {
-            pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj, true, fireEvents, null);
+            pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj, true, fireEvents);
             pendingObj = null;
             pendingObjPath = null;
             pendingParentRef = null;
@@ -45,7 +45,8 @@ public class ModelTraceApplicator {
         if (previousPath != null) {
             targetModel.factory().lookup(previousPath, (targetElem) -> {
                 if (targetElem != null) {
-                    target.mutate(KActionType.ADD, reference, targetElem, true, fireEvents, callback);
+                    target.mutate(KActionType.ADD, reference, targetElem, true, fireEvents);
+                    callback.on(null);
                 } else {
                     if (metaClass == null) {
                         callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
@@ -99,7 +100,8 @@ public class ModelTraceApplicator {
             targetModel.factory().lookup(trace.getSrcPath(), (targetElem) -> {
                 if (targetElem != null) {
                     targetModel.factory().lookup(removeTrace.getObjPath(), (remoteObj) -> {
-                        targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true, fireEvents, callback);
+                        targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true, fireEvents);
+                        callback.on(null);
                     });
                 } else {
                     callback.on(null);

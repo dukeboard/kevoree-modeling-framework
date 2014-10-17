@@ -21,7 +21,7 @@ public class SliceTest {
         CloudDimension dimension0 = universe.create();
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();
-        time0.root(root, null);
+        time0.root(root);
         root.setName("root");
 
         Node n1 = time0.createNode();
@@ -30,8 +30,8 @@ public class SliceTest {
         Node n2 = time0.createNode();
         n2.setName("n2");
 
-        root.addChildren(n1, null);
-        root.addChildren(n2, null);
+        root.addChildren(n1);
+        root.addChildren(n2);
 
         ModelSlicer slicer = time0.createModelSlicer();
         slicer.slice(Arrays.asList(root), (seq) -> {

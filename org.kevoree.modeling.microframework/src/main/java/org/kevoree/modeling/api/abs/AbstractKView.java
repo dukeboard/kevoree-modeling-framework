@@ -92,9 +92,10 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void root(KObject elem, Callback<Boolean> callback) {
+    public void root(KObject elem) {
         ((AbstractKObject) elem).setReferenceInParent(null);
         ((AbstractKObject) elem).setRoot(true);
+        //TODO write into storage to retrieve the object later
     }
 
     @Override

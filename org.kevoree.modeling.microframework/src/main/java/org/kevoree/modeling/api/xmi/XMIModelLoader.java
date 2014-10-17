@@ -238,7 +238,7 @@ public class XMIModelLoader implements ModelLoader {
                                 adjustedRef = adjustedRef.replace(".0", "");
                                 KObject ref = ctx.map.get(adjustedRef);
                                 if (ref != null) {
-                                    modelElem.mutate(KActionType.ADD, kreference, ref, true, false, null);
+                                    modelElem.mutate(KActionType.ADD, kreference, ref, true, false);
                                 } else {
                                     ctx.resolvers.add(new XMIResolveCommand(ctx, modelElem, KActionType.ADD, attrName, adjustedRef));
                                 }
@@ -259,7 +259,7 @@ public class XMIModelLoader implements ModelLoader {
                     int i = ctx.elementsCount.computeIfAbsent(xmiAddress + "/@" + subElemName, (s) -> 0);
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
                     KObject containedElement = loadObject(ctx, subElementId, subElemName);
-                    modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true, false, null);
+                    modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true, false);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
                 }
                 case END_TAG: {

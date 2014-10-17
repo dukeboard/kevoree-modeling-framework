@@ -230,50 +230,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         factory().dimension().globalTimeTree().insert(factoryNow);
     }
 
-    private void attach(MetaReference metaReference, KObject param, boolean fireEvent, Callback<Boolean> callback) {
-        /*
-        if (metaReference.contained()) {
-            String newPath = Helper.path(this, metaReference, param);
-            ((AbstractKObject) param).setPath(newPath);
-            ((AbstractKObject) param).setReferenceInParent(metaReference);
-            //TODO rename here, process inbounds reference and so on
-            //TODO end async
-            callback.on(true);
-        } else {
-            callback.on(true);
-        }*/
-        callback.on(true);
-    }
-
-    private void detach(MetaReference metaReference, KObject param, boolean fireEvent, Callback<Boolean> callback) {
-        /*
-        if (metaReference.contained()) {
-            String newPath = Helper.newPath();
-            factory().dimension().universe().dataCache().put(dimension(), factoryNow, newPath, param);
-            param.visitAttributes(new ModelAttributeVisitor() {
-                @Override
-                public void visit(MetaAttribute metaAttribute, Object value) {
-                    //TODO optimize for copy the object
-                    factory().dimension().universe().dataCache().putPayload(dimension(), factoryNow, newPath, metaAttribute.index(), value);
-                }
-            });
-            ((AbstractKObject) param).setPath(newPath);
-            ((AbstractKObject) param).setReferenceInParent(null);
-            //TODO rename here, process inbounds reference and so on
-            //TODO end async
-            callback.on(true);
-        } else {
-            callback.on(true);
-        }*/
-        callback.on(true);
-    }
 
     @Override
-    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent, Callback<Throwable> callback) {
+    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent) {
         switch (actionType) {
             case ADD:
                 if (metaReference.single()) {
-                    mutate(KActionType.SET, metaReference, param, setOpposite, fireEvent, callback);
+                    mutate(KActionType.SET, metaReference, param, setOpposite, fireEvent);
                 } else {
                     Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
                     if (previous == null) {
@@ -285,61 +248,43 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         previousList = new HashSet<Long>(previousList);
                         factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previous;
                     }
-                    final Set<Long> finalPreviousList = previousList;
-                    attach(metaReference, param, fireEvent, (res) -> {
-                        internalUpdateTimeTrees();
-                        finalPreviousList.add(param.kid());
-                        if (metaReference.opposite() != null && setOpposite) {
-                            param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
-                        } else {
-                            if (callback != null) {
-                                callback.on(null);
-                            }
-                        }
-                    });
+                    previousList.add(param.kid());
+                    if (metaReference.opposite() != null && setOpposite) {
+                        param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
+                    }
+
+
+                    internalUpdateTimeTrees();
+
                 }
                 break;
             case SET:
                 if (!metaReference.single()) {
-                    mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent, callback);
+                    mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent);
                 } else {
                     Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-                    attach(metaReference, param, fireEvent, (res) -> {
-                        internalUpdateTimeTrees();
-                        factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
-                        if (metaReference.opposite() != null && setOpposite) {
-                            if (previous == null) {
-                                param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
-                            } else {
-                                factory().lookup(previous.toString(), (resolved) -> {
-                                    detach(metaReference, resolved, fireEvent, (res2) -> {
-                                        resolved.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, (result) -> {
-                                            param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent, callback);
-                                        });
-                                    });
-                                });
-                            }
+                    internalUpdateTimeTrees();
+                    factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
+                    if (metaReference.opposite() != null && setOpposite) {
+                        if (previous == null) {
+                            param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
                         } else {
-                            if (callback != null) {
-                                callback.on(null);
-                            }
+                            factory().lookup(previous.toString(), (resolved) -> {
+                                //TODO detach
+                                resolved.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
+                                param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
+                            });
                         }
-                    });
+                    }
                 }
                 break;
             case REMOVE:
                 if (metaReference.single()) {
                     factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = null;
-                    detach(metaReference, param, fireEvent, (res2) -> {
-                        internalUpdateTimeTrees();
-                        if (metaReference.opposite() != null && setOpposite) {
-                            param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
-                        } else {
-                            if (callback != null) {
-                                callback.on(null);
-                            }
-                        }
-                    });
+                    internalUpdateTimeTrees();
+                    if (metaReference.opposite() != null && setOpposite) {
+                        param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
+                    }
                 } else {
                     Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
                     if (previous != null) {
@@ -349,19 +294,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previousList;
                         }
                         previousList.remove(param.kid());
-                        detach(metaReference, param, fireEvent, (res2) -> {
-                            internalUpdateTimeTrees();
-                            if (metaReference.opposite() != null && setOpposite) {
-                                param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent, callback);
-                            } else {
-                                if (callback != null) {
-                                    callback.on(null);
-                                }
-                            }
-                        });
-                    } else {
-                        if (callback != null) {
-                            callback.on(null);
+                        internalUpdateTimeTrees();
+                        if (metaReference.opposite() != null && setOpposite) {
+                            param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
                         }
                     }
                 }

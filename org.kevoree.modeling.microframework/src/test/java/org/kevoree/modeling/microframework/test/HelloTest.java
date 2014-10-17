@@ -45,7 +45,7 @@ public class HelloTest {
 
         Node nodeT1 = t0.createNode();
         nodeT1.setName("n1");
-        nodeT0.addChildren(nodeT1, null);
+        nodeT0.addChildren(nodeT1);
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
         final int[] i = {0};
@@ -55,7 +55,7 @@ public class HelloTest {
         assertEquals(1, i[0]);
         Node nodeT3 = t0.createNode();
         nodeT3.setName("n3");
-        nodeT1.addChildren(nodeT3, null);
+        nodeT1.addChildren(nodeT3);
 
 //        assertTrue(nodeT3.path().endsWith("/children[name=n1]/children[name=n3]"));
 //        assertTrue(nodeT3.parentPath().endsWith("/children[name=n1]"));

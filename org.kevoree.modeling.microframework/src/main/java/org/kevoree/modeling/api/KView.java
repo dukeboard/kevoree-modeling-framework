@@ -13,7 +13,7 @@ public interface KView {
 
     public KObject create(MetaClass clazz);
 
-    public void root(KObject elem, Callback<Boolean> callback);
+    public void root(KObject elem);
 
     public ModelSerializer createJSONSerializer();
 
