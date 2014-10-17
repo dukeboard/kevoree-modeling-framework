@@ -327,7 +327,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
         Object o = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-        if (o instanceof Long) {
+        if(o == null) {
+            end.on(null);
+        } else if (o instanceof Long) {
             factory().lookup((Long) o, new Callback<KObject>() {
                 @Override
                 public void on(KObject resolved) {
@@ -339,27 +341,25 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                 }
             });
-        } else {
-            if (o instanceof Set) {
-                Set<Long> objs = (Set<Long>) o;
-                factory().dimension().universe().storage().lookupAll(dimension(), now(), objs, (result) -> {
-                    boolean endAlreadyCalled = false;
-                    try {
-                        for (KObject resolved : result) {
-                            callback.on((C) resolved);
-                        }
-                        endAlreadyCalled = true;
-                        end.on(null);
-                    } catch (Throwable t) {
-                        if (!endAlreadyCalled) {
-                            end.on(t);
-                        }
+        } else if (o instanceof Set) {
+            Set<Long> objs = (Set<Long>) o;
+            factory().dimension().universe().storage().lookupAll(dimension(), now(), objs, (result) -> {
+                boolean endAlreadyCalled = false;
+                try {
+                    for (KObject resolved : result) {
+                        callback.on((C) resolved);
                     }
-                });
-            } else {
-                if (end != null) {
-                    end.on(new Exception("Inconsistent storage, Internal Error"));
+                    endAlreadyCalled = true;
+                    end.on(null);
+                } catch (Throwable t) {
+                    if (!endAlreadyCalled) {
+                        end.on(t);
+                    }
                 }
+            });
+        } else {
+            if (end != null) {
+                end.on(new Exception("Inconsistent storage, Internal Error"));
             }
         }
     }

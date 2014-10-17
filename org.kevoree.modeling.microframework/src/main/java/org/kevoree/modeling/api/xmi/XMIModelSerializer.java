@@ -66,7 +66,7 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
             currentElement.each(ref, new Callback() {
                 @Override
                 public void on(Object o) {
-                    String adjustedAddress = context.addressTable.get(((KObject)o).path());
+                    String adjustedAddress = context.addressTable.get(((KObject)o).kid());
                     value[0] = (value[0].equals("") ? adjustedAddress :  value[0] + " " + adjustedAddress);
                 }
             }, new Callback<Throwable>() {
