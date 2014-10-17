@@ -108,13 +108,13 @@ class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
                     context.printStream.print("<");
                     context.printStream.print(ref.metaName());
                     context.printStream.print(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-                    System.out.println("["+elem.metaClass().metaName() + ":" + elem.get(elem.metaAttribute("name"))+"] Attributes");
+                    //System.out.println("["+elem.metaClass().metaName() + ":" + elem.get(elem.metaAttribute("name"))+"] Attributes");
                     elem.visitAttributes(context.attributesVisitor);
-                    System.out.println("["+elem.metaClass().metaName()+ ":" + elem.get(elem.metaAttribute("name"))+"] References");
+                    //System.out.println("["+elem.metaClass().metaName()+ ":" + elem.get(elem.metaAttribute("name"))+"] References");
                     Helper.forall(elem.metaReferences(),new NonContainedReferencesCallbackChain(context,elem), (err)->{
                         if(err == null) {
                             context.printStream.println('>');
-                            System.out.println("["+elem.metaClass().metaName()+ ":" + elem.get(elem.metaAttribute("name"))+"] Contained");
+                            //System.out.println("["+elem.metaClass().metaName()+ ":" + elem.get(elem.metaAttribute("name"))+"] Contained");
                             Helper.forall(elem.metaReferences(),new ContainedReferencesCallbackChain(context, elem), containedRefsEnd -> {
                                 if(containedRefsEnd == null) {
                                     context.printStream.print("</");
@@ -183,7 +183,7 @@ public class XMIModelSerializer implements ModelSerializer {
 
         //First Pass for building address table
         context.addressTable.put(model.path(), "/");
-        System.out.println("Addresses Visit");
+        //ystem.out.println("Addresses Visit");
         model.treeVisit(new ModelVisitor() {
             @Override
             public void visit(KObject elem, Callback<Result> visitor) {
@@ -218,7 +218,7 @@ public class XMIModelSerializer implements ModelSerializer {
                 context.finishCallback.on(throwable);
             } else {
 
-                System.out.println("Start PrettyPrint");
+                //System.out.println("Start PrettyPrint");
 
                 context.printStream.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
@@ -233,14 +233,14 @@ public class XMIModelSerializer implements ModelSerializer {
                     index++;
                 }
 
-                System.out.println("[ROOT] Attributes");
+                //System.out.println("[ROOT] Attributes");
                 context.model.visitAttributes(context.attributesVisitor);
 
-                System.out.println("[ROOT] References");
+                //System.out.println("[ROOT] References");
                 Helper.forall(context.model.metaReferences(),new NonContainedReferencesCallbackChain(context, context.model), (err)->{
                     if(err == null) {
                         context.printStream.println('>');
-                        System.out.println("[ROOT] Contained");
+                        //System.out.println("[ROOT] Contained");
                         Helper.forall(context.model.metaReferences(),new ContainedReferencesCallbackChain(context, context.model), containedRefsEnd -> {
                             if(containedRefsEnd == null) {
                                 context.printStream.println("</" + formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">");
