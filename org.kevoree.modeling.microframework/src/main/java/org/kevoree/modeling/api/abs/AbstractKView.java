@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by duke on 10/10/14.
@@ -105,15 +106,11 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void lookup(long kid, Callback<KObject> callback) {
-        KObject resolved = dimension().universe().storage().cacheLookup(dimension(), now(), kid);
-        if (resolved != null) {
-            callback.on(resolved);
-        } else {
-            //System.err.println("WARNING: not resolved path=" + path + ",dimension=" + dimension() + ", time=" + now());
-            //TODO more complex
+        dimension().universe().storage().lookup(dimension(), now(), kid, callback);
+    }
 
-            callback.on(null);
-        }
+    public void lookupAll(Set<Long> keys, Callback<List<KObject>> callback) {
+        dimension().universe().storage().lookupAll(dimension(), now(), keys, callback);
     }
 
     @Override

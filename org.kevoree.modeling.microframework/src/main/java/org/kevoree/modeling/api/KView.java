@@ -3,6 +3,7 @@ package org.kevoree.modeling.api;
 import org.kevoree.modeling.api.meta.MetaClass;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by thomas on 10/2/14.
@@ -31,7 +32,9 @@ public interface KView {
 
     public void select(String query, Callback<List<KObject>> callback);
 
-    public void lookup(long path, Callback<KObject> callback);
+    public void lookup(long key, Callback<KObject> callback);
+
+    public void lookupAll(Set<Long> keys, Callback<List<KObject>> callback);
 
     public void stream(String query, Callback<KObject> callback);
 
