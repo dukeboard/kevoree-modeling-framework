@@ -30,4 +30,11 @@ public class InternalInboundRef {
             return kid == ((InternalInboundRef) obj).kid && refId == ((InternalInboundRef) obj).refId;
         }
     }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (kid ^ (kid >>> 32));
+        result = 31 * result + refId;
+        return result;
+    }
 }

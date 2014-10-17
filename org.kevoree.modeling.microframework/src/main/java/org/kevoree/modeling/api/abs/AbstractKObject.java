@@ -13,10 +13,7 @@ import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 import org.kevoree.modeling.api.util.InternalInboundRef;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by duke on 10/9/14.
@@ -257,6 +254,20 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
 
+    private Set getCreateOrUpdatePayloadList(int payloadIndex) {
+        Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[payloadIndex];
+        if (previous == null) {
+            previous = new HashSet<Object>();
+            factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[payloadIndex] = previous;
+        }
+        if (now() != factoryNow) {
+            previous = new HashSet<Object>((Set)previous);
+            factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[payloadIndex] = previous;
+        }
+        return (Set)previous;
+    }
+
+
     @Override
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent) {
         switch (actionType) {
@@ -264,24 +275,22 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (metaReference.single()) {
                     mutate(KActionType.SET, metaReference, param, setOpposite, fireEvent);
                 } else {
-                    Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-                    if (previous == null) {
-                        previous = new HashSet<String>();
-                        factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previous;
-                    }
-                    Set<Long> previousList = (Set<Long>) previous;
-                    if (now() != factoryNow) {
-                        previousList = new HashSet<Long>(previousList);
-                        factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previous;
-                    }
+                    Set<Long> previousList = (Set<Long>)getCreateOrUpdatePayloadList(metaReference.index());
+                    //Actual add
                     previousList.add(param.kid());
+                    //Opposite
                     if (metaReference.opposite() != null && setOpposite) {
                         param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
                     }
+                    //Container
                     if (metaReference.contained()) {
                         ((AbstractKObject) param).setReferenceInParent(metaReference);
                         ((AbstractKObject) param).setParentKID(kid);
                     }
+                    //Inbound
+                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>)getCreateOrUpdatePayloadList(INBOUNDS_INDEX);
+                    InternalInboundRef newInboundRef = new InternalInboundRef(param.kid(),metaReference.opposite().index());
+                    inboundRefs.add(newInboundRef);
                     internalUpdateTimeTrees();
                 }
                 break;
@@ -289,13 +298,21 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (!metaReference.single()) {
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent);
                 } else {
+                    //Actual add
                     Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
                     factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
+                    //Container
                     if (metaReference.contained()) {
                         ((AbstractKObject) param).setReferenceInParent(metaReference);
                         ((AbstractKObject) param).setParentKID(kid);
                     }
+                    //Inbound
+                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>)getCreateOrUpdatePayloadList(INBOUNDS_INDEX);
+                    InternalInboundRef newInboundRef = new InternalInboundRef(param.kid(),metaReference.opposite().index());
+                    inboundRefs.add(newInboundRef);
+
                     internalUpdateTimeTrees();
+                    //Opposite
                     if (metaReference.opposite() != null && setOpposite) {
                         if (previous == null) {
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
@@ -339,6 +356,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                     }
                 }
+                //Inbounds
+                Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>)getCreateOrUpdatePayloadList(INBOUNDS_INDEX);
+                inboundRefs.removeIf((ref)->(ref.getKID() == param.kid()));
                 break;
             default:
                 break;
@@ -626,40 +646,40 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             if(payload != null) {
                 if(payload instanceof Set) {
                     Set<InternalInboundRef> refs = (Set<InternalInboundRef>) payload;
-
-                    factory.lo
-
-
-
-
-
+                    Set<Long> oppositeKids = new HashSet<Long>();
+                    HashMap<Long, InternalInboundRef> oppositeInternal = new HashMap<Long, InternalInboundRef>();
                     for(InternalInboundRef ref : refs) {
-                        factory.lookup(ref.getKID(), (other)->{
-                            if(other == null) {
-                                end.on(new Exception("Could not resolve opposite element with kid:" + ref.getKID()));
-                            } else {
+                        oppositeInternal.put(ref.getKID(), ref);
+                        oppositeKids.add(ref.getKID());
+                    }
+                    factory.lookupAll(oppositeKids, (oppositeElements) -> {
+                        if (oppositeElements != null) {
+                            for (KObject opposite : oppositeElements) {
+                                InternalInboundRef inboundRef = oppositeInternal.get(opposite.kid());
                                 MetaReference metaRef = null;
-                                MetaReference[] metaReferences = other.metaReferences();
+                                MetaReference[] metaReferences = opposite.metaReferences();
                                 for (int i = 0; i < metaReferences.length; i++) {
-                                    if (metaReferences[i].index() == ref.getRefIndex()) {
+                                    if (metaReferences[i].index() == inboundRef.getRefIndex()) {
                                         metaRef = metaReferences[i];
                                         break;
                                     }
                                 }
                                 if (metaRef != null) {
-                                    InboundReference reference = new InboundReference(metaRef, other);
+                                    InboundReference reference = new InboundReference(metaRef, opposite);
                                     try {
                                         callback.on(reference);
                                     } catch (Throwable t) {
                                         end.on(t);
                                     }
                                 } else {
-                                    end.on(new Exception("MetaReference not found with index:" + ref.getRefIndex() + " in refs of " + other.metaClass().metaName()));
+                                    end.on(new Exception("MetaReference not found with index:" + inboundRef.getRefIndex() + " in refs of " + opposite.metaClass().metaName()));
                                 }
                             }
-                        });
-                    }
-                    end.on(null);
+                            end.on(null);
+                        } else {
+                            end.on(new Exception("Could not resolve opposite objects"));
+                        }
+                    });
                 } else {
                     end.on(new Exception("Inbound refs payload is not a set"));
                 }
