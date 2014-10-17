@@ -13,11 +13,11 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
         }
         org.kevoree.modeling.api.time.TimeTree newTimeTree = new org.kevoree.modeling.api.time.impl.DefaultTimeTree().insert(now());
         switch (clazz.index()) {
-#set($clsIdx = 2)
+#set($clsIdx = 0)
 #foreach($class in $context.classDeclarationsList.keySet())
     #set($lastIdx = $class.lastIndexOf(".")+1)
             case $clsIdx:
-                return manageCache(new $class.substring($lastIdx)Impl(this, METACLASSES.$class.toUpperCase().replace(".","_"), org.kevoree.modeling.api.util.Helper.newPath(), now(), dimension(), newTimeTree));
+                return manageCache(new $class.substring($lastIdx)Impl(this, METACLASSES.$class.toUpperCase().replace(".","_"), dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
 #set($clsIdx = $clsIdx+1)
 #end
             default:
