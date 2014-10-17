@@ -13,7 +13,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
         }
         org.kevoree.modeling.api.time.TimeTree newTimeTree = new org.kevoree.modeling.api.time.impl.DefaultTimeTree().insert(now());
         switch (clazz.index()) {
-#set($clsIdx = 0)
+#set($clsIdx = 2)
 #foreach($class in $context.classDeclarationsList.keySet())
     #set($lastIdx = $class.lastIndexOf(".")+1)
             case $clsIdx:
