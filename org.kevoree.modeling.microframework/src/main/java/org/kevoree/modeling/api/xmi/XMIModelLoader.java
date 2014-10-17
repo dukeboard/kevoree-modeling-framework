@@ -131,7 +131,7 @@ public class XMIModelLoader implements ModelLoader {
         try {
             String nsURI;
             XmlParser reader = context.xmiReader;
-            while (reader.hasNext()) {
+            rootwhile : while (reader.hasNext()) {
                 XmlParser.Token nextTag = reader.next();
                 switch (nextTag) {
                     case START_TAG: {
@@ -160,7 +160,7 @@ public class XMIModelLoader implements ModelLoader {
                         }
                     }
                     case END_TAG: {
-                        break;
+                        break rootwhile;
                     }
                     case END_DOCUMENT: {
                         break;
