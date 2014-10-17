@@ -5,21 +5,21 @@ package org.kevoree.modeling.api.util;
  */
 public class InternalInboundRef {
 
-    private String path;
+    private long kid;
 
-    private String meta;
+    private int refId;
 
-    public InternalInboundRef(String path, String meta) {
-        this.path = path;
-        this.meta = meta;
+    public InternalInboundRef(long kid, int refId) {
+        this.kid = kid;
+        this.refId = refId;
     }
 
-    public String getPath() {
-        return path;
+    public long getKID() {
+        return kid;
     }
 
-    public String getMeta() {
-        return meta;
+    public int getRefIndex() {
+        return refId;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class InternalInboundRef {
         if (!(obj instanceof InternalInboundRef)) {
             return false;
         } else {
-            return path.equals(((InternalInboundRef) obj).getPath()) && meta.equals(((InternalInboundRef) obj).getMeta());
+            return kid == ((InternalInboundRef) obj).kid && refId == ((InternalInboundRef) obj).refId;
         }
     }
 }
