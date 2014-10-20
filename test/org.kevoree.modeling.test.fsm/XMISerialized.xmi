@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cloud:Node xmlns:xsi="http://wwww.w3.org/2001/XMLSchema-instance" xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:cloud="http://cloud" name="node0">
+<children xsi:type="cloud:Node" name="n1">
+</children>
+<element xsi:type="cloud:Element">
+</element>
+</cloud:Node>
