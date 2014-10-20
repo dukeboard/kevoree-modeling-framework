@@ -461,28 +461,54 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 }
             }
         }
-        factory().lookupAll(toResolveds, (resolveds) -> {
-            for (KObject resolved : resolveds) {
-                ModelVisitor.VisitResult result = visitor.visit(resolved);
-                if (result.equals(ModelVisitor.VisitResult.STOP)) {
-                    end.on(null);
-                } else {
-                    if (deep) {
-                        if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
-                            if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
-
-/*
-                                ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
-                                    nextReference.on(null);
-                                }, deep, treeOnly, alreadyVisited);
-                                */
-
+        if (toResolveds.isEmpty()) {
+            end.on(null);
+        } else {
+            factory().lookupAll(toResolveds, (resolveds) -> {
+                List<KObject> nextDeep = new ArrayList<KObject>();
+                for (KObject resolved : resolveds) {
+                    ModelVisitor.VisitResult result = visitor.visit(resolved);
+                    if (result.equals(ModelVisitor.VisitResult.STOP)) {
+                        end.on(null);
+                    } else {
+                        if (deep) {
+                            if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
+                                if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
+                                    nextDeep.add(resolved);
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+                if (!nextDeep.isEmpty()) {
+                    final int[] i = new int[1];
+                    i[0] = 0;
+                    final Callback<Throwable>[] next = new Callback[1];
+                    next[0] = new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable) {
+                            i[0] = i[0] + 1;
+                            if (i[0] == nextDeep.size()) {
+                                end.on(null);
+                            } else {
+                                if (treeOnly) {
+                                    nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+                                } else {
+                                    nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+                                }
+                            }
+                        }
+                    };
+                    if (treeOnly) {
+                        nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+                    } else {
+                        nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+                    }
+                } else {
+                    end.on(null);
+                }
+            });
+        }
     }
 
     public void graphVisit(ModelVisitor visitor, Callback<Throwable> end) {

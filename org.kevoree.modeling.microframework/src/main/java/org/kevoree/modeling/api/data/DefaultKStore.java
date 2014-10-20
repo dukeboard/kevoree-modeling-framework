@@ -134,11 +134,12 @@ public class DefaultKStore implements KStore {
         if (resolved != null) {
             callback.on(resolved);
         } else {
-            db.get();
-
-
-            //TODO load the object from the DB, unserialize and prepare cache
-            callback.on(null);
+            db.get(keyPayload(dimension, time, key), (objPayLoad) -> {
+                //KObject newObjet =
+                //TODO
+            }, (e) -> {
+                callback.on(null);
+            });
         }
     }
 

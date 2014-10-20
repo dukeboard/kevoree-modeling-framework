@@ -37,7 +37,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     @Override
     public void save(Callback<Throwable> callback) {
-        universe().storage().save(this,callback);
+        universe().storage().save(this, callback);
     }
 
     @Override
@@ -52,7 +52,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     @Override
     public void discard(Callback<Throwable> callback) {
-        universe().storage().discard(this,callback);
+        universe().storage().discard(this, callback);
     }
 
     private TimeTree globalTimeTree = new DefaultTimeTree(); //TODO
