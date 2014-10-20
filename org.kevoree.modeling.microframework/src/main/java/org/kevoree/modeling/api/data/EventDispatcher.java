@@ -24,7 +24,7 @@ public class EventDispatcher {
         for (ModelElementListener l : listeners.keySet()) {
             TimedRegistration registration = listeners.get(l);
             if (registration.covered(event)) {
-                l.elementChanged(event);
+                l.on(event);
             }
         }
     }
