@@ -9,7 +9,6 @@ import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 import org.kevoree.modeling.api.util.InternalInboundRef;
 
@@ -112,7 +111,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             });
         }
     }
-
 
 
     @Override
@@ -261,10 +259,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             factory().dimension().universe().storage().raw(obj.dimension(), factoryNow, obj.kid())[payloadIndex] = previous;
         }
         if (obj.now() != factoryNow) {
-            previous = new HashSet<Object>((Set)previous);
+            previous = new HashSet<Object>((Set) previous);
             factory().dimension().universe().storage().raw(obj.dimension(), factoryNow, obj.kid())[payloadIndex] = previous;
         }
-        return (Set)previous;
+        return (Set) previous;
     }
 
 
@@ -275,7 +273,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (metaReference.single()) {
                     mutate(KActionType.SET, metaReference, param, setOpposite, fireEvent);
                 } else {
-                    Set<Long> previousList = (Set<Long>)getCreateOrUpdatePayloadList(this, metaReference.index());
+                    Set<Long> previousList = (Set<Long>) getCreateOrUpdatePayloadList(this, metaReference.index());
                     //Actual add
                     previousList.add(param.kid());
                     //Opposite
@@ -288,8 +286,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         ((AbstractKObject) param).setParentKID(kid);
                     }
                     //Inbound
-                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>)getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    InternalInboundRef newInboundRef = new InternalInboundRef(kid(),metaReference.index());
+                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                    InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
                     inboundRefs.add(newInboundRef);
                     internalUpdateTimeTrees();
                 }
@@ -307,8 +305,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         ((AbstractKObject) param).setParentKID(kid);
                     }
                     //Inbound
-                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>)getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    InternalInboundRef newInboundRef = new InternalInboundRef(kid(),metaReference.index());
+                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                    InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
                     inboundRefs.add(newInboundRef);
 
                     internalUpdateTimeTrees();
@@ -357,8 +355,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                 }
                 //Inbounds
-                Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>)getCreateOrUpdatePayloadList(param,INBOUNDS_INDEX);
-                inboundRefs.removeIf((ref)->(ref.getKID() == kid()));
+                Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                inboundRefs.removeIf((ref) -> (ref.getKID() == kid()));
                 break;
             default:
                 break;
@@ -473,10 +471,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
                             if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
 
-
+/*
                                 ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
                                     nextReference.on(null);
                                 }, deep, treeOnly, alreadyVisited);
+                                */
+
                             }
                         }
                     }
@@ -599,12 +599,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             end.on(new Exception("Object not initialized."));
         } else {
             Object payload = rawPayload[INBOUNDS_INDEX];
-            if(payload != null) {
-                if(payload instanceof Set) {
+            if (payload != null) {
+                if (payload instanceof Set) {
                     Set<InternalInboundRef> refs = (Set<InternalInboundRef>) payload;
                     Set<Long> oppositeKids = new HashSet<Long>();
                     HashMap<Long, InternalInboundRef> oppositeInternal = new HashMap<Long, InternalInboundRef>();
-                    for(InternalInboundRef ref : refs) {
+                    for (InternalInboundRef ref : refs) {
                         oppositeInternal.put(ref.getKID(), ref);
                         oppositeKids.add(ref.getKID());
                     }
