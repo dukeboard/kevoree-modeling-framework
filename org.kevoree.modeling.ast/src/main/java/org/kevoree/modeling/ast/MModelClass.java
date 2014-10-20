@@ -47,4 +47,36 @@ public class MModelClass extends MModelClassifier{
     }
 
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Class[name:");
+        sb.append(getName());
+        sb.append(", package:");
+        sb.append(getPack());
+        sb.append(", parent:");
+        sb.append(getParents());
+        sb.append(", attributes[");
+        for(MModelAttribute att : attributes) {
+            sb.append(att.getName());
+            sb.append(":");
+            sb.append(att.getType());
+            sb.append(", ");
+        }
+        sb.append("]");
+        sb.append(", references:[");
+        for(MModelReference att : references) {
+            sb.append(att.getName());
+            sb.append(":");
+            sb.append(att.getType().getName());
+            if(att.getOpposite() != null) {
+                sb.append("->");
+                sb.append(att.getOpposite().getName());
+                sb.append(":");
+                sb.append(att.getOpposite().getType().getFqn());
+            }
+            sb.append(", ");
+        }
+        sb.append("]]");
+        return sb.toString();
+    }
 }

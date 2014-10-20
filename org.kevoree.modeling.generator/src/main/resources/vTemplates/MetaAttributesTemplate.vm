@@ -40,7 +40,7 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
     }
 
     public org.kevoree.modeling.api.meta.MetaClass origin(){
-        return ${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
+        return ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
     }
 
     METAATTRIBUTES(String name, int index, boolean learned, boolean key) {

@@ -80,6 +80,8 @@ public class Generator {
                 cgc.generationContext = context;
                 cgc.classDeclaration = context.classDeclarationsList.get(classDecl.getFqn());
 
+                System.out.println(cgc.classDeclaration.toString());
+
                 Path apiFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
                 callVelocity(apiFilePath, "vTemplates/ClassTemplate.vm", cgc);
 

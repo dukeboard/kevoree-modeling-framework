@@ -28,13 +28,15 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
 
         String classFqn = o.getTypeDeclaration().getName();
 
-        MModelClass thisClassDeclaration = (MModelClass) context.classDeclarationsList.computeIfAbsent(classFqn, (t) -> {
+        MModelClass thisClassDeclaration = getOrAddClass(classFqn);
+        /*MModelClass) context.classDeclarationsList.computeIfAbsent(classFqn, (t) -> {
             String classPackage = classFqn.substring(0, classFqn.lastIndexOf("."));
             String className = classFqn.substring(classFqn.lastIndexOf(".") + 1);
             MModelClass cls = new MModelClass(className);
             cls.setPack(classPackage);
             return cls;
         });
+        */
 
         o.getClassElemDeclarationList().forEach(decl -> {
             if (decl.getRelationDeclaration() != null) {
@@ -55,21 +57,19 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
                     if(relationDecl.getMultiplicityDeclaration() != null) {
                         if(relationDecl.getMultiplicityDeclaration().getMultiplicityDeclarationUpper().getText().equals("*")) {
                             attribute.setSingle(false);
+                        } else {
+                            attribute.setSingle(true);
                         }
+                    } else {
+                        attribute.setSingle(true);
                     }
                     thisClassDeclaration.addAttribute(attribute);
                 } else {
 
                     String relationTypeFqn = relationDecl.getTypeDeclaration().getName();
-                    MModelClass relationType = (MModelClass) context.classDeclarationsList.computeIfAbsent(relationTypeFqn, (t) -> {
-                        String relationTypePackage = relationTypeFqn.substring(0, relationTypeFqn.lastIndexOf("."));
-                        String relationTypeName = relationTypeFqn.substring(relationTypeFqn.lastIndexOf(".") + 1);
-                        MModelClass cls = new MModelClass(relationTypeName);
-                        cls.setPack(relationTypePackage);
-                        return cls;
-                    });
+                    MModelClass relationType = getOrAddClass(relationTypeFqn);
 
-                    MModelReference reference = new MModelReference(relationDecl.getRelationName().getText(), relationType);
+                    MModelReference reference = getOrAddReference(thisClassDeclaration, relationDecl.getRelationName().getText());
                     if(relationDecl.getAnnotations() != null) {
                         relationDecl.getAnnotations().getAnnotationList().forEach(ann->{
                             if(ann.getText().equalsIgnoreCase("@contained")){
@@ -82,16 +82,22 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
                     if(relationDecl.getMultiplicityDeclaration() != null) {
                         if(relationDecl.getMultiplicityDeclaration().getMultiplicityDeclarationUpper().getText().equals("*")) {
                             reference.setSingle(false);
+                        } else {
+                            reference.setSingle(true);
                         }
+                    } else {
+                        reference.setSingle(true);
                     }
-                    thisClassDeclaration.addReference(reference);
+
+                    if(relationDecl.getRelationOpposite() != null) {
+                        reference.setOpposite(getOrAddReference(relationType, relationDecl.getRelationOpposite().getIdent().getText()));
+                    }
                 }
             }
         });
 
         if (o.getParentsDeclaration() != null && o.getParentsDeclaration().getTypeDeclarationList() != null) {
             o.getParentsDeclaration().getTypeDeclarationList().forEach(parent -> {
-
                 String parentTypeFqn = parent.getName();
                 MModelClass parentType = (MModelClass) context.classDeclarationsList.computeIfAbsent(parentTypeFqn, (t) -> {
                     String parentTypePackage = parentTypeFqn.substring(0, parentTypeFqn.lastIndexOf("."));
@@ -104,6 +110,31 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
             });
 
         }
+    }
+
+    private MModelReference getOrAddReference(String clazz, String ref) {
+        return getOrAddReference(getOrAddClass(clazz), ref);
+    }
+
+    private MModelReference getOrAddReference(MModelClass relationType, String ref) {
+        for(MModelReference registeredRef : relationType.getReferences()) {
+            if(registeredRef.getName().equals(ref)) {
+                return registeredRef;
+            }
+        }
+        MModelReference reference = new MModelReference(ref, relationType);
+        relationType.addReference(reference);
+        return reference;
+    }
+
+    private MModelClass getOrAddClass(String clazz) {
+        return (MModelClass) context.classDeclarationsList.computeIfAbsent(clazz, (t) -> {
+            String relationTypePackage = clazz.substring(0, clazz.lastIndexOf("."));
+            String relationTypeName = clazz.substring(clazz.lastIndexOf(".") + 1);
+            MModelClass cls = new MModelClass(relationTypeName);
+            cls.setPack(relationTypePackage);
+            return cls;
+        });
     }
 
 

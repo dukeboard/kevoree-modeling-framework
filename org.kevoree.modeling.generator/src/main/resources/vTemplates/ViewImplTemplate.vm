@@ -17,7 +17,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
 #foreach($class in $context.classDeclarationsList.keySet())
     #set($lastIdx = $class.lastIndexOf(".")+1)
             case $clsIdx:
-                return manageCache(new $class.substring($lastIdx)Impl(this, METACLASSES.$class.toUpperCase().replace(".","_"), dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
+                return manageCache(new ${class.substring(0,$class.lastIndexOf("."))}.impl.${class.substring($lastIdx)}Impl(this, METACLASSES.$class.toUpperCase().replace(".","_"), dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
 #set($clsIdx = $clsIdx+1)
 #end
             default:
