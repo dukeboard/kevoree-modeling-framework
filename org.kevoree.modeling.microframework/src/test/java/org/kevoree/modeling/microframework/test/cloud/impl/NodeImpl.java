@@ -77,4 +77,9 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     public void getElement(Callback<Element> callback) {
         each(METAREFERENCES.CHILDREN, callback, null);
     }
+
+    @Override
+    public void trigger(String param, Callback<String> callback) {
+        //TODO
+    }
 }

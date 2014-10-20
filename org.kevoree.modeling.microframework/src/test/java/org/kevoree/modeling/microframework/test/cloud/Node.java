@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 
 /**
@@ -25,7 +26,7 @@ public interface Node extends KObject<Node, CloudView> {
 
         private boolean key;
 
-        public MetaClass origin(){
+        public MetaClass origin() {
             return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
         }
 
@@ -94,7 +95,7 @@ public interface Node extends KObject<Node, CloudView> {
             return contained;
         }
 
-        public MetaClass origin(){
+        public MetaClass origin() {
             return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
         }
 
@@ -106,6 +107,33 @@ public interface Node extends KObject<Node, CloudView> {
             this.metaType = metaType;
             this.opposite = opposite;
         }
+    }
+
+    public enum METAOPERATION implements MetaOperation {
+
+        TRIGGER("trigger", 6);
+
+        private String name;
+
+        private int index;
+
+        public int index() {
+            return index;
+        }
+
+        public String metaName() {
+            return name;
+        }
+
+        public MetaClass origin() {
+            return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
+        }
+
+        METAOPERATION(String name, int index) {
+            this.name = name;
+            this.index = index;
+        }
+
     }
 
     public String getName();
@@ -125,4 +153,8 @@ public interface Node extends KObject<Node, CloudView> {
     public void setElement(Element obj);
 
     public void getElement(Callback<Element> obj);
+
+    //analog to func trigger(param:String) : String in .mm
+    public void trigger(String param, Callback<String> callback);
+
 }

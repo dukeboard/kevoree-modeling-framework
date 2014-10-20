@@ -296,7 +296,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (!metaReference.single()) {
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent);
                 } else {
-                    if(param == null) {
+                    if (param == null) {
                         mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
                     } else {
                         //Actual add
@@ -332,9 +332,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Object[] raw = factory().dimension().universe().storage().raw(dimension(), factoryNow, kid());
                     Object previousKid = raw[metaReference.index()];
                     raw[metaReference.index()] = null;
-                    if(previousKid != null) {
-                        factory.dimension().universe().storage().lookup(dimension(), factoryNow, (Long)previousKid, (resolvedParam)->{
-                            if( resolvedParam != null) {
+                    if (previousKid != null) {
+                        factory.dimension().universe().storage().lookup(dimension(), factoryNow, (Long) previousKid, (resolvedParam) -> {
+                            if (resolvedParam != null) {
                                 if (metaReference.contained()) {
                                     ((AbstractKObject) resolvedParam).setReferenceInParent(null);
                                     ((AbstractKObject) resolvedParam).setParentKID(null);
@@ -381,7 +381,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
         Object o = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
         if (o == null) {
-            if(end != null) {
+            if (end != null) {
                 end.on(null);
             } else {//case of Get on single ref
                 callback.on(null);
