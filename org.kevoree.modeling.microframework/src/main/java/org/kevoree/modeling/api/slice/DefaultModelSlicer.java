@@ -48,13 +48,13 @@ public class DefaultModelSlicer implements ModelSlicer {
                     //We continue to all reachable elements, potentially here we can exclude references
                     elem.graphVisit(new ModelVisitor() {
                         @Override
-                        public void visit(KObject elem, Callback<Result> visitor) {
+                        public VisitResult visit(KObject elem) {
                             if (cache.get(elem.kid()) == null) {
                                 //break potential loop
                                 internal_prune(elem, traces, cache, parentMap, (t) -> {
                                 });
                             }
-                            visitor.on(Result.CONTINUE);
+                            return VisitResult.CONTINUE;
                         }
                     }, (t) -> {
                         callback.on(null);

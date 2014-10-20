@@ -42,9 +42,9 @@ public class DefaultModelCompare implements ModelCompare {
         tracesRef.addAll(internal_createTraces(origin, target, inter, merge, true, false));
         origin.treeVisit(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, Callback<Result> visitor) {
+            public VisitResult visit(KObject elem) {
                 objectsMap.put(elem.kid(), elem);
-                visitor.on(Result.CONTINUE);
+                return VisitResult.CONTINUE;
             }
         }, new Callback<Throwable>() {
             @Override
@@ -55,7 +55,7 @@ public class DefaultModelCompare implements ModelCompare {
                 } else {
                     target.treeVisit(new ModelVisitor() {
                         @Override
-                        public void visit(KObject elem, Callback<Result> visitor) {
+                        public VisitResult visit(KObject elem) {
                             Long childPath = elem.kid();
                             if (objectsMap.containsKey(childPath)) {
                                 if (inter) {
@@ -75,7 +75,7 @@ public class DefaultModelCompare implements ModelCompare {
                                     tracesRef.addAll(internal_createTraces(elem, elem, true, merge, true, false));
                                 }
                             }
-                            visitor.on(Result.CONTINUE);
+                            return VisitResult.CONTINUE;
                         }
                     }, new Callback<Throwable>() {
                         @Override

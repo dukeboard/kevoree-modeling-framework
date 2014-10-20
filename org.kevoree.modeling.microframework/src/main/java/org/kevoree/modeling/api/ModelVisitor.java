@@ -2,10 +2,10 @@ package org.kevoree.modeling.api;
 
 public interface ModelVisitor {
 
-    public enum Result {
+    public enum VisitResult {
         CONTINUE, SKIP, STOP;
     }
 
-    public void visit(KObject elem, Callback<Result> visitor);
+    public VisitResult visit(KObject elem);
 
 }

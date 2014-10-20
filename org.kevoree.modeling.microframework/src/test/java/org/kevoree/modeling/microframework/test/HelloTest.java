@@ -79,9 +79,9 @@ public class HelloTest {
         final int[] j = {0};
         nodeT0.visit(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, Callback<Result> visitor) {
+            public void visit(KObject elem, Callback<VisitResult> visitor) {
                 i[0]++;
-                visitor.on(Result.CONTINUE);
+                visitor.on(VisitResult.CONTINUE);
             }
         }, (t) -> {
             j[0]++;
@@ -93,9 +93,9 @@ public class HelloTest {
         j[0] = 0;
         nodeT1.visit(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, Callback<Result> visitor) {
+            public void visit(KObject elem, Callback<VisitResult> visitor) {
                 i[0]++;
-                visitor.on(Result.CONTINUE);
+                visitor.on(VisitResult.CONTINUE);
             }
         }, (t) -> {
             j[0]++;
@@ -107,9 +107,9 @@ public class HelloTest {
         j[0] = 0;
         nodeT3.visit(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, Callback<Result> visitor) {
+            public void visit(KObject elem, Callback<VisitResult> visitor) {
                 i[0]++;
-                visitor.on(Result.CONTINUE);
+                visitor.on(VisitResult.CONTINUE);
             }
         }, (t) -> {
             j[0]++;
@@ -121,9 +121,9 @@ public class HelloTest {
         j[0] = 0;
         nodeT0.treeVisit(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, Callback<Result> visitor) {
+            public void visit(KObject elem, Callback<VisitResult> visitor) {
                 i[0]++;
-                visitor.on(Result.CONTINUE);
+                visitor.on(VisitResult.CONTINUE);
             }
         }, (t) -> {
             j[0]++;
@@ -135,9 +135,9 @@ public class HelloTest {
         j[0] = 0;
         nodeT0.graphVisit(new ModelVisitor() {
             @Override
-            public void visit(KObject elem, Callback<Result> visitor) {
+            public void visit(KObject elem, Callback<VisitResult> visitor) {
                 i[0]++;
-                visitor.on(Result.CONTINUE);
+                visitor.on(VisitResult.CONTINUE);
             }
         }, (t) -> {
             j[0]++;
@@ -150,7 +150,7 @@ public class HelloTest {
         j[0] = 0;
         nodeT0.graphVisit((elem, callback) -> {
             i[0]++;
-            callback.on(ModelVisitor.Result.CONTINUE);
+            callback.on(ModelVisitor.VisitResult.CONTINUE);
         }, (t) -> {
             j[0]++;
         });

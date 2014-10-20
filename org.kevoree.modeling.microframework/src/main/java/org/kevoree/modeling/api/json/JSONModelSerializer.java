@@ -42,10 +42,10 @@ public class JSONModelSerializer implements ModelSerializer {
         final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
         out.print("[\n");
         printJSON(model, out);
-        model.graphVisit((elem, visitor) -> {
+        model.graphVisit((elem) -> {
             out.print(",");
             printJSON(elem, out);
-            visitor.on(ModelVisitor.Result.CONTINUE);
+            return ModelVisitor.VisitResult.CONTINUE;
         }, (t) -> {
             out.print("]\n");
             out.flush();

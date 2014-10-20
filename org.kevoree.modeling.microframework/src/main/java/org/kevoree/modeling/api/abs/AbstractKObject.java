@@ -440,93 +440,49 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (alreadyVisited != null) {
             alreadyVisited.add(kid());
         }
-        Helper.forall(metaReferences(), new CallBackChain<MetaReference>() {
-            @Override
-            public void on(MetaReference metaReference, Callback<Throwable> nextReference) {
-                if (treeOnly && !metaReference.contained()) {
-                    nextReference.on(null);
-                } else {
-                    Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
-                    Object o = null;
-                    if (raw != null) {
-                        o = raw[metaReference.index()];
-                    }
+        Set<Long> toResolveds = new HashSet<Long>();
+        for (int i = 0; i < metaReferences().length; i++) {
+            MetaReference reference = metaReferences()[i];
+            if (!(treeOnly && !reference.contained())) {
+                Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+                Object o = null;
+                if (raw != null) {
+                    o = raw[reference.index()];
+                }
+                if (o != null) {
                     if (o instanceof Long) {
-                        factory().lookup((Long) o, (resolved) -> {
-                            visitor.visit(resolved, (res) -> {
-                                if (res.equals(ModelVisitor.Result.STOP)) {
-                                    end.on(null);
-                                } else {
-                                    if (deep) {
-                                        if (res.equals(ModelVisitor.Result.CONTINUE)) {
-                                            if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
-                                                ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
-                                                    nextReference.on(null);
-                                                }, deep, treeOnly, alreadyVisited);
-                                            } else {
-                                                nextReference.on(null);
-                                            }
-                                        } else {
-                                            nextReference.on(null);
-                                        }
-                                    } else {
-                                        nextReference.on(null);
-                                    }
-                                }
-                            });
-                        });
-                    } else if (o instanceof Set) {
-                        Set<Long> elems = (Set<Long>) o;
-                        final boolean[] aborded = {false};
-                        Helper.forall(elems.toArray(new Long[elems.size()]), new CallBackChain<Long>() {
-                            @Override
-                            public void on(Long s, Callback<Throwable> nextElemInRef) {
-                                factory().lookup(s, (resolved) -> {
-                                    if (resolved == null) {
-                                        nextElemInRef.on(null);
-                                    } else {
-                                        visitor.visit(resolved, (res) -> {
-                                            if (res.equals(ModelVisitor.Result.STOP)) {
-                                                end.on(null);
-                                            } else {
-                                                if (res.equals(ModelVisitor.Result.SKIP)) {
-                                                    aborded[0] = true;
-                                                    nextReference.on(null);
-                                                } else {
-                                                    if (deep) {
-                                                        if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
-                                                            ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
-                                                                nextElemInRef.on(null);
-                                                            }, deep, treeOnly, alreadyVisited);
-                                                        } else {
-                                                            nextElemInRef.on(null);
-                                                        }
-                                                    } else {
-                                                        nextElemInRef.on(null);
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }, new Callback<Throwable>() {
-                            @Override
-                            public void on(Throwable throwable) {
-                                if (!aborded[0]) {
-                                    nextReference.on(null);
-                                }
-                            }
-                        });
-                    } else if (o == null) {
-                        nextReference.on(null);
-                        //noop
+                        toResolveds.add((Long) o);
                     } else {
-                        end.on(new Exception("Internal error, " + o));
+                        if (o instanceof Set) {
+                            Set<Long> ol = (Set<Long>) o;
+                            for (Long toAdd : ol) {
+                                toResolveds.add(toAdd);
+                            }
+                        }
                     }
                 }
             }
-        }, end);
+        }
+        factory().lookupAll(toResolveds, (resolveds) -> {
+            for (KObject resolved : resolveds) {
+                ModelVisitor.VisitResult result = visitor.visit(resolved);
+                if (result.equals(ModelVisitor.VisitResult.STOP)) {
+                    end.on(null);
+                } else {
+                    if (deep) {
+                        if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
+                            if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
+
+
+                                ((AbstractKObject) resolved).internal_visit(visitor, (t) -> {
+                                    nextReference.on(null);
+                                }, deep, treeOnly, alreadyVisited);
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void graphVisit(ModelVisitor visitor, Callback<Throwable> end) {
@@ -543,8 +499,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         builder.append("\t\"@meta\" : \"");
         builder.append(metaClass().metaName());
         builder.append("\",\n");
-        builder.append("\t\"@path\" : \"");
-        //builder.append(path());
+        builder.append("\t\"@kid\" : \"");
+        builder.append(kid());
         builder.append("\",\n");
         for (int i = 0; i < metaAttributes().length; i++) {
             Object payload = get(metaAttributes()[i]);
