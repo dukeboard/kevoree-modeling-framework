@@ -18,11 +18,13 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
 
     public void fork(Callback<B> callback);
 
-    public void save(Callback<Boolean> callback);
+    public void save(Callback<Throwable> callback);
 
-    public void delete(Callback<Boolean> callback);
+    public void saveUnload(Callback<Throwable> callback);
 
-    public void unload(Callback<Boolean> callback);
+    public void delete(Callback<Throwable> callback);
+
+    public void discard(Callback<Throwable> callback);
 
     public A time(Long timePoint);
 

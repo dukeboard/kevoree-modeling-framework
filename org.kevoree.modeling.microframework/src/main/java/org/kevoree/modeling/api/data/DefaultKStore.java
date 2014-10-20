@@ -103,18 +103,24 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void saveUnload(KDimension dimension) {
-
-    }
-
-    @Override
-    public void discard(KDimension dimension) {
+    public void discard(KDimension dimension, Callback<Throwable> callback) {
         caches.remove(dimension.key());
+        callback.on(null);
     }
 
     @Override
-    public void delete(KDimension dimension) {
+    public void delete(KDimension dimension, Callback<Throwable> callback) {
+        new Exception("Not implemented yet !");
+    }
 
+    @Override
+    public void save(KDimension dimension, Callback<Throwable> callback) {
+        new Exception("Not implemented yet !");
+    }
+
+    @Override
+    public void saveUnload(KDimension dimension, Callback<Throwable> callback) {
+        new Exception("Not implemented yet !");
     }
 
     @Override
@@ -128,9 +134,18 @@ public class DefaultKStore implements KStore {
         if (resolved != null) {
             callback.on(resolved);
         } else {
+            db.get();
+
+
             //TODO load the object from the DB, unserialize and prepare cache
             callback.on(null);
         }
+    }
+
+    private final char keySep = ',';
+
+    private String keyPayload(KDimension dim, long time, long key) {
+        return "" + dim.key() + keySep + time + keySep + key;
     }
 
     @Override

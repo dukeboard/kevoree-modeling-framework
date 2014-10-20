@@ -23,11 +23,13 @@ public interface KStore {
 
     Object[] raw(KDimension dimension, long time, long key);
 
-    public void saveUnload(KDimension dimension);
+    public void save(KDimension dimension, Callback<Throwable> callback);
 
-    public void discard(KDimension dimension);
+    public void saveUnload(KDimension dimension, Callback<Throwable> callback);
 
-    public void delete(KDimension dimension);
+    public void discard(KDimension dimension, Callback<Throwable> callback);
+
+    public void delete(KDimension dimension, Callback<Throwable> callback);
 
     public TimeTree timeTree(KDimension dimension, long key);
 

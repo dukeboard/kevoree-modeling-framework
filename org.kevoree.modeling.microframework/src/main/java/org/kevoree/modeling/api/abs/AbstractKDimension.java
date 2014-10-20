@@ -16,12 +16,12 @@ import java.util.Set;
  */
 public abstract class AbstractKDimension<A extends KView, B extends KDimension, C extends KUniverse> implements KDimension<A, B, C> {
 
-    private KUniverse univers;
+    private KUniverse universe;
 
     private long key;
 
-    protected AbstractKDimension(KUniverse univers, long key) {
-        this.univers = univers;
+    protected AbstractKDimension(KUniverse universe, long key) {
+        this.universe = universe;
         this.key = key;
     }
 
@@ -32,22 +32,27 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     @Override
     public C universe() {
-        return (C) univers;
+        return (C) universe;
     }
 
     @Override
-    public void save(Callback<Boolean> callback) {
-
+    public void save(Callback<Throwable> callback) {
+        universe().storage().save(this,callback);
     }
 
     @Override
-    public void delete(Callback<Boolean> callback) {
-
+    public void saveUnload(Callback<Throwable> callback) {
+        universe().storage().saveUnload(this, callback);
     }
 
     @Override
-    public void unload(Callback<Boolean> callback) {
+    public void delete(Callback<Throwable> callback) {
+        universe().storage().delete(this, callback);
+    }
 
+    @Override
+    public void discard(Callback<Throwable> callback) {
+        universe().storage().discard(this,callback);
     }
 
     private TimeTree globalTimeTree = new DefaultTimeTree(); //TODO
