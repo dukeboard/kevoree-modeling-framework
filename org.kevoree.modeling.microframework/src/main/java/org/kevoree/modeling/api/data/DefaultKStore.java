@@ -135,8 +135,9 @@ public class DefaultKStore implements KStore {
             callback.on(resolved);
         } else {
             db.get(keyPayload(dimension, time, key), (objPayLoad) -> {
-                //KObject newObjet =
-                //TODO
+                KObject newObject = SerializerHelper.load(objPayLoad);
+                initKObject(newObject, dimension, time);
+                callback.on(newObject);
             }, (e) -> {
                 callback.on(null);
             });

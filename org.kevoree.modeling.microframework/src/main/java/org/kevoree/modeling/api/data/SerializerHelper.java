@@ -7,9 +7,13 @@ import org.kevoree.modeling.api.KObject;
  */
 public class SerializerHelper {
 
-    public static String save(KObject obj, Object[] payload){
-       //
+    public static String save(KObject obj, Object[] payload) {
+        //
         return "";
+    }
+
+    public static KObject load(String payload) {
+        return null;
     }
 
 }

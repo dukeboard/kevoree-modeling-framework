@@ -400,7 +400,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             });
         } else if (o instanceof Set) {
             Set<Long> objs = (Set<Long>) o;
-            factory().dimension().universe().storage().lookupAll(dimension(), now(), objs, (result) -> {
+            factory().lookupAll(objs, (result) -> {
                 boolean endAlreadyCalled = false;
                 try {
                     for (KObject resolved : result) {
