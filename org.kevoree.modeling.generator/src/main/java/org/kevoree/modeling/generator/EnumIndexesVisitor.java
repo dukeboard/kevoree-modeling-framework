@@ -69,7 +69,7 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
                     String relationTypeFqn = relationDecl.getTypeDeclaration().getName();
                     MModelClass relationType = getOrAddClass(relationTypeFqn);
 
-                    MModelReference reference = getOrAddReference(thisClassDeclaration, relationDecl.getRelationName().getText());
+                    MModelReference reference = getOrAddReference(thisClassDeclaration, relationDecl.getRelationName().getText(), relationType);
                     if(relationDecl.getAnnotations() != null) {
                         relationDecl.getAnnotations().getAnnotationList().forEach(ann->{
                             if(ann.getText().equalsIgnoreCase("@contained")){
@@ -90,7 +90,7 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
                     }
 
                     if(relationDecl.getRelationOpposite() != null) {
-                        reference.setOpposite(getOrAddReference(relationType, relationDecl.getRelationOpposite().getIdent().getText()));
+                        reference.setOpposite(getOrAddReference(relationType, relationDecl.getRelationOpposite().getIdent().getText(), thisClassDeclaration));
                     }
                 }
             }
@@ -112,18 +112,18 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
         }
     }
 
-    private MModelReference getOrAddReference(String clazz, String ref) {
-        return getOrAddReference(getOrAddClass(clazz), ref);
+    private MModelReference getOrAddReference(String owner, String refName, String refType) {
+        return getOrAddReference(getOrAddClass(owner), refName, getOrAddClass(refType));
     }
 
-    private MModelReference getOrAddReference(MModelClass relationType, String ref) {
-        for(MModelReference registeredRef : relationType.getReferences()) {
-            if(registeredRef.getName().equals(ref)) {
+    private MModelReference getOrAddReference(MModelClass owner, String refName, MModelClass refType) {
+        for(MModelReference registeredRef : owner.getReferences()) {
+            if(registeredRef.getName().equals(refName)) {
                 return registeredRef;
             }
         }
-        MModelReference reference = new MModelReference(ref, relationType);
-        relationType.addReference(reference);
+        MModelReference reference = new MModelReference(refName, refType);
+        owner.addReference(reference);
         return reference;
     }
 
