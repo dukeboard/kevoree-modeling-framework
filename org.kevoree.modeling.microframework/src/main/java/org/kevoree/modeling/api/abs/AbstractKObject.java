@@ -296,44 +296,58 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (!metaReference.single()) {
                     mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent);
                 } else {
-                    //Actual add
-                    Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-                    factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
-                    //Container
-                    if (metaReference.contained()) {
-                        ((AbstractKObject) param).setReferenceInParent(metaReference);
-                        ((AbstractKObject) param).setParentKID(kid);
-                    }
-                    //Inbound
-                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
-                    inboundRefs.add(newInboundRef);
+                    if(param == null) {
+                        mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
+                    } else {
+                        //Actual add
+                        Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
+                        factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
+                        //Container
 
-                    internalUpdateTimeTrees();
-                    //Opposite
-                    if (metaReference.opposite() != null && setOpposite) {
-                        if (previous == null) {
+                        if (metaReference.contained()) {
+                            ((AbstractKObject) param).setReferenceInParent(metaReference);
+                            ((AbstractKObject) param).setParentKID(kid);
+                        }
+                        //Inbound
+                        Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                        InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
+                        inboundRefs.add(newInboundRef);
+                        internalUpdateTimeTrees();
+
+                        //Opposite
+                        if (metaReference.opposite() != null && setOpposite) {
+                            if (previous != null) {
+                                factory().lookup((Long) previous, (resolved) -> {
+                                    //TODO detach
+                                    resolved.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
+                                });
+                            }
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
-                        } else {
-                            factory().lookup((Long) previous, (resolved) -> {
-                                //TODO detach
-                                resolved.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
-                                param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
-                            });
                         }
                     }
                 }
                 break;
             case REMOVE:
                 if (metaReference.single()) {
-                    factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = null;
-                    if (metaReference.contained()) {
-                        ((AbstractKObject) param).setReferenceInParent(null);
-                        ((AbstractKObject) param).setParentKID(null);
-                    }
-                    internalUpdateTimeTrees();
-                    if (metaReference.opposite() != null && setOpposite) {
-                        param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
+                    Object[] raw = factory().dimension().universe().storage().raw(dimension(), factoryNow, kid());
+                    Object previousKid = raw[metaReference.index()];
+                    raw[metaReference.index()] = null;
+                    if(previousKid != null) {
+                        factory.dimension().universe().storage().lookup(dimension(), factoryNow, (Long)previousKid, (resolvedParam)->{
+                            if( resolvedParam != null) {
+                                if (metaReference.contained()) {
+                                    ((AbstractKObject) resolvedParam).setReferenceInParent(null);
+                                    ((AbstractKObject) resolvedParam).setParentKID(null);
+                                }
+                                internalUpdateTimeTrees();
+                                if (metaReference.opposite() != null && setOpposite) {
+                                    resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
+                                }
+                                //Inbounds
+                                Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
+                                inboundRefs.removeIf((ref) -> (ref.getKID() == kid()));
+                            }
+                        });
                     }
                 } else {
                     Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
@@ -353,10 +367,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
                         }
                     }
+
+                    //Inbounds
+                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                    inboundRefs.removeIf((ref) -> (ref.getKID() == kid()));
                 }
-                //Inbounds
-                Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                inboundRefs.removeIf((ref) -> (ref.getKID() == kid()));
                 break;
             default:
                 break;
@@ -366,7 +381,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
         Object o = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
         if (o == null) {
-            end.on(null);
+            if(end != null) {
+                end.on(null);
+            } else {//case of Get on single ref
+                callback.on(null);
+            }
         } else if (o instanceof Long) {
             factory().lookup((Long) o, new Callback<KObject>() {
                 @Override
