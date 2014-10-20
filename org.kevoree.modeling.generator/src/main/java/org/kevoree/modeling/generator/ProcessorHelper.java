@@ -58,6 +58,9 @@ public class ProcessorHelper {
         return PrimitiveTypes.isPrimitive(tDecl.getName());
     }
 
+    public String convertToJavaType(String t) {
+        return PrimitiveTypes.toEcoreType(t);
+    }
 
     public void consolidateEnumIndexes(HashMap<String, MModelClassifier> enumIndexes) {
         ArrayList<MModelClassifier> consolidated = new ArrayList<>();

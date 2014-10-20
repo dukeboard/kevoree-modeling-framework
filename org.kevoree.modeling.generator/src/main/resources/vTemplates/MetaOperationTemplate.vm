@@ -1,0 +1,40 @@
+#set($classDeclaration = $context.classDeclaration)
+public enum METAOPERATION implements org.kevoree.modeling.api.meta.MetaOperation {
+#if($classDeclaration.operations.size() == 0)
+;//Nothing in this ENUM
+#{else}
+#set($opIdx = 0)
+#set($opIdxMax = $classDeclaration.operations.size() - 1)
+#foreach($op in $classDeclaration.operations)
+    ${op.name.toUpperCase()}("$op.name",$enumIdx)#if($opIdx < $opIdxMax),
+#{else};
+#end
+    #set($enumIdx = $enumIdx + 1)
+    #set($opIdx = $opIdx + 1)
+#end
+#end
+    private String name;
+
+    private int index;
+
+    public int index() {
+        return index;
+    }
+
+    public String metaName() {
+        return name;
+    }
+
+    public org.kevoree.modeling.api.meta.MetaClass origin() {
+        return ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
+    }
+
+    METAOPERATION(String name, int index) {
+        this.name = name;
+        this.index = index;
+    }
+
+}
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
+#* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

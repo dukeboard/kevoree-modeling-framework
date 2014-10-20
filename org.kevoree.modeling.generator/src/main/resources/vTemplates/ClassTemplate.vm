@@ -8,6 +8,8 @@ public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject
 
 #parse("vTemplates/MetaReferencesTemplate.vm")
 
+#parse("vTemplates/MetaOperationTemplate.vm")
+
 #foreach($attribute in $classDeclaration.attributes)
 #if($attribute.single)
     public $attribute.getType() get${context.generationContext.helper.toCamelCase($attribute.getName())}();
@@ -30,6 +32,11 @@ public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject
     public void each${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> callback, org.kevoree.modeling.api.Callback<Throwable> end);
 #end
 #end
+
+#foreach($operation in $classDeclaration.operations)
+    public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.api.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result);
+#end
+
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
 #* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

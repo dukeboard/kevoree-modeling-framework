@@ -78,6 +78,11 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     #end
 #end
 
+#foreach($operation in $classDeclaration.operations)
+    public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.api.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result){
+    }
+#end
+
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
 #* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

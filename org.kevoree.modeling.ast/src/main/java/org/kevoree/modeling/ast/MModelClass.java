@@ -9,7 +9,8 @@ public class MModelClass extends MModelClassifier{
 
     private ArrayList<MModelAttribute> attributes = new ArrayList<>();
     private ArrayList<MModelReference> references = new ArrayList<>();
-    private List<MModelClass> parents = new ArrayList<>();
+    private ArrayList<MModelClass> parents = new ArrayList<>();
+    private ArrayList<MModelOperation> operations = new ArrayList<>();
 
     public MModelClass(String name) {
         this.name = name;
@@ -46,6 +47,13 @@ public class MModelClass extends MModelClassifier{
         return parents;
     }
 
+    public ArrayList<MModelOperation> getOperations() {
+        return operations;
+    }
+
+    public void addOperation(MModelOperation operation) {
+        this.operations.add(operation);
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();

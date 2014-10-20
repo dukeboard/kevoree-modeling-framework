@@ -11,5 +11,9 @@ class cloud.Node {
 class cloud.Element {
     @id
     name : String
+
     value : String
+
+    func trigger (param:String, loop : Int) : String
 }
+

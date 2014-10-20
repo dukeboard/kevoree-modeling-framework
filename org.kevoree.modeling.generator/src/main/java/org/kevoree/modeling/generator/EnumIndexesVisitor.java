@@ -1,9 +1,7 @@
 package org.kevoree.modeling.generator;
 
 import org.jetbrains.annotations.NotNull;
-import org.kevoree.modeling.ast.MModelAttribute;
-import org.kevoree.modeling.ast.MModelClass;
-import org.kevoree.modeling.ast.MModelReference;
+import org.kevoree.modeling.ast.*;
 import org.kevoree.modeling.idea.psi.*;
 
 
@@ -93,6 +91,23 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
                         reference.setOpposite(getOrAddReference(relationType, relationDecl.getRelationOpposite().getIdent().getText(), thisClassDeclaration));
                     }
                 }
+            } else if(decl.getOperationDeclaration() != null) {
+                MetaModelOperationDeclaration opDecl = decl.getOperationDeclaration();
+                MModelOperation operationDefinition = new MModelOperation(opDecl.getOperationName().getIdent().getText());
+                if(opDecl.getOperationReturn() != null) {
+                    MModelOperationParam returnType = new MModelOperationParam();
+                    returnType.type = ProcessorHelper.getInstance().convertToJavaType(opDecl.getOperationReturn().getTypeDeclaration().getName());
+                    operationDefinition.returnParam = returnType;
+                }
+                if(opDecl.getOperationParams() != null) {
+                    for(MetaModelOperationParam param : opDecl.getOperationParams().getOperationParamList()) {
+                        MModelOperationParam param1 = new MModelOperationParam();
+                        param1.type = ProcessorHelper.getInstance().convertToJavaType(param.getTypeDeclaration().getName());
+                        param1.name = param.getIdent().getText();
+                        operationDefinition.inputParams.add(param1);
+                    }
+                }
+                thisClassDeclaration.addOperation(operationDefinition);
             }
         });
 
