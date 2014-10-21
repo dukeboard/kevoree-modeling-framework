@@ -36,18 +36,22 @@ public class TimeTest {
         // create a new version element1
         Element element1 = t1.createElement();
         assertEquals(element1.now(), t1.now());
+
         t1.lookup(node0.uuid(), kObject -> {
             ((Node) kObject).setElement(element1);
+
+            //
+            t0.lookup(node0.uuid(), kObject_t0 -> {
+                assertEquals("Node0 should be created with time 0", kObject_t0.now(), 0l);
+            });
+
+            //
+            t1.lookup(node0.uuid(), kObject_t1 -> {
+                assertEquals("Node0 should be created with time 0", kObject_t1.now(), 1l);
+            });
+
         });
 
-        //
-        t0.lookup(node0.uuid(), kObject -> {
-            System.out.println(kObject);
-        });
-
-        t1.lookup(node0.uuid(), kObject -> {
-            System.out.println(kObject);
-        });
 
         // protected against null callback?
         t0.lookup(node0.uuid(), null);
