@@ -6,7 +6,7 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
 #set($attIdx = 0)
 #set($attIdxMax = $classDeclaration.attributes.size() - 1)
 #foreach($attribute in $classDeclaration.attributes)
-    ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx,#if($attribute.get)true#{else}false#end, #if($attribute.id)true#{else}false#end)#if($attIdx < $attIdxMax),
+    ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx,#if($attribute.get)true#{else}false#end, #if($attribute.id)true#{else}false#end,MetaType.$attribute.type.toUpperCase())#if($attIdx < $attIdxMax),
 #{else};
 #end
 #set($enumIdx = $enumIdx + 1)
@@ -22,6 +22,8 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
     private boolean learned;
 
     private boolean key;
+
+    private MetaType metaType;
 
     public int index() {
         return index;
@@ -39,15 +41,20 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
         return key;
     }
 
+    public MetaType metaType() {
+        return metaType;
+    }
+
     public org.kevoree.modeling.api.meta.MetaClass origin(){
         return ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
     }
 
-    METAATTRIBUTES(String name, int index, boolean learned, boolean key) {
+    METAATTRIBUTES(String name, int index, boolean learned, boolean key, MetaType metaType) {
         this.name = name;
         this.index = index;
         this.learned = learned;
         this.key = key;
+        this.metaType = metaType;
     }
 }
 
