@@ -7,17 +7,20 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
     }
 
     @Override
-    public org.kevoree.modeling.api.KObject create(org.kevoree.modeling.api.meta.MetaClass clazz) {
+    protected org.kevoree.modeling.api.KObject internalCreate(org.kevoree.modeling.api.meta.MetaClass clazz, org.kevoree.modeling.api.time.TimeTree timeTree) {
         if (clazz == null) {
             return null;
         }
-        org.kevoree.modeling.api.time.TimeTree newTimeTree = new org.kevoree.modeling.api.time.impl.DefaultTimeTree().insert(now());
+        org.kevoree.modeling.api.time.TimeTree resolvedTimeTree = timeTree;
+        if (resolvedTimeTree == null) {
+            resolvedTimeTree = new org.kevoree.modeling.api.time.impl.DefaultTimeTree().insert(now());
+        }
         switch (clazz.index()) {
 #set($clsIdx = 0)
 #foreach($class in $context.classDeclarationsList.keySet())
     #set($lastIdx = $class.lastIndexOf(".")+1)
             case $clsIdx:
-                return manageCache(new ${class.substring(0,$class.lastIndexOf("."))}.impl.${class.substring($lastIdx)}Impl(this, METACLASSES.$class.toUpperCase().replace(".","_"), dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
+                return manageCache(new ${class.substring(0,$class.lastIndexOf("."))}.impl.${class.substring($lastIdx)}Impl(this, METACLASSES.$class.toUpperCase().replace(".","_"), dimension().universe().storage().nextObjectKey(), now(), dimension(), resolvedTimeTree));
 #set($clsIdx = $clsIdx+1)
 #end
             default:
