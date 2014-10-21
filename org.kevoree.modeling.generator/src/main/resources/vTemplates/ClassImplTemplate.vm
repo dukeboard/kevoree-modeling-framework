@@ -75,6 +75,10 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     public void each${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}> callback, org.kevoree.modeling.api.Callback<Throwable> end) {
         each(METAREFERENCES.${ref.getName().toUpperCase()}, callback, end);
     }
+
+    public int sizeOf${context.generationContext.helper.toCamelCase($ref.getName())}() {
+        return size(METAREFERENCES.${ref.getName().toUpperCase()});
+    }
     #end
 #end
 
