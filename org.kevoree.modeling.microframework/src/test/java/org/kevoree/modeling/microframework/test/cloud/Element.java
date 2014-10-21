@@ -11,8 +11,8 @@ public interface Element extends KObject<Element, CloudView> {
 
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, false, true, MetaType.String),
-        VALUE("value", 3, true, false, MetaType.Long); //lexicographic order
+        NAME("name", 2, false, true, MetaType.STRING),
+        VALUE("value", 3, true, false, MetaType.LONG); //lexicographic order
 
         private String name;
 

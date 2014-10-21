@@ -1,11 +1,8 @@
 package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.util.CallBackChain;
-import org.kevoree.modeling.api.util.Helper;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -125,6 +122,14 @@ public class JSONModelLoader implements ModelLoader {
                 }
             }
             callback.on(null);
+        }
+    }
+
+    public static Object convertRaw(MetaAttribute attribute, Object raw){
+        switch (attribute.metaType()){
+           case STRING:
+               break;
+
         }
     }
 

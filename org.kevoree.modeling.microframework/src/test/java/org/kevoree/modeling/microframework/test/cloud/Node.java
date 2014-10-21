@@ -15,8 +15,8 @@ public interface Node extends KObject<Node, CloudView> {
     /* Reflexive API Attributes */
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, false, true, MetaType.String),
-        VALUE("value", 3, true, false, MetaType.String); //lexicographic order
+        NAME("name", 2, false, true, MetaType.STRING),
+        VALUE("value", 3, true, false, MetaType.STRING); //lexicographic order
 
         private String name;
 
@@ -161,7 +161,7 @@ public interface Node extends KObject<Node, CloudView> {
 
     public void getElement(Callback<Element> obj);
 
-    //analog to func trigger(param:String) : String in .mm
+    //analog to func trigger(param:STRING) : STRING in .mm
     public void trigger(String param, Callback<String> callback);
 
 }

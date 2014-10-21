@@ -36,13 +36,13 @@ public class MetaHelper {
     }
 
     /*
-    public static Map<KObject, Set<String>> unserialize(String p, KView factory) {
-        HashMap<KObject, Set<String>> result = new HashMap<KObject, Set<String>>();
-        String[] lines = p.split(sep);
+    public static Map<KObject, Set<STRING>> unserialize(STRING p, KView factory) {
+        HashMap<KObject, Set<STRING>> result = new HashMap<KObject, Set<STRING>>();
+        STRING[] lines = p.split(sep);
         for (int i=0;i<lines.length;i++) {
-            String[] elems = lines[i].split(sep2);
+            STRING[] elems = lines[i].split(sep2);
             if (elems.length > 1) {
-                HashSet<String> payload = new HashSet<String>();
+                HashSet<STRING> payload = new HashSet<STRING>();
                 for (int j=1;j< elems.length;j++) {
                     payload.add(elems[j]);
                 }

@@ -33,7 +33,7 @@ public class DefaultModelCloner implements ModelCloner {
     private fun cloneModelElem(src: KObject<*>): KObject {
         val clonedSrc = factory.create(src.metaClassName())
         val attributesCloner = object : ModelAttributeVisitor {
-            public override fun visit(value: Any?, name: String, parent: KObject) {
+            public override fun visit(value: Any?, name: STRING, parent: KObject) {
                 if (value != null) {
                     if (value is ArrayList<*>) {
                         val clonedList = ArrayList<Any>()
@@ -51,7 +51,7 @@ public class DefaultModelCloner implements ModelCloner {
 
     private fun resolveModelElem(src: KObject, target: KObject, context: Map<KObject, KObject>, mutableOnly: Boolean) {
         val refResolver = object : ModelVisitor() {
-            public override fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
+            public override fun visit(elem: KObject, refNameInParent: STRING, parent: KObject) {
                 if (mutableOnly && elem.isRecursiveReadOnly()) {
                     target.reflexiveMutator(ActionType.ADD, refNameInParent, elem, false, false)
                 } else {
@@ -71,7 +71,7 @@ public class DefaultModelCloner implements ModelCloner {
         val clonedObject = cloneModelElem(o);
         context.put(o, clonedObject)
         val cloneGraphVisitor = object : ModelVisitor() {
-            override public fun visit(elem: KObject, refNameInParent: String, parent: KObject) {
+            override public fun visit(elem: KObject, refNameInParent: STRING, parent: KObject) {
                 if (mutableOnly && elem.isRecursiveReadOnly()) {
                     noChildrenVisit();
                 } else {
@@ -82,7 +82,7 @@ public class DefaultModelCloner implements ModelCloner {
         //clone the entire object graph (i.e. object+attributes)
         o.visit(cloneGraphVisitor, true, true, false)
         val resolveGraphVisitor = object : ModelVisitor() {
-            override public fun visit(elem: KObject, refNameInParent: String, parent: KObject<*>) {
+            override public fun visit(elem: KObject, refNameInParent: STRING, parent: KObject<*>) {
                 if (mutableOnly && elem.isRecursiveReadOnly()) {
                     //noChildrenVisit(); TODO check this behavior on partial clone
                 } else {

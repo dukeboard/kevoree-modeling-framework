@@ -12,7 +12,7 @@ public interface MetaAttribute extends Meta {
     MetaClass origin();
 
     public enum MetaType {
-        String, Long, Int, Bool, Short, Double, Float;
+        STRING, LONG, INT, BOOL, SHORT, DOUBLE, FLOAT;
     }
 
     MetaType metaType();

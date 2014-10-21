@@ -60,7 +60,7 @@ public class EventDispatcher {
             /*
             if (event.getSource() != null) {
                 if (pathRegex.contains("*")) {
-                    String regexPath = pathRegex.replace("*", ".*");
+                    STRING regexPath = pathRegex.replace("*", ".*");
                     return event.getSource().uuid().matches(regexPath);
                 } else {
                     return event.getSource().uuid().equals(pathRegex);

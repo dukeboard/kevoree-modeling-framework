@@ -25,8 +25,8 @@ class LoadingContext {
     /*
     public XmiLoaderAttributeVisitor attributeVisitor;
     public XmiLoaderReferenceVisitor referenceVisitor;
-    public HashMap<String, HashMap<String, Boolean>> attributesHashmap = new HashMap<String, HashMap<String, Boolean>>();
-    public HashMap<String, HashMap<String, String>> referencesHashmap = new HashMap<String, HashMap<String, String>>();
+    public HashMap<STRING, HashMap<STRING, Boolean>> attributesHashmap = new HashMap<STRING, HashMap<STRING, Boolean>>();
+    public HashMap<STRING, HashMap<STRING, STRING>> referencesHashmap = new HashMap<STRING, HashMap<STRING, STRING>>();
     */
 
     public KObject loadedRoots = null;
