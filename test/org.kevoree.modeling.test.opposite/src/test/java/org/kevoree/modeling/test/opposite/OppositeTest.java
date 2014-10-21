@@ -15,6 +15,8 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
 
 public class OppositeTest {
 
@@ -24,11 +26,221 @@ public class OppositeTest {
 
 
     @Test
-    public void enumTest() {
+    public void A_singleRef() { // single ref, not contained, no apposite
+
+        A a = factory.createA();
+        B b = factory.createB();
+        B b2 = factory.createB();
+
+        a.setSingleRef(b);
+        a.getSingleRef((b_cb)->{
+            assertNotNull(b_cb);
+            assertEquals(b_cb, b);
+        });
+
+        a.setSingleRef(b);
+        a.getSingleRef((b_cb)->{
+            assertNotNull(b_cb);
+            assertEquals(b_cb, b);
+        });
+
+        a.setSingleRef(b2);
+        a.getSingleRef((b2_cb)->{
+            assertNotNull(b2_cb);
+            assertEquals(b2_cb, b2);
+        });
+
+        a.setSingleRef(null);
+        a.getSingleRef(org.junit.Assert::assertNull);
+
+    }
+
+    @Test
+    public void A_multiRef() { // multi ref, not contained, no apposite
+        A a = factory.createA();
+        B b = factory.createB();
+        B b2 = factory.createB();
+        int[] counter = new int[1];
+
+        counter[0] = 0;
+        a.addMultiRef(b);
+        a.eachMultiRef((ref)->{
+            counter[0]++;
+            assertEquals(ref, b);
+        },(end)->{
+            assertEquals(counter[0], 1);
+        });
+
+        counter[0] = 0;
+        a.addMultiRef(b);
+        a.eachMultiRef((ref)->{
+            counter[0]++;
+            assertEquals(ref, b);
+        },(end)->{
+            assertEquals(counter[0], 1);
+        });
+
+        counter[0] = 0;
+        final boolean[][] found = new boolean[1][];
+        found[0] = new boolean[2];
+        a.addMultiRef(b2);
+        a.eachMultiRef((ref)->{
+            found[0][counter[0]++]=true;
+        },(end)->{
+            assertEquals(counter[0], 2);
+            for(boolean bElem : found[0]) {
+                assertTrue(bElem);
+            }
+        });
+
+        counter[0] = 0;
+        found[0] = new boolean[2];
+        a.addMultiRef(b2);
+        a.eachMultiRef((ref)->{
+            found[0][counter[0]++]=true;
+        },(end)->{
+            assertEquals(counter[0], 2);
+            for(boolean bElem : found[0]) {
+                assertTrue(bElem);
+            }
+        });
+
+        counter[0] = 0;
+        a.removeMultiRef(b);
+        a.eachMultiRef((ref)->{
+            counter[0]++;
+            assertEquals(ref, b2);
+        },(end)->{
+            assertEquals(counter[0], 1);
+        });
+
+        counter[0] = 0;
+        a.removeMultiRef(b);
+        a.eachMultiRef((ref)->{
+            counter[0]++;
+            assertEquals(ref, b2);
+        },(end)->{
+            assertEquals(counter[0], 1);
+        });
+
+        counter[0] = 0;
+        a.removeMultiRef(b2);
+        a.eachMultiRef((ref)->{
+            counter[0]++;
+        },(end)->{
+            assertEquals(counter[0], 0);
+        });
+
+        counter[0] = 0;
+        a.removeMultiRef(b2);
+        a.eachMultiRef((ref)->{
+            counter[0]++;
+        },(end)->{
+            assertEquals(counter[0], 0);
+        });
 
     }
 
 
+    @Test
+    public void B_singleRef() { // single ref, contained, no opposite
+        B b = factory.createB();
+        A a = factory.createA();
+        A a2 = factory.createA();
+
+        b.setSingleRef(a);
+        b.getSingleRef((a_cb)->{
+            assertNotNull(a_cb);
+            assertEquals(a_cb, a);
+            a_cb.parent((parent)->{
+                assertNotNull(parent);
+                assertEquals(parent, b);
+            });
+        });
+
+        b.setSingleRef(a);
+        b.getSingleRef((a_cb)->{
+            assertNotNull(a_cb);
+            assertEquals(a_cb, a);
+            a_cb.parent((parent)->{
+                assertNotNull(parent);
+                assertEquals(parent, b);
+            });
+        });
+
+        b.setSingleRef(a2);
+        b.getSingleRef((a_cb)->{
+            assertNotNull(a_cb);
+            assertEquals(a_cb, a2);
+            a_cb.parent((parent)->{
+                assertNotNull(parent);
+                assertEquals(parent, b);
+            });
+            a.parent(TestCase::assertNull);
+        });
+
+        b.setSingleRef(null);
+        b.getSingleRef(TestCase::assertNull);
+        a.parent(TestCase::assertNull);
+        a2.parent(TestCase::assertNull);
+
+    }
+
+
+
+/*
+    @Test
+    public void B_StarList() {
+        val b = factory.createB();
+        val a = factory.createA();
+        val a2 = factory.createA();
+        val listA = ArrayList<A>();
+        listA.add(a);
+        listA.add(a2);
+
+        b.addStarList(a);
+        assert(a.eContainer() == b);
+        assert(b.starList.size == 1, "Size:" + a.starList.size);
+
+        b.addStarList(a2);
+        assert(a.eContainer() == b);
+        assert(a2.eContainer() == b);
+        assert(b.starList.size == 2, "Size:" + a.starList.size);
+
+        b.addStarList(a2);
+        assert(a.eContainer() == b);
+        assert(a2.eContainer() == b);
+        assert(b.starList.size == 2, "Size:" + a.starList.size);
+
+        b.removeStarList(a);
+        assert(a.eContainer() == null);
+        assert(a2.eContainer() == b);
+        assert(b.starList.size == 1, "Size:" + a.starList.size);
+
+        b.removeStarList(a2);
+        assert(a.eContainer() == null);
+        assert(a2.eContainer() == null);
+        assert(b.starList.size == 0, "Size:" + a.starList.size);
+
+        b.removeStarList(a2);
+        assert(b.starList.size == 0, "Size:" + a.starList.size);
+
+        b.addAllStarList(listA);
+        assert(a.eContainer() == b);
+        assert(a2.eContainer() == b);
+        assert(b.starList.size == 2, "Size:" + a.starList.size);
+
+        b.addAllStarList(listA);
+        assert(b.starList.size == 2, "Size:" + a.starList.size);
+
+        b.removeAllStarList();
+        assert(a.eContainer() == null);
+        assert(a2.eContainer() == null);
+        assert(b.starList.size == 0, "Size:" + a.starList.size);
+
+        b.removeAllStarList();
+        assert(b.starList.size == 0, "Size:" + a.starList.size);
+    }
     @Test
     public void optionalSingleA_optionalSingleB_Test() {
         //val container = TestFactory.createContainer
@@ -82,8 +294,6 @@ public class OppositeTest {
         a.parent(TestCase::assertNull);
 
     }
-
-/*
     @Test     public void mandatorySingleA_mandatorySingleB_Test() {
         //val container = TestFactory.createContainer
         val b = factory.createB();
@@ -128,7 +338,7 @@ public class OppositeTest {
 
 
 
-    @Test 
+    @Test
  public void optionalSingleA_MandatorySingleB_Test() {
         //val container = TestFactory.createContainer
         val b = factory.createB();
@@ -173,7 +383,7 @@ public class OppositeTest {
     }
 
 
-    @Test 
+    @Test
  public void optionalSingleA_StarListB_Test() {
         //val container = TestFactory.createContainer
         val b = factory.createB();
@@ -255,7 +465,7 @@ public class OppositeTest {
 
 
 
-    @Test 
+    @Test
  public void starListA_StarListB_Test() {
 
         val b = factory.createB();
@@ -360,7 +570,7 @@ public class OppositeTest {
 
     }
 
-    @Test 
+    @Test
  public void mandatorySingleA_StarListB_Test() {
         //val container = TestFactory.createContainer
         val b = factory.createB();
@@ -444,194 +654,11 @@ public class OppositeTest {
     }
 
 
-    @Test 
- public void A_optionalSingleRef() {
-
-        val a = factory.createA();
-        val b = factory.createB();
-        val b2 = factory.createB();
-
-        a.optionalSingleRef = b
-        assert(a.optionalSingleRef != null && a.optionalSingleRef == b);
-
-        a.optionalSingleRef = b
-        assert(a.optionalSingleRef != null && a.optionalSingleRef == b);
-
-        a.optionalSingleRef = b2
-        assert(a.optionalSingleRef != null && a.optionalSingleRef == b2);
-
-        a.optionalSingleRef = null;
-        assert(a.optionalSingleRef == null);
-
-    }
-
-    @Test 
- public void A_mendatorySingleRef() {
-        val a = factory.createA();
-        val b = factory.createB();
-        val b2 = factory.createB();
-
-        a.mandatorySingleRef = b
-        assert(a.mandatorySingleRef == b);
-
-        a.mandatorySingleRef = b
-        assert(a.mandatorySingleRef == b);
-
-        a.mandatorySingleRef = b2
-        assert(a.mandatorySingleRef == b2);
-
-        a.mandatorySingleRef = null;
-        assert(a.mandatorySingleRef == null);
-
-        a.mandatorySingleRef = null;
-        assert(a.mandatorySingleRef == null);
-    }
-
-    @Test 
- public void A_StarList() {
-        val a = factory.createA();
-        val b = factory.createB();
-        val b2 = factory.createB();
-        val listB = ArrayList<B>();
-        listB.add(b);
-        listB.add(b2);
-
-        a.addStarList(b);
-        assert(a.starList.size == 1, "Size:" + a.starList.size);
-
-        a.addStarList(b2);
-        assert(a.starList.size == 2, "Size:" + a.starList.size);
-
-        a.addStarList(b2);
-        assert(a.starList.size == 2, "Size:" + a.starList.size);
-
-        a.removeStarList(b);
-        assert(a.starList.size == 1, "Size:" + a.starList.size);
-
-        a.removeStarList(b2);
-        assert(a.starList.size == 0, "Size:" + a.starList.size);
-
-        a.removeStarList(b2);
-        assert(a.starList.size == 0, "Size:" + a.starList.size);
-
-        a.addAllStarList(listB);
-        assert(a.starList.size == 2, "Size:" + a.starList.size);
-
-        a.addAllStarList(listB);
-        assert(a.starList.size == 2, "Size:" + a.starList.size);
-
-        a.removeAllStarList();
-        assert(a.starList.size == 0, "Size:" + a.starList.size);
-
-        a.removeAllStarList();
-        assert(a.starList.size == 0, "Size:" + a.starList.size);
-    }
 
 
-    @Test 
- public void B_optionalSingleRef() {
-        val b = factory.createB();
-        val a = factory.createA();
-        val a2 = factory.createA();
 
-        b.optionalSingleRef = a
-        assert(a.eContainer() == b);
-        assert(b.optionalSingleRef != null && b.optionalSingleRef == a);
 
-        b.optionalSingleRef = a
-        assert(a.eContainer() == b);
-        assert(b.optionalSingleRef != null && b.optionalSingleRef == a);
 
-        b.optionalSingleRef =a2
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == b);
-        assert(b.optionalSingleRef != null && b.optionalSingleRef == a2);
-
-        b.optionalSingleRef = null;
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == null);
-        assert(b.optionalSingleRef == null);
-    }
-
-    @Test 
- public void B_mendatorySingleRef() {
-        val b = factory.createB();
-        val a = factory.createA();
-        val a2 = factory.createA();
-
-        b.mandatorySingleRef = a
-        assert(a.eContainer() == b);
-        assert(b.mandatorySingleRef == a);
-
-        b.mandatorySingleRef = a
-        assert(a.eContainer() == b);
-        assert(b.mandatorySingleRef == a);
-
-        b.mandatorySingleRef = a2
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == b);
-        assert(b.mandatorySingleRef == a2);
-
-        b.mandatorySingleRef = null;
-        assert(a2.eContainer() == null);
-        assert(b.mandatorySingleRef == null);
-
-        b.mandatorySingleRef = null;
-        assert(b.mandatorySingleRef == null);
-    }
-
-    @Test 
- public void B_StarList() {
-        val b = factory.createB();
-        val a = factory.createA();
-        val a2 = factory.createA();
-        val listA = ArrayList<A>();
-        listA.add(a);
-        listA.add(a2);
-
-        b.addStarList(a);
-        assert(a.eContainer() == b);
-        assert(b.starList.size == 1, "Size:" + a.starList.size);
-
-        b.addStarList(a2);
-        assert(a.eContainer() == b);
-        assert(a2.eContainer() == b);
-        assert(b.starList.size == 2, "Size:" + a.starList.size);
-
-        b.addStarList(a2);
-        assert(a.eContainer() == b);
-        assert(a2.eContainer() == b);
-        assert(b.starList.size == 2, "Size:" + a.starList.size);
-
-        b.removeStarList(a);
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == b);
-        assert(b.starList.size == 1, "Size:" + a.starList.size);
-
-        b.removeStarList(a2);
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == null);
-        assert(b.starList.size == 0, "Size:" + a.starList.size);
-
-        b.removeStarList(a2);
-        assert(b.starList.size == 0, "Size:" + a.starList.size);
-
-        b.addAllStarList(listA);
-        assert(a.eContainer() == b);
-        assert(a2.eContainer() == b);
-        assert(b.starList.size == 2, "Size:" + a.starList.size);
-
-        b.addAllStarList(listA);
-        assert(b.starList.size == 2, "Size:" + a.starList.size);
-
-        b.removeAllStarList();
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == null);
-        assert(b.starList.size == 0, "Size:" + a.starList.size);
-
-        b.removeAllStarList();
-        assert(b.starList.size == 0, "Size:" + a.starList.size);
-    }
     */
 
 }

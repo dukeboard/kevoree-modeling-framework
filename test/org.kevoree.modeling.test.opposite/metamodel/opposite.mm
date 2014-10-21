@@ -14,49 +14,25 @@ class kmf.opposite.test.C  {
 }
 
 class kmf.opposite.test.A  {
-    optionalSingleA_optionalSingleB : kmf.opposite.test.B oppositeOf optionalSingleA_optionalSingleB
-    optionalSingleA_MandatorySingleB : kmf.opposite.test.B oppositeOf optionalSingleA_MandatorySingleB
-    optionalSingleA_StarListB : kmf.opposite.test.B oppositeOf optionalSingleA_StarListB
-    mandatorySingleA_mandatorySingleB : kmf.opposite.test.B oppositeOf mandatorySingleA_mandatorySingleB
-    optionalSingleA_PlusListB : kmf.opposite.test.B oppositeOf optionalSingleA_PlusListB
-    mandatorySingleA_StartListB : kmf.opposite.test.B oppositeOf mandatorySingleA_StarListB
-    mandatorySingleA_PlusListB : kmf.opposite.test.B oppositeOf mandatorySingleA_PlusListB
-    starListA_StarListB : kmf.opposite.test.B[0,*] oppositeOf starListA_StarListB
-    starListA_PlusListB : kmf.opposite.test.B[0,*] oppositeOf starListA_PlusListB
-    plusListA_PlusListB : kmf.opposite.test.B oppositeOf plusListA_PlusListB
-    optionalSingleRef : kmf.opposite.test.B
-    mandatorySingleRef : kmf.opposite.test.B
-    starList : kmf.opposite.test.B[0,*]
-    plusList : kmf.opposite.test.B
+    singleRef : kmf.opposite.test.B
+    multiRef : kmf.opposite.test.B[0,*]
+    singleA_singleB : kmf.opposite.test.B oppositeOf singleA_singleB
+    singleA_multiB : kmf.opposite.test.B oppositeOf singleA_multiB
+    multiA_singleB : kmf.opposite.test.B[0,*] oppositeOf multiA_singleB
+    multiA_multiB : kmf.opposite.test.B[0,*] oppositeOf multiA_multiB
 }
 
 class kmf.opposite.test.B  {
     @contained
-    optionalSingleA_optionalSingleB : kmf.opposite.test.A oppositeOf optionalSingleA_optionalSingleB
+    singleRef : kmf.opposite.test.A
     @contained
-    optionalSingleA_MandatorySingleB : kmf.opposite.test.A oppositeOf optionalSingleA_MandatorySingleB
+    multiRef : kmf.opposite.test.A[0,*]
     @contained
-    optionalSingleA_StarListB : kmf.opposite.test.A[0,*] oppositeOf optionalSingleA_StarListB
+    singleA_singleB : kmf.opposite.test.A oppositeOf singleA_singleB
     @contained
-    mandatorySingleA_mandatorySingleB : kmf.opposite.test.A oppositeOf mandatorySingleA_mandatorySingleB
+    singleA_multiB : kmf.opposite.test.A[0,*] oppositeOf singleA_multiB
     @contained
-    optionalSingleA_PlusListB : kmf.opposite.test.A oppositeOf optionalSingleA_PlusListB
+    multiA_singleB : kmf.opposite.test.A oppositeOf multiA_singleB
     @contained
-    mandatorySingleA_StarListB : kmf.opposite.test.A[0,*] oppositeOf mandatorySingleA_StartListB
-    @contained
-    mandatorySingleA_PlusListB : kmf.opposite.test.A oppositeOf mandatorySingleA_PlusListB
-    @contained
-    starListA_StarListB : kmf.opposite.test.A[0,*] oppositeOf starListA_StarListB
-    @contained
-    starListA_PlusListB : kmf.opposite.test.A oppositeOf starListA_PlusListB
-    @contained
-    plusListA_PlusListB : kmf.opposite.test.A oppositeOf plusListA_PlusListB
-    @contained
-    optionalSingleRef : kmf.opposite.test.A
-    @contained
-    mandatorySingleRef : kmf.opposite.test.A
-    @contained
-    starList : kmf.opposite.test.A[0,*]
-    @contained
-    plusList : kmf.opposite.test.A
+    multiA_multiB : kmf.opposite.test.A[0,*] oppositeOf multiA_multiB
 }
