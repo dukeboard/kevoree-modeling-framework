@@ -35,6 +35,7 @@ public class TimeTest {
 
         // create a new version element1
         Element element1 = t1.createElement();
+        assertEquals(element1.now(), t1.now());
         t1.lookup(node0.uuid(), kObject -> {
             ((Node) kObject).setElement(element1);
         });

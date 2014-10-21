@@ -62,7 +62,7 @@ public class DefaultModelCompare implements ModelCompare {
                                 if (inter) {
                                     //TODO
                                     MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.uuid(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
                                 }
                                 traces.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
                                 tracesRef.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
@@ -71,7 +71,7 @@ public class DefaultModelCompare implements ModelCompare {
                                 if (!inter) {
                                     //TODO
                                     MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.uuid(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
                                     traces.addAll(internal_createTraces(elem, elem, true, merge, false, true));
                                     tracesRef.addAll(internal_createTraces(elem, elem, true, merge, true, false));
                                 }
@@ -90,7 +90,7 @@ public class DefaultModelCompare implements ModelCompare {
                                     //if diff
                                     for (Long diffChildKey : objectsMap.keySet()) {
                                         KObject diffChild = objectsMap.get(diffChildKey);
-                                        Long src = diffChild.parentKID();
+                                        Long src = diffChild.parentUuid();
                                         traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
                                     }
                                 }

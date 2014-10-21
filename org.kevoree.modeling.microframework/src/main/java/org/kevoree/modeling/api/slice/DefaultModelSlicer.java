@@ -30,16 +30,16 @@ public class DefaultModelSlicer implements ModelSlicer {
                 } else {
                     Collections.reverse(parents);
                     for (KObject parent : parents) {
-                        if (parent.parentKID() != null) {
-                            traces.add(new ModelAddTrace(parent.parentKID(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
+                        if (parent.parentUuid() != null) {
+                            traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                         parentMap.put(parent.uuid(), parent);
                     }
                     //Add attributes and references of pruned object
                     if (cache.get(elem.uuid()) == null && parentMap.get(elem.uuid()) == null) {
-                        if (elem.parentKID() != null) {
-                            traces.add(new ModelAddTrace(elem.parentKID(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
+                        if (elem.parentUuid() != null) {
+                            traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                     }

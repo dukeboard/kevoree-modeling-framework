@@ -184,7 +184,7 @@ public class XMIModelSerializer implements ModelSerializer {
         model.treeVisit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
-                String parentXmiAddress = context.addressTable.get(elem.parentKID());
+                String parentXmiAddress = context.addressTable.get(elem.parentUuid());
                 int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), (s) -> 0);
                 context.addressTable.put(elem.uuid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
                 context.elementsCount.put(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), i + 1);

@@ -52,7 +52,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         this.factory = factory;
         this.metaClass = metaClass;
         this.kid = kid;
-        this.factoryNow = now;
+        this.now = now;
         this.dimension = dimension;
         this.timeTree = timeTree;
     }
@@ -80,11 +80,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         this.isRoot = isRoot;
     }
 
-    private long factoryNow;
+    private long now;
 
     @Override
     public long now() {
-        return timeTree().resolve(factoryNow);
+        return now;
     }
 
     private TimeTree timeTree;
@@ -125,18 +125,18 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
 
     @Override
-    public Long parentKID() {
+    public Long parentUuid() {
         Object[] raw = factory.dimension().universe().storage().raw(this, KStore.AccessMode.READ);
         return (Long) raw[PARENT_INDEX];
     }
 
-    public void setParentKID(Long parentKID) {
+    public void setParentUuid(Long parentKID) {
         factory.dimension().universe().storage().raw(this, KStore.AccessMode.WRITE)[PARENT_INDEX] = parentKID;
     }
 
     @Override
     public void parent(Callback<KObject> callback) {
-        Long parentKID = parentKID();
+        Long parentKID = parentUuid();
         if (parentKID == null) {
             callback.on(null);
         } else {
@@ -282,7 +282,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     //Container
                     if (metaReference.contained()) {
                         ((AbstractKObject) param).setReferenceInParent(metaReference);
-                        ((AbstractKObject) param).setParentKID(kid);
+                        ((AbstractKObject) param).setParentUuid(kid);
                     }
                     //Inbound
                     Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
@@ -307,7 +307,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         //Container
                         if (metaReference.contained()) {
                             ((AbstractKObject) param).setReferenceInParent(metaReference);
-                            ((AbstractKObject) param).setParentKID(kid);
+                            ((AbstractKObject) param).setParentUuid(kid);
                         }
                         //Inbound
                         Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
@@ -336,7 +336,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             if (resolvedParam != null) {
                                 if (metaReference.contained()) {
                                     ((AbstractKObject) resolvedParam).setReferenceInParent(null);
-                                    ((AbstractKObject) resolvedParam).setParentKID(null);
+                                    ((AbstractKObject) resolvedParam).setParentUuid(null);
                                 }
                                 if (metaReference.opposite() != null && setOpposite) {
                                     resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
@@ -352,14 +352,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
                         Set<Long> previousList = (Set<Long>) previous;
-                        if (now() != factoryNow) {
+                        if (now() != now) {
                             previousList = new HashSet<Long>(previousList);
                             payload[metaReference.index()] = previousList;
                         }
                         previousList.remove(param.uuid());
                         if (metaReference.contained()) {
                             ((AbstractKObject) param).setReferenceInParent(null);
-                            ((AbstractKObject) param).setParentKID(null);
+                            ((AbstractKObject) param).setParentUuid(null);
                         }
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
