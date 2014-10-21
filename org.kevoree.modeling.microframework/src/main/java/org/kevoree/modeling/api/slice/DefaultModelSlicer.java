@@ -23,7 +23,7 @@ public class DefaultModelSlicer implements ModelSlicer {
         final Callback<KObject> parentExplorer = new Callback<KObject>() {
             @Override
             public void on(KObject currentParent) {
-                if (currentParent != null && parentMap.get(currentParent.kid()) == null && cache.get(currentParent.kid()) == null) {
+                if (currentParent != null && parentMap.get(currentParent.uuid()) == null && cache.get(currentParent.uuid()) == null) {
                     parents.add(currentParent);
                     currentParent.parent(this);
                     callback.on(null);
@@ -31,25 +31,25 @@ public class DefaultModelSlicer implements ModelSlicer {
                     Collections.reverse(parents);
                     for (KObject parent : parents) {
                         if (parent.parentKID() != null) {
-                            traces.add(new ModelAddTrace(parent.parentKID(), parent.referenceInParent(), parent.kid(), parent.metaClass()));
+                            traces.add(new ModelAddTrace(parent.parentKID(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
-                        parentMap.put(parent.kid(), parent);
+                        parentMap.put(parent.uuid(), parent);
                     }
                     //Add attributes and references of pruned object
-                    if (cache.get(elem.kid()) == null && parentMap.get(elem.kid()) == null) {
+                    if (cache.get(elem.uuid()) == null && parentMap.get(elem.uuid()) == null) {
                         if (elem.parentKID() != null) {
-                            traces.add(new ModelAddTrace(elem.parentKID(), elem.referenceInParent(), elem.kid(), elem.metaClass()));
+                            traces.add(new ModelAddTrace(elem.parentKID(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
                         }
                         traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
                     }
                     //We register this element as reachable
-                    cache.put(elem.kid(), elem);
+                    cache.put(elem.uuid(), elem);
                     //We continue to all reachable elements, potentially here we can exclude references
                     elem.graphVisit(new ModelVisitor() {
                         @Override
                         public VisitResult visit(KObject elem) {
-                            if (cache.get(elem.kid()) == null) {
+                            if (cache.get(elem.uuid()) == null) {
                                 //break potential loop
                                 internal_prune(elem, traces, cache, parentMap, (t) -> {
                                 });
@@ -62,7 +62,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                 }
             }
         };
-        traces.add(new ModelAddTrace(elem.kid(), null, elem.kid(), elem.metaClass()));
+        traces.add(new ModelAddTrace(elem.uuid(), null, elem.uuid(), elem.metaClass()));
         elem.parent(parentExplorer);
     }
 

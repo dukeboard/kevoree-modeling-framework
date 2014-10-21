@@ -22,31 +22,26 @@ public class JSONLoadTest {
         loader.loadModelFromString("[\n" +
                 "{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@path\" : \"/\",\n" +
+                "\t\"@uuid\" : \"1\",\n" +
                 "\t\"name\":\"root\",\n" +
-                "\t\"children\": [\"/children[name=n2]\",\"/children[name=n1]\"] \n" +
+                "\t\"children\": [\"2\",\"3\"],\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@path\" : \"/children[name=n2]\",\n" +
-                "\t\"name\":\"n2\" \n" +
+                "\t\"@uuid\" : \"2\",\n" +
+                "\t\"name\":\"n1\",\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@path\" : \"/children[name=n1]\",\n" +
-                "\t\"name\":\"n1\" \n" +
+                "\t\"@uuid\" : \"3\",\n" +
+                "\t\"name\":\"n2\",\n" +
                 "}\n" +
                 "]", (res) -> {
 
-            /*
-            time0.lookup("/", (r) -> {
+
+            time0.lookup(1l, (r) -> {
                 System.err.println(r);
-                r.treeVisit((elem, v) -> {
-                    System.err.println(elem);
-                    v.on(ModelVisitor.Result.CONTINUE);
-                }, null);
             });
-            */
 
         });
     }

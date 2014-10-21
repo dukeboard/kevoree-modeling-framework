@@ -1,7 +1,6 @@
 package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
@@ -29,7 +28,7 @@ public class HelloTest {
 
         Node nodeT0 = t0.createNode();
         assertNotNull(nodeT0);
-        assertNotNull(nodeT0.kid());
+        assertNotNull(nodeT0.uuid());
         // assertNotNull(nodeT0.path());
 
         assertNull(nodeT0.getName());
@@ -51,8 +50,8 @@ public class HelloTest {
 
         nodeT0.addChildren(nodeT1);
 
-        Set<InternalInboundRef> refs = (Set<InternalInboundRef>) t0.dimension().universe().storage().raw(nodeT1,false)[1];
-        assertTrue(refs.contains(new InternalInboundRef(nodeT0.kid(), 4)));
+        Set<InternalInboundRef> refs = (Set<InternalInboundRef>) t0.dimension().universe().storage().raw(nodeT1, false)[1];
+        assertTrue(refs.contains(new InternalInboundRef(nodeT0.uuid(), 4)));
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
         final int[] i = {0};

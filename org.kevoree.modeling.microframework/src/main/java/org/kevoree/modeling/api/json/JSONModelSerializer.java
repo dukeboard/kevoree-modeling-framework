@@ -19,7 +19,7 @@ public class JSONModelSerializer implements ModelSerializer {
 
     public static final String keyMeta = "@meta";
 
-    public static final String keyKid = "@kid";
+    public static final String keyKid = "@uuid";
 
     @Override
     public void serialize(KObject model, final Callback<String> callback) {
@@ -64,7 +64,7 @@ public class JSONModelSerializer implements ModelSerializer {
         builder.append(elem.metaClass().metaName());
         builder.append("\",\n");
         builder.append("\t\"" + keyKid + "\" : \"");
-        builder.append(elem.kid() + "");
+        builder.append(elem.uuid() + "");
         builder.append("\",\n");
         for (int i = 0; i < elem.metaAttributes().length; i++) {
             Object payload = elem.get(elem.metaAttributes()[i]);

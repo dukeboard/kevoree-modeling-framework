@@ -43,7 +43,7 @@ public class DefaultModelCompare implements ModelCompare {
         origin.treeVisit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
-                objectsMap.put(elem.kid(), elem);
+                objectsMap.put(elem.uuid(), elem);
                 return VisitResult.CONTINUE;
             }
         }, new Callback<Throwable>() {
@@ -56,12 +56,12 @@ public class DefaultModelCompare implements ModelCompare {
                     target.treeVisit(new ModelVisitor() {
                         @Override
                         public VisitResult visit(KObject elem) {
-                            Long childPath = elem.kid();
+                            Long childPath = elem.uuid();
                             if (objectsMap.containsKey(childPath)) {
                                 if (inter) {
                                     //TODO
                                     MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.kid(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.uuid(), elem.metaClass()));
                                 }
                                 traces.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
                                 tracesRef.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
@@ -70,7 +70,7 @@ public class DefaultModelCompare implements ModelCompare {
                                 if (!inter) {
                                     //TODO
                                     MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.kid(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentKID(), currentReference, elem.uuid(), elem.metaClass()));
                                     traces.addAll(internal_createTraces(elem, elem, true, merge, false, true));
                                     tracesRef.addAll(internal_createTraces(elem, elem, true, merge, true, false));
                                 }
@@ -90,7 +90,7 @@ public class DefaultModelCompare implements ModelCompare {
                                     for (Long diffChildKey : objectsMap.keySet()) {
                                         KObject diffChild = objectsMap.get(diffChildKey);
                                         Long src = diffChild.parentKID();
-                                        traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.kid()));
+                                        traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
                                     }
                                 }
                                 callback.on(new TraceSequence().populate(traces));
@@ -127,11 +127,11 @@ public class DefaultModelCompare implements ModelCompare {
                     }
                     if (isEquals) {
                         if (inter) {
-                            traces.add(new ModelSetTrace(current.kid(), att, flatAtt2));
+                            traces.add(new ModelSetTrace(current.uuid(), att, flatAtt2));
                         }
                     } else {
                         if (!inter) {
-                            traces.add(new ModelSetTrace(current.kid(), att, flatAtt2));
+                            traces.add(new ModelSetTrace(current.uuid(), att, flatAtt2));
                         }
                     }
                     values.remove(att);
@@ -139,7 +139,7 @@ public class DefaultModelCompare implements ModelCompare {
             }
             if (!inter && !merge && !values.isEmpty()) {
                 for (MetaAttribute hashLoopRes : values.keySet()) {
-                    traces.add(new ModelSetTrace(current.kid(), hashLoopRes, null));
+                    traces.add(new ModelSetTrace(current.uuid(), hashLoopRes, null));
                     values.remove(hashLoopRes);
                 }
             }
@@ -170,12 +170,12 @@ public class DefaultModelCompare implements ModelCompare {
                         if (isEquals) {
                             if (inter) {
                                 if (payload2 != null) {
-                                    traces.add(new ModelAddTrace(current.kid(), reference, (Long) payload2, null));
+                                    traces.add(new ModelAddTrace(current.uuid(), reference, (Long) payload2, null));
                                 }
                             }
                         } else {
                             if (!inter) {
-                                traces.add(new ModelAddTrace(current.kid(), reference, (Long) payload2, null));
+                                traces.add(new ModelAddTrace(current.uuid(), reference, (Long) payload2, null));
                             }
                         }
                     } else {
@@ -183,7 +183,7 @@ public class DefaultModelCompare implements ModelCompare {
                             Set<Long> siblingToAdd = (Set<Long>) payload2;
                             for (Long siblingElem : siblingToAdd) {
                                 if (!inter) {
-                                    traces.add(new ModelAddTrace(current.kid(), reference, siblingElem, null));
+                                    traces.add(new ModelAddTrace(current.uuid(), reference, siblingElem, null));
                                 }
                             }
                         } else {
@@ -197,11 +197,11 @@ public class DefaultModelCompare implements ModelCompare {
                                     }
                                     if (isFound) {
                                         if (inter) {
-                                            traces.add(new ModelAddTrace(current.kid(), reference, currentPath, null));
+                                            traces.add(new ModelAddTrace(current.uuid(), reference, currentPath, null));
                                         }
                                     } else {
                                         if (!inter) {
-                                            traces.add(new ModelRemoveTrace(current.kid(), reference, currentPath));
+                                            traces.add(new ModelRemoveTrace(current.uuid(), reference, currentPath));
                                         }
                                     }
                                 }
@@ -214,11 +214,11 @@ public class DefaultModelCompare implements ModelCompare {
                     for (MetaReference hashLoopRes : valuesRef.keySet()) {
                         Object payload = valuesRef.get(hashLoopRes);
                         if (payload instanceof Long) {
-                            traces.add(new ModelRemoveTrace(current.kid(), hashLoopRes, (Long) payload));
+                            traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, (Long) payload));
                         } else if (payload != null) {
                             Set<Long> toRemoveSet = (Set<Long>) payload;
                             for (Long toRemovePath : toRemoveSet) {
-                                traces.add(new ModelRemoveTrace(current.kid(), hashLoopRes, toRemovePath));
+                                traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, toRemovePath));
                             }
                         }
                     }

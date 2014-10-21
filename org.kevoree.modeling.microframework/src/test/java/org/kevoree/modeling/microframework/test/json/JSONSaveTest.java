@@ -41,18 +41,18 @@ public class JSONSaveTest {
         String payloadResult = "[\n" +
                 "{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@kid\" : \"1\",\n" +
+                "\t\"@uuid\" : \"1\",\n" +
                 "\t\"name\":\"root\",\n" +
                 "\t\"children\": [\"2\",\"3\"],\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@kid\" : \"2\",\n" +
+                "\t\"@uuid\" : \"2\",\n" +
                 "\t\"name\":\"n1\",\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@kid\" : \"3\",\n" +
+                "\t\"@uuid\" : \"3\",\n" +
                 "\t\"name\":\"n2\",\n" +
                 "}\n" +
                 "]\n";

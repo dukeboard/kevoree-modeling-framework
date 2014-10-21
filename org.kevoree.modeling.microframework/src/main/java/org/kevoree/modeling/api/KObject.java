@@ -23,7 +23,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public boolean isRoot();
 
-    public long kid();
+    public long uuid();
 
     public void path(Callback<String> callback);
 

@@ -7,7 +7,6 @@ import org.kevoree.modeling.microframework.test.cloud.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.concurrent.Semaphore;
 
 
 /**
@@ -33,7 +32,7 @@ public class Serializer {
         nodeT1.setName("n1");
         nodeT0.addChildren(nodeT1);
 
-        t0.lookup(nodeT0.kid(), (root) -> {
+        t0.lookup(nodeT0.uuid(), (root) -> {
             try {
                 t0.createXMISerializer().serializeToStream(root, new FileOutputStream(new File("XMISerialized.xmi")), (error) -> {
                     if (error != null) {

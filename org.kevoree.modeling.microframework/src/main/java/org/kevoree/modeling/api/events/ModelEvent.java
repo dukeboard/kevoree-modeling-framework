@@ -41,6 +41,6 @@ public class ModelEvent {
 
     @Override
     public String toString() {
-        return "ModelEvent[src:[" + source.now() + "]" + source.kid() + ", type:" + type + ", meta:" + getMeta() + ", pastValue:" + getPastValue() + ", newValue:" + getNewValue() + "]";
+        return "ModelEvent[src:[" + source.now() + "]" + source.uuid() + ", type:" + type + ", meta:" + getMeta() + ", pastValue:" + getPastValue() + ", newValue:" + getNewValue() + "]";
     }
 }

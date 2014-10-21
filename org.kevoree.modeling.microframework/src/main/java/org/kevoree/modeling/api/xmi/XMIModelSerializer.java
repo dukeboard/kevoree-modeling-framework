@@ -64,7 +64,7 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
             currentElement.each(ref, new Callback() {
                 @Override
                 public void on(Object o) {
-                    String adjustedAddress = context.addressTable.get(((KObject) o).kid());
+                    String adjustedAddress = context.addressTable.get(((KObject) o).uuid());
                     value[0] = (value[0].equals("") ? adjustedAddress : value[0] + " " + adjustedAddress);
                 }
             }, new Callback<Throwable>() {
@@ -179,14 +179,14 @@ public class XMIModelSerializer implements ModelSerializer {
         context.printStream = new PrintStream(new BufferedOutputStream(raw), false);
 
         //First Pass for building address table
-        context.addressTable.put(model.kid(), "/");
+        context.addressTable.put(model.uuid(), "/");
         //ystem.out.println("Addresses Visit");
         model.treeVisit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
                 String parentXmiAddress = context.addressTable.get(elem.parentKID());
                 int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), (s) -> 0);
-                context.addressTable.put(elem.kid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
+                context.addressTable.put(elem.uuid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
                 context.elementsCount.put(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), i + 1);
                 String pack = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));
                 if (!context.packageList.contains(pack)) {

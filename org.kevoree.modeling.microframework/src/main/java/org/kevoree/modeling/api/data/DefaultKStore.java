@@ -55,8 +55,8 @@ public class DefaultKStore implements KStore {
 
     public void initKObject(KObject obj, KView originView) {
         DimensionCache dimensionCache = caches.get(originView.dimension().key());
-        if (!dimensionCache.timeTreeCache.containsKey(obj.kid())) {
-            dimensionCache.timeTreeCache.put(obj.kid(), obj.timeTree());
+        if (!dimensionCache.timeTreeCache.containsKey(obj.uuid())) {
+            dimensionCache.timeTreeCache.put(obj.uuid(), obj.timeTree());
         }
         //MAYBE BOOTLENECK of PERFORMANCE WITH POLYNOMIAL
         TimeCache timeCache = dimensionCache.timesCaches.get(originView.now());
@@ -64,7 +64,7 @@ public class DefaultKStore implements KStore {
             timeCache = new TimeCache();
             dimensionCache.timesCaches.put(originView.now(), timeCache);
         }
-        timeCache.obj_cache.put(obj.kid(), obj);
+        timeCache.obj_cache.put(obj.uuid(), obj);
     }
 
     long dimKeyCounter = 0;
@@ -117,11 +117,11 @@ public class DefaultKStore implements KStore {
             timeCache = new TimeCache();
             dimensionCache.timesCaches.put(resolvedTime, timeCache);
         }
-        Object[] payload = timeCache.payload_cache.get(origin.kid());
+        Object[] payload = timeCache.payload_cache.get(origin.uuid());
         if (payload == null) {
             payload = new Object[origin.metaAttributes().length + origin.metaReferences().length + 2];
             if (write && !needCopy) {
-                timeCache.payload_cache.put(origin.kid(), payload);
+                timeCache.payload_cache.put(origin.uuid(), payload);
             }
         }
         if (!needCopy) {
@@ -149,7 +149,7 @@ public class DefaultKStore implements KStore {
                 timeCacheCurrent = new TimeCache();
                 dimensionCache.timesCaches.put(origin.factory().now(), timeCacheCurrent);
             }
-            timeCache.payload_cache.put(origin.kid(), cloned);
+            timeCache.payload_cache.put(origin.uuid(), cloned);
             origin.timeTree().insert(origin.factory().now());
             origin.factory().dimension().globalTimeTree().insert(origin.factory().now());
             return cloned;

@@ -23,7 +23,7 @@ public class MetaHelper {
             if (!isFirst) {
                 buffer.append(sep);
             }
-            buffer.append(key.kid());
+            buffer.append(key.uuid());
             if (v.size() != 0) {
                 for (String v2 : v) {
                     buffer.append(sep2);

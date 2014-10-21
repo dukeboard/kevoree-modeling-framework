@@ -43,7 +43,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     private long kid;
 
-    public long kid() {
+    public long uuid() {
         return kid;
     }
 
@@ -273,7 +273,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 } else {
                     Set<Long> previousList = (Set<Long>) getCreateOrUpdatePayloadList(this, metaReference.index());
                     //Actual add
-                    previousList.add(param.kid());
+                    previousList.add(param.uuid());
                     //Opposite
                     if (metaReference.opposite() != null && setOpposite) {
                         param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
@@ -285,7 +285,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                     //Inbound
                     Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
+                    InternalInboundRef newInboundRef = new InternalInboundRef(uuid(), metaReference.index());
                     inboundRefs.add(newInboundRef);
                 }
                 break;
@@ -299,10 +299,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         //Actual add
                         Object[] payload = factory().dimension().universe().storage().raw(this, true);
                         Object previous = payload[metaReference.index()];
-                        if(previous != null) {
+                        if (previous != null) {
                             mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
                         }
-                        payload[metaReference.index()] = param.kid();
+                        payload[metaReference.index()] = param.uuid();
                         //Container
                         if (metaReference.contained()) {
                             ((AbstractKObject) param).setReferenceInParent(metaReference);
@@ -310,7 +310,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                         //Inbound
                         Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                        InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
+                        InternalInboundRef newInboundRef = new InternalInboundRef(uuid(), metaReference.index());
                         inboundRefs.add(newInboundRef);
                         //Opposite
                         if (metaReference.opposite() != null && setOpposite) {
@@ -342,7 +342,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                 }
                                 //Inbounds
                                 Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
-                                inboundRefs.removeIf((ref) -> (ref.getKID() == kid()));
+                                inboundRefs.removeIf((ref) -> (ref.getKID() == uuid()));
                             }
                         });
                     }
@@ -355,7 +355,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             previousList = new HashSet<Long>(previousList);
                             payload[metaReference.index()] = previousList;
                         }
-                        previousList.remove(param.kid());
+                        previousList.remove(param.uuid());
                         if (metaReference.contained()) {
                             ((AbstractKObject) param).setReferenceInParent(null);
                             ((AbstractKObject) param).setParentKID(null);
@@ -367,7 +367,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
                     //Inbounds
                     Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    inboundRefs.removeIf((ref) -> (ref.getKID() == kid()));
+                    inboundRefs.removeIf((ref) -> (ref.getKID() == uuid()));
                 }
                 break;
             default:
@@ -452,7 +452,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     private void internal_visit(ModelVisitor visitor, Callback<Throwable> end, boolean deep, boolean treeOnly, HashSet<Long> alreadyVisited) {
         if (alreadyVisited != null) {
-            alreadyVisited.add(kid());
+            alreadyVisited.add(uuid());
         }
         Set<Long> toResolveds = new HashSet<Long>();
         for (int i = 0; i < metaReferences().length; i++) {
@@ -489,7 +489,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     } else {
                         if (deep) {
                             if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
-                                if (alreadyVisited == null || !alreadyVisited.contains(resolved.kid())) {
+                                if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
                                     nextDeep.add(resolved);
                                 }
                             }
@@ -541,8 +541,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         builder.append("\t\"@meta\" : \"");
         builder.append(metaClass().metaName());
         builder.append("\",\n");
-        builder.append("\t\"@kid\" : \"");
-        builder.append(kid());
+        builder.append("\t\"@uuid\" : \"");
+        builder.append(uuid());
         builder.append("\",\n");
         for (int i = 0; i < metaAttributes().length; i++) {
             Object payload = get(metaAttributes()[i]);
@@ -653,7 +653,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     factory.lookupAll(oppositeKids, (oppositeElements) -> {
                         if (oppositeElements != null) {
                             for (KObject opposite : oppositeElements) {
-                                InternalInboundRef inboundRef = oppositeInternal.get(opposite.kid());
+                                InternalInboundRef inboundRef = oppositeInternal.get(opposite.uuid());
                                 MetaReference metaRef = null;
                                 MetaReference[] metaReferences = opposite.metaReferences();
                                 for (int i = 0; i < metaReferences.length; i++) {
