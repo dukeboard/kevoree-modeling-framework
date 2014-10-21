@@ -299,6 +299,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         //Actual add
                         Object[] payload = factory().dimension().universe().storage().raw(this, kid(), true);
                         Object previous = payload[metaReference.index()];
+                        if(previous != null) {
+                            mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
+                        }
                         payload[metaReference.index()] = param.kid();
                         //Container
                         if (metaReference.contained()) {
