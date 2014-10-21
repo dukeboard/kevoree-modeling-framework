@@ -88,7 +88,7 @@ public class JSONModelLoader implements ModelLoader {
                 for (String k : elem.keySet()) {
                     MetaAttribute att = current.metaAttribute(k);
                     if (att != null) {
-                        payloadObj[att.index()] = elem.get(k);//TODO manage ARRAY for multiplicity 0..*
+                        payloadObj[att.index()] = JSONModelLoader.convertRaw(att,elem.get(k));//TODO manage ARRAY for multiplicity 0..*
                     } else {
                         MetaReference ref = current.metaReference(k);
                         if (ref != null) {
@@ -125,11 +125,29 @@ public class JSONModelLoader implements ModelLoader {
         }
     }
 
-    public static Object convertRaw(MetaAttribute attribute, Object raw){
-        switch (attribute.metaType()){
-           case STRING:
-               break;
-
+    public static Object convertRaw(MetaAttribute attribute, Object raw) {
+        try {
+            switch (attribute.metaType()) {
+                case STRING:
+                    return raw.toString();
+                case LONG:
+                    return Long.parseLong(raw.toString());
+                case INT:
+                    return Integer.parseInt(raw.toString());
+                case BOOL:
+                    return Boolean.parseBoolean(raw.toString());
+                case SHORT:
+                    return Short.parseShort(raw.toString());
+                case DOUBLE:
+                    return Double.parseDouble(raw.toString());
+                case FLOAT:
+                    return Float.parseFloat(raw.toString());
+                default:
+                    return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
