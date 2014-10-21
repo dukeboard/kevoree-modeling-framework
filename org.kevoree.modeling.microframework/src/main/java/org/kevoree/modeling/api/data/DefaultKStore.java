@@ -13,6 +13,14 @@ import java.util.*;
  */
 public class DefaultKStore implements KStore {
 
+    private static final String keyObjectCounter = "#obj_counter";
+
+    private static final String keyDimensionCounter = "#dim_counter";
+
+    private static final String keyGlobalTimeTree = "#main_timetree";
+
+    private static final char keySep = ',';
+
     private KDataBase db;
 
     private class DimensionCache {
@@ -30,6 +38,9 @@ public class DefaultKStore implements KStore {
         protected Map<Long, Object[]> payload_cache = new HashMap<Long, Object[]>();
     }
 
+    private String keyPayload(KDimension dim, long time, long key) {
+        return "" + dim.key() + keySep + time + keySep + key;
+    }
 
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
 
@@ -43,17 +54,16 @@ public class DefaultKStore implements KStore {
 
     public void initKObject(KObject obj, KView originView) {
         DimensionCache dimensionCache = caches.get(originView.dimension().key());
+        if (!dimensionCache.timeTreeCache.containsKey(obj.kid())) {
+            dimensionCache.timeTreeCache.put(obj.kid(), obj.timeTree());
+        }
+        //MAYBE BOOTLENECK of PERFORMANCE WITH POLYNOMIAL
         TimeCache timeCache = dimensionCache.timesCaches.get(originView.now());
         if (timeCache == null) {
             timeCache = new TimeCache();
             dimensionCache.timesCaches.put(originView.now(), timeCache);
         }
-        if (!dimensionCache.timeTreeCache.containsKey(obj.kid())) {
-            dimensionCache.timeTreeCache.put(obj.kid(), obj.timeTree());
-        }
         timeCache.obj_cache.put(obj.kid(), obj);
-        timeCache.payload_cache.put(obj.kid(), new Object[obj.metaAttributes().length + obj.metaReferences().length + 2]);
-        dimensionCache.timeTreeCache.put(obj.kid(), obj.timeTree());
     }
 
     long dimKeyCounter = 0;
@@ -104,6 +114,12 @@ public class DefaultKStore implements KStore {
             dimensionCache.timesCaches.put(resolvedTime, timeCache);
         }
         Object[] payload = timeCache.payload_cache.get(key);
+        if (payload == null) {
+            payload = new Object[origin.metaAttributes().length + origin.metaReferences().length + 2];
+            if(write && !needCopy){
+                timeCache.payload_cache.put(key, payload);
+            }
+        }
         if (!needCopy) {
             return payload;
         } else {
@@ -134,7 +150,6 @@ public class DefaultKStore implements KStore {
             origin.factory().dimension().globalTimeTree().insert(origin.factory().now());
             return cloned;
         }
-
     }
 
     @Override
@@ -180,8 +195,8 @@ public class DefaultKStore implements KStore {
             if (originView.now() == resolvedTime) {
                 callback.on(resolved);
             } else {
-                //create proxy
-                callback.on(resolved);
+                KObject proxy = originView.createProxy(resolved.metaClass(), resolved.timeTree());
+                callback.on(proxy);
             }
         } else {
             db.get(keyPayload(originView.dimension(), resolvedTime, key), (objPayLoad) -> {
@@ -192,12 +207,6 @@ public class DefaultKStore implements KStore {
                 callback.on(null);
             });
         }
-    }
-
-    private final char keySep = ',';
-
-    private String keyPayload(KDimension dim, long time, long key) {
-        return "" + dim.key() + keySep + time + keySep + key;
     }
 
     @Override
