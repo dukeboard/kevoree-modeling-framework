@@ -48,6 +48,8 @@ public class TimeTest {
             System.out.println(kObject);
         });
 
+        // protected against null callback?
+        t0.lookup(node0.kid(), null);
 
     }
 }
