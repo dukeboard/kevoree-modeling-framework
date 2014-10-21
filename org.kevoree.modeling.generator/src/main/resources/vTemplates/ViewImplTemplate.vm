@@ -7,7 +7,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
     }
 
     @Override
-    protected org.kevoree.modeling.api.KObject internalCreate(org.kevoree.modeling.api.meta.MetaClass clazz, org.kevoree.modeling.api.time.TimeTree timeTree, Long key) {
+    protected org.kevoree.modeling.api.KObject internalCreate(org.kevoree.modeling.api.meta.MetaClass clazz, org.kevoree.modeling.api.time.TimeTree timeTree, long key) {
         if (clazz == null) {
             return null;
         }

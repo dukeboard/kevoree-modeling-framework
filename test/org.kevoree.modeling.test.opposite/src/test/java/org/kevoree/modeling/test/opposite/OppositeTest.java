@@ -443,6 +443,66 @@ public class OppositeTest {
 
 
 
+    @Test
+    public void multiA_multiB_Test() {
+
+        B b = factory.createB();
+        B b2 = factory.createB();
+        A a = factory.createA();
+        A a2 = factory.createA();
+
+        a.addMultiA_multiB(b);
+        assert(b.starListA_StarListB.size == 1);
+        assert(a.starListA_StarListB.size == 1);
+        assert(a.eContainer() == b);
+
+        a.addMultiA_multiB(b2);
+        assert(b2.starListA_StarListB.size == 1);
+        assert(b.starListA_StarListB.size == 0);
+        assert(a.starListA_StarListB.size == 1);
+        assert(a.eContainer() == b2);
+
+        b.addMultiA_multiB(a);
+        assert(b.starListA_StarListB.size == 1);
+        assert(b2.starListA_StarListB.size == 0);
+        assert(a.starListA_StarListB.size == 1);
+        assert(a.eContainer() == b);
+
+        b.addMultiA_multiB(a2);
+        assert(b.starListA_StarListB.size == 2);
+        assert(b2.starListA_StarListB.size == 0);
+        assert(a.starListA_StarListB.size == 1);
+        assert(a2.starListA_StarListB.size == 1);
+        assert(a.eContainer() == b);
+        assert(a2.eContainer() == b);
+
+        b2.addMultiA_multiB(a2);
+        assert(b.starListA_StarListB.size == 1);
+        assert(b2.starListA_StarListB.size == 1);
+        assert(a.starListA_StarListB.size == 1);
+        assert(a2.starListA_StarListB.size == 1);
+        assert(a.eContainer() == b);
+        assert(a2.eContainer() == b2);
+
+        b2.addMultiA_multiB(a2);
+        assert(b.starListA_StarListB.size == 1);
+        assert(b2.starListA_StarListB.size == 1, "Size:" + b2.starListA_StarListB.size);
+        assert(a.starListA_StarListB.size == 1);
+        assert(a2.starListA_StarListB.size == 1);
+        assert(a.eContainer() == b);
+        assert(a2.eContainer() == b2);
+
+
+        b.removeMultiA_multiB(a);
+        assert(b.starListA_StarListB.size == 0);
+        assert(b2.starListA_StarListB.size == 1);
+        assert(a.starListA_StarListB.size == 0);
+        assert(a2.starListA_StarListB.size == 1);
+        assert(a.eContainer() == null);
+        assert(a2.eContainer() == b2);
+
+    }
+
 
     /*
     @Test     public void mandatorySingleA_mandatorySingleB_Test() {
@@ -538,110 +598,7 @@ public class OppositeTest {
 
 
 
-    @Test
- public void starListA_StarListB_Test() {
 
-        val b = factory.createB();
-        val b2 = factory.createB();
-        val a = factory.createA();
-        val a2 = factory.createA();
-        val listA = ArrayList<A>();
-        listA.add(a);
-        listA.add(a2);
-        val listB = ArrayList<B>();
-        listB.add(b);
-        listB.add(b2);
-
-        a.addStarListA_StarListB(b);
-        assert(b.starListA_StarListB.size == 1);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b);
-
-        a.addStarListA_StarListB(b2);
-        assert(b2.starListA_StarListB.size == 1);
-        assert(b.starListA_StarListB.size == 0);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b2);
-
-        b.addStarListA_StarListB(a);
-        assert(b.starListA_StarListB.size == 1);
-        assert(b2.starListA_StarListB.size == 0);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b);
-
-        b.addStarListA_StarListB(a2);
-        assert(b.starListA_StarListB.size == 2);
-        assert(b2.starListA_StarListB.size == 0);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a2.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b);
-        assert(a2.eContainer() == b);
-
-        b2.addStarListA_StarListB(a2);
-        assert(b.starListA_StarListB.size == 1);
-        assert(b2.starListA_StarListB.size == 1);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a2.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b);
-        assert(a2.eContainer() == b2);
-
-        b2.addStarListA_StarListB(a2);
-        assert(b.starListA_StarListB.size == 1);
-        assert(b2.starListA_StarListB.size == 1, "Size:" + b2.starListA_StarListB.size);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a2.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b);
-        assert(a2.eContainer() == b2);
-
-
-        b.removeStarListA_StarListB(a);
-        assert(b.starListA_StarListB.size == 0);
-        assert(b2.starListA_StarListB.size == 1);
-        assert(a.starListA_StarListB.size == 0);
-        assert(a2.starListA_StarListB.size == 1);
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == b2);
-
-        b.addAllStarListA_StarListB(listA);
-        assert(b.starListA_StarListB.size == 2);
-        assert(b2.starListA_StarListB.size == 0);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a2.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b);
-        assert(a2.eContainer() == b);
-
-        b2.addAllStarListA_StarListB(listA);
-        assert(b.starListA_StarListB.size == 0);
-        assert(b2.starListA_StarListB.size == 2);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a2.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b2);
-        assert(a2.eContainer() == b2);
-
-        b2.removeAllStarListA_StarListB();
-        assert(b.starListA_StarListB.size == 0);
-        assert(b2.starListA_StarListB.size == 0);
-        assert(a.starListA_StarListB.size == 0);
-        assert(a2.starListA_StarListB.size == 0);
-        assert(a.eContainer() == null);
-        assert(a2.eContainer() == null);
-
-        a.addAllStarListA_StarListB(listB);
-        assert(b.starListA_StarListB.size == 0);
-        assert(b2.starListA_StarListB.size == 1);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b2);
-
-
-        a2.addAllStarListA_StarListB(listB);
-        assert(b.starListA_StarListB.size == 0);
-        assert(b2.starListA_StarListB.size == 2);
-        assert(a.starListA_StarListB.size == 1);
-        assert(a2.starListA_StarListB.size == 1);
-        assert(a.eContainer() == b2);
-        assert(a2.eContainer() == b2);
-
-    }
 
     @Test
  public void mandatorySingleA_StarListB_Test() {
