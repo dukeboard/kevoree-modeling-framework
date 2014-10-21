@@ -88,7 +88,7 @@ public class JSONModelLoader implements ModelLoader {
                 for (String k : elem.keySet()) {
                     MetaAttribute att = current.metaAttribute(k);
                     if (att != null) {
-                        payloadObj[att.index()] = JSONModelLoader.convertRaw(att,elem.get(k));//TODO manage ARRAY for multiplicity 0..*
+                        payloadObj[att.index()] = JSONModelLoader.convertRaw(att, elem.get(k));//TODO manage ARRAY for multiplicity 0..*
                     } else {
                         MetaReference ref = current.metaReference(k);
                         if (ref != null) {
