@@ -18,7 +18,6 @@ public class JSONLoadTest {
         CloudDimension dimension0 = universe.create();
         CloudView time0 = dimension0.time(0l);
         ModelLoader loader = time0.createJSONLoader();
-
         loader.loadModelFromString("[\n" +
                 "{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +

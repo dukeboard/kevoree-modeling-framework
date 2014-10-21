@@ -91,11 +91,35 @@ public class JSONModelLoader implements ModelLoader {
                 for (String k : elem.keySet()) {
                     MetaAttribute att = current.metaAttribute(k);
                     if (att != null) {
-                        payloadObj[att.index()] = elem.get(k).toString();//TODO manage ARRAY for multiplicity 0..*
+                        payloadObj[att.index()] = elem.get(k);//TODO manage ARRAY for multiplicity 0..*
                     } else {
                         MetaReference ref = current.metaReference(k);
                         if (ref != null) {
-                            payloadObj[ref.index()] = elem.get(k);
+                            if (ref.single()) {
+                                Long refPayloadSingle;
+                                try {
+                                    refPayloadSingle = Long.parseLong(elem.get(k).toString());
+                                    payloadObj[ref.index()] = refPayloadSingle;
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                try {
+                                    Set<String> plainRawList = (Set<String>) elem.get(k);
+                                    Set<Long> convertedRaw = new HashSet<Long>();
+                                    for (String plainRaw : plainRawList) {
+                                        try {
+                                            Long converted = Long.parseLong(plainRaw);
+                                            convertedRaw.add(converted);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    payloadObj[ref.index()] = convertedRaw;
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
                     }
                 }
