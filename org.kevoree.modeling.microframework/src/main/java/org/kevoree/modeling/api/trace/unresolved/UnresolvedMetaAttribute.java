@@ -30,6 +30,11 @@ public class UnresolvedMetaAttribute implements MetaAttribute {
     }
 
     @Override
+    public MetaType metaType() {
+        return null;
+    }
+
+    @Override
     public String metaName() {
         return metaName;
     }

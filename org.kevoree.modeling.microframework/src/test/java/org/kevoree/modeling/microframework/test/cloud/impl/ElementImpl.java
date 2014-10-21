@@ -37,18 +37,18 @@ public class ElementImpl extends AbstractKObject<Element, CloudView> implements 
 
     @Override
     public Element setName(String name) {
-        set(METAATTRIBUTES.NAME, name,true);
+        set(METAATTRIBUTES.NAME, name, true);
         return this;
     }
 
     @Override
-    public String getValue() {
-        return (String) get(METAATTRIBUTES.VALUE);
+    public Long getValue() {
+        return (Long) get(METAATTRIBUTES.VALUE);
     }
 
     @Override
-    public Element setValue(String name) {
-        set(METAATTRIBUTES.VALUE, name,true);
+    public Element setValue(Long name) {
+        set(METAATTRIBUTES.VALUE, name, true);
         return this;
     }
 

@@ -11,8 +11,8 @@ public interface Element extends KObject<Element, CloudView> {
 
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, false, true),
-        VALUE("value", 3, true, false); //lexicographic order
+        NAME("name", 2, false, true, MetaType.String),
+        VALUE("value", 3, true, false, MetaType.Long); //lexicographic order
 
         private String name;
 
@@ -21,6 +21,12 @@ public interface Element extends KObject<Element, CloudView> {
         private boolean learned;
 
         private boolean key;
+
+        private MetaType metaType;
+
+        public MetaType metaType() {
+            return metaType;
+        }
 
         public int index() {
             return index;
@@ -42,11 +48,12 @@ public interface Element extends KObject<Element, CloudView> {
             return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT;
         }
 
-        METAATTRIBUTES(String name, int index, boolean learned, boolean key) {
+        METAATTRIBUTES(String name, int index, boolean learned, boolean key,MetaType metaType) {
             this.name = name;
             this.index = index;
             this.learned = learned;
             this.key = key;
+            this.metaType = metaType;
         }
 
     }
@@ -55,8 +62,8 @@ public interface Element extends KObject<Element, CloudView> {
 
     public Element setName(String name);
 
-    public String getValue();
+    public Long getValue();
 
-    public Element setValue(String name);
+    public Element setValue(Long name);
 
 }
