@@ -192,6 +192,9 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void lookup(KView originView, long key, Callback<KObject> callback) {
+        if (callback == null) {
+            return;
+        }
         TimeTree tree = timeTree(originView.dimension(), key);
         long resolvedTime = tree.resolve(originView.now());
         KObject resolved = cacheLookup(originView.dimension(), resolvedTime, key);
