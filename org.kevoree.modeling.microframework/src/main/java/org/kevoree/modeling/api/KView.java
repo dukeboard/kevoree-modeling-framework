@@ -47,6 +47,6 @@ public interface KView {
 
     public long now();
 
-    public KObject createProxy(MetaClass clazz, TimeTree timeTree);
+    public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key);
 
 }

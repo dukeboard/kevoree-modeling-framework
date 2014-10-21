@@ -120,15 +120,15 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public KObject createProxy(MetaClass clazz, TimeTree timeTree) {
-        return internalCreate(clazz, timeTree);
+    public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key) {
+        return internalCreate(clazz, timeTree, key);
     }
 
     @Override
     public KObject create(MetaClass clazz) {
-        return internalCreate(clazz, null);
+        return internalCreate(clazz, null, dimension().universe().storage().nextObjectKey());
     }
 
-    protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree);
+    protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
 
 }

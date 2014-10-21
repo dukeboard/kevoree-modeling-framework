@@ -63,8 +63,8 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
     }
 
     @Override
-    public TimeTree timeTree(String path) {
-        return null;
+    public TimeTree timeTree(long key) {
+        return universe().storage().timeTree(this,key);
     }
 
     @Override

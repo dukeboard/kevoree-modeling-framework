@@ -105,9 +105,9 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public Object[] raw(KObject origin, long key, boolean write) {
+    public Object[] raw(KObject origin, boolean write) {
         if (write) {
-            ((AbstractKObject) origin).setDirty(write);
+            ((AbstractKObject) origin).setDirty(true);
         }
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         long resolvedTime = origin.now();
@@ -117,11 +117,11 @@ public class DefaultKStore implements KStore {
             timeCache = new TimeCache();
             dimensionCache.timesCaches.put(resolvedTime, timeCache);
         }
-        Object[] payload = timeCache.payload_cache.get(key);
+        Object[] payload = timeCache.payload_cache.get(origin.kid());
         if (payload == null) {
             payload = new Object[origin.metaAttributes().length + origin.metaReferences().length + 2];
             if (write && !needCopy) {
-                timeCache.payload_cache.put(key, payload);
+                timeCache.payload_cache.put(origin.kid(), payload);
             }
         }
         if (!needCopy) {
@@ -149,7 +149,7 @@ public class DefaultKStore implements KStore {
                 timeCacheCurrent = new TimeCache();
                 dimensionCache.timesCaches.put(origin.factory().now(), timeCacheCurrent);
             }
-            timeCache.payload_cache.put(key, cloned);
+            timeCache.payload_cache.put(origin.kid(), cloned);
             origin.timeTree().insert(origin.factory().now());
             origin.factory().dimension().globalTimeTree().insert(origin.factory().now());
             return cloned;
@@ -199,7 +199,7 @@ public class DefaultKStore implements KStore {
             if (originView.now() == resolvedTime) {
                 callback.on(resolved);
             } else {
-                KObject proxy = originView.createProxy(resolved.metaClass(), resolved.timeTree());
+                KObject proxy = originView.createProxy(resolved.metaClass(), resolved.timeTree(), key);
                 callback.on(proxy);
             }
         } else {

@@ -29,7 +29,7 @@ public class JSONModelLoader implements ModelLoader {
     }
 
     @Override
-    public void loadModelFromString(String str, Callback<KObject> callback) {
+    public void loadModelFromString(String str, Callback<Throwable> callback) {
         if (str == null) {
             callback.on(null);
         }
@@ -37,7 +37,7 @@ public class JSONModelLoader implements ModelLoader {
     }
 
     @Override
-    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback) {
+    public void loadModelFromStream(InputStream inputStream, Callback<Throwable> callback) {
         if (inputStream == null) {
             throw new RuntimeException("Null input Stream");
         }
@@ -49,7 +49,7 @@ public class JSONModelLoader implements ModelLoader {
             List<Map<String, Object>> alls = new ArrayList<Map<String, Object>>();
             Map<String, Object> content = new HashMap<String, Object>();
             String currentAttributeName = null;
-            Set<String> arrayPayload=null;
+            Set<String> arrayPayload = null;
             currentToken = lexer.nextToken();
             while (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.EOF) {
                 switch (currentToken.getTokenType()) {
@@ -83,45 +83,24 @@ public class JSONModelLoader implements ModelLoader {
                 }
                 currentToken = lexer.nextToken();
             }
-
-            /*
-            Helper.forall(alls.toArray(new Map[alls.size()]), new CallBackChain<Map>() {
-                @Override
-                public void on(Map map, Callback<Throwable> next) {
-
-                    Map<String, Object> payloads = map;
-                    factory.lookup(payloads.get("@meta").toString(), (r) -> {
-                        KObject resolved = null;
-                        if (r == null) {
-                            resolved = factory.createFQN(payloads.get("@meta").toString());
-                        } else {
-                            resolved = r;
+            for (Map<String, Object> elem : alls) {
+                String meta = elem.get(JSONModelSerializer.keyMeta).toString();
+                Long kid = Long.parseLong(elem.get(JSONModelSerializer.keyKid).toString());
+                KObject current = factory.createProxy(factory.metaClass(meta), factory.dimension().timeTree(kid), kid);
+                Object[] payloadObj = factory.dimension().universe().storage().raw(current, true);
+                for (String k : elem.keySet()) {
+                    MetaAttribute att = current.metaAttribute(k);
+                    if (att != null) {
+                        payloadObj[att.index()] = elem.get(k).toString();//TODO manage ARRAY for multiplicity 0..*
+                    } else {
+                        MetaReference ref = current.metaReference(k);
+                        if (ref != null) {
+                            payloadObj[ref.index()] = elem.get(k);
                         }
-                      //  long
-                        //((AbstractKObject) resolved).setPath();
-                        Object[] payloadObj = factory.dimension().universe().storage().raw(resolved.dimension(), resolved.now(), (Long)resolved.path());
-                        for (String k : payloads.keySet()) {
-                            MetaAttribute att = resolved.metaAttribute(k);
-                            if (att != null) {
-                                payloadObj[att.index()] = payloads.get(k).toString();//TODO manage ARRAY for multiplicity 0..*
-                            } else {
-                                MetaReference ref = resolved.metaReference(k);
-                                if (ref != null) {
-                                    payloadObj[ref.index()] = payloads.get(k);
-                                }
-                            }
-                        }
-                        next.on(null);
-                    });
+                    }
                 }
-            }, new Callback<Throwable>() {
-
-                @Override
-                public void on(Throwable throwable) {
-                    callback.on(null);//TODO
-                }
-            });
-            */
+            }
+            callback.on(null);
         }
     }
 

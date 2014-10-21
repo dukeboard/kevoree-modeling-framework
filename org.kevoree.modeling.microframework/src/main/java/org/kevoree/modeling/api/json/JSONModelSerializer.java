@@ -17,6 +17,10 @@ import java.util.Set;
 
 public class JSONModelSerializer implements ModelSerializer {
 
+    public static final String keyMeta = "@meta";
+
+    public static final String keyKid = "@kid";
+
     @Override
     public void serialize(KObject model, final Callback<String> callback) {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
@@ -56,10 +60,10 @@ public class JSONModelSerializer implements ModelSerializer {
 
     public void printJSON(KObject elem, PrintStream builder) {
         builder.append("{\n");
-        builder.append("\t\"@meta\" : \"");
+        builder.append("\t\"" + keyMeta + "\" : \"");
         builder.append(elem.metaClass().metaName());
         builder.append("\",\n");
-        builder.append("\t\"@kid\" : \"");
+        builder.append("\t\"" + keyKid + "\" : \"");
         builder.append(elem.kid() + "");
         builder.append("\",\n");
         for (int i = 0; i < elem.metaAttributes().length; i++) {
@@ -74,7 +78,7 @@ public class JSONModelSerializer implements ModelSerializer {
             }
         }
         for (int i = 0; i < elem.metaReferences().length; i++) {
-            Object[] raw = elem.factory().dimension().universe().storage().raw(elem, elem.kid(), false);
+            Object[] raw = elem.factory().dimension().universe().storage().raw(elem, false);
             Object payload = null;
             if (raw != null) {
                 payload = raw[elem.metaReferences()[i].index()];

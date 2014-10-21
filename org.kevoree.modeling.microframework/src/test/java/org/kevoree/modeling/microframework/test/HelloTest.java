@@ -51,7 +51,7 @@ public class HelloTest {
 
         nodeT0.addChildren(nodeT1);
 
-        Set<InternalInboundRef> refs = (Set<InternalInboundRef>) t0.dimension().universe().storage().raw(nodeT1, nodeT1.kid(),false)[1];
+        Set<InternalInboundRef> refs = (Set<InternalInboundRef>) t0.dimension().universe().storage().raw(nodeT1,false)[1];
         assertTrue(refs.contains(new InternalInboundRef(nodeT0.kid(), 4)));
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));

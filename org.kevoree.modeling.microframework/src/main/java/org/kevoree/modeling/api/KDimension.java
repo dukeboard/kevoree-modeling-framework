@@ -30,7 +30,7 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
 
     public TimeTree globalTimeTree();
 
-    public TimeTree timeTree(String path);
+    public TimeTree timeTree(long key);
 
     public C universe();
 

@@ -18,7 +18,7 @@ public interface KStore {
 
     void lookupAll(KView originView, Set<Long> key, Callback<List<KObject>> callback);
 
-    Object[] raw(KObject origin, long key, boolean write);
+    Object[] raw(KObject origin, boolean write);
 
     public void save(KDimension dimension, Callback<Throwable> callback);
 

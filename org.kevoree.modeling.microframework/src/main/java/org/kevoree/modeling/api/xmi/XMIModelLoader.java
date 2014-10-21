@@ -38,7 +38,7 @@ class LoadingContext {
     public HashMap<String, Integer> stats = new HashMap<String, Integer>();
     public HashMap<String, Boolean> oppositesAlreadySet = new HashMap<String, Boolean>();
 
-    public Callback<KObject> successCallback;
+    public Callback<Throwable> successCallback;
 
     public Boolean isOppositeAlreadySet(String localRef, String oppositeRef) {
         return (oppositesAlreadySet.get(oppositeRef + "_" + localRef) != null || (oppositesAlreadySet.get(localRef + "_" + oppositeRef) != null));
@@ -109,12 +109,12 @@ public class XMIModelLoader implements ModelLoader {
     }
 
     @Override
-    public void loadModelFromString(String str, Callback<KObject> callback) {
+    public void loadModelFromString(String str, Callback<Throwable> callback) {
         loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback);
     }
 
     @Override
-    public void loadModelFromStream(InputStream inputStream, Callback<KObject> callback) {
+    public void loadModelFromStream(InputStream inputStream, Callback<Throwable> callback) {
         XmlParser parser = new XmlParser(inputStream);
         if (!parser.hasNext()) {
             callback.on(null);
@@ -131,7 +131,8 @@ public class XMIModelLoader implements ModelLoader {
         try {
             String nsURI;
             XmlParser reader = context.xmiReader;
-            rootwhile : while (reader.hasNext()) {
+            rootwhile:
+            while (reader.hasNext()) {
                 XmlParser.Token nextTag = reader.next();
                 switch (nextTag) {
                     case START_TAG: {
@@ -166,17 +167,16 @@ public class XMIModelLoader implements ModelLoader {
                         break;
                     }
                     default: {
-                       // System.err.println("Default case :" + nextTag.toString());
+                        // System.err.println("Default case :" + nextTag.toString());
                     }
                 }
             }
             for (XMIResolveCommand res : context.resolvers) {
                 res.run();
             }
-            context.successCallback.on(context.loadedRoots);
-        } catch (Exception e) {
-            e.printStackTrace();
             context.successCallback.on(null);
+        } catch (Exception e) {
+            context.successCallback.on(e);
         }
     }
 
