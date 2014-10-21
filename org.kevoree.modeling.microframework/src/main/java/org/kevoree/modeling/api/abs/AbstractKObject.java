@@ -115,12 +115,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Long parentKID() {
-        Object[] raw = factory.dimension().universe().storage().raw(dimension(), now(), kid);
+        Object[] raw = factory.dimension().universe().storage().raw(this, kid, false);
         return (Long) raw[PARENT_INDEX];
     }
 
     public void setParentKID(Long parentKID) {
-        factory.dimension().universe().storage().raw(dimension(), now(), kid)[PARENT_INDEX] = parentKID;
+        factory.dimension().universe().storage().raw(this, kid, true)[PARENT_INDEX] = parentKID;
     }
 
     @Override
@@ -224,10 +224,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return builder.toString();
     }
 
-    //TODO optimize , maybe dangerous if cache is unloaded ...
     @Override
     public Object get(MetaAttribute attribute) {
-        Object[] payload = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+        Object[] payload = factory().dimension().universe().storage().raw(this, kid(), false);
         if (payload != null) {
             return payload[attribute.index()];
         } else {
@@ -237,30 +236,19 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void set(MetaAttribute attribute, Object payload, boolean fireEvents) {
-        Object[] internalPayload = factory().dimension().universe().storage().raw(dimension, factoryNow, kid);
+        Object[] internalPayload = factory().dimension().universe().storage().raw(this, kid, true);
         if (internalPayload != null) {
             internalPayload[attribute.index()] = payload;
         } else {
             throw new RuntimeException("Storage damaged");
         }
-        internalUpdateTimeTrees();
     }
-
-    private void internalUpdateTimeTrees() {
-        timeTree().insert(factoryNow);
-        factory().dimension().globalTimeTree().insert(factoryNow);
-    }
-
 
     private Set getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
-        Object previous = factory().dimension().universe().storage().raw(obj.dimension(), obj.now(), obj.kid())[payloadIndex];
+        Object previous = factory().dimension().universe().storage().raw(this, obj.kid(), true)[payloadIndex];
         if (previous == null) {
             previous = new HashSet<Object>();
-            factory().dimension().universe().storage().raw(obj.dimension(), factoryNow, obj.kid())[payloadIndex] = previous;
-        }
-        if (obj.now() != factoryNow) {
-            previous = new HashSet<Object>((Set) previous);
-            factory().dimension().universe().storage().raw(obj.dimension(), factoryNow, obj.kid())[payloadIndex] = previous;
+            factory().dimension().universe().storage().raw(this, obj.kid(), true)[payloadIndex] = previous;
         }
         return (Set) previous;
     }
@@ -289,7 +277,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
                     InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
                     inboundRefs.add(newInboundRef);
-                    internalUpdateTimeTrees();
                 }
                 break;
             case SET:
@@ -300,10 +287,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
                     } else {
                         //Actual add
-                        Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
-                        factory().dimension().universe().storage().raw(dimension, factoryNow, kid())[metaReference.index()] = param.kid();
+                        Object[] payload = factory().dimension().universe().storage().raw(this, kid(), true);
+                        Object previous = payload[metaReference.index()];
+                        payload[metaReference.index()] = param.kid();
                         //Container
-
                         if (metaReference.contained()) {
                             ((AbstractKObject) param).setReferenceInParent(metaReference);
                             ((AbstractKObject) param).setParentKID(kid);
@@ -312,8 +299,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
                         InternalInboundRef newInboundRef = new InternalInboundRef(kid(), metaReference.index());
                         inboundRefs.add(newInboundRef);
-                        internalUpdateTimeTrees();
-
                         //Opposite
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous != null) {
@@ -329,17 +314,16 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 break;
             case REMOVE:
                 if (metaReference.single()) {
-                    Object[] raw = factory().dimension().universe().storage().raw(dimension(), factoryNow, kid());
+                    Object[] raw = factory().dimension().universe().storage().raw(this, kid(),true);
                     Object previousKid = raw[metaReference.index()];
                     raw[metaReference.index()] = null;
                     if (previousKid != null) {
-                        factory.dimension().universe().storage().lookup(dimension(), factoryNow, (Long) previousKid, (resolvedParam) -> {
+                        factory.dimension().universe().storage().lookup(factory, (Long) previousKid, (resolvedParam) -> {
                             if (resolvedParam != null) {
                                 if (metaReference.contained()) {
                                     ((AbstractKObject) resolvedParam).setReferenceInParent(null);
                                     ((AbstractKObject) resolvedParam).setParentKID(null);
                                 }
-                                internalUpdateTimeTrees();
                                 if (metaReference.opposite() != null && setOpposite) {
                                     resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
                                 }
@@ -350,19 +334,19 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         });
                     }
                 } else {
-                    Object previous = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
+                    Object[] payload = factory().dimension().universe().storage().raw(this, kid(),true);
+                    Object previous = payload[metaReference.index()];
                     if (previous != null) {
                         Set<Long> previousList = (Set<Long>) previous;
                         if (now() != factoryNow) {
                             previousList = new HashSet<Long>(previousList);
-                            factory().dimension().universe().storage().raw(dimension(), factoryNow, kid())[metaReference.index()] = previousList;
+                            payload[metaReference.index()] = previousList;
                         }
                         previousList.remove(param.kid());
                         if (metaReference.contained()) {
                             ((AbstractKObject) param).setReferenceInParent(null);
                             ((AbstractKObject) param).setParentKID(null);
                         }
-                        internalUpdateTimeTrees();
                         if (metaReference.opposite() != null && setOpposite) {
                             param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
                         }
@@ -379,7 +363,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
-        Object o = factory().dimension().universe().storage().raw(dimension(), now(), kid())[metaReference.index()];
+        Object o = factory().dimension().universe().storage().raw(this, kid(),false)[metaReference.index()];
         if (o == null) {
             if (end != null) {
                 end.on(null);
@@ -461,7 +445,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         for (int i = 0; i < metaReferences().length; i++) {
             MetaReference reference = metaReferences()[i];
             if (!(treeOnly && !reference.contained())) {
-                Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+                Object[] raw = factory().dimension().universe().storage().raw(this, kid(),false);
                 Object o = null;
                 if (raw != null) {
                     o = raw[reference.index()];
@@ -559,7 +543,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
         for (int i = 0; i < metaReferences().length; i++) {
-            Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+            Object[] raw = factory().dimension().universe().storage().raw(this, kid(),false);
             Object payload = null;
             if (raw != null) {
                 payload = raw[metaReferences()[i].index()];
@@ -618,7 +602,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaReferences().length; i++) {
                 MetaReference ref = metaReferences()[i];
-                Object[] raw = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+                Object[] raw = factory().dimension().universe().storage().raw(this, kid(), false);
                 Object o = null;
                 if (raw != null) {
                     o = raw[ref.index()];
@@ -639,7 +623,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
 
     public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end) {
-        Object[] rawPayload = factory().dimension().universe().storage().raw(dimension(), now(), kid());
+        Object[] rawPayload = factory().dimension().universe().storage().raw(this, kid(), false);
         if (rawPayload == null) {
             end.on(new Exception("Object not initialized."));
         } else {

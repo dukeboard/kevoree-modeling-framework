@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.data;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.List;
@@ -13,15 +14,11 @@ import java.util.Set;
  */
 public interface KStore {
 
-    void lookup(KDimension dimension, long time, long key, Callback<KObject> callback);
+    void lookup(KView originView, long key, Callback<KObject> callback);
 
-    void lookupAll(KDimension dimension, long time, Set<Long> key, Callback<List<KObject>> callback);
+    void lookupAll(KView originView, Set<Long> key, Callback<List<KObject>> callback);
 
-    KObject cacheLookup(KDimension dimension, long time, long key);
-
-    List<KObject> cacheLookupAll(KDimension dimension, long time, Set<Long> path);
-
-    Object[] raw(KDimension dimension, long time, long key);
+    Object[] raw(KObject origin, long key, boolean write);
 
     public void save(KDimension dimension, Callback<Throwable> callback);
 
@@ -33,7 +30,7 @@ public interface KStore {
 
     public TimeTree timeTree(KDimension dimension, long key);
 
-    public void initKObject(KObject obj, KDimension currentDim, long currentNow);
+    public void initKObject(KObject obj, KView originView);
 
     public void initDimension(KDimension dimension);
 

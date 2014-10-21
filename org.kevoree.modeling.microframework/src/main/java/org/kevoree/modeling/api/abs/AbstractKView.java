@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
+import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
@@ -88,7 +89,7 @@ public abstract class AbstractKView implements KView {
     }
 
     protected KObject manageCache(KObject obj) {
-        dimension().universe().storage().initKObject(obj, dimension(), now);
+        dimension().universe().storage().initKObject(obj, this);
         return obj;
     }
 
@@ -106,16 +107,28 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void lookup(long kid, Callback<KObject> callback) {
-        dimension().universe().storage().lookup(dimension(), now(), kid, callback);
+        dimension().universe().storage().lookup(this, kid, callback);
     }
 
     public void lookupAll(Set<Long> keys, Callback<List<KObject>> callback) {
-        dimension().universe().storage().lookupAll(dimension(), now(), keys, callback);
+        dimension().universe().storage().lookupAll(this, keys, callback);
     }
 
     @Override
     public void stream(String query, Callback<KObject> callback) {
 
     }
+
+    @Override
+    public KObject createProxy(MetaClass clazz, TimeTree timeTree) {
+        return internalCreate(clazz, timeTree);
+    }
+
+    @Override
+    public KObject create(MetaClass clazz) {
+        return internalCreate(clazz, null);
+    }
+
+    protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree);
 
 }

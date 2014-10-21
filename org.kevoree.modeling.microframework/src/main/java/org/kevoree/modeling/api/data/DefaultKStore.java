@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.data;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.*;
@@ -40,12 +41,15 @@ public class DefaultKStore implements KStore {
         caches.put(dimension.key(), new DimensionCache(dimension));
     }
 
-    public void initKObject(KObject obj, KDimension currentDim, long currentNow) {
-        DimensionCache dimensionCache = caches.get(currentDim.key());
-        TimeCache timeCache = dimensionCache.timesCaches.get(currentNow);
+    public void initKObject(KObject obj, KView originView) {
+        DimensionCache dimensionCache = caches.get(originView.dimension().key());
+        TimeCache timeCache = dimensionCache.timesCaches.get(originView.now());
         if (timeCache == null) {
             timeCache = new TimeCache();
-            dimensionCache.timesCaches.put(currentNow, timeCache);
+            dimensionCache.timesCaches.put(originView.now(), timeCache);
+        }
+        if (!dimensionCache.timeTreeCache.containsKey(obj.kid())) {
+            dimensionCache.timeTreeCache.put(obj.kid(), obj.timeTree());
         }
         timeCache.obj_cache.put(obj.kid(), obj);
         timeCache.payload_cache.put(obj.kid(), new Object[obj.metaAttributes().length + obj.metaReferences().length + 2]);
@@ -68,8 +72,7 @@ public class DefaultKStore implements KStore {
         return objectKey;//TODO
     }
 
-    @Override
-    public KObject cacheLookup(KDimension dimension, long time, long key) {
+    private KObject cacheLookup(KDimension dimension, long time, long key) {
         DimensionCache dimensionCache = caches.get(dimension.key());
         TimeCache timeCache = dimensionCache.timesCaches.get(time);
         if (timeCache == null) {
@@ -79,8 +82,7 @@ public class DefaultKStore implements KStore {
         }
     }
 
-    @Override
-    public List<KObject> cacheLookupAll(KDimension dimension, long time, Set<Long> keys) {
+    private List<KObject> cacheLookupAll(KDimension dimension, long time, Set<Long> keys) {
         List<KObject> resolved = new ArrayList<KObject>();
         for (Long kid : keys) {
             KObject res = cacheLookup(dimension, time, kid);
@@ -92,14 +94,47 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public Object[] raw(KDimension dimension, long time, long key) {
-        DimensionCache dimensionCache = caches.get(dimension.key());
-        TimeCache timeCache = dimensionCache.timesCaches.get(time);
+    public Object[] raw(KObject origin, long key, boolean write) {
+        DimensionCache dimensionCache = caches.get(origin.dimension().key());
+        long resolvedTime = origin.now();
+        boolean needCopy = write && resolvedTime != origin.factory().now();
+        TimeCache timeCache = dimensionCache.timesCaches.get(resolvedTime);
         if (timeCache == null) {
-            return null;
-        } else {
-            return timeCache.payload_cache.get(key);
+            timeCache = new TimeCache();
+            dimensionCache.timesCaches.put(resolvedTime, timeCache);
         }
+        Object[] payload = timeCache.payload_cache.get(key);
+        if (!needCopy) {
+            return payload;
+        } else {
+            //deep copy the structure
+            Object[] cloned = new Object[payload.length];
+            for (int i = 0; i < payload.length; i++) {
+                Object resolved = payload[i];
+                if (resolved != null) {
+                    if (resolved instanceof String) {
+                        cloned[i] = resolved;
+                    } else if (resolved instanceof Set) {
+                        HashSet<String> clonedSet = new HashSet<String>((Set<String>) resolved);
+                        cloned[i] = clonedSet;
+                    } else if (resolved instanceof List) {
+                        ArrayList<String> clonedSet = new ArrayList<String>((List<String>) resolved);
+                        cloned[i] = clonedSet;
+                    }
+                }
+            }
+
+            TimeCache timeCacheCurrent = dimensionCache.timesCaches.get(origin.factory().now());
+            if (timeCacheCurrent == null) {
+                timeCacheCurrent = new TimeCache();
+                dimensionCache.timesCaches.put(origin.factory().now(), timeCacheCurrent);
+            }
+            timeCache.payload_cache.put(key, cloned);
+            origin.timeTree().insert(origin.factory().now());
+            origin.factory().dimension().globalTimeTree().insert(origin.factory().now());
+            return cloned;
+        }
+
     }
 
     @Override
@@ -125,18 +160,33 @@ public class DefaultKStore implements KStore {
 
     @Override
     public TimeTree timeTree(KDimension dimension, long key) {
-        return null;
+        DimensionCache dimensionCache = caches.get(dimension.key());
+        TimeTree cachedTree = dimensionCache.timeTreeCache.get(key);
+        if (cachedTree == null) {
+            return null;
+        } else {
+            return cachedTree;
+        }
     }
 
+    //TODO protect for //call
+
     @Override
-    public void lookup(KDimension dimension, long time, long key, Callback<KObject> callback) {
-        KObject resolved = cacheLookup(dimension, time, key);
+    public void lookup(KView originView, long key, Callback<KObject> callback) {
+        TimeTree tree = timeTree(originView.dimension(), key);
+        long resolvedTime = tree.resolve(originView.now());
+        KObject resolved = cacheLookup(originView.dimension(), resolvedTime, key);
         if (resolved != null) {
-            callback.on(resolved);
+            if (originView.now() == resolvedTime) {
+                callback.on(resolved);
+            } else {
+                //create proxy
+                callback.on(resolved);
+            }
         } else {
-            db.get(keyPayload(dimension, time, key), (objPayLoad) -> {
+            db.get(keyPayload(originView.dimension(), resolvedTime, key), (objPayLoad) -> {
                 KObject newObject = SerializerHelper.load(objPayLoad);
-                initKObject(newObject, dimension, time);
+                initKObject(newObject, originView);
                 callback.on(newObject);
             }, (e) -> {
                 callback.on(null);
@@ -151,11 +201,11 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void lookupAll(KDimension dimension, long time, Set<Long> key, Callback<List<KObject>> callback) {
+    public void lookupAll(KView originView, Set<Long> key, Callback<List<KObject>> callback) {
         List<Long> toLoad = new ArrayList<Long>(key);
         List<KObject> resolveds = new ArrayList<KObject>();
         for (Long kid : key) {
-            KObject resolved = cacheLookup(dimension, time, kid);
+            KObject resolved = cacheLookup(originView.dimension(), originView.now(), kid);
             if (resolved != null) {
                 resolveds.add(resolved);
                 toLoad.remove(kid);

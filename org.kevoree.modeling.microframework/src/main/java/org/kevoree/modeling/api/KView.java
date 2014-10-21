@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.List;
 import java.util.Set;
@@ -45,5 +46,7 @@ public interface KView {
     public KDimension dimension();
 
     public long now();
+
+    public KObject createProxy(MetaClass clazz, TimeTree timeTree);
 
 }

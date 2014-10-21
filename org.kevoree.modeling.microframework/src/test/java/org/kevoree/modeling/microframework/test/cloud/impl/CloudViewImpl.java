@@ -1,18 +1,14 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
-import org.kevoree.modeling.api.util.Helper;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
-
-import java.util.List;
 
 /**
  * Created by duke on 10/9/14.
@@ -24,16 +20,19 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
     }
 
     @Override
-    public KObject create(MetaClass clazz) {
+    protected KObject internalCreate(MetaClass clazz, TimeTree timeTree) {
         if (clazz == null) {
             return null;
         }
-        TimeTree newTimeTree = new DefaultTimeTree().insert(now());
+        TimeTree resolvedTimeTree = timeTree;
+        if (resolvedTimeTree == null) {
+            resolvedTimeTree = new DefaultTimeTree().insert(now());
+        }
         switch (clazz.index()) {
             case 0:
-                return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
+                return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, dimension().universe().storage().nextObjectKey(), now(), dimension(), resolvedTimeTree));
             case 1:
-                return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, dimension().universe().storage().nextObjectKey(), now(), dimension(), newTimeTree));
+                return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, dimension().universe().storage().nextObjectKey(), now(), dimension(), resolvedTimeTree));
             default:
                 return null;
         }

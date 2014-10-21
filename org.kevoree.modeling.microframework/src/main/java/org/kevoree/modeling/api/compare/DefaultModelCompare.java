@@ -148,13 +148,13 @@ public class DefaultModelCompare implements ModelCompare {
         if (references) {
             for (int i = 0; i < current.metaReferences().length; i++) {
                 MetaReference reference = current.metaReferences()[i];
-                Object payload = current.factory().dimension().universe().storage().raw(current.dimension(), current.now(), current.kid())[reference.index()];
+                Object payload = current.factory().dimension().universe().storage().raw(current, current.kid(),false)[reference.index()];
                 valuesRef.put(reference, payload);
             }
             if (sibling != null) {
                 for (int i = 0; i < sibling.metaReferences().length; i++) {
                     MetaReference reference = sibling.metaReferences()[i];
-                    Object payload2 = sibling.factory().dimension().universe().storage().raw(sibling.dimension(), sibling.now(), sibling.kid())[reference.index()];
+                    Object payload2 = sibling.factory().dimension().universe().storage().raw(sibling, sibling.kid(),false)[reference.index()];
                     Object payload1 = valuesRef.get(reference);
                     if (reference.single()) {
                         boolean isEquals = true;
