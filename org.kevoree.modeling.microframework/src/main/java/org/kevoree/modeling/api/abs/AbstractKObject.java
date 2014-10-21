@@ -24,12 +24,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     private boolean isDirty = false;
 
-    public boolean dirty() {
+    public boolean isDirty() {
         return isDirty;
     }
 
-    public void setDirty(boolean dirty) {
-        isDirty = dirty;
+    public void setDirty(boolean isDirty) {
+        this.isDirty = isDirty;
     }
 
     private B factory;
@@ -214,7 +214,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public String key() {
+    public String domainKey() {
         StringBuilder builder = new StringBuilder();
         MetaAttribute[] atts = metaAttributes();
         for (int i = 0; i < atts.length; i++) {
@@ -227,7 +227,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 builder.append("=");
                 Object payload = get(att);
                 if (payload != null) {
-                    builder.append(payload.toString());//TODO, forbid multiple cardinality as key
+                    builder.append(payload.toString());//TODO, forbid multiple cardinality as domainKey
                 }
             }
         }

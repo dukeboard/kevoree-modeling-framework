@@ -11,7 +11,7 @@ import org.kevoree.modeling.api.time.rbtree.State;
  */
 
 /*
- *  key : path
+ *  domainKey : path
   * */
 
 public class DefaultTimeTree implements TimeTree {

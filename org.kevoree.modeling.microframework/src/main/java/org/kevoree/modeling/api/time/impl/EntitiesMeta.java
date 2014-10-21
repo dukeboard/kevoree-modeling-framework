@@ -7,7 +7,7 @@ import java.util.HashSet;
  */
 
 /*
- *  key : path
+ *  domainKey : path
   * */
 
 public class EntitiesMeta {

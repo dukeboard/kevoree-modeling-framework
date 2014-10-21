@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public interface KObject<A extends KObject, B extends KView> {
 
-    public boolean dirty();
+    public boolean isDirty();
 
     public KDimension dimension();
 
@@ -75,7 +75,7 @@ public interface KObject<A extends KObject, B extends KView> {
     /* Reflexive API */
     public MetaReference referenceInParent();
 
-    public String key();
+    public String domainKey();
 
     public MetaClass metaClass();
 

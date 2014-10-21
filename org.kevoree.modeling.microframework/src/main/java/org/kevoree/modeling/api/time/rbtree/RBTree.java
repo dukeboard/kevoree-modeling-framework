@@ -419,7 +419,7 @@ public class RBTree {
         } else {
             size--;
             if (n.left != null && n.right != null) {
-                // Copy key/value from predecessor and then delete it instead
+                // Copy domainKey/value from predecessor and then delete it instead
                 Node pred = n.left;
                 while (pred.right != null) {
                     pred = pred.right;

@@ -35,21 +35,21 @@ public class TimeTest {
 
         // create a new version element1
         Element element1 = t1.createElement();
-        t1.lookup(node0.kid(), kObject -> {
+        t1.lookup(node0.uuid(), kObject -> {
             ((Node) kObject).setElement(element1);
         });
 
         //
-        t0.lookup(node0.kid(), kObject -> {
+        t0.lookup(node0.uuid(), kObject -> {
             System.out.println(kObject);
         });
 
-        t1.lookup(node0.kid(), kObject -> {
+        t1.lookup(node0.uuid(), kObject -> {
             System.out.println(kObject);
         });
 
         // protected against null callback?
-        t0.lookup(node0.kid(), null);
+        t0.lookup(node0.uuid(), null);
 
     }
 }

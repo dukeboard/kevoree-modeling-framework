@@ -130,7 +130,7 @@ public class Node {
     unefficient for the moment
     fun serializeBinary(buffer: ByteBuffer) {
         buffer.put(0)
-        buffer.putLong(key)
+        buffer.putLong(domainKey)
         if(value == STATE.EXISTS){
             buffer.put(0)
         } else {

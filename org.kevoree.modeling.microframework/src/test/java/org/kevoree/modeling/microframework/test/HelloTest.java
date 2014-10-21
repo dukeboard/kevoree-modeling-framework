@@ -32,10 +32,10 @@ public class HelloTest {
         // assertNotNull(nodeT0.path());
 
         assertNull(nodeT0.getName());
-        assertEquals("name=", nodeT0.key());
+        assertEquals("name=", nodeT0.domainKey());
         nodeT0.setName("node0");
         assertEquals("node0", nodeT0.getName());
-        assertEquals("name=node0", nodeT0.key());
+        assertEquals("name=node0", nodeT0.domainKey());
         assertEquals(0l, nodeT0.now());
 
 //        assertNull(nodeT0.parentPath());

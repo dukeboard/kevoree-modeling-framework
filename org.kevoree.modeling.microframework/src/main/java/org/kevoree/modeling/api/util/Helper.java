@@ -4,8 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaReference;
 
-import java.util.UUID;
-
 /**
  * Created by duke on 10/8/14.
  */
@@ -77,9 +75,9 @@ public class Helper {
 
     public static String path(String parent, MetaReference reference, KObject target) {
         if (isRoot(parent)) {
-            return pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;
+            return pathSep + reference.metaName() + pathIDOpen + target.domainKey() + pathIDClose;
         } else {
-            return parent + pathSep + reference.metaName() + pathIDOpen + target.key() + pathIDClose;
+            return parent + pathSep + reference.metaName() + pathIDOpen + target.domainKey() + pathIDClose;
         }
     }
 

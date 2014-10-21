@@ -93,7 +93,7 @@ public class RBTreeTest {
 
         // printTree(tree.root!!)
         for (long i = 0; i < 5; i++) {
-            //println("i:" + i + " -> " + tree.upperUntil(i, State.DELETED)?.key + " != " + (i+1))
+            //println("i:" + i + " -> " + tree.upperUntil(i, State.DELETED)?.domainKey + " != " + (i+1))
             assertTrue(tree.nextWhileNot(i, State.DELETED).getKey() == (i + 1));
         }
         assertTrue(tree.nextWhileNot(5, State.DELETED) != null && tree.nextWhileNot(5, State.DELETED).getKey() == 6L);
