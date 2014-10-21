@@ -281,6 +281,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                     //Container
                     if (metaReference.contained()) {
+                        if(param.parentKID() != null) {
+                            factory().lookup(param.parentKID(), (parent) -> {
+                                parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
+                            });
+                        }
                         ((AbstractKObject) param).setReferenceInParent(metaReference);
                         ((AbstractKObject) param).setParentUuid(kid);
                     }
@@ -377,7 +382,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public int size(MetaReference metaReference) {
-        return factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ).length;
+        return ((Set)factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()]).size();
     }
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
