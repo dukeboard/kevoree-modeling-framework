@@ -74,7 +74,7 @@ public class JSONModelSerializer implements ModelSerializer {
             }
         }
         for (int i = 0; i < elem.metaReferences().length; i++) {
-            Object[] raw = elem.factory().dimension().universe().storage().raw(elem, elem.kid(),false);
+            Object[] raw = elem.factory().dimension().universe().storage().raw(elem, elem.kid(), false);
             Object payload = null;
             if (raw != null) {
                 payload = raw[elem.metaReferences()[i].index()];

@@ -15,6 +15,8 @@ import java.util.Set;
  */
 public interface KObject<A extends KObject, B extends KView> {
 
+    public boolean dirty();
+
     public KDimension dimension();
 
     public boolean isDeleted();

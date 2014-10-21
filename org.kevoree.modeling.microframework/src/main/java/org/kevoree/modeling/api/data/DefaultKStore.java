@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.*;
@@ -105,6 +106,9 @@ public class DefaultKStore implements KStore {
 
     @Override
     public Object[] raw(KObject origin, long key, boolean write) {
+        if (write) {
+            ((AbstractKObject) origin).setDirty(write);
+        }
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         long resolvedTime = origin.now();
         boolean needCopy = write && resolvedTime != origin.factory().now();
@@ -116,7 +120,7 @@ public class DefaultKStore implements KStore {
         Object[] payload = timeCache.payload_cache.get(key);
         if (payload == null) {
             payload = new Object[origin.metaAttributes().length + origin.metaReferences().length + 2];
-            if(write && !needCopy){
+            if (write && !needCopy) {
                 timeCache.payload_cache.put(key, payload);
             }
         }
@@ -199,14 +203,18 @@ public class DefaultKStore implements KStore {
                 callback.on(proxy);
             }
         } else {
-            db.get(keyPayload(originView.dimension(), resolvedTime, key), (objPayLoad) -> {
-                KObject newObject = SerializerHelper.load(objPayLoad);
-                initKObject(newObject, originView);
-                callback.on(newObject);
-            }, (e) -> {
-                callback.on(null);
-            });
+            loadObjectInCache(originView, key, resolvedTime, callback);
         }
+    }
+
+    private void loadObjectInCache(KView originView, long key, long resolvedTime, Callback<KObject> callback) {
+        db.get(keyPayload(originView.dimension(), resolvedTime, key), (objPayLoad) -> {
+            KObject newObject = SerializerHelper.load(objPayLoad);
+            initKObject(newObject, originView);
+            callback.on(newObject);
+        }, (e) -> {
+            callback.on(null);
+        });
     }
 
     @Override
@@ -228,6 +236,7 @@ public class DefaultKStore implements KStore {
             callback.on(null);
         }
     }
+
 
     @Override
     public KDimension getDimension(long key) {

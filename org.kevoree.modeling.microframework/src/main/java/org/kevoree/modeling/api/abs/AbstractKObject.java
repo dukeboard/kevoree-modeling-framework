@@ -22,6 +22,16 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public final static int PARENT_INDEX = 0;
     public final static int INBOUNDS_INDEX = 1;
 
+    private boolean isDirty = false;
+
+    public boolean dirty() {
+        return isDirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        isDirty = dirty;
+    }
+
     private B factory;
 
     private MetaClass metaClass;
@@ -314,7 +324,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 break;
             case REMOVE:
                 if (metaReference.single()) {
-                    Object[] raw = factory().dimension().universe().storage().raw(this, kid(),true);
+                    Object[] raw = factory().dimension().universe().storage().raw(this, kid(), true);
                     Object previousKid = raw[metaReference.index()];
                     raw[metaReference.index()] = null;
                     if (previousKid != null) {
@@ -334,7 +344,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         });
                     }
                 } else {
-                    Object[] payload = factory().dimension().universe().storage().raw(this, kid(),true);
+                    Object[] payload = factory().dimension().universe().storage().raw(this, kid(), true);
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
                         Set<Long> previousList = (Set<Long>) previous;
@@ -363,7 +373,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
-        Object o = factory().dimension().universe().storage().raw(this, kid(),false)[metaReference.index()];
+        Object o = factory().dimension().universe().storage().raw(this, kid(), false)[metaReference.index()];
         if (o == null) {
             if (end != null) {
                 end.on(null);
@@ -445,7 +455,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         for (int i = 0; i < metaReferences().length; i++) {
             MetaReference reference = metaReferences()[i];
             if (!(treeOnly && !reference.contained())) {
-                Object[] raw = factory().dimension().universe().storage().raw(this, kid(),false);
+                Object[] raw = factory().dimension().universe().storage().raw(this, kid(), false);
                 Object o = null;
                 if (raw != null) {
                     o = raw[reference.index()];
@@ -543,7 +553,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
         for (int i = 0; i < metaReferences().length; i++) {
-            Object[] raw = factory().dimension().universe().storage().raw(this, kid(),false);
+            Object[] raw = factory().dimension().universe().storage().raw(this, kid(), false);
             Object payload = null;
             if (raw != null) {
                 payload = raw[metaReferences()[i].index()];
