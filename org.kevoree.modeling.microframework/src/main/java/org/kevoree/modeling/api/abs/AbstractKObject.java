@@ -266,8 +266,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
 
     private void removeFromContainer(KObject param, boolean fireEvent) {
-        if(param != null && param.parentKID() != null && param.parentKID() != kid) {
-            factory().lookup(param.parentKID(), (parent) -> {
+        if(param != null && param.parentUuid() != null && param.parentUuid() != kid) {
+            factory().lookup(param.parentUuid(), (parent) -> {
                 parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
             });
         }
