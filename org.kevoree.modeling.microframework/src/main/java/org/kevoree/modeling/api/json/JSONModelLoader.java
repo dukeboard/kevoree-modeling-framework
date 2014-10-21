@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 
@@ -84,7 +85,7 @@ public class JSONModelLoader implements ModelLoader {
                 String meta = elem.get(JSONModelSerializer.keyMeta).toString();
                 Long kid = Long.parseLong(elem.get(JSONModelSerializer.keyKid).toString());
                 KObject current = factory.createProxy(factory.metaClass(meta), factory.dimension().timeTree(kid), kid);
-                Object[] payloadObj = factory.dimension().universe().storage().raw(current, true);
+                Object[] payloadObj = factory.dimension().universe().storage().raw(current, KStore.AccessMode.WRITE);
                 for (String k : elem.keySet()) {
                     MetaAttribute att = current.metaAttribute(k);
                     if (att != null) {

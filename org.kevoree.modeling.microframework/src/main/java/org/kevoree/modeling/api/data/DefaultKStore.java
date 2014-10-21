@@ -105,13 +105,13 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public Object[] raw(KObject origin, boolean write) {
-        if (write) {
+    public Object[] raw(KObject origin, AccessMode accessMode) {
+        if (accessMode.equals(AccessMode.WRITE)) {
             ((AbstractKObject) origin).setDirty(true);
         }
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         long resolvedTime = origin.now();
-        boolean needCopy = write && resolvedTime != origin.factory().now();
+        boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.factory().now();
         TimeCache timeCache = dimensionCache.timesCaches.get(resolvedTime);
         if (timeCache == null) {
             timeCache = new TimeCache();
@@ -120,7 +120,7 @@ public class DefaultKStore implements KStore {
         Object[] payload = timeCache.payload_cache.get(origin.uuid());
         if (payload == null) {
             payload = new Object[origin.metaAttributes().length + origin.metaReferences().length + 2];
-            if (write && !needCopy) {
+            if (accessMode.equals(AccessMode.WRITE) && !needCopy) {
                 timeCache.payload_cache.put(origin.uuid(), payload);
             }
         }

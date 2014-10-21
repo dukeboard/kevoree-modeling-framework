@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelSerializer;
 import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.data.KStore;
 
 import java.io.*;
 import java.util.Set;
@@ -78,7 +79,7 @@ public class JSONModelSerializer implements ModelSerializer {
             }
         }
         for (int i = 0; i < elem.metaReferences().length; i++) {
-            Object[] raw = elem.factory().dimension().universe().storage().raw(elem, false);
+            Object[] raw = elem.factory().dimension().universe().storage().raw(elem, KStore.AccessMode.READ);
             Object payload = null;
             if (raw != null) {
                 payload = raw[elem.metaReferences()[i].index()];

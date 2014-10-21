@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.compare;
 
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.*;
@@ -148,13 +149,13 @@ public class DefaultModelCompare implements ModelCompare {
         if (references) {
             for (int i = 0; i < current.metaReferences().length; i++) {
                 MetaReference reference = current.metaReferences()[i];
-                Object payload = current.factory().dimension().universe().storage().raw(current,false)[reference.index()];
+                Object payload = current.factory().dimension().universe().storage().raw(current, KStore.AccessMode.READ)[reference.index()];
                 valuesRef.put(reference, payload);
             }
             if (sibling != null) {
                 for (int i = 0; i < sibling.metaReferences().length; i++) {
                     MetaReference reference = sibling.metaReferences()[i];
-                    Object payload2 = sibling.factory().dimension().universe().storage().raw(sibling,false)[reference.index()];
+                    Object payload2 = sibling.factory().dimension().universe().storage().raw(sibling, KStore.AccessMode.READ)[reference.index()];
                     Object payload1 = valuesRef.get(reference);
                     if (reference.single()) {
                         boolean isEquals = true;
