@@ -393,26 +393,26 @@ public class OppositeTest {
         a.parent((parent)->{assertEquals(b, parent);});
 
         b.addMultiA_multiB(a2);
-        assert(b.sizeOfMultiA_multiB() == 2);
-        assert(b2.sizeOfMultiA_multiB() == 0);
-        assert(a.sizeOfMultiA_multiB() == 1);
-        assert(a2.sizeOfMultiA_multiB() == 1);
+        assertEquals(2, b.sizeOfMultiA_multiB());
+        assertEquals(0, b2.sizeOfMultiA_multiB());
+        assertEquals(1, a.sizeOfMultiA_multiB());
+        assertEquals(1, a2.sizeOfMultiA_multiB());
         a.parent((parent)->{assertEquals(b, parent);});
         a2.parent((parent)->{assertEquals(b, parent);});
 
         b2.addMultiA_multiB(a2);
-        assert(b.sizeOfMultiA_multiB() == 1);
-        assert(b2.sizeOfMultiA_multiB() == 1);
-        assert(a.sizeOfMultiA_multiB() == 1);
-        assert(a2.sizeOfMultiA_multiB() == 1);
+        assertEquals(1, b.sizeOfMultiA_multiB());
+        assertEquals(1, b2.sizeOfMultiA_multiB());
+        assertEquals(1, a.sizeOfMultiA_multiB());
+        assertEquals(1, a2.sizeOfMultiA_multiB());
         a.parent((parent)->{assertEquals(b, parent);});
         a2.parent((parent)->{assertEquals(b2, parent);});
 
         b2.addMultiA_multiB(a2);
-        assert(b.sizeOfMultiA_multiB() == 1);
-        assert(b2.sizeOfMultiA_multiB() == 1);
-        assert(a.sizeOfMultiA_multiB() == 1);
-        assert(a2.sizeOfMultiA_multiB() == 1);
+        assertEquals(1, b.sizeOfMultiA_multiB());
+        assertEquals(1, b2.sizeOfMultiA_multiB());
+        assertEquals(1, a.sizeOfMultiA_multiB());
+        assertEquals(1, a2.sizeOfMultiA_multiB());
         a.parent((parent)->{assertEquals(b, parent);});
         a2.parent((parent)->{assertEquals(b2, parent);});
 

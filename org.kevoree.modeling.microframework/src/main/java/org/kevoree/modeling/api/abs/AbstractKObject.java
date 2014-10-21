@@ -265,6 +265,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
 
+    private void removeFromContainer(KObject param, boolean fireEvent) {
+        if(param != null && param.parentKID() != null && param.parentKID() != kid) {
+            factory().lookup(param.parentKID(), (parent) -> {
+                parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
+            });
+        }
+    }
+
+
     @Override
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent) {
         switch (actionType) {
@@ -281,11 +290,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                     //Container
                     if (metaReference.contained()) {
-                        if(param.parentKID() != null) {
-                            factory().lookup(param.parentKID(), (parent) -> {
-                                parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
-                            });
-                        }
+                        removeFromContainer(param, fireEvent);
                         ((AbstractKObject) param).setReferenceInParent(metaReference);
                         ((AbstractKObject) param).setParentUuid(kid);
                     }
@@ -311,6 +316,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         payload[metaReference.index()] = param.uuid();
                         //Container
                         if (metaReference.contained()) {
+                            removeFromContainer(param, fireEvent);
                             ((AbstractKObject) param).setReferenceInParent(metaReference);
                             ((AbstractKObject) param).setParentUuid(kid);
                         }
@@ -340,6 +346,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         factory.dimension().universe().storage().lookup(factory, (Long) previousKid, (resolvedParam) -> {
                             if (resolvedParam != null) {
                                 if (metaReference.contained()) {
+                                    //removeFromContainer(resolvedParam, fireEvent);
                                     ((AbstractKObject) resolvedParam).setReferenceInParent(null);
                                     ((AbstractKObject) resolvedParam).setParentUuid(null);
                                 }
@@ -363,6 +370,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                         previousList.remove(param.uuid());
                         if (metaReference.contained()) {
+                            //removeFromContainer(param, fireEvent);
                             ((AbstractKObject) param).setReferenceInParent(null);
                             ((AbstractKObject) param).setParentUuid(null);
                         }
