@@ -53,6 +53,17 @@ public class TimeTest {
         });
 
 
+        CloudView t2 = dimension0.time(2l);
+        Element element2 = t2.createElement();
+
+        t1.lookup(node0.uuid(), kObject -> {
+            ((Node) kObject).getElement(element -> {
+                assertNotNull("Element1 should be resolved", element);
+                assertEquals("Element1 should have time 1", element.now(), 1l);
+            });
+        });
+
+
         // protected against null callback?
         t0.lookup(node0.uuid(), null);
 
