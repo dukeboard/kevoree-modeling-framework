@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.*;
@@ -169,12 +170,30 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void save(KDimension dimension, Callback<Throwable> callback) {
-        new Exception("Not implemented yet !");
+        DimensionCache dimensionCache = caches.get(dimension.key());
+        if (dimensionCache == null) {
+            callback.on(null);
+        } else {
+            for (TimeCache timeCache : dimensionCache.timesCaches.values()) {
+                for (KObject cached : timeCache.obj_cache.values()) {
+                    if (cached.isDirty()) {
+                        String key = keyPayload(dimension, cached.now(), cached.uuid());
+                        String payload = cached.toJSON();
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void saveUnload(KDimension dimension, Callback<Throwable> callback) {
-        new Exception("Not implemented yet !");
+        save(dimension, (c) -> {
+            if (c == null) {
+                discard(dimension, callback);
+            } else {
+                callback.on(c);
+            }
+        });
     }
 
     @Override
@@ -206,15 +225,35 @@ public class DefaultKStore implements KStore {
                 callback.on(proxy);
             }
         } else {
-            loadObjectInCache(originView, key, resolvedTime, callback);
+            long[] keys = new long[1];
+            keys[0] = key;
+            loadObjectInCache(originView, keys, (cl) -> {
+                List<KObject> dbResolved = cl;
+                if (dbResolved.size() == 0) {
+                    callback.on(null);
+                } else {
+                    KObject dbResolvedZero = dbResolved.get(0);
+                    if (resolvedTime != originView.now()) {
+                        KObject proxy = originView.createProxy(dbResolvedZero.metaClass(), dbResolvedZero.timeTree(), key);
+                        callback.on(proxy);
+                    } else {
+                        callback.on(dbResolvedZero);
+                    }
+                }
+            });
         }
     }
 
-    private void loadObjectInCache(KView originView, long key, long resolvedTime, Callback<KObject> callback) {
-        db.get(keyPayload(originView.dimension(), resolvedTime, key), (objPayLoad) -> {
-            KObject newObject = SerializerHelper.load(objPayLoad);
-            initKObject(newObject, originView);
-            callback.on(newObject);
+    private void loadObjectInCache(KView originView, long[] keys, Callback<List<KObject>> callback) {
+        String[] objStringKeys = new String[keys.length];
+        for (int i = 0; i < keys.length; i++) {
+            TimeTree tree = timeTree(originView.dimension(), keys[i]);
+            long resolvedTime = tree.resolve(originView.now());
+            objStringKeys[i] = keyPayload(originView.dimension(), resolvedTime, keys[i]);
+        }
+        db.get(objStringKeys, (objectPayloads) -> {
+            List<KObject> objs = JSONModelLoader.load(objectPayloads, originView);//TODO
+            callback.on(objs);
         }, (e) -> {
             callback.on(null);
         });
@@ -232,11 +271,37 @@ public class DefaultKStore implements KStore {
             }
         }
         if (toLoad.size() == 0) {
-            callback.on(resolveds);
+            List<KObject> proxies = new ArrayList<KObject>();
+            for (KObject res : resolveds) {
+                if (res.now() != originView.now()) {
+                    KObject proxy = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
+                    proxies.add(proxy);
+                } else {
+                    proxies.add(res);
+                }
+            }
+            callback.on(proxies);
         } else {
-            //resolve
-            //TODO load the rest of object
-            callback.on(null);
+            long[] toLoadKeys = new long[toLoad.size()];
+            for (int i = 0; i < toLoad.size(); i++) {
+                toLoadKeys[i] = toLoad.get(i);
+            }
+            loadObjectInCache(originView, toLoadKeys, new Callback<List<KObject>>() {
+                @Override
+                public void on(List<KObject> additional) {
+                    resolveds.addAll(additional);
+                    List<KObject> proxies = new ArrayList<KObject>();
+                    for (KObject res : resolveds) {
+                        if (res.now() != originView.now()) {
+                            KObject proxy = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
+                            proxies.add(proxy);
+                        } else {
+                            proxies.add(res);
+                        }
+                    }
+                    callback.on(proxies);
+                }
+            });
         }
     }
 

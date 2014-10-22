@@ -13,15 +13,15 @@ import org.kevoree.modeling.api.events.ModelEvent;
 
 public interface KDataBase {
 
-    public void get(String key, Callback<String> callback, Callback<Exception> error);
+    public void get(String[] keys, Callback<String[]> callback, Callback<Throwable> error);
 
-    public void put(String key, String value, Callback<Boolean> callback, Callback<Exception> error);
+    public void put(String[][] payloads, Callback<Throwable> error);
 
-    public void remove(String key, Callback<Boolean> callback, Callback<Exception> error);
+    public void remove(String[] keys, Callback<Throwable> error);
 
-    public void commit(Callback<String> callback, Callback<Exception> error);
+    public void commit(Callback<Throwable> error);
 
-    public void close(Callback<String> callback, Callback<Exception> error);
+    public void close(Callback<Throwable> error);
 
     public void notify(ModelEvent event);
 
