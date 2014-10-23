@@ -33,35 +33,37 @@ public class TimeTest {
         // create time 0
         CloudView t1 = dimension0.time(1l);
 
-        // create a new version element1
+        // create element at time t1
         Element element1 = t1.createElement();
         assertEquals(element1.now(), t1.now());
 
         t1.lookup(node0.uuid(), kObject -> {
             ((Node) kObject).setElement(element1);
 
-            //
+            // lookup node
             t0.lookup(node0.uuid(), kObject_t0 -> {
-                assertEquals("Node0 should be created with time 0", kObject_t0.now(), 0l);
+                assertEquals("Node should be resolved with time 0", kObject_t0.now(), 0l);
             });
 
             //
             t1.lookup(node0.uuid(), kObject_t1 -> {
-                assertEquals("Node0 should be created with time 0", kObject_t1.now(), 1l);
+                assertEquals("Node should be resolved with time 1", kObject_t1.now(), 1l);
             });
 
         });
 
-
-        CloudView t2 = dimension0.time(2l);
-        Element element2 = t2.createElement();
-
+        // test navigation from node to element at t1
         t1.lookup(node0.uuid(), kObject -> {
             ((Node) kObject).getElement(element -> {
                 assertNotNull("Element1 should be resolved", element);
                 assertEquals("Element1 should have time 1", element.now(), 1l);
             });
         });
+
+
+        CloudView t2 = dimension0.time(2l);
+        Element element2 = t2.createElement();
+
 
 
         // protected against null callback?
