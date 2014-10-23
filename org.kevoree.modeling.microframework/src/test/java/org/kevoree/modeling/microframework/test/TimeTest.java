@@ -50,6 +50,10 @@ public class TimeTest {
                 assertEquals("Node should be resolved with time 1", kObject_t1.now(), 1l);
             });
 
+            ((Node) kObject).getElement((e)->{
+                assertNotNull(e);
+            });
+
         });
 
         // test navigation from node to element at t1
@@ -63,7 +67,6 @@ public class TimeTest {
 
         CloudView t2 = dimension0.time(2l);
         Element element2 = t2.createElement();
-
 
 
         // protected against null callback?
