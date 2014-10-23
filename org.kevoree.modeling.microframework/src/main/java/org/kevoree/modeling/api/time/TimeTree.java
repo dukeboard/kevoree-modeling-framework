@@ -29,4 +29,7 @@ public interface TimeTree {
     public TimeTree insert(long time);
 
     //TODO nextGeneration
+
+    public boolean isDirty();
+
 }

@@ -138,7 +138,17 @@ public class DefaultTimeTree implements TimeTree {
     @Override
     public TimeTree insert(long time) {
         versionTree.insert(time, State.EXISTS);
+        dirty = true;
         return this;
+    }
+
+    @Override
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean state) {
+        dirty = state;
     }
 
     @Override

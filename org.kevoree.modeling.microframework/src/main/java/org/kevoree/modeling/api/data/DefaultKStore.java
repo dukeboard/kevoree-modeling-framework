@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 
 import java.util.*;
 
@@ -42,6 +43,10 @@ public class DefaultKStore implements KStore {
 
     private String keyPayload(KDimension dim, long time, long key) {
         return "" + dim.key() + keySep + time + keySep + key;
+    }
+
+    private String keyTree(KDimension dim, long key) {
+        return "" + dim.key() + keySep + key;
     }
 
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
@@ -174,14 +179,41 @@ public class DefaultKStore implements KStore {
         if (dimensionCache == null) {
             callback.on(null);
         } else {
+            int sizeCache = 0;
             for (TimeCache timeCache : dimensionCache.timesCaches.values()) {
                 for (KObject cached : timeCache.obj_cache.values()) {
                     if (cached.isDirty()) {
-                        String key = keyPayload(dimension, cached.now(), cached.uuid());
-                        String payload = cached.toJSON();
+                        sizeCache++;
                     }
                 }
             }
+            for (TimeTree timeTree : dimensionCache.timeTreeCache.values()) {
+                if (timeTree.isDirty()) {
+                    sizeCache++;
+                }
+            }
+            String[][] payloads = new String[sizeCache][2];
+            int i = 0;
+            for (TimeCache timeCache : dimensionCache.timesCaches.values()) {
+                for (KObject cached : timeCache.obj_cache.values()) { //TODO call directly the ToJSON on the the Object[] raw
+                    if (cached.isDirty()) {
+                        payloads[i][0] = keyPayload(dimension, cached.now(), cached.uuid());
+                        payloads[i][1] = cached.toJSON();
+                        ((AbstractKObject) cached).setDirty(false);
+                        i++;
+                    }
+                }
+            }
+            for (Long timeTreeKey : dimensionCache.timeTreeCache.keySet()) {
+                TimeTree timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
+                if (timeTree.isDirty()) {
+                    payloads[i][0] = keyTree(dimension, timeTreeKey);
+                    payloads[i][1] = timeTree.toString();
+                    ((DefaultTimeTree) timeTree).setDirty(false);
+                    i++;
+                }
+            }
+            callback.on(null);
         }
     }
 
