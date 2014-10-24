@@ -32,7 +32,9 @@ public interface KStore {
 
     public void delete(KDimension dimension, Callback<Throwable> callback);
 
-    public TimeTree timeTree(KDimension dimension, long key);
+    public void timeTree(KDimension dimension, long key, Callback<TimeTree> callback);
+
+    public void timeTrees(KDimension dimension, long[] keys, Callback<TimeTree[]> callback);
 
     public void initKObject(KObject obj, KView originView);
 

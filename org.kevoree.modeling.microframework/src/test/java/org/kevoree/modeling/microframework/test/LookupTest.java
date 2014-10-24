@@ -13,24 +13,27 @@ import org.kevoree.modeling.microframework.test.cloud.Node;
 public class LookupTest {
 
     @Test
-    public void lookupTest() {
+    public void lookupTest() throws Exception {
 
         MemoryKDataBase dataBase = new MemoryKDataBase();
 
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse(dataBase);
         CloudDimension dimension0 = universe.create();
 
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
+
         node.setName("n0");
 
         dimension0.save((e) -> {
             CloudUniverse universe2 = new CloudUniverse(dataBase);
-            CloudDimension dimension0_2 = universe.create();
+            CloudDimension dimension0_2 = universe2.create(); //devrait pas marcher ...
             CloudView t0_2 = dimension0_2.time(0l);
+
             t0_2.lookup(node.uuid(), (resolved) -> {
                 System.out.println(resolved);
             });
+
         });
 
     }

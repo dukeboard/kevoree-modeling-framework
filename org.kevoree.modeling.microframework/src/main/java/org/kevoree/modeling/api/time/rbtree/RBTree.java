@@ -31,7 +31,7 @@ public class RBTree {
 
 
     public void unserialize(String payload) throws Exception {
-        if (payload.length() == 0) {
+        if (payload == null || payload.length() == 0) {
             return;
         }
         int i = 0;

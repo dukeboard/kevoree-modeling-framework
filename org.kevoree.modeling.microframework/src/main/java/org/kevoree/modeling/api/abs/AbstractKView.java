@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
@@ -126,7 +127,7 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public KObject create(MetaClass clazz) {
-        return internalCreate(clazz, null, dimension().universe().storage().nextObjectKey());
+        return internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
     }
 
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
