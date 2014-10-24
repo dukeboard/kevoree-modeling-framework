@@ -472,7 +472,7 @@ public class DefaultKStore implements KStore {
         }
     }
 
-    public synchronized void setRoot(KObject newRoot, Callback<KObject> callback) {
+    public synchronized void setRoot(KObject newRoot) {
         DimensionCache dimensionCache = caches.get(newRoot.dimension().key());
         TimeCache timeCache = dimensionCache.timesCaches.get(newRoot.now());
         timeCache.root = newRoot;

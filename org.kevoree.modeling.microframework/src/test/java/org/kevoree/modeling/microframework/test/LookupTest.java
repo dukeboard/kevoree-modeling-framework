@@ -6,6 +6,8 @@ import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
+import static org.junit.Assert.*;
+
 /**
  * Created by duke on 10/23/14.
  */
@@ -19,6 +21,15 @@ public class LookupTest {
             CloudView t0 = dimension0.time(0l);
             Node node = t0.createNode();
             node.setName("n0");
+            t0.setRoot(node);
+            assertTrue(node.isRoot());
+            universe.storage().getRoot(t0, (resolvedRoot) -> {
+                assertEquals(node, resolvedRoot);
+            });
+
+            assertTrue(node.isRoot());
+
+
             dimension0.save((e) -> {
                 CloudUniverse universe2 = new CloudUniverse(dataBase);
                 universe2.dimension(dimension0.key(), (dimension0_2) -> {
