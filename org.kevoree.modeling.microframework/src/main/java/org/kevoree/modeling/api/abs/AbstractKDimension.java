@@ -55,18 +55,11 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
         universe().storage().discard(this, callback);
     }
 
-    private TimeTree globalTimeTree = new DefaultTimeTree(); //TODO
-
-    @Override
-    public TimeTree globalTimeTree() {
-        return globalTimeTree;
-    }
-
     public void timeTrees(long[] keys, Callback<TimeTree[]> callback) {
         universe().storage().timeTrees(this, keys, callback);
     }
 
-    public void timeTree(long key, Callback<TimeTree> callback){
+    public void timeTree(long key, Callback<TimeTree> callback) {
         universe().storage().timeTree(this, key, callback);
     }
 

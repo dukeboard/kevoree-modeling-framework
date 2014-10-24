@@ -9,9 +9,9 @@ import org.kevoree.modeling.api.events.ModelElementListener;
 
 public interface KUniverse<A extends KDimension> {
 
-    public A create();
+    public void newDimension(Callback<A> callback);
 
-    public A get(long key);
+    public void dimension(long key, Callback<A> callback);
 
     public void saveAll(Callback<Boolean> callback);
 

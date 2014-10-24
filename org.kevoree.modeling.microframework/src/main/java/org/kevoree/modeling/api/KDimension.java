@@ -28,8 +28,6 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
 
     public A time(Long timePoint);
 
-    public TimeTree globalTimeTree();
-
     public void timeTrees(long[] keys, Callback<TimeTree[]> callback);
 
     public void timeTree(long key, Callback<TimeTree> callback);

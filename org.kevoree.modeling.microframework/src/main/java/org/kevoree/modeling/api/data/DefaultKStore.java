@@ -157,7 +157,6 @@ public class DefaultKStore implements KStore {
             }
             timeCache.payload_cache.put(origin.uuid(), cloned);
             origin.timeTree().insert(origin.factory().now());
-            origin.factory().dimension().globalTimeTree().insert(origin.factory().now());
             return cloned;
         }
     }
