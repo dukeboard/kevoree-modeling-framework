@@ -46,4 +46,8 @@ public interface KStore {
 
     KDimension getDimension(long key);
 
+    public void getRoot(KView originView, Callback<KObject> callback);
+
+    public void setRoot(KObject newRoot, Callback<KObject> callback);
+
 }

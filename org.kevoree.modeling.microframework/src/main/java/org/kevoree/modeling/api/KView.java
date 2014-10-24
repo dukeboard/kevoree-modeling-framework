@@ -48,7 +48,5 @@ public interface KView {
     public long now();
 
     public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key);
-
-    public void root(Callback<KObject> callback);
-
+    
 }

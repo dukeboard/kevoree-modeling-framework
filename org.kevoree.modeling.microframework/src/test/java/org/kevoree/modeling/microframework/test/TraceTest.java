@@ -19,7 +19,7 @@ public class TraceTest {
         universe.newDimension((dimension0)->{
             CloudView time0 = dimension0.time(0l);
             Node root = time0.createNode();
-            time0.root(root);
+            time0.setRoot(root);
             root.setName("root");
 
             Node n1 = time0.createNode();

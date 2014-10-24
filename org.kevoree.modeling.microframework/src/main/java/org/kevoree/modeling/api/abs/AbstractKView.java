@@ -102,18 +102,6 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void root(Callback<KObject> callback){
-        Long resolved = ((AbstractKDimension)dimension()).getRootTimeTree().resolve(now());
-        if(resolved == null){
-            callback.on(null);
-        } else {
-
-        }
-    }
-
-
-
-    @Override
     public void select(String query, Callback<List<KObject>> callback) {
         //TODO
     }

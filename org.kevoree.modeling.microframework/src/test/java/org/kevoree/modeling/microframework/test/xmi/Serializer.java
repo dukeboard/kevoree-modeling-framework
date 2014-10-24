@@ -25,7 +25,7 @@ public class Serializer {
             nodeT0.setName("node0");
            /*
            */
-            t0.root(nodeT0);
+            t0.setRoot(nodeT0);
             Element child0 = t0.createElement();
             nodeT0.setElement(child0);
             Node nodeT1 = t0.createNode();

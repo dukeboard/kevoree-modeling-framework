@@ -16,11 +16,11 @@ import java.util.*;
  */
 public class DefaultKStore implements KStore {
 
-    private static final String keyObjectCounter = "#obj_counter";
+    private static final String keyObjectCounter = "#obj_ct";
 
-    private static final String keyDimensionCounter = "#dim_counter";
+    private static final String keyDimensionCounter = "#dim_ct";
 
-    private static final String keyGlobalTimeTree = "#main_timetree";
+    private static final String keyGlobalTimeTree = ",roots";
 
     private static final char keySep = ',';
 
@@ -30,6 +30,7 @@ public class DefaultKStore implements KStore {
         protected Map<Long, TimeTree> timeTreeCache = new HashMap<Long, TimeTree>();
         protected Map<Long, TimeCache> timesCaches = new HashMap<Long, TimeCache>();
         protected KDimension dimension;
+        protected TimeTree rootTimeTree = new DefaultTimeTree();
 
         public DimensionCache(KDimension dimension) {
             this.dimension = dimension;
@@ -39,6 +40,8 @@ public class DefaultKStore implements KStore {
     private class TimeCache {
         protected Map<Long, KObject> obj_cache = new HashMap<Long, KObject>();
         protected Map<Long, Object[]> payload_cache = new HashMap<Long, Object[]>();
+        protected KObject root = null;
+        protected boolean rootDirty = false;
     }
 
     private String keyPayload(KDimension dim, long time, long key) {
@@ -47,6 +50,14 @@ public class DefaultKStore implements KStore {
 
     private String keyTree(KDimension dim, long key) {
         return "" + dim.key() + keySep + key;
+    }
+
+    private String keyRoot(KDimension dim, long time) {
+        return dim.key() + keySep + time + keySep + "root";
+    }
+
+    private String keyRootTree(KDimension dim) {
+        return dim.key() + keySep + "root";
     }
 
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
@@ -185,11 +196,17 @@ public class DefaultKStore implements KStore {
                         sizeCache++;
                     }
                 }
+                if (timeCache.rootDirty) {
+                    sizeCache++;
+                }
             }
             for (TimeTree timeTree : dimensionCache.timeTreeCache.values()) {
                 if (timeTree.isDirty()) {
                     sizeCache++;
                 }
+            }
+            if (dimensionCache.rootTimeTree.isDirty()) {
+                sizeCache++;
             }
             String[][] payloads = new String[sizeCache][2];
             int i = 0;
@@ -202,6 +219,12 @@ public class DefaultKStore implements KStore {
                         i++;
                     }
                 }
+                if (timeCache.rootDirty) {
+                    payloads[i][0] = keyRoot(dimension, timeCache.root.now());
+                    payloads[i][1] = timeCache.root.uuid() + "";
+                    timeCache.rootDirty = false;
+                    i++;
+                }
             }
             for (Long timeTreeKey : dimensionCache.timeTreeCache.keySet()) {
                 TimeTree timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
@@ -211,6 +234,12 @@ public class DefaultKStore implements KStore {
                     ((DefaultTimeTree) timeTree).setDirty(false);
                     i++;
                 }
+            }
+            if (dimensionCache.rootTimeTree.isDirty()) {
+                payloads[i][0] = keyRootTree(dimension);
+                payloads[i][1] = dimensionCache.rootTimeTree.toString();
+                ((DefaultTimeTree) dimensionCache.rootTimeTree).setDirty(false);
+                i++;
             }
             db.put(payloads, callback);
         }
@@ -391,7 +420,6 @@ public class DefaultKStore implements KStore {
         }
     }
 
-
     @Override
     public KDimension getDimension(long key) {
         DimensionCache dimensionCache = caches.get(key);
@@ -400,6 +428,42 @@ public class DefaultKStore implements KStore {
         } else {
             return null;
         }
+    }
+
+    public void getRoot(KView originView, Callback<KObject> callback) {
+        DimensionCache dimensionCache = caches.get(originView.dimension().key());
+        Long resolvedRoot = dimensionCache.rootTimeTree.resolve(originView.now());
+        if (resolvedRoot == null) {
+            callback.on(null);
+        } else {
+            TimeCache timeCache = dimensionCache.timesCaches.get(resolvedRoot);
+            if (timeCache.root != null) {
+                callback.on(timeCache.root);
+            } else {
+                String[] rootKeys = new String[1];
+                rootKeys[0] = keyRoot(dimensionCache.dimension, resolvedRoot);
+                db.get(rootKeys, (res) -> {
+                    try {
+                        Long idRoot = Long.parseLong(res[0]);
+                        lookup(originView, idRoot, callback);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        callback.on(null);
+                    }
+                }, (e) -> {
+                    e.printStackTrace();
+                    callback.on(null);
+                });
+            }
+        }
+    }
+
+    public synchronized void setRoot(KObject newRoot, Callback<KObject> callback) {
+        DimensionCache dimensionCache = caches.get(newRoot.dimension().key());
+        TimeCache timeCache = dimensionCache.timesCaches.get(newRoot.now());
+        timeCache.root = newRoot;
+        timeCache.rootDirty = true;
+        dimensionCache.rootTimeTree.insert(newRoot.now());
     }
 
 }
