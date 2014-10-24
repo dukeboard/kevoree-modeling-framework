@@ -30,8 +30,9 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     public void newDimension(Callback<A> callback) {
         long nextKey = storage.nextDimensionKey();
         A newDimension = internal_create(nextKey);
-        storage().initDimension(newDimension);
-        callback.on(newDimension);
+        storage().initDimension(newDimension, (e) -> {
+            callback.on(newDimension);
+        });
     }
 
     protected abstract A internal_create(long key);
@@ -43,8 +44,9 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
             callback.on(existingDimension);
         } else {
             A newDimension = internal_create(key);
-            storage().initDimension(newDimension);
-            callback.on(newDimension);
+            storage().initDimension(newDimension, (e) -> {
+                callback.on(newDimension);
+            });
         }
     }
 

@@ -18,7 +18,7 @@ public class JSONSaveTest {
     @Test
     public void jsonTest() {
         CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
-        universe.newDimension((dimension0)->{
+        universe.newDimension((dimension0) -> {
             CloudView time0 = dimension0.time(0l);
             Node root = time0.createNode();
             time0.setRoot(root);

@@ -66,8 +66,22 @@ public class DefaultKStore implements KStore {
         this.db = db;
     }
 
-    public void initDimension(KDimension dimension) {
-        caches.put(dimension.key(), new DimensionCache(dimension));
+    public void initDimension(KDimension dimension, Callback<Throwable> callback) {
+        DimensionCache dimensionCache = new DimensionCache(dimension);
+        caches.put(dimension.key(), dimensionCache);
+        String[] rootTreeKeys = new String[1];
+        rootTreeKeys[0] = keyRootTree(dimension);
+        db.get(rootTreeKeys, (res) -> {
+            try {
+                ((DefaultTimeTree) dimensionCache.rootTimeTree).load(res[0]);
+                callback.on(null);
+            } catch (Exception e) {
+                callback.on(e);
+            }
+        }, (e) -> {
+            e.printStackTrace();
+            callback.on(e);
+        });
     }
 
     public void initKObject(KObject obj, KView originView) {

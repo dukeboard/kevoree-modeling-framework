@@ -38,7 +38,7 @@ public interface KStore {
 
     public void initKObject(KObject obj, KView originView);
 
-    public void initDimension(KDimension dimension);
+    public void initDimension(KDimension dimension, Callback<Throwable> callback);
 
     long nextDimensionKey();
 
