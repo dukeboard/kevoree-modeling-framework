@@ -142,7 +142,7 @@ public class DefaultKStore implements KStore {
         }
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         long resolvedTime = origin.now();
-        boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.factory().now();
+        boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.view().now();
         TimeCache timeCache = dimensionCache.timesCaches.get(resolvedTime);
         if (timeCache == null) {
             timeCache = new TimeCache();
@@ -175,13 +175,13 @@ public class DefaultKStore implements KStore {
                 }
             }
 
-            TimeCache timeCacheCurrent = dimensionCache.timesCaches.get(origin.factory().now());
+            TimeCache timeCacheCurrent = dimensionCache.timesCaches.get(origin.view().now());
             if (timeCacheCurrent == null) {
                 timeCacheCurrent = new TimeCache();
-                dimensionCache.timesCaches.put(origin.factory().now(), timeCacheCurrent);
+                dimensionCache.timesCaches.put(origin.view().now(), timeCacheCurrent);
             }
             timeCache.payload_cache.put(origin.uuid(), cloned);
-            origin.timeTree().insert(origin.factory().now());
+            origin.timeTree().insert(origin.view().now());
             return cloned;
         }
     }

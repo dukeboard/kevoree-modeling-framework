@@ -31,7 +31,7 @@ public class DefaultModelCloner implements ModelCloner {
     }
 
     private fun cloneModelElem(src: KObject<*>): KObject {
-        val clonedSrc = factory.create(src.metaClassName())
+        val clonedSrc = view.create(src.metaClassName())
         val attributesCloner = object : ModelAttributeVisitor {
             public override fun visit(value: Any?, name: STRING, parent: KObject) {
                 if (value != null) {
@@ -99,7 +99,7 @@ public class DefaultModelCloner implements ModelCloner {
             clonedObject.setInternalReadOnly()
         }
         if (o.isRoot()) {
-            factory.root(clonedObject)
+            view.root(clonedObject)
         }
         return clonedObject as A
     }

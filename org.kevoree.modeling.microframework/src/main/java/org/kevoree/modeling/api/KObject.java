@@ -27,7 +27,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public void path(Callback<String> callback);
 
-    public B factory();
+    public B view();
 
     public void delete(Callback<Boolean> callback);
 

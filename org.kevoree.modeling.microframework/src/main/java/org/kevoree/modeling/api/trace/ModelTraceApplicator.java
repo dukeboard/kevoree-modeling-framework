@@ -43,7 +43,7 @@ public class ModelTraceApplicator {
 
     public void createOrAdd(Long previousPath, KObject target, MetaReference reference, MetaClass metaClass, Callback<Throwable> callback) {
         if (previousPath != null) {
-            targetModel.factory().lookup(previousPath, (targetElem) -> {
+            targetModel.view().lookup(previousPath, (targetElem) -> {
                 if (targetElem != null) {
                     target.mutate(KActionType.ADD, reference, targetElem, true, fireEvents);
                     callback.on(null);
@@ -51,7 +51,7 @@ public class ModelTraceApplicator {
                     if (metaClass == null) {
                         callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
                     } else {
-                        pendingObj = targetModel.factory().createFQN(metaClass.metaName());
+                        pendingObj = targetModel.view().createFQN(metaClass.metaName());
                         pendingObjKID = previousPath;
                         pendingParentRef = reference;
                         pendingParent = target;
@@ -63,7 +63,7 @@ public class ModelTraceApplicator {
             if (metaClass == null) {
                 callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
             } else {
-                pendingObj = targetModel.factory().createFQN(metaClass.metaName());
+                pendingObj = targetModel.view().createFQN(metaClass.metaName());
                 pendingObjKID = previousPath;
                 pendingParentRef = reference;
                 pendingParent = target;
@@ -87,7 +87,7 @@ public class ModelTraceApplicator {
         if (trace instanceof ModelAddTrace) {
             ModelAddTrace addTrace = (ModelAddTrace) trace;
             tryClosePending(null);
-            targetModel.factory().lookup(trace.getSrcKID(), (resolvedTarget) -> {
+            targetModel.view().lookup(trace.getSrcKID(), (resolvedTarget) -> {
                 if (resolvedTarget == null) {
                     callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                 } else {
@@ -97,9 +97,9 @@ public class ModelTraceApplicator {
         } else if (trace instanceof ModelRemoveTrace) {
             ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
             tryClosePending(trace.getSrcKID());
-            targetModel.factory().lookup(trace.getSrcKID(), (targetElem) -> {
+            targetModel.view().lookup(trace.getSrcKID(), (targetElem) -> {
                 if (targetElem != null) {
-                    targetModel.factory().lookup(removeTrace.getObjKID(), (remoteObj) -> {
+                    targetModel.view().lookup(removeTrace.getObjKID(), (remoteObj) -> {
                         targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true, fireEvents);
                         callback.on(null);
                     });
@@ -111,7 +111,7 @@ public class ModelTraceApplicator {
             ModelSetTrace setTrace = (ModelSetTrace) trace;
             tryClosePending(trace.getSrcKID());
             if (!trace.getSrcKID().equals(pendingObjKID)) {
-                targetModel.factory().lookup(trace.getSrcKID(), (tempObject) -> {
+                targetModel.view().lookup(trace.getSrcKID(), (tempObject) -> {
                     if (tempObject == null) {
                         callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                     } else {

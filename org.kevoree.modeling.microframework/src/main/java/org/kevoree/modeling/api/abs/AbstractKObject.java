@@ -34,13 +34,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         this.isDirty = isDirty;
     }
 
-    private B factory;
+    private B view;
 
     private MetaClass metaClass;
 
     @Override
-    public B factory() {
-        return factory;
+    public B view() {
+        return view;
     }
 
     private long kid;
@@ -49,8 +49,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return kid;
     }
 
-    public AbstractKObject(B factory, MetaClass metaClass, long kid, long now, KDimension dimension, TimeTree timeTree) {
-        this.factory = factory;
+    public AbstractKObject(B view, MetaClass metaClass, long kid, long now, KDimension dimension, TimeTree timeTree) {
+        this.view = view;
         this.metaClass = metaClass;
         this.kid = kid;
         this.now = now;
@@ -127,12 +127,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Long parentUuid() {
-        Object[] raw = factory.dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+        Object[] raw = view.dimension().universe().storage().raw(this, KStore.AccessMode.READ);
         return (Long) raw[PARENT_INDEX];
     }
 
     public void setParentUuid(Long parentKID) {
-        factory.dimension().universe().storage().raw(this, KStore.AccessMode.WRITE)[PARENT_INDEX] = parentKID;
+        view.dimension().universe().storage().raw(this, KStore.AccessMode.WRITE)[PARENT_INDEX] = parentKID;
     }
 
     @Override
@@ -141,7 +141,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (parentKID == null) {
             callback.on(null);
         } else {
-            factory.lookup(parentKID, callback);
+            view.lookup(parentKID, callback);
         }
 
     }
@@ -210,7 +210,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void jump(Long time, Callback<A> callback) {
-        factory().dimension().time(time).lookup(kid, (o) -> {
+        view().dimension().time(time).lookup(kid, (o) -> {
             callback.on((A) o);
         });
     }
@@ -238,7 +238,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Object get(MetaAttribute attribute) {
-        Object[] payload = factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+        Object[] payload = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
         if (payload != null) {
             return payload[attribute.index()];
         } else {
@@ -248,7 +248,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void set(MetaAttribute attribute, Object payload, boolean fireEvents) {
-        Object[] internalPayload = factory().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
+        Object[] internalPayload = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
         if (internalPayload != null) {
             internalPayload[attribute.index()] = payload;
         } else {
@@ -257,10 +257,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     private Set getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
-        Object previous = factory().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex];
+        Object previous = view().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex];
         if (previous == null) {
             previous = new HashSet<Object>();
-            factory().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex] = previous;
+            view().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex] = previous;
         }
         return (Set) previous;
     }
@@ -268,7 +268,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     private void removeFromContainer(KObject param, boolean fireEvent) {
         if (param != null && param.parentUuid() != null && param.parentUuid() != kid) {
-            factory().lookup(param.parentUuid(), (parent) -> {
+            view().lookup(param.parentUuid(), (parent) -> {
                 parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
             });
         }
@@ -309,7 +309,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
                     } else {
                         //Actual add
-                        Object[] payload = factory().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
+                        Object[] payload = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
                         Object previous = payload[metaReference.index()];
                         if (previous != null) {
                             mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
@@ -328,7 +328,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         //Opposite
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous != null) {
-                                factory().lookup((Long) previous, (resolved) -> {
+                                view().lookup((Long) previous, (resolved) -> {
                                     //TODO detach
                                     resolved.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
                                 });
@@ -340,11 +340,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 break;
             case REMOVE:
                 if (metaReference.single()) {
-                    Object[] raw = factory().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
+                    Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
                     Object previousKid = raw[metaReference.index()];
                     raw[metaReference.index()] = null;
                     if (previousKid != null) {
-                        factory.dimension().universe().storage().lookup(factory, (Long) previousKid, (resolvedParam) -> {
+                        view.dimension().universe().storage().lookup(view, (Long) previousKid, (resolvedParam) -> {
                             if (resolvedParam != null) {
                                 if (metaReference.contained()) {
                                     //removeFromContainer(resolvedParam, fireEvent);
@@ -361,7 +361,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         });
                     }
                 } else {
-                    Object[] payload = factory().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
+                    Object[] payload = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
                         Set<Long> previousList = (Set<Long>) previous;
@@ -391,11 +391,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public int size(MetaReference metaReference) {
-        return ((Set) factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()]).size();
+        return ((Set) view().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()]).size();
     }
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
-        Object o = factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()];
+        Object o = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()];
         if (o == null) {
             if (end != null) {
                 end.on(null);
@@ -403,7 +403,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 callback.on(null);
             }
         } else if (o instanceof Long) {
-            factory().lookup((Long) o, new Callback<KObject>() {
+            view().lookup((Long) o, new Callback<KObject>() {
                 @Override
                 public void on(KObject resolved) {
                     if (callback != null) {
@@ -416,7 +416,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             });
         } else if (o instanceof Set) {
             Set<Long> objs = (Set<Long>) o;
-            factory().lookupAll(objs, (result) -> {
+            view().lookupAll(objs, (result) -> {
                 boolean endAlreadyCalled = false;
                 try {
                     for (KObject resolved : result) {
@@ -477,7 +477,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         for (int i = 0; i < metaReferences().length; i++) {
             MetaReference reference = metaReferences()[i];
             if (!(treeOnly && !reference.contained())) {
-                Object[] raw = factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+                Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
                 Object o = null;
                 if (raw != null) {
                     o = raw[reference.index()];
@@ -499,7 +499,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (toResolveds.isEmpty()) {
             end.on(null);
         } else {
-            factory().lookupAll(toResolveds, (resolveds) -> {
+            view().lookupAll(toResolveds, (resolveds) -> {
                 List<KObject> nextDeep = new ArrayList<KObject>();
                 for (KObject resolved : resolveds) {
                     ModelVisitor.VisitResult result = visitor.visit(resolved);
@@ -580,7 +580,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
         for (int i = 0; i < metaReferences().length; i++) {
-            Object[] raw = factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+            Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
             Object payload = null;
             if (raw != null) {
                 payload = raw[metaReferences()[i].index()];
@@ -639,7 +639,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaReferences().length; i++) {
                 MetaReference ref = metaReferences()[i];
-                Object[] raw = factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+                Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
                 Object o = null;
                 if (raw != null) {
                     o = raw[ref.index()];
@@ -660,7 +660,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
 
     public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end) {
-        Object[] rawPayload = factory().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+        Object[] rawPayload = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
         if (rawPayload == null) {
             end.on(new Exception("Object not initialized."));
         } else {
@@ -674,7 +674,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         oppositeInternal.put(ref.getKID(), ref);
                         oppositeKids.add(ref.getKID());
                     }
-                    factory.lookupAll(oppositeKids, (oppositeElements) -> {
+                    view.lookupAll(oppositeKids, (oppositeElements) -> {
                         if (oppositeElements != null) {
                             for (KObject opposite : oppositeElements) {
                                 InternalInboundRef inboundRef = oppositeInternal.get(opposite.uuid());
