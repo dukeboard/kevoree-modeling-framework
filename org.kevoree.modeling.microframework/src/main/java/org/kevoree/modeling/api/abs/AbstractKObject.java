@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.events.ModelElementListener;
+import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -556,11 +557,16 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public String toJSON() {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
-        builder.append("\t\"@meta\" : \"");
+        builder.append("\t\"" + JSONModelSerializer.keyMeta + "\" : \"");
         builder.append(metaClass().metaName());
         builder.append("\",\n");
-        builder.append("\t\"@uuid\" : \"");
+        builder.append("\t\"" + JSONModelSerializer.keyKid + "\" : \"");
         builder.append(uuid());
+        if (isRoot()) {
+            builder.append("\",\n");
+            builder.append("\t\"" + JSONModelSerializer.keyRoot + "\" : \"");
+            builder.append("true");
+        }
         builder.append("\",\n");
         for (int i = 0; i < metaAttributes().length; i++) {
             Object payload = get(metaAttributes()[i]);

@@ -26,16 +26,19 @@ public class LookupTest {
             universe.storage().getRoot(t0, (resolvedRoot) -> {
                 assertEquals(node, resolvedRoot);
             });
-
             assertTrue(node.isRoot());
-
-
             dimension0.save((e) -> {
                 CloudUniverse universe2 = new CloudUniverse(dataBase);
                 universe2.dimension(dimension0.key(), (dimension0_2) -> {
                     CloudView t0_2 = dimension0_2.time(0l);
                     t0_2.lookup(node.uuid(), (resolved) -> {
-                        System.out.println(resolved);
+                        t0_2.lookup(node.uuid(), (resolved2) -> {
+                            assertEquals(resolved, resolved2);
+                        });
+                        universe2.storage().getRoot(t0_2, (resolvedRoot) -> {
+                            assertEquals(resolved, resolvedRoot);
+                        });
+                        assertTrue(resolved.isRoot());
                     });
                 });
             });

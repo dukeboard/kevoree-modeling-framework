@@ -22,6 +22,8 @@ public class JSONModelSerializer implements ModelSerializer {
 
     public static final String keyKid = "@uuid";
 
+    public static final String keyRoot = "@root";
+
     @Override
     public void serialize(KObject model, final Callback<String> callback) {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
@@ -59,13 +61,18 @@ public class JSONModelSerializer implements ModelSerializer {
     }
 
 
-    public void printJSON(KObject elem, PrintStream builder) {
+    public static void printJSON(KObject elem, PrintStream builder) {
         builder.append("{\n");
         builder.append("\t\"" + keyMeta + "\" : \"");
         builder.append(elem.metaClass().metaName());
         builder.append("\",\n");
         builder.append("\t\"" + keyKid + "\" : \"");
         builder.append(elem.uuid() + "");
+        if (elem.isRoot()) {
+            builder.append("\",\n");
+            builder.append("\t\"" + keyRoot + "\" : \"");
+            builder.append("true");
+        }
         builder.append("\",\n");
         for (int i = 0; i < elem.metaAttributes().length; i++) {
             Object payload = elem.get(elem.metaAttributes()[i]);
@@ -73,7 +80,7 @@ public class JSONModelSerializer implements ModelSerializer {
                 builder.append("\t");
                 builder.append("\"");
                 builder.append(elem.metaAttributes()[i].metaName());
-                builder.append("\":\"");
+                builder.append("\" : \"");
                 builder.append(payload.toString());
                 builder.append("\",\n");
             }
@@ -88,7 +95,7 @@ public class JSONModelSerializer implements ModelSerializer {
                 builder.append("\t");
                 builder.append("\"");
                 builder.append(elem.metaReferences()[i].metaName());
-                builder.append("\":");
+                builder.append("\" :");
                 if (elem.metaReferences()[i].single()) {
                     builder.append("\"");
                     builder.append(payload.toString());

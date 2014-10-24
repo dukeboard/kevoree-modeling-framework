@@ -379,7 +379,9 @@ public class DefaultKStore implements KStore {
             db.get(objStringKeys, (objectPayloads) -> {
                 List<KObject> objs = new ArrayList<KObject>();
                 for (int i = 0; i < objectPayloads.length; i++) {
-                    objs.add(JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null));
+                    KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+                    //Put in cache
+                    objs.add(obj);
                 }
                 callback.on(objs);
             }, (e) -> {
@@ -459,7 +461,11 @@ public class DefaultKStore implements KStore {
                 db.get(rootKeys, (res) -> {
                     try {
                         Long idRoot = Long.parseLong(res[0]);
-                        lookup(originView, idRoot, callback);
+                        lookup(originView, idRoot, (resolved) -> {
+                            timeCache.root = resolved;
+                            timeCache.rootDirty = false;
+                            callback.on(resolved);
+                        });
                     } catch (Exception e) {
                         e.printStackTrace();
                         callback.on(null);
