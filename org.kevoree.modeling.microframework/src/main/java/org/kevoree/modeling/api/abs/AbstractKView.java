@@ -95,11 +95,23 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void root(KObject elem) {
+    public void setRoot(KObject elem) {
         ((AbstractKObject) elem).setReferenceInParent(null);
         ((AbstractKObject) elem).setRoot(true);
         //TODO write into storage to retrieve the object later
     }
+
+    @Override
+    public void root(Callback<KObject> callback){
+        Long resolved = ((AbstractKDimension)dimension()).getRootTimeTree().resolve(now());
+        if(resolved == null){
+            callback.on(null);
+        } else {
+
+        }
+    }
+
+
 
     @Override
     public void select(String query, Callback<List<KObject>> callback) {

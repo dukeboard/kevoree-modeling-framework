@@ -94,4 +94,10 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     protected abstract A internal_create(Long timePoint);
 
+    private final TimeTree rootTimeTree = new DefaultTimeTree();
+
+    public TimeTree getRootTimeTree() {
+        return rootTimeTree;
+    }
+
 }

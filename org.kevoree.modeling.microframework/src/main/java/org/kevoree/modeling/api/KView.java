@@ -15,7 +15,7 @@ public interface KView {
 
     public KObject create(MetaClass clazz);
 
-    public void root(KObject elem);
+    public void setRoot(KObject elem);
 
     public ModelSerializer createJSONSerializer();
 
@@ -48,5 +48,7 @@ public interface KView {
     public long now();
 
     public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key);
+
+    public void root(Callback<KObject> callback);
 
 }

@@ -39,7 +39,7 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     @Override
     public void dimension(long key, Callback<A> callback) {
         A existingDimension = (A) storage.getDimension(key);
-        if(existingDimension != null){
+        if (existingDimension != null) {
             callback.on(existingDimension);
         } else {
             A newDimension = internal_create(key);
