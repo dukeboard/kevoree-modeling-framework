@@ -74,28 +74,13 @@
         <module>org.kevoree.modeling.generator.mavenplugin</module>
         <module>org.kevoree.modeling.generator</module>
         <module>org.kevoree.modeling.ast</module>
-        <!--
-        <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>
-        <module>org.kevoree.modeling.microframework.learn</module>
-        <module>org.kevoree.modeling.kotlin.generator</module>
-        <module>org.kevoree.modeling.kotlin.standalone</module>
-        <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.http</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.websocket</module>
-        -->
-        <!--
-        <module>org.kevoree.modeling.framework.ui.graph</module>
--->
-
-
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.9</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -137,8 +122,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
