@@ -109,10 +109,10 @@ public class KQuery {
                             if (pArray.length > 1) {
                                 String paramKey = pArray[0].trim();
                                 boolean negative = paramKey.endsWith("!");
-                                pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), params.size(), negative);
+                                pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
                                 params.put(pObject.getName(), pObject);
                             } else {
-                                pObject = new KQueryParam(null, p, params.size(), false);
+                                pObject = new KQueryParam(null, p, false);
                                 params.put("@id", pObject);
                             }
                         }
@@ -136,10 +136,10 @@ public class KQuery {
                     if (pArray.length > 1) {
                         String paramKey = pArray[0].trim();
                         boolean negative = paramKey.endsWith("!");
-                        pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), params.size(), negative);
+                        pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
                         params.put(pObject.getName(), pObject);
                     } else {
-                        pObject = new KQueryParam(null, lastParam, params.size(), false);
+                        pObject = new KQueryParam(null, lastParam, false);
                         params.put("@id", pObject);
                     }
                 }

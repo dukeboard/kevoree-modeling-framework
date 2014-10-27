@@ -31,6 +31,15 @@ public class BasicSelectTest {
             node3.setName("n2");
             node2.addChildren(node3);
 
+
+            Node node4 = t0.createNode();
+            node4.setName("n4");
+            node3.addChildren(node4);
+
+            Node node5 = t0.createNode();
+            node5.setName("n5");
+            node3.addChildren(node5);
+
             t0.select("children[]", (selecteds) -> {
                 assertEquals(1, selecteds.size());
                 assertEquals(node2, selecteds.get(0));
@@ -55,9 +64,31 @@ public class BasicSelectTest {
                 assertEquals(0, selecteds.size());
             });
 
+            t0.select("children[name!=n1]", (selecteds) -> {
+                assertEquals(0, selecteds.size());
+            });
+
             t0.select("children[name=n1]/children[name=n2]", (selecteds) -> {
                 assertEquals(1, selecteds.size());
                 assertEquals(node3, selecteds.get(0));
+            });
+
+            t0.select("/children[name=n1]/children[name=n2]", (selecteds) -> {
+                assertEquals(1, selecteds.size());
+                assertEquals(node3, selecteds.get(0));
+            });
+
+            node.select("children[name=n1]/children[name=n2]", (selecteds) -> {
+                assertEquals(1, selecteds.size());
+                assertEquals(node3, selecteds.get(0));
+            });
+
+            node.select("/children[name=n1]/children[name=n2]", (selecteds) -> {
+                assertEquals(0, selecteds.size());
+            });
+
+            node.select("children[name=n1]/children[name=n2]/children[name=*]", (selecteds) -> {
+                assertEquals(2, selecteds.size());
             });
 
         });

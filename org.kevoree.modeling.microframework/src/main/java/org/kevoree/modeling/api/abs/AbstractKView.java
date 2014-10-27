@@ -105,7 +105,11 @@ public abstract class AbstractKView implements KView {
     @Override
     public void select(String query, Callback<List<KObject>> callback) {
         dimension().universe().storage().getRoot(this, (rootObj) -> {
-            KSelector.select(rootObj, query, callback);
+            String cleanedQuery = query;
+            if (cleanedQuery.startsWith("/")) {
+                cleanedQuery = cleanedQuery.substring(1);
+            }
+            KSelector.select(rootObj, cleanedQuery, callback);
         });
     }
 

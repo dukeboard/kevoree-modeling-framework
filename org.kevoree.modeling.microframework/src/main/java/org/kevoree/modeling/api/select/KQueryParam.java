@@ -7,13 +7,11 @@ public class KQueryParam {
 
     private String name;
     private String value;
-    private int idParam;
     private boolean negative;
 
-    protected KQueryParam(String name, String value, int idParam, boolean negative) {
+    protected KQueryParam(String name, String value, boolean negative) {
         this.name = name;
         this.value = value;
-        this.idParam = idParam;
         this.negative = negative;
     }
 
@@ -23,10 +21,6 @@ public class KQueryParam {
 
     public String getValue() {
         return value;
-    }
-
-    public int getIdParam() {
-        return idParam;
     }
 
     public boolean isNegative() {

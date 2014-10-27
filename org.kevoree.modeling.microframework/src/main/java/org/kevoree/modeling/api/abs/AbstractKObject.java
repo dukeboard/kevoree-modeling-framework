@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
@@ -162,15 +163,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         //TODO
     }
 
-
-    @Override
-    public void findByID(String relationName, String idP, Callback<KObject> callback) {
-        //TODO
-    }
-
     @Override
     public void select(String query, Callback<List<KObject>> callback) {
-        //TODO
+        KSelector.select(this, query, callback);
     }
 
     @Override

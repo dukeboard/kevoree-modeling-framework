@@ -34,9 +34,7 @@ public interface KObject<A extends KObject, B extends KView> {
     public void parent(Callback<KObject> callback);
 
     public Long parentUuid();
-
-    public void findByID(String relationName, String idP, Callback<KObject> callback);
-
+    
     public void select(String query, Callback<List<KObject>> callback);
 
     public void stream(String query, Callback<KObject> callback);
