@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.compare.DefaultModelCompare;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
@@ -103,7 +104,9 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void select(String query, Callback<List<KObject>> callback) {
-        //TODO
+        dimension().universe().storage().getRoot(this, (rootObj) -> {
+            KSelector.select(rootObj, query, callback);
+        });
     }
 
     @Override
