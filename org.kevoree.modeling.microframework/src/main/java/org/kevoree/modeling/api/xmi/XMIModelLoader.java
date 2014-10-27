@@ -7,47 +7,13 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 /*
 * Author : Gregory Nain
 * Date : 30/08/13
 */
-
-class LoadingContext {
-
-    public XmlParser xmiReader;
-
-    /*
-    public XmiLoaderAttributeVisitor attributeVisitor;
-    public XmiLoaderReferenceVisitor referenceVisitor;
-    public HashMap<STRING, HashMap<STRING, Boolean>> attributesHashmap = new HashMap<STRING, HashMap<STRING, Boolean>>();
-    public HashMap<STRING, HashMap<STRING, STRING>> referencesHashmap = new HashMap<STRING, HashMap<STRING, STRING>>();
-    */
-
-    public KObject loadedRoots = null;
-    public ArrayList<XMIResolveCommand> resolvers = new ArrayList<XMIResolveCommand>();
-
-    public HashMap<String, KObject> map = new HashMap<String, KObject>();
-
-    public HashMap<String, Integer> elementsCount = new HashMap<String, Integer>();
-    public HashMap<String, Integer> stats = new HashMap<String, Integer>();
-    public HashMap<String, Boolean> oppositesAlreadySet = new HashMap<String, Boolean>();
-
-    public Callback<Throwable> successCallback;
-
-    public Boolean isOppositeAlreadySet(String localRef, String oppositeRef) {
-        return (oppositesAlreadySet.get(oppositeRef + "_" + localRef) != null || (oppositesAlreadySet.get(localRef + "_" + oppositeRef) != null));
-    }
-
-    public void storeOppositeRelation(String localRef, String oppositeRef) {
-        oppositesAlreadySet.put(localRef + "_" + oppositeRef, true);
-    }
-}
 
 public class XMIModelLoader implements ModelLoader {
 
@@ -119,7 +85,7 @@ public class XMIModelLoader implements ModelLoader {
         if (!parser.hasNext()) {
             callback.on(null);
         } else {
-            LoadingContext context = new LoadingContext();
+            XMILoadingContext context = new XMILoadingContext();
             context.successCallback = callback;
             context.xmiReader = parser;
             deserialize(context);
@@ -127,7 +93,7 @@ public class XMIModelLoader implements ModelLoader {
     }
 
 
-    private void deserialize(LoadingContext context) {
+    private void deserialize(XMILoadingContext context) {
         try {
             String nsURI;
             XmlParser reader = context.xmiReader;
@@ -180,7 +146,7 @@ public class XMIModelLoader implements ModelLoader {
         }
     }
 
-    private KObject callFactory(LoadingContext ctx, String objectType) {
+    private KObject callFactory(XMILoadingContext ctx, String objectType) {
         KObject modelElem = null;
         if (objectType != null) {
             modelElem = factory.createFQN(objectType);
@@ -208,7 +174,7 @@ public class XMIModelLoader implements ModelLoader {
     }
 
 
-    private KObject loadObject(LoadingContext ctx, String xmiAddress, String objectType) throws Exception {
+    private KObject loadObject(XMILoadingContext ctx, String xmiAddress, String objectType) throws Exception {
         String elementTagName = ctx.xmiReader.getLocalName();
         KObject modelElem = callFactory(ctx, objectType);
         if (modelElem == null) {

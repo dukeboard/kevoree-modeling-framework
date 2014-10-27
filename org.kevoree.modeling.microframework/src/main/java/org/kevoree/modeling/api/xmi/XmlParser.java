@@ -15,8 +15,7 @@ public class XmlParser {
 
     private InputStream inputStream;
     private char currentChar;
-    private int index;
-    private String xmlVersion, xmlCharset, tagName, tagPrefix, attributePrefix;
+    private String tagName, tagPrefix, attributePrefix;
     private boolean readSingleton = false;
 
     private ArrayList<String> attributesNames = new ArrayList<String>();
@@ -32,9 +31,6 @@ public class XmlParser {
         currentChar = readChar();
     }
 
-    //private val bytes = inputStream.readBytes()
-
-
     public String getTagPrefix() {
         return tagPrefix;
     }
@@ -47,7 +43,6 @@ public class XmlParser {
             e.printStackTrace();
         }
         return false;
-        //return bytes.size - index > 2;
     }
 
     public String getLocalName() {
@@ -72,7 +67,7 @@ public class XmlParser {
 
     private char readChar() {
         try {
-            if(inputStream.available() > 0) {
+            if (inputStream.available() > 0) {
                 return (char) inputStream.read();
             }
         } catch (IOException e) {
@@ -84,12 +79,14 @@ public class XmlParser {
 
     public Token next() {
 
-        if(readSingleton) {
+        if (readSingleton) {
             readSingleton = false;
             return Token.END_TAG;
         }
 
-        if(!hasNext()){return Token.END_DOCUMENT;}
+        if (!hasNext()) {
+            return Token.END_DOCUMENT;
+        }
 
         attributesNames.clear();
         attributesPrefixes.clear();
@@ -98,24 +95,24 @@ public class XmlParser {
         read_lessThan(); // trim to the begin of a tag
         currentChar = readChar(); //inputStream.read().toChar()
 
-        if(currentChar == '?') { // XML header <?xml version="1.0" encoding="UTF-8"?>
+        if (currentChar == '?') { // XML header <?xml version="1.0" encoding="UTF-8"?>
             currentChar = readChar();
             read_xmlHeader();
             return Token.XML_HEADER;
 
-        } else if(currentChar == '!') { // XML comment <!-- xml version="1.0" encoding="UTF-8" -->
-            do{
+        } else if (currentChar == '!') { // XML comment <!-- xml version="1.0" encoding="UTF-8" -->
+            do {
                 currentChar = readChar();
-            }while(currentChar != '>');
+            } while (currentChar != '>');
             return Token.COMMENT;
 
-        } else  if(currentChar == '/') { // XML closing tag </tagname>
+        } else if (currentChar == '/') { // XML closing tag </tagname>
             currentChar = readChar();
             read_closingTag();
             return Token.END_TAG;
         } else {
             read_openTag();
-            if(currentChar == '/') {
+            if (currentChar == '/') {
                 read_upperThan();
                 readSingleton = true;
             }
@@ -124,11 +121,15 @@ public class XmlParser {
     }
 
     private void read_lessThan() {
-        while(currentChar != '<' && currentChar != '\0'){ currentChar = readChar(); }
+        while (currentChar != '<' && currentChar != '\0') {
+            currentChar = readChar();
+        }
     }
 
     private void read_upperThan() {
-        while(currentChar!= '>') { currentChar = readChar(); }
+        while (currentChar != '>') {
+            currentChar = readChar();
+        }
     }
 
     /**
@@ -148,7 +149,7 @@ public class XmlParser {
 
     private void read_openTag() {
         read_tagName();
-        if(currentChar != '>' && currentChar != '/') {
+        if (currentChar != '>' && currentChar != '/') {
             read_attributes();
         }
     }
@@ -157,8 +158,8 @@ public class XmlParser {
         tagName = "" + currentChar;
         tagPrefix = null;
         currentChar = readChar();
-        while(currentChar != ' ' && currentChar != '>' && currentChar != '/') {
-            if(currentChar == ':') {
+        while (currentChar != ' ' && currentChar != '>' && currentChar != '/') {
+            if (currentChar == ':') {
                 tagPrefix = tagName;
                 tagName = "";
             } else {
@@ -172,25 +173,25 @@ public class XmlParser {
 
         boolean end_of_tag = false;
 
-        while(currentChar == ' ') {
+        while (currentChar == ' ') {
             currentChar = readChar();
         }
-        while(!end_of_tag) {
-            while(currentChar != '=') { // read attributeName and/or prefix
-                if(currentChar == ':') {
+        while (!end_of_tag) {
+            while (currentChar != '=') { // read attributeName and/or prefix
+                if (currentChar == ':') {
                     attributePrefix = attributeName.toString();
                     attributeName = new StringBuilder();
-                   // attributeName.delete(0, attributeName.length())
+                    // attributeName.delete(0, attributeName.length())
                 } else {
                     attributeName.append(currentChar);
                 }
                 currentChar = readChar();
             }
-            do{
+            do {
                 currentChar = readChar();
-            }while(currentChar != '"');
+            } while (currentChar != '"');
             currentChar = readChar();
-            while(currentChar != '"') { // reading value
+            while (currentChar != '"') { // reading value
                 attributeValue.append(currentChar);
                 currentChar = readChar();
             }
@@ -204,12 +205,12 @@ public class XmlParser {
             //attributeValue.delete(0, attributeValue.length())
             attributeValue = new StringBuilder();
 
-            do{//Trim to next attribute
+            do {//Trim to next attribute
                 currentChar = readChar();
-                if(currentChar== '?' || currentChar == '/' || currentChar == '-' || currentChar == '>') {
+                if (currentChar == '?' || currentChar == '/' || currentChar == '-' || currentChar == '>') {
                     end_of_tag = true;
                 }
-            } while(!end_of_tag && currentChar == ' ');
+            } while (!end_of_tag && currentChar == ' ');
 
         }
 

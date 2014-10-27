@@ -5,13 +5,13 @@ import org.kevoree.modeling.api.KActionType;
 
 public class XMIResolveCommand {
 
-    private LoadingContext context;
+    private XMILoadingContext context;
     private KObject target;
     private KActionType mutatorType;
     private String refName;
     private String ref;
 
-    public XMIResolveCommand(LoadingContext context, KObject target, KActionType mutatorType, String refName, String ref) {
+    public XMIResolveCommand(XMILoadingContext context, KObject target, KActionType mutatorType, String refName, String ref) {
         this.context = context;
         this.target = target;
         this.mutatorType = mutatorType;
