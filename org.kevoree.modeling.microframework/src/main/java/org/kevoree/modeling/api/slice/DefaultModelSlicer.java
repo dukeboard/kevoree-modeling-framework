@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 
 import java.util.*;
@@ -51,13 +52,20 @@ public class DefaultModelSlicer implements ModelSlicer {
                         public VisitResult visit(KObject elem) {
                             if (cache.get(elem.uuid()) == null) {
                                 //break potential loop
-                                internal_prune(elem, traces, cache, parentMap, (t) -> {
+                                internal_prune(elem, traces, cache, parentMap, new Callback<Throwable>() {
+                                    @Override
+                                    public void on(Throwable throwable) {
+
+                                    }
                                 });
                             }
                             return VisitResult.CONTINUE;
                         }
-                    }, (t) -> {
-                        callback.on(null);
+                    }, new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable) {
+                            callback.on(null);
+                        }
                     });
                 }
             }
@@ -72,14 +80,20 @@ public class DefaultModelSlicer implements ModelSlicer {
         Map<Long, KObject> tempMap = new HashMap<Long, KObject>();
         Map<Long, KObject> parentMap = new HashMap<Long, KObject>();
         KObject[] elemsArr = elems.toArray(new KObject[elems.size()]);
-        Helper.forall(elemsArr, (obj, next) -> {
-            internal_prune(obj, traces, tempMap, parentMap, next);
-        }, (t) -> {
-            for (Long toLinkKey : tempMap.keySet()) {
-                KObject toLink = tempMap.get(toLinkKey);
-                traces.addAll(toLink.traces(KObject.TraceRequest.REFERENCES_ONLY));
+        Helper.forall(elemsArr, new CallBackChain<KObject>() {
+            @Override
+            public void on(KObject obj, Callback<Throwable> next) {
+                internal_prune(obj, traces, tempMap, parentMap, next);
             }
-            callback.on(new TraceSequence().populate(traces));
+        }, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                for (Long toLinkKey : tempMap.keySet()) {
+                    KObject toLink = tempMap.get(toLinkKey);
+                    traces.addAll(toLink.traces(KObject.TraceRequest.REFERENCES_ONLY));
+                }
+                callback.on(new TraceSequence().populate(traces));
+            }
         });
     }
 }

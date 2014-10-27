@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 
 /**
@@ -43,19 +44,22 @@ public class ModelTraceApplicator {
 
     public void createOrAdd(Long previousPath, KObject target, MetaReference reference, MetaClass metaClass, Callback<Throwable> callback) {
         if (previousPath != null) {
-            targetModel.view().lookup(previousPath, (targetElem) -> {
-                if (targetElem != null) {
-                    target.mutate(KActionType.ADD, reference, targetElem, true, fireEvents);
-                    callback.on(null);
-                } else {
-                    if (metaClass == null) {
-                        callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
-                    } else {
-                        pendingObj = targetModel.view().createFQN(metaClass.metaName());
-                        pendingObjKID = previousPath;
-                        pendingParentRef = reference;
-                        pendingParent = target;
+            targetModel.view().lookup(previousPath, new Callback<KObject>() {
+                @Override
+                public void on(KObject targetElem) {
+                    if (targetElem != null) {
+                        target.mutate(KActionType.ADD, reference, targetElem, true, fireEvents);
                         callback.on(null);
+                    } else {
+                        if (metaClass == null) {
+                            callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
+                        } else {
+                            pendingObj = targetModel.view().createFQN(metaClass.metaName());
+                            pendingObjKID = previousPath;
+                            pendingParentRef = reference;
+                            pendingParent = target;
+                            callback.on(null);
+                        }
                     }
                 }
             });
@@ -73,12 +77,20 @@ public class ModelTraceApplicator {
     }
 
     public void applyTraceSequence(final TraceSequence traceSeq, final Callback<Throwable> callback) {
-        Helper.forall(traceSeq.traces(), (trace, next) -> applyTrace(trace, next), (t) -> {
-            if (t != null) {
-                callback.on(t);
-            } else {
-                tryClosePending(null);
-                callback.on(null);
+        Helper.forall(traceSeq.traces(), new CallBackChain<ModelTrace>() {
+            @Override
+            public void on(ModelTrace modelTrace, Callback<Throwable> next) {
+                applyTrace(modelTrace, next);
+            }
+        }, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable != null) {
+                    callback.on(throwable);
+                } else {
+                    tryClosePending(null);
+                    callback.on(null);
+                }
             }
         });
     }
@@ -87,36 +99,48 @@ public class ModelTraceApplicator {
         if (trace instanceof ModelAddTrace) {
             ModelAddTrace addTrace = (ModelAddTrace) trace;
             tryClosePending(null);
-            targetModel.view().lookup(trace.getSrcKID(), (resolvedTarget) -> {
-                if (resolvedTarget == null) {
-                    callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
-                } else {
-                    createOrAdd(addTrace.getPreviousKID(), resolvedTarget, (MetaReference) trace.getMeta(), addTrace.getMetaClass(), callback);
+            targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
+                @Override
+                public void on(KObject resolvedTarget) {
+                    if (resolvedTarget == null) {
+                        callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
+                    } else {
+                        createOrAdd(addTrace.getPreviousKID(), resolvedTarget, (MetaReference) trace.getMeta(), addTrace.getMetaClass(), callback);
+                    }
                 }
             });
         } else if (trace instanceof ModelRemoveTrace) {
             ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
             tryClosePending(trace.getSrcKID());
-            targetModel.view().lookup(trace.getSrcKID(), (targetElem) -> {
-                if (targetElem != null) {
-                    targetModel.view().lookup(removeTrace.getObjKID(), (remoteObj) -> {
-                        targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true, fireEvents);
+            targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
+                @Override
+                public void on(KObject targetElem) {
+                    if (targetElem != null) {
+                        targetModel.view().lookup(removeTrace.getObjKID(), new Callback<KObject>() {
+                            @Override
+                            public void on(KObject remoteObj) {
+                                targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true, fireEvents);
+                                callback.on(null);
+                            }
+                        });
+                    } else {
                         callback.on(null);
-                    });
-                } else {
-                    callback.on(null);
+                    }
                 }
             });
         } else if (trace instanceof ModelSetTrace) {
             ModelSetTrace setTrace = (ModelSetTrace) trace;
             tryClosePending(trace.getSrcKID());
             if (!trace.getSrcKID().equals(pendingObjKID)) {
-                targetModel.view().lookup(trace.getSrcKID(), (tempObject) -> {
-                    if (tempObject == null) {
-                        callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
-                    } else {
-                        tempObject.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent(), fireEvents);
-                        callback.on(null);
+                targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject tempObject) {
+                        if (tempObject == null) {
+                            callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
+                        } else {
+                            tempObject.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent(), fireEvents);
+                            callback.on(null);
+                        }
                     }
                 });
             } else {

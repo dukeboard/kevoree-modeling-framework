@@ -71,16 +71,22 @@ public class DefaultKStore implements KStore {
         caches.put(dimension.key(), dimensionCache);
         String[] rootTreeKeys = new String[1];
         rootTreeKeys[0] = keyRootTree(dimension);
-        db.get(rootTreeKeys, (res) -> {
-            try {
-                ((DefaultTimeTree) dimensionCache.rootTimeTree).load(res[0]);
-                callback.on(null);
-            } catch (Exception e) {
-                callback.on(e);
+        db.get(rootTreeKeys, new Callback<String[]>() {
+            @Override
+            public void on(String[] res) {
+                try {
+                    ((DefaultTimeTree) dimensionCache.rootTimeTree).load(res[0]);
+                    callback.on(null);
+                } catch (Exception e) {
+                    callback.on(e);
+                }
             }
-        }, (e) -> {
-            e.printStackTrace();
-            callback.on(e);
+        }, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                throwable.printStackTrace();
+                callback.on(throwable);
+            }
         });
     }
 
@@ -261,11 +267,14 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void saveUnload(KDimension dimension, Callback<Throwable> callback) {
-        save(dimension, (c) -> {
-            if (c == null) {
-                discard(dimension, callback);
-            } else {
-                callback.on(c);
+        save(dimension, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable == null) {
+                    discard(dimension, callback);
+                } else {
+                    callback.on(throwable);
+                }
             }
         });
     }
@@ -274,11 +283,14 @@ public class DefaultKStore implements KStore {
     public void timeTree(KDimension dimension, long key, Callback<TimeTree> callback) {
         long[] keys = new long[1];
         keys[0] = key;
-        timeTrees(dimension, keys, (res) -> {
-            if (res.length == 1) {
-                callback.on(res[0]);
-            } else {
-                callback.on(null);
+        timeTrees(dimension, keys, new Callback<TimeTree[]>() {
+            @Override
+            public void on(TimeTree[] timeTrees) {
+                if (timeTrees.length == 1) {
+                    callback.on(timeTrees[0]);
+                } else {
+                    callback.on(null);
+                }
             }
         });
     }
@@ -303,24 +315,30 @@ public class DefaultKStore implements KStore {
             for (int i = 0; i < toLoadKeys.length; i++) {
                 toLoadKeys[i] = keyTree(dimension, keys[toLoad.get(i)]);
             }
-            db.get(toLoadKeys, (res) -> {
-                for (int i = 0; i < res.length; i++) {
-                    DefaultTimeTree newTree = new DefaultTimeTree();
-                    try {
-                        if (res[i] != null) {
-                            newTree.load(res[i]);
-                        } else {
-                            newTree.insert(dimension.key());
+            db.get(toLoadKeys, new Callback<String[]>() {
+                @Override
+                public void on(String[] res) {
+                    for (int i = 0; i < res.length; i++) {
+                        DefaultTimeTree newTree = new DefaultTimeTree();
+                        try {
+                            if (res[i] != null) {
+                                newTree.load(res[i]);
+                            } else {
+                                newTree.insert(dimension.key());
+                            }
+                            dimensionCache.timeTreeCache.put(keys[toLoad.get(i)], newTree);
+                            result[toLoad.get(i)] = newTree;
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        dimensionCache.timeTreeCache.put(keys[toLoad.get(i)], newTree);
-                        result[toLoad.get(i)] = newTree;
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
+                    callback.on(result);
                 }
-                callback.on(result);
-            }, (e) -> {
-                e.printStackTrace();//TODO
+            }, new Callback<Throwable>() {
+                @Override
+                public void on(Throwable throwable) {
+                    throwable.printStackTrace();//TODO
+                }
             });
         }
     }
@@ -332,61 +350,75 @@ public class DefaultKStore implements KStore {
         if (callback == null) {
             return;
         }
-        timeTree(originView.dimension(), key, (timeTree) -> {
-            Long resolvedTime = timeTree.resolve(originView.now());
-            if (resolvedTime == null) {
-                callback.on(null);
-            } else {
-                KObject resolved = cacheLookup(originView.dimension(), resolvedTime, key);
-                if (resolved != null) {
-                    if (originView.now() == resolvedTime) {
-                        callback.on(resolved);
-                    } else {
-                        KObject proxy = originView.createProxy(resolved.metaClass(), resolved.timeTree(), key);
-                        callback.on(proxy);
-                    }
+        timeTree(originView.dimension(), key, new Callback<TimeTree>() {
+            @Override
+            public void on(TimeTree timeTree) {
+                Long resolvedTime = timeTree.resolve(originView.now());
+                if (resolvedTime == null) {
+                    callback.on(null);
                 } else {
-                    long[] keys = new long[1];
-                    keys[0] = key;
-                    loadObjectInCache(originView, keys, (cl) -> {
-                        List<KObject> dbResolved = cl;
-                        if (dbResolved.size() == 0) {
-                            callback.on(null);
+                    KObject resolved = cacheLookup(originView.dimension(), resolvedTime, key);
+                    if (resolved != null) {
+                        if (originView.now() == resolvedTime) {
+                            callback.on(resolved);
                         } else {
-                            KObject dbResolvedZero = dbResolved.get(0);
-                            if (resolvedTime != originView.now()) {
-                                KObject proxy = originView.createProxy(dbResolvedZero.metaClass(), dbResolvedZero.timeTree(), key);
-                                callback.on(proxy);
-                            } else {
-                                callback.on(dbResolvedZero);
-                            }
+                            KObject proxy = originView.createProxy(resolved.metaClass(), resolved.timeTree(), key);
+                            callback.on(proxy);
                         }
-                    });
+                    } else {
+                        long[] keys = new long[1];
+                        keys[0] = key;
+                        loadObjectInCache(originView, keys, new Callback<List<KObject>>() {
+                            @Override
+                            public void on(List<KObject> dbResolved) {
+                                if (dbResolved.size() == 0) {
+                                    callback.on(null);
+                                } else {
+                                    KObject dbResolvedZero = dbResolved.get(0);
+                                    if (resolvedTime != originView.now()) {
+                                        KObject proxy = originView.createProxy(dbResolvedZero.metaClass(), dbResolvedZero.timeTree(), key);
+                                        callback.on(proxy);
+                                    } else {
+                                        callback.on(dbResolvedZero);
+                                    }
+                                }
+                            }
+                        });
+                    }
                 }
             }
         });
     }
 
     private void loadObjectInCache(KView originView, long[] keys, Callback<List<KObject>> callback) {
-        timeTrees(originView.dimension(), keys, (timeTrees) -> {
-            String[] objStringKeys = new String[keys.length];
-            long[] resolved = new long[keys.length];
-            for (int i = 0; i < keys.length; i++) {
-                long resolvedTime = timeTrees[i].resolve(originView.now());
-                resolved[i] = resolvedTime;
-                objStringKeys[i] = keyPayload(originView.dimension(), resolvedTime, keys[i]);
-            }
-            db.get(objStringKeys, (objectPayloads) -> {
-                List<KObject> objs = new ArrayList<KObject>();
-                for (int i = 0; i < objectPayloads.length; i++) {
-                    KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
-                    //Put in cache
-                    objs.add(obj);
+        timeTrees(originView.dimension(), keys, new Callback<TimeTree[]>() {
+            @Override
+            public void on(TimeTree[] timeTrees) {
+                String[] objStringKeys = new String[keys.length];
+                long[] resolved = new long[keys.length];
+                for (int i = 0; i < keys.length; i++) {
+                    long resolvedTime = timeTrees[i].resolve(originView.now());
+                    resolved[i] = resolvedTime;
+                    objStringKeys[i] = keyPayload(originView.dimension(), resolvedTime, keys[i]);
                 }
-                callback.on(objs);
-            }, (e) -> {
-                callback.on(null);
-            });
+                db.get(objStringKeys, new Callback<String[]>() {
+                    @Override
+                    public void on(String[] objectPayloads) {
+                        List<KObject> objs = new ArrayList<KObject>();
+                        for (int i = 0; i < objectPayloads.length; i++) {
+                            KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+                            //Put in cache
+                            objs.add(obj);
+                        }
+                        callback.on(objs);
+                    }
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable throwable) {
+                        callback.on(null);
+                    }
+                });
+            }
         });
     }
 
@@ -458,21 +490,30 @@ public class DefaultKStore implements KStore {
             } else {
                 String[] rootKeys = new String[1];
                 rootKeys[0] = keyRoot(dimensionCache.dimension, resolvedRoot);
-                db.get(rootKeys, (res) -> {
-                    try {
-                        Long idRoot = Long.parseLong(res[0]);
-                        lookup(originView, idRoot, (resolved) -> {
-                            timeCache.root = resolved;
-                            timeCache.rootDirty = false;
-                            callback.on(resolved);
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                db.get(rootKeys, new Callback<String[]>() {
+                    @Override
+                    public void on(String[] res) {
+                        try {
+                            Long idRoot = Long.parseLong(res[0]);
+                            lookup(originView, idRoot, new Callback<KObject>() {
+                                @Override
+                                public void on(KObject resolved) {
+                                    timeCache.root = resolved;
+                                    timeCache.rootDirty = false;
+                                    callback.on(resolved);
+                                }
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            callback.on(null);
+                        }
+                    }
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable throwable) {
+                        throwable.printStackTrace();
                         callback.on(null);
                     }
-                }, (e) -> {
-                    e.printStackTrace();
-                    callback.on(null);
                 });
             }
         }

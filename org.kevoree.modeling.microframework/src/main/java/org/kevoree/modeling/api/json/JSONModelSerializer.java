@@ -49,14 +49,20 @@ public class JSONModelSerializer implements ModelSerializer {
         final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
         out.print("[\n");
         printJSON(model, out);
-        model.graphVisit((elem) -> {
-            out.print(",");
-            printJSON(elem, out);
-            return ModelVisitor.VisitResult.CONTINUE;
-        }, (t) -> {
-            out.print("]\n");
-            out.flush();
-            error.on(null);
+        model.graphVisit(new ModelVisitor() {
+            @Override
+            public VisitResult visit(KObject elem) {
+                out.print(",");
+                printJSON(elem, out);
+                return ModelVisitor.VisitResult.CONTINUE;
+            }
+        }, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                out.print("]\n");
+                out.flush();
+                error.on(null);
+            }
         });
     }
 

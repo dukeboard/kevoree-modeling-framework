@@ -6,10 +6,10 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.api.util.InternalInboundRef;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
-import java.util.Set;
+
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -54,8 +54,8 @@ public class HelloTest {
 
                 nodeT0.addChildren(nodeT1);
 
-                Set<InternalInboundRef> refs = (Set<InternalInboundRef>) t0.dimension().universe().storage().raw(nodeT1, KStore.AccessMode.READ)[1];
-                assertTrue(refs.contains(new InternalInboundRef(nodeT0.uuid(), 4)));
+                Map<Long,Integer> refs = (Map<Long,Integer>) t0.dimension().universe().storage().raw(nodeT1, KStore.AccessMode.READ)[1];
+                assertTrue(refs.containsKey(nodeT0.uuid()));
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
                 final int[] i = {0};

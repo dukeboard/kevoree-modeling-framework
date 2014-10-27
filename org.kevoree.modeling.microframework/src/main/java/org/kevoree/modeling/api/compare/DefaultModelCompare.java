@@ -108,34 +108,40 @@ public class DefaultModelCompare implements ModelCompare {
         Map<MetaAttribute, String> values = new HashMap<MetaAttribute, String>();
         if (attributes) {
             if (current != null) {
-                current.visitAttributes((att, value) -> {
-                    values.put(att, Converters.convFlatAtt(value));
+                current.visitAttributes(new ModelAttributeVisitor() {
+                    @Override
+                    public void visit(MetaAttribute metaAttribute, Object value) {
+                        values.put(metaAttribute, Converters.convFlatAtt(value));
+                    }
                 });
             }
             if (sibling != null) {
-                sibling.visitAttributes((att, value) -> {
-                    String flatAtt2 = Converters.convFlatAtt(value);
-                    String flatAtt1 = values.get(att);
-                    boolean isEquals = true;
-                    if (flatAtt1 == null) {
-                        if (flatAtt2 == null) {
-                            isEquals = true;
+                sibling.visitAttributes(new ModelAttributeVisitor() {
+                    @Override
+                    public void visit(MetaAttribute metaAttribute, Object value) {
+                        String flatAtt2 = Converters.convFlatAtt(value);
+                        String flatAtt1 = values.get(metaAttribute);
+                        boolean isEquals = true;
+                        if (flatAtt1 == null) {
+                            if (flatAtt2 == null) {
+                                isEquals = true;
+                            } else {
+                                isEquals = false;
+                            }
                         } else {
-                            isEquals = false;
+                            isEquals = flatAtt1.equals(flatAtt2);
                         }
-                    } else {
-                        isEquals = flatAtt1.equals(flatAtt2);
+                        if (isEquals) {
+                            if (inter) {
+                                traces.add(new ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
+                            }
+                        } else {
+                            if (!inter) {
+                                traces.add(new ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
+                            }
+                        }
+                        values.remove(metaAttribute);
                     }
-                    if (isEquals) {
-                        if (inter) {
-                            traces.add(new ModelSetTrace(current.uuid(), att, flatAtt2));
-                        }
-                    } else {
-                        if (!inter) {
-                            traces.add(new ModelSetTrace(current.uuid(), att, flatAtt2));
-                        }
-                    }
-                    values.remove(att);
                 });
             }
             if (!inter && !merge && !values.isEmpty()) {

@@ -13,7 +13,6 @@ import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.Helper;
-import org.kevoree.modeling.api.util.InternalInboundRef;
 
 import java.util.*;
 
@@ -109,17 +108,20 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (isRoot) {
             callback.on("/");
         } else {
-            parent((parent) -> {
-                if (parent == null) {
-                    callback.on(null);
-                } else {
-                    parent.path(new Callback<String>() {
-                        @Override
-                        public void on(String parentPath) {
-                            callback.on(Helper.path(parentPath, referenceInParent, AbstractKObject.this));
+            parent(new Callback<KObject>() {
+                @Override
+                public void on(KObject parent) {
+                    if (parent == null) {
+                        callback.on(null);
+                    } else {
+                        parent.path(new Callback<String>() {
+                            @Override
+                            public void on(String parentPath) {
+                                callback.on(Helper.path(parentPath, referenceInParent, AbstractKObject.this));
 
-                        }
-                    });
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -205,8 +207,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void jump(Long time, Callback<A> callback) {
-        view().dimension().time(time).lookup(kid, (o) -> {
-            callback.on((A) o);
+        view().dimension().time(time).lookup(kid, new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                callback.on((A) kObject);
+            }
         });
     }
 
@@ -251,20 +256,27 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         }
     }
 
-    private Set getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
+    private Object getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
         Object previous = view().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex];
         if (previous == null) {
-            previous = new HashSet<Object>();
+            if (payloadIndex == INBOUNDS_INDEX) {
+                previous = new HashMap<Long, Integer>();
+            } else {
+                previous = new HashSet<Long>();
+            }
             view().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex] = previous;
         }
-        return (Set) previous;
+        return previous;
     }
 
 
     private void removeFromContainer(KObject param, boolean fireEvent) {
         if (param != null && param.parentUuid() != null && param.parentUuid() != kid) {
-            view().lookup(param.parentUuid(), (parent) -> {
-                parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
+            view().lookup(param.parentUuid(), new Callback<KObject>() {
+                @Override
+                public void on(KObject parent) {
+                    parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
+                }
             });
         }
     }
@@ -291,9 +303,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         ((AbstractKObject) param).setParentUuid(kid);
                     }
                     //Inbound
-                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    InternalInboundRef newInboundRef = new InternalInboundRef(uuid(), metaReference.index());
-                    inboundRefs.add(newInboundRef);
+                    Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                    inboundRefs.put(uuid(), metaReference.index());
                 }
                 break;
             case SET:
@@ -317,15 +328,17 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             ((AbstractKObject) param).setParentUuid(kid);
                         }
                         //Inbound
-                        Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                        InternalInboundRef newInboundRef = new InternalInboundRef(uuid(), metaReference.index());
-                        inboundRefs.add(newInboundRef);
+                        Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                        inboundRefs.put(uuid(), metaReference.index());
                         //Opposite
+                        KObject self = this;
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous != null) {
-                                view().lookup((Long) previous, (resolved) -> {
-                                    //TODO detach
-                                    resolved.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
+                                view().lookup((Long) previous, new Callback<KObject>() {
+                                    @Override
+                                    public void on(KObject resolved) {
+                                        resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false, fireEvent);
+                                    }
                                 });
                             }
                             param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
@@ -339,19 +352,23 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Object previousKid = raw[metaReference.index()];
                     raw[metaReference.index()] = null;
                     if (previousKid != null) {
-                        view.dimension().universe().storage().lookup(view, (Long) previousKid, (resolvedParam) -> {
-                            if (resolvedParam != null) {
-                                if (metaReference.contained()) {
-                                    //removeFromContainer(resolvedParam, fireEvent);
-                                    ((AbstractKObject) resolvedParam).setReferenceInParent(null);
-                                    ((AbstractKObject) resolvedParam).setParentUuid(null);
+                        KObject self = this;
+                        view.dimension().universe().storage().lookup(view, (Long) previousKid, new Callback<KObject>() {
+                            @Override
+                            public void on(KObject resolvedParam) {
+                                if (resolvedParam != null) {
+                                    if (metaReference.contained()) {
+                                        //removeFromContainer(resolvedParam, fireEvent);
+                                        ((AbstractKObject) resolvedParam).setReferenceInParent(null);
+                                        ((AbstractKObject) resolvedParam).setParentUuid(null);
+                                    }
+                                    if (metaReference.opposite() != null && setOpposite) {
+                                        resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false, fireEvent);
+                                    }
+                                    //Inbounds
+                                    Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
+                                    inboundRefs.remove(uuid());
                                 }
-                                if (metaReference.opposite() != null && setOpposite) {
-                                    resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
-                                }
-                                //Inbounds
-                                Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
-                                inboundRefs.removeIf((ref) -> (ref.getKID() == uuid()));
                             }
                         });
                     }
@@ -376,8 +393,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
 
                     //Inbounds
-                    Set<InternalInboundRef> inboundRefs = (Set<InternalInboundRef>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    inboundRefs.removeIf((ref) -> (ref.getKID() == uuid()));
+                    Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                    inboundRefs.remove(uuid());
                 }
                 break;
             default:
@@ -411,17 +428,20 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             });
         } else if (o instanceof Set) {
             Set<Long> objs = (Set<Long>) o;
-            view().lookupAll(objs, (result) -> {
-                boolean endAlreadyCalled = false;
-                try {
-                    for (KObject resolved : result) {
-                        callback.on((C) resolved);
-                    }
-                    endAlreadyCalled = true;
-                    end.on(null);
-                } catch (Throwable t) {
-                    if (!endAlreadyCalled) {
-                        end.on(t);
+            view().lookupAll(objs, new Callback<List<KObject>>() {
+                @Override
+                public void on(List<KObject> result) {
+                    boolean endAlreadyCalled = false;
+                    try {
+                        for (KObject resolved : result) {
+                            callback.on((C) resolved);
+                        }
+                        endAlreadyCalled = true;
+                        end.on(null);
+                    } catch (Throwable t) {
+                        if (!endAlreadyCalled) {
+                            end.on(t);
+                        }
                     }
                 }
             });
@@ -494,48 +514,51 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (toResolveds.isEmpty()) {
             end.on(null);
         } else {
-            view().lookupAll(toResolveds, (resolveds) -> {
-                List<KObject> nextDeep = new ArrayList<KObject>();
-                for (KObject resolved : resolveds) {
-                    ModelVisitor.VisitResult result = visitor.visit(resolved);
-                    if (result.equals(ModelVisitor.VisitResult.STOP)) {
-                        end.on(null);
-                    } else {
-                        if (deep) {
-                            if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
-                                if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
-                                    nextDeep.add(resolved);
+            view().lookupAll(toResolveds, new Callback<List<KObject>>() {
+                @Override
+                public void on(List<KObject> resolveds) {
+                    List<KObject> nextDeep = new ArrayList<KObject>();
+                    for (KObject resolved : resolveds) {
+                        ModelVisitor.VisitResult result = visitor.visit(resolved);
+                        if (result.equals(ModelVisitor.VisitResult.STOP)) {
+                            end.on(null);
+                        } else {
+                            if (deep) {
+                                if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
+                                    if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
+                                        nextDeep.add(resolved);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (!nextDeep.isEmpty()) {
-                    final int[] i = new int[1];
-                    i[0] = 0;
-                    final Callback<Throwable>[] next = new Callback[1];
-                    next[0] = new Callback<Throwable>() {
-                        @Override
-                        public void on(Throwable throwable) {
-                            i[0] = i[0] + 1;
-                            if (i[0] == nextDeep.size()) {
-                                end.on(null);
-                            } else {
-                                if (treeOnly) {
-                                    nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+                    if (!nextDeep.isEmpty()) {
+                        final int[] i = new int[1];
+                        i[0] = 0;
+                        final Callback<Throwable>[] next = new Callback[1];
+                        next[0] = new Callback<Throwable>() {
+                            @Override
+                            public void on(Throwable throwable) {
+                                i[0] = i[0] + 1;
+                                if (i[0] == nextDeep.size()) {
+                                    end.on(null);
                                 } else {
-                                    nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+                                    if (treeOnly) {
+                                        nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+                                    } else {
+                                        nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+                                    }
                                 }
                             }
+                        };
+                        if (treeOnly) {
+                            nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+                        } else {
+                            nextDeep.get(i[0]).graphVisit(visitor, next[0]);
                         }
-                    };
-                    if (treeOnly) {
-                        nextDeep.get(i[0]).treeVisit(visitor, next[0]);
                     } else {
-                        nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+                        end.on(null);
                     }
-                } else {
-                    end.on(null);
                 }
             });
         }
@@ -661,40 +684,39 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         } else {
             Object payload = rawPayload[INBOUNDS_INDEX];
             if (payload != null) {
-                if (payload instanceof Set) {
-                    Set<InternalInboundRef> refs = (Set<InternalInboundRef>) payload;
+                if (payload instanceof Map) {
+                    Map<Long, Integer> refs = (Map<Long, Integer>) payload;
                     Set<Long> oppositeKids = new HashSet<Long>();
-                    HashMap<Long, InternalInboundRef> oppositeInternal = new HashMap<Long, InternalInboundRef>();
-                    for (InternalInboundRef ref : refs) {
-                        oppositeInternal.put(ref.getKID(), ref);
-                        oppositeKids.add(ref.getKID());
-                    }
-                    view.lookupAll(oppositeKids, (oppositeElements) -> {
-                        if (oppositeElements != null) {
-                            for (KObject opposite : oppositeElements) {
-                                InternalInboundRef inboundRef = oppositeInternal.get(opposite.uuid());
-                                MetaReference metaRef = null;
-                                MetaReference[] metaReferences = opposite.metaReferences();
-                                for (int i = 0; i < metaReferences.length; i++) {
-                                    if (metaReferences[i].index() == inboundRef.getRefIndex()) {
-                                        metaRef = metaReferences[i];
-                                        break;
+                    oppositeKids.addAll(refs.keySet());
+                    view.lookupAll(oppositeKids, new Callback<List<KObject>>() {
+                        @Override
+                        public void on(List<KObject> oppositeElements) {
+                            if (oppositeElements != null) {
+                                for (KObject opposite : oppositeElements) {
+                                    Integer inboundRef = refs.get(opposite.uuid());
+                                    MetaReference metaRef = null;
+                                    MetaReference[] metaReferences = opposite.metaReferences();
+                                    for (int i = 0; i < metaReferences.length; i++) {
+                                        if (metaReferences[i].index() == inboundRef) {
+                                            metaRef = metaReferences[i];
+                                            break;
+                                        }
+                                    }
+                                    if (metaRef != null) {
+                                        InboundReference reference = new InboundReference(metaRef, opposite);
+                                        try {
+                                            callback.on(reference);
+                                        } catch (Throwable t) {
+                                            end.on(t);
+                                        }
+                                    } else {
+                                        end.on(new Exception("MetaReference not found with index:" + inboundRef + " in refs of " + opposite.metaClass().metaName()));
                                     }
                                 }
-                                if (metaRef != null) {
-                                    InboundReference reference = new InboundReference(metaRef, opposite);
-                                    try {
-                                        callback.on(reference);
-                                    } catch (Throwable t) {
-                                        end.on(t);
-                                    }
-                                } else {
-                                    end.on(new Exception("MetaReference not found with index:" + inboundRef.getRefIndex() + " in refs of " + opposite.metaClass().metaName()));
-                                }
+                                end.on(null);
+                            } else {
+                                end.on(new Exception("Could not resolve opposite objects"));
                             }
-                            end.on(null);
-                        } else {
-                            end.on(new Exception("Could not resolve opposite objects"));
                         }
                     });
                 } else {

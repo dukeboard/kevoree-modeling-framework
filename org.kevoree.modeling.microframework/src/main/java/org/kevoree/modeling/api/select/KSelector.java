@@ -88,8 +88,11 @@ public class KSelector {
                     Helper.forall(nextGeneration.toArray(new KObject[nextGeneration.size()]), new CallBackChain<KObject>() {
                         @Override
                         public void on(KObject kObject, Callback<Throwable> next) {
-                            select(kObject, extractedQuery.subQuery, (subs) -> {
-                                childSelected.addAll(childSelected);
+                            select(kObject, extractedQuery.subQuery, new Callback<List<KObject>>() {
+                                @Override
+                                public void on(List<KObject> kObjects) {
+                                    childSelected.addAll(childSelected);
+                                }
                             });
                         }
                     }, new Callback<Throwable>() {

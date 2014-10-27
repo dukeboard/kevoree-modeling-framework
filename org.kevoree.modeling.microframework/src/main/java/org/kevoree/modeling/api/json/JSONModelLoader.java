@@ -41,8 +41,11 @@ public class JSONModelLoader implements ModelLoader {
         ByteArrayInputStream st = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
         Lexer lexer = new Lexer(st);
         final KObject[] loaded = new KObject[1];
-        loadObjects(lexer, factory, (objs) -> {
-            loaded[0] = objs.get(0);//we rely on the cache of TimeTree, ugly...
+        loadObjects(lexer, factory, new Callback<List<KObject>>() {
+            @Override
+            public void on(List<KObject> objs) {
+                loaded[0] = objs.get(0);//we rely on the cache of TimeTree, ugly...
+            }
         });
         return loaded[0];
     }
@@ -164,8 +167,11 @@ public class JSONModelLoader implements ModelLoader {
         if (currentToken.getTokenType() != Type.LEFT_BRACKET) {
             callback.on(null);
         } else {
-            loadObjects(lexer, factory, (objs) -> {
-                callback.on(null);
+            loadObjects(lexer, factory, new Callback<List<KObject>>() {
+                @Override
+                public void on(List<KObject> kObjects) {
+                    callback.on(null);
+                }
             });
         }
     }
