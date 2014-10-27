@@ -33,7 +33,7 @@ public class KQuery {
             if (query.length() > 1) {
                 subQuery = query.substring(1);
             }
-            HashMap<String, KQueryParam> params = new HashMap<>();
+            HashMap<String, KQueryParam> params = new HashMap<String, KQueryParam>();
             return new KQuery("", params, subQuery, "/", false, false);
         }
         if (query.startsWith("**/")) {
