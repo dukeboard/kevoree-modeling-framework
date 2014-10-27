@@ -18,9 +18,9 @@ import java.util.*;
 
 public class DefaultModelSlicer implements ModelSlicer {
 
-    private void internal_prune(KObject elem, List<ModelTrace> traces, Map<Long, KObject> cache, Map<Long, KObject> parentMap, Callback<Throwable> callback) {
+    private void internal_prune(final KObject elem, final List<ModelTrace> traces, final Map<Long, KObject> cache, final Map<Long, KObject> parentMap, final Callback<Throwable> callback) {
         //collect parent which as not be added already
-        List<KObject> parents = new ArrayList<KObject>();
+        final List<KObject> parents = new ArrayList<KObject>();
         final Callback<KObject> parentExplorer = new Callback<KObject>() {
             @Override
             public void on(KObject currentParent) {
@@ -75,10 +75,10 @@ public class DefaultModelSlicer implements ModelSlicer {
     }
 
     @Override
-    public void slice(List<KObject> elems, Callback<TraceSequence> callback) {
-        List<ModelTrace> traces = new ArrayList<ModelTrace>();
-        Map<Long, KObject> tempMap = new HashMap<Long, KObject>();
-        Map<Long, KObject> parentMap = new HashMap<Long, KObject>();
+    public void slice(List<KObject> elems, final Callback<TraceSequence> callback) {
+        final List<ModelTrace> traces = new ArrayList<ModelTrace>();
+        final Map<Long, KObject> tempMap = new HashMap<Long, KObject>();
+        final Map<Long, KObject> parentMap = new HashMap<Long, KObject>();
         KObject[] elemsArr = elems.toArray(new KObject[elems.size()]);
         Helper.forall(elemsArr, new CallBackChain<KObject>() {
             @Override

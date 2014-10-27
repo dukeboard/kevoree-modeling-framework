@@ -35,10 +35,10 @@ public class DefaultModelCompare implements ModelCompare {
         internal_diff(origin, target, true, false, callback);
     }
 
-    private void internal_diff(KObject origin, KObject target, boolean inter, boolean merge, Callback<TraceSequence> callback) {
-        List<ModelTrace> traces = new ArrayList<ModelTrace>();
-        List<ModelTrace> tracesRef = new ArrayList<ModelTrace>();
-        Map<Long, KObject> objectsMap = new HashMap<Long, KObject>();
+    private void internal_diff(KObject origin, final KObject target, final boolean inter, final boolean merge, final Callback<TraceSequence> callback) {
+        final List<ModelTrace> traces = new ArrayList<ModelTrace>();
+        final List<ModelTrace> tracesRef = new ArrayList<ModelTrace>();
+        final Map<Long, KObject> objectsMap = new HashMap<Long, KObject>();
         traces.addAll(internal_createTraces(origin, target, inter, merge, false, true));
         tracesRef.addAll(internal_createTraces(origin, target, inter, merge, true, false));
         origin.treeVisit(new ModelVisitor() {
@@ -103,9 +103,9 @@ public class DefaultModelCompare implements ModelCompare {
         });
     }
 
-    public List<ModelTrace> internal_createTraces(KObject current, KObject sibling, boolean inter, boolean merge, boolean references, boolean attributes) {
-        List<ModelTrace> traces = new ArrayList<ModelTrace>();
-        Map<MetaAttribute, String> values = new HashMap<MetaAttribute, String>();
+    public List<ModelTrace> internal_createTraces(final KObject current, KObject sibling, final boolean inter, boolean merge, boolean references, boolean attributes) {
+        final List<ModelTrace> traces = new ArrayList<ModelTrace>();
+        final Map<MetaAttribute, String> values = new HashMap<MetaAttribute, String>();
         if (attributes) {
             if (current != null) {
                 current.visitAttributes(new ModelAttributeVisitor() {

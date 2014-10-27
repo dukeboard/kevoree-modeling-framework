@@ -50,9 +50,9 @@ public class JSONModelLoader implements ModelLoader {
         return loaded[0];
     }
 
-    private static void loadObjects(Lexer lexer, KView factory, Callback<List<KObject>> callback) {
-        List<KObject> loaded = new ArrayList<KObject>();
-        List<Map<String, Object>> alls = new ArrayList<Map<String, Object>>();
+    private static void loadObjects(Lexer lexer, final KView factory, final Callback<List<KObject>> callback) {
+        final List<KObject> loaded = new ArrayList<KObject>();
+        final List<Map<String, Object>> alls = new ArrayList<Map<String, Object>>();
         Map<String, Object> content = new HashMap<String, Object>();
         String currentAttributeName = null;
         Set<String> arrayPayload = null;
@@ -158,7 +158,7 @@ public class JSONModelLoader implements ModelLoader {
     }
 
     @Override
-    public void loadModelFromStream(InputStream inputStream, Callback<Throwable> callback) {
+    public void loadModelFromStream(InputStream inputStream, final Callback<Throwable> callback) {
         if (inputStream == null) {
             throw new RuntimeException("Null input Stream");
         }

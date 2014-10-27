@@ -42,7 +42,7 @@ public class ModelTraceApplicator {
         }
     }
 
-    public void createOrAdd(Long previousPath, KObject target, MetaReference reference, MetaClass metaClass, Callback<Throwable> callback) {
+    public void createOrAdd(final Long previousPath, final KObject target, final MetaReference reference, final MetaClass metaClass, final Callback<Throwable> callback) {
         if (previousPath != null) {
             targetModel.view().lookup(previousPath, new Callback<KObject>() {
                 @Override
@@ -95,9 +95,9 @@ public class ModelTraceApplicator {
         });
     }
 
-    public void applyTrace(ModelTrace trace, Callback<Throwable> callback) {
+    public void applyTrace(final ModelTrace trace, final Callback<Throwable> callback) {
         if (trace instanceof ModelAddTrace) {
-            ModelAddTrace addTrace = (ModelAddTrace) trace;
+            final ModelAddTrace addTrace = (ModelAddTrace) trace;
             tryClosePending(null);
             targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
                 @Override
@@ -110,11 +110,11 @@ public class ModelTraceApplicator {
                 }
             });
         } else if (trace instanceof ModelRemoveTrace) {
-            ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
+            final ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
             tryClosePending(trace.getSrcKID());
             targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
                 @Override
-                public void on(KObject targetElem) {
+                public void on(final KObject targetElem) {
                     if (targetElem != null) {
                         targetModel.view().lookup(removeTrace.getObjKID(), new Callback<KObject>() {
                             @Override
@@ -129,7 +129,7 @@ public class ModelTraceApplicator {
                 }
             });
         } else if (trace instanceof ModelSetTrace) {
-            ModelSetTrace setTrace = (ModelSetTrace) trace;
+            final ModelSetTrace setTrace = (ModelSetTrace) trace;
             tryClosePending(trace.getSrcKID());
             if (!trace.getSrcKID().equals(pendingObjKID)) {
                 targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {

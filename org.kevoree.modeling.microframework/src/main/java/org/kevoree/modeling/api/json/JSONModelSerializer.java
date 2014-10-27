@@ -45,7 +45,7 @@ public class JSONModelSerializer implements ModelSerializer {
     }
 
     @Override
-    public void serializeToStream(KObject model, OutputStream raw, Callback<Throwable> error) {
+    public void serializeToStream(KObject model, OutputStream raw, final Callback<Throwable> error) {
         final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
         out.print("[\n");
         printJSON(model, out);

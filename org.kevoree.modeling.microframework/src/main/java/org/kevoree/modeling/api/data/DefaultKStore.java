@@ -66,8 +66,8 @@ public class DefaultKStore implements KStore {
         this.db = db;
     }
 
-    public void initDimension(KDimension dimension, Callback<Throwable> callback) {
-        DimensionCache dimensionCache = new DimensionCache(dimension);
+    public void initDimension(KDimension dimension, final Callback<Throwable> callback) {
+        final DimensionCache dimensionCache = new DimensionCache(dimension);
         caches.put(dimension.key(), dimensionCache);
         String[] rootTreeKeys = new String[1];
         rootTreeKeys[0] = keyRootTree(dimension);
@@ -266,7 +266,7 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void saveUnload(KDimension dimension, Callback<Throwable> callback) {
+    public void saveUnload(final KDimension dimension, final Callback<Throwable> callback) {
         save(dimension, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -280,7 +280,7 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void timeTree(KDimension dimension, long key, Callback<TimeTree> callback) {
+    public void timeTree(KDimension dimension, long key, final Callback<TimeTree> callback) {
         long[] keys = new long[1];
         keys[0] = key;
         timeTrees(dimension, keys, new Callback<TimeTree[]>() {
@@ -296,10 +296,10 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void timeTrees(KDimension dimension, long[] keys, Callback<TimeTree[]> callback) {
-        List<Integer> toLoad = new ArrayList<Integer>();
-        DimensionCache dimensionCache = caches.get(dimension.key());
-        TimeTree[] result = new TimeTree[keys.length];
+    public void timeTrees(final KDimension dimension, final long[] keys, final Callback<TimeTree[]> callback) {
+        final List<Integer> toLoad = new ArrayList<Integer>();
+        final DimensionCache dimensionCache = caches.get(dimension.key());
+        final TimeTree[] result = new TimeTree[keys.length];
         for (int i = 0; i < keys.length; i++) {
             TimeTree cachedTree = dimensionCache.timeTreeCache.get(keys[i]);
             if (cachedTree != null) {
@@ -346,14 +346,14 @@ public class DefaultKStore implements KStore {
     //TODO protect for //call
 
     @Override
-    public void lookup(KView originView, long key, Callback<KObject> callback) {
+    public void lookup(final KView originView, final long key, final Callback<KObject> callback) {
         if (callback == null) {
             return;
         }
         timeTree(originView.dimension(), key, new Callback<TimeTree>() {
             @Override
             public void on(TimeTree timeTree) {
-                Long resolvedTime = timeTree.resolve(originView.now());
+                final Long resolvedTime = timeTree.resolve(originView.now());
                 if (resolvedTime == null) {
                     callback.on(null);
                 } else {
@@ -390,12 +390,12 @@ public class DefaultKStore implements KStore {
         });
     }
 
-    private void loadObjectInCache(KView originView, long[] keys, Callback<List<KObject>> callback) {
+    private void loadObjectInCache(final KView originView, final long[] keys, final Callback<List<KObject>> callback) {
         timeTrees(originView.dimension(), keys, new Callback<TimeTree[]>() {
             @Override
             public void on(TimeTree[] timeTrees) {
                 String[] objStringKeys = new String[keys.length];
-                long[] resolved = new long[keys.length];
+                final long[] resolved = new long[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     long resolvedTime = timeTrees[i].resolve(originView.now());
                     resolved[i] = resolvedTime;
@@ -423,9 +423,9 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void lookupAll(KView originView, Set<Long> key, Callback<List<KObject>> callback) {
+    public void lookupAll(final KView originView, Set<Long> key, final Callback<List<KObject>> callback) {
         List<Long> toLoad = new ArrayList<Long>(key);
-        List<KObject> resolveds = new ArrayList<KObject>();
+        final List<KObject> resolveds = new ArrayList<KObject>();
         for (Long kid : key) {
             KObject resolved = cacheLookup(originView.dimension(), originView.now(), kid);
             if (resolved != null) {
@@ -478,13 +478,13 @@ public class DefaultKStore implements KStore {
         }
     }
 
-    public void getRoot(KView originView, Callback<KObject> callback) {
+    public void getRoot(final KView originView, final Callback<KObject> callback) {
         DimensionCache dimensionCache = caches.get(originView.dimension().key());
         Long resolvedRoot = dimensionCache.rootTimeTree.resolve(originView.now());
         if (resolvedRoot == null) {
             callback.on(null);
         } else {
-            TimeCache timeCache = dimensionCache.timesCaches.get(resolvedRoot);
+            final TimeCache timeCache = dimensionCache.timesCaches.get(resolvedRoot);
             if (timeCache.root != null) {
                 callback.on(timeCache.root);
             } else {

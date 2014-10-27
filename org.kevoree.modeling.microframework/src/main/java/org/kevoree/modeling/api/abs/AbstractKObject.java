@@ -104,7 +104,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public void path(Callback<String> callback) {
+    public void path(final Callback<String> callback) {
         if (isRoot) {
             callback.on("/");
         } else {
@@ -206,7 +206,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public void jump(Long time, Callback<A> callback) {
+    public void jump(Long time, final Callback<A> callback) {
         view().dimension().time(time).lookup(kid, new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
@@ -270,7 +270,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
 
-    private void removeFromContainer(KObject param, boolean fireEvent) {
+    private void removeFromContainer(final KObject param, final boolean fireEvent) {
         if (param != null && param.parentUuid() != null && param.parentUuid() != kid) {
             view().lookup(param.parentUuid(), new Callback<KObject>() {
                 @Override
@@ -283,7 +283,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
 
     @Override
-    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent) {
+    public void mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite, final boolean fireEvent) {
         switch (actionType) {
             case ADD:
                 if (metaReference.single()) {
@@ -331,7 +331,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
                         inboundRefs.put(uuid(), metaReference.index());
                         //Opposite
-                        KObject self = this;
+                        final KObject self = this;
                         if (metaReference.opposite() != null && setOpposite) {
                             if (previous != null) {
                                 view().lookup((Long) previous, new Callback<KObject>() {
@@ -352,7 +352,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Object previousKid = raw[metaReference.index()];
                     raw[metaReference.index()] = null;
                     if (previousKid != null) {
-                        KObject self = this;
+                        final KObject self = this;
                         view.dimension().universe().storage().lookup(view, (Long) previousKid, new Callback<KObject>() {
                             @Override
                             public void on(KObject resolvedParam) {
@@ -406,7 +406,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return ((Set) view().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()]).size();
     }
 
-    public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end) {
+    public <C extends KObject> void each(MetaReference metaReference, final Callback<C> callback, final Callback<Throwable> end) {
         Object o = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()];
         if (o == null) {
             if (end != null) {
@@ -484,7 +484,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         internal_visit(visitor, end, false, false, null);
     }
 
-    private void internal_visit(ModelVisitor visitor, Callback<Throwable> end, boolean deep, boolean treeOnly, HashSet<Long> alreadyVisited) {
+    private void internal_visit(final ModelVisitor visitor, final Callback<Throwable> end, final boolean deep, final boolean treeOnly, final HashSet<Long> alreadyVisited) {
         if (alreadyVisited != null) {
             alreadyVisited.add(uuid());
         }
@@ -517,7 +517,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             view().lookupAll(toResolveds, new Callback<List<KObject>>() {
                 @Override
                 public void on(List<KObject> resolveds) {
-                    List<KObject> nextDeep = new ArrayList<KObject>();
+                    final List<KObject> nextDeep = new ArrayList<KObject>();
                     for (KObject resolved : resolveds) {
                         ModelVisitor.VisitResult result = visitor.visit(resolved);
                         if (result.equals(ModelVisitor.VisitResult.STOP)) {
@@ -677,7 +677,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
 
-    public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end) {
+    public void inbounds(final Callback<InboundReference> callback, final Callback<Throwable> end) {
         Object[] rawPayload = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
         if (rawPayload == null) {
             end.on(new Exception("Object not initialized."));
@@ -685,7 +685,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             Object payload = rawPayload[INBOUNDS_INDEX];
             if (payload != null) {
                 if (payload instanceof Map) {
-                    Map<Long, Integer> refs = (Map<Long, Integer>) payload;
+                    final Map<Long, Integer> refs = (Map<Long, Integer>) payload;
                     Set<Long> oppositeKids = new HashSet<Long>();
                     oppositeKids.addAll(refs.keySet());
                     view.lookupAll(oppositeKids, new Callback<List<KObject>>() {

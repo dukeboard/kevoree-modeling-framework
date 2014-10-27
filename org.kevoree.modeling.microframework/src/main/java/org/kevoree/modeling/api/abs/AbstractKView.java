@@ -103,7 +103,7 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void select(String query, Callback<List<KObject>> callback) {
+    public void select(final String query, final Callback<List<KObject>> callback) {
         dimension().universe().storage().getRoot(this, new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {

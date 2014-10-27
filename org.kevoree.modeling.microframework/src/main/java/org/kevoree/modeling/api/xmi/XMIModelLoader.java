@@ -256,7 +256,12 @@ public class XMIModelLoader implements ModelLoader {
             switch (ctx.xmiReader.next()) {
                 case START_TAG: {
                     String subElemName = ctx.xmiReader.getLocalName();
-                    int i = ctx.elementsCount.computeIfAbsent(xmiAddress + "/@" + subElemName, (s) -> 0); //TODO please rewrite in Java7
+                    String key = xmiAddress + "/@" + subElemName;
+                    Integer i = ctx.elementsCount.get(key);
+                    if(i == null){
+                        i = 0;
+                        ctx.elementsCount.put(key,i);
+                    }
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
                     KObject containedElement = loadObject(ctx, subElementId, subElemName);
                     modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true, false);

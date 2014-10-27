@@ -193,7 +193,12 @@ public class XMIModelSerializer implements ModelSerializer {
             @Override
             public VisitResult visit(KObject elem) {
                 String parentXmiAddress = context.addressTable.get(elem.parentUuid());
-                int i = context.elementsCount.computeIfAbsent(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), (s) -> 0);
+                String key = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
+                Integer i = context.elementsCount.get(key);
+                if(i == null){
+                    i = 0;
+                    context.elementsCount.put(key,i);
+                }
                 context.addressTable.put(elem.uuid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
                 context.elementsCount.put(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), i + 1);
                 String pack = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));

@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class KSelector {
 
-    public static void select(KObject root, String query, Callback<List<KObject>> callback) {
+    public static void select(final KObject root, String query, final Callback<List<KObject>> callback) {
 
         final KQuery extractedQuery = KQuery.extractFirstQuery(query);
 
@@ -79,7 +79,7 @@ public class KSelector {
                         }
                     }
                 }
-                List<KObject> childSelected = new ArrayList<KObject>();
+                final List<KObject> childSelected = new ArrayList<KObject>();
                 if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
                     childSelected.add(root);
                     callback.on(nextGeneration);
