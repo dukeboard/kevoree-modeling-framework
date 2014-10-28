@@ -47,13 +47,6 @@ public class AdjLinearSolverQr {
 
     private void solveU( double U[] , double []b , int n )
     {
-//        for( int i =n-1; i>=0; i-- ) {
-//            double sum = b[i];
-//            for( int j = i+1; j <n; j++ ) {
-//                sum -= U[i*n+j]* b[j];
-//            }
-//            b[i] = sum/U[i*n+i];
-//        }
         for( int i =n-1; i>=0; i-- ) {
             double sum = b[i];
             int indexU = i*n+i+1;
@@ -86,7 +79,7 @@ public class AdjLinearSolverQr {
 
             // Solve Qa=b
             // a = Q'b
-            CommonOps.multTransA(Q,Y,Z);
+            DenseMatrix64F.multTransA(Q,Y,Z);
 
             // solve for Rx = b using the standard upper triangular solver
             solveU(R.data, Z.data, numCols);
@@ -115,8 +108,6 @@ public class AdjLinearSolverQr {
         Y = new DenseMatrix64F(maxRows,1);
         Z = new DenseMatrix64F(maxRows,1);
 
-        //update = new QrUpdate(maxRows,maxCols,true);
-        //A = new DenseMatrix64F(maxRows,maxCols);
     }
 
 }
