@@ -114,8 +114,6 @@ public class DenseMatrix64F {
     public static void multTransA( DenseMatrix64F a , DenseMatrix64F b , DenseMatrix64F c )
     {
         if( b.numCols == 1 ) {
-            // todo check a.numCols == 1 and do inner product?
-            // there are significantly faster algorithms when dealing with vectors
             if( a.numCols >= DenseMatrix64F.MULT_COLUMN_SWITCH ) {
                 multTransA_reorderMV(a,b,c);
             } else {
@@ -147,11 +145,9 @@ public class DenseMatrix64F {
     public static DenseMatrix64F identity( int width )
     {
         DenseMatrix64F ret = new DenseMatrix64F(width,width);
-
         for( int i = 0; i < width; i++ ) {
             ret.set(i,i,1.0);
         }
-
         return ret;
     }
 
@@ -159,9 +155,7 @@ public class DenseMatrix64F {
     public static DenseMatrix64F identity( int numRows , int numCols )
     {
         DenseMatrix64F ret = new DenseMatrix64F(numRows,numCols);
-
         int small = numRows < numCols ? numRows : numCols;
-
         for( int i = 0; i < small; i++ ) {
             ret.set(i,i,1.0);
         }
@@ -195,7 +189,6 @@ public class DenseMatrix64F {
 
     public DenseMatrix64F( int numRows  , int numCols ) {
         data = new double[ numRows * numCols ];
-
         this.numRows = numRows;
         this.numCols = numCols;
     }
@@ -218,21 +211,9 @@ public class DenseMatrix64F {
 
 
     public void set( int row , int col , double value ) {
-        if( col < 0 || col >= numCols || row < 0 || row >= numRows ) {
-            throw new IllegalArgumentException("Specified element is out of bounds: ("+row+" , "+col+")");
-        }
-
         data[ row * numCols + col ] = value;
     }
 
-
-    public double get( int row , int col ) {
-        if( col < 0 || col >= numCols || row < 0 || row >= numRows ) {
-            throw new IllegalArgumentException("Specified element is out of bounds: "+row+" "+col);
-        }
-
-        return data[ row * numCols + col ];
-    }
 
     public double unsafe_get( int row , int col ) {
         return data[ row * numCols + col ];

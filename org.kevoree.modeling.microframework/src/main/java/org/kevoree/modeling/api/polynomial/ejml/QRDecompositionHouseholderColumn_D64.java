@@ -50,21 +50,13 @@ public class QRDecompositionHouseholderColumn_D64{
             if( Q == null ) {
                 Q = DenseMatrix64F.identity(numRows,minLength);
             } else {
-                if( Q.numRows != numRows || Q.numCols != minLength ) {
-                    throw new IllegalArgumentException("Unexpected matrix dimension.");
-                } else {
                     DenseMatrix64F.setIdentity(Q);
-                }
             }
         } else {
             if( Q == null ) {
                 Q = DenseMatrix64F.identity(numRows);
             } else {
-                if( Q.numRows != numRows || Q.numCols != numRows ) {
-                    throw new IllegalArgumentException("Unexpected matrix dimension.");
-                } else {
                     DenseMatrix64F.setIdentity(Q);
-                }
             }
         }
 
@@ -88,14 +80,6 @@ public class QRDecompositionHouseholderColumn_D64{
             } else
                 R = new DenseMatrix64F(numRows,numCols);
         } else {
-            if( compact ) {
-                if( R.numCols != numCols || R.numRows != minLength )
-                    throw new IllegalArgumentException(
-                            "Unexpected dimensions: found( "+R.numRows+" "+R.numCols+" ) expected( "+minLength+" "+numCols+" )");
-            } else {
-                if( R.numCols != numCols || R.numRows != numRows )
-                    throw new IllegalArgumentException("Unexpected dimensions");
-            }
 
             for( int i = 0; i < R.numRows; i++ ) {
                 int min = Math.min(i,R.numCols);
@@ -210,35 +194,19 @@ public class QRDecompositionHouseholderColumn_D64{
 
     public static void divideElements(final int j, final int numRows ,
                                       final double[] u, final double u_0 ) {
-//        double div_u = 1.0/u_0;
-//
-//        if( Double.isInfinite(div_u)) {
         for( int i = j; i < numRows; i++ ) {
             u[i] /= u_0;
         }
-//        } else {
-//            for( int i = j; i < numRows; i++ ) {
-//                u[i] *= div_u;
-//            }
-//        }
     }
 
 
     public static double computeTauAndDivide(final int j, final int numRows ,
                                              final double[] u , final double max) {
         double tau = 0;
-//        double div_max = 1.0/max;
-//        if( Double.isInfinite(div_max)) {
         for( int i = j; i < numRows; i++ ) {
             double d = u[i] /= max;
             tau += d*d;
         }
-//        } else {
-//            for( int i = j; i < numRows; i++ ) {
-//                double d = u[i] *= div_max;
-//                tau += d*d;
-//            }
-//        }
         tau = Math.sqrt(tau);
 
         if( u[j] < 0 )
@@ -253,16 +221,6 @@ public class QRDecompositionHouseholderColumn_D64{
                                          int w0, int w1 ,
                                          double _temp[] )
     {
-//        for( int i = colA0; i < A.numCols; i++ ) {
-//            double val = 0;
-//
-//            for( int k = w0; k < w1; k++ ) {
-//                val += u[k]*A.data[k*A.numCols +i];
-//            }
-//            _temp[i] = gamma*val;
-//        }
-
-        // reordered to reduce cpu cache issues
         for( int i = colA0; i < A.numCols; i++ ) {
             _temp[i] = u[w0]*A.data[w0 *A.numCols +i];
         }
@@ -277,8 +235,6 @@ public class QRDecompositionHouseholderColumn_D64{
         for( int i = colA0; i < A.numCols; i++ ) {
             _temp[i] *= gamma;
         }
-
-        // end of reorder
 
         for( int i = w0; i < w1; i++ ) {
             double valU = u[i];

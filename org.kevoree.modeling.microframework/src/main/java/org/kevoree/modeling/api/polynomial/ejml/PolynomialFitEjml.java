@@ -35,12 +35,8 @@ public class PolynomialFitEjml implements Polynomial {
 
 
     public void fit( double samplePoints[] , double[] observations ) {
-        // Create a copy of the observations and put it into a matrix
         y.reshape(observations.length,1,false);
         System.arraycopy(observations,0, y.data,0,observations.length);
-
-        // reshape the matrix to avoid unnecessarily declaring new memory
-        // save values is set to false since its old values don't matter
         A.reshape(y.numRows, coef.numRows,false);
 
         // set up the A matrix
@@ -58,7 +54,6 @@ public class PolynomialFitEjml implements Polynomial {
         if( !solver.setA(A) )
             throw new RuntimeException("Solver failed");
 
-        // solver the the coefficients
         solver.solve(y,coef);
     }
 
