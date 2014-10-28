@@ -409,9 +409,9 @@ public class DefaultKStore implements KStore {
                 }
                 db.get(objStringKeys, new Callback<String[]>() {
                     @Override
-                    public void on(String[] objectPayloads) {
-                        List<Object[]> additionalLoad = new ArrayList<Object[]>();
-                        List<KObject> objs = new ArrayList<KObject>();
+                    public void on(final String[] objectPayloads) {
+                        final List<Object[]> additionalLoad = new ArrayList<Object[]>();
+                        final List<KObject> objs = new ArrayList<KObject>();
                         for (int i = 0; i < objectPayloads.length; i++) {
                             KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
                             //Put in cache
