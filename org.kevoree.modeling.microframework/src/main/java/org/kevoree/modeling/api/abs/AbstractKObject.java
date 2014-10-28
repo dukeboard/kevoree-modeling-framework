@@ -238,17 +238,24 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Object get(MetaAttribute attribute) {
-        return attribute.strategy().extrapolate(this,attribute,null);
+        return attribute.strategy().extrapolate(this, attribute, cachedDependencies(attribute));
     }
 
     @Override
-    public void set(MetaAttribute attribute, Object payload, boolean fireEvents) {
-        Object[] internalPayload = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
-        if (internalPayload != null) {
-            internalPayload[attribute.index()] = payload;
-        } else {
-            throw new RuntimeException("Storage damaged");
+    public void set(MetaAttribute attribute, Object payload) {
+        attribute.strategy().mutate(this, attribute, payload, cachedDependencies(attribute));
+    }
+
+    private KObject[] cachedDependencies(MetaAttribute attribute) {
+        Long[] timedDependencies = attribute.strategy().timedDependencies(this);
+        KObject[] cachedObjs = new KObject[timedDependencies.length];
+        for (int i = 0; i < timedDependencies.length; i++) {
+            if (timedDependencies[i] == now()) {
+                cachedObjs[i] = this;
+            } else {//call the cache
+            }
         }
+        return cachedObjs;
     }
 
     private Object getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
@@ -264,36 +271,34 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return previous;
     }
 
-
-    private void removeFromContainer(final KObject param, final boolean fireEvent) {
+    private void removeFromContainer(final KObject param) {
         if (param != null && param.parentUuid() != null && param.parentUuid() != kid) {
             view().lookup(param.parentUuid(), new Callback<KObject>() {
                 @Override
                 public void on(KObject parent) {
-                    parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true, fireEvent);
+                    parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true);
                 }
             });
         }
     }
 
-
     @Override
-    public void mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite, final boolean fireEvent) {
+    public void mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
         switch (actionType) {
             case ADD:
                 if (metaReference.single()) {
-                    mutate(KActionType.SET, metaReference, param, setOpposite, fireEvent);
+                    mutate(KActionType.SET, metaReference, param, setOpposite);
                 } else {
                     Set<Long> previousList = (Set<Long>) getCreateOrUpdatePayloadList(this, metaReference.index());
                     //Actual add
                     previousList.add(param.uuid());
                     //Opposite
                     if (metaReference.opposite() != null && setOpposite) {
-                        param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
+                        param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
                     }
                     //Container
                     if (metaReference.contained()) {
-                        removeFromContainer(param, fireEvent);
+                        removeFromContainer(param);
                         ((AbstractKObject) param).setReferenceInParent(metaReference);
                         ((AbstractKObject) param).setParentUuid(kid);
                     }
@@ -304,21 +309,21 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 break;
             case SET:
                 if (!metaReference.single()) {
-                    mutate(KActionType.ADD, metaReference, param, setOpposite, fireEvent);
+                    mutate(KActionType.ADD, metaReference, param, setOpposite);
                 } else {
                     if (param == null) {
-                        mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
+                        mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                     } else {
                         //Actual add
                         Object[] payload = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
                         Object previous = payload[metaReference.index()];
                         if (previous != null) {
-                            mutate(KActionType.REMOVE, metaReference, null, setOpposite, fireEvent);
+                            mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                         }
                         payload[metaReference.index()] = param.uuid();
                         //Container
                         if (metaReference.contained()) {
-                            removeFromContainer(param, fireEvent);
+                            removeFromContainer(param);
                             ((AbstractKObject) param).setReferenceInParent(metaReference);
                             ((AbstractKObject) param).setParentUuid(kid);
                         }
@@ -332,11 +337,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                 view().lookup((Long) previous, new Callback<KObject>() {
                                     @Override
                                     public void on(KObject resolved) {
-                                        resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false, fireEvent);
+                                        resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                     }
                                 });
                             }
-                            param.mutate(KActionType.ADD, metaReference.opposite(), this, false, fireEvent);
+                            param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
                         }
                     }
                 }
@@ -358,7 +363,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                         ((AbstractKObject) resolvedParam).setParentUuid(null);
                                     }
                                     if (metaReference.opposite() != null && setOpposite) {
-                                        resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false, fireEvent);
+                                        resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                     }
                                     //Inbounds
                                     Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
@@ -383,7 +388,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             ((AbstractKObject) param).setParentUuid(null);
                         }
                         if (metaReference.opposite() != null && setOpposite) {
-                            param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false, fireEvent);
+                            param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
                         }
                     }
 

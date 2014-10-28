@@ -12,4 +12,6 @@ public interface ExtrapolationStrategy {
 
     public Object extrapolate(KObject current, MetaAttribute attribute, KObject[] dependencies);
 
+    public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies);
+
 }

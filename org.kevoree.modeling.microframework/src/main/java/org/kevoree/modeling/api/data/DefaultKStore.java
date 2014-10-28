@@ -446,8 +446,7 @@ public class DefaultKStore implements KStore {
                                 @Override
                                 public void on(String[] additionalPayloads) {
                                     for (int i = 0; i < objectPayloads.length; i++) {
-                                        KObject obj = JSONModelLoader.load(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
-                                        objs.add(obj);
+                                        JSONModelLoader.load(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
                                     }
                                     callback.on(objs); //we still return the first layer of objects
                                 }

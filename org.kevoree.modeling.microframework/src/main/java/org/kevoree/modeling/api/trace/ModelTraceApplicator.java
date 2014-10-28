@@ -24,17 +24,12 @@ public class ModelTraceApplicator {
 
     private KObject pendingObj = null;
     private KObject pendingParent = null;
-    private boolean fireEvents = true;
     private MetaReference pendingParentRef = null;
     private Long pendingObjKID = null;
 
-    public void setFireEvents(boolean fireEvents) {
-        this.fireEvents = fireEvents;
-    }
-
     private void tryClosePending(Long srcKID) {
         if (pendingObj != null && !(pendingObjKID.equals(srcKID))) {
-            pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj, true, fireEvents);
+            pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj, true);
             pendingObj = null;
             pendingObjKID = null;
             pendingParentRef = null;
@@ -48,7 +43,7 @@ public class ModelTraceApplicator {
                 @Override
                 public void on(KObject targetElem) {
                     if (targetElem != null) {
-                        target.mutate(KActionType.ADD, reference, targetElem, true, fireEvents);
+                        target.mutate(KActionType.ADD, reference, targetElem, true);
                         callback.on(null);
                     } else {
                         if (metaClass == null) {
@@ -119,7 +114,7 @@ public class ModelTraceApplicator {
                         targetModel.view().lookup(removeTrace.getObjKID(), new Callback<KObject>() {
                             @Override
                             public void on(KObject remoteObj) {
-                                targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true, fireEvents);
+                                targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true);
                                 callback.on(null);
                             }
                         });
@@ -138,7 +133,7 @@ public class ModelTraceApplicator {
                         if (tempObject == null) {
                             callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                         } else {
-                            tempObject.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent(), fireEvents);
+                            tempObject.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent());
                             callback.on(null);
                         }
                     }
@@ -147,7 +142,7 @@ public class ModelTraceApplicator {
                 if (pendingObj == null) {
                     callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                 } else {
-                    pendingObj.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent(), fireEvents);
+                    pendingObj.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent());
                     callback.on(null);
                 }
             }

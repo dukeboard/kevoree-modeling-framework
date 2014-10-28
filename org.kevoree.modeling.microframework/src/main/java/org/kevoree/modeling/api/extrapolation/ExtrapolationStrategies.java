@@ -3,11 +3,11 @@ package org.kevoree.modeling.api.extrapolation;
 /**
  * Created by duke on 10/28/14.
  */
-public enum DefaultExtrapolationStrategies {
+public enum ExtrapolationStrategies {
 
-    DISCRETE(new DiscreteExtrapolationStrategy()), LINEAR_REGRESSION(new LinearRegressionExtrapolationStrategy());
+    DISCRETE(new DiscreteExtrapolationStrategy()), LINEAR_REGRESSION(new LinearRegressionExtrapolationStrategy()), POLYNOMIAL(new PolynomialExtrapolationStrategy());
 
-    private DefaultExtrapolationStrategies(ExtrapolationStrategy wrappedStrategy) {
+    private ExtrapolationStrategies(ExtrapolationStrategy wrappedStrategy) {
         this.extrapolationStrategy = wrappedStrategy;
     }
 

@@ -26,4 +26,16 @@ public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
         }
     }
 
+    @Override
+    public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
+        //By requiring a raw on the current object, we automatically create and copy the previous object
+        Object[] internalPayload = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE);
+        //The object is also automatically set to Dirty
+        if (internalPayload != null) {
+            internalPayload[attribute.index()] = payload;
+        } else {
+            throw new RuntimeException("Storage damaged");
+        }
+    }
+
 }

@@ -85,7 +85,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public MetaReference metaReference(String name);
 
-    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite, boolean fireEvent);
+    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite);
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
 
@@ -100,7 +100,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public Object get(MetaAttribute attribute);
 
-    public void set(MetaAttribute attribute, Object payload, boolean fireEvents);
+    public void set(MetaAttribute attribute, Object payload);
 
     public String toJSON();
 

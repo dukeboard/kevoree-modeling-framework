@@ -113,13 +113,6 @@ public class TraceSequence {
         return true;
     }
 
-    public boolean silentlyApplyOn(KObject target, Callback<Throwable> callback) {
-        ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target);
-        traceApplicator.setFireEvents(false);
-        traceApplicator.applyTraceSequence(this, callback);
-        return true;
-    }
-
     public TraceSequence reverse() {
         Collections.reverse(traces);
         return this;
