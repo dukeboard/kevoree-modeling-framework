@@ -93,6 +93,7 @@ public class TimeTest {
 
                 // protected against null callback?
                 t0.lookup(node0.uuid(), null);
+                
             }
         });
 

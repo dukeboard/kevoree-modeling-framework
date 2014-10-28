@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.trace.unresolved;
 
+import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategy;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 
@@ -32,6 +33,16 @@ public class UnresolvedMetaAttribute implements MetaAttribute {
     @Override
     public MetaType metaType() {
         return null;
+    }
+
+    @Override
+    public ExtrapolationStrategy strategy() {
+        return null;
+    }
+
+    @Override
+    public void setExtrapolationStrategy(ExtrapolationStrategy extrapolationStrategy) {
+
     }
 
     @Override

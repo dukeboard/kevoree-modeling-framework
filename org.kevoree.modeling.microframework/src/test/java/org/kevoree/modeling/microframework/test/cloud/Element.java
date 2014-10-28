@@ -1,6 +1,8 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.extrapolation.DefaultExtrapolationStrategies;
+import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategy;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 
@@ -11,8 +13,8 @@ public interface Element extends KObject<Element, CloudView> {
 
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, false, true, MetaType.STRING),
-        VALUE("value", 3, true, false, MetaType.LONG); //lexicographic order
+        NAME("name", 2, false, true, MetaType.STRING, DefaultExtrapolationStrategies.DISCRETE.strategy()),
+        VALUE("value", 3, true, false, MetaType.LONG, DefaultExtrapolationStrategies.DISCRETE.strategy()); //lexicographic order
 
         private String name;
 
@@ -44,16 +46,29 @@ public interface Element extends KObject<Element, CloudView> {
             return key;
         }
 
-        public MetaClass origin(){
+        public MetaClass origin() {
             return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT;
         }
 
-        METAATTRIBUTES(String name, int index, boolean learned, boolean key,MetaType metaType) {
+        private ExtrapolationStrategy extrapolationStrategy;
+
+        @Override
+        public ExtrapolationStrategy strategy() {
+            return extrapolationStrategy;
+        }
+
+        @Override
+        public void setExtrapolationStrategy(ExtrapolationStrategy extrapolationStrategy) {
+            this.extrapolationStrategy = extrapolationStrategy;
+        }
+
+        METAATTRIBUTES(String name, int index, boolean learned, boolean key, MetaType metaType, ExtrapolationStrategy extrapolationStrategy) {
             this.name = name;
             this.index = index;
             this.learned = learned;
             this.key = key;
             this.metaType = metaType;
+            this.extrapolationStrategy = extrapolationStrategy;
         }
 
     }

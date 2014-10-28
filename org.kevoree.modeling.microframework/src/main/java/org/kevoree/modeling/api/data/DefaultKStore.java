@@ -5,7 +5,10 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategy;
 import org.kevoree.modeling.api.json.JSONModelLoader;
+import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 
@@ -358,6 +361,8 @@ public class DefaultKStore implements KStore {
                     callback.on(null);
                 } else {
                     KObject resolved = cacheLookup(originView.dimension(), resolvedTime, key);
+                    //maybe not enought because of some strategies
+                    //TODO check if back elements are enought :-)
                     if (resolved != null) {
                         if (originView.now() == resolvedTime) {
                             callback.on(resolved);
@@ -390,6 +395,7 @@ public class DefaultKStore implements KStore {
         });
     }
 
+    //TODO optimize
     private void loadObjectInCache(final KView originView, final long[] keys, final Callback<List<KObject>> callback) {
         timeTrees(originView.dimension(), keys, new Callback<TimeTree[]>() {
             @Override
@@ -404,17 +410,61 @@ public class DefaultKStore implements KStore {
                 db.get(objStringKeys, new Callback<String[]>() {
                     @Override
                     public void on(String[] objectPayloads) {
+                        List<Object[]> additionalLoad = new ArrayList<Object[]>();
                         List<KObject> objs = new ArrayList<KObject>();
                         for (int i = 0; i < objectPayloads.length; i++) {
                             KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
                             //Put in cache
                             objs.add(obj);
+                            //additional from strategy
+                            Set<ExtrapolationStrategy> strategies = new HashSet<ExtrapolationStrategy>();
+                            for (int h = 0; h < obj.metaAttributes().length; h++) {
+                                MetaAttribute metaAttribute = obj.metaAttributes()[h];
+                                strategies.add(metaAttribute.strategy());
+                            }
+                            for (ExtrapolationStrategy strategy : strategies) {
+                                Long[] additionalTimes = strategy.timedDependencies(obj);
+                                for (int j = 0; j < additionalTimes.length; j++) {
+                                    if (additionalTimes[j] != obj.now()) {
+                                        //check if the object is already in cache
+                                        if (cacheLookup(originView.dimension(), additionalTimes[j], obj.uuid()) == null) {
+                                            Object[] payload = new Object[]{keyPayload(originView.dimension(), additionalTimes[j], obj.uuid()), additionalTimes[j]};
+                                            additionalLoad.add(payload);
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        callback.on(objs);
+                        if (additionalLoad.isEmpty()) {
+                            callback.on(objs);
+                        } else {
+                            String[] addtionalDBKeys = new String[additionalLoad.size()];
+                            for (int i = 0; i < additionalLoad.size(); i++) {
+                                addtionalDBKeys[i] = additionalLoad.get(i)[0].toString();
+                            }
+                            db.get(addtionalDBKeys, new Callback<String[]>() {
+                                @Override
+                                public void on(String[] additionalPayloads) {
+                                    for (int i = 0; i < objectPayloads.length; i++) {
+                                        KObject obj = JSONModelLoader.load(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
+                                        objs.add(obj);
+                                    }
+                                    callback.on(objs); //we still return the first layer of objects
+                                }
+                            }, new Callback<Throwable>() {
+                                @Override
+                                public void on(Throwable throwable) {
+                                    //TODO process the error
+                                    callback.on(objs);
+                                }
+                            });
+                        }
                     }
                 }, new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
+                        //TODO process the error
+                        //load objects according to different strategies
                         callback.on(null);
                     }
                 });
