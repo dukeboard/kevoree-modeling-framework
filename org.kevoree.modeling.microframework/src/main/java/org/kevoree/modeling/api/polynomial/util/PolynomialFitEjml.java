@@ -1,11 +1,9 @@
 package org.kevoree.modeling.api.polynomial.util;
 
-import org.kevoree.modeling.api.polynomial.PolynomialExtrapolation;
-
 /**
  * Created by assaa_000 on 28/10/2014.
  */
-public class PolynomialFitEjml implements PolynomialExtrapolation {
+public class PolynomialFitEjml {
     // Vandermonde matrix
     DenseMatrix64F A;
     // matrix containing computed polynomial coefficients

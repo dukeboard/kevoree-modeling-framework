@@ -9,4 +9,8 @@ public interface PolynomialExtrapolation {
 
     public void load(String payload);
 
+    public double extrapolate(long time);
+
+    public boolean insert(long time, double value);
+
 }

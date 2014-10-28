@@ -15,8 +15,6 @@ public class PolynomialModel {
     private double toleratedError;
     private int maxDegree;
     private Prioritization prioritization = Prioritization.LOWDEGREES;
-    private boolean continous = true;
-    private int counter = 0;
     private TreeMap<Long, DefaultPolynomialExtrapolation> polynomTree = new TreeMap<Long, DefaultPolynomialExtrapolation>();
     private DefaultPolynomialExtrapolation defaultPolynomialExtrapolation;
 
@@ -27,25 +25,24 @@ public class PolynomialModel {
         this.degradeFactor = degradeFactor;
         this.toleratedError = toleratedError;
         this.maxDegree = maxDegree;
-        counter = 0;
     }
 
     public void feed(long time, double value) {
         if (defaultPolynomialExtrapolation == null) {
-            defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(time, value);
+            defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(time, toleratedError, maxDegree, degradeFactor, prioritization);
+            defaultPolynomialExtrapolation.insert(time, value);
             return;
         }
-        if (defaultPolynomialExtrapolation.feed(time, value, degradeFactor, maxDegree, toleratedError, prioritization) == true) {
+        if (defaultPolynomialExtrapolation.insert(time, value)) {
             return;
         }
-        DataSample prev = defaultPolynomialExtrapolation.getLastSample();
-        DataSample newPrev = new DataSample(prev.time, defaultPolynomialExtrapolation.reconstruct(prev.time, degradeFactor));
+        DataSample prev = defaultPolynomialExtrapolation.getSamples().get(defaultPolynomialExtrapolation.getSamples().size() - 1);
+        DataSample newPrev = new DataSample(prev.time, defaultPolynomialExtrapolation.extrapolate(prev.time));
         polynomTree.put(defaultPolynomialExtrapolation.getTimeOrigin(), defaultPolynomialExtrapolation);
-        if (continous) {
-            defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(newPrev, time, value, degradeFactor);
-        } else {
-            defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(time, value);
-        }
+
+        defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(newPrev.time, toleratedError, maxDegree, degradeFactor, prioritization);
+        defaultPolynomialExtrapolation.insert(newPrev.time,newPrev.value);
+        defaultPolynomialExtrapolation.insert(time,value);
     }
 
     public void finalSave() {
@@ -57,7 +54,7 @@ public class PolynomialModel {
     public double reconstruct(long time) {
         long timeO = polynomTree.floorKey(time);
         DefaultPolynomialExtrapolation p = polynomTree.get(timeO);
-        return p.reconstruct(time, degradeFactor);
+        return p.extrapolate(time);
     }
 
     private DefaultPolynomialExtrapolation fast = null;
@@ -66,7 +63,7 @@ public class PolynomialModel {
     public double fastReconstruct(long time) {
         if (fast != null) {
             if (time < timeE || timeE == -1)
-                return fast.reconstruct(time, degradeFactor);
+                return fast.extrapolate(time);
         }
         long timeO = polynomTree.floorKey(time);
         fast = polynomTree.get(timeO);
@@ -75,19 +72,17 @@ public class PolynomialModel {
         } catch (Exception ex) {
             timeE = -1;
         }
-        return fast.reconstruct(time, degradeFactor);
+        return fast.extrapolate(time);
     }
 
     public StatClass displayStatistics(boolean display) {
-        double max = 0;
         StatClass global = new StatClass();
         StatClass temp = new StatClass();
         ArrayList<StatClass> debug = new ArrayList<StatClass>();
         long pol = 0;
-
         for (Long t : polynomTree.keySet()) {
             pol++;
-            temp = calculateError(polynomTree.get(t), degradeFactor);
+            temp = calculateError(polynomTree.get(t));
             debug.add(temp);
             if (temp.maxErr > global.maxErr) {
                 global.maxErr = temp.maxErr;
@@ -118,7 +113,7 @@ public class PolynomialModel {
         return global;
     }
 
-    public StatClass calculateError(DefaultPolynomialExtrapolation pol, int degradeFactor) {
+    public StatClass calculateError(DefaultPolynomialExtrapolation pol) {
         StatClass ec = new StatClass();
         double temp = 0;
         double err = 0;
@@ -127,8 +122,7 @@ public class PolynomialModel {
         ec.samples = pol.getSamples().size();
         for (int i = 0; i < pol.getSamples().size(); i++) {
             ds = pol.getSamples().get(i);
-            double t = ((double) (ds.time - pol.getTimeOrigin())) / degradeFactor;
-            temp = pol.reconstruct(t);
+            temp = pol.extrapolate(ds.time);
             err = Math.abs(temp - ds.value);
             ec.avgError += err;
             if (err > ec.maxErr) {

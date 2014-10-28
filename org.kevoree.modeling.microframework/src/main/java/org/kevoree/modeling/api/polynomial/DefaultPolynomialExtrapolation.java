@@ -17,71 +17,21 @@ import java.util.List;
 public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
 
     private double[] weights;
-
-    public double[] getWeights() {
-        return weights;
-    }
-
     private Long timeOrigin;
+    private List<DataSample> samples = new ArrayList<DataSample>();
+    private int degradeFactor;
+    private Prioritization prioritization;
+    private int maxDegree;
+    private double toleratedError;
 
-    public List<DataSample> getSamples() {
-        return samples;
-    }
-
-    private ArrayList<DataSample> samples = new ArrayList<DataSample>();
-
-    public void clearSamples() {
-        samples.clear();
-    }
-
-    public int getDegree() {
-        if (weights == null) {
-            return -1;
-        }
-        return weights.length - 1;
-    }
-
-    public Long getTimeOrigin() {
-        return timeOrigin;
-    }
-
-    public double reconstruct(double t) {
-        double result = 0;
-        double power = 1;
-        if (weights != null) {
-            for (int j = 0; j < weights.length; j++) {
-                result += weights[j] * power;
-                power = power * t;
-            }
-        }
-        return result;
-    }
-
-    public DataSample getLastSample() {
-        return samples.get(samples.size() - 1);
-    }
-
-    public DefaultPolynomialExtrapolation() {
-    }
-
-    public DefaultPolynomialExtrapolation(Long time, double value) {
-        feed(time, value);
-    }
-
-    private double getMaxErr(int degree, double toleratedError, int maxDegree, Prioritization prioritization) {
-        double tol = toleratedError;
-        if (prioritization == Prioritization.HIGHDEGREES) {
-            tol = toleratedError / Math.pow(2, maxDegree - degree);
-        } else if (prioritization == Prioritization.LOWDEGREES) {
-            tol = toleratedError / Math.pow(2, degree + 0.5);
-        } else if (prioritization == Prioritization.SAMEPRIORITY) {
-            tol = toleratedError * degree * 2 / (2 * maxDegree);
-        }
-        return tol;
-    }
-
-    public DefaultPolynomialExtrapolation(DataSample prev, Long time, double value, int degradeFactor) {
-        timeOrigin = prev.time;
+    public DefaultPolynomialExtrapolation(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
+        this.timeOrigin = timeOrigin;
+        this.degradeFactor = degradeFactor;
+        this.prioritization = prioritization;
+        this.maxDegree = maxDegree;
+        this.toleratedError = toleratedError;
+        //TODO check if the performance impact will be not important
+        /*
         double[] times = new double[2];
         double[] values = new double[2];
         times[0] = 0;
@@ -96,9 +46,39 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         for (int i = 0; i < pf.getCoef().length; i++) {
             weights[i] = pf.getCoef()[i];
         }
+        */
     }
 
-    private void feed(Long time, double value) {
+    public List<DataSample> getSamples() {
+        return samples;
+    }
+
+    public int getDegree() {
+        if (weights == null) {
+            return -1;
+        } else {
+            return weights.length - 1;
+        }
+    }
+
+    public Long getTimeOrigin() {
+        return timeOrigin;
+    }
+
+    private double getMaxErr(int degree, double toleratedError, int maxDegree, Prioritization prioritization) {
+        double tol = toleratedError;
+        if (prioritization == Prioritization.HIGHDEGREES) {
+            tol = toleratedError / Math.pow(2, maxDegree - degree);
+        } else if (prioritization == Prioritization.LOWDEGREES) {
+            tol = toleratedError / Math.pow(2, degree + 0.5);
+        } else if (prioritization == Prioritization.SAMEPRIORITY) {
+            tol = toleratedError * degree * 2 / (2 * maxDegree);
+        }
+        return tol;
+    }
+
+
+    private void internal_feed(Long time, double value) {
         //If this is the first point in the set, add it and return
         if (weights == null) {
             weights = new double[1];
@@ -108,15 +88,62 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         }
     }
 
-    public boolean feed(Long time, double value, int degradeFactor, int maxDegree, double toleratedError, Prioritization prioritization) {
+    private double maxError(double[] computedWeights, long time, double value) {
+        double maxErr = 0;
+        double temp = 0;
+        DataSample ds;
+        for (int i = 0; i < samples.size(); i++) {
+            ds = samples.get(i);
+            temp = Math.abs(internal_extrapolate(time, computedWeights) - ds.value);
+            if (temp > maxErr) {
+                maxErr = temp;
+            }
+        }
+        temp = Math.abs(internal_extrapolate(time, computedWeights) - value);
+        if (temp > maxErr) {
+            maxErr = temp;
+        }
+        return maxErr;
+    }
+
+    public boolean comparePolynome(DefaultPolynomialExtrapolation p2, double err) {
+        if (weights.length != p2.weights.length) {
+            return false;
+        }
+        for (int i = 0; i < weights.length; i++) {
+            if (Math.abs(weights[i] - weights[i]) > err) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private double internal_extrapolate(long time, double[] weights) {
+        double result = 0;
+        double t = ((double) (time - timeOrigin)) / degradeFactor;
+        double power = 1;
+        for (int j = 0; j < weights.length; j++) {
+            result += weights[j] * power;
+            power = power * t;
+        }
+        return result;
+    }
+
+    @Override
+    public double extrapolate(long time) {
+        return internal_extrapolate(time, weights);
+    }
+
+    @Override
+    public boolean insert(long time, double value) {
         //If this is the first point in the set, add it and return
         if (weights == null) {
-            feed(time, value);
+            internal_feed(time, value);
             return true;
         }
         double maxError = getMaxErr(this.getDegree(), toleratedError, maxDegree, prioritization);
         //If the current model fits well the new value, return
-        if (fitInModelTest(time, value, degradeFactor, maxError) == true) {
+        if (Math.abs(extrapolate(time) - value) <= maxError) {
             samples.add(new DataSample(time, value));
             return true;
         }
@@ -137,7 +164,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
             values[ss] = value;
             PolynomialFitEjml pf = new PolynomialFitEjml(deg);
             pf.fit(times, values);
-            if (maxError(degradeFactor, pf.getCoef(), time, value) <= maxError) {
+            if (maxError(pf.getCoef(), time, value) <= maxError) {
                 weights = new double[pf.getCoef().length];
                 for (int i = 0; i < pf.getCoef().length; i++) {
                     weights[i] = pf.getCoef()[i];
@@ -149,75 +176,27 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         return false;
     }
 
-
-    private boolean fitInModelTest(Long time, double value, int degradeFactor, double maxError) {
-        return (Math.abs(reconstruct(time, degradeFactor) - value) <= maxError);
-    }
-
-
-    private double maxError(int degradeFactor, double[] weights, Long time, double value) {
-        double maxErr = 0;
-        double temp = 0;
-        DataSample ds;
-        for (int i = 0; i < samples.size(); i++) {
-            ds = samples.get(i);
-            double t = ((double) (ds.time - timeOrigin)) / degradeFactor;
-            temp = Math.abs(reconstruct(t, weights) - ds.value);
-            if (temp > maxErr) {
-                maxErr = temp;
-            }
-        }
-        double t = ((double) (time - timeOrigin)) / degradeFactor;
-        temp = Math.abs(reconstruct(t, weights) - value);
-        if (temp > maxErr) {
-            maxErr = temp;
-        }
-        return maxErr;
-    }
-
-    private double reconstruct(double t, double[] weights) {
-        double result = 0;
-        double power = 1;
-        if (weights != null) {
-            for (int j = 0; j < weights.length; j++) {
-                result += weights[j] * power;
-                power = power * t;
-            }
-        }
-        return result;
-    }
-
-
-    public double reconstruct(long time, int degradeFactor) {
-        double result = 0;
-        double t = ((double) (time - timeOrigin)) / degradeFactor;
-        double power = 1;
-        for (int j = 0; j < weights.length; j++) {
-            result += weights[j] * power;
-            power = power * t;
-        }
-        return result;
-    }
-
-    public boolean comparePolynome(DefaultPolynomialExtrapolation p2, double err) {
-        if (weights.length != p2.weights.length) {
-            return false;
-        }
-        for (int i = 0; i < weights.length; i++) {
-            if (Math.abs(weights[i] - weights[i]) > err) {
-                return false;
-            }
-        }
-        return true;
-    }
+    private static final char sep = '|';
 
     @Override
     public String save() {
-        return null;
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < weights.length; i++) {
+            if (i != 0) {
+                builder.append(sep);
+            }
+            builder.append(weights[i]);
+        }
+        return builder.toString();
     }
 
     @Override
     public void load(String payload) {
-
+        String[] elems = payload.split(sep + "");
+        weights = new double[elems.length];
+        for (int i = 0; i < elems.length; i++) {
+            weights[i] = Long.parseLong(elems[i]);
+        }
     }
+
 }
