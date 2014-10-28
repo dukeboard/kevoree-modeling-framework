@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.polynomial;
+package org.kevoree.modeling.api.polynomial.brain;
 
 /**
  * Created by duke on 10/28/14.

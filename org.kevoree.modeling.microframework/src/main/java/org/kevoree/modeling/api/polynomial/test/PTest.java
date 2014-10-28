@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.polynomial.test;
 
-import org.kevoree.modeling.api.polynomial.StatClass;
+import org.kevoree.modeling.api.polynomial.brain.PolynomialModel;
+import org.kevoree.modeling.api.polynomial.brain.StatClass;
 
 import java.util.Random;
 import java.util.TreeMap;

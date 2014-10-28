@@ -1,9 +1,9 @@
-package org.kevoree.modeling.api.polynomial.test;
+package org.kevoree.modeling.api.polynomial.brain;
 
-import org.kevoree.modeling.api.polynomial.DataSample;
-import org.kevoree.modeling.api.polynomial.Polynom;
-import org.kevoree.modeling.api.polynomial.Prioritization;
-import org.kevoree.modeling.api.polynomial.StatClass;
+import org.kevoree.modeling.api.polynomial.brain.DataSample;
+import org.kevoree.modeling.api.polynomial.brain.Polynom;
+import org.kevoree.modeling.api.polynomial.brain.Prioritization;
+import org.kevoree.modeling.api.polynomial.brain.StatClass;
 
 import java.util.ArrayList;
 import java.util.TreeMap;

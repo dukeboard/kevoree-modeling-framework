@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.polynomial.ejml;
 
-import org.kevoree.modeling.api.polynomial.Polynomial;
+import org.kevoree.modeling.api.polynomial.brain.Polynomial;
 
 /**
  * Created by assaa_000 on 28/10/2014.
