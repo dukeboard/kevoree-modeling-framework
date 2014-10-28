@@ -238,12 +238,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Object get(MetaAttribute attribute) {
-        Object[] payload = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
-        if (payload != null) {
-            return payload[attribute.index()];
-        } else {
-            return null;
-        }
+        return attribute.strategy().extrapolate(this,attribute,null);
     }
 
     @Override

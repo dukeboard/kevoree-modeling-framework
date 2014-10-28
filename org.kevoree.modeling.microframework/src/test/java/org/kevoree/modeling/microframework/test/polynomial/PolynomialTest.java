@@ -1,6 +1,7 @@
 package org.kevoree.modeling.microframework.test.polynomial;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -9,7 +10,7 @@ import static org.junit.Assert.*;
 public class PolynomialTest {
 
     @Test
-    public void test(){
+    public void test() {
         //TODO
         assertTrue(!"GoAssaad".isEmpty());
 

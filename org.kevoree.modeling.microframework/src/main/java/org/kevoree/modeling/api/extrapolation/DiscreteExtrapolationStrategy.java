@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.extrapolation;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 
 /**
@@ -17,7 +18,12 @@ public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute, KObject[] dependencies) {
-        return null;
+        Object[] payload = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ);
+        if (payload != null) {
+            return payload[attribute.index()];
+        } else {
+            return null;
+        }
     }
 
 }
