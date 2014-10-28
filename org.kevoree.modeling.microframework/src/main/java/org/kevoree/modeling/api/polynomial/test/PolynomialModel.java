@@ -77,7 +77,12 @@ public class PolynomialModel {
         }
         long timeO = polynomTree.floorKey(time);
         fast= polynomTree.get(timeO);
-        timeE=polynomTree.ceilingKey(time);
+        try {
+            timeE = polynomTree.ceilingKey(time);
+        }
+        catch (Exception ex){
+            timeE=-1;
+        }
         return fast.reconstruct(time,degradeFactor);
     }
 
