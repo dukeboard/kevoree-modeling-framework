@@ -20,35 +20,32 @@ public class PolynomialModel {
     private TreeMap<Long, DefaultPolynomialExtrapolation> polynomTree = new TreeMap<Long, DefaultPolynomialExtrapolation>();
     private DefaultPolynomialExtrapolation defaultPolynomialExtrapolation;
 
-
     public PolynomialModel(int degradeFactor, double toleratedError, int maxDegree) {
-        if (degradeFactor == 0)
+        if (degradeFactor == 0) {
             degradeFactor = 1;
+        }
         this.degradeFactor = degradeFactor;
         this.toleratedError = toleratedError;
         this.maxDegree = maxDegree;
         counter = 0;
     }
 
-
     public void feed(long time, double value) {
         if (defaultPolynomialExtrapolation == null) {
-
             defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(time, value);
             return;
         }
-
         if (defaultPolynomialExtrapolation.feed(time, value, degradeFactor, maxDegree, toleratedError, prioritization) == true) {
             return;
         }
         DataSample prev = defaultPolynomialExtrapolation.getLastSample();
         DataSample newPrev = new DataSample(prev.time, defaultPolynomialExtrapolation.reconstruct(prev.time, degradeFactor));
         polynomTree.put(defaultPolynomialExtrapolation.getTimeOrigin(), defaultPolynomialExtrapolation);
-
-        if (continous == true)
+        if (continous) {
             defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(newPrev, time, value, degradeFactor);
-        else
+        } else {
             defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(time, value);
+        }
     }
 
     public void finalSave() {
@@ -62,7 +59,6 @@ public class PolynomialModel {
         DefaultPolynomialExtrapolation p = polynomTree.get(timeO);
         return p.reconstruct(time, degradeFactor);
     }
-
 
     private DefaultPolynomialExtrapolation fast = null;
     private long timeE;
@@ -119,7 +115,6 @@ public class PolynomialModel {
             System.out.println("Maximum error: " + global.maxErr + " at time: " + global.time + " original value was: " + global.value + " calculated value: " + global.calculatedValue);
             System.out.println("Average error: " + global.avgError);
         }
-
         return global;
     }
 

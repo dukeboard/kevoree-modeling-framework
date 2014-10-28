@@ -15,6 +15,7 @@ import java.util.List;
  * Created by assaa_000 on 23/10/2014.
  */
 public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
+
     private double[] weights;
 
     public double[] getWeights() {
@@ -67,7 +68,6 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         feed(time, value);
     }
 
-
     private double getMaxErr(int degree, double toleratedError, int maxDegree, Prioritization prioritization) {
         double tol = toleratedError;
         if (prioritization == Prioritization.HIGHDEGREES) {
@@ -79,7 +79,6 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         }
         return tol;
     }
-
 
     public DefaultPolynomialExtrapolation(DataSample prev, Long time, double value, int degradeFactor) {
         timeOrigin = prev.time;
