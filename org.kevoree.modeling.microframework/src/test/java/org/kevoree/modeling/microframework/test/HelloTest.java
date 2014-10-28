@@ -59,8 +59,11 @@ public class HelloTest {
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
                 final int[] i = {0};
-                nodeT0.eachChildren((n) -> {
-                    i[0]++;
+                nodeT0.eachChildren(new Callback<Node>() {
+                    @Override
+                    public void on(Node n) {
+                        i[0]++;
+                    }
                 }, null);
                 assertEquals(1, i[0]);
                 Node nodeT3 = t0.createNode();
@@ -86,8 +89,11 @@ public class HelloTest {
                         i[0]++;
                         return VisitResult.CONTINUE;
                     }
-                }, (t) -> {
-                    j[0]++;
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable t) {
+                        j[0]++;
+                    }
                 });
                 assertEquals(1, i[0]);
                 assertEquals(1, j[0]);
@@ -100,8 +106,11 @@ public class HelloTest {
                         i[0]++;
                         return VisitResult.CONTINUE;
                     }
-                }, (t) -> {
-                    j[0]++;
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable t) {
+                        j[0]++;
+                    }
                 });
                 assertEquals(1, i[0]);
                 assertEquals(1, j[0]);
@@ -114,8 +123,11 @@ public class HelloTest {
                         i[0]++;
                         return VisitResult.CONTINUE;
                     }
-                }, (t) -> {
-                    j[0]++;
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable t) {
+                        j[0]++;
+                    }
                 });
                 assertEquals(0, i[0]);
                 assertEquals(1, j[0]);
@@ -128,8 +140,11 @@ public class HelloTest {
                         i[0]++;
                         return VisitResult.CONTINUE;
                     }
-                }, (t) -> {
-                    j[0]++;
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable t) {
+                        j[0]++;
+                    }
                 });
                 assertEquals(2, i[0]);
                 assertEquals(1, j[0]);
@@ -142,8 +157,11 @@ public class HelloTest {
                         i[0]++;
                         return VisitResult.CONTINUE;
                     }
-                }, (t) -> {
-                    j[0]++;
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable t) {
+                        j[0]++;
+                    }
                 });
                 assertEquals(2, i[0]);
                 assertEquals(1, j[0]);
@@ -151,11 +169,17 @@ public class HelloTest {
 
                 i[0] = 0;
                 j[0] = 0;
-                nodeT0.graphVisit((elem) -> {
-                    i[0]++;
-                    return ModelVisitor.VisitResult.CONTINUE;
-                }, (t) -> {
-                    j[0]++;
+                nodeT0.graphVisit(new ModelVisitor() {
+                    @Override
+                    public VisitResult visit(KObject elem) {
+                        i[0]++;
+                        return ModelVisitor.VisitResult.CONTINUE;
+                    }
+                }, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable t) {
+                        j[0]++;
+                    }
                 });
                 assertEquals(2, i[0]);
                 assertEquals(1, j[0]);

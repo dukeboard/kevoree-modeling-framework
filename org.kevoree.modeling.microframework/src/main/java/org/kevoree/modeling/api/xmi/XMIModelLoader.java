@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.meta.MetaReference;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 
 
@@ -76,7 +76,7 @@ public class XMIModelLoader implements ModelLoader {
 
     @Override
     public void loadModelFromString(String str, Callback<Throwable> callback) {
-        loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback);
+        loadModelFromStream(new ByteArrayInputStream(str.getBytes(Charset.forName("UTF-8"))), callback);
     }
 
     @Override

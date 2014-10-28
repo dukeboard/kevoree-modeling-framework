@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.time.TimeTree;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -33,12 +33,12 @@ public class JSONModelLoader implements ModelLoader {
         if (str == null) {
             callback.on(null);
         }
-        loadModelFromStream(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), callback);
+        loadModelFromStream(new ByteArrayInputStream(str.getBytes(Charset.forName("UTF-8"))), callback);
     }
 
     //TODO optimize object creation
     public static KObject load(String payload, KView factory, Callback<KObject> callback) {
-        ByteArrayInputStream st = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
+        ByteArrayInputStream st = new ByteArrayInputStream(payload.getBytes(Charset.forName("UTF-8")));
         Lexer lexer = new Lexer(st);
         final KObject[] loaded = new KObject[1];
         loadObjects(lexer, factory, new Callback<List<KObject>>() {

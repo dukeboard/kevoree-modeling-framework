@@ -22,8 +22,11 @@ public class CallbackTester {
                 System.out.println(s);
                 next.on(null);
             }
-        }, (t)-> {
-            System.out.println("End !");
+        }, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable t) {
+                System.out.println("End !");
+            }
         });
 
     }
