@@ -32,19 +32,19 @@ public class PolynomialKMFTest {
                 node.setElement(element);
                 element.setValue(0l);
                 //insert 20 variations in time
-                for (long i = 1; i <= 100; i++) {
+                for (long i = 1; i <= 10000; i++) {
                     final long finalI = i;
                     dimension0.time(finalI).lookup(element.uuid(), new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             Element casted = (Element) kObject;
-                            casted.setValue(new Random().nextLong());
+                            casted.setValue((long) new Random().nextInt(100000));
                             //casted.setValue(finalI);
                         }
                     });
                 }
-                
-                System.err.println(element.timeTree().size());
+
+                System.out.println(element.timeTree().size());
             }
         });
     }

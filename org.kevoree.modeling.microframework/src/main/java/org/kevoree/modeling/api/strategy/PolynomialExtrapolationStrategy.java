@@ -7,6 +7,8 @@ import org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation;
 import org.kevoree.modeling.api.polynomial.PolynomialExtrapolation;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
+import java.util.Objects;
+
 /**
  * Created by duke on 10/28/14.
  */
@@ -21,8 +23,7 @@ public class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute, KObject[] dependencies) {
-        Object[] internalPayload = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ);
-        PolynomialExtrapolation pol = (PolynomialExtrapolation) internalPayload[attribute.index()];
+        PolynomialExtrapolation pol = (PolynomialExtrapolation) current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ)[attribute.index()];
         if (pol != null) {
             return pol.extrapolate(current.now());
         } else {
@@ -32,13 +33,19 @@ public class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
 
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
-        Object[] internalPayload = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ);
-        PolynomialExtrapolation pol = (PolynomialExtrapolation) internalPayload[attribute.index()];
-        if (pol == null || !pol.insert(current.now(), Double.parseDouble(payload.toString()))) {
-            pol = new DefaultPolynomialExtrapolation(current.now(), 0.1 /* TODO call attrbute definition */, 20, 1, Prioritization.LOWDEGREES);
+        Object previous = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ)[attribute.index()];
+        if (previous == null) {
+            PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(current.now(), 10 /* TODO call attrbute definition */, 20, 1, Prioritization.LOWDEGREES);
             pol.insert(current.now(), Double.parseDouble(payload.toString()));
-            Object[] internalPayloadWrite = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE);
-            internalPayloadWrite[attribute.index()] = pol;
+            current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE)[attribute.index()] = pol;
+        } else {
+            PolynomialExtrapolation previousPol = (PolynomialExtrapolation) previous;
+            if (!previousPol.insert(current.now(), Double.parseDouble(payload.toString()))) {
+                PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(previousPol.lastIndex(), 10 /* TODO call attrbute definition */, 20, 1, Prioritization.LOWDEGREES);
+                pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
+                pol.insert(current.now(), Double.parseDouble(payload.toString()));
+                current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE)[attribute.index()] = pol;
+            }
         }
     }
 }

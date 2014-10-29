@@ -13,4 +13,6 @@ public interface PolynomialExtrapolation {
 
     public boolean insert(long time, double value);
 
+    public long lastIndex();
+
 }

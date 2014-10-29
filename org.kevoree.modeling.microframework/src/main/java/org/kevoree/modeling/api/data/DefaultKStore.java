@@ -176,13 +176,12 @@ public class DefaultKStore implements KStore {
                     }
                 }
             }
-
-            TimeCache timeCacheCurrent = dimensionCache.timesCaches.get(origin.view().now());
+            TimeCache timeCacheCurrent = dimensionCache.timesCaches.get(origin.now());
             if (timeCacheCurrent == null) {
                 timeCacheCurrent = new TimeCache();
                 dimensionCache.timesCaches.put(origin.view().now(), timeCacheCurrent);
             }
-            timeCache.payload_cache.put(origin.uuid(), cloned);
+            timeCacheCurrent.payload_cache.put(origin.uuid(), cloned);
             origin.timeTree().insert(origin.view().now());
             return cloned;
         }
@@ -584,7 +583,7 @@ public class DefaultKStore implements KStore {
     }
 
     public void notify(KEvent event) {
-        System.err.println(event.toString());
+        System.out.println(event.toString());
         //TODO
     }
 

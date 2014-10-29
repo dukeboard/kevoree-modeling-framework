@@ -23,6 +23,8 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
     private Prioritization prioritization;
     private int maxDegree;
     private double toleratedError;
+    //TODO add to save
+    private long lastIndex = -1;
 
     public DefaultPolynomialExtrapolation(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
         this.timeOrigin = timeOrigin;
@@ -77,7 +79,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         DataSample ds;
         for (int i = 0; i < samples.size(); i++) {
             ds = samples.get(i);
-            double val=internal_extrapolate(ds.time, computedWeights);
+            double val = internal_extrapolate(ds.time, computedWeights);
             temp = Math.abs(val - ds.value);
             if (temp > maxErr) {
                 maxErr = temp;
@@ -124,12 +126,14 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         //If this is the first point in the set, add it and return
         if (weights == null) {
             internal_feed(time, value);
+            lastIndex = time;
             return true;
         }
         double maxError = getMaxErr(this.getDegree(), toleratedError, maxDegree, prioritization);
         //If the current model fits well the new value, return
         if (Math.abs(extrapolate(time) - value) <= maxError) {
             samples.add(new DataSample(time, value));
+            lastIndex = time;
             return true;
         }
         //If not, first check if we can increase the degree
@@ -141,7 +145,6 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
             double[] values = new double[ss + 1];
             int current = samples.size();
             for (int i = 0; i < ss; i++) {
-
                 DataSample ds = samples.get(i * current / ss);
                 times[i] = ((double) (ds.time - timeOrigin)) / degradeFactor;
                 values[i] = ds.value;
@@ -156,10 +159,16 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
                     weights[i] = pf.getCoef()[i];
                 }
                 samples.add(new DataSample(time, value));
+                lastIndex = time;
                 return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public long lastIndex() {
+        return 0;
     }
 
     private static final char sep = '|';
