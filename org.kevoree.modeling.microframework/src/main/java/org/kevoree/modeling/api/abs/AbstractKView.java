@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.abs;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.clone.DefaultModelCloner;
 import org.kevoree.modeling.api.compare.DefaultModelCompare;
+import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -137,7 +138,9 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public KObject create(MetaClass clazz) {
-        return internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
+        KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
+        dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, null, newObj, null, null));
+        return newObj;
     }
 
     public void listen(ModelListener listener) {

@@ -7,7 +7,8 @@ public enum KActionType {
 
     SET("SET"),
     ADD("ADD"),
-    REMOVE("DEL");
+    REMOVE("DEL"),
+    NEW("NEW");
 
     private String code = "";
 
