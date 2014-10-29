@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.data;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategy;
 import org.kevoree.modeling.api.json.JSONModelLoader;
@@ -18,12 +15,6 @@ import java.util.*;
  * Created by duke on 10/17/14.
  */
 public class DefaultKStore implements KStore {
-
-    private static final String keyObjectCounter = "#obj_ct";
-
-    private static final String keyDimensionCounter = "#dim_ct";
-
-    private static final String keyGlobalTimeTree = ",roots";
 
     private static final char keySep = ',';
 
@@ -123,7 +114,8 @@ public class DefaultKStore implements KStore {
         return objectKey;//TODO
     }
 
-    private KObject cacheLookup(KDimension dimension, long time, long key) {
+    @Override
+    public KObject cacheLookup(KDimension dimension, long time, long key) {
         DimensionCache dimensionCache = caches.get(dimension.key());
         TimeCache timeCache = dimensionCache.timesCaches.get(time);
         if (timeCache == null) {
@@ -574,6 +566,25 @@ public class DefaultKStore implements KStore {
         timeCache.root = newRoot;
         timeCache.rootDirty = true;
         dimensionCache.rootTimeTree.insert(newRoot.now());
+    }
+
+    @Override
+    public void registerListener(Object origin, ModelListener listener) {
+        if (origin instanceof KObject) {
+
+        } else if (origin instanceof KView) {
+
+        } else if (origin instanceof KDimension) {
+
+        } else if (origin instanceof KUniverse) {
+
+        }
+        //TODO
+    }
+
+    public void notify(KEvent event) {
+        System.err.println(event.toString());
+        //TODO
     }
 
 }

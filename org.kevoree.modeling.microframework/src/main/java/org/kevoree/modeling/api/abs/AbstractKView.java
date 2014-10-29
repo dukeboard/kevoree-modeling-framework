@@ -140,6 +140,10 @@ public abstract class AbstractKView implements KView {
         return internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
     }
 
+    public void listen(ModelListener listener) {
+        dimension().universe().storage().registerListener(this, listener);
+    }
+
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
 
 }

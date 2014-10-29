@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.data.DefaultKStore;
 import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
-import org.kevoree.modeling.api.events.ModelElementListener;
+import org.kevoree.modeling.api.ModelListener;
 
 /**
  * Created by duke on 10/10/14.
@@ -72,18 +72,22 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     }
 
     @Override
-    public void listen(ModelElementListener listener, Long from, Long to, String path) {
+    public void listen(ModelListener listener, Long from, Long to, String path) {
 
     }
 
     @Override
-    public void disable(ModelElementListener listener) {
+    public void disable(ModelListener listener) {
 
     }
 
     @Override
     public void stream(String query, Callback<KObject> callback) {
 
+    }
+
+    public void listen(ModelListener listener) {
+        storage().registerListener(this, listener);
     }
 
 }

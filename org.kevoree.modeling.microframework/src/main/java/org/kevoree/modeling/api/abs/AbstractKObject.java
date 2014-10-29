@@ -2,7 +2,8 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.KStore;
-import org.kevoree.modeling.api.events.ModelElementListener;
+import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -118,7 +119,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             @Override
                             public void on(String parentPath) {
                                 callback.on(Helper.path(parentPath, referenceInParent, AbstractKObject.this));
-
                             }
                         });
                     }
@@ -127,11 +127,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         }
     }
 
-
     @Override
     public Long parentUuid() {
-        Object[] raw = view.dimension().universe().storage().raw(this, KStore.AccessMode.READ);
-        return (Long) raw[PARENT_INDEX];
+        return (Long) view.dimension().universe().storage().raw(this, KStore.AccessMode.READ)[PARENT_INDEX];
     }
 
     public void setParentUuid(Long parentKID) {
@@ -146,7 +144,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         } else {
             view.lookup(parentKID, callback);
         }
-
     }
 
     protected void setReferenceInParent(MetaReference referenceInParent) {
@@ -175,34 +172,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         //TODO
     }
 
-    @Override
-    public void addModelElementListener(ModelElementListener lst) {
-
-    }
-
-    @Override
-    public void removeModelElementListener(ModelElementListener lst) {
-
-    }
-
-    @Override
-    public void removeAllModelElementListeners() {
-
-    }
-
-    @Override
-    public void addModelTreeListener(ModelElementListener lst) {
-
-    }
-
-    @Override
-    public void removeModelTreeListener(ModelElementListener lst) {
-
-    }
-
-    @Override
-    public void removeAllModelTreeListeners() {
-
+    public void listen(ModelListener listener) {
+        view().dimension().universe().storage().registerListener(this, listener);
     }
 
     @Override
@@ -244,6 +215,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     @Override
     public void set(MetaAttribute attribute, Object payload) {
         attribute.strategy().mutate(this, attribute, payload, cachedDependencies(attribute));
+        KEvent event = new DefaultKEvent(KActionType.SET, attribute, this, null, payload);
+        view().dimension().universe().storage().notify(event);
     }
 
     private KObject[] cachedDependencies(MetaAttribute attribute) {
@@ -253,6 +226,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             if (timedDependencies[i] == now()) {
                 cachedObjs[i] = this;
             } else {//call the cache
+                cachedObjs[i] = view().dimension().universe().storage().cacheLookup(dimension(), timedDependencies[i], uuid());
             }
         }
         return cachedObjs;
@@ -400,6 +374,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             default:
                 break;
         }
+        //publish event
+        KEvent event = new DefaultKEvent(actionType, metaReference, this, null, param);
+        view().dimension().universe().storage().notify(event);
     }
 
     public int size(MetaReference metaReference) {

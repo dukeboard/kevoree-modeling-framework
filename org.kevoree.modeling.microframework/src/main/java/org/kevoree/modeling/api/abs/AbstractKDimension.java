@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 
@@ -92,6 +89,10 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
         }
     }
 
+    public void listen(ModelListener listener) {
+        universe().storage().registerListener(this, listener);
+    }
+
     protected abstract A internal_create(Long timePoint);
-    
+
 }

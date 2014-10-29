@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.data;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.List;
@@ -49,5 +46,11 @@ public interface KStore {
     public void getRoot(KView originView, Callback<KObject> callback);
 
     public void setRoot(KObject newRoot);
+
+    public KObject cacheLookup(KDimension dimension, long time, long key);
+
+    public void registerListener(Object origin, ModelListener listener);
+
+    public void notify(KEvent event);
 
 }

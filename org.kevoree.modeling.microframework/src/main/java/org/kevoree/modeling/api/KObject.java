@@ -1,6 +1,5 @@
 package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.events.ModelElementListener;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -8,7 +7,6 @@ import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by thomas on 10/2/14.
@@ -39,19 +37,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public void stream(String query, Callback<KObject> callback);
 
-    /* Listener management */
-    public void addModelElementListener(ModelElementListener lst);
-
-    public void removeModelElementListener(ModelElementListener lst);
-
-    public void removeAllModelElementListeners();
-
-    public void addModelTreeListener(ModelElementListener lst);
-
-    public void removeModelTreeListener(ModelElementListener lst);
-
-    public void removeAllModelTreeListeners();
-    /* End Listener management */
+    public void listen(ModelListener listener);
 
     /* Visit API */
     public void visitAttributes(ModelAttributeVisitor visitor);

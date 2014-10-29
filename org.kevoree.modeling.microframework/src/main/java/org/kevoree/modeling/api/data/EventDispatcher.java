@@ -1,7 +1,8 @@
 package org.kevoree.modeling.api.data;
 
-import org.kevoree.modeling.api.events.ModelElementListener;
-import org.kevoree.modeling.api.events.ModelEvent;
+import org.kevoree.modeling.api.KEvent;
+import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.event.DefaultKEvent;
 
 import java.util.HashMap;
 
@@ -10,18 +11,18 @@ import java.util.HashMap;
  */
 public class EventDispatcher {
 
-    private HashMap<ModelElementListener, TimedRegistration> listeners = new HashMap<ModelElementListener, TimedRegistration>();
+    private HashMap<ModelListener, TimedRegistration> listeners = new HashMap<ModelListener, TimedRegistration>();
 
-    public void register(ModelElementListener listener, long from, long to, String pathRegex) {
+    public void register(ModelListener listener, long from, long to, String pathRegex) {
         listeners.put(listener, new TimedRegistration(from, to, pathRegex));
     }
 
-    public void unregister(ModelElementListener listener) {
+    public void unregister(ModelListener listener) {
         listeners.remove(listener);
     }
 
-    public void dispatch(ModelEvent event) {
-        for (ModelElementListener l : listeners.keySet()) {
+    public void dispatch(DefaultKEvent event) {
+        for (ModelListener l : listeners.keySet()) {
             TimedRegistration registration = listeners.get(l);
             if (registration.covered(event)) {
                 l.on(event);
@@ -46,14 +47,14 @@ public class EventDispatcher {
             this.pathRegex = pathRegex;
         }
 
-        public boolean covered(ModelEvent event) {
+        public boolean covered(KEvent event) {
             if (from != null) {
-                if (from < event.getSource().now()) {
+                if (from < event.src().now()) {
                     return false;
                 }
             }
             if (to != null) {
-                if (to < event.getSource().now()) {
+                if (to < event.src().now()) {
                     return false;
                 }
             }

@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.abs.AbstractKDataBase;
 
 import java.util.HashMap;
 
