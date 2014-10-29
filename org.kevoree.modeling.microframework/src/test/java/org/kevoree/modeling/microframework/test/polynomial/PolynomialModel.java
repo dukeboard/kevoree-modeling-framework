@@ -41,8 +41,11 @@ public class PolynomialModel {
         polynomTree.put(defaultPolynomialExtrapolation.getTimeOrigin(), defaultPolynomialExtrapolation);
 
         defaultPolynomialExtrapolation = new DefaultPolynomialExtrapolation(newPrev.time, toleratedError, maxDegree, degradeFactor, prioritization);
+
         defaultPolynomialExtrapolation.insert(newPrev.time,newPrev.value);
         defaultPolynomialExtrapolation.insert(time,value);
+
+
     }
 
     public void finalSave() {

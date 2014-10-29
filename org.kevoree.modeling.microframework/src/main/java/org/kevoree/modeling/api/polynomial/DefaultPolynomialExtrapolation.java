@@ -30,23 +30,6 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         this.prioritization = prioritization;
         this.maxDegree = maxDegree;
         this.toleratedError = toleratedError;
-        //TODO check if the performance impact will be not important
-        /*
-        double[] times = new double[2];
-        double[] values = new double[2];
-        times[0] = 0;
-        times[1] = ((double) (time - timeOrigin)) / degradeFactor;
-        values[0] = prev.value;
-        values[1] = value;
-        PolynomialFitEjml pf = new PolynomialFitEjml(1);
-        pf.fit(times, values);
-        samples.add(prev);
-        samples.add(new DataSample(time, value));
-        weights = new double[pf.getCoef().length];
-        for (int i = 0; i < pf.getCoef().length; i++) {
-            weights[i] = pf.getCoef()[i];
-        }
-        */
     }
 
     public List<DataSample> getSamples() {
@@ -94,7 +77,8 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         DataSample ds;
         for (int i = 0; i < samples.size(); i++) {
             ds = samples.get(i);
-            temp = Math.abs(internal_extrapolate(time, computedWeights) - ds.value);
+            double val=internal_extrapolate(ds.time, computedWeights);
+            temp = Math.abs(val - ds.value);
             if (temp > maxErr) {
                 maxErr = temp;
             }
@@ -134,6 +118,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         return internal_extrapolate(time, weights);
     }
 
+
     @Override
     public boolean insert(long time, double value) {
         //If this is the first point in the set, add it and return
@@ -154,8 +139,9 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
             int ss = Math.min(deg * 2, samples.size());
             double[] times = new double[ss + 1];
             double[] values = new double[ss + 1];
+            int current = samples.size();
             for (int i = 0; i < ss; i++) {
-                int current = samples.size();
+
                 DataSample ds = samples.get(i * current / ss);
                 times[i] = ((double) (ds.time - timeOrigin)) / degradeFactor;
                 values[i] = ds.value;
