@@ -1,9 +1,7 @@
 package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.*;
@@ -21,6 +19,14 @@ public class HelloTest {
     @Test
     public void helloTest() {
         CloudUniverse univers = new CloudUniverse(new MemoryKDataBase());
+        univers.listen(new ModelListener() {
+            @Override
+            public void on(KEvent evt) {
+                System.err.println(evt);
+            }
+        });
+
+
         univers.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {

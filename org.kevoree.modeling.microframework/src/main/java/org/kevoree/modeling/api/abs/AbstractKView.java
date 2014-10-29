@@ -139,7 +139,7 @@ public abstract class AbstractKView implements KView {
     @Override
     public KObject create(MetaClass clazz) {
         KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
-        dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, null, newObj, null, null));
+        dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, null, newObj, null, newObj));
         return newObj;
     }
 
