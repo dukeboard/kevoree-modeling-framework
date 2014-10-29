@@ -1,8 +1,8 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategies;
-import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategy;
+import org.kevoree.modeling.api.strategy.ExtrapolationStrategies;
+import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 

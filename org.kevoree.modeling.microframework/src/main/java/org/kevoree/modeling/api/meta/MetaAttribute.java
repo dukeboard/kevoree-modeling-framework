@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.meta;
 
-import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategy;
+import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 
 /**
  * Created by duke on 10/9/14.

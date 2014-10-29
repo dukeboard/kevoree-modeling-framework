@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.KActionType;
 
 public class DefaultKEvent implements KEvent {
-    
+
     private KActionType type;
     private Meta meta;
     private Object pastValue;
@@ -24,8 +24,8 @@ public class DefaultKEvent implements KEvent {
     @Override
     public String toString() {
         String newValuePayload = "";
-        if(newValue()!= null){
-            newValuePayload = newValue().toString().replace("\n","");
+        if (newValue() != null) {
+            newValuePayload = newValue().toString().replace("\n", "");
         }
         return "ModelEvent[src:[t=" + source.now() + "]uuid=" + source.uuid() + ", type:" + type + ", meta:" + meta() + ", pastValue:" + pastValue() + ", newValue:" + newValuePayload + "]";
     }
@@ -54,4 +54,5 @@ public class DefaultKEvent implements KEvent {
     public KObject src() {
         return source;
     }
+
 }

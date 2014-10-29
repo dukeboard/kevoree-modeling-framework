@@ -2,9 +2,8 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.extrapolation.ExtrapolationStrategy;
+import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 import org.kevoree.modeling.api.json.JSONModelLoader;
-import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.impl.DefaultTimeTree;

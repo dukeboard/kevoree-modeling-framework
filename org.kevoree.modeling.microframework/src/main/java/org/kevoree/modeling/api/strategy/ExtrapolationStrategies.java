@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.extrapolation;
+package org.kevoree.modeling.api.strategy;
 
 /**
  * Created by duke on 10/28/14.

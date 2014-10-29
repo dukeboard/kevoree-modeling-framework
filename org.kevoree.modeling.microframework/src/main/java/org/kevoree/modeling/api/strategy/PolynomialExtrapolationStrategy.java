@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.extrapolation;
+package org.kevoree.modeling.api.strategy;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -6,11 +6,13 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 /**
  * Created by duke on 10/28/14.
  */
-public class LinearRegressionExtrapolationStrategy implements ExtrapolationStrategy {
+public class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
     @Override
     public Long[] timedDependencies(KObject current) {
-        //TODO ASSAD HERE, thinks about the case that the object
-        return new Long[0];
+        //By default we need the current object
+        Long[] times = new Long[1];
+        times[0] = current.timeTree().resolve(current.now());
+        return times;
     }
 
     @Override
@@ -21,6 +23,6 @@ public class LinearRegressionExtrapolationStrategy implements ExtrapolationStrat
 
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
-        
+
     }
 }
