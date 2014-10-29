@@ -171,6 +171,8 @@ public class DefaultKStore implements KStore {
                     } else if (resolved instanceof List) {
                         ArrayList<String> clonedSet = new ArrayList<String>((List<String>) resolved);
                         cloned[i] = clonedSet;
+                    } else {
+                        cloned[i] = resolved; //by default copy by reference, no protection!
                     }
                 }
             }
