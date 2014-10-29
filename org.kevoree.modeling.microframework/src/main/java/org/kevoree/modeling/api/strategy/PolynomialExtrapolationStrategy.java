@@ -35,13 +35,13 @@ public class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
         Object previous = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ)[attribute.index()];
         if (previous == null) {
-            PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(current.now(), 10 /* TODO call attrbute definition */, 20, 1, Prioritization.LOWDEGREES);
+            PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(current.now(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
             pol.insert(current.now(), Double.parseDouble(payload.toString()));
             current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE)[attribute.index()] = pol;
         } else {
             PolynomialExtrapolation previousPol = (PolynomialExtrapolation) previous;
             if (!previousPol.insert(current.now(), Double.parseDouble(payload.toString()))) {
-                PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(previousPol.lastIndex(), 10 /* TODO call attrbute definition */, 20, 1, Prioritization.LOWDEGREES);
+                PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(previousPol.lastIndex(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                 pol.insert(current.now(), Double.parseDouble(payload.toString()));
                 current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE)[attribute.index()] = pol;

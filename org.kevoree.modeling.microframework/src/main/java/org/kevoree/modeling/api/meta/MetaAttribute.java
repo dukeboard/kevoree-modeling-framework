@@ -7,8 +7,6 @@ import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
  */
 public interface MetaAttribute extends Meta {
 
-    boolean learned();
-
     boolean key();
 
     MetaClass origin();
@@ -20,6 +18,8 @@ public interface MetaAttribute extends Meta {
     MetaType metaType();
 
     ExtrapolationStrategy strategy();
+
+    double precision();
 
     public void setExtrapolationStrategy(ExtrapolationStrategy extrapolationStrategy);
 

@@ -16,11 +16,6 @@ public class UnresolvedMetaAttribute implements MetaAttribute {
     }
 
     @Override
-    public boolean learned() {
-        return false;
-    }
-
-    @Override
     public boolean key() {
         return false;
     }
@@ -38,6 +33,11 @@ public class UnresolvedMetaAttribute implements MetaAttribute {
     @Override
     public ExtrapolationStrategy strategy() {
         return null;
+    }
+
+    @Override
+    public double precision() {
+        return 0;
     }
 
     @Override

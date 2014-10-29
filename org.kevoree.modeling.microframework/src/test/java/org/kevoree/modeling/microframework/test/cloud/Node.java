@@ -17,14 +17,14 @@ public interface Node extends KObject<Node, CloudView> {
     /* Reflexive API Attributes */
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, false, true, MetaType.STRING, ExtrapolationStrategies.DISCRETE.strategy()),
-        VALUE("value", 3, true, false, MetaType.STRING, ExtrapolationStrategies.DISCRETE.strategy()); //lexicographic order
+        NAME("name", 2, 5, true, MetaType.STRING, ExtrapolationStrategies.DISCRETE.strategy()),
+        VALUE("value", 3, 5, false, MetaType.STRING, ExtrapolationStrategies.DISCRETE.strategy()); //lexicographic order
 
         private String name;
 
         private int index;
 
-        private boolean learned;
+        private double precision;
 
         private boolean key;
 
@@ -46,8 +46,8 @@ public interface Node extends KObject<Node, CloudView> {
             return name;
         }
 
-        public boolean learned() {
-            return learned;
+        public double precision() {
+            return precision;
         }
 
         public boolean key() {
@@ -66,10 +66,10 @@ public interface Node extends KObject<Node, CloudView> {
             this.extrapolationStrategy = extrapolationStrategy;
         }
 
-        METAATTRIBUTES(String name, int index, boolean learned, boolean key, MetaType metaType, ExtrapolationStrategy extrapolationStrategy) {
+        METAATTRIBUTES(String name, int index, double precision, boolean key, MetaType metaType, ExtrapolationStrategy extrapolationStrategy) {
             this.name = name;
             this.index = index;
-            this.learned = learned;
+            this.precision = precision;
             this.key = key;
             this.metaType = metaType;
             this.extrapolationStrategy = extrapolationStrategy;
