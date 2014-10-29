@@ -1,11 +1,10 @@
 package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.abs.AbstractKDataBase;
 
 import java.util.HashMap;
 
-public class MemoryKDataBase extends AbstractKDataBase {
+public class MemoryKDataBase implements KDataBase {
 
     private final HashMap<String, String> backend = new HashMap<String, String>();
 

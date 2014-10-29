@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 
@@ -22,12 +23,5 @@ public interface KDataBase {
     public void commit(Callback<Throwable> error);
 
     public void close(Callback<Throwable> error);
-
-    public void notify(DefaultKEvent event);
-
-    public void register(ModelListener listener, long from, long to, String path);
-
-    public void unregister(ModelListener listener);
-
 
 }

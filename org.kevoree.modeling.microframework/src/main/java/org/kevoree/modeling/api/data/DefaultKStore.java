@@ -24,17 +24,22 @@ public class DefaultKStore implements KStore {
         protected Map<Long, TimeCache> timesCaches = new HashMap<Long, TimeCache>();
         protected KDimension dimension;
         protected TimeTree rootTimeTree = new DefaultTimeTree();
+        protected List<ModelListener> listeners = new ArrayList<ModelListener>();
 
         public DimensionCache(KDimension dimension) {
             this.dimension = dimension;
         }
     }
 
+    private List<ModelListener> universListeners = new ArrayList<ModelListener>();
+
     private class TimeCache {
         protected Map<Long, KObject> obj_cache = new HashMap<Long, KObject>();
         protected Map<Long, Object[]> payload_cache = new HashMap<Long, Object[]>();
         protected KObject root = null;
         protected boolean rootDirty = false;
+        protected List<ModelListener> listeners = new ArrayList<ModelListener>();
+        protected Map<Long, List<ModelListener>> obj_listeners = new HashMap<Long, List<ModelListener>>();
     }
 
     private String keyPayload(KDimension dim, long time, long key) {
@@ -571,20 +576,45 @@ public class DefaultKStore implements KStore {
     @Override
     public void registerListener(Object origin, ModelListener listener) {
         if (origin instanceof KObject) {
-
+            DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
+            TimeCache timeCache = dimensionCache.timesCaches.get(((KView) origin).now());
+            List<ModelListener> obj_listeners = timeCache.obj_listeners.get(((KObject) origin).uuid());
+            if (obj_listeners == null) {
+                obj_listeners = new ArrayList<ModelListener>();
+                timeCache.obj_listeners.put(((KObject) origin).uuid(), obj_listeners);
+            }
+            obj_listeners.add(listener);
         } else if (origin instanceof KView) {
-
+            DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
+            TimeCache timeCache = dimensionCache.timesCaches.get(((KView) origin).now());
+            timeCache.listeners.add(listener);
         } else if (origin instanceof KDimension) {
-
+            DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
+            dimensionCache.listeners.add(listener);
         } else if (origin instanceof KUniverse) {
-
+            universListeners.add(listener);
         }
-        //TODO
     }
 
+    //TODO optimize
     public void notify(KEvent event) {
-        System.out.println(event.toString());
-        //TODO
+        DimensionCache dimensionCache = caches.get(event.src().dimension().key());
+        TimeCache timeCache = dimensionCache.timesCaches.get(event.src().now());
+        List<ModelListener> obj_listeners = timeCache.obj_listeners.get(event.src().uuid());
+        if (obj_listeners != null) {
+            for (int i = 0; i < obj_listeners.size(); i++) {
+                obj_listeners.get(i).on(event);
+            }
+        }
+        for (int i = 0; i < timeCache.listeners.size(); i++) {
+            timeCache.listeners.get(i).on(event);
+        }
+        for (int i = 0; i < dimensionCache.listeners.size(); i++) {
+            dimensionCache.listeners.get(i).on(event);
+        }
+        for (int i = 0; i < universListeners.size(); i++) {
+            universListeners.get(i).on(event);
+        }
     }
 
 }
