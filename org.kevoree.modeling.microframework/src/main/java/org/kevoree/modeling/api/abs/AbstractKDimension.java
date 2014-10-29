@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 
 import java.util.HashMap;
 import java.util.Map;

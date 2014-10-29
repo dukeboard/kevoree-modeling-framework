@@ -32,4 +32,6 @@ public interface TimeTree {
 
     public boolean isDirty();
 
+    public int size();
+
 }

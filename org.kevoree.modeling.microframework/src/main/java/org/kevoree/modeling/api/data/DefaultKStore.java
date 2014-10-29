@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
+import org.kevoree.modeling.api.time.DefaultTimeTree;
 
 import java.util.*;
 
@@ -141,8 +141,8 @@ public class DefaultKStore implements KStore {
             ((AbstractKObject) origin).setDirty(true);
         }
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
-        long resolvedTime = origin.now();
-        boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.view().now();
+        long resolvedTime = origin.timeTree().resolve(origin.now());
+        boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.now();
         TimeCache timeCache = dimensionCache.timesCaches.get(resolvedTime);
         if (timeCache == null) {
             timeCache = new TimeCache();

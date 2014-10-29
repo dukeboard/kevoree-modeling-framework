@@ -5,7 +5,6 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;

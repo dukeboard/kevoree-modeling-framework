@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.time.impl;
+package org.kevoree.modeling.api.time;
 
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.TimeWalker;
@@ -145,6 +145,11 @@ public class DefaultTimeTree implements TimeTree {
     @Override
     public boolean isDirty() {
         return dirty;
+    }
+
+    @Override
+    public int size() {
+        return versionTree.size();
     }
 
     public void setDirty(boolean state) {

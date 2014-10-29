@@ -9,7 +9,7 @@ import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.impl.DefaultTimeTree;
+import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
