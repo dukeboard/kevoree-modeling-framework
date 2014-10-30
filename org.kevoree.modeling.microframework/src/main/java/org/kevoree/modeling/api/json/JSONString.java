@@ -4,7 +4,8 @@ package org.kevoree.modeling.api.json;
  * Created by thomas on 10/3/14.
  */
 public class JSONString {
-    private final static Character escapeChar = '\\';
+
+    private final static Character ESCAPE_CHAR = '\\';
 
     public static void encodeBuffer(StringBuilder buffer, String chain) {
         if (chain == null) {
@@ -14,29 +15,29 @@ public class JSONString {
         while (i < chain.length()) {
             Character ch = chain.charAt(i);
             if (ch == '"') {
-                buffer.append(escapeChar);
+                buffer.append(ESCAPE_CHAR);
                 buffer.append('"');
-            } else if (ch == escapeChar) {
-                buffer.append(escapeChar);
-                buffer.append(escapeChar);
+            } else if (ch == ESCAPE_CHAR) {
+                buffer.append(ESCAPE_CHAR);
+                buffer.append(ESCAPE_CHAR);
             } else if (ch == '\n') {
-                buffer.append(escapeChar);
+                buffer.append(ESCAPE_CHAR);
                 buffer.append('n');
             } else if (ch == '\r') {
-                buffer.append(escapeChar);
+                buffer.append(ESCAPE_CHAR);
                 buffer.append('r');
             } else if (ch == '\t') {
-                buffer.append(escapeChar);
+                buffer.append(ESCAPE_CHAR);
                 buffer.append('t');
             } else if (ch == '\u2028') {
-                buffer.append(escapeChar);
+                buffer.append(ESCAPE_CHAR);
                 buffer.append('u');
                 buffer.append('2');
                 buffer.append('0');
                 buffer.append('2');
                 buffer.append('8');
             } else if (ch == '\u2029') {
-                buffer.append(escapeChar);
+                buffer.append(ESCAPE_CHAR);
                 buffer.append('u');
                 buffer.append('2');
                 buffer.append('0');
@@ -57,29 +58,29 @@ public class JSONString {
         while (i < chain.length()) {
             Character ch = chain.charAt(i);
             if (ch == '"') {
-                ostream.print(escapeChar);
+                ostream.print(ESCAPE_CHAR);
                 ostream.print('"');
-            } else if (ch == escapeChar) {
-                ostream.print(escapeChar);
-                ostream.print(escapeChar);
+            } else if (ch == ESCAPE_CHAR) {
+                ostream.print(ESCAPE_CHAR);
+                ostream.print(ESCAPE_CHAR);
             } else if (ch == '\n') {
-                ostream.print(escapeChar);
+                ostream.print(ESCAPE_CHAR);
                 ostream.print('n');
             } else if (ch == '\r') {
-                ostream.print(escapeChar);
+                ostream.print(ESCAPE_CHAR);
                 ostream.print('r');
             } else if (ch == '\t') {
-                ostream.print(escapeChar);
+                ostream.print(ESCAPE_CHAR);
                 ostream.print('t');
             } else if (ch == '\u2028') {
-                ostream.print(escapeChar);
+                ostream.print(ESCAPE_CHAR);
                 ostream.print('u');
                 ostream.print('2');
                 ostream.print('0');
                 ostream.print('2');
                 ostream.print('8');
             } else if (ch == '\u2029') {
-                ostream.print(escapeChar);
+                ostream.print(ESCAPE_CHAR);
                 ostream.print('u');
                 ostream.print('2');
                 ostream.print('0');
@@ -103,7 +104,7 @@ public class JSONString {
         int i = 0;
         while (i < src.length()) {
             Character current = src.charAt(i);
-            if (current == escapeChar) {
+            if (current == ESCAPE_CHAR) {
                 if (builder == null) {
                     builder = new StringBuilder();
                     builder.append(src.substring(0, i));

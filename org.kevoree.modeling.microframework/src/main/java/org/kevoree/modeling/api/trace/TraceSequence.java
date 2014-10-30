@@ -49,25 +49,25 @@ public class TraceSequence {
     public TraceSequence populateFromStream(java.io.InputStream inputStream) throws Exception {
         Lexer lexer = new Lexer(inputStream);
         Token currentToken = lexer.nextToken();
-        if (currentToken.getTokenType() != Type.LEFT_BRACKET) {
+        if (currentToken.tokenType() != Type.LEFT_BRACKET) {
             throw new Exception("Bad Format : expect [");
         }
         currentToken = lexer.nextToken();
         Map<String, String> keys = new HashMap<String, String>();
         String previousName = null;
-        while (currentToken.getTokenType() != Type.EOF && currentToken.getTokenType() != Type.RIGHT_BRACKET) {
-            if (currentToken.getTokenType() == Type.LEFT_BRACE) {
+        while (currentToken.tokenType() != Type.EOF && currentToken.tokenType() != Type.RIGHT_BRACKET) {
+            if (currentToken.tokenType() == Type.LEFT_BRACE) {
                 keys.clear();
             }
-            if (currentToken.getTokenType() == Type.VALUE) {
+            if (currentToken.tokenType() == Type.VALUE) {
                 if (previousName != null) {
-                    keys.put(previousName, currentToken.getValue().toString());
+                    keys.put(previousName, currentToken.value().toString());
                     previousName = null;
                 } else {
-                    previousName = currentToken.getValue().toString();
+                    previousName = currentToken.value().toString();
                 }
             }
-            if (currentToken.getTokenType() == Type.RIGHT_BRACE) {
+            if (currentToken.tokenType() == Type.RIGHT_BRACE) {
                 String traceTypeRead = keys.get(ModelTraceConstants.traceType.toString());
                 if (traceTypeRead.equals(KActionType.SET.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());

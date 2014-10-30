@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelSerializer;
 import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.AccessMode;
 
 import java.io.*;
 import java.util.Set;
@@ -18,11 +18,11 @@ import java.util.Set;
 
 public class JSONModelSerializer implements ModelSerializer {
 
-    public static final String keyMeta = "@meta";
+    public static final String KEY_META = "@meta";
 
-    public static final String keyKid = "@uuid";
+    public static final String KEY_UUID = "@uuid";
 
-    public static final String keyRoot = "@root";
+    public static final String KEY_ROOT = "@root";
 
     @Override
     public void serialize(KObject model, final Callback<String> callback) {
@@ -69,14 +69,14 @@ public class JSONModelSerializer implements ModelSerializer {
 
     public static void printJSON(KObject elem, PrintStream builder) {
         builder.append("{\n");
-        builder.append("\t\"" + keyMeta + "\" : \"");
+        builder.append("\t\"" + KEY_META + "\" : \"");
         builder.append(elem.metaClass().metaName());
         builder.append("\",\n");
-        builder.append("\t\"" + keyKid + "\" : \"");
+        builder.append("\t\"" + KEY_UUID + "\" : \"");
         builder.append(elem.uuid() + "");
         if (elem.isRoot()) {
             builder.append("\",\n");
-            builder.append("\t\"" + keyRoot + "\" : \"");
+            builder.append("\t\"" + KEY_ROOT + "\" : \"");
             builder.append("true");
         }
         builder.append("\",\n");
@@ -92,7 +92,7 @@ public class JSONModelSerializer implements ModelSerializer {
             }
         }
         for (int i = 0; i < elem.metaReferences().length; i++) {
-            Object[] raw = elem.view().dimension().universe().storage().raw(elem, KStore.AccessMode.READ);
+            Object[] raw = elem.view().dimension().universe().storage().raw(elem, AccessMode.READ);
             Object payload = null;
             if (raw != null) {
                 payload = raw[elem.metaReferences()[i].index()];

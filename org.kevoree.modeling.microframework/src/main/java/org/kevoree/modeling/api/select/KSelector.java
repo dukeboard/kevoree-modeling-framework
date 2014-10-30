@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.select;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -24,7 +25,7 @@ public class KSelector {
 
         String relationNameRegex = extractedQuery.relationName.replace("*", ".*");
         Set<Long> collected = new HashSet<Long>();
-        Object[] raw = root.dimension().universe().storage().raw(root, KStore.AccessMode.READ);
+        Object[] raw = root.dimension().universe().storage().raw(root, AccessMode.READ);
         for (int i = 0; i < root.metaReferences().length; i++) {
             MetaReference reference = root.metaReferences()[i];
             if (reference.metaName().matches(relationNameRegex)) {

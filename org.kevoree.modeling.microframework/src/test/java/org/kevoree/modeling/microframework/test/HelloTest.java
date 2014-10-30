@@ -2,6 +2,7 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.*;
@@ -60,7 +61,7 @@ public class HelloTest {
 
                 nodeT0.addChildren(nodeT1);
 
-                Map<Long,Integer> refs = (Map<Long,Integer>) t0.dimension().universe().storage().raw(nodeT1, KStore.AccessMode.READ)[1];
+                Map<Long,Integer> refs = (Map<Long,Integer>) t0.dimension().universe().storage().raw(nodeT1, AccessMode.READ)[1];
                 assertTrue(refs.containsKey(nodeT0.uuid()));
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));

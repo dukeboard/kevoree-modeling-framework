@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.strategy;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation;
@@ -23,7 +24,7 @@ public class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute, KObject[] dependencies) {
-        PolynomialExtrapolation pol = (PolynomialExtrapolation) current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ)[attribute.index()];
+        PolynomialExtrapolation pol = (PolynomialExtrapolation) current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
         if (pol != null) {
             return pol.extrapolate(current.now());
         } else {
@@ -33,18 +34,18 @@ public class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
 
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
-        Object previous = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ)[attribute.index()];
+        Object previous = current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
         if (previous == null) {
             PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(current.now(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
             pol.insert(current.now(), Double.parseDouble(payload.toString()));
-            current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE)[attribute.index()] = pol;
+            current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
         } else {
             PolynomialExtrapolation previousPol = (PolynomialExtrapolation) previous;
             if (!previousPol.insert(current.now(), Double.parseDouble(payload.toString()))) {
                 PolynomialExtrapolation pol = new DefaultPolynomialExtrapolation(previousPol.lastIndex(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                 pol.insert(current.now(), Double.parseDouble(payload.toString()));
-                current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE)[attribute.index()] = pol;
+                current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
             }
         }
     }

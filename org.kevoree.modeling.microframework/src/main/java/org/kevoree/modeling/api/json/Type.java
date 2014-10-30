@@ -4,6 +4,7 @@ package org.kevoree.modeling.api.json;
  * Created by duke on 10/3/14.
  */
 public enum Type {
+    
     VALUE(0),
     LEFT_BRACE(1),
     RIGHT_BRACE(2),
@@ -13,9 +14,10 @@ public enum Type {
     COLON(6),
     EOF(42);
 
-    private final int value;
+    private final int _value;
 
-    private Type(int value) {
-        this.value = value;
+    private Type(int p_value) {
+        this._value = p_value;
     }
+
 }

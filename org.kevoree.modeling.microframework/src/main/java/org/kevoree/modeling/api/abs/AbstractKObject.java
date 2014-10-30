@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
@@ -123,11 +123,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Long parentUuid() {
-        return (Long) _view.dimension().universe().storage().raw(this, KStore.AccessMode.READ)[PARENT_INDEX];
+        return (Long) _view.dimension().universe().storage().raw(this, AccessMode.READ)[PARENT_INDEX];
     }
 
     public void setParentUuid(Long parentKID) {
-        _view.dimension().universe().storage().raw(this, KStore.AccessMode.WRITE)[PARENT_INDEX] = parentKID;
+        _view.dimension().universe().storage().raw(this, AccessMode.WRITE)[PARENT_INDEX] = parentKID;
     }
 
     @Override
@@ -225,14 +225,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     private Object getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
-        Object previous = view().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex];
+        Object previous = view().dimension().universe().storage().raw(obj, AccessMode.WRITE)[payloadIndex];
         if (previous == null) {
             if (payloadIndex == INBOUNDS_INDEX) {
                 previous = new HashMap<Long, Integer>();
             } else {
                 previous = new HashSet<Long>();
             }
-            view().dimension().universe().storage().raw(obj, KStore.AccessMode.WRITE)[payloadIndex] = previous;
+            view().dimension().universe().storage().raw(obj, AccessMode.WRITE)[payloadIndex] = previous;
         }
         return previous;
     }
@@ -281,7 +281,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                     } else {
                         //Actual add
-                        Object[] payload = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
+                        Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
                         Object previous = payload[metaReference.index()];
                         if (previous != null) {
                             mutate(KActionType.REMOVE, metaReference, null, setOpposite);
@@ -314,7 +314,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 break;
             case REMOVE:
                 if (metaReference.single()) {
-                    Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
+                    Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
                     Object previousKid = raw[metaReference.index()];
                     raw[metaReference.index()] = null;
                     if (previousKid != null) {
@@ -339,7 +339,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         });
                     }
                 } else {
-                    Object[] payload = view().dimension().universe().storage().raw(this, KStore.AccessMode.WRITE);
+                    Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
                         Set<Long> previousList = (Set<Long>) previous;
@@ -372,11 +372,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public int size(MetaReference metaReference) {
-        return ((Set) view().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()]).size();
+        return ((Set) view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()]).size();
     }
 
     public <C extends KObject> void each(MetaReference metaReference, final Callback<C> callback, final Callback<Throwable> end) {
-        Object o = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ)[metaReference.index()];
+        Object o = view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()];
         if (o == null) {
             if (end != null) {
                 end.on(null);
@@ -461,7 +461,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         for (int i = 0; i < metaReferences().length; i++) {
             MetaReference reference = metaReferences()[i];
             if (!(treeOnly && !reference.contained())) {
-                Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
                 Object o = null;
                 if (raw != null) {
                     o = raw[reference.index()];
@@ -544,14 +544,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public String toJSON() {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
-        builder.append("\t\"" + JSONModelSerializer.keyMeta + "\" : \"");
+        builder.append("\t\"" + JSONModelSerializer.KEY_META + "\" : \"");
         builder.append(metaClass().metaName());
         builder.append("\",\n");
-        builder.append("\t\"" + JSONModelSerializer.keyKid + "\" : \"");
+        builder.append("\t\"" + JSONModelSerializer.KEY_UUID + "\" : \"");
         builder.append(uuid());
         if (isRoot()) {
             builder.append("\",\n");
-            builder.append("\t\"" + JSONModelSerializer.keyRoot + "\" : \"");
+            builder.append("\t\"" + JSONModelSerializer.KEY_ROOT + "\" : \"");
             builder.append("true");
         }
         builder.append("\",\n");
@@ -567,7 +567,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
         for (int i = 0; i < metaReferences().length; i++) {
-            Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
             Object payload = null;
             if (raw != null) {
                 payload = raw[metaReferences()[i].index()];
@@ -626,7 +626,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaReferences().length; i++) {
                 MetaReference ref = metaReferences()[i];
-                Object[] raw = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
                 Object o = null;
                 if (raw != null) {
                     o = raw[ref.index()];
@@ -647,7 +647,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
 
     public void inbounds(final Callback<InboundReference> callback, final Callback<Throwable> end) {
-        Object[] rawPayload = view().dimension().universe().storage().raw(this, KStore.AccessMode.READ);
+        Object[] rawPayload = view().dimension().universe().storage().raw(this, AccessMode.READ);
         if (rawPayload == null) {
             end.on(new Exception("Object not initialized."));
         } else {

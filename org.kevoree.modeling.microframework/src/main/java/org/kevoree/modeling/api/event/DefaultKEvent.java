@@ -7,18 +7,18 @@ import org.kevoree.modeling.api.KActionType;
 
 public class DefaultKEvent implements KEvent {
 
-    private KActionType type;
-    private Meta meta;
-    private Object pastValue;
-    private Object newValue;
-    private KObject source;
+    private KActionType _type;
+    private Meta _meta;
+    private Object _pastValue;
+    private Object _newValue;
+    private KObject _source;
 
-    public DefaultKEvent(KActionType type, Meta meta, KObject source, Object pastValue, Object newValue) {
-        this.type = type;
-        this.meta = meta;
-        this.source = source;
-        this.pastValue = pastValue;
-        this.newValue = newValue;
+    public DefaultKEvent(KActionType p_type, Meta p_meta, KObject p_source, Object p_pastValue, Object p_newValue) {
+        this._type = p_type;
+        this._meta = p_meta;
+        this._source = p_source;
+        this._pastValue = p_pastValue;
+        this._newValue = p_newValue;
     }
 
     @Override
@@ -27,32 +27,32 @@ public class DefaultKEvent implements KEvent {
         if (newValue() != null) {
             newValuePayload = newValue().toString().replace("\n", "");
         }
-        return "ModelEvent[src:[t=" + source.now() + "]uuid=" + source.uuid() + ", type:" + type + ", meta:" + meta() + ", pastValue:" + pastValue() + ", newValue:" + newValuePayload + "]";
+        return "ModelEvent[src:[t=" + _source.now() + "]uuid=" + _source.uuid() + ", type:" + _type + ", meta:" + meta() + ", pastValue:" + pastValue() + ", newValue:" + newValuePayload + "]";
     }
 
     @Override
     public KActionType type() {
-        return type;
+        return _type;
     }
 
     @Override
     public Meta meta() {
-        return meta;
+        return _meta;
     }
 
     @Override
     public Object pastValue() {
-        return pastValue;
+        return _pastValue;
     }
 
     @Override
     public Object newValue() {
-        return newValue;
+        return _newValue;
     }
 
     @Override
     public KObject src() {
-        return source;
+        return _source;
     }
 
 }

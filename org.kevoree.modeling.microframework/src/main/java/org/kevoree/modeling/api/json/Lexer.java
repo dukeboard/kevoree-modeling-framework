@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.util.HashSet;
 
 public class Lexer {
-    private InputStream inputStream;
+
     private byte[] bytes;
     private Token EOF;
     private HashSet<Character> BOOLEAN_LETTERS = null;
@@ -19,7 +19,6 @@ public class Lexer {
 
 
     public Lexer(InputStream inputStream) {
-        this.inputStream = inputStream;
         try {
             this.bytes = toByteArray(inputStream);
         } catch (IOException e) {

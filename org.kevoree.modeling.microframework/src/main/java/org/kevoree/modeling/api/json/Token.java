@@ -4,32 +4,33 @@ package org.kevoree.modeling.api.json;
  * Created by duke on 10/3/14.
  */
 public class Token {
-    private Type tokenType;
-    private Object value;
 
-    public Token(Type tokenType, Object value) {
-        this.tokenType = tokenType;
-        this.value = value;
+    private Type _tokenType;
+    private Object _value;
+
+    public Token(Type p_tokenType, Object p_value) {
+        this._tokenType = p_tokenType;
+        this._value = p_value;
     }
 
     @Override
     public String toString() {
         String v;
-        if (value != null) {
-            v = " (" + value + ")";
+        if (_value != null) {
+            v = " (" + _value + ")";
         } else {
             v = "";
         }
-        String result = tokenType.toString() + v;
+        String result = _tokenType.toString() + v;
         return result;
     }
 
 
-    public Type getTokenType() {
-        return tokenType;
+    public Type tokenType() {
+        return _tokenType;
     }
 
-    public Object getValue() {
-        return value;
+    public Object value() {
+        return _value;
     }
 }

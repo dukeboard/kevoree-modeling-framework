@@ -2,7 +2,7 @@ package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.data.KStore;
+import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
@@ -22,10 +22,10 @@ import java.util.*;
 
 public class JSONModelLoader implements ModelLoader {
 
-    private KView factory;
+    private KView _factory;
 
-    public JSONModelLoader(KView factory) {
-        this.factory = factory;
+    public JSONModelLoader(KView p_factory) {
+        this._factory = p_factory;
     }
 
     @Override
@@ -57,8 +57,8 @@ public class JSONModelLoader implements ModelLoader {
         String currentAttributeName = null;
         Set<String> arrayPayload = null;
         Token currentToken = lexer.nextToken();
-        while (currentToken.getTokenType() != org.kevoree.modeling.api.json.Type.EOF) {
-            switch (currentToken.getTokenType()) {
+        while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF) {
+            switch (currentToken.tokenType()) {
                 case LEFT_BRACKET:
                     arrayPayload = new HashSet<String>();
                     break;
@@ -76,13 +76,13 @@ public class JSONModelLoader implements ModelLoader {
                     break;
                 case VALUE:
                     if (currentAttributeName == null) {
-                        currentAttributeName = currentToken.getValue().toString();
+                        currentAttributeName = currentToken.value().toString();
                     } else {
                         if (arrayPayload == null) {
-                            content.put(currentAttributeName, currentToken.getValue().toString());
+                            content.put(currentAttributeName, currentToken.value().toString());
                             currentAttributeName = null;
                         } else {
-                            arrayPayload.add(currentToken.getValue().toString());
+                            arrayPayload.add(currentToken.value().toString());
                         }
                     }
                     break;
@@ -91,7 +91,7 @@ public class JSONModelLoader implements ModelLoader {
         }
         long[] keys = new long[alls.size()];
         for (int i = 0; i < keys.length; i++) {
-            Long kid = Long.parseLong(alls.get(i).get(JSONModelSerializer.keyKid).toString());
+            Long kid = Long.parseLong(alls.get(i).get(JSONModelSerializer.KEY_UUID).toString());
             keys[i] = kid;
         }
         factory.dimension().timeTrees(keys, new Callback<TimeTree[]>() {
@@ -99,10 +99,10 @@ public class JSONModelLoader implements ModelLoader {
             public void on(TimeTree[] timeTrees) {
                 for (int i = 0; i < alls.size(); i++) {
                     Map<String, Object> elem = alls.get(i);
-                    String meta = elem.get(JSONModelSerializer.keyMeta).toString();
-                    Long kid = Long.parseLong(elem.get(JSONModelSerializer.keyKid).toString());
+                    String meta = elem.get(JSONModelSerializer.KEY_META).toString();
+                    Long kid = Long.parseLong(elem.get(JSONModelSerializer.KEY_UUID).toString());
                     boolean isRoot = false;
-                    Object root = elem.get(JSONModelSerializer.keyRoot);
+                    Object root = elem.get(JSONModelSerializer.KEY_ROOT);
                     if (root != null) {
                         isRoot = Boolean.parseBoolean(root.toString());
                     }
@@ -113,7 +113,7 @@ public class JSONModelLoader implements ModelLoader {
                         ((AbstractKObject) current).setRoot(true);
                     }
                     loaded.add(current);
-                    Object[] payloadObj = factory.dimension().universe().storage().raw(current, KStore.AccessMode.WRITE);
+                    Object[] payloadObj = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
                     for (String k : elem.keySet()) {
                         MetaAttribute att = current.metaAttribute(k);
                         if (att != null) {
@@ -164,10 +164,10 @@ public class JSONModelLoader implements ModelLoader {
         }
         Lexer lexer = new Lexer(inputStream);
         Token currentToken = lexer.nextToken();
-        if (currentToken.getTokenType() != Type.LEFT_BRACKET) {
+        if (currentToken.tokenType() != Type.LEFT_BRACKET) {
             callback.on(null);
         } else {
-            loadObjects(lexer, factory, new Callback<List<KObject>>() {
+            loadObjects(lexer, _factory, new Callback<List<KObject>>() {
                 @Override
                 public void on(List<KObject> kObjects) {
                     callback.on(null);

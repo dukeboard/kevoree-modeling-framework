@@ -78,9 +78,6 @@ public interface KObject<A extends KObject, B extends KView> {
     public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end);
 
     /* End Reflexive API */
-    public enum TraceRequest {
-        ATTRIBUTES_ONLY, REFERENCES_ONLY, ATTRIBUTES_REFERENCES
-    }
 
     public List<ModelTrace> traces(TraceRequest request);
 

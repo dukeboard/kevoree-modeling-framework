@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.strategy;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 
@@ -18,7 +19,7 @@ public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute, KObject[] dependencies) {
-        Object[] payload = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.READ);
+        Object[] payload = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
         if (payload != null) {
             return payload[attribute.index()];
         } else {
@@ -29,7 +30,7 @@ public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
         //By requiring a raw on the current object, we automatically create and copy the previous object
-        Object[] internalPayload = current.view().dimension().universe().storage().raw(current, KStore.AccessMode.WRITE);
+        Object[] internalPayload = current.view().dimension().universe().storage().raw(current, AccessMode.WRITE);
         //The object is also automatically set to Dirty
         if (internalPayload != null) {
             internalPayload[attribute.index()] = payload;
