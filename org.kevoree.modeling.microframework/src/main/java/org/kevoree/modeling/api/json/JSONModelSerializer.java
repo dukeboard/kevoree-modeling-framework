@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelSerializer;
-import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.AccessMode;
 
 import java.io.*;
@@ -54,7 +51,7 @@ public class JSONModelSerializer implements ModelSerializer {
             public VisitResult visit(KObject elem) {
                 out.print(",");
                 printJSON(elem, out);
-                return ModelVisitor.VisitResult.CONTINUE;
+                return VisitResult.CONTINUE;
             }
         }, new Callback<Throwable>() {
             @Override

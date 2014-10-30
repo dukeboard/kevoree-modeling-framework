@@ -488,12 +488,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 public void on(List<KObject> resolveds) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
                     for (KObject resolved : resolveds) {
-                        ModelVisitor.VisitResult result = visitor.visit(resolved);
-                        if (result.equals(ModelVisitor.VisitResult.STOP)) {
+                        VisitResult result = visitor.visit(resolved);
+                        if (result.equals(VisitResult.STOP)) {
                             end.on(null);
                         } else {
                             if (deep) {
-                                if (result.equals(ModelVisitor.VisitResult.CONTINUE)) {
+                                if (result.equals(VisitResult.CONTINUE)) {
                                     if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
                                         nextDeep.add(resolved);
                                     }

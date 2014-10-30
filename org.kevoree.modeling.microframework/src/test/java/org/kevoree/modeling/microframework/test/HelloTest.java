@@ -61,7 +61,7 @@ public class HelloTest {
 
                 nodeT0.addChildren(nodeT1);
 
-                Map<Long,Integer> refs = (Map<Long,Integer>) t0.dimension().universe().storage().raw(nodeT1, AccessMode.READ)[1];
+                Map<Long, Integer> refs = (Map<Long, Integer>) t0.dimension().universe().storage().raw(nodeT1, AccessMode.READ)[1];
                 assertTrue(refs.containsKey(nodeT0.uuid()));
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
@@ -180,7 +180,7 @@ public class HelloTest {
                     @Override
                     public VisitResult visit(KObject elem) {
                         i[0]++;
-                        return ModelVisitor.VisitResult.CONTINUE;
+                        return VisitResult.CONTINUE;
                     }
                 }, new Callback<Throwable>() {
                     @Override

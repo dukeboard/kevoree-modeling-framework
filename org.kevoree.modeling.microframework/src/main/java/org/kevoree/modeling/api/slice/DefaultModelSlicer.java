@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.slice;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelSlicer;
-import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
@@ -34,7 +31,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                         if (parent.parentUuid() != null) {
                             traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
                         }
-                        traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
+                        traces.addAll(elem.traces(TraceRequest.ATTRIBUTES_ONLY));
                         parentMap.put(parent.uuid(), parent);
                     }
                     //Add attributes and references of pruned object
@@ -42,7 +39,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                         if (elem.parentUuid() != null) {
                             traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
                         }
-                        traces.addAll(elem.traces(KObject.TraceRequest.ATTRIBUTES_ONLY));
+                        traces.addAll(elem.traces(TraceRequest.ATTRIBUTES_ONLY));
                     }
                     //We register this element as reachable
                     cache.put(elem.uuid(), elem);
@@ -90,7 +87,7 @@ public class DefaultModelSlicer implements ModelSlicer {
             public void on(Throwable throwable) {
                 for (Long toLinkKey : tempMap.keySet()) {
                     KObject toLink = tempMap.get(toLinkKey);
-                    traces.addAll(toLink.traces(KObject.TraceRequest.REFERENCES_ONLY));
+                    traces.addAll(toLink.traces(TraceRequest.REFERENCES_ONLY));
                 }
                 callback.on(new TraceSequence().populate(traces));
             }
