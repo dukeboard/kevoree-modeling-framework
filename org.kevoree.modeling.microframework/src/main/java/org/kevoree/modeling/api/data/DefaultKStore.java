@@ -56,21 +56,19 @@ public class DefaultKStore implements KStore {
         caches.put(dimension.key(), dimensionCache);
         String[] rootTreeKeys = new String[1];
         rootTreeKeys[0] = keyRootTree(dimension);
-        _db.get(rootTreeKeys, new Callback<String[]>() {
+        _db.get(rootTreeKeys, new ThrowableCallback<String[]>() {
             @Override
-            public void on(String[] res) {
-                try {
-                    ((DefaultTimeTree) dimensionCache.rootTimeTree).load(res[0]);
-                    callback.on(null);
-                } catch (Exception e) {
-                    callback.on(e);
+            public void on(String[] res, Throwable error) {
+                if (error != null) {
+                    callback.on(error);
+                } else {
+                    try {
+                        ((DefaultTimeTree) dimensionCache.rootTimeTree).load(res[0]);
+                        callback.on(null);
+                    } catch (Exception e) {
+                        callback.on(e);
+                    }
                 }
-            }
-        }, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
-                throwable.printStackTrace();
-                callback.on(throwable);
             }
         });
     }
@@ -298,9 +296,12 @@ public class DefaultKStore implements KStore {
             for (int i = 0; i < toLoadKeys.length; i++) {
                 toLoadKeys[i] = keyTree(dimension, keys[toLoad.get(i)]);
             }
-            _db.get(toLoadKeys, new Callback<String[]>() {
+            _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                 @Override
-                public void on(String[] res) {
+                public void on(String[] res, Throwable error) { //TODO process error
+                    if (error != null) {
+                        error.printStackTrace();
+                    }
                     for (int i = 0; i < res.length; i++) {
                         DefaultTimeTree newTree = new DefaultTimeTree();
                         try {
@@ -316,11 +317,6 @@ public class DefaultKStore implements KStore {
                         }
                     }
                     callback.on(result);
-                }
-            }, new Callback<Throwable>() {
-                @Override
-                public void on(Throwable throwable) {
-                    throwable.printStackTrace();//TODO
                 }
             });
         }
@@ -387,64 +383,55 @@ public class DefaultKStore implements KStore {
                     resolved[i] = resolvedTime;
                     objStringKeys[i] = keyPayload(originView.dimension(), resolvedTime, keys[i]);
                 }
-                _db.get(objStringKeys, new Callback<String[]>() {
+                _db.get(objStringKeys, new ThrowableCallback<String[]>() {
                     @Override
-                    public void on(final String[] objectPayloads) {
-                        final List<Object[]> additionalLoad = new ArrayList<Object[]>();
-                        final List<KObject> objs = new ArrayList<KObject>();
-                        for (int i = 0; i < objectPayloads.length; i++) {
-                            KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
-                            //Put in cache
-                            objs.add(obj);
-                            //additional from strategy
-                            Set<ExtrapolationStrategy> strategies = new HashSet<ExtrapolationStrategy>();
-                            for (int h = 0; h < obj.metaAttributes().length; h++) {
-                                MetaAttribute metaAttribute = obj.metaAttributes()[h];
-                                strategies.add(metaAttribute.strategy());
-                            }
-                            for (ExtrapolationStrategy strategy : strategies) {
-                                Long[] additionalTimes = strategy.timedDependencies(obj);
-                                for (int j = 0; j < additionalTimes.length; j++) {
-                                    if (additionalTimes[j] != obj.now()) {
-                                        //check if the object is already in cache
-                                        if (cacheLookup(originView.dimension(), additionalTimes[j], obj.uuid()) == null) {
-                                            Object[] payload = new Object[]{keyPayload(originView.dimension(), additionalTimes[j], obj.uuid()), additionalTimes[j]};
-                                            additionalLoad.add(payload);
+                    public void on(final String[] objectPayloads, Throwable error) {
+                        if (error != null) {
+                            callback.on(null);
+                        } else {
+                            final List<Object[]> additionalLoad = new ArrayList<Object[]>();
+                            final List<KObject> objs = new ArrayList<KObject>();
+                            for (int i = 0; i < objectPayloads.length; i++) {
+                                KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+                                //Put in cache
+                                objs.add(obj);
+                                //additional from strategy
+                                Set<ExtrapolationStrategy> strategies = new HashSet<ExtrapolationStrategy>();
+                                for (int h = 0; h < obj.metaAttributes().length; h++) {
+                                    MetaAttribute metaAttribute = obj.metaAttributes()[h];
+                                    strategies.add(metaAttribute.strategy());
+                                }
+                                for (ExtrapolationStrategy strategy : strategies) {
+                                    Long[] additionalTimes = strategy.timedDependencies(obj);
+                                    for (int j = 0; j < additionalTimes.length; j++) {
+                                        if (additionalTimes[j] != obj.now()) {
+                                            //check if the object is already in cache
+                                            if (cacheLookup(originView.dimension(), additionalTimes[j], obj.uuid()) == null) {
+                                                Object[] payload = new Object[]{keyPayload(originView.dimension(), additionalTimes[j], obj.uuid()), additionalTimes[j]};
+                                                additionalLoad.add(payload);
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                        if (additionalLoad.isEmpty()) {
-                            callback.on(objs);
-                        } else {
-                            String[] addtionalDBKeys = new String[additionalLoad.size()];
-                            for (int i = 0; i < additionalLoad.size(); i++) {
-                                addtionalDBKeys[i] = additionalLoad.get(i)[0].toString();
-                            }
-                            _db.get(addtionalDBKeys, new Callback<String[]>() {
-                                @Override
-                                public void on(String[] additionalPayloads) {
-                                    for (int i = 0; i < objectPayloads.length; i++) {
-                                        JSONModelLoader.load(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
+                            if (additionalLoad.isEmpty()) {
+                                callback.on(objs);
+                            } else {
+                                String[] addtionalDBKeys = new String[additionalLoad.size()];
+                                for (int i = 0; i < additionalLoad.size(); i++) {
+                                    addtionalDBKeys[i] = additionalLoad.get(i)[0].toString();
+                                }
+                                _db.get(addtionalDBKeys, new ThrowableCallback<String[]>() {
+                                    @Override
+                                    public void on(String[] additionalPayloads, Throwable error) {
+                                        for (int i = 0; i < objectPayloads.length; i++) {
+                                            JSONModelLoader.load(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
+                                        }
+                                        callback.on(objs); //we still return the first layer of objects
                                     }
-                                    callback.on(objs); //we still return the first layer of objects
-                                }
-                            }, new Callback<Throwable>() {
-                                @Override
-                                public void on(Throwable throwable) {
-                                    //TODO process the error
-                                    callback.on(objs);
-                                }
-                            });
+                                });
+                            }
                         }
-                    }
-                }, new Callback<Throwable>() {
-                    @Override
-                    public void on(Throwable throwable) {
-                        //TODO process the error
-                        //load objects according to different strategies
-                        callback.on(null);
                     }
                 });
             }
@@ -519,29 +506,27 @@ public class DefaultKStore implements KStore {
             } else {
                 String[] rootKeys = new String[1];
                 rootKeys[0] = keyRoot(dimensionCache.dimension, resolvedRoot);
-                _db.get(rootKeys, new Callback<String[]>() {
+                _db.get(rootKeys, new ThrowableCallback<String[]>() {
                     @Override
-                    public void on(String[] res) {
-                        try {
-                            Long idRoot = Long.parseLong(res[0]);
-                            lookup(originView, idRoot, new Callback<KObject>() {
-                                @Override
-                                public void on(KObject resolved) {
-                                    timeCache.root = resolved;
-                                    timeCache.rootDirty = false;
-                                    callback.on(resolved);
-                                }
-                            });
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                    public void on(String[] res, Throwable error) {
+                        if (error != null) {
                             callback.on(null);
+                        } else {
+                            try {
+                                Long idRoot = Long.parseLong(res[0]);
+                                lookup(originView, idRoot, new Callback<KObject>() {
+                                    @Override
+                                    public void on(KObject resolved) {
+                                        timeCache.root = resolved;
+                                        timeCache.rootDirty = false;
+                                        callback.on(resolved);
+                                    }
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                callback.on(null);
+                            }
                         }
-                    }
-                }, new Callback<Throwable>() {
-                    @Override
-                    public void on(Throwable throwable) {
-                        throwable.printStackTrace();
-                        callback.on(null);
                     }
                 });
             }

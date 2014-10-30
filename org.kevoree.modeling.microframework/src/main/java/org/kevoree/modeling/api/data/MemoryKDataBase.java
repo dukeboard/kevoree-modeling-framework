@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.ThrowableCallback;
 
 import java.util.HashMap;
 
@@ -17,12 +18,12 @@ public class MemoryKDataBase implements KDataBase {
     }
 
     @Override
-    public void get(String[] keys, Callback<String[]> callback, Callback<Throwable> error) {
+    public void get(String[] keys, ThrowableCallback<String[]> callback) {
         String[] values = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             values[i] = backend.get(keys[i]);
         }
-        callback.on(values);
+        callback.on(values, null);
     }
 
     @Override

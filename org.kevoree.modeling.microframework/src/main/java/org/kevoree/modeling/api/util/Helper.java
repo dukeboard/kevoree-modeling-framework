@@ -9,11 +9,11 @@ import org.kevoree.modeling.api.meta.MetaReference;
  */
 public class Helper {
 
-    public static <A> void forall(A[] in, final CallBackChain<A> each, final Callback<Throwable> end) {
-        if (in == null) {
+    public static <A> void forall(A[] inputs, final CallBackChain<A> each, final Callback<Throwable> end) {
+        if (inputs == null) {
             return;
         }
-        process(in, 0, each, end);
+        process(inputs, 0, each, end);
     }
 
     private static <A> void process(final A[] arr, final int index, final CallBackChain<A> each, final Callback<Throwable> end) {
