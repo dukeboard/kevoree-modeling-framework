@@ -22,23 +22,23 @@ import java.util.Set;
  */
 public abstract class AbstractKView implements KView {
 
-    private long now;
+    private long _now;
 
-    private KDimension KDimension;
+    private KDimension _dimension;
 
-    protected AbstractKView(long now, KDimension KDimension) {
-        this.now = now;
-        this.KDimension = KDimension;
+    protected AbstractKView(long p_now, KDimension p_dimension) {
+        this._now = p_now;
+        this._dimension = p_dimension;
     }
 
     @Override
     public long now() {
-        return now;
+        return _now;
     }
 
     @Override
     public KDimension dimension() {
-        return KDimension;
+        return _dimension;
     }
 
     @Override
@@ -98,7 +98,7 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void setRoot(KObject elem) {
-        ((AbstractKObject) elem).setReferenceInParent(null);
+        ((AbstractKObject) elem).set_referenceInParent(null);
         ((AbstractKObject) elem).setRoot(true);
         dimension().universe().storage().setRoot(elem);
     }

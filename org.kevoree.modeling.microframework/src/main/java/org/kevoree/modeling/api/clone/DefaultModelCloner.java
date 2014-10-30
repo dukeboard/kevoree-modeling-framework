@@ -4,25 +4,31 @@ import org.kevoree.modeling.api.*;
 
 public class DefaultModelCloner implements ModelCloner<KObject> {
 
-    private KView factory;
+    private KView _factory;
 
-    public DefaultModelCloner(KView factory) {
-        this.factory = factory;
+    public DefaultModelCloner(KView p_factory) {
+        this._factory = p_factory;
     }
 
     @Override
     public void clone(KObject originalObject, Callback<KObject> callback) {
-        originalObject.view().dimension().fork(new Callback<KDimension>() {
-            @Override
-            public void on(KDimension o) {
-                o.time(originalObject.view().now()).lookup(originalObject.uuid(), new Callback<KObject>() {
-                    @Override
-                    public void on(KObject clonedObject) {
-                        callback.on(clonedObject);
-                    }
-                });
-            }
-        });
+        if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
+            callback.on(null);
+        } else {
+            originalObject.view().dimension().fork(new Callback<KDimension>() {
+                @Override
+                public void on(KDimension o) {
+                    o.time(originalObject.view().now()).lookup(originalObject.uuid(), new Callback<KObject>() {
+                        @Override
+                        public void on(KObject clonedObject) {
+                            callback.on(clonedObject);
+                        }
+                    });
+                }
+            });
+        }
+
+
     }
 
 }

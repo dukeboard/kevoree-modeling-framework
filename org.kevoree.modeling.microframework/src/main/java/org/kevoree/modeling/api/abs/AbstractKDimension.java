@@ -12,23 +12,25 @@ import java.util.Set;
  */
 public abstract class AbstractKDimension<A extends KView, B extends KDimension, C extends KUniverse> implements KDimension<A, B, C> {
 
-    private KUniverse universe;
+    private KUniverse _universe;
 
-    private long key;
+    private long _key;
 
-    protected AbstractKDimension(KUniverse universe, long key) {
-        this.universe = universe;
-        this.key = key;
+    private Map<Long, A> _timesCache = new HashMap<Long, A>();
+
+    protected AbstractKDimension(KUniverse p_universe, long p_key) {
+        this._universe = p_universe;
+        this._key = p_key;
     }
 
     @Override
     public long key() {
-        return key;
+        return _key;
     }
 
     @Override
     public C universe() {
-        return (C) universe;
+        return (C) _universe;
     }
 
     @Override
@@ -59,31 +61,28 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
         universe().storage().timeTree(this, key, callback);
     }
 
-
     @Override
     public void parent(Callback<B> callback) {
-
+        //TODO
     }
 
     @Override
     public void children(Callback<Set<B>> callback) {
-
+        //TODO
     }
 
     @Override
     public void fork(Callback<B> callback) {
-
+        //TODO
     }
-
-    private Map<Long, A> timesCache = new HashMap<Long, A>();
 
     @Override
     public synchronized A time(Long timePoint) {
-        if (timesCache.containsKey(timePoint)) {
-            return timesCache.get(timePoint);
+        if (_timesCache.containsKey(timePoint)) {
+            return _timesCache.get(timePoint);
         } else {
             A newCreatedTime = internal_create(timePoint);
-            timesCache.put(timePoint, newCreatedTime);
+            _timesCache.put(timePoint, newCreatedTime);
             return newCreatedTime;
         }
     }

@@ -14,10 +14,11 @@ import java.util.*;
  */
 
 public class DefaultModelCompare implements ModelCompare {
-    private KView factory;
 
-    public DefaultModelCompare(KView factory) {
-        this.factory = factory;
+    private KView _factory;
+
+    public DefaultModelCompare(KView p_factory) {
+        this._factory = p_factory;
     }
 
     @Override

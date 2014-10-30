@@ -14,21 +14,20 @@ import org.kevoree.modeling.api.ModelListener;
  */
 public abstract class AbstractKUniverse<A extends KDimension> implements KUniverse<A> {
 
-    private final KStore storage;
+    private final KStore _storage;
 
     protected AbstractKUniverse(KDataBase kDataBase) {
-        storage = new DefaultKStore(kDataBase);
-        //TODO load previous existing and open dimensions
+        _storage = new DefaultKStore(kDataBase);
     }
 
     @Override
     public KStore storage() {
-        return storage;
+        return _storage;
     }
 
     @Override
     public void newDimension(final Callback<A> callback) {
-        long nextKey = storage.nextDimensionKey();
+        long nextKey = _storage.nextDimensionKey();
         final A newDimension = internal_create(nextKey);
         storage().initDimension(newDimension, new Callback<Throwable>() {
             @Override
@@ -42,7 +41,7 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
     @Override
     public void dimension(long key, final Callback<A> callback) {
-        A existingDimension = (A) storage.getDimension(key);
+        A existingDimension = (A) _storage.getDimension(key);
         if (existingDimension != null) {
             callback.on(existingDimension);
         } else {

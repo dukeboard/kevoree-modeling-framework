@@ -25,53 +25,54 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public final static int PARENT_INDEX = 0;
     public final static int INBOUNDS_INDEX = 1;
 
-    private boolean isDirty = false;
+    private boolean _isDirty = false;
+    private B _view;
+    private MetaClass _metaClass;
+    private long _uuid;
+    private boolean isDeleted = false;
+    private boolean isRoot = false;
+    private long _now;
+    private TimeTree _timeTree;
+    private MetaReference _referenceInParent = null;
+    private KDimension _dimension;
 
+    public AbstractKObject(B p_view, MetaClass p_metaClass, long p_uuid, long p_now, KDimension p_dimension, TimeTree p_timeTree) {
+        this._view = p_view;
+        this._metaClass = p_metaClass;
+        this._uuid = p_uuid;
+        this._now = p_now;
+        this._dimension = p_dimension;
+        this._timeTree = p_timeTree;
+    }
+
+    @Override
     public boolean isDirty() {
-        return isDirty;
+        return _isDirty;
     }
 
     public void setDirty(boolean isDirty) {
-        this.isDirty = isDirty;
+        this._isDirty = isDirty;
     }
-
-    private B view;
-
-    private MetaClass metaClass;
 
     @Override
     public B view() {
-        return view;
+        return _view;
     }
 
-    private long kid;
-
+    @Override
     public long uuid() {
-        return kid;
-    }
-
-    public AbstractKObject(B view, MetaClass metaClass, long kid, long now, KDimension dimension, TimeTree timeTree) {
-        this.view = view;
-        this.metaClass = metaClass;
-        this.kid = kid;
-        this.now = now;
-        this.dimension = dimension;
-        this.timeTree = timeTree;
+        return _uuid;
     }
 
     @Override
     public MetaClass metaClass() {
-        return this.metaClass;
+        return this._metaClass;
     }
-
-    private boolean isDeleted = false;
 
     @Override
     public boolean isDeleted() {
         return isDeleted;
     }
-
-    private boolean isRoot = false;
 
     @Override
     public boolean isRoot() {
@@ -82,26 +83,19 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         this.isRoot = isRoot;
     }
 
-    private long now;
-
     @Override
     public long now() {
-        return now;
+        return _now;
     }
-
-    private TimeTree timeTree;
 
     @Override
     public TimeTree timeTree() {
-        return timeTree;
+        return _timeTree;
     }
-
-    private KDimension dimension;
 
     @Override
     public KDimension dimension() {
-        //TODO resolve the best local dimension
-        return dimension;
+        return _dimension;
     }
 
     @Override
@@ -118,7 +112,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         parent.path(new Callback<String>() {
                             @Override
                             public void on(String parentPath) {
-                                callback.on(Helper.path(parentPath, referenceInParent, AbstractKObject.this));
+                                callback.on(Helper.path(parentPath, _referenceInParent, AbstractKObject.this));
                             }
                         });
                     }
@@ -129,11 +123,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Long parentUuid() {
-        return (Long) view.dimension().universe().storage().raw(this, KStore.AccessMode.READ)[PARENT_INDEX];
+        return (Long) _view.dimension().universe().storage().raw(this, KStore.AccessMode.READ)[PARENT_INDEX];
     }
 
     public void setParentUuid(Long parentKID) {
-        view.dimension().universe().storage().raw(this, KStore.AccessMode.WRITE)[PARENT_INDEX] = parentKID;
+        _view.dimension().universe().storage().raw(this, KStore.AccessMode.WRITE)[PARENT_INDEX] = parentKID;
     }
 
     @Override
@@ -142,19 +136,17 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (parentKID == null) {
             callback.on(null);
         } else {
-            view.lookup(parentKID, callback);
+            _view.lookup(parentKID, callback);
         }
     }
 
-    protected void setReferenceInParent(MetaReference referenceInParent) {
-        this.referenceInParent = referenceInParent;
+    protected void set_referenceInParent(MetaReference _referenceInParent) {
+        this._referenceInParent = _referenceInParent;
     }
-
-    private MetaReference referenceInParent = null;
 
     @Override
     public MetaReference referenceInParent() {
-        return referenceInParent;
+        return _referenceInParent;
     }
 
     @Override
@@ -178,7 +170,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void jump(Long time, final Callback<A> callback) {
-        view().dimension().time(time).lookup(kid, new Callback<KObject>() {
+        view().dimension().time(time).lookup(_uuid, new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
                 callback.on((A) kObject);
@@ -246,7 +238,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     private void removeFromContainer(final KObject param) {
-        if (param != null && param.parentUuid() != null && param.parentUuid() != kid) {
+        if (param != null && param.parentUuid() != null && param.parentUuid() != _uuid) {
             view().lookup(param.parentUuid(), new Callback<KObject>() {
                 @Override
                 public void on(KObject parent) {
@@ -273,8 +265,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     //Container
                     if (metaReference.contained()) {
                         removeFromContainer(param);
-                        ((AbstractKObject) param).setReferenceInParent(metaReference);
-                        ((AbstractKObject) param).setParentUuid(kid);
+                        ((AbstractKObject) param).set_referenceInParent(metaReference);
+                        ((AbstractKObject) param).setParentUuid(_uuid);
                     }
                     //Inbound
                     Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
@@ -298,8 +290,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         //Container
                         if (metaReference.contained()) {
                             removeFromContainer(param);
-                            ((AbstractKObject) param).setReferenceInParent(metaReference);
-                            ((AbstractKObject) param).setParentUuid(kid);
+                            ((AbstractKObject) param).set_referenceInParent(metaReference);
+                            ((AbstractKObject) param).setParentUuid(_uuid);
                         }
                         //Inbound
                         Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
@@ -327,13 +319,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     raw[metaReference.index()] = null;
                     if (previousKid != null) {
                         final KObject self = this;
-                        view.dimension().universe().storage().lookup(view, (Long) previousKid, new Callback<KObject>() {
+                        _view.dimension().universe().storage().lookup(_view, (Long) previousKid, new Callback<KObject>() {
                             @Override
                             public void on(KObject resolvedParam) {
                                 if (resolvedParam != null) {
                                     if (metaReference.contained()) {
                                         //removeFromContainer(resolvedParam, fireEvent);
-                                        ((AbstractKObject) resolvedParam).setReferenceInParent(null);
+                                        ((AbstractKObject) resolvedParam).set_referenceInParent(null);
                                         ((AbstractKObject) resolvedParam).setParentUuid(null);
                                     }
                                     if (metaReference.opposite() != null && setOpposite) {
@@ -351,14 +343,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
                         Set<Long> previousList = (Set<Long>) previous;
-                        if (now() != now) {
+                        if (now() != _now) {
                             previousList = new HashSet<Long>(previousList);
                             payload[metaReference.index()] = previousList;
                         }
                         previousList.remove(param.uuid());
                         if (metaReference.contained()) {
                             //removeFromContainer(param, fireEvent);
-                            ((AbstractKObject) param).setReferenceInParent(null);
+                            ((AbstractKObject) param).set_referenceInParent(null);
                             ((AbstractKObject) param).setParentUuid(null);
                         }
                         if (metaReference.opposite() != null && setOpposite) {
@@ -627,7 +619,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 MetaAttribute current = metaAttributes()[i];
                 Object payload = get(current);
                 if (payload != null) {
-                    traces.add(new ModelSetTrace(kid, current, payload));
+                    traces.add(new ModelSetTrace(_uuid, current, payload));
                 }
             }
         }
@@ -643,10 +635,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     Set<Long> contents = (Set<Long>) o;
                     Long[] contentsArr = contents.toArray(new Long[contents.size()]);
                     for (int j = 0; j < contentsArr.length; j++) {
-                        traces.add(new ModelAddTrace(kid, ref, contentsArr[j], null));
+                        traces.add(new ModelAddTrace(_uuid, ref, contentsArr[j], null));
                     }
                 } else if (o != null) {
-                    traces.add(new ModelAddTrace(kid, ref, (Long) o, null));
+                    traces.add(new ModelAddTrace(_uuid, ref, (Long) o, null));
                 }
             }
         }
@@ -665,7 +657,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     final Map<Long, Integer> refs = (Map<Long, Integer>) payload;
                     Set<Long> oppositeKids = new HashSet<Long>();
                     oppositeKids.addAll(refs.keySet());
-                    view.lookupAll(oppositeKids, new Callback<List<KObject>>() {
+                    _view.lookupAll(oppositeKids, new Callback<List<KObject>>() {
                         @Override
                         public void on(List<KObject> oppositeElements) {
                             if (oppositeElements != null) {
