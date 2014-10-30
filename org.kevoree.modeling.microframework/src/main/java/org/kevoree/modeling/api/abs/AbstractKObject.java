@@ -384,18 +384,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             } else {//case of Get on single ref
                 callback.on(null);
             }
-        } else if (o instanceof Long) {
-            view().lookup((Long) o, new Callback<KObject>() {
-                @Override
-                public void on(KObject resolved) {
-                    if (callback != null) {
-                        callback.on((C) resolved);
-                    }
-                    if (end != null) {
-                        end.on(null);
-                    }
-                }
-            });
         } else if (o instanceof Set) {
             Set<Long> objs = (Set<Long>) o;
             view().lookupAll(objs, new Callback<List<KObject>>() {
@@ -416,9 +404,18 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 }
             });
         } else {
-            if (end != null) {
-                end.on(new Exception("Inconsistent storage, Internal Error"));
-            }
+            view().lookup((Long) o, new Callback<KObject>() {
+                @Override
+                public void on(KObject resolved) {
+                    if (callback != null) {
+                        callback.on((C) resolved);
+                    }
+                    if (end != null) {
+                        end.on(null);
+                    }
+                }
+            });
+
         }
     }
 
