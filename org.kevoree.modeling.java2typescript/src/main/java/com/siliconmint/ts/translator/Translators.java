@@ -106,6 +106,16 @@ public class Translators {
         if (translator == null) {
             for (Map.Entry<Class<? extends PsiElement>, Translator<? extends PsiElement>> registeredTranslatorEntry: translators.entrySet()) {
                 Class<? extends PsiElement> translatedElementType = registeredTranslatorEntry.getKey();
+                if (translatedElementType == elementClass) {
+                    translator = (Translator<PsiElement>) registeredTranslatorEntry.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (translator == null) {
+            for (Map.Entry<Class<? extends PsiElement>, Translator<? extends PsiElement>> registeredTranslatorEntry: translators.entrySet()) {
+                Class<? extends PsiElement> translatedElementType = registeredTranslatorEntry.getKey();
                 if (translatedElementType.isAssignableFrom(elementClass)) {
                     translator = (Translator<PsiElement>) registeredTranslatorEntry.getValue();
                     break;

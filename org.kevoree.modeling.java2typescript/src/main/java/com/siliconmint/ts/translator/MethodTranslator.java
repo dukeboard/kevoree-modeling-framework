@@ -36,6 +36,7 @@ public class MethodTranslator extends Translator<PsiMethod> {
       if (modifierList.hasModifierProperty("static")) {
         ctx.append("static ");
       }
+      ctx.append(element.getName());
 
       PsiTypeParameter[] typeParameters = element.getTypeParameters();
       if (typeParameters != null && typeParameters.length > 0){
@@ -49,7 +50,6 @@ public class MethodTranslator extends Translator<PsiMethod> {
         ctx.append("> ");
       }
 
-      ctx.append(element.getName());
     }
 
     ctx.append('(');
