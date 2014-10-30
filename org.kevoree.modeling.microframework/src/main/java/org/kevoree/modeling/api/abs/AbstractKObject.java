@@ -251,18 +251,42 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
-        switch (actionType) {
-            case ADD:
-                if (metaReference.single()) {
-                    mutate(KActionType.SET, metaReference, param, setOpposite);
+
+        if (actionType.equals(KActionType.ADD)) {
+            if (metaReference.single()) {
+                mutate(KActionType.SET, metaReference, param, setOpposite);
+            } else {
+                Set<Long> previousList = (Set<Long>) getCreateOrUpdatePayloadList(this, metaReference.index());
+                //Actual add
+                previousList.add(param.uuid());
+                //Opposite
+                if (metaReference.opposite() != null && setOpposite) {
+                    param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                }
+                //Container
+                if (metaReference.contained()) {
+                    removeFromContainer(param);
+                    ((AbstractKObject) param).set_referenceInParent(metaReference);
+                    ((AbstractKObject) param).setParentUuid(_uuid);
+                }
+                //Inbound
+                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                inboundRefs.put(uuid(), metaReference.index());
+            }
+        } else if (actionType.equals(KActionType.SET)) {
+            if (!metaReference.single()) {
+                mutate(KActionType.ADD, metaReference, param, setOpposite);
+            } else {
+                if (param == null) {
+                    mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                 } else {
-                    Set<Long> previousList = (Set<Long>) getCreateOrUpdatePayloadList(this, metaReference.index());
                     //Actual add
-                    previousList.add(param.uuid());
-                    //Opposite
-                    if (metaReference.opposite() != null && setOpposite) {
-                        param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                    Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                    Object previous = payload[metaReference.index()];
+                    if (previous != null) {
+                        mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                     }
+                    payload[metaReference.index()] = param.uuid();
                     //Container
                     if (metaReference.contained()) {
                         removeFromContainer(param);
@@ -272,100 +296,71 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     //Inbound
                     Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
                     inboundRefs.put(uuid(), metaReference.index());
-                }
-                break;
-            case SET:
-                if (!metaReference.single()) {
-                    mutate(KActionType.ADD, metaReference, param, setOpposite);
-                } else {
-                    if (param == null) {
-                        mutate(KActionType.REMOVE, metaReference, null, setOpposite);
-                    } else {
-                        //Actual add
-                        Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
-                        Object previous = payload[metaReference.index()];
+                    //Opposite
+                    final KObject self = this;
+                    if (metaReference.opposite() != null && setOpposite) {
                         if (previous != null) {
-                            mutate(KActionType.REMOVE, metaReference, null, setOpposite);
-                        }
-                        payload[metaReference.index()] = param.uuid();
-                        //Container
-                        if (metaReference.contained()) {
-                            removeFromContainer(param);
-                            ((AbstractKObject) param).set_referenceInParent(metaReference);
-                            ((AbstractKObject) param).setParentUuid(_uuid);
-                        }
-                        //Inbound
-                        Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                        inboundRefs.put(uuid(), metaReference.index());
-                        //Opposite
-                        final KObject self = this;
-                        if (metaReference.opposite() != null && setOpposite) {
-                            if (previous != null) {
-                                view().lookup((Long) previous, new Callback<KObject>() {
-                                    @Override
-                                    public void on(KObject resolved) {
-                                        resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
-                                    }
-                                });
-                            }
-                            param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
-                        }
-                    }
-                }
-                break;
-            case REMOVE:
-                if (metaReference.single()) {
-                    Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
-                    Object previousKid = raw[metaReference.index()];
-                    raw[metaReference.index()] = null;
-                    if (previousKid != null) {
-                        final KObject self = this;
-                        _view.dimension().universe().storage().lookup(_view, (Long) previousKid, new Callback<KObject>() {
-                            @Override
-                            public void on(KObject resolvedParam) {
-                                if (resolvedParam != null) {
-                                    if (metaReference.contained()) {
-                                        //removeFromContainer(resolvedParam, fireEvent);
-                                        ((AbstractKObject) resolvedParam).set_referenceInParent(null);
-                                        ((AbstractKObject) resolvedParam).setParentUuid(null);
-                                    }
-                                    if (metaReference.opposite() != null && setOpposite) {
-                                        resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
-                                    }
-                                    //Inbounds
-                                    Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
-                                    inboundRefs.remove(uuid());
+                            view().lookup((Long) previous, new Callback<KObject>() {
+                                @Override
+                                public void on(KObject resolved) {
+                                    resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                 }
-                            }
-                        });
+                            });
+                        }
+                        param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
                     }
-                } else {
-                    Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
-                    Object previous = payload[metaReference.index()];
-                    if (previous != null) {
-                        Set<Long> previousList = (Set<Long>) previous;
-                        if (now() != _now) {
-                            previousList = new HashSet<Long>(previousList);
-                            payload[metaReference.index()] = previousList;
-                        }
-                        previousList.remove(param.uuid());
-                        if (metaReference.contained()) {
-                            //removeFromContainer(param, fireEvent);
-                            ((AbstractKObject) param).set_referenceInParent(null);
-                            ((AbstractKObject) param).setParentUuid(null);
-                        }
-                        if (metaReference.opposite() != null && setOpposite) {
-                            param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
-                        }
-                    }
-
-                    //Inbounds
-                    Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
-                    inboundRefs.remove(uuid());
                 }
-                break;
-            default:
-                break;
+            }
+        } else if (actionType.equals(KActionType.REMOVE)) {
+            if (metaReference.single()) {
+                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                Object previousKid = raw[metaReference.index()];
+                raw[metaReference.index()] = null;
+                if (previousKid != null) {
+                    final KObject self = this;
+                    _view.dimension().universe().storage().lookup(_view, (Long) previousKid, new Callback<KObject>() {
+                        @Override
+                        public void on(KObject resolvedParam) {
+                            if (resolvedParam != null) {
+                                if (metaReference.contained()) {
+                                    //removeFromContainer(resolvedParam, fireEvent);
+                                    ((AbstractKObject) resolvedParam).set_referenceInParent(null);
+                                    ((AbstractKObject) resolvedParam).setParentUuid(null);
+                                }
+                                if (metaReference.opposite() != null && setOpposite) {
+                                    resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
+                                }
+                                //Inbounds
+                                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
+                                inboundRefs.remove(uuid());
+                            }
+                        }
+                    });
+                }
+            } else {
+                Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                Object previous = payload[metaReference.index()];
+                if (previous != null) {
+                    Set<Long> previousList = (Set<Long>) previous;
+                    if (now() != _now) {
+                        previousList = new HashSet<Long>(previousList);
+                        payload[metaReference.index()] = previousList;
+                    }
+                    previousList.remove(param.uuid());
+                    if (metaReference.contained()) {
+                        //removeFromContainer(param, fireEvent);
+                        ((AbstractKObject) param).set_referenceInParent(null);
+                        ((AbstractKObject) param).setParentUuid(null);
+                    }
+                    if (metaReference.opposite() != null && setOpposite) {
+                        param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
+                    }
+                }
+
+                //Inbounds
+                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                inboundRefs.remove(uuid());
+            }
         }
         //publish event
         KEvent event = new DefaultKEvent(actionType, metaReference, this, null, param);
@@ -708,6 +703,5 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public abstract MetaReference[] metaReferences();
 
     public abstract MetaOperation[] metaOperations();
-
 
 }
