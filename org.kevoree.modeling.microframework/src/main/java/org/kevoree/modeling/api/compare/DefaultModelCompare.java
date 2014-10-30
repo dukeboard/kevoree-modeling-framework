@@ -222,12 +222,14 @@ public class DefaultModelCompare implements ModelCompare {
                 if (!inter && !merge && !values.isEmpty()) {
                     for (MetaReference hashLoopRes : valuesRef.keySet()) {
                         Object payload = valuesRef.get(hashLoopRes);
-                        if (payload instanceof Long) {
-                            traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, (Long) payload));
-                        } else if (payload != null) {
-                            Set<Long> toRemoveSet = (Set<Long>) payload;
-                            for (Long toRemovePath : toRemoveSet) {
-                                traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, toRemovePath));
+                        if (payload != null) {
+                            if (payload instanceof Set) {
+                                Set<Long> toRemoveSet = (Set<Long>) payload;
+                                for (Long toRemovePath : toRemoveSet) {
+                                    traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, toRemovePath));
+                                }
+                            } else {
+                                traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, (Long) payload));
                             }
                         }
                     }
