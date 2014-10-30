@@ -8,6 +8,10 @@ import java.util.Map;
  */
 public class KQuery {
 
+    public static char OPEN_BRACKET = '[';
+    public static char CLOSE_BRACKET = ']';
+    public static char QUERY_SEP = '/';
+
     String relationName;
     Map<String, KQueryParam> params;
     String subQuery;
@@ -28,13 +32,13 @@ public class KQuery {
         if (query == null) {
             return null;
         }
-        if (query.charAt(0) == '/') {
+        if (query.charAt(0) == QUERY_SEP) {
             String subQuery = null;
             if (query.length() > 1) {
                 subQuery = query.substring(1);
             }
-            HashMap<String, KQueryParam> params = new HashMap<String, KQueryParam>();
-            return new KQuery("", params, subQuery, "/", false, false);
+            Map<String, KQueryParam> params = new HashMap<String, KQueryParam>();
+            return new KQuery("", params, subQuery, "" + QUERY_SEP, false, false);
         }
         if (query.startsWith("**/")) {
             if (query.length() > 3) {
@@ -64,14 +68,14 @@ public class KQuery {
         int relationNameEnd = 0;
         int attsEnd = 0;
         boolean escaped = false;
-        while (i < query.length() && ((query.charAt(i) != '/') || escaped)) {
+        while (i < query.length() && ((query.charAt(i) != QUERY_SEP) || escaped)) {
             if (escaped) {
                 escaped = false;
             }
-            if (query.charAt(i) == '[') {
+            if (query.charAt(i) == OPEN_BRACKET) {
                 relationNameEnd = i;
             } else {
-                if (query.charAt(i) == ']') {
+                if (query.charAt(i) == CLOSE_BRACKET) {
                     attsEnd = i;
                 } else {
                     if (query.charAt(i) == '\\') {
@@ -110,7 +114,7 @@ public class KQuery {
                                 String paramKey = pArray[0].trim();
                                 boolean negative = paramKey.endsWith("!");
                                 pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                                params.put(pObject.getName(), pObject);
+                                params.put(pObject.name(), pObject);
                             } else {
                                 pObject = new KQueryParam(null, p, false);
                                 params.put("@id", pObject);
@@ -137,7 +141,7 @@ public class KQuery {
                         String paramKey = pArray[0].trim();
                         boolean negative = paramKey.endsWith("!");
                         pObject = new KQueryParam(paramKey.replace("!", ""), pArray[1].trim(), negative);
-                        params.put(pObject.getName(), pObject);
+                        params.put(pObject.name(), pObject);
                     } else {
                         pObject = new KQueryParam(null, lastParam, false);
                         params.put("@id", pObject);

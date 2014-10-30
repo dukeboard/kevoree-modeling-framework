@@ -28,7 +28,7 @@ public class XMIModelLoader implements ModelLoader {
         this.factory = factory;
     }
 
-    private String unescapeXml(String src) {
+    public static String unescapeXml(String src) {
         StringBuilder builder = null;
         int i = 0;
         while (i < src.length()) {

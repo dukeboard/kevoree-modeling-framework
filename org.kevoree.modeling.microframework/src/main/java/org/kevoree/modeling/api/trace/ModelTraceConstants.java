@@ -18,14 +18,14 @@ public enum ModelTraceConstants {
     coma(","),
     dp(":");
 
-    private String code = "";
+    private String _code = "";
 
-    ModelTraceConstants(String code) {
-        this.code = code;
+    ModelTraceConstants(String p_code) {
+        this._code = p_code;
     }
 
     public String toString() {
-        return code;
+        return _code;
     }
 
 }

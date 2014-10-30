@@ -19,142 +19,6 @@ import static org.kevoree.modeling.api.xmi.XMIModelSerializer.escapeXml;
 * Date : 02/09/13
 */
 
-class AttributesVisitor implements ModelAttributeVisitor {
-
-    private SerializationContext context;
-
-    public AttributesVisitor(SerializationContext context) {
-        this.context = context;
-    }
-
-    public void visit(MetaAttribute metaAttribute, Object value) {
-        if (value != null) {
-            if (context.ignoreGeneratedID && metaAttribute.metaName().equals("generated_KMF_ID")) {
-                return;
-            }
-            if (value instanceof String && value.equals("")) {
-                return;
-            }
-            context.printStream.print(" " + metaAttribute.metaName() + "=\"");
-            if (value instanceof java.util.Date) {
-                escapeXml(context.printStream, "" + ((Date) value).getTime());
-            } else {
-                escapeXml(context.printStream, Converters.convFlatAtt(value));
-            }
-            context.printStream.print("\"");
-        }
-    }
-}
-
-
-class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
-
-    private SerializationContext context;
-    private KObject currentElement;
-
-    NonContainedReferencesCallbackChain(SerializationContext context, KObject currentElement) {
-        this.context = context;
-        this.currentElement = currentElement;
-    }
-
-    @Override
-    public void on(final MetaReference ref, final Callback<Throwable> next) {
-        if (!ref.contained()) {
-            final String[] value = {""};
-            currentElement.each(ref, new Callback() {
-                @Override
-                public void on(Object o) {
-                    String adjustedAddress = context.addressTable.get(((KObject) o).uuid());
-                    value[0] = (value[0].equals("") ? adjustedAddress : value[0] + " " + adjustedAddress);
-                }
-            }, new Callback<Throwable>() {
-                @Override
-                public void on(Throwable end) {
-                    if (end == null) {
-                        if (value[0] != null) {
-                            context.printStream.print(" " + ref.metaName() + "=\"" + value[0] + "\"");
-                        }
-                    }
-                    next.on(end);
-                }
-            });
-        } else {
-            next.on(null);
-        }
-    }
-}
-
-
-class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
-
-    private SerializationContext context;
-    private KObject currentElement;
-
-    ContainedReferencesCallbackChain(SerializationContext context, KObject currentElement) {
-        this.context = context;
-        this.currentElement = currentElement;
-    }
-
-    @Override
-    public void on(final MetaReference ref, final Callback<Throwable> nextReference) {
-        if (ref.contained()) {
-            currentElement.each(ref, new Callback() {
-                @Override
-                public void on(Object o) {
-                    final KObject elem = (KObject) o;
-                    context.printStream.print("<");
-                    context.printStream.print(ref.metaName());
-                    context.printStream.print(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-                    elem.visitAttributes(context.attributesVisitor);
-                    Helper.forall(elem.metaReferences(), new NonContainedReferencesCallbackChain(context, elem), new Callback<Throwable>() {
-                        @Override
-                        public void on(Throwable err) {
-                            if (err == null) {
-                                context.printStream.println('>');
-                                Helper.forall(elem.metaReferences(), new ContainedReferencesCallbackChain(context, elem), new Callback<Throwable>() {
-                                    @Override
-                                    public void on(Throwable containedRefsEnd) {
-                                        if (containedRefsEnd == null) {
-                                            context.printStream.print("</");
-                                            context.printStream.print(ref.metaName());
-                                            context.printStream.print('>');
-                                            context.printStream.println();
-                                        }
-                                    }
-                                });
-                            } else {
-                                context.finishCallback.on(err);
-                            }
-                        }
-                    });
-                }
-            }, new Callback<Throwable>() {
-                @Override
-                public void on(Throwable throwable) {
-                    nextReference.on(null);
-                }
-            });
-        } else {
-            nextReference.on(null);
-        }
-    }
-}
-
-
-class SerializationContext {
-    public boolean ignoreGeneratedID = false;
-    public KObject model;
-    public Callback<Throwable> finishCallback;
-    public PrintStream printStream;
-    public AttributesVisitor attributesVisitor;
-
-    // KPath -> XMIPath
-    HashMap<Long, String> addressTable = new HashMap<Long, String>();
-    // KPath -> Count
-    HashMap<String, Integer> elementsCount = new HashMap<String, Integer>();
-    ArrayList<String> packageList = new ArrayList<String>();
-}
-
 public class XMIModelSerializer implements ModelSerializer {
 
     @Override
@@ -195,9 +59,9 @@ public class XMIModelSerializer implements ModelSerializer {
                 String parentXmiAddress = context.addressTable.get(elem.parentUuid());
                 String key = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
                 Integer i = context.elementsCount.get(key);
-                if(i == null){
+                if (i == null) {
                     i = 0;
-                    context.elementsCount.put(key,i);
+                    context.elementsCount.put(key, i);
                 }
                 context.addressTable.put(elem.uuid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
                 context.elementsCount.put(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), i + 1);
@@ -208,58 +72,6 @@ public class XMIModelSerializer implements ModelSerializer {
                 return VisitResult.CONTINUE;
             }
         }, new PrettyPrinter(context));
-    }
-
-
-    private class PrettyPrinter implements Callback<Throwable> {
-        private SerializationContext context;
-
-        private PrettyPrinter(SerializationContext context) {
-            this.context = context;
-        }
-
-        @Override
-        public void on(Throwable throwable) {
-
-            if (throwable != null) {
-                context.finishCallback.on(throwable);
-            } else {
-                context.printStream.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-                context.printStream.print("<" + formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
-                context.printStream.print(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
-                context.printStream.print(" xmi:version=\"2.0\"");
-                context.printStream.print(" xmlns:xmi=\"http://www.omg.org/XMI\"");
-
-                int index = 0;
-                while (index < context.packageList.size()) {
-                    context.printStream.print(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
-                    index++;
-                }
-                context.model.visitAttributes(context.attributesVisitor);
-                Helper.forall(context.model.metaReferences(), new NonContainedReferencesCallbackChain(context, context.model), new Callback<Throwable>() {
-                    @Override
-                    public void on(Throwable err) {
-                        if (err == null) {
-                            context.printStream.println('>');
-                            Helper.forall(context.model.metaReferences(), new ContainedReferencesCallbackChain(context, context.model), new Callback<Throwable>() {
-                                @Override
-                                public void on(Throwable containedRefsEnd) {
-                                    if (containedRefsEnd == null) {
-                                        context.printStream.println("</" + formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">");
-                                        context.printStream.flush();
-                                        context.finishCallback.on(null);
-                                    } else {
-                                        context.finishCallback.on(containedRefsEnd);
-                                    }
-                                }
-                            });
-                        } else {
-                            context.finishCallback.on(err);
-                        }
-                    }
-                });
-            }
-        }
     }
 
 

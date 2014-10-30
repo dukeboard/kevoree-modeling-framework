@@ -5,26 +5,26 @@ package org.kevoree.modeling.api.select;
  */
 public class KQueryParam {
 
-    private String name;
-    private String value;
-    private boolean negative;
+    private String _name;
+    private String _value;
+    private boolean _negative;
 
-    protected KQueryParam(String name, String value, boolean negative) {
-        this.name = name;
-        this.value = value;
-        this.negative = negative;
+    protected KQueryParam(String p_name, String p_value, boolean p_negative) {
+        this._name = p_name;
+        this._value = p_value;
+        this._negative = p_negative;
     }
 
-    public String getName() {
-        return name;
+    public String name() {
+        return _name;
     }
 
-    public String getValue() {
-        return value;
+    public String value() {
+        return _value;
     }
 
     public boolean isNegative() {
-        return negative;
+        return _negative;
     }
 
 }

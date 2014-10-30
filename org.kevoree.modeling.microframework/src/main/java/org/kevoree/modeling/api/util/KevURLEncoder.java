@@ -18,7 +18,6 @@ public class KevURLEncoder {
         return INSTANCE;
     }
 
-
     private static final Map<Character, Boolean> nonEscaped = new HashMap<Character, Boolean>();
     private static final HashMap<Character, String> escaped = new HashMap<Character, String>();
     private static final Map<String, Character> rescaped = new HashMap<String, Character>();

@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.select;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.util.CallBackChain;
@@ -55,10 +54,10 @@ public class KSelector {
                             KQueryParam param = extractedQuery.params.get(paramKey);
                             for (int j = 0; j < resolved.metaAttributes().length; j++) {
                                 MetaAttribute metaAttribute = resolved.metaAttributes()[i];
-                                if (metaAttribute.metaName().matches(param.getName().replace("*", ".*"))) {
+                                if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
                                     Object o_raw = resolved.get(metaAttribute);
                                     if (o_raw != null) {
-                                        if (o_raw.toString().matches(param.getValue().replace("*", ".*"))) {
+                                        if (o_raw.toString().matches(param.value().replace("*", ".*"))) {
                                             if (param.isNegative()) {
                                                 selectedForNext = false;
                                             }
@@ -68,7 +67,7 @@ public class KSelector {
                                             }
                                         }
                                     } else {
-                                        if (!param.isNegative() && !param.getValue().equals("null")) {
+                                        if (!param.isNegative() && !param.value().equals("null")) {
                                             selectedForNext = false;
                                         }
                                     }
