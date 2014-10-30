@@ -149,16 +149,14 @@ public class DefaultKStore implements KStore {
             for (int i = 0; i < payload.length; i++) {
                 Object resolved = payload[i];
                 if (resolved != null) {
-                    if (resolved instanceof String) {
-                        cloned[i] = resolved;
-                    } else if (resolved instanceof Set) {
+                    if (resolved instanceof Set) {
                         HashSet<String> clonedSet = new HashSet<String>((Set<String>) resolved);
                         cloned[i] = clonedSet;
                     } else if (resolved instanceof List) {
                         ArrayList<String> clonedSet = new ArrayList<String>((List<String>) resolved);
                         cloned[i] = clonedSet;
                     } else {
-                        cloned[i] = resolved; //by default copy by reference, no protection!
+                        cloned[i] = resolved;
                     }
                 }
             }
