@@ -15,10 +15,6 @@ public interface KStore {
 
     void lookupAll(KView originView, Set<Long> key, Callback<List<KObject>> callback);
 
-    public enum AccessMode {
-        READ, WRITE;
-    }
-
     Object[] raw(KObject origin, AccessMode accessMode);
 
     public void save(KDimension dimension, Callback<Throwable> callback);

@@ -2,6 +2,8 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.data.cache.DimensionCache;
+import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 import org.kevoree.modeling.api.json.JSONModelLoader;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -15,53 +17,38 @@ import java.util.*;
  */
 public class DefaultKStore implements KStore {
 
-    private static final char keySep = ',';
+    public static final char KEY_SEP = ',';
 
-    private KDataBase db;
+    private KDataBase _db;
 
-    private class DimensionCache {
-        protected Map<Long, TimeTree> timeTreeCache = new HashMap<Long, TimeTree>();
-        protected Map<Long, TimeCache> timesCaches = new HashMap<Long, TimeCache>();
-        protected KDimension dimension;
-        protected TimeTree rootTimeTree = new DefaultTimeTree();
-        protected List<ModelListener> listeners = new ArrayList<ModelListener>();
-
-        public DimensionCache(KDimension dimension) {
-            this.dimension = dimension;
-        }
-    }
-
-    private List<ModelListener> universListeners = new ArrayList<ModelListener>();
-
-    private class TimeCache {
-        protected Map<Long, KObject> obj_cache = new HashMap<Long, KObject>();
-        protected Map<Long, Object[]> payload_cache = new HashMap<Long, Object[]>();
-        protected KObject root = null;
-        protected boolean rootDirty = false;
-        protected List<ModelListener> listeners = new ArrayList<ModelListener>();
-        protected Map<Long, List<ModelListener>> obj_listeners = new HashMap<Long, List<ModelListener>>();
-    }
-
-    private String keyPayload(KDimension dim, long time, long key) {
-        return "" + dim.key() + keySep + time + keySep + key;
-    }
-
-    private String keyTree(KDimension dim, long key) {
-        return "" + dim.key() + keySep + key;
-    }
-
-    private String keyRoot(KDimension dim, long time) {
-        return dim.key() + keySep + time + keySep + "root";
-    }
-
-    private String keyRootTree(KDimension dim) {
-        return dim.key() + keySep + "root";
-    }
+    private List<ModelListener> universeListeners = new ArrayList<ModelListener>();
 
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
 
-    public DefaultKStore(KDataBase db) {
-        this.db = db;
+    //TODO load and save from DB
+    long dimKeyCounter = 0;
+
+    //TODO load and save from DB
+    long objectKey = 0;
+
+    public DefaultKStore(KDataBase p_db) {
+        this._db = p_db;
+    }
+
+    private String keyTree(KDimension dim, long key) {
+        return "" + dim.key() + KEY_SEP + key;
+    }
+
+    private String keyRoot(KDimension dim, long time) {
+        return dim.key() + KEY_SEP + time + KEY_SEP + "root";
+    }
+
+    private String keyRootTree(KDimension dim) {
+        return dim.key() + KEY_SEP + "root";
+    }
+
+    private String keyPayload(KDimension dim, long time, long key) {
+        return "" + dim.key() + KEY_SEP + time + KEY_SEP + key;
     }
 
     public void initDimension(KDimension dimension, final Callback<Throwable> callback) {
@@ -69,7 +56,7 @@ public class DefaultKStore implements KStore {
         caches.put(dimension.key(), dimensionCache);
         String[] rootTreeKeys = new String[1];
         rootTreeKeys[0] = keyRootTree(dimension);
-        db.get(rootTreeKeys, new Callback<String[]>() {
+        _db.get(rootTreeKeys, new Callback<String[]>() {
             @Override
             public void on(String[] res) {
                 try {
@@ -102,15 +89,11 @@ public class DefaultKStore implements KStore {
         timeCache.obj_cache.put(obj.uuid(), obj);
     }
 
-    long dimKeyCounter = 0;
-
     @Override
     public long nextDimensionKey() {
         dimKeyCounter++;
         return dimKeyCounter;//TODO
     }
-
-    long objectKey = 0;
 
     @Override
     public long nextObjectKey() {
@@ -261,7 +244,7 @@ public class DefaultKStore implements KStore {
                 ((DefaultTimeTree) dimensionCache.rootTimeTree).setDirty(false);
                 i++;
             }
-            db.put(payloads, callback);
+            _db.put(payloads, callback);
         }
     }
 
@@ -315,7 +298,7 @@ public class DefaultKStore implements KStore {
             for (int i = 0; i < toLoadKeys.length; i++) {
                 toLoadKeys[i] = keyTree(dimension, keys[toLoad.get(i)]);
             }
-            db.get(toLoadKeys, new Callback<String[]>() {
+            _db.get(toLoadKeys, new Callback<String[]>() {
                 @Override
                 public void on(String[] res) {
                     for (int i = 0; i < res.length; i++) {
@@ -404,7 +387,7 @@ public class DefaultKStore implements KStore {
                     resolved[i] = resolvedTime;
                     objStringKeys[i] = keyPayload(originView.dimension(), resolvedTime, keys[i]);
                 }
-                db.get(objStringKeys, new Callback<String[]>() {
+                _db.get(objStringKeys, new Callback<String[]>() {
                     @Override
                     public void on(final String[] objectPayloads) {
                         final List<Object[]> additionalLoad = new ArrayList<Object[]>();
@@ -439,7 +422,7 @@ public class DefaultKStore implements KStore {
                             for (int i = 0; i < additionalLoad.size(); i++) {
                                 addtionalDBKeys[i] = additionalLoad.get(i)[0].toString();
                             }
-                            db.get(addtionalDBKeys, new Callback<String[]>() {
+                            _db.get(addtionalDBKeys, new Callback<String[]>() {
                                 @Override
                                 public void on(String[] additionalPayloads) {
                                     for (int i = 0; i < objectPayloads.length; i++) {
@@ -536,7 +519,7 @@ public class DefaultKStore implements KStore {
             } else {
                 String[] rootKeys = new String[1];
                 rootKeys[0] = keyRoot(dimensionCache.dimension, resolvedRoot);
-                db.get(rootKeys, new Callback<String[]>() {
+                _db.get(rootKeys, new Callback<String[]>() {
                     @Override
                     public void on(String[] res) {
                         try {
@@ -592,7 +575,7 @@ public class DefaultKStore implements KStore {
             DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
             dimensionCache.listeners.add(listener);
         } else if (origin instanceof KUniverse) {
-            universListeners.add(listener);
+            universeListeners.add(listener);
         }
     }
 
@@ -612,8 +595,8 @@ public class DefaultKStore implements KStore {
         for (int i = 0; i < dimensionCache.listeners.size(); i++) {
             dimensionCache.listeners.get(i).on(event);
         }
-        for (int i = 0; i < universListeners.size(); i++) {
-            universListeners.get(i).on(event);
+        for (int i = 0; i < universeListeners.size(); i++) {
+            universeListeners.get(i).on(event);
         }
     }
 
