@@ -149,4 +149,6 @@ public abstract class AbstractKView implements KView {
 
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
 
+    public abstract MetaClass[] metaClasses();
+
 }
