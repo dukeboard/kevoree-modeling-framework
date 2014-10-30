@@ -478,15 +478,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     o = raw[reference.index()];
                 }
                 if (o != null) {
-                    if (o instanceof Long) {
-                        toResolveds.add((Long) o);
-                    } else {
-                        if (o instanceof Set) {
-                            Set<Long> ol = (Set<Long>) o;
-                            for (Long toAdd : ol) {
-                                toResolveds.add(toAdd);
-                            }
+                    if (o instanceof Set) {
+                        Set<Long> ol = (Set<Long>) o;
+                        for (Long toAdd : ol) {
+                            toResolveds.add(toAdd);
                         }
+                    } else {
+                        toResolveds.add((Long) o);
                     }
                 }
             }
@@ -611,8 +609,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 builder.append(",\n");
             }
         }
-        int lastcomma = builder.lastIndexOf(",");
-        builder.setCharAt(lastcomma, ' ');
+        //int lastcomma = builder.lastIndexOf(",");
+        //builder.setCharAt(lastcomma, ' ');
         builder.append("}\n");
         return builder.toString();
     }
