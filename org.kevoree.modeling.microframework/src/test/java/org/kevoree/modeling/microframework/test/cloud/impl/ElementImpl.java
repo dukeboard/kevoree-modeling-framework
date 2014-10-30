@@ -4,10 +4,12 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
+import org.kevoree.modeling.microframework.test.cloud.Node;
 
 /**
  * Created by duke on 10/13/14.
@@ -28,6 +30,11 @@ public class ElementImpl extends AbstractKObject<Element, CloudView> implements 
     @Override
     public MetaReference[] metaReferences() {
         return mataReferences;
+    }
+
+    @Override
+    public MetaOperation[] metaOperations() {
+        return new MetaOperation[0];
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
@@ -449,6 +450,16 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return null;
     }
 
+    @Override
+    public MetaOperation metaOperation(String name) {
+        for (int i = 0; i < metaOperations().length; i++) {
+            if (metaOperations()[i].metaName().equals(name)) {
+                return metaOperations()[i];
+            }
+        }
+        return null;
+    }
+
     public void visit(ModelVisitor visitor, Callback<Throwable> end) {
         internal_visit(visitor, end, false, false, null);
     }
@@ -696,5 +707,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
     }
+
+    public abstract MetaAttribute[] metaAttributes();
+
+    public abstract MetaReference[] metaReferences();
+
+    public abstract MetaOperation[] metaOperations();
+
 
 }

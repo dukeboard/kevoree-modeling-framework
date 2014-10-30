@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -29,6 +30,11 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     @Override
     public MetaReference[] metaReferences() {
         return Node.METAREFERENCES.values();
+    }
+
+    @Override
+    public MetaOperation[] metaOperations() {
+        return Node.METAOPERATION.values();
     }
 
     @Override

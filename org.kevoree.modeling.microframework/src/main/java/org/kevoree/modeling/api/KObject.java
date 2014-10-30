@@ -2,6 +2,7 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
@@ -67,9 +68,13 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public MetaReference[] metaReferences();
 
+    public MetaOperation[] metaOperations();
+
     public MetaAttribute metaAttribute(String name);
 
     public MetaReference metaReference(String name);
+
+    public MetaOperation metaOperation(String name);
 
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite);
 
