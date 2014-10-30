@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api;
 
+import java.io.InputStream;
+
 /**
  * Created with IntelliJ IDEA.
  * User: duke
@@ -11,6 +13,6 @@ public interface ModelLoader {
 
     public void loadModelFromString(String str, Callback<Throwable> callback);
 
-    public void loadModelFromStream(java.io.InputStream inputStream, Callback<Throwable> callback);
+    public void loadModelFromStream(InputStream inputStream, Callback<Throwable> callback);
 
 }

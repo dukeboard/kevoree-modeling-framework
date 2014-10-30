@@ -1,5 +1,7 @@
 package org.kevoree.modeling.api;
 
+import java.io.OutputStream;
+
 /**
  * Created with IntelliJ IDEA.
  * User: duke
@@ -9,7 +11,7 @@ package org.kevoree.modeling.api;
 
 public interface ModelSerializer {
 
-    public void serializeToStream(KObject model, java.io.OutputStream raw, Callback<Throwable> result);
+    public void serializeToStream(KObject model, OutputStream raw, Callback<Throwable> result);
 
     public void serialize(KObject model, Callback<String> callback);
 
