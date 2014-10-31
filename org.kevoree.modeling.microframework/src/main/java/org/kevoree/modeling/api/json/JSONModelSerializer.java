@@ -2,8 +2,6 @@ package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.AccessMode;
-
-import java.io.*;
 import java.util.Set;
 
 /**
