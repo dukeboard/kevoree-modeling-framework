@@ -11,8 +11,6 @@ import java.util.ArrayList;
 
 public class XmlParser {
 
-    public static enum Token {XML_HEADER, END_DOCUMENT, START_TAG, END_TAG, COMMENT, SINGLETON_TAG}
-
     private InputStream inputStream;
     private char currentChar;
     private String tagName, tagPrefix, attributePrefix;
