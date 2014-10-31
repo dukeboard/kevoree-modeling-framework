@@ -18,7 +18,8 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
     @Override
     public void on(final MetaReference ref, final Callback<Throwable> next) {
         if (!ref.contained()) {
-            final String[] value = {""};
+            final String[] value = new String[1];
+            value[0] = "";
             currentElement.each(ref, new Callback() {
                 @Override
                 public void on(Object o) {
