@@ -104,7 +104,7 @@ public class KevURLEncoder {
         StringBuilder builder = null;
         int i = 0;
         while (i < src.length()) {
-            int current = src.charAt(i);
+            int current = (int) src.charAt(i);
             if (current == '%') {
                 if (builder == null) {
                     builder = new StringBuilder();
