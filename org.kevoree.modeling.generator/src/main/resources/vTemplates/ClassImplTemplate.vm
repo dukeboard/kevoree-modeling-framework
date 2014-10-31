@@ -1,9 +1,9 @@
 #set($classDeclaration = $context.classDeclaration)
 package ${classDeclaration.pack}.impl;
 
-public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.AbstractKObject<${classDeclaration.pack}.${classDeclaration.name}, ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View> implements ${classDeclaration.pack}.${classDeclaration.name} {
+public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.AbstractKObject<${classDeclaration.pack}.${classDeclaration.name}, ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View> implements ${classDeclaration.pack}.${classDeclaration.name} {
 
-    public ${classDeclaration.name}Impl(${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View factory, org.kevoree.modeling.api.meta.MetaClass metaClass, long kid, Long now, org.kevoree.modeling.api.KDimension dimension, org.kevoree.modeling.api.time.TimeTree timeTree) {
+    public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View factory, org.kevoree.modeling.api.meta.MetaClass metaClass, long kid, Long now, org.kevoree.modeling.api.KDimension dimension, org.kevoree.modeling.api.time.TimeTree timeTree) {
         super(factory, metaClass, kid, now, dimension, timeTree);
     }
 

@@ -26,7 +26,7 @@ public class GenModelPlugin extends AbstractMojo {
      * Source base directory
      */
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/kmf")
-    private File kmfSrcGenerationDirectory;
+    private File targetSrcGenDir;
 
     /**
      * code containerRoot package
@@ -61,31 +61,13 @@ public class GenModelPlugin extends AbstractMojo {
             String targetName;
             if (metaModelQualifiedName != null) {
                 targetName = metaModelQualifiedName;
-            } else {
-                targetName = metaModelFile.getName();
-                if (targetName.endsWith(".ecore")) {
-                    targetName = targetName.replace(".ecore", "");
-                }
-                if (targetName.endsWith(".mm")) {
-                    targetName = targetName.replace(".mm", "");
-                }
-                if (targetName.endsWith(".xsd")) {
-                    targetName = targetName.replace(".xsd", "");
-                }
             }
 
-
             GenerationContext ctx = new GenerationContext();
-            ctx.metaModel = metaModelFile;
-            ctx.metaModelName = targetName;
-            ctx.utilityPackage = utilityPackage;
-
-            ctx.kmfSrcGenerationDirectory = kmfSrcGenerationDirectory;
-            ctx.classesDirectory = classesDirectory;
-
-            ctx.projectVersion = project.getVersion();
-            //ctx.XXXXX = project.getCompileClasspathElements()
-
+            ctx.setMetaModel(metaModelFile);
+            ctx.setMetaModelName(metaModelFile.getName().substring(0, metaModelFile.getName().lastIndexOf(".")));
+            ctx.setTargetSrcDir(targetSrcGenDir);
+            ctx.setVersion(project.getVersion());
 
             Generator generator = new Generator();
             generator.execute(ctx);

@@ -6,7 +6,7 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
 #set($relIdx = 0)
 #set($relIdxMax = $classDeclaration.references.size() - 1)
 #foreach($rel in $classDeclaration.references)
-    ${rel.getName().toUpperCase()}("$rel.getName()",$enumIdx,#if($rel.contained)true#{else}false#end, #if($rel.single)true#{else}false#end, ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View.METACLASSES.${rel.getType().getFqn().toUpperCase().replace(".","_")})#if($relIdx < $relIdxMax),
+    ${rel.getName().toUpperCase()}("$rel.getName()",$enumIdx,#if($rel.contained)true#{else}false#end, #if($rel.single)true#{else}false#end, ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View.METACLASSES.${rel.getType().getFqn().toUpperCase().replace(".","_")})#if($relIdx < $relIdxMax),
 #{else};
 #end
     #set($enumIdx = $enumIdx + 1)
@@ -52,7 +52,7 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
     }
 
     public org.kevoree.modeling.api.meta.MetaClass origin(){
-        return ${context.generationContext.utilityPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
+        return ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
     }
 
     METAREFERENCES(String name, int index, boolean contained, boolean single, org.kevoree.modeling.api.meta.MetaClass metaType) {

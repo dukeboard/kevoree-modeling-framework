@@ -7,61 +7,60 @@ import java.util.HashMap;
 
 public class GenerationContext {
 
-    /*
-    METAMODEL
-     */
-    public File metaModel;
-    public String metaModelName;
-    public String utilityPackage;
+    private File metaModel;
+    private String metaModelName;
+    private String metaModelPackage;
+    private String version;
+    public File targetSrcDir;
 
-    /*
-    Project
-     */
-    public String projectVersion;
-
-    /*
-    Folders
-     */
-    public File kmfSrcGenerationDirectory;
-    public File classesDirectory;
-
-
-    /*
-    GENERATION DATA
-    */
-    public HashMap<String, MModelClassifier> classDeclarationsList = new HashMap<>();
-    public ProcessorHelper helper = ProcessorHelper.getInstance();
-
-
-    public HashMap<String, MModelClassifier> getClassDeclarationsList() {
-        return classDeclarationsList;
+    public String getMetaModelPackage() {
+        return metaModelPackage;
     }
 
     public File getMetaModel() {
         return metaModel;
     }
 
+    public void setMetaModel(File metaModel) {
+        this.metaModel = metaModel;
+    }
+
     public String getMetaModelName() {
         return metaModelName;
     }
 
-    public String getProjectVersion() {
-        return projectVersion;
+    public void setMetaModelName(String metaModelName) {
+        this.metaModelName = metaModelName;
+        this.metaModelPackage = metaModelName.toLowerCase();
+
     }
 
-    public File getKmfSrcGenerationDirectory() {
-        return kmfSrcGenerationDirectory;
+    public String getVersion() {
+        return version;
     }
 
-    public File getClassesDirectory() {
-        return classesDirectory;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
-    public String getUtilityPackage() {
-        return utilityPackage;
+    public File getTargetSrcDir() {
+        return targetSrcDir;
+    }
+
+    public void setTargetSrcDir(File targetSrcDir) {
+        this.targetSrcDir = targetSrcDir;
+    }
+
+    /* GENERATION DATA */
+    public HashMap<String, MModelClassifier> classDeclarationsList = new HashMap<>();
+    public ProcessorHelper helper = ProcessorHelper.getInstance();
+
+    public HashMap<String, MModelClassifier> getClassDeclarationsList() {
+        return classDeclarationsList;
     }
 
     public ProcessorHelper getHelper() {
         return helper;
     }
+
 }

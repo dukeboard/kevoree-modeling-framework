@@ -20,13 +20,12 @@ public class DiamondGenTest {
 
         try {
             GenerationContext ctx = new GenerationContext();
-            ctx.metaModel = new File(getClass().getClassLoader().getResource("Diamond.mm").toURI());
-            ctx.metaModelName = "Diamond";
-            ctx.utilityPackage = "org.kevoree.diamond";
+            ctx.setMetaModel(new File(getClass().getClassLoader().getResource("Diamond.mm").toURI()));
+            ctx.setMetaModelName("org.kevoree.diamond");
 
-            ctx.kmfSrcGenerationDirectory = new File(ctx.metaModel.getParentFile().getParent() + File.separator + "generated-kmf-test");
+            ctx.targetSrcDir = new File(ctx.getMetaModel().getParentFile().getParent() + File.separator + "generated-kmf-test");
 
-            ctx.projectVersion = "#.#.#-SNAPSHOT";
+            ctx.setVersion("#.#.#-SNAPSHOT");
             //ctx.XXXXX = project.getCompileClasspathElements()
 
 

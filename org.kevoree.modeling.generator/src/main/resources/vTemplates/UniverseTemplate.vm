@@ -1,4 +1,4 @@
-package $context.utilityPackage;
+package $context.metaModelPackage;
 
 public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.abs.AbstractKUniverse<${context.metaModelName}Dimension> {
 

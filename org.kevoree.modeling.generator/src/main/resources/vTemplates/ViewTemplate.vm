@@ -1,4 +1,4 @@
-package $context.utilityPackage;
+package $context.metaModelPackage;
 
 public interface ${context.metaModelName}View extends org.kevoree.modeling.api.KView {
 

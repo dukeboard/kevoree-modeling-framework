@@ -21,16 +21,16 @@ public class Generator {
     public void execute(GenerationContext context) throws Exception {
         this.context = context;
 
-        if (!context.metaModel.exists()) {
-            throw new Exception("Input file not found at: " + context.metaModel.getAbsolutePath() + " ! Generation aborted");
+        if (!context.getMetaModel().exists()) {
+            throw new Exception("Input file not found at: " + context.getMetaModel().getAbsolutePath() + " ! Generation aborted");
         }
 
-        if (!context.metaModel.getAbsolutePath().endsWith(MetaModelLanguageType.DEFAULT_EXTENSION)) {
+        if (!context.getMetaModel().getAbsolutePath().endsWith(MetaModelLanguageType.DEFAULT_EXTENSION)) {
             throw new UnsupportedOperationException("Only *.mm files are currently supported.");
         }
 
 
-        File output = context.kmfSrcGenerationDirectory;
+        File output = context.targetSrcDir;
         Files.walkFileTree(output.toPath(), new FileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
@@ -59,7 +59,7 @@ public class Generator {
 
         try {
             StandaloneParser parser = new StandaloneParser();
-            PsiFile psi = parser.parser(context.metaModel);
+            PsiFile psi = parser.parser(context.getMetaModel());
             System.out.println("Indexing for Enums");
             EnumIndexesVisitor enumIndexesVisitor = new EnumIndexesVisitor(context);
             psi.acceptChildren(enumIndexesVisitor);
@@ -71,10 +71,10 @@ public class Generator {
                 cgc.generationContext = context;
                 cgc.classDeclaration = context.classDeclarationsList.get(classDecl.getFqn());
 
-                Path apiFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
+                Path apiFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
                 callVelocity(apiFilePath, "vTemplates/ClassTemplate.vm", cgc);
 
-                Path implFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
+                Path implFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
                 callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
             });
 
@@ -86,16 +86,16 @@ public class Generator {
 
     private void generateUtilities() {
 
-        Path universeFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "Universe.java");
+        Path universeFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "Universe.java");
         callVelocity(universeFilePath, "vTemplates/UniverseTemplate.vm", context);
 
-        Path dimensionFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "Dimension.java");
+        Path dimensionFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "Dimension.java");
         callVelocity(dimensionFilePath, "vTemplates/DimensionTemplate.vm", context);
 
-        Path viewFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + context.getMetaModelName() + "View.java");
+        Path viewFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "View.java");
         callVelocity(viewFilePath, "vTemplates/ViewTemplate.vm", context);
 
-        Path viewImplFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + context.utilityPackage.replace(".", File.separator) + File.separator + "impl" + File.separator + context.getMetaModelName() + "ViewImpl.java");
+        Path viewImplFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + "impl" + File.separator + context.getMetaModelName() + "ViewImpl.java");
         callVelocity(viewImplFilePath, "vTemplates/ViewImplTemplate.vm", context);
 
     }

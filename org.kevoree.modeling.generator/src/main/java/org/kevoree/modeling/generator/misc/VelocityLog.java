@@ -17,12 +17,10 @@ public class VelocityLog implements LogChute {
 
     @Override
     public void log(int i, String s) {
-       // System.out.println(s);
     }
 
     @Override
     public void log(int i, String s, Throwable throwable) {
-        //System.out.println(s);
         throwable.printStackTrace();
     }
 

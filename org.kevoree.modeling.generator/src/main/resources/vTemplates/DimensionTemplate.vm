@@ -1,4 +1,4 @@
-package ${context.utilityPackage};
+package ${context.metaModelPackage};
 
 public class ${context.metaModelName}Dimension extends org.kevoree.modeling.api.abs.AbstractKDimension<${context.metaModelName}View, ${context.metaModelName}Dimension, ${context.metaModelName}Universe> {
 
@@ -8,7 +8,7 @@ public class ${context.metaModelName}Dimension extends org.kevoree.modeling.api.
 
     @Override
     protected ${context.metaModelName}View internal_create(Long timePoint) {
-        return new ${context.utilityPackage}.impl.${context.metaModelName}ViewImpl(timePoint,this);
+        return new ${context.metaModelPackage}.impl.${context.metaModelName}ViewImpl(timePoint,this);
     }
 
 }

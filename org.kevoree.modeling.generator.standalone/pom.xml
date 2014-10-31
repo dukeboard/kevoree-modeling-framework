@@ -17,11 +17,6 @@
             <groupId>org.kevoree.modeling</groupId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.kevoree.modeling</groupId>
-            <artifactId>org.kevoree.modeling.microframework</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -63,7 +58,7 @@
                     <attach>false</attach>
                     <archive>
                         <manifest>
-                            <mainClass>org.kevoree.modeling.kotlin.standalone.App</mainClass>
+                            <mainClass>org.kevoree.modeling.generator.standalone.App</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

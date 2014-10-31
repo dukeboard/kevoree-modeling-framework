@@ -1,6 +1,6 @@
-package ${context.utilityPackage}.impl;
+package ${context.metaModelPackage}.impl;
 
-public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.abs.AbstractKView implements ${context.utilityPackage}.${context.metaModelName}View {
+public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.abs.AbstractKView implements ${context.metaModelPackage}.${context.metaModelName}View {
 
     public ${context.metaModelName}ViewImpl(long now, org.kevoree.modeling.api.KDimension dimension) {
         super(now, dimension);
@@ -30,7 +30,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
 
     @Override
     public org.kevoree.modeling.api.meta.MetaClass[] metaClasses() {
-        return ${context.utilityPackage}.${context.metaModelName}View.METACLASSES.values();
+        return ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.values();
     }
 
 #foreach($class in $context.classDeclarationsList.keySet())
