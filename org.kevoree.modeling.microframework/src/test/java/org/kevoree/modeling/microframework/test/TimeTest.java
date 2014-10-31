@@ -156,63 +156,42 @@ public class TimeTest {
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
-                // create node0
+                // create node0 and elem0 and link them
                 final Node node0 = t0.createNode();
+                node0.setName("node at 0");
+                node0.setValue("0");
 
-                node0.getElement(new Callback<Element>() {
-                    @Override
-                    public void on(Element element) {
-                        assertNull(element);
-                    }
-                });
-
-                t0.lookup(node0.uuid(), new Callback<KObject>() {
-                    @Override
-                    public void on(KObject kObject) {
-                        ((Node) kObject).getElement(new Callback<Element>() {
-                            @Override
-                            public void on(Element element) {
-                                assertNull(element);
-                            }
-                        });
-                    }
-                });
+                final Element elem0 = t0.createElement();
+                node0.setElement(elem0);
 
                 // create time1
                 final CloudView t1 = dimension0.time(1l);
-
-                // create elem1 and link node0 to elem1
-                final Element elem1 = t1.createElement();
-                node0.setElement(elem1);
-
-                // at t0 node0.getElement should be null
-                t0.lookup(node0.uuid(), new Callback<KObject>() {
-                    @Override
-                    public void on(KObject kObject) {
-                        ((Node) kObject).getElement(new Callback<Element>() {
-                            @Override
-                            public void on(Element element) {
-                                assertNull(element);
-                            }
-                        });
-                    }
-                });
-
-                // at t1 node0.getElement should return elem1
                 t1.lookup(node0.uuid(), new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
-                        ((Node) kObject).getElement(new Callback<Element>() {
-                            @Override
-                            public void on(Element element) {
-                                assertNotNull(element);
-                                assertEquals(element, elem1);
-                                assertEquals(element.now(), t1.now());
-                            }
-                        });
+                        ((Node) kObject).setName("node at 1");
+                        ((Node) kObject).setValue("1");
                     }
                 });
 
+                // check name and value of node0 at t0
+                t0.lookup(node0.uuid(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject kObject) {
+                        assertEquals(((Node) kObject).getName(), "node at 0");
+                        assertEquals(((Node) kObject).getValue(), "0");
+                    }
+                });
+
+
+                // check name and value of node0 at t1
+                t1.lookup(node0.uuid(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject kObject) {
+                        assertEquals(((Node) kObject).getName(), "node at 1");
+                        assertEquals(((Node) kObject).getValue(), "1");
+                    }
+                });
             }
         });
     }
