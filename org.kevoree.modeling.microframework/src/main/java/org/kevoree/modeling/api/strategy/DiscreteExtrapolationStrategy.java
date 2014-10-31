@@ -33,8 +33,6 @@ public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
         //The object is also automatically set to Dirty
         if (internalPayload != null) {
             internalPayload[attribute.index()] = payload;
-        } else {
-            throw new RuntimeException("Storage damaged");
         }
     }
 
