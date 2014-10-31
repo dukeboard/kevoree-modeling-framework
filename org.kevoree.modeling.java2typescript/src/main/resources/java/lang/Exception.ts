@@ -1,3 +1,13 @@
+class Exception implements Throwable {
 
-class Exception extends Throwable {
+    private message:string;
+
+    constructor(message:string) {
+        this.message = message;
+    }
+
+    printStackTrace() {
+        console.error(this.message);
+    }
+
 }

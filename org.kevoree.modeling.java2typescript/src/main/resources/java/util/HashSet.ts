@@ -1,4 +1,5 @@
 class HashSet<T> implements Set<T> {
+
     size:number;
 
     constructor(other? : Set<T>) {

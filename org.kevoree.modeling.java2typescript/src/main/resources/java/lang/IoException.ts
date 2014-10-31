@@ -1,3 +1,0 @@
-
-class IoException extends Exception {
-}
