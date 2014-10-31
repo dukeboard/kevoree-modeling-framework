@@ -5,7 +5,16 @@ interface String {
     endsWith : (other:String) => boolean;
     length : () => number;
     matches :  (regEx:String) => boolean;
+    getBytes : () => number[];
 }
+
+String.prototype.getBytes = function () {
+    var res : number[] = new Number[this.length];
+    for(var i = 0; i < this.length; i++) {
+        res[i] = Number(this.charAt(i));
+    }
+    return res;
+};
 
 String.prototype.matches = function (regEx) {
     return this.match(regEx).length > 0;
