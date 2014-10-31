@@ -6,12 +6,12 @@ import com.intellij.psi.*;
 
 import java.util.*;
 
-public class AnonymousClassTranslator extends Translator<PsiAnonymousClass> {
+public class AnonymousClassTranslator<T extends PsiAnonymousClass> extends Translator<T> {
 
     private static final Joiner joiner = Joiner.on(", ");
 
     @Override
-    public void translate(PsiElementVisitor visitor, PsiAnonymousClass element, TranslationContext ctx) {
+    public void translate(PsiElementVisitor visitor, T element, TranslationContext ctx) {
 
         ctx.append("{");
 
@@ -21,7 +21,7 @@ public class AnonymousClassTranslator extends Translator<PsiAnonymousClass> {
     }
 
 
-    private void printClassMembers(PsiElementVisitor visitor, PsiClass element, TranslationContext ctx) {
+    private void printClassMembers(PsiElementVisitor visitor, T element, TranslationContext ctx) {
         PsiMethod[] methods = element.getMethods();
 
         for(int i = 0; i < methods.length; i++) {
