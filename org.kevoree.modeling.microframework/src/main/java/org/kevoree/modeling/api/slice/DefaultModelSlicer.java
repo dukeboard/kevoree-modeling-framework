@@ -18,12 +18,13 @@ public class DefaultModelSlicer implements ModelSlicer {
     private void internal_prune(final KObject elem, final List<ModelTrace> traces, final Map<Long, KObject> cache, final Map<Long, KObject> parentMap, final Callback<Throwable> callback) {
         //collect parent which as not be added already
         final List<KObject> parents = new ArrayList<KObject>();
-        final Callback<KObject> parentExplorer = new Callback<KObject>() {
+        final Callback<KObject>[] parentExplorer = new Callback[1];
+        parentExplorer[0] = new Callback<KObject>() {
             @Override
             public void on(KObject currentParent) {
                 if (currentParent != null && parentMap.get(currentParent.uuid()) == null && cache.get(currentParent.uuid()) == null) {
                     parents.add(currentParent);
-                    currentParent.parent(this);
+                    currentParent.parent(parentExplorer[0]);
                     callback.on(null);
                 } else {
                     Collections.reverse(parents);
@@ -68,7 +69,7 @@ public class DefaultModelSlicer implements ModelSlicer {
             }
         };
         traces.add(new ModelAddTrace(elem.uuid(), null, elem.uuid(), elem.metaClass()));
-        elem.parent(parentExplorer);
+        elem.parent(parentExplorer[0]);
     }
 
     @Override

@@ -30,8 +30,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     private B _view;
     private MetaClass _metaClass;
     private long _uuid;
-    private boolean isDeleted = false;
-    private boolean isRoot = false;
+    private boolean _isDeleted = false;
+    private boolean _isRoot = false;
     private long _now;
     private TimeTree _timeTree;
     private MetaReference _referenceInParent = null;
@@ -72,16 +72,16 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public boolean isDeleted() {
-        return isDeleted;
+        return _isDeleted;
     }
 
     @Override
     public boolean isRoot() {
-        return isRoot;
+        return _isRoot;
     }
 
     public void setRoot(boolean isRoot) {
-        this.isRoot = isRoot;
+        this._isRoot = isRoot;
     }
 
     @Override
@@ -101,7 +101,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void path(final Callback<String> callback) {
-        if (isRoot) {
+        if (_isRoot) {
             callback.on("/");
         } else {
             parent(new Callback<KObject>() {
