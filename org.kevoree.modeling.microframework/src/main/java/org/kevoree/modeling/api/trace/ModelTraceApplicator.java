@@ -3,8 +3,7 @@ package org.kevoree.modeling.api.trace;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.*;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 
@@ -133,7 +132,7 @@ public class ModelTraceApplicator {
                         if (tempObject == null) {
                             callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                         } else {
-                            tempObject.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent());
+                            tempObject.set((MetaAttribute) setTrace.getMeta(), setTrace.getContent());
                             callback.on(null);
                         }
                     }
@@ -142,7 +141,7 @@ public class ModelTraceApplicator {
                 if (pendingObj == null) {
                     callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
                 } else {
-                    pendingObj.set((org.kevoree.modeling.api.meta.MetaAttribute) setTrace.getMeta(), setTrace.getContent());
+                    pendingObj.set((MetaAttribute) setTrace.getMeta(), setTrace.getContent());
                     callback.on(null);
                 }
             }
