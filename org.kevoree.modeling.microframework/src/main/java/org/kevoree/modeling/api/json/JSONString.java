@@ -50,7 +50,7 @@ public class JSONString {
         }
     }
 
-    public static void encode(java.io.PrintStream ostream, String chain) {
+    public static void encode(StringBuilder buffer, String chain) {
         if (chain == null) {
             return;
         }
@@ -58,36 +58,36 @@ public class JSONString {
         while (i < chain.length()) {
             Character ch = chain.charAt(i);
             if (ch == '"') {
-                ostream.print(ESCAPE_CHAR);
-                ostream.print('"');
+                buffer.append(ESCAPE_CHAR);
+                buffer.append('"');
             } else if (ch == ESCAPE_CHAR) {
-                ostream.print(ESCAPE_CHAR);
-                ostream.print(ESCAPE_CHAR);
+                buffer.append(ESCAPE_CHAR);
+                buffer.append(ESCAPE_CHAR);
             } else if (ch == '\n') {
-                ostream.print(ESCAPE_CHAR);
-                ostream.print('n');
+                buffer.append(ESCAPE_CHAR);
+                buffer.append('n');
             } else if (ch == '\r') {
-                ostream.print(ESCAPE_CHAR);
-                ostream.print('r');
+                buffer.append(ESCAPE_CHAR);
+                buffer.append('r');
             } else if (ch == '\t') {
-                ostream.print(ESCAPE_CHAR);
-                ostream.print('t');
+                buffer.append(ESCAPE_CHAR);
+                buffer.append('t');
             } else if (ch == '\u2028') {
-                ostream.print(ESCAPE_CHAR);
-                ostream.print('u');
-                ostream.print('2');
-                ostream.print('0');
-                ostream.print('2');
-                ostream.print('8');
+                buffer.append(ESCAPE_CHAR);
+                buffer.append('u');
+                buffer.append('2');
+                buffer.append('0');
+                buffer.append('2');
+                buffer.append('8');
             } else if (ch == '\u2029') {
-                ostream.print(ESCAPE_CHAR);
-                ostream.print('u');
-                ostream.print('2');
-                ostream.print('0');
-                ostream.print('2');
-                ostream.print('9');
+                buffer.append(ESCAPE_CHAR);
+                buffer.append('u');
+                buffer.append('2');
+                buffer.append('0');
+                buffer.append('2');
+                buffer.append('9');
             } else {
-                ostream.print(ch);
+                buffer.append(ch);
             }
             i = i + 1;
         }
