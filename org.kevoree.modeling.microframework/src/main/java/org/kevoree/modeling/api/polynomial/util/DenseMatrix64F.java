@@ -107,8 +107,9 @@ public class DenseMatrix64F {
         int width = mat.numRows < mat.numCols ? mat.numRows : mat.numCols;
         Arrays.fill(mat.data, 0, mat.getNumElements(), 0);
         int index = 0;
-        for (int i = 0; i < width; i++, index += mat.numCols + 1) {
+        for (int i = 0; i < width; i++) {
             mat.data[index] = 1;
+            index += mat.numCols + 1;
         }
     }
 
@@ -126,7 +127,6 @@ public class DenseMatrix64F {
         for (int i = 0; i < small; i++) {
             ret.set(i, i, 1.0);
         }
-
         return ret;
     }
 
