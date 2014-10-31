@@ -4,9 +4,6 @@ import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 
 
@@ -193,26 +190,21 @@ public class XMIModelLoader implements ModelLoader {
 
         boolean done = false;
         while (!done) {
-            switch (ctx.xmiReader.next()) {
-                case START_TAG: {
-                    String subElemName = ctx.xmiReader.getLocalName();
-                    String key = xmiAddress + "/@" + subElemName;
-                    Integer i = ctx.elementsCount.get(key);
-                    if (i == null) {
-                        i = 0;
-                        ctx.elementsCount.put(key, i);
-                    }
-                    String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
-                    KObject containedElement = loadObject(ctx, subElementId, subElemName);
-                    modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true);
-                    ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
+            if (ctx.xmiReader.hasNext().equals(Token.START_TAG)) {
+                String subElemName = ctx.xmiReader.getLocalName();
+                String key = xmiAddress + "/@" + subElemName;
+                Integer i = ctx.elementsCount.get(key);
+                if (i == null) {
+                    i = 0;
+                    ctx.elementsCount.put(key, i);
                 }
-                case END_TAG: {
-                    if (ctx.xmiReader.getLocalName().equals(elementTagName)) {
-                        done = true;
-                    }
-                }
-                default: {
+                String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
+                KObject containedElement = loadObject(ctx, subElementId, subElemName);
+                modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true);
+                ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
+            } else if (ctx.xmiReader.hasNext().equals(Token.END_TAG)) {
+                if (ctx.xmiReader.getLocalName().equals(elementTagName)) {
+                    done = true;
                 }
             }
         }
