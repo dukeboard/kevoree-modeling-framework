@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.util;
 
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 /**
@@ -40,10 +39,5 @@ public class Converters {
     public static byte fromChar(char c) {
         return (byte) c;
     }
-
-    public static ByteArrayInputStream byteArrayInputStreamFromString(String s) {
-        return new ByteArrayInputStream(s.getBytes());
-    }
-
 
 }
