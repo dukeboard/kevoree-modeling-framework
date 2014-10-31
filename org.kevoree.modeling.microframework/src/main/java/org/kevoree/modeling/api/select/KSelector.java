@@ -33,7 +33,7 @@ public class KSelector {
                     if (refPayLoad instanceof Set) {
                         Set<Long> casted = (Set<Long>) refPayLoad;
                         collected.addAll(casted);
-                    } else if (refPayLoad instanceof Long) {
+                    } else {
                         Long casted = (Long) refPayLoad;
                         collected.add(casted);
                     }
