@@ -1,5 +1,6 @@
 
 class ArrayList<T> implements List<T> {
+
     clear() {
     }
     addAll(vals:any) {
