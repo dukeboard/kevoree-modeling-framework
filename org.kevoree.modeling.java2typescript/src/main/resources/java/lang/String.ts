@@ -6,6 +6,7 @@ interface String {
     length : () => number;
     matches :  (regEx:String) => boolean;
     getBytes : () => number[];
+    isEmpty : () => boolean;
 }
 
 String.prototype.getBytes = function () {
@@ -18,6 +19,10 @@ String.prototype.getBytes = function () {
 
 String.prototype.matches = function (regEx) {
     return this.match(regEx).length > 0;
+};
+
+String.prototype.isEmpty = function () {
+    return this.length == 0;
 };
 
 String.prototype.equals = function (other) {

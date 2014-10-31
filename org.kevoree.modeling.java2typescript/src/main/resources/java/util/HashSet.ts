@@ -20,7 +20,7 @@ class HashSet<T> implements Set<T> {
         return undefined;
     }
 
-    addAll(vals : Array<T>) {
+    addAll(vals : any) {
 
     }
 

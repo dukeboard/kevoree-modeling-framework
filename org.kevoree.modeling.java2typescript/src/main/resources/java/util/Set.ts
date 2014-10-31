@@ -1,7 +1,7 @@
 
 interface Set<T> {
     contains(val:T):boolean;
-    addAll(other:List<T>);
+    addAll(other:any);
     remove(val:T);
     size():number;
     isEmpty():boolean;
