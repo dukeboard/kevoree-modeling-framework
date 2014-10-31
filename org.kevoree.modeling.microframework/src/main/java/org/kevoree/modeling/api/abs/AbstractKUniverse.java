@@ -71,11 +71,6 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     }
 
     @Override
-    public void listen(ModelListener listener, Long from, Long to, String path) {
-
-    }
-
-    @Override
     public void disable(ModelListener listener) {
 
     }

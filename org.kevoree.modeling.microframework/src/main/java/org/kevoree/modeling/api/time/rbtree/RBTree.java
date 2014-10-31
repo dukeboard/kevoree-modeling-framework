@@ -5,7 +5,7 @@ package org.kevoree.modeling.api.time.rbtree;
  */
 public class RBTree {
 
-    public Node root = null;
+    public TreeNode root = null;
 
     private int size = 0;
 
@@ -46,8 +46,8 @@ public class RBTree {
         root = new ReaderContext(i, payload).unserialize(true);
     }
 
-    public Node previousOrEqual(long key) {
-        Node p = root;
+    public TreeNode previousOrEqual(long key) {
+        TreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -56,20 +56,20 @@ public class RBTree {
                 return p;
             }
             if (key > p.key) {
-                if (p.right != null) {
-                    p = p.right;
+                if (p.getRight() != null) {
+                    p = p.getRight();
                 } else {
                     return p;
                 }
             } else {
-                if (p.left != null) {
-                    p = p.left;
+                if (p.getLeft() != null) {
+                    p = p.getLeft();
                 } else {
-                    Node parent = p.parent;
-                    Node ch = p;
-                    while (parent != null && ch == parent.left) {
+                    TreeNode parent = p.getParent();
+                    TreeNode ch = p;
+                    while (parent != null && ch == parent.getLeft()) {
                         ch = parent;
-                        parent = parent.parent;
+                        parent = parent.getParent();
                     }
                     return parent;
                 }
@@ -78,8 +78,8 @@ public class RBTree {
         return null;
     }
 
-    public Node nextOrEqual(long key) {
-        Node p = root;
+    public TreeNode nextOrEqual(long key) {
+        TreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -88,20 +88,20 @@ public class RBTree {
                 return p;
             }
             if (key < p.key) {
-                if (p.left != null) {
-                    p = p.left;
+                if (p.getLeft() != null) {
+                    p = p.getLeft();
                 } else {
                     return p;
                 }
             } else {
-                if (p.right != null) {
-                    p = p.right;
+                if (p.getRight() != null) {
+                    p = p.getRight();
                 } else {
-                    Node parent = p.parent;
-                    Node ch = p;
-                    while (parent != null && ch == parent.right) {
+                    TreeNode parent = p.getParent();
+                    TreeNode ch = p;
+                    while (parent != null && ch == parent.getRight()) {
                         ch = parent;
-                        parent = parent.parent;
+                        parent = parent.getParent();
                     }
                     return parent;
                 }
@@ -110,21 +110,21 @@ public class RBTree {
         return null;
     }
 
-    public Node previous(long key) {
-        Node p = root;
+    public TreeNode previous(long key) {
+        TreeNode p = root;
         if (p == null) {
             return null;
         }
         while (p != null) {
             if (key < p.key) {
-                if (p.left != null) {
-                    p = p.left;
+                if (p.getLeft() != null) {
+                    p = p.getLeft();
                 } else {
                     return p.previous();
                 }
             } else if (key > p.key) {
-                if (p.right != null) {
-                    p = p.right;
+                if (p.getRight() != null) {
+                    p = p.getRight();
                 } else {
                     return p;
                 }
@@ -136,8 +136,8 @@ public class RBTree {
     }
 
 
-    public Node previousWhileNot(long key, State until) {
-        Node elm = previousOrEqual(key);
+    public TreeNode previousWhileNot(long key, State until) {
+        TreeNode elm = previousOrEqual(key);
         if (elm.value.equals(until)) {
             return null;
         } else {
@@ -152,21 +152,21 @@ public class RBTree {
         }
     }
 
-    public Node next(long key) {
-        Node p = root;
+    public TreeNode next(long key) {
+        TreeNode p = root;
         if (p == null) {
             return null;
         }
         while (p != null) {
             if (key < p.key) {
-                if (p.left != null) {
-                    p = p.left;
+                if (p.getLeft() != null) {
+                    p = p.getLeft();
                 } else {
                     return p;
                 }
             } else if (key > p.key) {
-                if (p.right != null) {
-                    p = p.right;
+                if (p.getRight() != null) {
+                    p = p.getRight();
                 } else {
                     return p.next();
                 }
@@ -177,8 +177,8 @@ public class RBTree {
         return null;
     }
 
-    public Node nextWhileNot(long key, State until) {
-        Node elm = nextOrEqual(key);
+    public TreeNode nextWhileNot(long key, State until) {
+        TreeNode elm = nextOrEqual(key);
         if (elm.value.equals(until)) {
             return null;
         } else {
@@ -193,14 +193,14 @@ public class RBTree {
         }
     }
 
-    public Node first() {
-        Node p = root;
+    public TreeNode first() {
+        TreeNode p = root;
         if (p == null) {
             return null;
         }
         while (p != null) {
-            if (p.left != null) {
-                p = p.left;
+            if (p.getLeft() != null) {
+                p = p.getLeft();
             } else {
                 return p;
             }
@@ -208,14 +208,14 @@ public class RBTree {
         return null;
     }
 
-    public Node last() {
-        Node p = root;
+    public TreeNode last() {
+        TreeNode p = root;
         if (p == null) {
             return null;
         }
         while (p != null) {
-            if (p.right != null) {
-                p = p.right;
+            if (p.getRight() != null) {
+                p = p.getRight();
             } else {
                 return p;
             }
@@ -223,14 +223,14 @@ public class RBTree {
         return null;
     }
 
-    public Node firstWhileNot(long key, State until) {
-        Node elm = previousOrEqual(key);
+    public TreeNode firstWhileNot(long key, State until) {
+        TreeNode elm = previousOrEqual(key);
         if (elm == null) {
             return null;
         } else if (elm.value.equals(until)) {
             return null;
         }
-        Node prev = null;
+        TreeNode prev = null;
         do {
             prev = elm.previous();
             if (prev == null || prev.value.equals(until)) {
@@ -242,14 +242,14 @@ public class RBTree {
         return prev;
     }
 
-    public Node lastWhileNot(long key, State until) {
-        Node elm = previousOrEqual(key);
+    public TreeNode lastWhileNot(long key, State until) {
+        TreeNode elm = previousOrEqual(key);
         if (elm == null) {
             return null;
         } else if (elm.value.equals(until)) {
             return null;
         }
-        Node next;
+        TreeNode next;
         do {
             next = elm.next();
             if (next == null || next.value.equals(until)) {
@@ -261,8 +261,8 @@ public class RBTree {
         return next;
     }
 
-    private Node lookupNode(long key) {
-        Node n = root;
+    private TreeNode lookupNode(long key) {
+        TreeNode n = root;
         if (n == null) {
             return null;
         }
@@ -271,9 +271,9 @@ public class RBTree {
                 return n;
             } else {
                 if (key < n.key) {
-                    n = n.left;
+                    n = n.getLeft();
                 } else {
-                    n = n.right;
+                    n = n.getRight();
                 }
             }
         }
@@ -281,7 +281,7 @@ public class RBTree {
     }
 
     public State lookup(long key) {
-        Node n = lookupNode(key);
+        TreeNode n = lookupNode(key);
         if (n == null) {
             return null;
         } else {
@@ -289,97 +289,98 @@ public class RBTree {
         }
     }
 
-    private void rotateLeft(Node n) {
-        Node r = n.right;
+    private void rotateLeft(TreeNode n) {
+        TreeNode r = n.getRight();
         replaceNode(n, r);
-        n.right = r.left;
-        if (r.left != null) {
-            r.left.parent = n;
+        n.setRight(r.getLeft());
+        if (r.getLeft() != null) {
+            r.getLeft().setParent(n);
         }
-        r.left = n;
-        n.parent = r;
+        r.setLeft(n);
+        n.setParent(r);
     }
 
-    private void rotateRight(Node n) {
-        Node l = n.left;
+    private void rotateRight(TreeNode n) {
+        TreeNode l = n.getLeft();
         replaceNode(n, l);
-        n.left = l.right;
-        if (l.right != null) {
-            l.right.parent = n;
+        n.setLeft(l.getRight());
+        if (l.getRight() != null) {
+            l.getRight().setParent(n);
         }
-        l.right = n;
-        n.parent = l;
+        l.setRight(n);
+        ;
+        n.setParent(l);
     }
 
-    private void replaceNode(Node oldn, Node newn) {
-        if (oldn.parent == null) {
+    private void replaceNode(TreeNode oldn, TreeNode newn) {
+        if (oldn.getParent() == null) {
             root = newn;
         } else {
-            if (oldn == oldn.parent.left) {
-                oldn.parent.left = newn;
+            if (oldn == oldn.getParent().getLeft()) {
+                oldn.getParent().setLeft(newn);
             } else {
-                oldn.parent.right = newn;
+                oldn.getParent().setRight(newn);
             }
         }
         if (newn != null) {
-            newn.parent = oldn.parent;
+            newn.setParent(oldn.getParent());
         }
     }
 
     public void insert(long key, State value) {
-        Node insertedNode = new Node(key, value, Color.RED, null, null);
+        TreeNode insertedNode = new TreeNode(key, value, Color.RED, null, null);
         if (root == null) {
             size++;
             root = insertedNode;
         } else {
-            Node n = root;
+            TreeNode n = root;
             while (true) {
                 if (key == n.key) {
                     n.value = value;
                     //nop size
                     return;
                 } else if (key < n.key) {
-                    if (n.left == null) {
-                        n.left = insertedNode;
+                    if (n.getLeft() == null) {
+                        n.setLeft(insertedNode);
                         size++;
                         break;
                     } else {
-                        n = n.left;
+                        n = n.getLeft();
                     }
                 } else {
-                    if (n.right == null) {
-                        n.right = insertedNode;
+                    if (n.getRight() == null) {
+                        n.setRight(insertedNode);
                         size++;
                         break;
                     } else {
-                        n = n.right;
+                        n = n.getRight();
                     }
                 }
             }
-            insertedNode.parent = n;
+            insertedNode.setParent(n);
         }
         insertCase1(insertedNode);
     }
 
-    private void insertCase1(Node n) {
-        if (n.parent == null) {
+    private void insertCase1(TreeNode n) {
+        if (n.getParent() == null) {
             n.color = Color.BLACK;
         } else {
             insertCase2(n);
         }
     }
 
-    private void insertCase2(Node n) {
-        if (nodeColor(n.parent) == Color.BLACK) {
+    private void insertCase2(TreeNode n) {
+        if (nodeColor(n.getParent()) == Color.BLACK) {
             return;
         } else {
             insertCase3(n);
         }
     }
 
-    private void insertCase3(Node n) {
+    private void insertCase3(TreeNode n) {
         if (nodeColor(n.uncle()) == Color.RED) {
-            n.parent.color = Color.BLACK;
+            n.getParent().color = Color.BLACK;
             n.uncle().color = Color.BLACK;
             n.grandparent().color = Color.RED;
             insertCase1(n.grandparent());
@@ -388,24 +389,24 @@ public class RBTree {
         }
     }
 
-    private void insertCase4(Node n_n) {
-        Node n = n_n;
-        if (n == n.parent.right && n.parent == n.grandparent().left) {
-            rotateLeft(n.parent);
-            n = n.left;
+    private void insertCase4(TreeNode n_n) {
+        TreeNode n = n_n;
+        if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
+            rotateLeft(n.getParent());
+            n = n.getLeft();
         } else {
-            if (n == n.parent.left && n.parent == n.grandparent().right) {
-                rotateRight(n.parent);
-                n = n.right;
+            if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getRight()) {
+                rotateRight(n.getParent());
+                n = n.getRight();
             }
         }
         insertCase5(n);
     }
 
-    private void insertCase5(Node n) {
-        n.parent.color = Color.BLACK;
+    private void insertCase5(TreeNode n) {
+        n.getParent().color = Color.BLACK;
         n.grandparent().color = Color.RED;
-        if (n == n.parent.left && n.parent == n.grandparent().left) {
+        if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
             rotateRight(n.grandparent());
         } else {
             rotateLeft(n.grandparent());
@@ -413,26 +414,26 @@ public class RBTree {
     }
 
     public void delete(long key) {
-        Node n = lookupNode(key);
+        TreeNode n = lookupNode(key);
         if (n == null) {
             return;
         } else {
             size--;
-            if (n.left != null && n.right != null) {
+            if (n.getLeft() != null && n.getRight() != null) {
                 // Copy domainKey/value from predecessor and then delete it instead
-                Node pred = n.left;
-                while (pred.right != null) {
-                    pred = pred.right;
+                TreeNode pred = n.getLeft();
+                while (pred.getRight() != null) {
+                    pred = pred.getRight();
                 }
                 n.key = pred.key;
                 n.value = pred.value;
                 n = pred;
             }
-            Node child;
-            if (n.right == null) {
-                child = n.left;
+            TreeNode child;
+            if (n.getRight() == null) {
+                child = n.getLeft();
             } else {
-                child = n.right;
+                child = n.getRight();
             }
             if (nodeColor(n) == Color.BLACK) {
                 n.color = nodeColor(child);
@@ -442,71 +443,71 @@ public class RBTree {
         }
     }
 
-    private void deleteCase1(Node n) {
-        if (n.parent == null) {
+    private void deleteCase1(TreeNode n) {
+        if (n.getParent() == null) {
             return;
         } else {
             deleteCase2(n);
         }
     }
 
-    private void deleteCase2(Node n) {
+    private void deleteCase2(TreeNode n) {
         if (nodeColor(n.sibling()) == Color.RED) {
-            n.parent.color = Color.RED;
+            n.getParent().color = Color.RED;
             n.sibling().color = Color.BLACK;
-            if (n == n.parent.left) {
-                rotateLeft(n.parent);
+            if (n == n.getParent().getLeft()) {
+                rotateLeft(n.getParent());
             } else {
-                rotateRight(n.parent);
+                rotateRight(n.getParent());
             }
         }
         deleteCase3(n);
     }
 
-    private void deleteCase3(Node n) {
-        if (nodeColor(n.parent) == Color.BLACK && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().left) == Color.BLACK && nodeColor(n.sibling().right) == Color.BLACK) {
+    private void deleteCase3(TreeNode n) {
+        if (nodeColor(n.getParent()) == Color.BLACK && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.BLACK) {
             n.sibling().color = Color.RED;
-            deleteCase1(n.parent);
+            deleteCase1(n.getParent());
         } else {
             deleteCase4(n);
         }
     }
 
-    private void deleteCase4(Node n) {
-        if (nodeColor(n.parent) == Color.RED && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().left) == Color.BLACK && nodeColor(n.sibling().right) == Color.BLACK) {
+    private void deleteCase4(TreeNode n) {
+        if (nodeColor(n.getParent()) == Color.RED && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.BLACK) {
             n.sibling().color = Color.RED;
-            n.parent.color = Color.BLACK;
+            n.getParent().color = Color.BLACK;
         } else {
             deleteCase5(n);
         }
     }
 
-    private void deleteCase5(Node n) {
-        if (n == n.parent.left && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().left) == Color.RED && nodeColor(n.sibling().right) == Color.BLACK) {
+    private void deleteCase5(TreeNode n) {
+        if (n == n.getParent().getLeft() && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.RED && nodeColor(n.sibling().getRight()) == Color.BLACK) {
             n.sibling().color = Color.RED;
-            n.sibling().left.color = Color.BLACK;
+            n.sibling().getLeft().color = Color.BLACK;
             rotateRight(n.sibling());
-        } else if (n == n.parent.right && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().right) == Color.RED && nodeColor(n.sibling().left) == Color.BLACK) {
+        } else if (n == n.getParent().getRight() && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.RED && nodeColor(n.sibling().getLeft()) == Color.BLACK) {
             n.sibling().color = Color.RED;
-            n.sibling().right.color = Color.BLACK;
+            n.sibling().getRight().color = Color.BLACK;
             rotateLeft(n.sibling());
         }
         deleteCase6(n);
     }
 
-    private void deleteCase6(Node n) {
-        n.sibling().color = nodeColor(n.parent);
-        n.parent.color = Color.BLACK;
-        if (n == n.parent.left) {
-            n.sibling().right.color = Color.BLACK;
-            rotateLeft(n.parent);
+    private void deleteCase6(TreeNode n) {
+        n.sibling().color = nodeColor(n.getParent());
+        n.getParent().color = Color.BLACK;
+        if (n == n.getParent().getLeft()) {
+            n.sibling().getRight().color = Color.BLACK;
+            rotateLeft(n.getParent());
         } else {
-            n.sibling().left.color = Color.BLACK;
-            rotateRight(n.parent);
+            n.sibling().getLeft().color = Color.BLACK;
+            rotateRight(n.getParent());
         }
     }
 
-    private Color nodeColor(Node n) {
+    private Color nodeColor(TreeNode n) {
         if (n == null) {
             return Color.BLACK;
         } else {

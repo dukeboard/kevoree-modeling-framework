@@ -7,12 +7,12 @@ import org.kevoree.modeling.api.util.CallBackChain;
 
 class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
 
-    private SerializationContext context;
-    private KObject currentElement;
+    private SerializationContext _context;
+    private KObject _currentElement;
 
-    public NonContainedReferencesCallbackChain(SerializationContext context, KObject currentElement) {
-        this.context = context;
-        this.currentElement = currentElement;
+    public NonContainedReferencesCallbackChain(SerializationContext p_context, KObject p_currentElement) {
+        this._context = p_context;
+        this._currentElement = p_currentElement;
     }
 
     @Override
@@ -20,10 +20,10 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
         if (!ref.contained()) {
             final String[] value = new String[1];
             value[0] = "";
-            currentElement.each(ref, new Callback() {
+            _currentElement.each(ref, new Callback() {
                 @Override
                 public void on(Object o) {
-                    String adjustedAddress = context.addressTable.get(((KObject) o).uuid());
+                    String adjustedAddress = _context.addressTable.get(((KObject) o).uuid());
                     value[0] = (value[0].equals("") ? adjustedAddress : value[0] + " " + adjustedAddress);
                 }
             }, new Callback<Throwable>() {
@@ -31,7 +31,7 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
                 public void on(Throwable end) {
                     if (end == null) {
                         if (value[0] != null) {
-                            context.printer.append(" " + ref.metaName() + "=\"" + value[0] + "\"");
+                            _context.printer.append(" " + ref.metaName() + "=\"" + value[0] + "\"");
                         }
                     }
                     next.on(end);

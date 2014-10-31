@@ -18,8 +18,6 @@ public interface KUniverse<A extends KDimension> {
 
     public void unloadAll(Callback<Boolean> callback);
 
-    public void listen(ModelListener listener, Long from, Long to, String path);
-
     public void disable(ModelListener listener);
 
     public void stream(String query, Callback<KObject> callback);

@@ -6,7 +6,12 @@ interface String {
     matches :  (regEx:String) => boolean;
     getBytes : () => number[];
     isEmpty : () => boolean;
+    length()
 }
+
+String.prototype.length = function () {
+    return this.length;
+};
 
 String.prototype.getBytes = function () {
     var res : number[] = new Number[this.length];

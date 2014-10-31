@@ -66,15 +66,15 @@ public class XmlParser {
         return '\0';
     }
 
-    public Token next() {
+    public XmlToken next() {
 
         if (readSingleton) {
             readSingleton = false;
-            return Token.END_TAG;
+            return XmlToken.END_TAG;
         }
 
         if (!hasNext()) {
-            return Token.END_DOCUMENT;
+            return XmlToken.END_DOCUMENT;
         }
 
         attributesNames.clear();
@@ -87,25 +87,25 @@ public class XmlParser {
         if (currentChar == '?') { // XML header <?xml version="1.0" encoding="UTF-8"?>
             currentChar = readChar();
             read_xmlHeader();
-            return Token.XML_HEADER;
+            return XmlToken.XML_HEADER;
 
         } else if (currentChar == '!') { // XML comment <!-- xml version="1.0" encoding="UTF-8" -->
             do {
                 currentChar = readChar();
             } while (currentChar != '>');
-            return Token.COMMENT;
+            return XmlToken.COMMENT;
 
         } else if (currentChar == '/') { // XML closing tag </tagname>
             currentChar = readChar();
             read_closingTag();
-            return Token.END_TAG;
+            return XmlToken.END_TAG;
         } else {
             read_openTag();
             if (currentChar == '/') {
                 read_upperThan();
                 readSingleton = true;
             }
-            return Token.START_TAG;
+            return XmlToken.START_TAG;
         }
     }
 

@@ -53,7 +53,7 @@ public class JSONModelLoader implements ModelLoader {
         Map<String, Object> content = new HashMap<String, Object>();
         String currentAttributeName = null;
         Set<String> arrayPayload = null;
-        Token currentToken = lexer.nextToken();
+        JsonToken currentToken = lexer.nextToken();
         while (currentToken.tokenType() != Type.EOF) {
             if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
                 arrayPayload = new HashSet<String>();
@@ -155,7 +155,7 @@ public class JSONModelLoader implements ModelLoader {
             callback.on(null);
         } else {
             Lexer lexer = new Lexer(payload);
-            Token currentToken = lexer.nextToken();
+            JsonToken currentToken = lexer.nextToken();
             if (currentToken.tokenType() != Type.LEFT_BRACKET) {
                 callback.on(null);
             } else {

@@ -3,12 +3,12 @@ package org.kevoree.modeling.api.json;
 /**
  * Created by duke on 10/3/14.
  */
-public class Token {
+public class JsonToken {
 
     private Type _tokenType;
     private Object _value;
 
-    public Token(Type p_tokenType, Object p_value) {
+    public JsonToken(Type p_tokenType, Object p_value) {
         this._tokenType = p_tokenType;
         this._value = p_value;
     }

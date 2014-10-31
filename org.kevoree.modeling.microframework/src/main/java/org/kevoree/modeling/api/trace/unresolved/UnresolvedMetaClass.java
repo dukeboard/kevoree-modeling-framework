@@ -7,15 +7,15 @@ import org.kevoree.modeling.api.meta.MetaClass;
  */
 public class UnresolvedMetaClass implements MetaClass {
 
-    private String metaName;
+    private String _metaName;
 
-    public UnresolvedMetaClass(String metaName) {
-        this.metaName = metaName;
+    public UnresolvedMetaClass(String p_metaName) {
+        this._metaName = p_metaName;
     }
 
     @Override
     public String metaName() {
-        return metaName;
+        return _metaName;
     }
 
     @Override

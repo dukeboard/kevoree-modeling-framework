@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test;
 
 
 import org.junit.Test;
-import org.kevoree.modeling.api.time.rbtree.Node;
+import org.kevoree.modeling.api.time.rbtree.TreeNode;
 import org.kevoree.modeling.api.time.rbtree.RBTree;
 import org.kevoree.modeling.api.time.rbtree.State;
 
@@ -37,12 +37,12 @@ public class RBTreeTest {
         }
     }
 
-    private void printTree(Node root) {
-        Queue<Node> queue = new LinkedList<Node>();
+    private void printTree(TreeNode root) {
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();
         queue.add(root);
         queue.add(null);
         while (!queue.isEmpty()) {
-            Node current = queue.poll();
+            TreeNode current = queue.poll();
             while (current != null) {
                 System.out.print("| " + current.getKey() + " ");
                 if (current.getLeft() != null) {

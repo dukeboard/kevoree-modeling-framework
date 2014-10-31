@@ -10,10 +10,10 @@ import org.kevoree.modeling.api.meta.MetaClass;
  */
 public class UnresolvedMetaAttribute implements MetaAttribute {
 
-    private String metaName;
+    private String _metaName;
 
-    public UnresolvedMetaAttribute(String metaName) {
-        this.metaName = metaName;
+    public UnresolvedMetaAttribute(String p_metaName) {
+        this._metaName = p_metaName;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class UnresolvedMetaAttribute implements MetaAttribute {
 
     @Override
     public String metaName() {
-        return metaName;
+        return _metaName;
     }
 
     @Override

@@ -14,7 +14,7 @@ public class ReaderContext {
         this.payload = payload;
     }
 
-    public Node unserialize(boolean rightBranch) throws Exception {
+    public TreeNode unserialize(boolean rightBranch) throws Exception {
         if (offset >= payload.length()) {
             return null;
         }
@@ -38,19 +38,19 @@ public class ReaderContext {
         Color color = Color.BLACK;
         State state = State.EXISTS;
         switch (ch) {
-            case Node.BLACK_DELETE:
+            case TreeNode.BLACK_DELETE:
                 color = Color.BLACK;
                 state = State.DELETED;
                 break;
-            case Node.BLACK_EXISTS:
+            case TreeNode.BLACK_EXISTS:
                 color = Color.BLACK;
                 state = State.EXISTS;
                 break;
-            case Node.RED_DELETE:
+            case TreeNode.RED_DELETE:
                 color = Color.RED;
                 state = State.DELETED;
                 break;
-            case Node.RED_EXISTS:
+            case TreeNode.RED_EXISTS:
                 color = Color.RED;
                 state = State.EXISTS;
                 break;
@@ -65,17 +65,17 @@ public class ReaderContext {
         if (ch != '|' && ch != '#' && ch != '%') {
             tokenBuild.append(ch);
         }
-        Node p = new Node(Long.parseLong(tokenBuild.toString()), state, color, null, null);
-        Node left = unserialize(false);
+        TreeNode p = new TreeNode(Long.parseLong(tokenBuild.toString()), state, color, null, null);
+        TreeNode left = unserialize(false);
         if (left != null) {
-            left.parent = p;
+            left.setParent(p);
         }
-        Node right = unserialize(true);
+        TreeNode right = unserialize(true);
         if (right != null) {
-            right.parent = p;
+            right.setParent(p);
         }
-        p.left = left;
-        p.right = right;
+        p.setLeft(left);
+        p.setRight(right);
         return p;
     }
 

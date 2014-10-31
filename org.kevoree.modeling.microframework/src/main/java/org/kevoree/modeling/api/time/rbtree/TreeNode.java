@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.time.rbtree;
 /**
  * Created by duke on 10/5/14.
  */
-public class Node {
+public class TreeNode {
 
     public static final char BLACK_DELETE = '0';
     public static final char BLACK_EXISTS = '1';
@@ -20,13 +20,13 @@ public class Node {
 
     protected Color color;
 
-    protected Node left;
+    private TreeNode left;
 
-    protected Node right;
+    private TreeNode right;
 
-    protected Node parent = null;
+    private TreeNode parent = null;
 
-    public Node(long key, State value, Color color, Node left, Node right) {
+    public TreeNode(long key, State value, Color color, TreeNode left, TreeNode right) {
         this.key = key;
         this.value = value;
         this.color = color;
@@ -42,7 +42,7 @@ public class Node {
         this.parent = null;
     }
 
-    public Node grandparent() {
+    public TreeNode grandparent() {
         if (parent != null) {
             return parent.parent;
         } else {
@@ -50,7 +50,7 @@ public class Node {
         }
     }
 
-    public Node sibling() {
+    public TreeNode sibling() {
         if (parent == null) {
             return null;
         } else {
@@ -62,7 +62,7 @@ public class Node {
         }
     }
 
-    public Node uncle() {
+    public TreeNode uncle() {
         if (parent != null) {
             return parent.sibling();
         } else {
@@ -70,27 +70,27 @@ public class Node {
         }
     }
 
-    public Node getLeft() {
+    public TreeNode getLeft() {
         return left;
     }
 
-    public void setLeft(Node left) {
+    public void setLeft(TreeNode left) {
         this.left = left;
     }
 
-    public Node getRight() {
+    public TreeNode getRight() {
         return right;
     }
 
-    public void setRight(Node right) {
+    public void setRight(TreeNode right) {
         this.right = right;
     }
 
-    public Node getParent() {
+    public TreeNode getParent() {
         return parent;
     }
 
-    public void setParent(Node parent) {
+    public void setParent(TreeNode parent) {
         this.parent = parent;
     }
 
@@ -153,8 +153,8 @@ public class Node {
         }
     } */
 
-    public Node next() {
-        Node p = this;
+    public TreeNode next() {
+        TreeNode p = this;
         if (p.right != null) {
             p = p.right;
             while (p.left != null) {
@@ -177,8 +177,8 @@ public class Node {
         }
     }
 
-    public Node previous() {
-        Node p = this;
+    public TreeNode previous() {
+        TreeNode p = this;
         if (p.left != null) {
             p = p.left;
             while (p.right != null) {

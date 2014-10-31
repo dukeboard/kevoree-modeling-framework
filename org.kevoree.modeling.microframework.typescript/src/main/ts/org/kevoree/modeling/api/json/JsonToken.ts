@@ -1,5 +1,5 @@
 
-class Token {
+class JsonToken {
 
   private _tokenType: Type = null;
   private _value: any = null;

@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.time;
 
-import org.kevoree.modeling.api.time.rbtree.Node;
+import org.kevoree.modeling.api.time.rbtree.TreeNode;
 import org.kevoree.modeling.api.time.rbtree.RBTree;
 import org.kevoree.modeling.api.time.rbtree.State;
 
@@ -25,7 +25,7 @@ public class DefaultTimeTree implements TimeTree {
 
     @Override
     public void walkAsc(TimeWalker walker) {
-        Node elem = versionTree.first();
+        TreeNode elem = versionTree.first();
         while (elem != null) {
             walker.walk(elem.getKey());
             elem = elem.next();
@@ -34,7 +34,7 @@ public class DefaultTimeTree implements TimeTree {
 
     @Override
     public void walkDesc(TimeWalker walker) {
-        Node elem = versionTree.last();
+        TreeNode elem = versionTree.last();
         while (elem != null) {
             walker.walk(elem.getKey());
             elem = elem.previous();
@@ -49,7 +49,7 @@ public class DefaultTimeTree implements TimeTree {
             from2 = to;
             to2 = from;
         }
-        Node elem = versionTree.previousOrEqual(from2);
+        TreeNode elem = versionTree.previousOrEqual(from2);
         while (elem != null) {
             walker.walk(elem.getKey());
             elem = elem.next();
@@ -70,7 +70,7 @@ public class DefaultTimeTree implements TimeTree {
             from2 = to;
             to2 = from;
         }
-        Node elem = versionTree.previousOrEqual(to2);
+        TreeNode elem = versionTree.previousOrEqual(to2);
         while (elem != null) {
             walker.walk(elem.getKey());
             elem = elem.previous();
@@ -85,7 +85,7 @@ public class DefaultTimeTree implements TimeTree {
 
     @Override
     public Long first() {
-        Node firstNode = versionTree.first();
+        TreeNode firstNode = versionTree.first();
         if (firstNode != null) {
             return firstNode.getKey();
         } else {
@@ -95,7 +95,7 @@ public class DefaultTimeTree implements TimeTree {
 
     @Override
     public Long last() {
-        Node lastNode = versionTree.last();
+        TreeNode lastNode = versionTree.last();
         if (lastNode != null) {
             return lastNode.getKey();
         } else {
@@ -105,7 +105,7 @@ public class DefaultTimeTree implements TimeTree {
 
     @Override
     public Long next(long from) {
-        Node nextNode = versionTree.next(from);
+        TreeNode nextNode = versionTree.next(from);
         if (nextNode != null) {
             return nextNode.getKey();
         } else {
@@ -115,7 +115,7 @@ public class DefaultTimeTree implements TimeTree {
 
     @Override
     public Long previous(long from) {
-        Node previousNode = versionTree.previous(from);
+        TreeNode previousNode = versionTree.previous(from);
         if (previousNode != null) {
             return previousNode.getKey();
         } else {
@@ -125,7 +125,7 @@ public class DefaultTimeTree implements TimeTree {
 
     @Override
     public Long resolve(long time) {
-        Node previousNode = versionTree.previousOrEqual(time);
+        TreeNode previousNode = versionTree.previousOrEqual(time);
         if (previousNode != null) {
             return previousNode.getKey();
         } else {

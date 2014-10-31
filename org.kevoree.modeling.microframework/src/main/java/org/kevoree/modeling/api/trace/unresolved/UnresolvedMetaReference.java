@@ -8,11 +8,11 @@ import org.kevoree.modeling.api.meta.MetaReference;
  */
 public class UnresolvedMetaReference implements MetaReference {
 
-    public UnresolvedMetaReference(String metaName) {
-        this.metaName = metaName;
+    public UnresolvedMetaReference(String p_metaName) {
+        this._metaName = p_metaName;
     }
 
-    private String metaName;
+    private String _metaName;
 
     @Override
     public boolean contained() {
@@ -41,7 +41,7 @@ public class UnresolvedMetaReference implements MetaReference {
 
     @Override
     public String metaName() {
-        return metaName;
+        return _metaName;
     }
 
     @Override

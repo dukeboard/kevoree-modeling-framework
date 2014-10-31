@@ -1,5 +1,5 @@
 
-class Node {
+class TreeNode {
 
   public static BLACK_DELETE: string = '0';
   public static BLACK_EXISTS: string = '1';
@@ -8,15 +8,15 @@ class Node {
   public key: number = 0;
   public value: State = null;
   public color: Color = null;
-  public left: Node = null;
-  public right: Node = null;
-  public parent: Node = null;
+  private left: TreeNode = null;
+  private right: TreeNode = null;
+  private parent: TreeNode = null;
 
   public getKey(): number {
     return this.key;
   }
 
-  constructor(key: number, value: State, color: Color, left: Node, right: Node) {
+  constructor(key: number, value: State, color: Color, left: TreeNode, right: TreeNode) {
     this.key = key;
     this.value = value;
     this.color = color;
@@ -31,7 +31,7 @@ class Node {
     this.parent = null;
   }
 
-  public grandparent(): Node {
+  public grandparent(): TreeNode {
     if (this.parent != null) {
       return this.parent.parent;
     } else {
@@ -39,7 +39,7 @@ class Node {
     }
   }
 
-  public sibling(): Node {
+  public sibling(): TreeNode {
     if (this.parent == null) {
       return null;
     } else {
@@ -51,7 +51,7 @@ class Node {
     }
   }
 
-  public uncle(): Node {
+  public uncle(): TreeNode {
     if (this.parent != null) {
       return this.parent.sibling();
     } else {
@@ -59,27 +59,27 @@ class Node {
     }
   }
 
-  public getLeft(): Node {
+  public getLeft(): TreeNode {
     return this.left;
   }
 
-  public setLeft(left: Node): void {
+  public setLeft(left: TreeNode): void {
     this.left = left;
   }
 
-  public getRight(): Node {
+  public getRight(): TreeNode {
     return this.right;
   }
 
-  public setRight(right: Node): void {
+  public setRight(right: TreeNode): void {
     this.right = right;
   }
 
-  public getParent(): Node {
+  public getParent(): TreeNode {
     return this.parent;
   }
 
-  public setParent(parent: Node): void {
+  public setParent(parent: TreeNode): void {
     this.parent = parent;
   }
 
@@ -87,15 +87,15 @@ class Node {
     builder.append("|");
     if (this.value == State.DELETED) {
       if (this.color == Color.BLACK) {
-        builder.append(Node.BLACK_DELETE);
+        builder.append(TreeNode.BLACK_DELETE);
       } else {
-        builder.append(Node.RED_DELETE);
+        builder.append(TreeNode.RED_DELETE);
       }
     } else {
       if (this.color == Color.BLACK) {
-        builder.append(Node.BLACK_EXISTS);
+        builder.append(TreeNode.BLACK_EXISTS);
       } else {
-        builder.append(Node.RED_EXISTS);
+        builder.append(TreeNode.RED_EXISTS);
       }
     }
     builder.append(this.key);
@@ -115,8 +115,8 @@ class Node {
     }
   }
 
-  public next(): Node {
-    var p: Node = this;
+  public next(): TreeNode {
+    var p: TreeNode = this;
     if (p.right != null) {
       p = p.right;
       while (p.left != null){
@@ -139,8 +139,8 @@ class Node {
     }
   }
 
-  public previous(): Node {
-    var p: Node = this;
+  public previous(): TreeNode {
+    var p: TreeNode = this;
     if (p.left != null) {
       p = p.left;
       while (p.right != null){

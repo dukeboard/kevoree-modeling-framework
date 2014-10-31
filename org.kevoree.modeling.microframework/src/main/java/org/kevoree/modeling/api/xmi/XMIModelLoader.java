@@ -89,8 +89,8 @@ public class XMIModelLoader implements ModelLoader {
             String nsURI;
             XmlParser reader = context.xmiReader;
             while (reader.hasNext()) {
-                Token nextTag = reader.next();
-                if (nextTag.equals(Token.START_TAG)) {
+                XmlToken nextTag = reader.next();
+                if (nextTag.equals(XmlToken.START_TAG)) {
                     String localName = reader.getLocalName();
                     if (localName != null) {
                         HashMap<String, String> ns = new HashMap<String, String>();
@@ -194,8 +194,8 @@ public class XMIModelLoader implements ModelLoader {
         boolean done = false;
         while (!done) {
             if (ctx.xmiReader.hasNext()) {
-                Token tok = ctx.xmiReader.next();
-                if (tok.equals(Token.START_TAG)) {
+                XmlToken tok = ctx.xmiReader.next();
+                if (tok.equals(XmlToken.START_TAG)) {
                     String subElemName = ctx.xmiReader.getLocalName();
                     String key = xmiAddress + "/@" + subElemName;
                     Integer i = ctx.elementsCount.get(key);
@@ -207,7 +207,7 @@ public class XMIModelLoader implements ModelLoader {
                     KObject containedElement = loadObject(ctx, subElementId, subElemName);
                     modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
-                } else if (tok.equals(Token.END_TAG)) {
+                } else if (tok.equals(XmlToken.END_TAG)) {
                     if (ctx.xmiReader.getLocalName().equals(elementTagName)) {
                         done = true;
                     }

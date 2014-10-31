@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.json.JSONString;
 import org.kevoree.modeling.api.json.Lexer;
-import org.kevoree.modeling.api.json.Token;
+import org.kevoree.modeling.api.json.JsonToken;
 import org.kevoree.modeling.api.json.Type;
 import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaAttribute;
 import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaClass;
@@ -47,7 +47,7 @@ public class TraceSequence {
 
     public TraceSequence populate(String addtracesTxt) throws Exception {
         Lexer lexer = new Lexer(addtracesTxt);
-        Token currentToken = lexer.nextToken();
+        JsonToken currentToken = lexer.nextToken();
         if (currentToken.tokenType() != Type.LEFT_BRACKET) {
             throw new Exception("Bad Format : expect [");
         }
