@@ -110,6 +110,7 @@ public class XMIModelLoader implements ModelLoader {
             for (XMIResolveCommand res : context.resolvers) {
                 res.run();
             }
+            _factory.setRoot(context.loadedRoots);
             context.successCallback.on(null);
         } catch (Exception e) {
             context.successCallback.on(e);
