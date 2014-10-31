@@ -1,5 +1,5 @@
 class StringBuilder {
-    append(val : any):void;
+    append(val : any):StringBuilder;
     length():number;
     toString():string;
 }
