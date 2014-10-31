@@ -4,8 +4,6 @@ import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.util.Converters;
 
-import java.util.Date;
-
 class AttributesVisitor implements ModelAttributeVisitor {
 
     private SerializationContext context;
@@ -19,15 +17,8 @@ class AttributesVisitor implements ModelAttributeVisitor {
             if (context.ignoreGeneratedID && metaAttribute.metaName().equals("generated_KMF_ID")) {
                 return;
             }
-            if (value instanceof String && value.equals("")) {
-                return;
-            }
             context.printer.append(" " + metaAttribute.metaName() + "=\"");
-            if (value instanceof java.util.Date) {
-                XMIModelSerializer.escapeXml(context.printer, "" + ((Date) value).getTime());
-            } else {
-                XMIModelSerializer.escapeXml(context.printer, Converters.convFlatAtt(value));
-            }
+            XMIModelSerializer.escapeXml(context.printer, Converters.convFlatAtt(value));
             context.printer.append("\"");
         }
     }
