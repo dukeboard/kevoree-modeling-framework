@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.time.TimeTree;
 
 import java.util.*;
@@ -162,23 +163,22 @@ public class JSONModelLoader implements ModelLoader {
 
     public static Object convertRaw(MetaAttribute attribute, Object raw) {
         try {
-            switch (attribute.metaType()) {
-                case STRING:
-                    return raw.toString();
-                case LONG:
-                    return Long.parseLong(raw.toString());
-                case INT:
-                    return Integer.parseInt(raw.toString());
-                case BOOL:
-                    return Boolean.parseBoolean(raw.toString());
-                case SHORT:
-                    return Short.parseShort(raw.toString());
-                case DOUBLE:
-                    return Double.parseDouble(raw.toString());
-                case FLOAT:
-                    return Float.parseFloat(raw.toString());
-                default:
-                    return null;
+            if (attribute.metaType().equals(MetaType.STRING)) {
+                return raw.toString();
+            } else if (attribute.metaType().equals(MetaType.LONG)) {
+                return Long.parseLong(raw.toString());
+            } else if (attribute.metaType().equals(MetaType.INT)) {
+                return Integer.parseInt(raw.toString());
+            } else if (attribute.metaType().equals(MetaType.BOOL)) {
+                return Boolean.parseBoolean(raw.toString());
+            } else if (attribute.metaType().equals(MetaType.SHORT)) {
+                return Short.parseShort(raw.toString());
+            } else if (attribute.metaType().equals(MetaType.DOUBLE)) {
+                return Double.parseDouble(raw.toString());
+            } else if (attribute.metaType().equals(MetaType.FLOAT)) {
+                return Float.parseFloat(raw.toString());
+            } else {
+                return null;
             }
         } catch (Exception e) {
             e.printStackTrace();
