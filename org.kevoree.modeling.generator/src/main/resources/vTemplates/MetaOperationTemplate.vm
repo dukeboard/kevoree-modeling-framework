@@ -13,16 +13,16 @@ public enum METAOPERATION implements org.kevoree.modeling.api.meta.MetaOperation
     #set($opIdx = $opIdx + 1)
 #end
 #end
-    private String name;
+    private String _name;
 
-    private int index;
+    private int _index;
 
     public int index() {
-        return index;
+        return _index;
     }
 
     public String metaName() {
-        return name;
+        return _name;
     }
 
     public org.kevoree.modeling.api.meta.MetaClass origin() {
@@ -30,8 +30,8 @@ public enum METAOPERATION implements org.kevoree.modeling.api.meta.MetaOperation
     }
 
     METAOPERATION(String name, int index) {
-        this.name = name;
-        this.index = index;
+        this._name = name;
+        this._index = index;
     }
 
 }

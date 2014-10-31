@@ -2,9 +2,7 @@ package org.kevoree.fsm.test;
 
 import fsmsample.*;
 import org.junit.Test;
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 
 import java.io.FileInputStream;
@@ -13,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 
@@ -26,86 +25,104 @@ public class SaveXMITest {
     public void saveXmiTest() {
 
         FSMUniverse fsmU = new FSMUniverse(new MemoryKDataBase());
-        FSMDimension fsmDim = fsmU.create();
-        FSMView localView = fsmDim.time(0L);
+        fsmU.newDimension(new Callback<FSMDimension>() {
+            @Override
+            public void on(FSMDimension fsmDim) {
 
-        FSM fsm = localView.createFSM();
-        fsm.setName("NewFSM_1");
-        localView.root(fsm);
+                FSMView localView = fsmDim.time(0L);
 
-        State s1 = localView.createState();
-        s1.setName("State1");
-        fsm.addOwnedState(s1);
-        fsm.setInitialState(s1);
-        fsm.setCurrentState(s1);
+                FSM fsm = localView.createFSM();
+                fsm.setName("NewFSM_1");
+                localView.setRoot(fsm);
 
-        State s2 = localView.createState();
-        s2.setName("State2");
-        fsm.addOwnedState(s2);
-        fsm.setFinalState(s2);
+                State s1 = localView.createState();
+                s1.setName("State1");
+                fsm.addOwnedState(s1);
+                fsm.setInitialState(s1);
+                fsm.setCurrentState(s1);
 
-        Action a1 = localView.createAction();
-        a1.setName("Action1");
+                State s2 = localView.createState();
+                s2.setName("State2");
+                fsm.addOwnedState(s2);
+                fsm.setFinalState(s2);
 
-        Transition t1 = localView.createTransition();
-        t1.setName("Trans1");
-        s1.addOutgoingTransition(t1);
-        s2.addIncomingTransition(t1);
+                Action a1 = localView.createAction();
+                a1.setName("Action1");
 
-        t1.setAction(a1);
+                Transition t1 = localView.createTransition();
+                t1.setName("Trans1");
+                s1.addOutgoingTransition(t1);
+                s2.addIncomingTransition(t1);
+
+                t1.setAction(a1);
 
 
-        Semaphore sema = new Semaphore(0);
+                Semaphore sema = new Semaphore(0);
+                String[] model = new String[1];
 
-        try {
-            Path f = Files.createTempFile("XMISerialized", ".xmi");
-            System.out.println("Serialization in " + f.toUri().toString());
-            /*
-                */
-            localView.lookup(fsm.kid(), (root) -> {
-                try {
+                localView.lookup(fsm.uuid(), (root) -> {
                     System.out.println("Serialize !");
-                    localView.createXMISerializer().serializeToStream(fsm, new FileOutputStream(f.toFile()), (error) -> {
+                    localView.createXMISerializer().serialize(fsm, (result, error) -> {
                         if (error != null) {
                             error.printStackTrace();
+                        } else{
+                            model[0] = result;
                         }
                         sema.release();
                     });
-                } catch (FileNotFoundException e) {
+
+                });
+
+                try {
+                    sema.acquire();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            });
 
-            try {
-                sema.acquire();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+                System.out.println("Model:" + model[0]);
 
-            System.out.println("Loading !");
-            FSMDimension fsmDim2 = fsmU.create();
-            FSMView loadView = fsmDim2.time(0L);
+                System.out.println("Loading !");
+                fsmU.newDimension(new Callback<FSMDimension>() {
+                    @Override
+                    public void on(FSMDimension fsmDim2) {
+                        FSMView loadView = fsmDim2.time(0L);
+                        loadView.createXMILoader().load(model[0],new Callback<Throwable>() {
+                            @Override
+                            public void on(Throwable error) {
+                                System.out.println("Loaded");
+                                if(error!=null) {
+                                    error.printStackTrace();
+                                } else {
+                                    loadView.select("/", new Callback<List<KObject>>() {
+                                        @Override
+                                        public void on(List<KObject> kObjects) {
+                                            System.out.println("Roots:" + kObjects.size());
+                                            if(kObjects.size() == 1) {
 
-            loadView.createXMILoader().loadModelFromStream(new FileInputStream(f.toFile()),new Callback<KObject>() {
-                @Override
-                public void on(KObject kObject) {
-                    kObject.treeVisit(new ModelVisitor() {
-                        @Override
-                        public VisitResult visit(KObject elem) {
-                            System.out.println(elem.kid());
-                            return VisitResult.CONTINUE;
+                                                KObject kObject = kObjects.get(0);
+                                                kObject.treeVisit(new ModelVisitor() {
+                                                    @Override
+                                                    public VisitResult visit(KObject elem) {
+                                                        System.out.println(elem.uuid());
+                                                        return VisitResult.CONTINUE;
+                                                    }
+                                                },(end)->{});
+                                                sema.release();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                        try {
+                            sema.acquire();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-                    },(end)->{});
-                    sema.release();
-                }
-            });
-            try {
-                sema.acquire();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                    }
+                });
+
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
     }
 }

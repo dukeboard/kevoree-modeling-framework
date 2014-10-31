@@ -29,9 +29,8 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <metaModelQualifiedName>Cloud</metaModelQualifiedName>
                             <metaModelFile>metamodel/Cloud.mm</metaModelFile>
-                            <utilityPackage>cloud</utilityPackage>
+                            <metaModelQualifiedName>cloud.Cloud</metaModelQualifiedName>
                         </configuration>
                     </execution>
                 </executions>

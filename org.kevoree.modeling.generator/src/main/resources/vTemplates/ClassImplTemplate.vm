@@ -17,6 +17,11 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         return METAREFERENCES.values();
     }
 
+    @Override
+    public org.kevoree.modeling.api.meta.MetaOperation[] metaOperations() {
+        return METAOPERATION.values();
+    }
+
 
 #foreach($attribute in $classDeclaration.attributes)
     #if($attribute.single)
@@ -27,7 +32,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
     @Override
     public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase(${attribute.getName()})}($attribute.getType() _value) {
-        set(METAATTRIBUTES.$attribute.getName().toUpperCase(), _value, true);
+        set(METAATTRIBUTES.$attribute.getName().toUpperCase(), _value);
         return this;
     }
     #{else}
@@ -53,7 +58,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     #if($ref.single)
     @Override
     public void set${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} _value) {
-        mutate(org.kevoree.modeling.api.KActionType.SET, METAREFERENCES.${ref.getName().toUpperCase()}, _value, true, true);
+        mutate(org.kevoree.modeling.api.KActionType.SET, METAREFERENCES.${ref.getName().toUpperCase()}, _value, true);
     }
 
     @Override
@@ -63,12 +68,12 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     #{else}
     @Override
     public void add${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} obj) {
-        mutate(org.kevoree.modeling.api.KActionType.ADD, METAREFERENCES.${ref.getName().toUpperCase()}, obj, true, true);
+        mutate(org.kevoree.modeling.api.KActionType.ADD, METAREFERENCES.${ref.getName().toUpperCase()}, obj, true);
     }
 
     @Override
     public void remove${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} obj) {
-        mutate(org.kevoree.modeling.api.KActionType.REMOVE, METAREFERENCES.${ref.getName().toUpperCase()}, obj, true, true);
+        mutate(org.kevoree.modeling.api.KActionType.REMOVE, METAREFERENCES.${ref.getName().toUpperCase()}, obj, true);
     }
 
     @Override

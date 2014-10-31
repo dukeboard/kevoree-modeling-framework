@@ -29,7 +29,7 @@ public class KQuery {
     }
 
     public static KQuery extractFirstQuery(String query) {
-        if (query == null) {
+        if (query == null || query.length() == 0) {
             return null;
         }
         if (query.charAt(0) == QUERY_SEP) {

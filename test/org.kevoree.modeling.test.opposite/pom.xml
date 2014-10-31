@@ -29,9 +29,8 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <metaModelQualifiedName>Opposite</metaModelQualifiedName>
+                            <metaModelQualifiedName>kmf.opposite.test.Opposite</metaModelQualifiedName>
                             <metaModelFile>metamodel/opposite.mm</metaModelFile>
-                            <utilityPackage>kmf.opposite.test</utilityPackage>
                         </configuration>
                     </execution>
                 </executions>
