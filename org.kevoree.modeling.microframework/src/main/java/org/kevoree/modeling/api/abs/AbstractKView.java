@@ -14,8 +14,7 @@ import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.xmi.XMIModelLoader;
 import org.kevoree.modeling.api.xmi.XMIModelSerializer;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by duke on 10/10/14.
@@ -109,10 +108,18 @@ public abstract class AbstractKView implements KView {
             @Override
             public void on(KObject rootObj) {
                 String cleanedQuery = query;
-                if (cleanedQuery.startsWith("/")) {
-                    cleanedQuery = cleanedQuery.substring(1);
+                if(cleanedQuery.equals("/")) {
+                    ArrayList<KObject> res = new ArrayList<KObject>();
+                    if(rootObj != null) {
+                        res.add(rootObj);
+                    }
+                    callback.on(res);
+                } else {
+                    if (cleanedQuery.startsWith("/")) {
+                        cleanedQuery = cleanedQuery.substring(1);
+                    }
+                    KSelector.select(rootObj, cleanedQuery, callback);
                 }
-                KSelector.select(rootObj, cleanedQuery, callback);
             }
         });
     }
@@ -139,7 +146,9 @@ public abstract class AbstractKView implements KView {
     @Override
     public KObject create(MetaClass clazz) {
         KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
-        dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, null, newObj, null, newObj));
+        if(newObj != null) {
+            dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, null, newObj, null, newObj));
+        }
         return newObj;
     }
 
