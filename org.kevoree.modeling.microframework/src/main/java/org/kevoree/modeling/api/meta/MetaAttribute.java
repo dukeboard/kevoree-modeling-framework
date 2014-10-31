@@ -11,10 +11,6 @@ public interface MetaAttribute extends Meta {
 
     MetaClass origin();
 
-    public enum MetaType {
-        STRING, LONG, INT, BOOL, SHORT, DOUBLE, FLOAT;
-    }
-
     MetaType metaType();
 
     ExtrapolationStrategy strategy();
