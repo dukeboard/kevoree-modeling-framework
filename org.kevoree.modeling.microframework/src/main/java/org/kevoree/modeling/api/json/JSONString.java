@@ -125,7 +125,7 @@ public class JSONString {
                         builder.append('\b');
                         break;
                     case 'f':
-                        builder.append(Character.toChars(12));
+                        builder.append('\f');
                         break;
                     case 'n':
                         builder.append('\n');
@@ -136,8 +136,6 @@ public class JSONString {
                     case 't':
                         builder.append('\t');
                         break;
-                    case 'u':
-                        throw new RuntimeException("Bad char to escape ");
                 }
 
             } else {
