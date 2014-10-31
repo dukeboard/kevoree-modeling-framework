@@ -2,6 +2,7 @@
 package com.siliconmint.ts.translator;
 
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PsiAnonymousClassImpl;
 import com.intellij.util.containers.HashSet;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class Translators {
         registerTranslator(PsiLiteralExpression.class, new LiteralTranslator());
 
         registerTranslator(PsiAnonymousClass.class, new AnonymousClassTranslator());
+        registerTranslator(PsiAnonymousClassImpl.class, new AnonymousClassTranslator());
         registerTranslator(PsiClass.class, new ClassTranslator());
         registerTranslator(PsiField.class, new FieldTranslator());
         registerTranslator(PsiMethod.class, new MethodTranslator());
