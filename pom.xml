@@ -62,18 +62,16 @@
     </developers>
 
     <properties>
-        <emf.version>2.7.0</emf.version>
-        <kotlin.version>0.8.11</kotlin.version>
         <emf.version>2.9.1-v20140203-1126</emf.version>
-        <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
     </properties>
 
     <modules>
         <module>org.kevoree.modeling.microframework</module>
-        <module>org.kevoree.modeling.dsl</module>
-        <module>org.kevoree.modeling.generator.mavenplugin</module>
-        <module>org.kevoree.modeling.generator</module>
         <module>org.kevoree.modeling.ast</module>
+        <module>org.kevoree.modeling.dsl</module>
+        <module>org.kevoree.modeling.generator</module>
+        <module>org.kevoree.modeling.generator.standalone</module>
+        <module>org.kevoree.modeling.generator.mavenplugin</module>
     </modules>
 
     <dependencies>
@@ -90,7 +88,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -103,7 +101,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>2.10.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -120,7 +118,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.2</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -129,7 +127,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.7</version>
                 <configuration>
                     <verbose>false</verbose>
                     <addSvnKeyWords>true</addSvnKeyWords>
@@ -144,11 +142,9 @@
                         <configuration>
                             <licenseName>lgpl_v3</licenseName>
                             <organizationName>org.kevoree</organizationName>
-                            <inceptionYear>2013</inceptionYear>
+                            <inceptionYear>2014</inceptionYear>
                             <includes>
                                 <include>*.java</include>
-                                <include>*.kt</include>
-                                <include>*.scala</include>
                             </includes>
                         </configuration>
                     </execution>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.dsl</artifactId>
     <name>Kevoree :: Modeling :: DSL</name>
@@ -32,11 +33,6 @@
             <artifactId>org.eclipse.xsd</artifactId>
             <version>2.9.1-v20140203-1126</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-compiler</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -51,11 +47,13 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <echo message="prepare phase" />
-                                <unzip src="${basedir}/lib/openapi.jar" dest="${basedir}/target/classes" />
-                                <unzip src="${basedir}/../org.kevoree.modeling.idea/org.kevoree.modeling.idea.zip" dest="${basedir}/target/classes" />
-                                <unzip src="${basedir}/target/classes/org.kevoree.modeling.idea/lib/org.kevoree.modeling.idea.jar" dest="${basedir}/target/classes" />
-                                <delete dir="${basedir}/target/classes/org.kevoree.modeling.idea/lib" />
+                                <echo message="prepare phase"/>
+                                <unzip src="${basedir}/lib/openapi.jar" dest="${basedir}/target/classes"/>
+                                <unzip src="${basedir}/../org.kevoree.modeling.idea/org.kevoree.modeling.idea.zip"
+                                       dest="${basedir}/target/classes"/>
+                                <unzip src="${basedir}/target/classes/org.kevoree.modeling.idea/lib/org.kevoree.modeling.idea.jar"
+                                       dest="${basedir}/target/classes"/>
+                                <delete dir="${basedir}/target/classes/org.kevoree.modeling.idea/lib"/>
                             </tasks>
                         </configuration>
                         <goals>

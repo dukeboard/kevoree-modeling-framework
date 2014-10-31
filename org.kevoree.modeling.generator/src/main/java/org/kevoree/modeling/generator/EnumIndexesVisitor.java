@@ -1,6 +1,5 @@
 package org.kevoree.modeling.generator;
 
-import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.ast.*;
 import org.kevoree.modeling.idea.psi.*;
 
@@ -17,12 +16,12 @@ public class EnumIndexesVisitor extends MetaModelVisitor {
     }
 
     @Override
-    public void visitDeclaration(@NotNull MetaModelDeclaration o) {
+    public void visitDeclaration(MetaModelDeclaration o) {
         o.acceptChildren(this);
     }
 
     @Override
-    public void visitClassDeclaration(@NotNull MetaModelClassDeclaration o) {
+    public void visitClassDeclaration(MetaModelClassDeclaration o) {
 
         String classFqn = o.getTypeDeclaration().getName();
 

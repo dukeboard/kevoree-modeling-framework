@@ -6,7 +6,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.jetbrains.annotations.NotNull;
 import org.kevoree.modeling.MetaModelLanguageType;
 import org.kevoree.modeling.generator.misc.VelocityLog;
 import org.kevoree.modeling.util.StandaloneParser;
@@ -33,13 +32,11 @@ public class Generator {
 
         File output = context.kmfSrcGenerationDirectory;
         Files.walkFileTree(output.toPath(),new FileVisitor<Path>() {
-            @NotNull
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 return FileVisitResult.CONTINUE;
             }
 
-            @NotNull
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
@@ -51,7 +48,6 @@ public class Generator {
                 return FileVisitResult.CONTINUE;
             }
 
-            @NotNull
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 Files.delete(dir);
@@ -61,20 +57,14 @@ public class Generator {
         Files.deleteIfExists(output.toPath());
         Files.createDirectories(output.toPath());
 
-
         try {
-
             StandaloneParser parser = new StandaloneParser();
             PsiFile psi = parser.parser(context.metaModel);
-
             System.out.println("Indexing for Enums");
             psi.acceptChildren(new EnumIndexesVisitor(context));
             ProcessorHelper.getInstance().consolidateEnumIndexes(context.classDeclarationsList);
-
             generateUtilities();
-
             System.out.println("Generating Classes");
-
             context.classDeclarationsList.values().forEach(classDecl-> {
                 ClassGenerationContext cgc = new ClassGenerationContext();
                 cgc.generationContext = context;
@@ -85,9 +75,7 @@ public class Generator {
 
                 Path implFilePath = Paths.get(context.kmfSrcGenerationDirectory.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
                 callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
-
             });
-
 
         } catch (Exception e) {
             e.printStackTrace();

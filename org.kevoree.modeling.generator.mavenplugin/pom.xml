@@ -15,7 +15,6 @@
     <name>Kevoree :: Modeling :: Generator :: MavenPlugin</name>
     <packaging>maven-plugin</packaging>
 
-
     <dependencies>
         <dependency>
             <groupId>org.kevoree.modeling</groupId>

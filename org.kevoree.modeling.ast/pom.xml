@@ -11,6 +11,5 @@
 
     <name>Kevoree :: Modeling :: AST</name>
     <artifactId>org.kevoree.modeling.ast</artifactId>
-
-
+    
 </project>
