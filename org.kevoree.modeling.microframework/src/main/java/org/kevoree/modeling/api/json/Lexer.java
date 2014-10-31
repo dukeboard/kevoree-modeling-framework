@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.util.Converters;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,12 +17,8 @@ public class Lexer {
     private int index = 0;
 
 
-    public Lexer(InputStream inputStream) {
-        try {
-            this.bytes = toByteArray(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Lexer(String payload) {
+        this.bytes = payload.getBytes();
         this.EOF = new Token(Type.EOF, null);
     }
 
@@ -146,12 +141,6 @@ public class Lexer {
     }
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
-
-    public byte[] toByteArray(InputStream input) throws IOException {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        copy(input, output);
-        return output.toByteArray();
-    }
 
     public int copy(InputStream input, OutputStream output) throws IOException {
         long count = copyLarge(input, output);

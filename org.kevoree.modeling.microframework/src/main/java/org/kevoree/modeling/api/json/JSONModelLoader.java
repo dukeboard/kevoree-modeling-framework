@@ -7,9 +7,6 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -28,18 +25,9 @@ public class JSONModelLoader implements ModelLoader {
         this._factory = p_factory;
     }
 
-    @Override
-    public void loadModelFromString(String str, Callback<Throwable> callback) {
-        if (str == null) {
-            callback.on(null);
-        }
-        loadModelFromStream(new ByteArrayInputStream(str.getBytes(Charset.forName("UTF-8"))), callback);
-    }
-
     //TODO optimize object creation
     public static KObject load(String payload, KView factory, Callback<KObject> callback) {
-        ByteArrayInputStream st = new ByteArrayInputStream(payload.getBytes(Charset.forName("UTF-8")));
-        Lexer lexer = new Lexer(st);
+        Lexer lexer = new Lexer(payload);
         final KObject[] loaded = new KObject[1];
         loadObjects(lexer, factory, new Callback<List<KObject>>() {
             @Override
@@ -151,22 +139,24 @@ public class JSONModelLoader implements ModelLoader {
         });
     }
 
+
     @Override
-    public void loadModelFromStream(InputStream inputStream, final Callback<Throwable> callback) {
-        if (inputStream == null) {
-            throw new RuntimeException("Null input Stream");
-        }
-        Lexer lexer = new Lexer(inputStream);
-        Token currentToken = lexer.nextToken();
-        if (currentToken.tokenType() != Type.LEFT_BRACKET) {
+    public void load(String payload, Callback<Throwable> callback) {
+        if (payload == null) {
             callback.on(null);
         } else {
-            loadObjects(lexer, _factory, new Callback<List<KObject>>() {
-                @Override
-                public void on(List<KObject> kObjects) {
-                    callback.on(null);
-                }
-            });
+            Lexer lexer = new Lexer(payload);
+            Token currentToken = lexer.nextToken();
+            if (currentToken.tokenType() != Type.LEFT_BRACKET) {
+                callback.on(null);
+            } else {
+                loadObjects(lexer, _factory, new Callback<List<KObject>>() {
+                    @Override
+                    public void on(List<KObject> kObjects) {
+                        callback.on(null);
+                    }
+                });
+            }
         }
     }
 

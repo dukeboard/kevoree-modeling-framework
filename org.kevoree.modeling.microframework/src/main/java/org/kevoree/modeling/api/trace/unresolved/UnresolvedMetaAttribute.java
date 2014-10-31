@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.trace.unresolved;
 
+import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;

@@ -23,28 +23,28 @@ class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
                 @Override
                 public void on(Object o) {
                     final KObject elem = (KObject) o;
-                    context.printStream.print("<");
-                    context.printStream.print(ref.metaName());
-                    context.printStream.print(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
+                    context.printer.append("<");
+                    context.printer.append(ref.metaName());
+                    context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
                     elem.visitAttributes(context.attributesVisitor);
                     Helper.forall(elem.metaReferences(), new NonContainedReferencesCallbackChain(context, elem), new Callback<Throwable>() {
                         @Override
                         public void on(Throwable err) {
                             if (err == null) {
-                                context.printStream.println('>');
+                                context.printer.append(">\n");
                                 Helper.forall(elem.metaReferences(), new ContainedReferencesCallbackChain(context, elem), new Callback<Throwable>() {
                                     @Override
                                     public void on(Throwable containedRefsEnd) {
                                         if (containedRefsEnd == null) {
-                                            context.printStream.print("</");
-                                            context.printStream.print(ref.metaName());
-                                            context.printStream.print('>');
-                                            context.printStream.println();
+                                            context.printer.append("</");
+                                            context.printer.append(ref.metaName());
+                                            context.printer.append('>');
+                                            context.printer.append("\n");
                                         }
                                     }
                                 });
                             } else {
-                                context.finishCallback.on(err);
+                                context.finishCallback.on(null,err);
                             }
                         }
                     });

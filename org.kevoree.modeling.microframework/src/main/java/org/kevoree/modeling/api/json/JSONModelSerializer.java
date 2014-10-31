@@ -22,49 +22,27 @@ public class JSONModelSerializer implements ModelSerializer {
     public static final String KEY_ROOT = "@root";
 
     @Override
-    public void serialize(KObject model, final Callback<String> callback) {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        serializeToStream(model, outstream, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable e) {
-                try {
-                    outstream.close();
-                    if (e == null) {
-                        callback.on(outstream.toString());
-                    } else {
-                        callback.on(null);
-                    }
-                } catch (IOException e2) {
-                    callback.on(null);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void serializeToStream(KObject model, OutputStream raw, final Callback<Throwable> error) {
-        final PrintStream out = new PrintStream(new BufferedOutputStream(raw), false);
-        out.print("[\n");
-        printJSON(model, out);
+    public void serialize(KObject model, final ThrowableCallback<String> callback) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[\n");
+        printJSON(model, builder);
         model.graphVisit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {
-                out.print(",");
-                printJSON(elem, out);
+                builder.append(",");
+                printJSON(elem, builder);
                 return VisitResult.CONTINUE;
             }
         }, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                out.print("]\n");
-                out.flush();
-                error.on(null);
+                builder.append("]\n");
+                callback.on(builder.toString(),throwable);
             }
         });
     }
 
-
-    public static void printJSON(KObject elem, PrintStream builder) {
+    public static void printJSON(KObject elem, StringBuilder builder) {
         builder.append("{\n");
         builder.append("\t\"" + KEY_META + "\" : \"");
         builder.append(elem.metaClass().metaName());
@@ -122,8 +100,6 @@ public class JSONModelSerializer implements ModelSerializer {
                 builder.append(",\n");
             }
         }
-        // int lastcomma = builder.lastIndexOf(",");
-        //  builder.setCharAt(lastcomma, ' ');
         builder.append("}\n");
     }
 

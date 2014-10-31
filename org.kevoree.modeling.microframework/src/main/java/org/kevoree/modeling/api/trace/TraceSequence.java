@@ -42,12 +42,8 @@ public class TraceSequence {
         return this;
     }
 
-    public TraceSequence populateFromString(String addtracesTxt) throws Exception {
-        return populateFromStream(Converters.byteArrayInputStreamFromString(addtracesTxt));
-    }
-
-    public TraceSequence populateFromStream(java.io.InputStream inputStream) throws Exception {
-        Lexer lexer = new Lexer(inputStream);
+    public TraceSequence populate(String addtracesTxt) throws Exception {
+        Lexer lexer = new Lexer(addtracesTxt);
         Token currentToken = lexer.nextToken();
         if (currentToken.tokenType() != Type.LEFT_BRACKET) {
             throw new Exception("Bad Format : expect [");

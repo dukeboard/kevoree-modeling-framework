@@ -6,14 +6,14 @@ package org.kevoree.modeling.api.xmi;
 */
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 public class XmlParser {
 
     public static enum Token {XML_HEADER, END_DOCUMENT, START_TAG, END_TAG, COMMENT, SINGLETON_TAG}
 
-    private InputStream inputStream;
+    private byte[] payload;
+    private int current = 0;
     private char currentChar;
     private String tagName, tagPrefix, attributePrefix;
     private boolean readSingleton = false;
@@ -26,8 +26,8 @@ public class XmlParser {
     private StringBuilder attributeValue = new StringBuilder();
 
 
-    public XmlParser(InputStream inputStream) {
-        this.inputStream = inputStream;
+    public XmlParser(String str) {
+        this.payload = str.getBytes();
         currentChar = readChar();
     }
 
@@ -36,13 +36,8 @@ public class XmlParser {
     }
 
     public Boolean hasNext() {
-        try {
-            read_lessThan();
-            return inputStream.available() > 0;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+        read_lessThan();
+        return current < payload.length;
     }
 
     public String getLocalName() {
@@ -66,15 +61,12 @@ public class XmlParser {
     }
 
     private char readChar() {
-        try {
-            if (inputStream.available() > 0) {
-                return (char) inputStream.read();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (current < payload.length) {
+            byte re = payload[current];
+            current++;
+            return (char) re;
         }
         return '\0';
-        //return ByteConverter.toChar(bytes[++index]);
     }
 
     public Token next() {

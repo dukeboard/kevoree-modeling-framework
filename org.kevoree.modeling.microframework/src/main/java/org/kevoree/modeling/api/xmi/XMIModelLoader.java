@@ -17,15 +17,14 @@ import java.util.HashMap;
 
 public class XMIModelLoader implements ModelLoader {
 
-    private KView factory;
+    private KView _factory;
 
     public static final String LOADER_XMI_LOCAL_NAME = "type";
     public static final String LOADER_XMI_XSI = "xsi";
     public static final String LOADER_XMI_NS_URI = "nsURI";
 
-
-    public XMIModelLoader(KView factory) {
-        this.factory = factory;
+    public XMIModelLoader(KView p_factory) {
+        this._factory = p_factory;
     }
 
     public static String unescapeXml(String src) {
@@ -75,13 +74,8 @@ public class XMIModelLoader implements ModelLoader {
     }
 
     @Override
-    public void loadModelFromString(String str, Callback<Throwable> callback) {
-        loadModelFromStream(new ByteArrayInputStream(str.getBytes(Charset.forName("UTF-8"))), callback);
-    }
-
-    @Override
-    public void loadModelFromStream(InputStream inputStream, Callback<Throwable> callback) {
-        XmlParser parser = new XmlParser(inputStream);
+    public void load(String str, Callback<Throwable> callback) {
+        XmlParser parser = new XmlParser(str);
         if (!parser.hasNext()) {
             callback.on(null);
         } else {
@@ -149,7 +143,7 @@ public class XMIModelLoader implements ModelLoader {
     private KObject callFactory(XMILoadingContext ctx, String objectType) {
         KObject modelElem = null;
         if (objectType != null) {
-            modelElem = factory.createFQN(objectType);
+            modelElem = _factory.createFQN(objectType);
             if (modelElem == null) {
                 String xsiType = null;
                 for (int i = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
@@ -163,12 +157,12 @@ public class XMIModelLoader implements ModelLoader {
                 if (xsiType != null) {
                     String realTypeName = xsiType.substring(0, xsiType.lastIndexOf(":"));
                     String realName = xsiType.substring(xsiType.lastIndexOf(":") + 1, xsiType.length());
-                    modelElem = factory.createFQN(realTypeName + "." + realName);
+                    modelElem = _factory.createFQN(realTypeName + "." + realName);
                 }
             }
 
         } else {
-            modelElem = factory.createFQN(ctx.xmiReader.getLocalName());
+            modelElem = _factory.createFQN(ctx.xmiReader.getLocalName());
         }
         return modelElem;
     }
@@ -224,9 +218,9 @@ public class XMIModelLoader implements ModelLoader {
                     String subElemName = ctx.xmiReader.getLocalName();
                     String key = xmiAddress + "/@" + subElemName;
                     Integer i = ctx.elementsCount.get(key);
-                    if(i == null){
+                    if (i == null) {
                         i = 0;
-                        ctx.elementsCount.put(key,i);
+                        ctx.elementsCount.put(key, i);
                     }
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
                     KObject containedElement = loadObject(ctx, subElementId, subElemName);

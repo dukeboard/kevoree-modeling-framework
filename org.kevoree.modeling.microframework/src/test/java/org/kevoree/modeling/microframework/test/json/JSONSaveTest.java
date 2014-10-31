@@ -2,6 +2,7 @@ package org.kevoree.modeling.microframework.test.json;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -33,10 +34,13 @@ public class JSONSaveTest {
                 root.addChildren(n1);
                 root.addChildren(n2);
                 final String[] result = new String[1];
-                time0.createJSONSerializer().serialize(root, new Callback<String>() {
+                time0.createJSONSerializer().serialize(root, new ThrowableCallback<String>() {
                     @Override
-                    public void on(String model) {
+                    public void on(String model, Throwable err) {
                         result[0] = model;
+                        if (err != null) {
+                            err.printStackTrace();
+                        }
                     }
                 });
                 String payloadResult = "[\n" +

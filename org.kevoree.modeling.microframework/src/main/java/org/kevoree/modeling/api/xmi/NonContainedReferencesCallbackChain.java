@@ -30,7 +30,7 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
                 public void on(Throwable end) {
                     if (end == null) {
                         if (value[0] != null) {
-                            context.printStream.print(" " + ref.metaName() + "=\"" + value[0] + "\"");
+                            context.printer.append(" " + ref.metaName() + "=\"" + value[0] + "\"");
                         }
                     }
                     next.on(end);

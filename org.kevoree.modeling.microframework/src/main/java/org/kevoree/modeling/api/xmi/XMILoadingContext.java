@@ -2,6 +2,7 @@ package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ThrowableCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;

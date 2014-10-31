@@ -3,6 +3,7 @@ package org.kevoree.modeling.microframework.test.xmi;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
@@ -39,18 +40,14 @@ public class Serializer {
                 t0.lookup(nodeT0.uuid(), new Callback<KObject>() {
                     @Override
                     public void on(KObject root) {
-                        try {
-                            t0.createXMISerializer().serializeToStream(root, new FileOutputStream(new File("XMISerialized.xmi")), new Callback<Throwable>() {
-                                @Override
-                                public void on(Throwable error) {
-                                    if (error != null) {
-                                        error.printStackTrace();
-                                    }
+                        t0.createXMISerializer().serialize(root, new ThrowableCallback<String>() {
+                            @Override
+                            public void on(String result, Throwable error) {
+                                if (error != null) {
+                                    error.printStackTrace();
                                 }
-                            });
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                            }
+                        });
                     }
                 });
             }

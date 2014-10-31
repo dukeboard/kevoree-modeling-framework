@@ -1,16 +1,7 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.util.CallBackChain;
-import org.kevoree.modeling.api.util.Converters;
-import org.kevoree.modeling.api.util.Helper;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
 import static org.kevoree.modeling.api.xmi.XMIModelSerializer.escapeXml;
 
@@ -22,34 +13,12 @@ import static org.kevoree.modeling.api.xmi.XMIModelSerializer.escapeXml;
 public class XMIModelSerializer implements ModelSerializer {
 
     @Override
-    public void serialize(KObject model, final Callback<String> callback) {
-        final ByteArrayOutputStream oo = new ByteArrayOutputStream();
-        serializeToStream(model, oo, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable err) {
-                if (err == null) {
-                    try {
-                        oo.flush();
-                        callback.on(oo.toString());
-                    } catch (Exception e) {
-                        callback.on(err.getMessage());
-                    }
-                } else {
-                    callback.on(err.getMessage());
-                }
-            }
-        });
-    }
-
-    @Override
-    public void serializeToStream(final KObject model, final OutputStream raw, final Callback<Throwable> finishCallback) {
-
+    public void serialize(KObject model, final ThrowableCallback<String> callback) {
         final SerializationContext context = new SerializationContext();
         context.model = model;
-        context.finishCallback = finishCallback;
+        context.finishCallback = callback;
         context.attributesVisitor = new AttributesVisitor(context);
-        context.printStream = new PrintStream(new BufferedOutputStream(raw), false);
-
+        context.printer = new StringBuilder();
         //First Pass for building address table
         context.addressTable.put(model.uuid(), "/");
         //ystem.out.println("Addresses Visit");
@@ -75,7 +44,7 @@ public class XMIModelSerializer implements ModelSerializer {
     }
 
 
-    public static void escapeXml(PrintStream ostream, String chain) {
+    public static void escapeXml(StringBuilder ostream, String chain) {
         if (chain == null) {
             return;
         }
@@ -84,17 +53,17 @@ public class XMIModelSerializer implements ModelSerializer {
         while (i < max) {
             char c = chain.charAt(i);
             if (c == '"') {
-                ostream.print("&quot;");
+                ostream.append("&quot;");
             } else if (c == '&') {
-                ostream.print("&amp;");
+                ostream.append("&amp;");
             } else if (c == '\'') {
-                ostream.print("&apos;");
+                ostream.append("&apos;");
             } else if (c == '<') {
-                ostream.print("&lt;");
+                ostream.append("&lt;");
             } else if (c == '>') {
-                ostream.print("&gt;");
+                ostream.append("&gt;");
             } else {
-                ostream.print(c);
+                ostream.append(c);
             }
             i = i + 1;
         }

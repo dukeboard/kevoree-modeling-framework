@@ -22,13 +22,13 @@ class AttributesVisitor implements ModelAttributeVisitor {
             if (value instanceof String && value.equals("")) {
                 return;
             }
-            context.printStream.print(" " + metaAttribute.metaName() + "=\"");
+            context.printer.append(" " + metaAttribute.metaName() + "=\"");
             if (value instanceof java.util.Date) {
-                XMIModelSerializer.escapeXml(context.printStream, "" + ((Date) value).getTime());
+                XMIModelSerializer.escapeXml(context.printer, "" + ((Date) value).getTime());
             } else {
-                XMIModelSerializer.escapeXml(context.printStream, Converters.convFlatAtt(value));
+                XMIModelSerializer.escapeXml(context.printer, Converters.convFlatAtt(value));
             }
-            context.printStream.print("\"");
+            context.printer.append("\"");
         }
     }
 }
