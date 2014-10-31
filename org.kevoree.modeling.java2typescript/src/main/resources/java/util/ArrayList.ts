@@ -1,5 +1,7 @@
 
 class ArrayList<T> implements List<T> {
+    clear() {
+    }
     addAll(vals:Collection<T>) {
     }
 

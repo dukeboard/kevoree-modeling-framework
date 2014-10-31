@@ -93,41 +93,27 @@ public class XMIModelLoader implements ModelLoader {
             XmlParser reader = context.xmiReader;
             rootwhile:
             while (reader.hasNext()) {
-                XmlParser.Token nextTag = reader.next();
-                switch (nextTag) {
-                    case START_TAG: {
-                        String localName = reader.getLocalName();
-                        if (localName != null) {
-
-                            HashMap<String, String> ns = new HashMap<String, String>();
-
-                            for (int i = 0; i < reader.getAttributeCount() - 1; i++) {
-                                String attrLocalName = reader.getAttributeLocalName(i);
-                                String attrLocalValue = reader.getAttributeValue(i);
-                                if (attrLocalName.equals(LOADER_XMI_NS_URI)) {
-                                    nsURI = attrLocalValue;
-                                }
-                                ns.put(attrLocalName, attrLocalValue);
+                Token nextTag = reader.next();
+                if (nextTag.equals(Token.START_TAG)) {
+                    String localName = reader.getLocalName();
+                    if (localName != null) {
+                        HashMap<String, String> ns = new HashMap<String, String>();
+                        for (int i = 0; i < reader.getAttributeCount() - 1; i++) {
+                            String attrLocalName = reader.getAttributeLocalName(i);
+                            String attrLocalValue = reader.getAttributeValue(i);
+                            if (attrLocalName.equals(LOADER_XMI_NS_URI)) {
+                                nsURI = attrLocalValue;
                             }
-
-                            String xsiType = reader.getTagPrefix();
-                            String realTypeName = ns.get(xsiType);
-                            if (realTypeName == null) {
-                                realTypeName = xsiType;
-                            }
-                            context.loadedRoots = loadObject(context, "/", xsiType + "." + localName);
-                        } else {
-                            System.err.println("Tried to read a tag with null tag_name.");
+                            ns.put(attrLocalName, attrLocalValue);
                         }
-                    }
-                    case END_TAG: {
-                        break rootwhile;
-                    }
-                    case END_DOCUMENT: {
-                        break;
-                    }
-                    default: {
-                        // System.err.println("Default case :" + nextTag.toString());
+                        String xsiType = reader.getTagPrefix();
+                        String realTypeName = ns.get(xsiType);
+                        if (realTypeName == null) {
+                            realTypeName = xsiType;
+                        }
+                        context.loadedRoots = loadObject(context, "/", xsiType + "." + localName);
+                    } else {
+                        System.err.println("Tried to read a tag with null tag_name.");
                     }
                 }
             }

@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.*;
-import java.io.*;
-
-import static org.kevoree.modeling.api.xmi.XMIModelSerializer.escapeXml;
 
 /*
 * Author : Gregory Nain

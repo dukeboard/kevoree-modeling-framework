@@ -1,6 +1,30 @@
-class HashSet<T> implements Set<T>{
-
+class HashSet<T> implements Set<T> {
     size:number;
+
+    constructor(other? : Set<T>) {
+
+    }
+
+    remove(val:T) {
+
+    }
+    isEmpty():boolean {
+        return undefined;
+    }
+
+    contains(val:T):boolean {
+        return undefined;
+    }
+
+    toArray(a?:Array<T>):T[] {
+        return undefined;
+    }
+
+    addAll(vals : Array<T>) {
+
+    }
+
+
 
     add(value:T):Set<T> {
         return undefined;
@@ -21,37 +45,4 @@ class HashSet<T> implements Set<T>{
         return undefined;
     }
 
-    constructor() {
-
-    }
-
-    constructor(other : Set<T>) {
-
-    }
-    remove(val:T) {
-
-    }
-    isEmpty():boolean {
-        return undefined;
-    }
-
-    contains(val:T):boolean {
-        return undefined;
-    }
-
-    toArray() : T[] {
-        return undefined;
-    }
-
-    toArray(a:Array):T[] {
-        return undefined;
-    }
-
-    addAll(vals : List<T>) {
-
-    }
-
-    size() : number {
-        return this.size;
-    }
 }
