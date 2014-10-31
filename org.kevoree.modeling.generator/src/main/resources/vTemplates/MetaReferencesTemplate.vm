@@ -13,32 +13,32 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
     #set($relIdx = $relIdx + 1)
 #end
 #end
-    private final String name;
+    private final String _name;
 
-    private final int index;
+    private final int _index;
 
-    private final boolean contained;
-    private final boolean single;
-    private final org.kevoree.modeling.api.meta.MetaClass metaType;
+    private final boolean _contained;
+    private final boolean _single;
+    private final org.kevoree.modeling.api.meta.MetaClass _metaType;
 
     public int index() {
-        return index;
+        return _index;
     }
 
     public String metaName() {
-        return name;
+        return _name;
     }
 
     public boolean contained() {
-        return contained;
+        return _contained;
     }
 
     public boolean single() {
-        return single;
+        return _single;
     }
 
     public org.kevoree.modeling.api.meta.MetaClass metaType() {
-        return metaType;
+        return _metaType;
     }
 
     public org.kevoree.modeling.api.meta.MetaReference opposite() {
@@ -56,11 +56,11 @@ public enum METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReferenc
     }
 
     METAREFERENCES(String name, int index, boolean contained, boolean single, org.kevoree.modeling.api.meta.MetaClass metaType) {
-        this.name = name;
-        this.index = index;
-        this.contained = contained;
-        this.single = single;
-        this.metaType = metaType;
+        this._name = name;
+        this._index = index;
+        this._contained = contained;
+        this._single = single;
+        this._metaType = metaType;
     }
 }
 

@@ -30,9 +30,13 @@ public class GenerationContext {
     }
 
     public void setMetaModelName(String metaModelName) {
-        this.metaModelName = metaModelName;
-        this.metaModelPackage = metaModelName.toLowerCase();
-
+        if(metaModelName.contains(".")) {
+            this.metaModelPackage = metaModelName.substring(0, metaModelName.lastIndexOf("."));
+            this.metaModelName = metaModelName.substring(metaModelName.lastIndexOf(".")+1);
+        } else {
+            this.metaModelName = metaModelName;
+            this.metaModelPackage = metaModelName.toLowerCase();
+        }
     }
 
     public String getVersion() {

@@ -35,12 +35,6 @@ public class GenModelPlugin extends AbstractMojo {
     private String metaModelQualifiedName;
 
     /**
-     * code containerRoot package
-     */
-    @Parameter
-    private String utilityPackage;
-
-    /**
      * The maven project.
      */
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -58,14 +52,14 @@ public class GenModelPlugin extends AbstractMojo {
 
 
         try {
-            String targetName;
+            String targetName = metaModelFile.getName().substring(0, metaModelFile.getName().lastIndexOf("."));
             if (metaModelQualifiedName != null) {
                 targetName = metaModelQualifiedName;
             }
 
             GenerationContext ctx = new GenerationContext();
             ctx.setMetaModel(metaModelFile);
-            ctx.setMetaModelName(metaModelFile.getName().substring(0, metaModelFile.getName().lastIndexOf(".")));
+            ctx.setMetaModelName(targetName);
             ctx.setTargetSrcDir(targetSrcGenDir);
             ctx.setVersion(project.getVersion());
 
