@@ -5,62 +5,72 @@ import com.intellij.psi.*;
 
 public class FieldTranslator extends Translator<PsiField> {
 
-  @Override
-  public void translate(PsiElementVisitor visitor, PsiField element, TranslationContext ctx) {
-    if (element instanceof PsiEnumConstant) {
-      translateEnumConstant(visitor, (PsiEnumConstant) element, ctx);
-    } else {
-      translateClassField(visitor, element, ctx);
-    }
-  }
-
-  private void translateEnumConstant(PsiElementVisitor visitor, PsiEnumConstant element, TranslationContext ctx) {
-    String enumName = ((PsiClass) element.getParent()).getName();
-    ctx.print("public static ").append(element.getName()).append(": ").append(enumName);
-    ctx.append(" = new ").append(enumName);
-    ctx.append('(');
-    if (element.getArgumentList() != null) {
-      PsiExpression[] arguments = element.getArgumentList().getExpressions();
-      for (int i=0; i < arguments.length; i++) {
-        arguments[i].accept(visitor);
-        if (i != arguments.length - 1) {
-          ctx.append(", ");
+    @Override
+    public void translate(PsiElementVisitor visitor, PsiField element, TranslationContext ctx) {
+        if (element instanceof PsiEnumConstant) {
+            translateEnumConstant(visitor, (PsiEnumConstant) element, ctx);
+        } else {
+            translateClassField(visitor, element, ctx);
         }
-      }
-    }
-    ctx.append(");\n");
-  }
-
-  private void translateClassField(PsiElementVisitor visitor, PsiField element, TranslationContext ctx) {
-
-    PsiModifierList modifierList = element.getModifierList();
-    if (modifierList.hasModifierProperty("private")) {
-      ctx.print("private ");
-    } else {
-      ctx.print("public ");
     }
 
-    if (modifierList.hasModifierProperty("static")) {
-      ctx.append("static ");
+    private void translateEnumConstant(PsiElementVisitor visitor, PsiEnumConstant element, TranslationContext ctx) {
+        String enumName = ((PsiClass) element.getParent()).getName();
+        ctx.print("public static ").append(element.getName()).append(": ").append(enumName);
+        ctx.append(" = new ").append(enumName);
+        ctx.append('(');
+        if (element.getArgumentList() != null) {
+            PsiExpression[] arguments = element.getArgumentList().getExpressions();
+            for (int i=0; i < arguments.length; i++) {
+                arguments[i].accept(visitor);
+                if (i != arguments.length - 1) {
+                    ctx.append(", ");
+                }
+            }
+        }
+        ctx.append(");\n");
     }
 
-    ctx.append(element.getName()).append(": ").append(TypeHelper.getFieldType(element));
+    private void translateClassField(PsiElementVisitor visitor, PsiField element, TranslationContext ctx) {
 
-    if (element.hasInitializer()) {
-      ctx.append(" = ");
+        PsiModifierList modifierList = element.getModifierList();
+        if (modifierList.hasModifierProperty("private")) {
+            ctx.print("private ");
+        } else {
+            ctx.print("public ");
+        }
 
-      element.getInitializer().accept(visitor);
+        if (modifierList.hasModifierProperty("static")) {
+            ctx.append("static ");
+        }
+        String resolvedType = TypeHelper.getFieldType(element);
+        Integer generics = ctx.getGenerics().get(resolvedType);
+        ctx.append(element.getName()).append(": ").append(resolvedType);
+        if(generics != null) {
+            ctx.append("<");
+            for(int i = 0; i < generics ; i++) {
+                ctx.append("any");
+                if(i < generics-1) {
+                    ctx.append(",");
+                }
+            }
+            ctx.append(">");
+        }
+        if (element.hasInitializer()) {
+            ctx.append(" = ");
 
-      ctx.append(";\n");
-    } else {
-      if (TypeHelper.isPrimitiveField(element)) {
-        ctx.append(" = 0");
-      } else {
-        ctx.append(" = null");
-      }
+            element.getInitializer().accept(visitor);
 
-      ctx.append(";\n");
+            ctx.append(";\n");
+        } else {
+            if (TypeHelper.isPrimitiveField(element)) {
+                ctx.append(" = 0");
+            } else {
+                ctx.append(" = null");
+            }
+
+            ctx.append(";\n");
+        }
     }
-  }
 
 }
