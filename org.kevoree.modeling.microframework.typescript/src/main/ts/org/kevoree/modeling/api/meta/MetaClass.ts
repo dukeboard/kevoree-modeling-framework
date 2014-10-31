@@ -1,5 +1,0 @@
-
-interface MetaClass extends Meta {
-
-}
-
