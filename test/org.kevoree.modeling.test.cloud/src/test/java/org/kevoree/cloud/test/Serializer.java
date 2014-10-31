@@ -2,6 +2,7 @@ package org.kevoree.cloud.test;
 
 import cloud.*;
 import org.junit.Test;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 
 import java.io.File;
@@ -22,34 +23,32 @@ public class Serializer {
         try {
             Semaphore s = new Semaphore(0);
 
-
             CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
-            CloudDimension dimension0 = universe.create();
-            CloudView t0 = dimension0.time(0l);
+            universe.newDimension(new Callback<CloudDimension>() {
+                @Override
+                public void on(CloudDimension dimension0) {
+                    CloudView t0 = dimension0.time(0l);
+                    Node nodeT0 = t0.createNode();
+                    nodeT0.setName("node0");
+                    t0.setRoot(nodeT0);
 
-            Node nodeT0 = t0.createNode();
-            nodeT0.setName("node0");
-            t0.root(nodeT0);
+                    Element child0 = t0.createElement();
+                    nodeT0.setElement(child0);
 
-            Element child0 = t0.createElement();
-            nodeT0.setElement(child0);
-
-            Node nodeT1 = t0.createNode();
-            nodeT1.setName("n1");
-            nodeT0.addChildren(nodeT1);
+                    Node nodeT1 = t0.createNode();
+                    nodeT1.setName("n1");
+                    nodeT0.addChildren(nodeT1);
 
 
 
-            t0.lookup(nodeT0.kid(), (root) -> {
-                try {
-                    t0.createXMISerializer().serializeToStream(root, new FileOutputStream(new File("XMISerialized.xmi")), (error) -> {
-                        if(error != null) {
-                            error.printStackTrace();
-                        }
-                        s.release();
+                    t0.lookup(nodeT0.uuid(), (root) -> {
+                        t0.createXMISerializer().serialize(root,  (result, error) -> {
+                            if (error != null) {
+                                error.printStackTrace();
+                            }
+                            s.release();
+                        });
                     });
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 }
             });
             s.acquire();
