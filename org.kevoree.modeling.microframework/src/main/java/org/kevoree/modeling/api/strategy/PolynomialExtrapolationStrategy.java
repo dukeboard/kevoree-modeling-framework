@@ -2,13 +2,10 @@ package org.kevoree.modeling.api.strategy;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation;
 import org.kevoree.modeling.api.polynomial.PolynomialExtrapolation;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
-
-import java.util.Objects;
 
 /**
  * Created by duke on 10/28/14.

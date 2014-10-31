@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.strategy;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 
 /**
