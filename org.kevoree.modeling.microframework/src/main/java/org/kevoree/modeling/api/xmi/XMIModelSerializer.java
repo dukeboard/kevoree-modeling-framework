@@ -1,6 +1,10 @@
 package org.kevoree.modeling.api.xmi;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelSerializer;
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.VisitResult;
 
 /*
 * Author : Gregory Nain

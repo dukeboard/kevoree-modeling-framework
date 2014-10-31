@@ -150,7 +150,7 @@ public class QRDecompositionHouseholderColumn_D64 {
         int stopIndex = startU + length;
         for (; index < stopIndex; index++) {
             double val = u[index];
-            val = (val < 0.0D) ? -val : val;
+            val = (val < 0.0) ? -val : val;
             if (val > max) {
                 max = val;
             }

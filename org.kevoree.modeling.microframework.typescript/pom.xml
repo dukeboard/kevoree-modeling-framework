@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.microframework.typescript</artifactId>
     <name>Kevoree :: Modeling :: MicroFramework :: TypeScript</name>
@@ -14,24 +15,19 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
+                <groupId>pl.allegro</groupId>
+                <artifactId>grunt-maven-plugin</artifactId>
+                <version>1.4.1</version>
+                <configuration>
+                    <gruntBuildDirectory>${project.build.directory}/grunt</gruntBuildDirectory>
+                </configuration>
                 <executions>
                     <execution>
-                        <phase>generate-resources</phase>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>execute</goal>
+                            <goal>npm</goal>
+                            <goal>grunt</goal>
                         </goals>
-                        <configuration>
-                            <classpath>
-                                <element>
-                                    <groupId>org.kevoree.modeling</groupId>
-                                    <artifactId>org.kevoree.modeling.java2typescript</artifactId>
-                                    <version>1.0-SNAPSHOT</version>
-                                </element>
-                            </classpath>
-                            <source>${pom.basedir}/src/main/script/j2ts.groovy</source>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.util.Converters;
 
-import java.io.IOException;
 import java.util.HashSet;
 
 public class Lexer {

@@ -1,6 +1,10 @@
 package org.kevoree.modeling.api.clone;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelCloner;
 
 public class DefaultModelCloner implements ModelCloner<KObject> {
 

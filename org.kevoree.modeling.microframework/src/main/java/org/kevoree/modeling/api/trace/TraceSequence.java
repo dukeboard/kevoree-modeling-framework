@@ -10,9 +10,12 @@ import org.kevoree.modeling.api.json.Type;
 import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaAttribute;
 import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaClass;
 import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaReference;
-import org.kevoree.modeling.api.util.Converters;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.

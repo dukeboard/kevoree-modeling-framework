@@ -3,7 +3,6 @@ package org.kevoree.modeling.java2typescript.test;
 import com.siliconmint.ts.*;
 import org.junit.*;
 
-import java.io.*;
 import java.nio.file.*;
 
 /**
@@ -16,13 +15,23 @@ public class MicroframeworkTest {
 
         Path p = Paths.get(this.getClass().getClassLoader().getResource("").getPath());
         Path microframeworkSrc = null;
-        for(int i = 0; i < p.getNameCount() ; i++) {
-            if(p.getName(i).toString().equals("org.kevoree.modeling.java2typescript")) {
-                microframeworkSrc = Paths.get(p.getRoot().toString(),p.subpath(0,i).toString(),"org.kevoree.modeling.microframework", "src", "main", "java");
+        for (int i = 0; i < p.getNameCount(); i++) {
+            if (p.getName(i).toString().equals("org.kevoree.modeling.java2typescript")) {
+                microframeworkSrc = Paths.get(p.getRoot().toString(), p.subpath(0, i).toString(), "org.kevoree.modeling.microframework", "src", "main", "java");
                 break;
             }
         }
 
+        Path microframeworkTSTarget = null;
+        for (int i = 0; i < p.getNameCount(); i++) {
+            if (p.getName(i).toString().equals("org.kevoree.modeling.java2typescript")) {
+                microframeworkTSTarget = Paths.get(p.getRoot().toString(), p.subpath(0, i).toString(), "org.kevoree.modeling.microframework.typescript", "src", "main", "ts");
+                break;
+            }
+        }
+
+
+/*
         Path genDir = null;
         for(int i = 0; i < p.getNameCount() ; i++) {
             if(p.getName(i).toString().equals("org.kevoree.modeling.java2typescript")) {
@@ -33,9 +42,10 @@ public class MicroframeworkTest {
 
         System.out.println("SrcPath:" + microframeworkSrc.toAbsolutePath().toString());
         System.out.println("DestPath:" + genDir.toAbsolutePath().toString());
-
+*/
         SourceTranslator sourceTranslator = new SourceTranslator();
-        sourceTranslator.translateSources(microframeworkSrc.toAbsolutePath().toString(), genDir.toAbsolutePath().toString());
+        //sourceTranslator.translateSources(microframeworkSrc.toAbsolutePath().toString(), genDir.toAbsolutePath().toString());
+        sourceTranslator.translateSources(microframeworkSrc.toAbsolutePath().toString(), microframeworkTSTarget.toAbsolutePath().toString());
 
     }
 
@@ -43,8 +53,6 @@ public class MicroframeworkTest {
     public static void main(String[] args) {
 
     }
-
-
 
 
 }

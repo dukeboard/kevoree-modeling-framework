@@ -1,6 +1,9 @@
 package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -8,7 +11,12 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.time.TimeTree;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,6 +1,10 @@
 package org.kevoree.modeling.api.xmi;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 

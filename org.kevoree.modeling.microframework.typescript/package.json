@@ -1,0 +1,8 @@
+{
+  "name": "org.kevoree.modeling.microframework.typescript",
+  "version": "1.0.0-SNAPSHOT",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-typescript": "~0.2.4"
+  }
+}

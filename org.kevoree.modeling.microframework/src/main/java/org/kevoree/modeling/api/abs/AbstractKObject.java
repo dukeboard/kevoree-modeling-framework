@@ -1,8 +1,18 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.InboundReference;
+import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.KEvent;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.TraceRequest;
+import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.json.JSONModelSerializer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -16,7 +26,12 @@ import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.util.Helper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by duke on 10/9/14.

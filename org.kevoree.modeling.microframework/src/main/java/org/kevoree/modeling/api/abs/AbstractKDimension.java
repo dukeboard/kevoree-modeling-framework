@@ -1,7 +1,11 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.KUniverse;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.ModelListener;
 
 import java.util.HashMap;
 import java.util.Map;

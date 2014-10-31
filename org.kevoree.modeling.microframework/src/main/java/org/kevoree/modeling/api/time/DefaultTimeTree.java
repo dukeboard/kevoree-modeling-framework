@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.time;
 
-import org.kevoree.modeling.api.time.TimeTree;
-import org.kevoree.modeling.api.time.TimeWalker;
 import org.kevoree.modeling.api.time.rbtree.Node;
 import org.kevoree.modeling.api.time.rbtree.RBTree;
 import org.kevoree.modeling.api.time.rbtree.State;

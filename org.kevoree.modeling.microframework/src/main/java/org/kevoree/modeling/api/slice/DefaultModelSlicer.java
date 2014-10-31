@@ -1,13 +1,22 @@
 package org.kevoree.modeling.api.slice;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelSlicer;
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.TraceRequest;
+import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /*
  *  Special thanks to to #AngevinSacAVin

@@ -1,14 +1,23 @@
 package org.kevoree.modeling.api.compare;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
+import org.kevoree.modeling.api.ModelCompare;
+import org.kevoree.modeling.api.ModelVisitor;
+import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.*;
 import org.kevoree.modeling.api.util.Converters;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by duke on 26/07/13.
