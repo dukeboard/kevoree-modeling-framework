@@ -3,7 +3,7 @@
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.root</artifactId>
     <packaging>pom</packaging>
-    <version>3.5.13-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <name>Kevoree :: Modeling :: Root</name>
     <url>https://github.com/dukeboard/kevoree-modeling-framework</url>
     <description>Kevoree Modeling Framework</description>
@@ -62,38 +62,22 @@
     </developers>
 
     <properties>
-        <emf.version>2.7.0</emf.version>
-        <kotlin.version>0.8.11</kotlin.version>
-        <emf.version>2.9.1-v20140203-1126</emf.version>
-        <kevoree.modeling.version>${project.version}</kevoree.modeling.version>
+        <kmf.plugin.version>10</kmf.plugin.version>
     </properties>
 
     <modules>
         <module>org.kevoree.modeling.microframework</module>
-        <module>org.kevoree.modeling.microframework.learn</module>
-        <module>org.kevoree.modeling.dsl</module>
-        <module>org.kevoree.modeling.kotlin.generator</module>
-        <module>org.kevoree.modeling.kotlin.generator.mavenplugin</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.leveldb</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.mapdb</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.mongodb</module>
-        <!--
-        <module>datastores/org.kevoree.modeling.microframework.datastores.http</module>
-        <module>datastores/org.kevoree.modeling.microframework.datastores.websocket</module>
-        -->
-        <!--
-        <module>org.kevoree.modeling.framework.ui.graph</module>
--->
-
-        <module>org.kevoree.modeling.kotlin.standalone</module>
-
+        <module>org.kevoree.modeling.ast</module>
+        <module>org.kevoree.modeling.generator</module>
+        <module>org.kevoree.modeling.generator.standalone</module>
+        <module>org.kevoree.modeling.generator.mavenplugin</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.9</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -103,7 +87,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -116,7 +100,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>2.10.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -133,16 +117,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.7</version>
                 <configuration>
                     <verbose>false</verbose>
                     <addSvnKeyWords>true</addSvnKeyWords>
@@ -157,11 +141,9 @@
                         <configuration>
                             <licenseName>lgpl_v3</licenseName>
                             <organizationName>org.kevoree</organizationName>
-                            <inceptionYear>2013</inceptionYear>
+                            <inceptionYear>2014</inceptionYear>
                             <includes>
                                 <include>*.java</include>
-                                <include>*.kt</include>
-                                <include>*.scala</include>
                             </includes>
                         </configuration>
                     </execution>

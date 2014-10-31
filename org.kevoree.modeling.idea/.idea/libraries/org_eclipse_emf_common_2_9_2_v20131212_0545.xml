@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="org.eclipse.emf.common-2.9.2-v20131212-0545">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/org.eclipse.emf.common/2.9.2-v20131212-0545/org.eclipse.emf.common-2.9.2-v20131212-0545.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

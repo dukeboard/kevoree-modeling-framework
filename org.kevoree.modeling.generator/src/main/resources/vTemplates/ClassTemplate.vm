@@ -1,0 +1,43 @@
+#set($classDeclaration = $context.classDeclaration)
+package $classDeclaration.pack;
+
+public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject<$classDeclaration.name, ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View> {
+
+#set($enumIdx = 2)
+#parse("vTemplates/MetaAttributesTemplate.vm")
+
+#parse("vTemplates/MetaReferencesTemplate.vm")
+
+#parse("vTemplates/MetaOperationTemplate.vm")
+
+#foreach($attribute in $classDeclaration.attributes)
+#if($attribute.single)
+    public $attribute.getType() get${context.generationContext.helper.toCamelCase($attribute.getName())}();
+    public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
+#{else}
+    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
+    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
+    public void each${context.generationContext.helper.toCamelCase($attribute.getName())}(org.kevoree.modeling.api.Callback<$attribute.getType()> callback, org.kevoree.modeling.api.Callback<Throwable> end);
+#end
+#end
+
+
+#foreach($rel in $classDeclaration.references)
+#if($rel.single)
+    public void set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
+    public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> _value);
+#{else}
+    public void add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
+    public void remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
+    public void each${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> callback, org.kevoree.modeling.api.Callback<Throwable> end);
+    public int sizeOf${context.generationContext.helper.toCamelCase($rel.getName())}();
+#end
+#end
+
+#foreach($operation in $classDeclaration.operations)
+    public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.api.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result);
+#end
+
+}
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
+#* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

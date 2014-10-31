@@ -1,0 +1,48 @@
+package ${context.metaModelPackage}.impl;
+
+public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.abs.AbstractKView implements ${context.metaModelPackage}.${context.metaModelName}View {
+
+    public ${context.metaModelName}ViewImpl(long now, org.kevoree.modeling.api.KDimension dimension) {
+        super(now, dimension);
+    }
+
+    @Override
+    protected org.kevoree.modeling.api.KObject internalCreate(org.kevoree.modeling.api.meta.MetaClass clazz, org.kevoree.modeling.api.time.TimeTree timeTree, long key) {
+        if (clazz == null) {
+            return null;
+        }
+        org.kevoree.modeling.api.time.TimeTree resolvedTimeTree = timeTree;
+        if (resolvedTimeTree == null) {
+            resolvedTimeTree = new org.kevoree.modeling.api.time.impl.DefaultTimeTree().insert(now());
+        }
+        switch (clazz.index()) {
+#set($clsIdx = 0)
+#foreach($class in $context.classDeclarationsList.keySet())
+    #set($lastIdx = $class.lastIndexOf(".")+1)
+            case $clsIdx:
+                return manageCache(new ${class.substring(0,$class.lastIndexOf("."))}.impl.${class.substring($lastIdx)}Impl(this, METACLASSES.$class.toUpperCase().replace(".","_"), key, now(), dimension(), resolvedTimeTree));
+#set($clsIdx = $clsIdx+1)
+#end
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public org.kevoree.modeling.api.meta.MetaClass[] metaClasses() {
+        return ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.values();
+    }
+
+#foreach($class in $context.classDeclarationsList.keySet())
+#set($lastIdx = $class.lastIndexOf(".")+1)
+    @Override
+    public $class create$class.substring($lastIdx)() {
+        return ($class) create(METACLASSES.$class.toUpperCase().replace(".","_"));
+    }
+#end
+
+}
+
+
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

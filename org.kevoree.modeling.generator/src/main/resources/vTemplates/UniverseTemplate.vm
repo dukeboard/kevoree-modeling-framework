@@ -1,0 +1,17 @@
+package $context.metaModelPackage;
+
+public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.abs.AbstractKUniverse<${context.metaModelName}Dimension> {
+
+    public ${context.metaModelName}Universe(org.kevoree.modeling.api.data.KDataBase kDataBase) {
+        super(kDataBase);
+    }
+
+    @Override
+    protected ${context.metaModelName}Dimension internal_create(long key) {
+        return new ${context.metaModelName}Dimension(this,key);
+    }
+}
+
+
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#
