@@ -57,35 +57,29 @@ public class JSONModelLoader implements ModelLoader {
         String currentAttributeName = null;
         Set<String> arrayPayload = null;
         Token currentToken = lexer.nextToken();
-        while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF) {
-            switch (currentToken.tokenType()) {
-                case LEFT_BRACKET:
-                    arrayPayload = new HashSet<String>();
-                    break;
-                case RIGHT_BRACKET:
-                    content.put(currentAttributeName, arrayPayload);
-                    arrayPayload = null;
-                    currentAttributeName = null;
-                    break;
-                case LEFT_BRACE:
-                    content = new HashMap<String, Object>();
-                    break;
-                case RIGHT_BRACE:
-                    alls.add(content);
-                    content = new HashMap<String, Object>();
-                    break;
-                case VALUE:
-                    if (currentAttributeName == null) {
-                        currentAttributeName = currentToken.value().toString();
+        while (currentToken.tokenType() != Type.EOF) {
+            if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
+                arrayPayload = new HashSet<String>();
+            } else if (currentToken.tokenType().equals(Type.RIGHT_BRACKET)) {
+                content.put(currentAttributeName, arrayPayload);
+                arrayPayload = null;
+                currentAttributeName = null;
+            } else if (currentToken.tokenType().equals(Type.LEFT_BRACE)) {
+                content = new HashMap<String, Object>();
+            } else if (currentToken.tokenType().equals(Type.RIGHT_BRACE)) {
+                alls.add(content);
+                content = new HashMap<String, Object>();
+            } else if (currentToken.tokenType().equals(Type.VALUE)) {
+                if (currentAttributeName == null) {
+                    currentAttributeName = currentToken.value().toString();
+                } else {
+                    if (arrayPayload == null) {
+                        content.put(currentAttributeName, currentToken.value().toString());
+                        currentAttributeName = null;
                     } else {
-                        if (arrayPayload == null) {
-                            content.put(currentAttributeName, currentToken.value().toString());
-                            currentAttributeName = null;
-                        } else {
-                            arrayPayload.add(currentToken.value().toString());
-                        }
+                        arrayPayload.add(currentToken.value().toString());
                     }
-                    break;
+                }
             }
             currentToken = lexer.nextToken();
         }

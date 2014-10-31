@@ -4,7 +4,7 @@ package org.kevoree.modeling.api.json;
  * Created by duke on 10/3/14.
  */
 public enum Type {
-    
+
     VALUE(0),
     LEFT_BRACE(1),
     RIGHT_BRACE(2),

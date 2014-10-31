@@ -42,7 +42,7 @@ public class RBTree {
             i = i + 1;
             ch = payload.charAt(i);
         }
-        size = java.lang.Integer.parseInt(buffer.toString());
+        size = Integer.parseInt(buffer.toString());
         root = new ReaderContext(i, payload).unserialize(true);
     }
 

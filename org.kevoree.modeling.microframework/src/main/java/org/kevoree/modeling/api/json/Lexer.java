@@ -45,7 +45,7 @@ public class Lexer {
 
     private boolean isBooleanLetter(Character c) {
         if (BOOLEAN_LETTERS == null) {
-            BOOLEAN_LETTERS = new java.util.HashSet<Character>();
+            BOOLEAN_LETTERS = new HashSet<Character>();
             BOOLEAN_LETTERS.add('f');
             BOOLEAN_LETTERS.add('a');
             BOOLEAN_LETTERS.add('l');
@@ -60,7 +60,7 @@ public class Lexer {
 
     private boolean isDigit(Character c) {
         if (DIGIT == null) {
-            DIGIT = new java.util.HashSet<Character>();
+            DIGIT = new HashSet<Character>();
             DIGIT.add('0');
             DIGIT.add('1');
             DIGIT.add('2');

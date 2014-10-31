@@ -65,7 +65,7 @@ public class ReaderContext {
         if (ch != '|' && ch != '#' && ch != '%') {
             tokenBuild.append(ch);
         }
-        Node p = new Node(java.lang.Long.parseLong(tokenBuild.toString()), state, color, null, null);
+        Node p = new Node(Long.parseLong(tokenBuild.toString()), state, color, null, null);
         Node left = unserialize(false);
         if (left != null) {
             left.parent = p;
