@@ -67,7 +67,12 @@ public class JSONModelLoader(val factory: KMFFactory) : ModelLoader {
                             currentObject = factory.lookup("/")
                         }
                     } else {
-                        val path = parent.path() + "/" + nameInParent + "[" + key + "]"
+                        val path: String
+                        if (parent.isRoot()) {
+                            path = "/" + nameInParent + "[" + key + "]"
+                        } else {
+                            path = parent.path() + "/" + nameInParent + "[" + key + "]"
+                        }
                         currentObject = factory.lookup(path)
                     }
                 } else {
