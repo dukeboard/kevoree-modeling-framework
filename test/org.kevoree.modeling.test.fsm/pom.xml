@@ -29,9 +29,11 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <metaModelQualifiedName>FSM</metaModelQualifiedName>
-                            <metaModelFile>metamodel/fsm-noOpposite.mm</metaModelFile>
+                            <metaModelFile>metamodel/FSM.mm</metaModelFile>
+                            <metaModelQualifiedName>fsmsample.FSM</metaModelQualifiedName>
+                            <!--
                             <utilityPackage>fsmsample</utilityPackage>
+                            -->
                         </configuration>
                     </execution>
                 </executions>
