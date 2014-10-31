@@ -28,12 +28,12 @@ public class DefaultModelCompare implements ModelCompare {
     }
 
     @Override
-    public void merge(KObject origin, KObject target, Callback<TraceSequence> callback) {
+    public void union(KObject origin, KObject target, Callback<TraceSequence> callback) {
         internal_diff(origin, target, false, true, callback);
     }
 
     @Override
-    public void inter(KObject origin, KObject target, Callback<TraceSequence> callback) {
+    public void intersection(KObject origin, KObject target, Callback<TraceSequence> callback) {
         internal_diff(origin, target, true, false, callback);
     }
 

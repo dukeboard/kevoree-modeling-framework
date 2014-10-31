@@ -39,7 +39,7 @@ public class TraceTest {
         });
 
 /*
-        compare.inter(root,root,(seq)->{
+        compare.intersection(root,root,(seq)->{
            System.err.println(seq);
         });
 */

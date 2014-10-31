@@ -10,8 +10,8 @@ public interface ModelCompare {
 
     public void diff(KObject origin, KObject target, Callback<TraceSequence> callback);
 
-    public void merge(KObject origin, KObject target, Callback<TraceSequence> callback);
+    public void union(KObject origin, KObject target, Callback<TraceSequence> callback);
 
-    public void inter(KObject origin, KObject target, Callback<TraceSequence> callback);
+    public void intersection(KObject origin, KObject target, Callback<TraceSequence> callback);
 
 }
