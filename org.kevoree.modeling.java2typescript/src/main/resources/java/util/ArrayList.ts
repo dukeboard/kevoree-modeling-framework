@@ -2,7 +2,7 @@
 class ArrayList<T> implements List<T> {
     clear() {
     }
-    addAll(vals:Collection<T>) {
+    addAll(vals:any) {
     }
 
     remove(val:T) {

@@ -2,7 +2,7 @@
 interface Collection<T> {
 
     add(val : T);
-    addAll(vals : Collection<T>);
+    addAll(vals : any);
     remove(val : T);
     clear();
     isEmpty():boolean;
