@@ -18,7 +18,7 @@ public class Generator {
 
     private GenerationContext context;
 
-    public void execute(GenerationContext context) throws Exception{
+    public void execute(GenerationContext context) throws Exception {
         this.context = context;
 
         if (!context.metaModel.exists()) {
@@ -31,7 +31,7 @@ public class Generator {
 
 
         File output = context.kmfSrcGenerationDirectory;
-        Files.walkFileTree(output.toPath(),new FileVisitor<Path>() {
+        Files.walkFileTree(output.toPath(), new FileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 return FileVisitResult.CONTINUE;
@@ -61,11 +61,12 @@ public class Generator {
             StandaloneParser parser = new StandaloneParser();
             PsiFile psi = parser.parser(context.metaModel);
             System.out.println("Indexing for Enums");
-            psi.acceptChildren(new EnumIndexesVisitor(context));
+            EnumIndexesVisitor enumIndexesVisitor = new EnumIndexesVisitor(context);
+            psi.acceptChildren(enumIndexesVisitor);
             ProcessorHelper.getInstance().consolidateEnumIndexes(context.classDeclarationsList);
             generateUtilities();
             System.out.println("Generating Classes");
-            context.classDeclarationsList.values().forEach(classDecl-> {
+            context.classDeclarationsList.values().forEach(classDecl -> {
                 ClassGenerationContext cgc = new ClassGenerationContext();
                 cgc.generationContext = context;
                 cgc.classDeclaration = context.classDeclarationsList.get(classDecl.getFqn());
@@ -132,13 +133,12 @@ public class Generator {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(pr != null) {
+            if (pr != null) {
                 pr.flush();
                 pr.close();
             }
         }
     }
-
 
 
 }

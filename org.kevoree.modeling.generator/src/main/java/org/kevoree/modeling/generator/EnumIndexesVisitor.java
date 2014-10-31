@@ -3,7 +3,6 @@ package org.kevoree.modeling.generator;
 import org.kevoree.modeling.ast.*;
 import org.kevoree.modeling.idea.psi.*;
 
-
 /**
  * Created by gregory.nain on 14/10/2014.
  */
