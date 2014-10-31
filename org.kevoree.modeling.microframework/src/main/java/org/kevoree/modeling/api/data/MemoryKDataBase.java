@@ -41,7 +41,6 @@ public class MemoryKDataBase implements KDataBase {
 
     @Override
     public void close(Callback<Throwable> callback) {
-        System.out.println("Memory DB Cleared");
         backend.clear();
     }
 

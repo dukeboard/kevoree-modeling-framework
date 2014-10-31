@@ -44,8 +44,6 @@ public class XMIModelLoader implements ModelLoader {
                     } else if (src.charAt(i + 2) == 'p') {
                         builder.append("'");
                         i = i + 6;
-                    } else {
-                        System.err.println("Could not unescaped chain:" + src.charAt(i) + src.charAt(i + 1) + src.charAt(i + 2));
                     }
                 } else if (src.charAt(i + 1) == 'q') {
                     builder.append("\"");
@@ -56,8 +54,6 @@ public class XMIModelLoader implements ModelLoader {
                 } else if (src.charAt(i + 1) == 'g') {
                     builder.append(">");
                     i = i + 4;
-                } else {
-                    System.err.println("Could not unescaped chain:" + src.charAt(i) + src.charAt(i + 1));
                 }
             } else {
                 if (builder != null) {
@@ -112,8 +108,6 @@ public class XMIModelLoader implements ModelLoader {
                             realTypeName = xsiType;
                         }
                         context.loadedRoots = loadObject(context, "/", xsiType + "." + localName);
-                    } else {
-                        System.err.println("Tried to read a tag with null tag_name.");
                     }
                 }
             }
