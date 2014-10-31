@@ -1,10 +1,7 @@
 class HashSet<T> implements Set<T> {
+    size:number;
 
-    constructor() {
-
-    }
-
-    constructor(other : Set<T>) {
+    constructor(other? : Set<T>) {
 
     }
 
@@ -19,15 +16,11 @@ class HashSet<T> implements Set<T> {
         return undefined;
     }
 
-    toArray() : T[] {
+    toArray(a?:Array<T>):T[] {
         return undefined;
     }
 
-    toArray(a:Array):T[] {
-        return undefined;
-    }
-
-    addAll(vals : List<T>) {
+    addAll(vals : Array<T>) {
 
     }
 
