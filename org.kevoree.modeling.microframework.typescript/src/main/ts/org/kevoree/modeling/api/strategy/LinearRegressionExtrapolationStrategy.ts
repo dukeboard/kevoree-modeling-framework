@@ -7,11 +7,11 @@ class LinearRegressionExtrapolationStrategy implements ExtrapolationStrategy {
     return new Array();
   }
 
-  public extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject[]): any {
+  public extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject<any,any>[]): any {
     return null;
   }
 
-  public mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void {
+  public mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject<any,any>[]): void {
   }
 
 }

@@ -14,7 +14,7 @@ class InboundReference {
     return this.reference;
   }
 
-  public getObject(): KObject {
+  public getObject(): KObject<any,any> {
     return this.object;
   }
 

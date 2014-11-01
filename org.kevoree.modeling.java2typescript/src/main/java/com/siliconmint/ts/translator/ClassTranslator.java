@@ -150,7 +150,7 @@ public class ClassTranslator extends Translator<PsiClass> {
         for (int i=0; i < typeList.length; i++) {
             PsiClassType type = typeList[i];
 
-            ctx.append(TypeHelper.getType(type));
+            ctx.append(TypeHelper.getType(type, ctx));
 
         /*
       PsiType[] parameters = type.getParameters();

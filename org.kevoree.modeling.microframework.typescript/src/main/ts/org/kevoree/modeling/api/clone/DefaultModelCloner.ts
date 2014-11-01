@@ -4,7 +4,7 @@
 ///<reference path="../KView.ts"/>
 ///<reference path="../ModelCloner.ts"/>
 
-class DefaultModelCloner implements ModelCloner<KObject> {
+class DefaultModelCloner implements ModelCloner<KObject<any,any>> {
 
   private _factory: KView = null;
 
@@ -12,12 +12,12 @@ class DefaultModelCloner implements ModelCloner<KObject> {
     this._factory = p_factory;
   }
 
-  public clone(originalObject: KObject<any,any>, callback: Callback<KObject>): void {
+  public clone(originalObject: KObject<any,any>, callback: Callback<KObject<any,any>>): void {
     if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
       callback.on(null);
     } else {
-      originalObject.view().dimension().fork({on:function(o: KDimension){
-      o.time(originalObject.view().now()).lookup(originalObject.uuid(), {on:function(clonedObject: KObject){
+      originalObject.view().dimension().fork({on:function(o: KDimension<any,any,any>){
+      o.time(originalObject.view().now()).lookup(originalObject.uuid(), {on:function(clonedObject: KObject<any,any>){
       callback.on(clonedObject);
 }});
 }});

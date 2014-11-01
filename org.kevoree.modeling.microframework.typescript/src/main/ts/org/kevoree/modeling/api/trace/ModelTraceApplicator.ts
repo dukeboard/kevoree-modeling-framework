@@ -32,7 +32,7 @@ class ModelTraceApplicator {
 
   public createOrAdd(previousPath: number, target: KObject<any,any>, reference: MetaReference, metaClass: MetaClass, callback: Callback<Throwable>): void {
     if (previousPath != null) {
-      this.targetModel.view().lookup(previousPath, {on:function(targetElem: KObject){
+      this.targetModel.view().lookup(previousPath, {on:function(targetElem: KObject<any,any>){
       if (targetElem != null) {
         target.mutate(KActionType.ADD, reference, targetElem, true);
         callback.on(null);
@@ -78,7 +78,7 @@ class ModelTraceApplicator {
     if (trace instanceof ModelAddTrace) {
       var addTrace: ModelAddTrace = <ModelAddTrace>trace;
       this.tryClosePending(null);
-      this.targetModel.view().lookup(trace.getSrcKID(), {on:function(resolvedTarget: KObject){
+      this.targetModel.view().lookup(trace.getSrcKID(), {on:function(resolvedTarget: KObject<any,any>){
       if (resolvedTarget == null) {
         callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcKID() + " pending " + this.pendingObjKID + "\n" + trace.toString()));
       } else {
@@ -89,9 +89,9 @@ class ModelTraceApplicator {
       if (trace instanceof ModelRemoveTrace) {
         var removeTrace: ModelRemoveTrace = <ModelRemoveTrace>trace;
         this.tryClosePending(trace.getSrcKID());
-        this.targetModel.view().lookup(trace.getSrcKID(), {on:function(targetElem: KObject){
+        this.targetModel.view().lookup(trace.getSrcKID(), {on:function(targetElem: KObject<any,any>){
         if (targetElem != null) {
-          this.targetModel.view().lookup(removeTrace.getObjKID(), {on:function(remoteObj: KObject){
+          this.targetModel.view().lookup(removeTrace.getObjKID(), {on:function(remoteObj: KObject<any,any>){
           targetElem.mutate(KActionType.REMOVE, <MetaReference>trace.getMeta(), remoteObj, true);
           callback.on(null);
 }});
@@ -104,7 +104,7 @@ class ModelTraceApplicator {
           var setTrace: ModelSetTrace = <ModelSetTrace>trace;
           this.tryClosePending(trace.getSrcKID());
           if (!trace.getSrcKID().equals(this.pendingObjKID)) {
-            this.targetModel.view().lookup(trace.getSrcKID(), {on:function(tempObject: KObject){
+            this.targetModel.view().lookup(trace.getSrcKID(), {on:function(tempObject: KObject<any,any>){
             if (tempObject == null) {
               callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + this.pendingObjKID + "\n" + trace.toString()));
             } else {

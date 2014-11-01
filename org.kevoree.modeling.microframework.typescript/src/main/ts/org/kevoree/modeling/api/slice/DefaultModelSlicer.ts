@@ -17,10 +17,10 @@
 
 class DefaultModelSlicer implements ModelSlicer {
 
-  private internal_prune(elem: KObject<any,any>, traces: List<ModelTrace>, cache: Map<number, KObject>, parentMap: Map<number, KObject>, callback: Callback<Throwable>): void {
-    var parents: List<KObject> = new ArrayList<KObject>();
-    var parentExplorer: Callback<KObject>[] = new Array();
-    parentExplorer[0] = {on:function(currentParent: KObject){
+  private internal_prune(elem: KObject<any,any>, traces: List<ModelTrace>, cache: Map<number, KObject<any,any>>, parentMap: Map<number, KObject<any,any>>, callback: Callback<Throwable>): void {
+    var parents: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
+    var parentExplorer: Callback<KObject<any,any>>[] = new Array();
+    parentExplorer[0] = {on:function(currentParent: KObject<any,any>){
     if (currentParent != null && parentMap.get(currentParent.uuid()) == null && cache.get(currentParent.uuid()) == null) {
       parents.add(currentParent);
       currentParent.parent(parentExplorer[0]);
@@ -28,7 +28,7 @@ class DefaultModelSlicer implements ModelSlicer {
     } else {
       Collections.reverse(parents);
       //TODO resolve for-each cycle
-      var parent: KObject;
+      var parent: KObject<any,any>;
       for (parent in parents) {
         if (parent.parentUuid() != null) {
           traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
@@ -43,7 +43,7 @@ class DefaultModelSlicer implements ModelSlicer {
         traces.addAll(elem.traces(TraceRequest.ATTRIBUTES_ONLY));
       }
       cache.put(elem.uuid(), elem);
-      elem.graphVisit({visit:function(elem: KObject){
+      elem.graphVisit({visit:function(elem: KObject<any,any>){
       if (cache.get(elem.uuid()) == null) {
         this.internal_prune(elem, traces, cache, parentMap, {on:function(throwable: Throwable){
 }});
@@ -58,18 +58,18 @@ class DefaultModelSlicer implements ModelSlicer {
     elem.parent(parentExplorer[0]);
   }
 
-  public slice(elems: List<KObject>, callback: Callback<TraceSequence>): void {
+  public slice(elems: List<KObject<any,any>>, callback: Callback<TraceSequence>): void {
     var traces: List<ModelTrace> = new ArrayList<ModelTrace>();
-    var tempMap: Map<number, KObject> = new HashMap<number, KObject>();
-    var parentMap: Map<number, KObject> = new HashMap<number, KObject>();
-    var elemsArr: KObject[] = elems.toArray(new Array());
-    Helper.forall(elemsArr, {on:function(obj: KObject, next: Callback<Throwable>){
+    var tempMap: Map<number, KObject<any,any>> = new HashMap<number, KObject<any,any>>();
+    var parentMap: Map<number, KObject<any,any>> = new HashMap<number, KObject<any,any>>();
+    var elemsArr: KObject<any,any>[] = elems.toArray(new Array());
+    Helper.forall(elemsArr, {on:function(obj: KObject<any,any>, next: Callback<Throwable>){
     this.internal_prune(obj, traces, tempMap, parentMap, next);
 }}, {on:function(throwable: Throwable){
     //TODO resolve for-each cycle
     var toLinkKey: number;
     for (toLinkKey in tempMap.keySet()) {
-      var toLink: KObject = tempMap.get(toLinkKey);
+      var toLink: KObject<any,any> = tempMap.get(toLinkKey);
       traces.addAll(toLink.traces(TraceRequest.REFERENCES_ONLY));
     }
     callback.on(new TraceSequence().populate(traces));

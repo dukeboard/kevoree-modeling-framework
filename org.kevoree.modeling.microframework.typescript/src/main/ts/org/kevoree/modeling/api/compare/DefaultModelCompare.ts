@@ -43,10 +43,10 @@ class DefaultModelCompare implements ModelCompare {
   private internal_diff(origin: KObject<any,any>, target: KObject<any,any>, inter: boolean, merge: boolean, callback: Callback<TraceSequence>): void {
     var traces: List<ModelTrace> = new ArrayList<ModelTrace>();
     var tracesRef: List<ModelTrace> = new ArrayList<ModelTrace>();
-    var objectsMap: Map<number, KObject> = new HashMap<number, KObject>();
+    var objectsMap: Map<number, KObject<any,any>> = new HashMap<number, KObject<any,any>>();
     traces.addAll(this.internal_createTraces(origin, target, inter, merge, false, true));
     tracesRef.addAll(this.internal_createTraces(origin, target, inter, merge, true, false));
-    origin.treeVisit({visit:function(elem: KObject){
+    origin.treeVisit({visit:function(elem: KObject<any,any>){
     objectsMap.put(elem.uuid(), elem);
     return VisitResult.CONTINUE;
 }}, {on:function(throwable: Throwable){
@@ -54,7 +54,7 @@ class DefaultModelCompare implements ModelCompare {
       throwable.printStackTrace();
       callback.on(null);
     } else {
-      target.treeVisit({visit:function(elem: KObject){
+      target.treeVisit({visit:function(elem: KObject<any,any>){
       var childPath: number = elem.uuid();
       if (objectsMap.containsKey(childPath)) {
         if (inter) {
@@ -83,7 +83,7 @@ class DefaultModelCompare implements ModelCompare {
           //TODO resolve for-each cycle
           var diffChildKey: number;
           for (diffChildKey in objectsMap.keySet()) {
-            var diffChild: KObject = objectsMap.get(diffChildKey);
+            var diffChild: KObject<any,any> = objectsMap.get(diffChildKey);
             var src: number = diffChild.parentUuid();
             traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
           }

@@ -94,7 +94,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     return this._timeTree;
   }
 
-  public dimension(): KDimension {
+  public dimension(): KDimension<any,any,any> {
     return this._dimension;
   }
 
@@ -102,7 +102,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     if (this._isRoot) {
       callback.on("/");
     } else {
-      this.parent({on:function(parent: KObject){
+      this.parent({on:function(parent: KObject<any,any>){
       if (parent == null) {
         callback.on(null);
       } else {
@@ -122,7 +122,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     this._view.dimension().universe().storage().raw(this, AccessMode.WRITE)[AbstractKObject.PARENT_INDEX] = parentKID;
   }
 
-  public parent(callback: Callback<KObject>): void {
+  public parent(callback: Callback<KObject<any,any>>): void {
     var parentKID: number = this.parentUuid();
     if (parentKID == null) {
       callback.on(null);
@@ -142,11 +142,11 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
   public delete(callback: Callback<boolean>): void {
   }
 
-  public select(query: string, callback: Callback<List<KObject>>): void {
+  public select(query: string, callback: Callback<List<KObject<any,any>>>): void {
     KSelector.select(this, query, callback);
   }
 
-  public stream(query: string, callback: Callback<KObject>): void {
+  public stream(query: string, callback: Callback<KObject<any,any>>): void {
   }
 
   public listen(listener: ModelListener): void {
@@ -154,7 +154,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
   }
 
   public jump(time: number, callback: Callback<A>): void {
-    this.view().dimension().time(time).lookup(this._uuid, {on:function(kObject: KObject){
+    this.view().dimension().time(time).lookup(this._uuid, {on:function(kObject: KObject<any,any>){
     callback.on(<A>kObject);
 }});
   }
@@ -189,9 +189,9 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     this.view().dimension().universe().storage().notify(event);
   }
 
-  private cachedDependencies(attribute: MetaAttribute): KObject[] {
+  private cachedDependencies(attribute: MetaAttribute): KObject<any,any>[] {
     var timedDependencies: number[] = attribute.strategy().timedDependencies(this);
-    var cachedObjs: KObject[] = new Array();
+    var cachedObjs: KObject<any,any>[] = new Array();
     for (var i: number = 0; i < timedDependencies.length; i++) {
       if (timedDependencies[i] == this.now()) {
         cachedObjs[i] = this;
@@ -217,7 +217,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
 
   private removeFromContainer(param: KObject<any,any>): void {
     if (param != null && param.parentUuid() != null && param.parentUuid() != this._uuid) {
-      this.view().lookup(param.parentUuid(), {on:function(parent: KObject){
+      this.view().lookup(param.parentUuid(), {on:function(parent: KObject<any,any>){
       parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true);
 }});
     }
@@ -235,8 +235,8 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
         }
         if (metaReference.contained()) {
           this.removeFromContainer(param);
-          (<AbstractKObject>param).set_referenceInParent(metaReference);
-          (<AbstractKObject>param).setParentUuid(this._uuid);
+          (<AbstractKObject<any,any>>param).set_referenceInParent(metaReference);
+          (<AbstractKObject<any,any>>param).setParentUuid(this._uuid);
         }
         var inboundRefs: Map<number, number> = <Map<number, number>>this.getCreateOrUpdatePayloadList(param, AbstractKObject.INBOUNDS_INDEX);
         inboundRefs.put(this.uuid(), metaReference.index());
@@ -257,15 +257,15 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
             payload[metaReference.index()] = param.uuid();
             if (metaReference.contained()) {
               this.removeFromContainer(param);
-              (<AbstractKObject>param).set_referenceInParent(metaReference);
-              (<AbstractKObject>param).setParentUuid(this._uuid);
+              (<AbstractKObject<any,any>>param).set_referenceInParent(metaReference);
+              (<AbstractKObject<any,any>>param).setParentUuid(this._uuid);
             }
             var inboundRefs: Map<number, number> = <Map<number, number>>this.getCreateOrUpdatePayloadList(param, AbstractKObject.INBOUNDS_INDEX);
             inboundRefs.put(this.uuid(), metaReference.index());
-            var self: KObject = this;
+            var self: KObject<any,any> = this;
             if (metaReference.opposite() != null && setOpposite) {
               if (previous != null) {
-                this.view().lookup(<number>previous, {on:function(resolved: KObject){
+                this.view().lookup(<number>previous, {on:function(resolved: KObject<any,any>){
                 resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
 }});
               }
@@ -280,12 +280,12 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
             var previousKid: any = raw[metaReference.index()];
             raw[metaReference.index()] = null;
             if (previousKid != null) {
-              var self: KObject = this;
-              this._view.dimension().universe().storage().lookup(this._view, <number>previousKid, {on:function(resolvedParam: KObject){
+              var self: KObject<any,any> = this;
+              this._view.dimension().universe().storage().lookup(this._view, <number>previousKid, {on:function(resolvedParam: KObject<any,any>){
               if (resolvedParam != null) {
                 if (metaReference.contained()) {
-                  (<AbstractKObject>resolvedParam).set_referenceInParent(null);
-                  (<AbstractKObject>resolvedParam).setParentUuid(null);
+                  (<AbstractKObject<any,any>>resolvedParam).set_referenceInParent(null);
+                  (<AbstractKObject<any,any>>resolvedParam).setParentUuid(null);
                 }
                 if (metaReference.opposite() != null && setOpposite) {
                   resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
@@ -306,8 +306,8 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
               }
               previousList.remove(param.uuid());
               if (metaReference.contained()) {
-                (<AbstractKObject>param).set_referenceInParent(null);
-                (<AbstractKObject>param).setParentUuid(null);
+                (<AbstractKObject<any,any>>param).set_referenceInParent(null);
+                (<AbstractKObject<any,any>>param).setParentUuid(null);
               }
               if (metaReference.opposite() != null && setOpposite) {
                 param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
@@ -338,11 +338,11 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     } else {
       if (o instanceof Set) {
         var objs: Set<number> = <Set<number>>o;
-        this.view().lookupAll(objs, {on:function(result: List<KObject>){
+        this.view().lookupAll(objs, {on:function(result: List<KObject<any,any>>){
         var endAlreadyCalled: boolean = false;
         try {
           //TODO resolve for-each cycle
-          var resolved: KObject;
+          var resolved: KObject<any,any>;
           for (resolved in result) {
             callback.on(<C>resolved);
           }
@@ -358,7 +358,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
          }
 }});
       } else {
-        this.view().lookup(<number>o, {on:function(resolved: KObject){
+        this.view().lookup(<number>o, {on:function(resolved: KObject<any,any>){
         if (callback != null) {
           callback.on(<C>resolved);
         }
@@ -438,10 +438,10 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     if (toResolveds.isEmpty()) {
       end.on(null);
     } else {
-      this.view().lookupAll(toResolveds, {on:function(resolveds: List<KObject>){
-      var nextDeep: List<KObject> = new ArrayList<KObject>();
+      this.view().lookupAll(toResolveds, {on:function(resolveds: List<KObject<any,any>>){
+      var nextDeep: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       //TODO resolve for-each cycle
-      var resolved: KObject;
+      var resolved: KObject<any,any>;
       for (resolved in resolveds) {
         var result: VisitResult = visitor.visit(resolved);
         if (result.equals(VisitResult.STOP)) {
@@ -605,10 +605,10 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
           var refs: Map<number, number> = <Map<number, number>>payload;
           var oppositeKids: Set<number> = new HashSet<number>();
           oppositeKids.addAll(refs.keySet());
-          this._view.lookupAll(oppositeKids, {on:function(oppositeElements: List<KObject>){
+          this._view.lookupAll(oppositeKids, {on:function(oppositeElements: List<KObject<any,any>>){
           if (oppositeElements != null) {
             //TODO resolve for-each cycle
-            var opposite: KObject;
+            var opposite: KObject<any,any>;
             for (opposite in oppositeElements) {
               var inboundRef: number = refs.get(opposite.uuid());
               var metaRef: MetaReference = null;

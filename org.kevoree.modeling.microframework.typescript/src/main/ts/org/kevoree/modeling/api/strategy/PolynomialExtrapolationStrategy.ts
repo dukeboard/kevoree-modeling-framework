@@ -13,7 +13,7 @@ class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
     return times;
   }
 
-  public extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject[]): any {
+  public extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject<any,any>[]): any {
     var pol: PolynomialExtrapolation = <PolynomialExtrapolation>current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
     if (pol != null) {
       return pol.extrapolate(current.now());
@@ -22,7 +22,7 @@ class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
     }
   }
 
-  public mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void {
+  public mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject<any,any>[]): void {
     var previous: any = current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
     if (previous == null) {
       var pol: PolynomialExtrapolation = new DefaultPolynomialExtrapolation(current.now(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);

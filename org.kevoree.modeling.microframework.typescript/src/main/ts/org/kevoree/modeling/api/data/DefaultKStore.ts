@@ -95,7 +95,7 @@ class DefaultKStore implements KStore {
     return this.objectKey;
   }
 
-  public cacheLookup(dimension: KDimension<any,any,any>, time: number, key: number): KObject {
+  public cacheLookup(dimension: KDimension<any,any,any>, time: number, key: number): KObject<any,any> {
     var dimensionCache: DimensionCache = this.caches.get(dimension.key());
     var timeCache: TimeCache = dimensionCache.timesCaches.get(time);
     if (timeCache == null) {
@@ -105,12 +105,12 @@ class DefaultKStore implements KStore {
     }
   }
 
-  private cacheLookupAll(dimension: KDimension<any,any,any>, time: number, keys: Set<number>): List<KObject> {
-    var resolved: List<KObject> = new ArrayList<KObject>();
+  private cacheLookupAll(dimension: KDimension<any,any,any>, time: number, keys: Set<number>): List<KObject<any,any>> {
+    var resolved: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
     //TODO resolve for-each cycle
     var kid: number;
     for (kid in keys) {
-      var res: KObject = this.cacheLookup(dimension, time, kid);
+      var res: KObject<any,any> = this.cacheLookup(dimension, time, kid);
       if (res != null) {
         resolved.add(res);
       }
@@ -120,7 +120,7 @@ class DefaultKStore implements KStore {
 
   public raw(origin: KObject<any,any>, accessMode: AccessMode): any[] {
     if (accessMode.equals(AccessMode.WRITE)) {
-      (<AbstractKObject>origin).setDirty(true);
+      (<AbstractKObject<any,any>>origin).setDirty(true);
     }
     var dimensionCache: DimensionCache = this.caches.get(origin.dimension().key());
     var resolvedTime: number = origin.timeTree().resolve(origin.now());
@@ -187,7 +187,7 @@ class DefaultKStore implements KStore {
       var timeCache: TimeCache;
       for (timeCache in dimensionCache.timesCaches.values()) {
         //TODO resolve for-each cycle
-        var cached: KObject;
+        var cached: KObject<any,any>;
         for (cached in timeCache.obj_cache.values()) {
           if (cached.isDirty()) {
             sizeCache++;
@@ -213,12 +213,12 @@ class DefaultKStore implements KStore {
       var timeCache: TimeCache;
       for (timeCache in dimensionCache.timesCaches.values()) {
         //TODO resolve for-each cycle
-        var cached: KObject;
+        var cached: KObject<any,any>;
         for (cached in timeCache.obj_cache.values()) {
           if (cached.isDirty()) {
             payloads[i][0] = this.keyPayload(dimension, cached.now(), cached.uuid());
             payloads[i][1] = cached.toJSON();
-            (<AbstractKObject>cached).setDirty(false);
+            (<AbstractKObject<any,any>>cached).setDirty(false);
             i++;
           }
         }
@@ -317,7 +317,7 @@ class DefaultKStore implements KStore {
     }
   }
 
-  public lookup(originView: KView, key: number, callback: Callback<KObject>): void {
+  public lookup(originView: KView, key: number, callback: Callback<KObject<any,any>>): void {
     if (callback == null) {
       return;
     }
@@ -326,24 +326,24 @@ class DefaultKStore implements KStore {
     if (resolvedTime == null) {
       callback.on(null);
     } else {
-      var resolved: KObject = this.cacheLookup(originView.dimension(), resolvedTime, key);
+      var resolved: KObject<any,any> = this.cacheLookup(originView.dimension(), resolvedTime, key);
       if (resolved != null) {
         if (originView.now() == resolvedTime) {
           callback.on(resolved);
         } else {
-          var proxy: KObject = originView.createProxy(resolved.metaClass(), resolved.timeTree(), key);
+          var proxy: KObject<any,any> = originView.createProxy(resolved.metaClass(), resolved.timeTree(), key);
           callback.on(proxy);
         }
       } else {
         var keys: number[] = new Array();
         keys[0] = key;
-        this.loadObjectInCache(originView, keys, {on:function(dbResolved: List<KObject>){
+        this.loadObjectInCache(originView, keys, {on:function(dbResolved: List<KObject<any,any>>){
         if (dbResolved.size() == 0) {
           callback.on(null);
         } else {
-          var dbResolvedZero: KObject = dbResolved.get(0);
+          var dbResolvedZero: KObject<any,any> = dbResolved.get(0);
           if (resolvedTime != originView.now()) {
-            var proxy: KObject = originView.createProxy(dbResolvedZero.metaClass(), dbResolvedZero.timeTree(), key);
+            var proxy: KObject<any,any> = originView.createProxy(dbResolvedZero.metaClass(), dbResolvedZero.timeTree(), key);
             callback.on(proxy);
           } else {
             callback.on(dbResolvedZero);
@@ -355,7 +355,7 @@ class DefaultKStore implements KStore {
 }});
   }
 
-  private loadObjectInCache(originView: KView, keys: number[], callback: Callback<List<KObject>>): void {
+  private loadObjectInCache(originView: KView, keys: number[], callback: Callback<List<KObject<any,any>>>): void {
     this.timeTrees(originView.dimension(), keys, {on:function(timeTrees: TimeTree[]){
     var objStringKeys: string[] = new Array();
     var resolved: number[] = new Array();
@@ -369,9 +369,9 @@ class DefaultKStore implements KStore {
       callback.on(null);
     } else {
       var additionalLoad: List<any[]> = new ArrayList<any[]>();
-      var objs: List<KObject> = new ArrayList<KObject>();
+      var objs: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       for (var i: number = 0; i < objectPayloads.length; i++) {
-        var obj: KObject = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+        var obj: KObject<any,any> = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
         objs.add(obj);
         var strategies: Set<ExtrapolationStrategy> = new HashSet<ExtrapolationStrategy>();
         for (var h: number = 0; h < obj.metaAttributes().length; h++) {
@@ -411,25 +411,25 @@ class DefaultKStore implements KStore {
 }});
   }
 
-  public lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject>>): void {
+  public lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject<any,any>>>): void {
     var toLoad: List<number> = new ArrayList<number>(key);
-    var resolveds: List<KObject> = new ArrayList<KObject>();
+    var resolveds: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
     //TODO resolve for-each cycle
     var kid: number;
     for (kid in key) {
-      var resolved: KObject = this.cacheLookup(originView.dimension(), originView.now(), kid);
+      var resolved: KObject<any,any> = this.cacheLookup(originView.dimension(), originView.now(), kid);
       if (resolved != null) {
         resolveds.add(resolved);
         toLoad.remove(kid);
       }
     }
     if (toLoad.size() == 0) {
-      var proxies: List<KObject> = new ArrayList<KObject>();
+      var proxies: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       //TODO resolve for-each cycle
-      var res: KObject;
+      var res: KObject<any,any>;
       for (res in resolveds) {
         if (res.now() != originView.now()) {
-          var proxy: KObject = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
+          var proxy: KObject<any,any> = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
           proxies.add(proxy);
         } else {
           proxies.add(res);
@@ -441,14 +441,14 @@ class DefaultKStore implements KStore {
       for (var i: number = 0; i < toLoad.size(); i++) {
         toLoadKeys[i] = toLoad.get(i);
       }
-      this.loadObjectInCache(originView, toLoadKeys, {on:function(additional: List<KObject>){
+      this.loadObjectInCache(originView, toLoadKeys, {on:function(additional: List<KObject<any,any>>){
       resolveds.addAll(additional);
-      var proxies: List<KObject> = new ArrayList<KObject>();
+      var proxies: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       //TODO resolve for-each cycle
-      var res: KObject;
+      var res: KObject<any,any>;
       for (res in resolveds) {
         if (res.now() != originView.now()) {
-          var proxy: KObject = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
+          var proxy: KObject<any,any> = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
           proxies.add(proxy);
         } else {
           proxies.add(res);
@@ -459,7 +459,7 @@ class DefaultKStore implements KStore {
     }
   }
 
-  public getDimension(key: number): KDimension {
+  public getDimension(key: number): KDimension<any,any,any> {
     var dimensionCache: DimensionCache = this.caches.get(key);
     if (dimensionCache != null) {
       return dimensionCache.dimension;
@@ -468,7 +468,7 @@ class DefaultKStore implements KStore {
     }
   }
 
-  public getRoot(originView: KView, callback: Callback<KObject>): void {
+  public getRoot(originView: KView, callback: Callback<KObject<any,any>>): void {
     var dimensionCache: DimensionCache = this.caches.get(originView.dimension().key());
     var resolvedRoot: number = dimensionCache.rootTimeTree.resolve(originView.now());
     if (resolvedRoot == null) {
@@ -486,7 +486,7 @@ class DefaultKStore implements KStore {
         } else {
           try {
             var idRoot: number = Long.parseLong(res[0]);
-            this.lookup(originView, idRoot, {on:function(resolved: KObject){
+            this.lookup(originView, idRoot, {on:function(resolved: KObject<any,any>){
             timeCache.root = resolved;
             timeCache.rootDirty = false;
             callback.on(resolved);
@@ -513,26 +513,26 @@ class DefaultKStore implements KStore {
   }
 
   public registerListener(origin: any, listener: ModelListener): void {
-    if (origin instanceof KObject) {
-      var dimensionCache: DimensionCache = this.caches.get((<KDimension>origin).key());
+    if (origin instanceof KObject<any,any>) {
+      var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
       var timeCache: TimeCache = dimensionCache.timesCaches.get((<KView>origin).now());
-      var obj_listeners: List<ModelListener> = timeCache.obj_listeners.get((<KObject>origin).uuid());
+      var obj_listeners: List<ModelListener> = timeCache.obj_listeners.get((<KObject<any,any>>origin).uuid());
       if (obj_listeners == null) {
         obj_listeners = new ArrayList<ModelListener>();
-        timeCache.obj_listeners.put((<KObject>origin).uuid(), obj_listeners);
+        timeCache.obj_listeners.put((<KObject<any,any>>origin).uuid(), obj_listeners);
       }
       obj_listeners.add(listener);
     } else {
       if (origin instanceof KView) {
-        var dimensionCache: DimensionCache = this.caches.get((<KDimension>origin).key());
+        var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
         var timeCache: TimeCache = dimensionCache.timesCaches.get((<KView>origin).now());
         timeCache.listeners.add(listener);
       } else {
-        if (origin instanceof KDimension) {
-          var dimensionCache: DimensionCache = this.caches.get((<KDimension>origin).key());
+        if (origin instanceof KDimension<any,any,any>) {
+          var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
           dimensionCache.listeners.add(listener);
         } else {
-          if (origin instanceof KUniverse) {
+          if (origin instanceof KUniverse<any>) {
             this.universeListeners.add(listener);
           }
         }

@@ -1,2 +1,3 @@
 interface Throwable {
+    printStackTrace();
 }

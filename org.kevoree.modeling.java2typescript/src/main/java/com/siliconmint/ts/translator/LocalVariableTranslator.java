@@ -25,7 +25,7 @@ public class LocalVariableTranslator extends Translator<PsiLocalVariable> {
 
     ctx.append(element.getName());
     ctx.append(": ");
-    ctx.append(TypeHelper.getVariableType(element));
+    ctx.append(TypeHelper.getVariableType(element, ctx));
 
     if (element.hasInitializer()) {
       ctx.append(" = ");

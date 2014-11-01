@@ -7,7 +7,7 @@ public class JavaClassObjectAccessExpressionTranslator extends Translator<PsiCla
 
   @Override
   public void translate(PsiElementVisitor visitor, PsiClassObjectAccessExpression element, TranslationContext ctx) {
-    ctx.append(TypeHelper.getType(element.getOperand().getType()));
+    ctx.append(TypeHelper.getType(element.getOperand().getType(), ctx));
   }
 
 }

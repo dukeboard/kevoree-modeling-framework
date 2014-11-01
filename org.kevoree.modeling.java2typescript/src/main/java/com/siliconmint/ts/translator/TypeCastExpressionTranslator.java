@@ -8,7 +8,7 @@ public class TypeCastExpressionTranslator extends Translator<PsiTypeCastExpressi
 
   @Override
   public void translate(PsiElementVisitor visitor, PsiTypeCastExpression element, TranslationContext ctx) {
-    ctx.append('<').append(TypeHelper.getType(element.getCastType().getType())).append('>');
+    ctx.append('<').append(TypeHelper.getType(element.getCastType().getType(), ctx)).append('>');
     element.getOperand().accept(visitor);
   }
 

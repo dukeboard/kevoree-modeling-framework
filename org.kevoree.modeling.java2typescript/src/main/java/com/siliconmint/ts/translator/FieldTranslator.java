@@ -43,7 +43,7 @@ public class FieldTranslator extends Translator<PsiField> {
         if (modifierList.hasModifierProperty("static")) {
             ctx.append("static ");
         }
-        String resolvedType = TypeHelper.getFieldType(element);
+        String resolvedType = TypeHelper.getFieldType(element, ctx);
         Integer generics = ctx.getGenerics().get(resolvedType);
         ctx.append(element.getName()).append(": ").append(resolvedType);
         if(generics != null) {

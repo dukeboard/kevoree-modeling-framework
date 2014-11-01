@@ -5,9 +5,9 @@ interface ExtrapolationStrategy {
 
   timedDependencies(current: KObject<any,any>): number[];
 
-  extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject[]): any;
+  extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject<any,any>[]): any;
 
-  mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void;
+  mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject<any,any>[]): void;
 
 }
 

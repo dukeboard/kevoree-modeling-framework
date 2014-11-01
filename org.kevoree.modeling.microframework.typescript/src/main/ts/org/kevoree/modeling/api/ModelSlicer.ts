@@ -3,7 +3,7 @@
 
 interface ModelSlicer {
 
-  slice(elems: List<KObject>, callback: Callback<TraceSequence>): void;
+  slice(elems: List<KObject<any,any>>, callback: Callback<TraceSequence>): void;
 
 }
 

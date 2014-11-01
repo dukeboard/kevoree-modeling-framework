@@ -5,9 +5,9 @@
 
 interface KView {
 
-  createFQN(metaClassName: string): KObject;
+  createFQN(metaClassName: string): KObject<any,any>;
 
-  create(clazz: MetaClass): KObject;
+  create(clazz: MetaClass): KObject<any,any>;
 
   setRoot(elem: KObject<any,any>): void;
 
@@ -21,27 +21,27 @@ interface KView {
 
   createModelCompare(): ModelCompare;
 
-  createModelCloner(): ModelCloner;
+  createModelCloner(): ModelCloner<any>;
 
   createModelSlicer(): ModelSlicer;
 
-  select(query: string, callback: Callback<List<KObject>>): void;
+  select(query: string, callback: Callback<List<KObject<any,any>>>): void;
 
-  lookup(key: number, callback: Callback<KObject>): void;
+  lookup(key: number, callback: Callback<KObject<any,any>>): void;
 
-  lookupAll(keys: Set<number>, callback: Callback<List<KObject>>): void;
+  lookupAll(keys: Set<number>, callback: Callback<List<KObject<any,any>>>): void;
 
-  stream(query: string, callback: Callback<KObject>): void;
+  stream(query: string, callback: Callback<KObject<any,any>>): void;
 
   metaClasses(): MetaClass[];
 
   metaClass(fqName: string): MetaClass;
 
-  dimension(): KDimension;
+  dimension(): KDimension<any,any,any>;
 
   now(): number;
 
-  createProxy(clazz: MetaClass, timeTree: TimeTree, key: number): KObject;
+  createProxy(clazz: MetaClass, timeTree: TimeTree, key: number): KObject<any,any>;
 
   listen(listener: ModelListener): void;
 

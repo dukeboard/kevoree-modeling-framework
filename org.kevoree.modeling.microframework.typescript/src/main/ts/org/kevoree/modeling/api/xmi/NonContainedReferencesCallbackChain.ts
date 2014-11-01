@@ -18,7 +18,7 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
       var value: string[] = new Array();
       value[0] = "";
       this._currentElement.each(ref, {on:function(o: any){
-      var adjustedAddress: string = this._context.addressTable.get((<KObject>o).uuid());
+      var adjustedAddress: string = this._context.addressTable.get((<KObject<any,any>>o).uuid());
       value[0] = (value[0].equals("") ? adjustedAddress : value[0] + " " + adjustedAddress);
 }}, {on:function(end: Throwable){
       if (end == null) {

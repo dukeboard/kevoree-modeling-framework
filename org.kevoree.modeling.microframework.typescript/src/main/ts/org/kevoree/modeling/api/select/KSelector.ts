@@ -12,7 +12,7 @@
 
 class KSelector {
 
-  public static select(root: KObject<any,any>, query: string, callback: Callback<List<KObject>>): void {
+  public static select(root: KObject<any,any>, query: string, callback: Callback<List<KObject<any,any>>>): void {
     var extractedQuery: KQuery = KQuery.extractFirstQuery(query);
     if (extractedQuery == null) {
       callback.on(new ArrayList());
@@ -35,13 +35,13 @@ class KSelector {
           }
         }
       }
-      root.view().lookupAll(collected, {on:function(resolveds: List<KObject>){
-      var nextGeneration: List<KObject> = new ArrayList<KObject>();
+      root.view().lookupAll(collected, {on:function(resolveds: List<KObject<any,any>>){
+      var nextGeneration: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       if (extractedQuery.params.isEmpty()) {
         nextGeneration.addAll(resolveds);
       } else {
         for (var i: number = 0; i < resolveds.size(); i++) {
-          var resolved: KObject = resolveds.get(i);
+          var resolved: KObject<any,any> = resolveds.get(i);
           var selectedForNext: boolean = true;
           //TODO resolve for-each cycle
           var paramKey: string;
@@ -74,13 +74,13 @@ class KSelector {
           }
         }
       }
-      var childSelected: List<KObject> = new ArrayList<KObject>();
+      var childSelected: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
         childSelected.add(root);
         callback.on(nextGeneration);
       } else {
-        Helper.forall(nextGeneration.toArray(new Array()), {on:function(kObject: KObject, next: Callback<Throwable>){
-        KSelector.select(kObject, extractedQuery.subQuery, {on:function(kObjects: List<KObject>){
+        Helper.forall(nextGeneration.toArray(new Array()), {on:function(kObject: KObject<any,any>, next: Callback<Throwable>){
+        KSelector.select(kObject, extractedQuery.subQuery, {on:function(kObjects: List<KObject<any,any>>){
         childSelected.addAll(childSelected);
 }});
 }}, {on:function(throwable: Throwable){

@@ -55,7 +55,7 @@ class AbstractKUniverse<A extends KDimension<any,any,any>> implements KUniverse<
   public disable(listener: ModelListener): void {
   }
 
-  public stream(query: string, callback: Callback<KObject>): void {
+  public stream(query: string, callback: Callback<KObject<any,any>>): void {
   }
 
   public listen(listener: ModelListener): void {

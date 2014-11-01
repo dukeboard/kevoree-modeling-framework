@@ -39,7 +39,7 @@ class AbstractKView implements KView {
     return this._now;
   }
 
-  public dimension(): KDimension {
+  public dimension(): KDimension<any,any,any> {
     return this._dimension;
   }
 
@@ -63,7 +63,7 @@ class AbstractKView implements KView {
     return new DefaultModelCompare(this);
   }
 
-  public createModelCloner(): ModelCloner {
+  public createModelCloner(): ModelCloner<any> {
     return new DefaultModelCloner(this);
   }
 
@@ -81,26 +81,26 @@ class AbstractKView implements KView {
     return null;
   }
 
-  public createFQN(metaClassName: string): KObject {
+  public createFQN(metaClassName: string): KObject<any,any> {
     return this.create(this.metaClass(metaClassName));
   }
 
-  public manageCache(obj: KObject<any,any>): KObject {
+  public manageCache(obj: KObject<any,any>): KObject<any,any> {
     this.dimension().universe().storage().initKObject(obj, this);
     return obj;
   }
 
   public setRoot(elem: KObject<any,any>): void {
-    (<AbstractKObject>elem).set_referenceInParent(null);
-    (<AbstractKObject>elem).setRoot(true);
+    (<AbstractKObject<any,any>>elem).set_referenceInParent(null);
+    (<AbstractKObject<any,any>>elem).setRoot(true);
     this.dimension().universe().storage().setRoot(elem);
   }
 
-  public select(query: string, callback: Callback<List<KObject>>): void {
-    this.dimension().universe().storage().getRoot(this, {on:function(rootObj: KObject){
+  public select(query: string, callback: Callback<List<KObject<any,any>>>): void {
+    this.dimension().universe().storage().getRoot(this, {on:function(rootObj: KObject<any,any>){
     var cleanedQuery: string = query;
     if (cleanedQuery.equals("/")) {
-      var res: ArrayList<KObject> = new ArrayList<KObject>();
+      var res: ArrayList<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       if (rootObj != null) {
         res.add(rootObj);
       }
@@ -114,23 +114,23 @@ class AbstractKView implements KView {
 }});
   }
 
-  public lookup(kid: number, callback: Callback<KObject>): void {
+  public lookup(kid: number, callback: Callback<KObject<any,any>>): void {
     this.dimension().universe().storage().lookup(this, kid, callback);
   }
 
-  public lookupAll(keys: Set<number>, callback: Callback<List<KObject>>): void {
+  public lookupAll(keys: Set<number>, callback: Callback<List<KObject<any,any>>>): void {
     this.dimension().universe().storage().lookupAll(this, keys, callback);
   }
 
-  public stream(query: string, callback: Callback<KObject>): void {
+  public stream(query: string, callback: Callback<KObject<any,any>>): void {
   }
 
-  public createProxy(clazz: MetaClass, timeTree: TimeTree, key: number): KObject {
+  public createProxy(clazz: MetaClass, timeTree: TimeTree, key: number): KObject<any,any> {
     return this.internalCreate(clazz, timeTree, key);
   }
 
-  public create(clazz: MetaClass): KObject {
-    var newObj: KObject = this.internalCreate(clazz, new DefaultTimeTree().insert(this.now()), this.dimension().universe().storage().nextObjectKey());
+  public create(clazz: MetaClass): KObject<any,any> {
+    var newObj: KObject<any,any> = this.internalCreate(clazz, new DefaultTimeTree().insert(this.now()), this.dimension().universe().storage().nextObjectKey());
     if (newObj != null) {
       this.dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, null, newObj, null, newObj));
     }
@@ -141,7 +141,7 @@ class AbstractKView implements KView {
     this.dimension().universe().storage().registerListener(this, listener);
   }
 
-  public internalCreate(clazz: MetaClass, timeTree: TimeTree, key: number): KObject {
+  public internalCreate(clazz: MetaClass, timeTree: TimeTree, key: number): KObject<any,any> {
     throw "Abstract method";
   }
 

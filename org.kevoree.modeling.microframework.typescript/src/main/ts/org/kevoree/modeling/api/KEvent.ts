@@ -10,7 +10,7 @@ interface KEvent {
 
   newValue(): any;
 
-  src(): KObject;
+  src(): KObject<any,any>;
 
 }
 

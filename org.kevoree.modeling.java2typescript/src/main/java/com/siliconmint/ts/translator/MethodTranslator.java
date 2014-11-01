@@ -63,11 +63,9 @@ public class MethodTranslator extends Translator<PsiMethod> {
             }
             paramSB.append(parameter.getName());
             paramSB.append(": ");
-            //paramSB.append(TypeHelper.getParameterType(parameter));
 
-            String resolvedType = TypeHelper.getParameterType(parameter);
+            String resolvedType = TypeHelper.getParameterType(parameter, ctx);
             paramSB.append(resolvedType);
-            paramSB.append(TypeHelper.getGenericsIfAny(ctx, resolvedType));
 
             params.add(paramSB.toString());
         }
@@ -76,14 +74,8 @@ public class MethodTranslator extends Translator<PsiMethod> {
 
         if (!element.isConstructor()) {
             ctx.append(": ");
-
-            //String returnType = TypeHelper.getMethodReturnType(element);
-            //ctx.append(returnType);
-
-            String resolvedType = TypeHelper.getMethodReturnType(element);
+            String resolvedType = TypeHelper.getMethodReturnType(element, ctx);
             ctx.append(resolvedType);
-            TypeHelper.getGenericsIfAny(ctx, resolvedType);
-
         }
 
         PsiClass containingClass = (PsiClass) element.getParent();

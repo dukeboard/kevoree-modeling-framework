@@ -8,7 +8,7 @@ class XMILoadingContext {
   public xmiReader: XmlParser = null;
   public loadedRoots: KObject<any,any> = null;
   public resolvers: ArrayList<XMIResolveCommand> = new ArrayList<XMIResolveCommand>();
-  public map: HashMap<string, KObject> = new HashMap<string, KObject>();
+  public map: HashMap<string, KObject<any,any>> = new HashMap<string, KObject<any,any>>();
   public elementsCount: HashMap<string, number> = new HashMap<string, number>();
   public stats: HashMap<string, number> = new HashMap<string, number>();
   public oppositesAlreadySet: HashMap<string, boolean> = new HashMap<string, boolean>();

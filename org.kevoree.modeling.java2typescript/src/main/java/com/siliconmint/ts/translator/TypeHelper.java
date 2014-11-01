@@ -30,31 +30,39 @@ public class TypeHelper {
         return paramSB.toString();
     }
 
-    public static String getFieldType(PsiField element) {
-        return getType(element.getType());
+    public static String getFieldType(PsiField element, TranslationContext ctx) {
+        String res = getType(element.getType(), ctx);
+        res = res + getGenericsIfAny(ctx, res);
+        return res ;
     }
 
-    public static String getMethodReturnType(PsiMethod element) {
+    public static String getMethodReturnType(PsiMethod element, TranslationContext ctx) {
         if (element.getReturnType() == null) {
             return "void";
         } else {
-            return getType(element.getReturnType());
+            String res = getType(element.getReturnType(), ctx);
+            res = res + getGenericsIfAny(ctx, res);
+            return res ;
         }
     }
 
-    public static String getParameterType(PsiParameter parameter) {
-        return getType(parameter.getType());
+    public static String getParameterType(PsiParameter parameter, TranslationContext ctx) {
+        String res = getType(parameter.getType(), ctx);
+        res = res + getGenericsIfAny(ctx, res);
+        return res ;
     }
 
-    public static String getVariableType(PsiLocalVariable variable){
-        return getType(variable.getType());
+    public static String getVariableType(PsiLocalVariable variable, TranslationContext ctx){
+        String res = getType(variable.getType(), ctx);
+        res = res + getGenericsIfAny(ctx, res);
+        return res ;
     }
 
-    public static String getAnonymousClassType(PsiAnonymousClass clazz){
-        return getType(clazz.getBaseClassType());
+    public static String getAnonymousClassType(PsiAnonymousClass clazz, TranslationContext ctx){
+        return getType(clazz.getBaseClassType(), ctx);
     }
 
-    public static String getType(PsiJavaCodeReferenceElement reference) {
+    public static String getType(PsiJavaCodeReferenceElement reference, TranslationContext ctx) {
         String typeName;
 
         if (reference.isQualified()) {
@@ -65,20 +73,23 @@ public class TypeHelper {
 
         PsiType[] typeParameters = reference.getTypeParameters();
         if (typeParameters != null && typeParameters.length > 0) {
-            return String.format("%s<%s>", typeName, getTypeParameters(typeParameters));
+            return String.format("%s<%s>", typeName, getTypeParameters(typeParameters, ctx));
         } else {
             return typeName;
         }
     }
 
-    public static String getType(PsiType type) {
+    public static String getType(PsiType type, TranslationContext ctx) {
         if (type instanceof PsiArrayType) {
             type = ((PsiArrayType) type).getComponentType();
-            String translatedType = getType(type);
+            String translatedType = getType(type, ctx);
+            translatedType = translatedType.concat(TypeHelper.getGenericsIfAny(ctx, translatedType));
             return translatedType.concat("[]");
         } else if (type instanceof PsiClassReferenceType) {
             PsiJavaCodeReferenceElement reference = ((PsiClassReferenceType) type).getReference();
-            return getType(reference);
+            String resolvedRef = getType(reference, ctx);
+            resolvedRef = resolvedRef + getGenericsIfAny(ctx, resolvedRef);
+            return resolvedRef;
         } else {
             return translateType(type.getCanonicalText());
         }
@@ -103,10 +114,10 @@ public class TypeHelper {
         return primitiveNumbers.contains(elementType);
     }
 
-    public static String getTypeParameters(PsiType[] typeParameters) {
+    public static String getTypeParameters(PsiType[] typeParameters, TranslationContext ctx) {
         List<String> paramStrings = new ArrayList<String>();
         for (PsiType type: typeParameters) {
-            paramStrings.add(getType(type));
+            paramStrings.add(getType(type, ctx));
         }
         return Joiner.on(", ").join(paramStrings);
     }

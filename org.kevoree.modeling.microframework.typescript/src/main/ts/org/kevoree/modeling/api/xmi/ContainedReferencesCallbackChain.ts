@@ -17,7 +17,7 @@ class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
   public on(ref: MetaReference, nextReference: Callback<Throwable>): void {
     if (ref.contained()) {
       this.currentElement.each(ref, {on:function(o: any){
-      var elem: KObject = <KObject>o;
+      var elem: KObject<any,any> = <KObject<any,any>>o;
       this.context.printer.append("<");
       this.context.printer.append(ref.metaName());
       this.context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");

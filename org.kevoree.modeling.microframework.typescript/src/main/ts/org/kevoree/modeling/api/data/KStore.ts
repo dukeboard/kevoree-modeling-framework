@@ -10,9 +10,9 @@
 
 interface KStore {
 
-  lookup(originView: KView, key: number, callback: Callback<KObject>): void;
+  lookup(originView: KView, key: number, callback: Callback<KObject<any,any>>): void;
 
-  lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject>>): void;
+  lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject<any,any>>>): void;
 
   raw(origin: KObject<any,any>, accessMode: AccessMode): any[];
 
@@ -36,13 +36,13 @@ interface KStore {
 
   nextObjectKey(): number;
 
-  getDimension(key: number): KDimension;
+  getDimension(key: number): KDimension<any,any,any>;
 
-  getRoot(originView: KView, callback: Callback<KObject>): void;
+  getRoot(originView: KView, callback: Callback<KObject<any,any>>): void;
 
   setRoot(newRoot: KObject<any,any>): void;
 
-  cacheLookup(dimension: KDimension<any,any,any>, time: number, key: number): KObject;
+  cacheLookup(dimension: KDimension<any,any,any>, time: number, key: number): KObject<any,any>;
 
   registerListener(origin: any, listener: ModelListener): void;
 

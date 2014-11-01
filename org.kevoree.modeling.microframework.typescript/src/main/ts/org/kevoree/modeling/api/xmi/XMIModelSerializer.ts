@@ -13,7 +13,7 @@ class XMIModelSerializer implements ModelSerializer {
     context.attributesVisitor = new AttributesVisitor(context);
     context.printer = new StringBuilder();
     context.addressTable.put(model.uuid(), "/");
-    model.treeVisit({visit:function(elem: KObject){
+    model.treeVisit({visit:function(elem: KObject<any,any>){
     var parentXmiAddress: string = context.addressTable.get(elem.parentUuid());
     var key: string = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
     var i: number = context.elementsCount.get(key);

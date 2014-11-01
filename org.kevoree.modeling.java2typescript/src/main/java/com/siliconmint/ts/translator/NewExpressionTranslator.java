@@ -19,9 +19,9 @@ public class NewExpressionTranslator extends Translator<PsiNewExpression> {
             PsiJavaCodeReferenceElement classReference = element.getClassReference();
 
             if (classReference != null) {
-                className = TypeHelper.getType(classReference);
+                className = TypeHelper.getType(classReference, ctx);
             } else {
-                className = TypeHelper.getType(element.getType().getDeepComponentType());
+                className = TypeHelper.getType(element.getType().getDeepComponentType(), ctx);
                 arrayDefinition = true;
             }
 

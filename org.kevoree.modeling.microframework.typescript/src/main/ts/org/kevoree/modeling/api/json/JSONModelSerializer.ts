@@ -17,7 +17,7 @@ class JSONModelSerializer implements ModelSerializer {
     var builder: StringBuilder = new StringBuilder();
     builder.append("[\n");
     JSONModelSerializer.printJSON(model, builder);
-    model.graphVisit({visit:function(elem: KObject){
+    model.graphVisit({visit:function(elem: KObject<any,any>){
     builder.append(",");
     JSONModelSerializer.printJSON(elem, builder);
     return VisitResult.CONTINUE;

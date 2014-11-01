@@ -23,17 +23,17 @@ class JSONModelLoader implements ModelLoader {
     this._factory = p_factory;
   }
 
-  public static load(payload: string, factory: KView, callback: Callback<KObject>): KObject {
+  public static load(payload: string, factory: KView, callback: Callback<KObject<any,any>>): KObject<any,any> {
     var lexer: Lexer = new Lexer(payload);
-    var loaded: KObject[] = new Array();
-    JSONModelLoader.loadObjects(lexer, factory, {on:function(objs: List<KObject>){
+    var loaded: KObject<any,any>[] = new Array();
+    JSONModelLoader.loadObjects(lexer, factory, {on:function(objs: List<KObject<any,any>>){
     loaded[0] = objs.get(0);
 }});
     return loaded[0];
   }
 
-  private static loadObjects(lexer: Lexer, factory: KView, callback: Callback<List<KObject>>): void {
-    var loaded: List<KObject> = new ArrayList<KObject>();
+  private static loadObjects(lexer: Lexer, factory: KView, callback: Callback<List<KObject<any,any>>>): void {
+    var loaded: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
     var alls: List<Map<string, any>> = new ArrayList<Map<string, any>>();
     var content: Map<string, any> = new HashMap<string, any>();
     var currentAttributeName: string = null;
@@ -90,9 +90,9 @@ class JSONModelLoader implements ModelLoader {
       }
       var timeTree: TimeTree = timeTrees[i];
       timeTree.insert(factory.now());
-      var current: KObject = factory.createProxy(factory.metaClass(meta), timeTree, kid);
+      var current: KObject<any,any> = factory.createProxy(factory.metaClass(meta), timeTree, kid);
       if (isRoot) {
-        (<AbstractKObject>current).setRoot(true);
+        (<AbstractKObject<any,any>>current).setRoot(true);
       }
       loaded.add(current);
       var payloadObj: any[] = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
@@ -160,7 +160,7 @@ class JSONModelLoader implements ModelLoader {
       if (currentToken.tokenType() != Type.LEFT_BRACKET) {
         callback.on(null);
       } else {
-        JSONModelLoader.loadObjects(lexer, this._factory, {on:function(kObjects: List<KObject>){
+        JSONModelLoader.loadObjects(lexer, this._factory, {on:function(kObjects: List<KObject<any,any>>){
         callback.on(null);
 }});
       }

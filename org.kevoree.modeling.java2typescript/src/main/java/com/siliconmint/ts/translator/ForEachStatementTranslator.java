@@ -17,7 +17,7 @@ public class ForEachStatementTranslator extends Translator<PsiForeachStatement> 
     ctx.print("var ");
     ctx.append(parameter.getName());
     ctx.append(": ");
-    ctx.append(TypeHelper.getParameterType(parameter));
+    ctx.append(TypeHelper.getParameterType(parameter, ctx));
     ctx.append(";\n");
 
     ctx.print("for (");

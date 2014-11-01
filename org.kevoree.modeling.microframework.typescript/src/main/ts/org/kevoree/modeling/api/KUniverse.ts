@@ -14,7 +14,7 @@ interface KUniverse<A extends KDimension<any,any,any>> {
 
   disable(listener: ModelListener): void;
 
-  stream(query: string, callback: Callback<KObject>): void;
+  stream(query: string, callback: Callback<KObject<any,any>>): void;
 
   storage(): KStore;
 

@@ -7,7 +7,7 @@
 
 class TimeCache {
 
-  public obj_cache: Map<number, KObject> = new HashMap<number, KObject>();
+  public obj_cache: Map<number, KObject<any,any>> = new HashMap<number, KObject<any,any>>();
   public payload_cache: Map<number, any[]> = new HashMap<number, any[]>();
   public root: KObject<any,any> = null;
   public rootDirty: boolean = false;

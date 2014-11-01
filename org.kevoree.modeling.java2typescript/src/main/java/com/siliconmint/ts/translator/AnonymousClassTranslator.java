@@ -53,7 +53,7 @@ public class AnonymousClassTranslator<T extends PsiAnonymousClass> extends Trans
             }
             paramSB.append(parameter.getName());
             paramSB.append(": ");
-            paramSB.append(TypeHelper.getParameterType(parameter));
+            paramSB.append(TypeHelper.getParameterType(parameter, ctx));
             params.add(paramSB.toString());
         }
         ctx.append(joiner.join(params));

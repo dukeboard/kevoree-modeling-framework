@@ -10,7 +10,7 @@ interface KObject<A extends KObject<any,any>, B extends KView> {
 
   isDirty(): boolean;
 
-  dimension(): KDimension;
+  dimension(): KDimension<any,any,any>;
 
   isDeleted(): boolean;
 
@@ -24,13 +24,13 @@ interface KObject<A extends KObject<any,any>, B extends KView> {
 
   delete(callback: Callback<boolean>): void;
 
-  parent(callback: Callback<KObject>): void;
+  parent(callback: Callback<KObject<any,any>>): void;
 
   parentUuid(): number;
 
-  select(query: string, callback: Callback<List<KObject>>): void;
+  select(query: string, callback: Callback<List<KObject<any,any>>>): void;
 
-  stream(query: string, callback: Callback<KObject>): void;
+  stream(query: string, callback: Callback<KObject<any,any>>): void;
 
   listen(listener: ModelListener): void;
 

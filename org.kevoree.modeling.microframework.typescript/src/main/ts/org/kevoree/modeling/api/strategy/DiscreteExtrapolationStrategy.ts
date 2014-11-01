@@ -10,7 +10,7 @@ class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
     return times;
   }
 
-  public extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject[]): any {
+  public extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject<any,any>[]): any {
     var payload: any[] = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
     if (payload != null) {
       return payload[attribute.index()];
@@ -19,7 +19,7 @@ class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
     }
   }
 
-  public mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void {
+  public mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject<any,any>[]): void {
     var internalPayload: any[] = current.view().dimension().universe().storage().raw(current, AccessMode.WRITE);
     if (internalPayload != null) {
       internalPayload[attribute.index()] = payload;

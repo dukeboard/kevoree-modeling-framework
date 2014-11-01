@@ -122,8 +122,8 @@ class XMIModelLoader implements ModelLoader {
      }
   }
 
-  private callFactory(ctx: XMILoadingContext, objectType: string): KObject {
-    var modelElem: KObject = null;
+  private callFactory(ctx: XMILoadingContext, objectType: string): KObject<any,any> {
+    var modelElem: KObject<any,any> = null;
     if (objectType != null) {
       modelElem = this._factory.createFQN(objectType);
       if (modelElem == null) {
@@ -148,9 +148,9 @@ class XMIModelLoader implements ModelLoader {
     return modelElem;
   }
 
-  private loadObject(ctx: XMILoadingContext, xmiAddress: string, objectType: string): KObject {
+  private loadObject(ctx: XMILoadingContext, xmiAddress: string, objectType: string): KObject<any,any> {
     var elementTagName: string = ctx.xmiReader.getLocalName();
-    var modelElem: KObject = this.callFactory(ctx, objectType);
+    var modelElem: KObject<any,any> = this.callFactory(ctx, objectType);
     if (modelElem == null) {
       throw new Exception("Could not create an object for local name " + elementTagName);
     }
@@ -172,7 +172,7 @@ class XMIModelLoader implements ModelLoader {
                 var xmiRef: string = referenceArray[j];
                 var adjustedRef: string = (xmiRef.startsWith("#") ? xmiRef.substring(1) : xmiRef);
                 adjustedRef = adjustedRef.replace(".0", "");
-                var ref: KObject = ctx.map.get(adjustedRef);
+                var ref: KObject<any,any> = ctx.map.get(adjustedRef);
                 if (ref != null) {
                   modelElem.mutate(KActionType.ADD, kreference, ref, true);
                 } else {
@@ -198,7 +198,7 @@ class XMIModelLoader implements ModelLoader {
             ctx.elementsCount.put(key, i);
           }
           var subElementId: string = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
-          var containedElement: KObject = this.loadObject(ctx, subElementId, subElemName);
+          var containedElement: KObject<any,any> = this.loadObject(ctx, subElementId, subElemName);
           modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true);
           ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
         } else {

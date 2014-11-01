@@ -27,7 +27,7 @@ public class TryStatementTranslator extends Translator<PsiTryStatement> {
 
       for (int i=0; i < catchSections.length; i++) {
         PsiCatchSection catchSection = catchSections[i];
-        String exceptionType = TypeHelper.getType(catchSection.getCatchType());
+        String exceptionType = TypeHelper.getType(catchSection.getCatchType(), ctx);
 
 
         ctx.print("if (").append(EXCEPTION_VAR).append(" instanceof ").append(exceptionType).append(") {\n");

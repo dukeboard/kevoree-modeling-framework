@@ -18,7 +18,7 @@ class XMIResolveCommand {
   }
 
   public run(): void {
-    var referencedElement: KObject = this.context.map.get(this.ref);
+    var referencedElement: KObject<any,any> = this.context.map.get(this.ref);
     if (referencedElement != null) {
       this.target.mutate(this.mutatorType, this.target.metaReference(this.refName), referencedElement, true);
       return;

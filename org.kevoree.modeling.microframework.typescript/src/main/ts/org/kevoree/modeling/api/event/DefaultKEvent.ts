@@ -43,7 +43,7 @@ class DefaultKEvent implements KEvent {
     return this._newValue;
   }
 
-  public src(): KObject {
+  public src(): KObject<any,any> {
     return this._source;
   }
 
