@@ -35,71 +35,59 @@ class KSelector {
           }
         }
       }
-      root.view().lookupAll(collected, 
-        public on(resolveds: List<KObject>): void {
-          var nextGeneration: List<KObject> = new ArrayList<KObject>();
-          if (extractedQuery.params.isEmpty()) {
-            nextGeneration.addAll(resolveds);
-          } else {
-            for (var i: number = 0; i < resolveds.size(); i++) {
-              var resolved: KObject = resolveds.get(i);
-              var selectedForNext: boolean = true;
-              //TODO resolve for-each cycle
-              var paramKey: string;
-              for (paramKey in extractedQuery.params.keySet()) {
-                var param: KQueryParam = extractedQuery.params.get(paramKey);
-                for (var j: number = 0; j < resolved.metaAttributes().length; j++) {
-                  var metaAttribute: MetaAttribute = resolved.metaAttributes()[i];
-                  if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
-                    var o_raw: any = resolved.get(metaAttribute);
-                    if (o_raw != null) {
-                      if (o_raw.toString().matches(param.value().replace("*", ".*"))) {
-                        if (param.isNegative()) {
-                          selectedForNext = false;
-                        }
-                      } else {
-                        if (!param.isNegative()) {
-                          selectedForNext = false;
-                        }
-                      }
-                    } else {
-                      if (!param.isNegative() && !param.value().equals("null")) {
-                        selectedForNext = false;
-                      }
+      root.view().lookupAll(collected, {on:function(resolveds: List<KObject>){
+      var nextGeneration: List<KObject> = new ArrayList<KObject>();
+      if (extractedQuery.params.isEmpty()) {
+        nextGeneration.addAll(resolveds);
+      } else {
+        for (var i: number = 0; i < resolveds.size(); i++) {
+          var resolved: KObject = resolveds.get(i);
+          var selectedForNext: boolean = true;
+          //TODO resolve for-each cycle
+          var paramKey: string;
+          for (paramKey in extractedQuery.params.keySet()) {
+            var param: KQueryParam = extractedQuery.params.get(paramKey);
+            for (var j: number = 0; j < resolved.metaAttributes().length; j++) {
+              var metaAttribute: MetaAttribute = resolved.metaAttributes()[i];
+              if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
+                var o_raw: any = resolved.get(metaAttribute);
+                if (o_raw != null) {
+                  if (o_raw.toString().matches(param.value().replace("*", ".*"))) {
+                    if (param.isNegative()) {
+                      selectedForNext = false;
                     }
+                  } else {
+                    if (!param.isNegative()) {
+                      selectedForNext = false;
+                    }
+                  }
+                } else {
+                  if (!param.isNegative() && !param.value().equals("null")) {
+                    selectedForNext = false;
                   }
                 }
               }
-              if (selectedForNext) {
-                nextGeneration.add(resolved);
-              }
             }
           }
-          var childSelected: List<KObject> = new ArrayList<KObject>();
-          if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
-            childSelected.add(root);
-            callback.on(nextGeneration);
-          } else {
-            Helper.forall(nextGeneration.toArray(new Array()), 
-              public on(kObject: KObject, next: Callback<Throwable>): void {
-                KSelector.select(kObject, extractedQuery.subQuery, 
-                  public on(kObjects: List<KObject>): void {
-                    childSelected.addAll(childSelected);
-                  }
-
-);
-              }
-
-, 
-              public on(throwable: Throwable): void {
-                callback.on(childSelected);
-              }
-
-);
+          if (selectedForNext) {
+            nextGeneration.add(resolved);
           }
         }
-
-);
+      }
+      var childSelected: List<KObject> = new ArrayList<KObject>();
+      if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
+        childSelected.add(root);
+        callback.on(nextGeneration);
+      } else {
+        Helper.forall(nextGeneration.toArray(new Array()), {on:function(kObject: KObject, next: Callback<Throwable>){
+        KSelector.select(kObject, extractedQuery.subQuery, {on:function(kObjects: List<KObject>){
+        childSelected.addAll(childSelected);
+}});
+}}, {on:function(throwable: Throwable){
+        callback.on(childSelected);
+}});
+      }
+}});
     }
   }
 

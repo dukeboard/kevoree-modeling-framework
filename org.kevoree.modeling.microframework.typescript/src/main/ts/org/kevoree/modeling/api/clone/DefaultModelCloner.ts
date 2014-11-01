@@ -16,17 +16,11 @@ class DefaultModelCloner implements ModelCloner<KObject> {
     if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
       callback.on(null);
     } else {
-      originalObject.view().dimension().fork(
-        public on(o: KDimension): void {
-          o.time(originalObject.view().now()).lookup(originalObject.uuid(), 
-            public on(clonedObject: KObject): void {
-              callback.on(clonedObject);
-            }
-
-);
-        }
-
-);
+      originalObject.view().dimension().fork({on:function(o: KDimension){
+      o.time(originalObject.view().now()).lookup(originalObject.uuid(), {on:function(clonedObject: KObject){
+      callback.on(clonedObject);
+}});
+}});
     }
   }
 

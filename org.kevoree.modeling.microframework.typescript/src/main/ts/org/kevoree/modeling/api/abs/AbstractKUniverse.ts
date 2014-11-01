@@ -22,12 +22,9 @@ class AbstractKUniverse<A extends KDimension<any,any,any>> implements KUniverse<
   public newDimension(callback: Callback<A>): void {
     var nextKey: number = this._storage.nextDimensionKey();
     var newDimension: A = this.internal_create(nextKey);
-    this.storage().initDimension(newDimension, 
-      public on(throwable: Throwable): void {
-        callback.on(newDimension);
-      }
-
-);
+    this.storage().initDimension(newDimension, {on:function(throwable: Throwable){
+    callback.on(newDimension);
+}});
   }
 
   public internal_create(key: number): A {
@@ -40,12 +37,9 @@ class AbstractKUniverse<A extends KDimension<any,any,any>> implements KUniverse<
       callback.on(existingDimension);
     } else {
       var newDimension: A = this.internal_create(key);
-      this.storage().initDimension(newDimension, 
-        public on(throwable: Throwable): void {
-          callback.on(newDimension);
-        }
-
-);
+      this.storage().initDimension(newDimension, {on:function(throwable: Throwable){
+      callback.on(newDimension);
+}});
     }
   }
 

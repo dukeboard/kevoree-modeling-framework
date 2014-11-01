@@ -24,27 +24,21 @@ class PrettyPrinter implements Callback<Throwable> {
         index++;
       }
       this.context.model.visitAttributes(this.context.attributesVisitor);
-      Helper.forall(this.context.model.metaReferences(), new NonContainedReferencesCallbackChain(this.context, this.context.model), 
-        public on(err: Throwable): void {
-          if (err == null) {
-            this.context.printer.append(">\n");
-            Helper.forall(this.context.model.metaReferences(), new ContainedReferencesCallbackChain(this.context, this.context.model), 
-              public on(containedRefsEnd: Throwable): void {
-                if (containedRefsEnd == null) {
-                  this.context.printer.append("</" + XMIModelSerializer.formatMetaClassName(this.context.model.metaClass().metaName()).replace(".", "_") + ">\n");
-                  this.context.finishCallback.on(this.context.printer.toString(), null);
-                } else {
-                  this.context.finishCallback.on(null, containedRefsEnd);
-                }
-              }
-
-);
-          } else {
-            this.context.finishCallback.on(null, err);
-          }
+      Helper.forall(this.context.model.metaReferences(), new NonContainedReferencesCallbackChain(this.context, this.context.model), {on:function(err: Throwable){
+      if (err == null) {
+        this.context.printer.append(">\n");
+        Helper.forall(this.context.model.metaReferences(), new ContainedReferencesCallbackChain(this.context, this.context.model), {on:function(containedRefsEnd: Throwable){
+        if (containedRefsEnd == null) {
+          this.context.printer.append("</" + XMIModelSerializer.formatMetaClassName(this.context.model.metaClass().metaName()).replace(".", "_") + ">\n");
+          this.context.finishCallback.on(this.context.printer.toString(), null);
+        } else {
+          this.context.finishCallback.on(null, containedRefsEnd);
         }
-
-);
+}});
+      } else {
+        this.context.finishCallback.on(null, err);
+      }
+}});
     }
   }
 

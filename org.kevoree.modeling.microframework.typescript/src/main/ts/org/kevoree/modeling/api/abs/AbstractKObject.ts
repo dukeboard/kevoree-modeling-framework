@@ -102,21 +102,15 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     if (this._isRoot) {
       callback.on("/");
     } else {
-      this.parent(
-        public on(parent: KObject): void {
-          if (parent == null) {
-            callback.on(null);
-          } else {
-            parent.path(
-              public on(parentPath: string): void {
-                callback.on(Helper.path(parentPath, this._referenceInParent, this));
-              }
-
-);
-          }
-        }
-
-);
+      this.parent({on:function(parent: KObject){
+      if (parent == null) {
+        callback.on(null);
+      } else {
+        parent.path({on:function(parentPath: string){
+        callback.on(Helper.path(parentPath, this._referenceInParent, this));
+}});
+      }
+}});
     }
   }
 
@@ -160,12 +154,9 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
   }
 
   public jump(time: number, callback: Callback<A>): void {
-    this.view().dimension().time(time).lookup(this._uuid, 
-      public on(kObject: KObject): void {
-        callback.on(<A>kObject);
-      }
-
-);
+    this.view().dimension().time(time).lookup(this._uuid, {on:function(kObject: KObject){
+    callback.on(<A>kObject);
+}});
   }
 
   public domainKey(): string {
@@ -226,12 +217,9 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
 
   private removeFromContainer(param: KObject<any,any>): void {
     if (param != null && param.parentUuid() != null && param.parentUuid() != this._uuid) {
-      this.view().lookup(param.parentUuid(), 
-        public on(parent: KObject): void {
-          parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true);
-        }
-
-);
+      this.view().lookup(param.parentUuid(), {on:function(parent: KObject){
+      parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true);
+}});
     }
   }
 
@@ -277,12 +265,9 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
             var self: KObject = this;
             if (metaReference.opposite() != null && setOpposite) {
               if (previous != null) {
-                this.view().lookup(<number>previous, 
-                  public on(resolved: KObject): void {
-                    resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
-                  }
-
-);
+                this.view().lookup(<number>previous, {on:function(resolved: KObject){
+                resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
+}});
               }
               param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
             }
@@ -296,22 +281,19 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
             raw[metaReference.index()] = null;
             if (previousKid != null) {
               var self: KObject = this;
-              this._view.dimension().universe().storage().lookup(this._view, <number>previousKid, 
-                public on(resolvedParam: KObject): void {
-                  if (resolvedParam != null) {
-                    if (metaReference.contained()) {
-                      (<AbstractKObject>resolvedParam).set_referenceInParent(null);
-                      (<AbstractKObject>resolvedParam).setParentUuid(null);
-                    }
-                    if (metaReference.opposite() != null && setOpposite) {
-                      resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
-                    }
-                    var inboundRefs: Map<number, number> = <Map<number, number>>this.getCreateOrUpdatePayloadList(resolvedParam, AbstractKObject.INBOUNDS_INDEX);
-                    inboundRefs.remove(this.uuid());
-                  }
+              this._view.dimension().universe().storage().lookup(this._view, <number>previousKid, {on:function(resolvedParam: KObject){
+              if (resolvedParam != null) {
+                if (metaReference.contained()) {
+                  (<AbstractKObject>resolvedParam).set_referenceInParent(null);
+                  (<AbstractKObject>resolvedParam).setParentUuid(null);
                 }
-
-);
+                if (metaReference.opposite() != null && setOpposite) {
+                  resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
+                }
+                var inboundRefs: Map<number, number> = <Map<number, number>>this.getCreateOrUpdatePayloadList(resolvedParam, AbstractKObject.INBOUNDS_INDEX);
+                inboundRefs.remove(this.uuid());
+              }
+}});
             }
           } else {
             var payload: any[] = this.view().dimension().universe().storage().raw(this, AccessMode.WRITE);
@@ -356,40 +338,34 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     } else {
       if (o instanceof Set) {
         var objs: Set<number> = <Set<number>>o;
-        this.view().lookupAll(objs, 
-          public on(result: List<KObject>): void {
-            var endAlreadyCalled: boolean = false;
-            try {
-              //TODO resolve for-each cycle
-              var resolved: KObject;
-              for (resolved in result) {
-                callback.on(<C>resolved);
-              }
-              endAlreadyCalled = true;
-              end.on(null);
-            } catch ($ex$) {
-              if ($ex$ instanceof Throwable) {
-                var t: Throwable = <Throwable>$ex$;
-                if (!endAlreadyCalled) {
-                  end.on(t);
-                }
-              }
-             }
+        this.view().lookupAll(objs, {on:function(result: List<KObject>){
+        var endAlreadyCalled: boolean = false;
+        try {
+          //TODO resolve for-each cycle
+          var resolved: KObject;
+          for (resolved in result) {
+            callback.on(<C>resolved);
           }
-
-);
+          endAlreadyCalled = true;
+          end.on(null);
+        } catch ($ex$) {
+          if ($ex$ instanceof Throwable) {
+            var t: Throwable = <Throwable>$ex$;
+            if (!endAlreadyCalled) {
+              end.on(t);
+            }
+          }
+         }
+}});
       } else {
-        this.view().lookup(<number>o, 
-          public on(resolved: KObject): void {
-            if (callback != null) {
-              callback.on(<C>resolved);
-            }
-            if (end != null) {
-              end.on(null);
-            }
-          }
-
-);
+        this.view().lookup(<number>o, {on:function(resolved: KObject){
+        if (callback != null) {
+          callback.on(<C>resolved);
+        }
+        if (end != null) {
+          end.on(null);
+        }
+}});
       }
     }
   }
@@ -462,55 +438,49 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     if (toResolveds.isEmpty()) {
       end.on(null);
     } else {
-      this.view().lookupAll(toResolveds, 
-        public on(resolveds: List<KObject>): void {
-          var nextDeep: List<KObject> = new ArrayList<KObject>();
-          //TODO resolve for-each cycle
-          var resolved: KObject;
-          for (resolved in resolveds) {
-            var result: VisitResult = visitor.visit(resolved);
-            if (result.equals(VisitResult.STOP)) {
-              end.on(null);
-            } else {
-              if (deep) {
-                if (result.equals(VisitResult.CONTINUE)) {
-                  if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
-                    nextDeep.add(resolved);
-                  }
-                }
+      this.view().lookupAll(toResolveds, {on:function(resolveds: List<KObject>){
+      var nextDeep: List<KObject> = new ArrayList<KObject>();
+      //TODO resolve for-each cycle
+      var resolved: KObject;
+      for (resolved in resolveds) {
+        var result: VisitResult = visitor.visit(resolved);
+        if (result.equals(VisitResult.STOP)) {
+          end.on(null);
+        } else {
+          if (deep) {
+            if (result.equals(VisitResult.CONTINUE)) {
+              if (alreadyVisited == null || !alreadyVisited.contains(resolved.uuid())) {
+                nextDeep.add(resolved);
               }
             }
-          }
-          if (!nextDeep.isEmpty()) {
-            var i: number[] = new Array();
-            i[0] = 0;
-            var next: Callback<Throwable>[] = new Array();
-            next[0] = 
-              public on(throwable: Throwable): void {
-                i[0] = i[0] + 1;
-                if (i[0] == nextDeep.size()) {
-                  end.on(null);
-                } else {
-                  if (treeOnly) {
-                    nextDeep.get(i[0]).treeVisit(visitor, next[0]);
-                  } else {
-                    nextDeep.get(i[0]).graphVisit(visitor, next[0]);
-                  }
-                }
-              }
-
-;
-            if (treeOnly) {
-              nextDeep.get(i[0]).treeVisit(visitor, next[0]);
-            } else {
-              nextDeep.get(i[0]).graphVisit(visitor, next[0]);
-            }
-          } else {
-            end.on(null);
           }
         }
-
-);
+      }
+      if (!nextDeep.isEmpty()) {
+        var i: number[] = new Array();
+        i[0] = 0;
+        var next: Callback<Throwable>[] = new Array();
+        next[0] = {on:function(throwable: Throwable){
+        i[0] = i[0] + 1;
+        if (i[0] == nextDeep.size()) {
+          end.on(null);
+        } else {
+          if (treeOnly) {
+            nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+          } else {
+            nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+          }
+        }
+}};
+        if (treeOnly) {
+          nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+        } else {
+          nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+        }
+      } else {
+        end.on(null);
+      }
+}});
     }
   }
 
@@ -635,42 +605,39 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
           var refs: Map<number, number> = <Map<number, number>>payload;
           var oppositeKids: Set<number> = new HashSet<number>();
           oppositeKids.addAll(refs.keySet());
-          this._view.lookupAll(oppositeKids, 
-            public on(oppositeElements: List<KObject>): void {
-              if (oppositeElements != null) {
-                //TODO resolve for-each cycle
-                var opposite: KObject;
-                for (opposite in oppositeElements) {
-                  var inboundRef: number = refs.get(opposite.uuid());
-                  var metaRef: MetaReference = null;
-                  var metaReferences: MetaReference[] = opposite.metaReferences();
-                  for (var i: number = 0; i < metaReferences.length; i++) {
-                    if (metaReferences[i].index() == inboundRef) {
-                      metaRef = metaReferences[i];
-                      break;
-                    }
-                  }
-                  if (metaRef != null) {
-                    var reference: InboundReference = new InboundReference(metaRef, opposite);
-                    try {
-                      callback.on(reference);
-                    } catch ($ex$) {
-                      if ($ex$ instanceof Throwable) {
-                        var t: Throwable = <Throwable>$ex$;
-                        end.on(t);
-                      }
-                     }
-                  } else {
-                    end.on(new Exception("MetaReference not found with index:" + inboundRef + " in refs of " + opposite.metaClass().metaName()));
-                  }
+          this._view.lookupAll(oppositeKids, {on:function(oppositeElements: List<KObject>){
+          if (oppositeElements != null) {
+            //TODO resolve for-each cycle
+            var opposite: KObject;
+            for (opposite in oppositeElements) {
+              var inboundRef: number = refs.get(opposite.uuid());
+              var metaRef: MetaReference = null;
+              var metaReferences: MetaReference[] = opposite.metaReferences();
+              for (var i: number = 0; i < metaReferences.length; i++) {
+                if (metaReferences[i].index() == inboundRef) {
+                  metaRef = metaReferences[i];
+                  break;
                 }
-                end.on(null);
+              }
+              if (metaRef != null) {
+                var reference: InboundReference = new InboundReference(metaRef, opposite);
+                try {
+                  callback.on(reference);
+                } catch ($ex$) {
+                  if ($ex$ instanceof Throwable) {
+                    var t: Throwable = <Throwable>$ex$;
+                    end.on(t);
+                  }
+                 }
               } else {
-                end.on(new Exception("Could not resolve opposite objects"));
+                end.on(new Exception("MetaReference not found with index:" + inboundRef + " in refs of " + opposite.metaClass().metaName()));
               }
             }
-
-);
+            end.on(null);
+          } else {
+            end.on(new Exception("Could not resolve opposite objects"));
+          }
+}});
         } else {
           end.on(new Exception("Inbound refs payload is not a set"));
         }

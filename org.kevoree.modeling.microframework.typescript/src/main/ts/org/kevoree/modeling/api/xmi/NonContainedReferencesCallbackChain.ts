@@ -17,23 +17,17 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
     if (!ref.contained()) {
       var value: string[] = new Array();
       value[0] = "";
-      this._currentElement.each(ref, 
-        public on(o: any): void {
-          var adjustedAddress: string = this._context.addressTable.get((<KObject>o).uuid());
-          value[0] = (value[0].equals("") ? adjustedAddress : value[0] + " " + adjustedAddress);
+      this._currentElement.each(ref, {on:function(o: any){
+      var adjustedAddress: string = this._context.addressTable.get((<KObject>o).uuid());
+      value[0] = (value[0].equals("") ? adjustedAddress : value[0] + " " + adjustedAddress);
+}}, {on:function(end: Throwable){
+      if (end == null) {
+        if (value[0] != null) {
+          this._context.printer.append(" " + ref.metaName() + "=\"" + value[0] + "\"");
         }
-
-, 
-        public on(end: Throwable): void {
-          if (end == null) {
-            if (value[0] != null) {
-              this._context.printer.append(" " + ref.metaName() + "=\"" + value[0] + "\"");
-            }
-          }
-          next.on(end);
-        }
-
-);
+      }
+      next.on(end);
+}});
     } else {
       next.on(null);
     }

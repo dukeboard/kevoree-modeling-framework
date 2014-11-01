@@ -23,18 +23,15 @@ class Helper {
       }
     } else {
       var obj: A = arr[index];
-      each.on(obj, 
-        public on(err: Throwable): void {
-          if (err != null) {
-            if (end != null) {
-              end.on(err);
-            }
-          } else {
-            Helper.process(arr, index + 1, each, end);
-          }
+      each.on(obj, {on:function(err: Throwable){
+      if (err != null) {
+        if (end != null) {
+          end.on(err);
         }
-
-);
+      } else {
+        Helper.process(arr, index + 1, each, end);
+      }
+}});
     }
   }
 

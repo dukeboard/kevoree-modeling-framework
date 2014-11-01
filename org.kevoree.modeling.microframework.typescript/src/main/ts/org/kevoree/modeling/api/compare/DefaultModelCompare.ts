@@ -46,65 +46,53 @@ class DefaultModelCompare implements ModelCompare {
     var objectsMap: Map<number, KObject> = new HashMap<number, KObject>();
     traces.addAll(this.internal_createTraces(origin, target, inter, merge, false, true));
     tracesRef.addAll(this.internal_createTraces(origin, target, inter, merge, true, false));
-    origin.treeVisit(
-      public visit(elem: KObject): VisitResult {
-        objectsMap.put(elem.uuid(), elem);
-        return VisitResult.CONTINUE;
-      }
-
-, 
-      public on(throwable: Throwable): void {
-        if (throwable != null) {
-          throwable.printStackTrace();
-          callback.on(null);
-        } else {
-          target.treeVisit(
-            public visit(elem: KObject): VisitResult {
-              var childPath: number = elem.uuid();
-              if (objectsMap.containsKey(childPath)) {
-                if (inter) {
-                  var currentReference: MetaReference = null;
-                  traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
-                }
-                traces.addAll(this.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
-                tracesRef.addAll(this.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
-                objectsMap.remove(childPath);
-              } else {
-                if (!inter) {
-                  var currentReference: MetaReference = null;
-                  traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
-                  traces.addAll(this.internal_createTraces(elem, elem, true, merge, false, true));
-                  tracesRef.addAll(this.internal_createTraces(elem, elem, true, merge, true, false));
-                }
-              }
-              return VisitResult.CONTINUE;
-            }
-
-, 
-            public on(throwable: Throwable): void {
-              if (throwable != null) {
-                throwable.printStackTrace();
-                callback.on(null);
-              } else {
-                traces.addAll(tracesRef);
-                if (!inter && !merge) {
-                  //TODO resolve for-each cycle
-                  var diffChildKey: number;
-                  for (diffChildKey in objectsMap.keySet()) {
-                    var diffChild: KObject = objectsMap.get(diffChildKey);
-                    var src: number = diffChild.parentUuid();
-                    traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
-                  }
-                }
-                callback.on(new TraceSequence().populate(traces));
-              }
-            }
-
-);
+    origin.treeVisit({visit:function(elem: KObject){
+    objectsMap.put(elem.uuid(), elem);
+    return VisitResult.CONTINUE;
+}}, {on:function(throwable: Throwable){
+    if (throwable != null) {
+      throwable.printStackTrace();
+      callback.on(null);
+    } else {
+      target.treeVisit({visit:function(elem: KObject){
+      var childPath: number = elem.uuid();
+      if (objectsMap.containsKey(childPath)) {
+        if (inter) {
+          var currentReference: MetaReference = null;
+          traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
+        }
+        traces.addAll(this.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
+        tracesRef.addAll(this.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
+        objectsMap.remove(childPath);
+      } else {
+        if (!inter) {
+          var currentReference: MetaReference = null;
+          traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
+          traces.addAll(this.internal_createTraces(elem, elem, true, merge, false, true));
+          tracesRef.addAll(this.internal_createTraces(elem, elem, true, merge, true, false));
         }
       }
-
-);
+      return VisitResult.CONTINUE;
+}}, {on:function(throwable: Throwable){
+      if (throwable != null) {
+        throwable.printStackTrace();
+        callback.on(null);
+      } else {
+        traces.addAll(tracesRef);
+        if (!inter && !merge) {
+          //TODO resolve for-each cycle
+          var diffChildKey: number;
+          for (diffChildKey in objectsMap.keySet()) {
+            var diffChild: KObject = objectsMap.get(diffChildKey);
+            var src: number = diffChild.parentUuid();
+            traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
+          }
+        }
+        callback.on(new TraceSequence().populate(traces));
+      }
+}});
+    }
+}});
   }
 
   public internal_createTraces(current: KObject<any,any>, sibling: KObject<any,any>, inter: boolean, merge: boolean, references: boolean, attributes: boolean): List<ModelTrace> {
@@ -112,41 +100,35 @@ class DefaultModelCompare implements ModelCompare {
     var values: Map<MetaAttribute, string> = new HashMap<MetaAttribute, string>();
     if (attributes) {
       if (current != null) {
-        current.visitAttributes(
-          public visit(metaAttribute: MetaAttribute, value: any): void {
-            values.put(metaAttribute, Converters.convFlatAtt(value));
-          }
-
-);
+        current.visitAttributes({visit:function(metaAttribute: MetaAttribute, value: any){
+        values.put(metaAttribute, Converters.convFlatAtt(value));
+}});
       }
       if (sibling != null) {
-        sibling.visitAttributes(
-          public visit(metaAttribute: MetaAttribute, value: any): void {
-            var flatAtt2: string = Converters.convFlatAtt(value);
-            var flatAtt1: string = values.get(metaAttribute);
-            var isEquals: boolean = true;
-            if (flatAtt1 == null) {
-              if (flatAtt2 == null) {
-                isEquals = true;
-              } else {
-                isEquals = false;
-              }
-            } else {
-              isEquals = flatAtt1.equals(flatAtt2);
-            }
-            if (isEquals) {
-              if (inter) {
-                traces.add(new ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
-              }
-            } else {
-              if (!inter) {
-                traces.add(new ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
-              }
-            }
-            values.remove(metaAttribute);
+        sibling.visitAttributes({visit:function(metaAttribute: MetaAttribute, value: any){
+        var flatAtt2: string = Converters.convFlatAtt(value);
+        var flatAtt1: string = values.get(metaAttribute);
+        var isEquals: boolean = true;
+        if (flatAtt1 == null) {
+          if (flatAtt2 == null) {
+            isEquals = true;
+          } else {
+            isEquals = false;
           }
-
-);
+        } else {
+          isEquals = flatAtt1.equals(flatAtt2);
+        }
+        if (isEquals) {
+          if (inter) {
+            traces.add(new ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
+          }
+        } else {
+          if (!inter) {
+            traces.add(new ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
+          }
+        }
+        values.remove(metaAttribute);
+}});
       }
       if (!inter && !merge && !values.isEmpty()) {
         //TODO resolve for-each cycle

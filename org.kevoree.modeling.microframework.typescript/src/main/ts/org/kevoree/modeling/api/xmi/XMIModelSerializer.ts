@@ -13,25 +13,22 @@ class XMIModelSerializer implements ModelSerializer {
     context.attributesVisitor = new AttributesVisitor(context);
     context.printer = new StringBuilder();
     context.addressTable.put(model.uuid(), "/");
-    model.treeVisit(
-      public visit(elem: KObject): VisitResult {
-        var parentXmiAddress: string = context.addressTable.get(elem.parentUuid());
-        var key: string = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
-        var i: number = context.elementsCount.get(key);
-        if (i == null) {
-          i = 0;
-          context.elementsCount.put(key, i);
-        }
-        context.addressTable.put(elem.uuid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
-        context.elementsCount.put(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), i + 1);
-        var pack: string = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));
-        if (!context.packageList.contains(pack)) {
-          context.packageList.add(pack);
-        }
-        return VisitResult.CONTINUE;
-      }
-
-, new PrettyPrinter(context));
+    model.treeVisit({visit:function(elem: KObject){
+    var parentXmiAddress: string = context.addressTable.get(elem.parentUuid());
+    var key: string = parentXmiAddress + "/@" + elem.referenceInParent().metaName();
+    var i: number = context.elementsCount.get(key);
+    if (i == null) {
+      i = 0;
+      context.elementsCount.put(key, i);
+    }
+    context.addressTable.put(elem.uuid(), parentXmiAddress + "/@" + elem.referenceInParent().metaName() + "." + i);
+    context.elementsCount.put(parentXmiAddress + "/@" + elem.referenceInParent().metaName(), i + 1);
+    var pack: string = elem.metaClass().metaName().substring(0, elem.metaClass().metaName().lastIndexOf('.'));
+    if (!context.packageList.contains(pack)) {
+      context.packageList.add(pack);
+    }
+    return VisitResult.CONTINUE;
+}}, new PrettyPrinter(context));
   }
 
   public static escapeXml(ostream: StringBuilder, chain: string): void {

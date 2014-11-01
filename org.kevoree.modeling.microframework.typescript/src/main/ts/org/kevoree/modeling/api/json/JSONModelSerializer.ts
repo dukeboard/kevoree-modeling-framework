@@ -17,20 +17,14 @@ class JSONModelSerializer implements ModelSerializer {
     var builder: StringBuilder = new StringBuilder();
     builder.append("[\n");
     JSONModelSerializer.printJSON(model, builder);
-    model.graphVisit(
-      public visit(elem: KObject): VisitResult {
-        builder.append(",");
-        JSONModelSerializer.printJSON(elem, builder);
-        return VisitResult.CONTINUE;
-      }
-
-, 
-      public on(throwable: Throwable): void {
-        builder.append("]\n");
-        callback.on(builder.toString(), throwable);
-      }
-
-);
+    model.graphVisit({visit:function(elem: KObject){
+    builder.append(",");
+    JSONModelSerializer.printJSON(elem, builder);
+    return VisitResult.CONTINUE;
+}}, {on:function(throwable: Throwable){
+    builder.append("]\n");
+    callback.on(builder.toString(), throwable);
+}});
   }
 
   public static printJSON(elem: KObject<any,any>, builder: StringBuilder): void {

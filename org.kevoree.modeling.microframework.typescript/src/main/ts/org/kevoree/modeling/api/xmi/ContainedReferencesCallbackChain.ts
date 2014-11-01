@@ -16,42 +16,30 @@ class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
 
   public on(ref: MetaReference, nextReference: Callback<Throwable>): void {
     if (ref.contained()) {
-      this.currentElement.each(ref, 
-        public on(o: any): void {
-          var elem: KObject = <KObject>o;
-          this.context.printer.append("<");
+      this.currentElement.each(ref, {on:function(o: any){
+      var elem: KObject = <KObject>o;
+      this.context.printer.append("<");
+      this.context.printer.append(ref.metaName());
+      this.context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
+      elem.visitAttributes(this.context.attributesVisitor);
+      Helper.forall(elem.metaReferences(), new NonContainedReferencesCallbackChain(this.context, elem), {on:function(err: Throwable){
+      if (err == null) {
+        this.context.printer.append(">\n");
+        Helper.forall(elem.metaReferences(), new ContainedReferencesCallbackChain(this.context, elem), {on:function(containedRefsEnd: Throwable){
+        if (containedRefsEnd == null) {
+          this.context.printer.append("</");
           this.context.printer.append(ref.metaName());
-          this.context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
-          elem.visitAttributes(this.context.attributesVisitor);
-          Helper.forall(elem.metaReferences(), new NonContainedReferencesCallbackChain(this.context, elem), 
-            public on(err: Throwable): void {
-              if (err == null) {
-                this.context.printer.append(">\n");
-                Helper.forall(elem.metaReferences(), new ContainedReferencesCallbackChain(this.context, elem), 
-                  public on(containedRefsEnd: Throwable): void {
-                    if (containedRefsEnd == null) {
-                      this.context.printer.append("</");
-                      this.context.printer.append(ref.metaName());
-                      this.context.printer.append('>');
-                      this.context.printer.append("\n");
-                    }
-                  }
-
-);
-              } else {
-                this.context.finishCallback.on(null, err);
-              }
-            }
-
-);
+          this.context.printer.append('>');
+          this.context.printer.append("\n");
         }
-
-, 
-        public on(throwable: Throwable): void {
-          nextReference.on(null);
-        }
-
-);
+}});
+      } else {
+        this.context.finishCallback.on(null, err);
+      }
+}});
+}}, {on:function(throwable: Throwable){
+      nextReference.on(null);
+}});
     } else {
       nextReference.on(null);
     }

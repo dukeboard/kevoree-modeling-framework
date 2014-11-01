@@ -97,24 +97,21 @@ class AbstractKView implements KView {
   }
 
   public select(query: string, callback: Callback<List<KObject>>): void {
-    this.dimension().universe().storage().getRoot(this, 
-      public on(rootObj: KObject): void {
-        var cleanedQuery: string = query;
-        if (cleanedQuery.equals("/")) {
-          var res: ArrayList<KObject> = new ArrayList<KObject>();
-          if (rootObj != null) {
-            res.add(rootObj);
-          }
-          callback.on(res);
-        } else {
-          if (cleanedQuery.startsWith("/")) {
-            cleanedQuery = cleanedQuery.substring(1);
-          }
-          KSelector.select(rootObj, cleanedQuery, callback);
-        }
+    this.dimension().universe().storage().getRoot(this, {on:function(rootObj: KObject){
+    var cleanedQuery: string = query;
+    if (cleanedQuery.equals("/")) {
+      var res: ArrayList<KObject> = new ArrayList<KObject>();
+      if (rootObj != null) {
+        res.add(rootObj);
       }
-
-);
+      callback.on(res);
+    } else {
+      if (cleanedQuery.startsWith("/")) {
+        cleanedQuery = cleanedQuery.substring(1);
+      }
+      KSelector.select(rootObj, cleanedQuery, callback);
+    }
+}});
   }
 
   public lookup(kid: number, callback: Callback<KObject>): void {

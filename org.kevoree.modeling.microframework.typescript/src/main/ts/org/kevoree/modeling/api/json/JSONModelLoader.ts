@@ -26,12 +26,9 @@ class JSONModelLoader implements ModelLoader {
   public static load(payload: string, factory: KView, callback: Callback<KObject>): KObject {
     var lexer: Lexer = new Lexer(payload);
     var loaded: KObject[] = new Array();
-    JSONModelLoader.loadObjects(lexer, factory, 
-      public on(objs: List<KObject>): void {
-        loaded[0] = objs.get(0);
-      }
-
-);
+    JSONModelLoader.loadObjects(lexer, factory, {on:function(objs: List<KObject>){
+    loaded[0] = objs.get(0);
+}});
     return loaded[0];
   }
 
@@ -81,63 +78,54 @@ class JSONModelLoader implements ModelLoader {
       var kid: number = Long.parseLong(alls.get(i).get(JSONModelSerializer.KEY_UUID).toString());
       keys[i] = kid;
     }
-    factory.dimension().timeTrees(keys, 
-      public on(timeTrees: TimeTree[]): void {
-        for (var i: number = 0; i < alls.size(); i++) {
-          var elem: Map<string, any> = alls.get(i);
-          var meta: string = elem.get(JSONModelSerializer.KEY_META).toString();
-          var kid: number = Long.parseLong(elem.get(JSONModelSerializer.KEY_UUID).toString());
-          var isRoot: boolean = false;
-          var root: any = elem.get(JSONModelSerializer.KEY_ROOT);
-          if (root != null) {
-            isRoot = Boolean.parseBoolean(root.toString());
-          }
-          var timeTree: TimeTree = timeTrees[i];
-          timeTree.insert(factory.now());
-          var current: KObject = factory.createProxy(factory.metaClass(meta), timeTree, kid);
-          if (isRoot) {
-            (<AbstractKObject>current).setRoot(true);
-          }
-          loaded.add(current);
-          var payloadObj: any[] = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
-          //TODO resolve for-each cycle
-          var k: string;
-          for (k in elem.keySet()) {
-            var att: MetaAttribute = current.metaAttribute(k);
-            if (att != null) {
-              payloadObj[att.index()] = JSONModelLoader.convertRaw(att, elem.get(k));
+    factory.dimension().timeTrees(keys, {on:function(timeTrees: TimeTree[]){
+    for (var i: number = 0; i < alls.size(); i++) {
+      var elem: Map<string, any> = alls.get(i);
+      var meta: string = elem.get(JSONModelSerializer.KEY_META).toString();
+      var kid: number = Long.parseLong(elem.get(JSONModelSerializer.KEY_UUID).toString());
+      var isRoot: boolean = false;
+      var root: any = elem.get(JSONModelSerializer.KEY_ROOT);
+      if (root != null) {
+        isRoot = Boolean.parseBoolean(root.toString());
+      }
+      var timeTree: TimeTree = timeTrees[i];
+      timeTree.insert(factory.now());
+      var current: KObject = factory.createProxy(factory.metaClass(meta), timeTree, kid);
+      if (isRoot) {
+        (<AbstractKObject>current).setRoot(true);
+      }
+      loaded.add(current);
+      var payloadObj: any[] = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
+      //TODO resolve for-each cycle
+      var k: string;
+      for (k in elem.keySet()) {
+        var att: MetaAttribute = current.metaAttribute(k);
+        if (att != null) {
+          payloadObj[att.index()] = JSONModelLoader.convertRaw(att, elem.get(k));
+        } else {
+          var ref: MetaReference = current.metaReference(k);
+          if (ref != null) {
+            if (ref.single()) {
+              var refPayloadSingle: number;
+              try {
+                refPayloadSingle = Long.parseLong(elem.get(k).toString());
+                payloadObj[ref.index()] = refPayloadSingle;
+              } catch ($ex$) {
+                if ($ex$ instanceof Exception) {
+                  var e: Exception = <Exception>$ex$;
+                  e.printStackTrace();
+                }
+               }
             } else {
-              var ref: MetaReference = current.metaReference(k);
-              if (ref != null) {
-                if (ref.single()) {
-                  var refPayloadSingle: number;
+              try {
+                var plainRawList: Set<string> = <Set<string>>elem.get(k);
+                var convertedRaw: Set<number> = new HashSet<number>();
+                //TODO resolve for-each cycle
+                var plainRaw: string;
+                for (plainRaw in plainRawList) {
                   try {
-                    refPayloadSingle = Long.parseLong(elem.get(k).toString());
-                    payloadObj[ref.index()] = refPayloadSingle;
-                  } catch ($ex$) {
-                    if ($ex$ instanceof Exception) {
-                      var e: Exception = <Exception>$ex$;
-                      e.printStackTrace();
-                    }
-                   }
-                } else {
-                  try {
-                    var plainRawList: Set<string> = <Set<string>>elem.get(k);
-                    var convertedRaw: Set<number> = new HashSet<number>();
-                    //TODO resolve for-each cycle
-                    var plainRaw: string;
-                    for (plainRaw in plainRawList) {
-                      try {
-                        var converted: number = Long.parseLong(plainRaw);
-                        convertedRaw.add(converted);
-                      } catch ($ex$) {
-                        if ($ex$ instanceof Exception) {
-                          var e: Exception = <Exception>$ex$;
-                          e.printStackTrace();
-                        }
-                       }
-                    }
-                    payloadObj[ref.index()] = convertedRaw;
+                    var converted: number = Long.parseLong(plainRaw);
+                    convertedRaw.add(converted);
                   } catch ($ex$) {
                     if ($ex$ instanceof Exception) {
                       var e: Exception = <Exception>$ex$;
@@ -145,16 +133,22 @@ class JSONModelLoader implements ModelLoader {
                     }
                    }
                 }
-              }
+                payloadObj[ref.index()] = convertedRaw;
+              } catch ($ex$) {
+                if ($ex$ instanceof Exception) {
+                  var e: Exception = <Exception>$ex$;
+                  e.printStackTrace();
+                }
+               }
             }
           }
         }
-        if (callback != null) {
-          callback.on(loaded);
-        }
       }
-
-);
+    }
+    if (callback != null) {
+      callback.on(loaded);
+    }
+}});
   }
 
   public load(payload: string, callback: Callback<Throwable>): void {
@@ -166,12 +160,9 @@ class JSONModelLoader implements ModelLoader {
       if (currentToken.tokenType() != Type.LEFT_BRACKET) {
         callback.on(null);
       } else {
-        JSONModelLoader.loadObjects(lexer, this._factory, 
-          public on(kObjects: List<KObject>): void {
-            callback.on(null);
-          }
-
-);
+        JSONModelLoader.loadObjects(lexer, this._factory, {on:function(kObjects: List<KObject>){
+        callback.on(null);
+}});
       }
     }
   }
