@@ -3,11 +3,11 @@
 
 interface ExtrapolationStrategy {
 
-  timedDependencies(current: KObject): number[];
+  timedDependencies(current: KObject<any,any>): number[];
 
-  extrapolate(current: KObject, attribute: MetaAttribute, dependencies: KObject[]): any;
+  extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject[]): any;
 
-  mutate(current: KObject, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void;
+  mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void;
 
 }
 

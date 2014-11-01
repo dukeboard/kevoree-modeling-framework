@@ -66,19 +66,8 @@ public class MethodTranslator extends Translator<PsiMethod> {
             //paramSB.append(TypeHelper.getParameterType(parameter));
 
             String resolvedType = TypeHelper.getParameterType(parameter);
-            Integer generics = ctx.getGenerics().get(resolvedType);
             paramSB.append(resolvedType);
-            if(generics != null) {
-                paramSB.append("<");
-                for(int i = 0; i < generics ; i++) {
-                    paramSB.append("any");
-                    if(i < generics-1) {
-                        paramSB.append(",");
-                    }
-                }
-                paramSB.append(">");
-            }
-
+            paramSB.append(TypeHelper.getGenericsIfAny(ctx, resolvedType));
 
             params.add(paramSB.toString());
         }
@@ -92,19 +81,8 @@ public class MethodTranslator extends Translator<PsiMethod> {
             //ctx.append(returnType);
 
             String resolvedType = TypeHelper.getMethodReturnType(element);
-            Integer generics = ctx.getGenerics().get(resolvedType);
             ctx.append(resolvedType);
-            if(generics != null) {
-                ctx.append("<");
-                for(int i = 0; i < generics ; i++) {
-                    ctx.append("any");
-                    if(i < generics-1) {
-                        ctx.append(",");
-                    }
-                }
-                ctx.append(">");
-            }
-
+            TypeHelper.getGenericsIfAny(ctx, resolvedType);
 
         }
 

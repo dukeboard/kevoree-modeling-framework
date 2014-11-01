@@ -30,7 +30,7 @@
 ///<reference path="../../../../../java/util/Map.ts"/>
 ///<reference path="../../../../../java/util/Set.ts"/>
 
-class AbstractKObject<A, B> implements KObject<A, B> {
+class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KObject<A, B> {
 
   public static PARENT_INDEX: number = 0;
   public static INBOUNDS_INDEX: number = 1;
@@ -45,7 +45,7 @@ class AbstractKObject<A, B> implements KObject<A, B> {
   private _referenceInParent: MetaReference = null;
   private _dimension: KDimension<any,any,any> = null;
 
-  constructor(p_view: B, p_metaClass: MetaClass, p_uuid: number, p_now: number, p_dimension: KDimension, p_timeTree: TimeTree) {
+  constructor(p_view: B, p_metaClass: MetaClass, p_uuid: number, p_now: number, p_dimension: KDimension<any,any,any>, p_timeTree: TimeTree) {
     this._view = p_view;
     this._metaClass = p_metaClass;
     this._uuid = p_uuid;
@@ -211,7 +211,7 @@ class AbstractKObject<A, B> implements KObject<A, B> {
     return cachedObjs;
   }
 
-  private getCreateOrUpdatePayloadList(obj: KObject, payloadIndex: number): any {
+  private getCreateOrUpdatePayloadList(obj: KObject<any,any>, payloadIndex: number): any {
     var previous: any = this.view().dimension().universe().storage().raw(obj, AccessMode.WRITE)[payloadIndex];
     if (previous == null) {
       if (payloadIndex == AbstractKObject.INBOUNDS_INDEX) {
@@ -224,7 +224,7 @@ class AbstractKObject<A, B> implements KObject<A, B> {
     return previous;
   }
 
-  private removeFromContainer(param: KObject): void {
+  private removeFromContainer(param: KObject<any,any>): void {
     if (param != null && param.parentUuid() != null && param.parentUuid() != this._uuid) {
       this.view().lookup(param.parentUuid(), 
         public on(parent: KObject): void {
@@ -235,7 +235,7 @@ class AbstractKObject<A, B> implements KObject<A, B> {
     }
   }
 
-  public mutate(actionType: KActionType, metaReference: MetaReference, param: KObject, setOpposite: boolean): void {
+  public mutate(actionType: KActionType, metaReference: MetaReference, param: KObject<any,any>, setOpposite: boolean): void {
     if (actionType.equals(KActionType.ADD)) {
       if (metaReference.single()) {
         this.mutate(KActionType.SET, metaReference, param, setOpposite);

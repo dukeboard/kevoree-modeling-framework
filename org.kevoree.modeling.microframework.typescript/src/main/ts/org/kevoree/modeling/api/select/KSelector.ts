@@ -12,7 +12,7 @@
 
 class KSelector {
 
-  public static select(root: KObject, query: string, callback: Callback<List<KObject>>): void {
+  public static select(root: KObject<any,any>, query: string, callback: Callback<List<KObject>>): void {
     var extractedQuery: KQuery = KQuery.extractFirstQuery(query);
     if (extractedQuery == null) {
       callback.on(new ArrayList());

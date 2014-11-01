@@ -1,6 +1,6 @@
 ///<reference path="data/KStore.ts"/>
 
-interface KUniverse<A> {
+interface KUniverse<A extends KDimension<any,any,any>> {
 
   newDimension(callback: Callback<A>): void;
 

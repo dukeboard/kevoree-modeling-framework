@@ -1,7 +1,7 @@
 
 interface ModelVisitor {
 
-  visit(elem: KObject): VisitResult;
+  visit(elem: KObject<any,any>): VisitResult;
 
 }
 

@@ -9,136 +9,148 @@ import java.util.List;
 
 public class ClassTranslator extends Translator<PsiClass> {
 
-  private static final Joiner joiner = Joiner.on(", ");
+    private static final Joiner joiner = Joiner.on(", ");
 
-  @Override
-  public void translate(PsiElementVisitor visitor, PsiClass element, TranslationContext ctx) {
+    @Override
+    public void translate(PsiElementVisitor visitor, PsiClass element, TranslationContext ctx) {
 
-    boolean anonymousClass = element instanceof PsiAnonymousClass;
+        boolean anonymousClass = element instanceof PsiAnonymousClass;
 
-    if (!anonymousClass) {
-      printClassDeclaration(element, ctx);
-    }
-
-    printClassMembers(visitor, element, ctx);
-
-    if (!ctx.hasWhitespace()) {
-      ctx.append("\n");
-    }
-
-    if (!anonymousClass) {
-      ctx.print("}\n");
-      ctx.append("\n");
-    }
-
-    printInnerClasses(visitor, element, ctx);
-
-  }
-
-  private void printInnerClasses(PsiElementVisitor visitor, PsiClass element, TranslationContext ctx) {
-    PsiClass[] innerClasses = element.getInnerClasses();
-    if (innerClasses != null && innerClasses.length > 0) {
-      ctx.print("module ").append(element.getName()).append(" { \n");
-      ctx.increaseIdent();
-      for (PsiClass innerClass : innerClasses) {
-        innerClass.accept(visitor);
-        ctx.append("\n");
-      }
-      ctx.decreaseIdent();
-      ctx.print("}\n");
-    }
-  }
-
-  private void printClassMembers(PsiElementVisitor visitor, PsiClass element, TranslationContext ctx) {
-    ctx.increaseIdent();
-
-    PsiField[] fields = element.getFields();
-    if (fields != null && fields.length > 0) {
-      for (PsiField field: fields) {
-        field.accept(visitor);
-      }
-    }
-
-    PsiClassInitializer[] initializers = element.getInitializers();
-    if (initializers != null && initializers.length > 0) {
-      for (PsiClassInitializer initializer : initializers) {
-        if (initializer.hasModifierProperty("static")){
-          ctx.print("//TODO Resolve static initializer\n");
-          ctx.print("static {\n");
-        } else {
-          ctx.print("//TODO Resolve instance initializer\n");
-          ctx.print("{\n");
+        if (!anonymousClass) {
+            printClassDeclaration(element, ctx);
         }
+
+        printClassMembers(visitor, element, ctx);
+
+        if (!ctx.hasWhitespace()) {
+            ctx.append("\n");
+        }
+
+        if (!anonymousClass) {
+            ctx.print("}\n");
+            ctx.append("\n");
+        }
+
+        printInnerClasses(visitor, element, ctx);
+
+    }
+
+    private void printInnerClasses(PsiElementVisitor visitor, PsiClass element, TranslationContext ctx) {
+        PsiClass[] innerClasses = element.getInnerClasses();
+        if (innerClasses != null && innerClasses.length > 0) {
+            ctx.print("module ").append(element.getName()).append(" { \n");
+            ctx.increaseIdent();
+            for (PsiClass innerClass : innerClasses) {
+                innerClass.accept(visitor);
+                ctx.append("\n");
+            }
+            ctx.decreaseIdent();
+            ctx.print("}\n");
+        }
+    }
+
+    private void printClassMembers(PsiElementVisitor visitor, PsiClass element, TranslationContext ctx) {
         ctx.increaseIdent();
-        initializer.getBody().accept(visitor);
-        ctx.decreaseIdent();
-        ctx.print("}\n");
-      }
-    }
 
-    PsiMethod[] methods = element.getMethods();
-    if (methods != null && methods.length > 0) {
-      for (PsiMethod method : methods) {
-        method.accept(visitor);
-      }
-    }
-
-      if(element.isEnum()) {
-          ctx.print("public equals(other: AccessMode): boolean {\n" +
-                  "        return this == other;\n" +
-                  "    }\n");
-      }
-
-    ctx.decreaseIdent();
-  }
-
-  private void printClassDeclaration(PsiClass element, TranslationContext ctx) {
-    if (!ctx.hasWhitespace()){
-      ctx.append("\n");
-    }
-
-    if (element.isInterface()) {
-      ctx.print("interface ");
-    } else {
-      ctx.print("class ");
-    }
-
-    ctx.append(element.getName());
-
-    PsiTypeParameter[] typeParameters = element.getTypeParameters();
-    if (typeParameters != null && typeParameters.length > 0) {
-      ctx.append('<');
-      for (int i=0; i < typeParameters.length; i++) {
-        ctx.append(typeParameters[i].getName());
-        if (i != typeParameters.length - 1) {
-          ctx.append(", ");
+        PsiField[] fields = element.getFields();
+        if (fields != null && fields.length > 0) {
+            for (PsiField field: fields) {
+                field.accept(visitor);
+            }
         }
-      }
-      ctx.append('>');
+
+        PsiClassInitializer[] initializers = element.getInitializers();
+        if (initializers != null && initializers.length > 0) {
+            for (PsiClassInitializer initializer : initializers) {
+                if (initializer.hasModifierProperty("static")){
+                    ctx.print("//TODO Resolve static initializer\n");
+                    ctx.print("static {\n");
+                } else {
+                    ctx.print("//TODO Resolve instance initializer\n");
+                    ctx.print("{\n");
+                }
+                ctx.increaseIdent();
+                initializer.getBody().accept(visitor);
+                ctx.decreaseIdent();
+                ctx.print("}\n");
+            }
+        }
+
+        PsiMethod[] methods = element.getMethods();
+        if (methods != null && methods.length > 0) {
+            for (PsiMethod method : methods) {
+                method.accept(visitor);
+            }
+        }
+
+        if(element.isEnum()) {
+            ctx.print("public equals(other: AccessMode): boolean {\n" +
+                    "        return this == other;\n" +
+                    "    }\n");
+        }
+
+        ctx.decreaseIdent();
     }
 
-    PsiClassType[] extendsList = element.getExtendsListTypes();
-    if (extendsList != null && extendsList.length != 0 && !element.isEnum()) {
-      ctx.append(" extends ");
+    private void printClassDeclaration(PsiClass element, TranslationContext ctx) {
+        if (!ctx.hasWhitespace()){
+            ctx.append("\n");
+        }
 
-      writeTypeList(ctx, extendsList);
+        if (element.isInterface()) {
+            ctx.print("interface ");
+        } else {
+            ctx.print("class ");
+        }
+
+        ctx.append(element.getName());
+
+        PsiTypeParameter[] typeParameters = element.getTypeParameters();
+        if (typeParameters != null && typeParameters.length > 0) {
+            ctx.append('<');
+            for (int i=0; i < typeParameters.length; i++) {
+                PsiTypeParameter p = typeParameters[i];
+                ctx.append(p.getName());
+                if(p.getExtendsList() != null) {
+                    PsiClassType[] extentions = p.getExtendsList().getReferencedTypes();
+                    if(extentions.length > 0) {
+                        ctx.append(" extends ");
+                        for(PsiClassType ext : extentions) {
+                            ctx.append(ext.getClassName());
+                            ctx.append(TypeHelper.getGenericsIfAny(ctx, ext.getClassName()));
+                        }
+                    }
+
+                }
+                if (i != typeParameters.length - 1) {
+                    ctx.append(", ");
+                }
+            }
+            ctx.append('>');
+        }
+
+        PsiClassType[] extendsList = element.getExtendsListTypes();
+        if (extendsList != null && extendsList.length != 0 && !element.isEnum()) {
+            ctx.append(" extends ");
+
+            writeTypeList(ctx, extendsList);
+        }
+
+        PsiClassType[] implementsList = element.getImplementsListTypes();
+        if (implementsList != null && implementsList.length != 0) {
+            ctx.append(" implements ");
+
+            writeTypeList(ctx, implementsList);
+        }
+
+        ctx.append(" {\n\n");
     }
 
-    PsiClassType[] implementsList = element.getImplementsListTypes();
-    if (implementsList != null && implementsList.length != 0) {
-      ctx.append(" implements ");
+    private void writeTypeList(TranslationContext ctx, PsiClassType[] typeList) {
+        for (int i=0; i < typeList.length; i++) {
+            PsiClassType type = typeList[i];
 
-      writeTypeList(ctx, implementsList);
-    }
-
-    ctx.append(" {\n\n");
-  }
-
-  private void writeTypeList(TranslationContext ctx, PsiClassType[] typeList) {
-    for (int i=0; i < typeList.length; i++) {
-      PsiClassType type = typeList[i];
-
-      ctx.append(TypeHelper.getType(type));
+            ctx.append(TypeHelper.getType(type));
 
         /*
       PsiType[] parameters = type.getParameters();
@@ -148,10 +160,10 @@ public class ClassTranslator extends Translator<PsiClass> {
         ctx.append('>');
       }
 */
-      if (i != typeList.length - 1) {
-        ctx.append(", ");
-      }
+            if (i != typeList.length - 1) {
+                ctx.append(", ");
+            }
+        }
     }
-  }
 
 }

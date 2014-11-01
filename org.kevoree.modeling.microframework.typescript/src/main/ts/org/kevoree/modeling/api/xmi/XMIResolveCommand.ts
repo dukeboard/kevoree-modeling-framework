@@ -9,7 +9,7 @@ class XMIResolveCommand {
   private refName: string = null;
   private ref: string = null;
 
-  constructor(context: XMILoadingContext, target: KObject, mutatorType: KActionType, refName: string, ref: string) {
+  constructor(context: XMILoadingContext, target: KObject<any,any>, mutatorType: KActionType, refName: string, ref: string) {
     this.context = context;
     this.target = target;
     this.mutatorType = mutatorType;

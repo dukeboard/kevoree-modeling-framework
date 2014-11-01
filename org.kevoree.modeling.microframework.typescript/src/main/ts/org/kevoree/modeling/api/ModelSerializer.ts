@@ -1,7 +1,7 @@
 
 interface ModelSerializer {
 
-  serialize(model: KObject, callback: ThrowableCallback<string>): void;
+  serialize(model: KObject<any,any>, callback: ThrowableCallback<string>): void;
 
 }
 

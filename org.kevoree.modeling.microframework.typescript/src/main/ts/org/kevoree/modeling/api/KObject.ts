@@ -6,7 +6,7 @@
 ///<reference path="trace/ModelTrace.ts"/>
 ///<reference path="../../../../java/util/List.ts"/>
 
-interface KObject<A, B> {
+interface KObject<A extends KObject<any,any>, B extends KView> {
 
   isDirty(): boolean;
 
@@ -66,7 +66,7 @@ interface KObject<A, B> {
 
   metaOperation(name: string): MetaOperation;
 
-  mutate(actionType: KActionType, metaReference: MetaReference, param: KObject, setOpposite: boolean): void;
+  mutate(actionType: KActionType, metaReference: MetaReference, param: KObject<any,any>, setOpposite: boolean): void;
 
   each<C> (metaReference: MetaReference, callback: Callback<C>, end: Callback<Throwable>): void;
 

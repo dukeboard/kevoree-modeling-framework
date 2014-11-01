@@ -3,15 +3,15 @@
 
 class LinearRegressionExtrapolationStrategy implements ExtrapolationStrategy {
 
-  public timedDependencies(current: KObject): number[] {
+  public timedDependencies(current: KObject<any,any>): number[] {
     return new Array();
   }
 
-  public extrapolate(current: KObject, attribute: MetaAttribute, dependencies: KObject[]): any {
+  public extrapolate(current: KObject<any,any>, attribute: MetaAttribute, dependencies: KObject[]): any {
     return null;
   }
 
-  public mutate(current: KObject, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void {
+  public mutate(current: KObject<any,any>, attribute: MetaAttribute, payload: any, dependencies: KObject[]): void {
   }
 
 }

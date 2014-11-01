@@ -6,7 +6,7 @@
 
 class XMIModelSerializer implements ModelSerializer {
 
-  public serialize(model: KObject, callback: ThrowableCallback<string>): void {
+  public serialize(model: KObject<any,any>, callback: ThrowableCallback<string>): void {
     var context: SerializationContext = new SerializationContext();
     context.model = model;
     context.finishCallback = callback;

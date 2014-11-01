@@ -15,7 +15,7 @@ class DimensionCache {
   public rootTimeTree: TimeTree = new DefaultTimeTree();
   public listeners: List<ModelListener> = new ArrayList<ModelListener>();
 
-  constructor(dimension: KDimension) {
+  constructor(dimension: KDimension<any,any,any>) {
     this.dimension = dimension;
   }
 

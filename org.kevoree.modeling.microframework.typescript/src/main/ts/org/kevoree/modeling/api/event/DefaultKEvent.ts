@@ -11,7 +11,7 @@ class DefaultKEvent implements KEvent {
   private _newValue: any = null;
   private _source: KObject<any,any> = null;
 
-  constructor(p_type: KActionType, p_meta: Meta, p_source: KObject, p_pastValue: any, p_newValue: any) {
+  constructor(p_type: KActionType, p_meta: Meta, p_source: KObject<any,any>, p_pastValue: any, p_newValue: any) {
     this._type = p_type;
     this._meta = p_meta;
     this._source = p_source;

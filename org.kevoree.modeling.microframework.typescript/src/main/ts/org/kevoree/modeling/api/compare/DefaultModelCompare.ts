@@ -28,19 +28,19 @@ class DefaultModelCompare implements ModelCompare {
     this._factory = p_factory;
   }
 
-  public diff(origin: KObject, target: KObject, callback: Callback<TraceSequence>): void {
+  public diff(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<TraceSequence>): void {
     this.internal_diff(origin, target, false, false, callback);
   }
 
-  public union(origin: KObject, target: KObject, callback: Callback<TraceSequence>): void {
+  public union(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<TraceSequence>): void {
     this.internal_diff(origin, target, false, true, callback);
   }
 
-  public intersection(origin: KObject, target: KObject, callback: Callback<TraceSequence>): void {
+  public intersection(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<TraceSequence>): void {
     this.internal_diff(origin, target, true, false, callback);
   }
 
-  private internal_diff(origin: KObject, target: KObject, inter: boolean, merge: boolean, callback: Callback<TraceSequence>): void {
+  private internal_diff(origin: KObject<any,any>, target: KObject<any,any>, inter: boolean, merge: boolean, callback: Callback<TraceSequence>): void {
     var traces: List<ModelTrace> = new ArrayList<ModelTrace>();
     var tracesRef: List<ModelTrace> = new ArrayList<ModelTrace>();
     var objectsMap: Map<number, KObject> = new HashMap<number, KObject>();
@@ -107,7 +107,7 @@ class DefaultModelCompare implements ModelCompare {
 );
   }
 
-  public internal_createTraces(current: KObject, sibling: KObject, inter: boolean, merge: boolean, references: boolean, attributes: boolean): List<ModelTrace> {
+  public internal_createTraces(current: KObject<any,any>, sibling: KObject<any,any>, inter: boolean, merge: boolean, references: boolean, attributes: boolean): List<ModelTrace> {
     var traces: List<ModelTrace> = new ArrayList<ModelTrace>();
     var values: Map<MetaAttribute, string> = new HashMap<MetaAttribute, string>();
     if (attributes) {

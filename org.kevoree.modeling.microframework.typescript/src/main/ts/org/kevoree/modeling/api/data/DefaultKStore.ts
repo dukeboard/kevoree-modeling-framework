@@ -34,48 +34,45 @@ class DefaultKStore implements KStore {
     this._db = p_db;
   }
 
-  private keyTree(dim: KDimension, key: number): string {
+  private keyTree(dim: KDimension<any,any,any>, key: number): string {
     return "" + dim.key() + DefaultKStore.KEY_SEP + key;
   }
 
-  private keyRoot(dim: KDimension, time: number): string {
+  private keyRoot(dim: KDimension<any,any,any>, time: number): string {
     return dim.key() + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + "root";
   }
 
-  private keyRootTree(dim: KDimension): string {
+  private keyRootTree(dim: KDimension<any,any,any>): string {
     return dim.key() + DefaultKStore.KEY_SEP + "root";
   }
 
-  private keyPayload(dim: KDimension, time: number, key: number): string {
+  private keyPayload(dim: KDimension<any,any,any>, time: number, key: number): string {
     return "" + dim.key() + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + key;
   }
 
-  public initDimension(dimension: KDimension, callback: Callback<Throwable>): void {
+  public initDimension(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void {
     var dimensionCache: DimensionCache = new DimensionCache(dimension);
     this.caches.put(dimension.key(), dimensionCache);
     var rootTreeKeys: string[] = new Array();
     rootTreeKeys[0] = this.keyRootTree(dimension);
-    this._db.get(rootTreeKeys, 
-      public on(res: string[], error: Throwable): void {
-        if (error != null) {
-          callback.on(error);
-        } else {
-          try {
-            (<DefaultTimeTree>dimensionCache.rootTimeTree).load(res[0]);
-            callback.on(null);
-          } catch ($ex$) {
-            if ($ex$ instanceof Exception) {
-              var e: Exception = <Exception>$ex$;
-              callback.on(e);
-            }
-           }
+    this._db.get(rootTreeKeys, {on:function(res: string[], error: Throwable){
+    if (error != null) {
+      callback.on(error);
+    } else {
+      try {
+        (<DefaultTimeTree>dimensionCache.rootTimeTree).load(res[0]);
+        callback.on(null);
+      } catch ($ex$) {
+        if ($ex$ instanceof Exception) {
+          var e: Exception = <Exception>$ex$;
+          callback.on(e);
         }
-      }
-
-);
+       }
+    }
+}});
   }
 
-  public initKObject(obj: KObject, originView: KView): void {
+  public initKObject(obj: KObject<any,any>, originView: KView): void {
     var dimensionCache: DimensionCache = this.caches.get(originView.dimension().key());
     if (!dimensionCache.timeTreeCache.containsKey(obj.uuid())) {
       dimensionCache.timeTreeCache.put(obj.uuid(), obj.timeTree());
@@ -98,7 +95,7 @@ class DefaultKStore implements KStore {
     return this.objectKey;
   }
 
-  public cacheLookup(dimension: KDimension, time: number, key: number): KObject {
+  public cacheLookup(dimension: KDimension<any,any,any>, time: number, key: number): KObject {
     var dimensionCache: DimensionCache = this.caches.get(dimension.key());
     var timeCache: TimeCache = dimensionCache.timesCaches.get(time);
     if (timeCache == null) {
@@ -108,7 +105,7 @@ class DefaultKStore implements KStore {
     }
   }
 
-  private cacheLookupAll(dimension: KDimension, time: number, keys: Set<number>): List<KObject> {
+  private cacheLookupAll(dimension: KDimension<any,any,any>, time: number, keys: Set<number>): List<KObject> {
     var resolved: List<KObject> = new ArrayList<KObject>();
     //TODO resolve for-each cycle
     var kid: number;
@@ -121,7 +118,7 @@ class DefaultKStore implements KStore {
     return resolved;
   }
 
-  public raw(origin: KObject, accessMode: AccessMode): any[] {
+  public raw(origin: KObject<any,any>, accessMode: AccessMode): any[] {
     if (accessMode.equals(AccessMode.WRITE)) {
       (<AbstractKObject>origin).setDirty(true);
     }
@@ -171,16 +168,16 @@ class DefaultKStore implements KStore {
     }
   }
 
-  public discard(dimension: KDimension, callback: Callback<Throwable>): void {
+  public discard(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void {
     this.caches.remove(dimension.key());
     callback.on(null);
   }
 
-  public delete(dimension: KDimension, callback: Callback<Throwable>): void {
+  public delete(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void {
     new Exception("Not implemented yet !");
   }
 
-  public save(dimension: KDimension, callback: Callback<Throwable>): void {
+  public save(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void {
     var dimensionCache: DimensionCache = this.caches.get(dimension.key());
     if (dimensionCache == null) {
       callback.on(null);
@@ -253,35 +250,29 @@ class DefaultKStore implements KStore {
     }
   }
 
-  public saveUnload(dimension: KDimension, callback: Callback<Throwable>): void {
-    this.save(dimension, 
-      public on(throwable: Throwable): void {
-        if (throwable == null) {
-          this.discard(dimension, callback);
-        } else {
-          callback.on(throwable);
-        }
-      }
-
-);
+  public saveUnload(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void {
+    this.save(dimension, {on:function(throwable: Throwable){
+    if (throwable == null) {
+      this.discard(dimension, callback);
+    } else {
+      callback.on(throwable);
+    }
+}});
   }
 
-  public timeTree(dimension: KDimension, key: number, callback: Callback<TimeTree>): void {
+  public timeTree(dimension: KDimension<any,any,any>, key: number, callback: Callback<TimeTree>): void {
     var keys: number[] = new Array();
     keys[0] = key;
-    this.timeTrees(dimension, keys, 
-      public on(timeTrees: TimeTree[]): void {
-        if (timeTrees.length == 1) {
-          callback.on(timeTrees[0]);
-        } else {
-          callback.on(null);
-        }
-      }
-
-);
+    this.timeTrees(dimension, keys, {on:function(timeTrees: TimeTree[]){
+    if (timeTrees.length == 1) {
+      callback.on(timeTrees[0]);
+    } else {
+      callback.on(null);
+    }
+}});
   }
 
-  public timeTrees(dimension: KDimension, keys: number[], callback: Callback<TimeTree[]>): void {
+  public timeTrees(dimension: KDimension<any,any,any>, keys: number[], callback: Callback<TimeTree[]>): void {
     var toLoad: List<number> = new ArrayList<number>();
     var dimensionCache: DimensionCache = this.caches.get(dimension.key());
     var result: TimeTree[] = new Array();
@@ -300,32 +291,29 @@ class DefaultKStore implements KStore {
       for (var i: number = 0; i < toLoadKeys.length; i++) {
         toLoadKeys[i] = this.keyTree(dimension, keys[toLoad.get(i)]);
       }
-      this._db.get(toLoadKeys, 
-        public on(res: string[], error: Throwable): void {
-          if (error != null) {
-            error.printStackTrace();
+      this._db.get(toLoadKeys, {on:function(res: string[], error: Throwable){
+      if (error != null) {
+        error.printStackTrace();
+      }
+      for (var i: number = 0; i < res.length; i++) {
+        var newTree: DefaultTimeTree = new DefaultTimeTree();
+        try {
+          if (res[i] != null) {
+            newTree.load(res[i]);
+          } else {
+            newTree.insert(dimension.key());
           }
-          for (var i: number = 0; i < res.length; i++) {
-            var newTree: DefaultTimeTree = new DefaultTimeTree();
-            try {
-              if (res[i] != null) {
-                newTree.load(res[i]);
-              } else {
-                newTree.insert(dimension.key());
-              }
-              dimensionCache.timeTreeCache.put(keys[toLoad.get(i)], newTree);
-              result[toLoad.get(i)] = newTree;
-            } catch ($ex$) {
-              if ($ex$ instanceof Exception) {
-                var e: Exception = <Exception>$ex$;
-                e.printStackTrace();
-              }
-             }
+          dimensionCache.timeTreeCache.put(keys[toLoad.get(i)], newTree);
+          result[toLoad.get(i)] = newTree;
+        } catch ($ex$) {
+          if ($ex$ instanceof Exception) {
+            var e: Exception = <Exception>$ex$;
+            e.printStackTrace();
           }
-          callback.on(result);
-        }
-
-);
+         }
+      }
+      callback.on(result);
+}});
     }
   }
 
@@ -333,109 +321,94 @@ class DefaultKStore implements KStore {
     if (callback == null) {
       return;
     }
-    this.timeTree(originView.dimension(), key, 
-      public on(timeTree: TimeTree): void {
-        var resolvedTime: number = timeTree.resolve(originView.now());
-        if (resolvedTime == null) {
+    this.timeTree(originView.dimension(), key, {on:function(timeTree: TimeTree){
+    var resolvedTime: number = timeTree.resolve(originView.now());
+    if (resolvedTime == null) {
+      callback.on(null);
+    } else {
+      var resolved: KObject = this.cacheLookup(originView.dimension(), resolvedTime, key);
+      if (resolved != null) {
+        if (originView.now() == resolvedTime) {
+          callback.on(resolved);
+        } else {
+          var proxy: KObject = originView.createProxy(resolved.metaClass(), resolved.timeTree(), key);
+          callback.on(proxy);
+        }
+      } else {
+        var keys: number[] = new Array();
+        keys[0] = key;
+        this.loadObjectInCache(originView, keys, {on:function(dbResolved: List<KObject>){
+        if (dbResolved.size() == 0) {
           callback.on(null);
         } else {
-          var resolved: KObject = this.cacheLookup(originView.dimension(), resolvedTime, key);
-          if (resolved != null) {
-            if (originView.now() == resolvedTime) {
-              callback.on(resolved);
-            } else {
-              var proxy: KObject = originView.createProxy(resolved.metaClass(), resolved.timeTree(), key);
-              callback.on(proxy);
-            }
+          var dbResolvedZero: KObject = dbResolved.get(0);
+          if (resolvedTime != originView.now()) {
+            var proxy: KObject = originView.createProxy(dbResolvedZero.metaClass(), dbResolvedZero.timeTree(), key);
+            callback.on(proxy);
           } else {
-            var keys: number[] = new Array();
-            keys[0] = key;
-            this.loadObjectInCache(originView, keys, 
-              public on(dbResolved: List<KObject>): void {
-                if (dbResolved.size() == 0) {
-                  callback.on(null);
-                } else {
-                  var dbResolvedZero: KObject = dbResolved.get(0);
-                  if (resolvedTime != originView.now()) {
-                    var proxy: KObject = originView.createProxy(dbResolvedZero.metaClass(), dbResolvedZero.timeTree(), key);
-                    callback.on(proxy);
-                  } else {
-                    callback.on(dbResolvedZero);
-                  }
-                }
-              }
-
-);
+            callback.on(dbResolvedZero);
           }
         }
+}});
       }
-
-);
+    }
+}});
   }
 
   private loadObjectInCache(originView: KView, keys: number[], callback: Callback<List<KObject>>): void {
-    this.timeTrees(originView.dimension(), keys, 
-      public on(timeTrees: TimeTree[]): void {
-        var objStringKeys: string[] = new Array();
-        var resolved: number[] = new Array();
-        for (var i: number = 0; i < keys.length; i++) {
-          var resolvedTime: number = timeTrees[i].resolve(originView.now());
-          resolved[i] = resolvedTime;
-          objStringKeys[i] = this.keyPayload(originView.dimension(), resolvedTime, keys[i]);
+    this.timeTrees(originView.dimension(), keys, {on:function(timeTrees: TimeTree[]){
+    var objStringKeys: string[] = new Array();
+    var resolved: number[] = new Array();
+    for (var i: number = 0; i < keys.length; i++) {
+      var resolvedTime: number = timeTrees[i].resolve(originView.now());
+      resolved[i] = resolvedTime;
+      objStringKeys[i] = this.keyPayload(originView.dimension(), resolvedTime, keys[i]);
+    }
+    this._db.get(objStringKeys, {on:function(objectPayloads: string[], error: Throwable){
+    if (error != null) {
+      callback.on(null);
+    } else {
+      var additionalLoad: List<any[]> = new ArrayList<any[]>();
+      var objs: List<KObject> = new ArrayList<KObject>();
+      for (var i: number = 0; i < objectPayloads.length; i++) {
+        var obj: KObject = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+        objs.add(obj);
+        var strategies: Set<ExtrapolationStrategy> = new HashSet<ExtrapolationStrategy>();
+        for (var h: number = 0; h < obj.metaAttributes().length; h++) {
+          var metaAttribute: MetaAttribute = obj.metaAttributes()[h];
+          strategies.add(metaAttribute.strategy());
         }
-        this._db.get(objStringKeys, 
-          public on(objectPayloads: string[], error: Throwable): void {
-            if (error != null) {
-              callback.on(null);
-            } else {
-              var additionalLoad: List<any[]> = new ArrayList<any[]>();
-              var objs: List<KObject> = new ArrayList<KObject>();
-              for (var i: number = 0; i < objectPayloads.length; i++) {
-                var obj: KObject = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
-                objs.add(obj);
-                var strategies: Set<ExtrapolationStrategy> = new HashSet<ExtrapolationStrategy>();
-                for (var h: number = 0; h < obj.metaAttributes().length; h++) {
-                  var metaAttribute: MetaAttribute = obj.metaAttributes()[h];
-                  strategies.add(metaAttribute.strategy());
-                }
-                //TODO resolve for-each cycle
-                var strategy: ExtrapolationStrategy;
-                for (strategy in strategies) {
-                  var additionalTimes: number[] = strategy.timedDependencies(obj);
-                  for (var j: number = 0; j < additionalTimes.length; j++) {
-                    if (additionalTimes[j] != obj.now()) {
-                      if (this.cacheLookup(originView.dimension(), additionalTimes[j], obj.uuid()) == null) {
-                        var payload: any[] = [this.keyPayload(originView.dimension(), additionalTimes[j], obj.uuid()), additionalTimes[j]];
-                        additionalLoad.add(payload);
-                      }
-                    }
-                  }
-                }
-              }
-              if (additionalLoad.isEmpty()) {
-                callback.on(objs);
-              } else {
-                var addtionalDBKeys: string[] = new Array();
-                for (var i: number = 0; i < additionalLoad.size(); i++) {
-                  addtionalDBKeys[i] = additionalLoad.get(i)[0].toString();
-                }
-                this._db.get(addtionalDBKeys, 
-                  public on(additionalPayloads: string[], error: Throwable): void {
-                    for (var i: number = 0; i < objectPayloads.length; i++) {
-                      JSONModelLoader.load(additionalPayloads[i], originView.dimension().time(<number>additionalLoad.get(i)[1]), null);
-                    }
-                    callback.on(objs);
-                  }
-
-);
+        //TODO resolve for-each cycle
+        var strategy: ExtrapolationStrategy;
+        for (strategy in strategies) {
+          var additionalTimes: number[] = strategy.timedDependencies(obj);
+          for (var j: number = 0; j < additionalTimes.length; j++) {
+            if (additionalTimes[j] != obj.now()) {
+              if (this.cacheLookup(originView.dimension(), additionalTimes[j], obj.uuid()) == null) {
+                var payload: any[] = [this.keyPayload(originView.dimension(), additionalTimes[j], obj.uuid()), additionalTimes[j]];
+                additionalLoad.add(payload);
               }
             }
           }
-
-);
+        }
       }
-
-);
+      if (additionalLoad.isEmpty()) {
+        callback.on(objs);
+      } else {
+        var addtionalDBKeys: string[] = new Array();
+        for (var i: number = 0; i < additionalLoad.size(); i++) {
+          addtionalDBKeys[i] = additionalLoad.get(i)[0].toString();
+        }
+        this._db.get(addtionalDBKeys, {on:function(additionalPayloads: string[], error: Throwable){
+        for (var i: number = 0; i < objectPayloads.length; i++) {
+          JSONModelLoader.load(additionalPayloads[i], originView.dimension().time(<number>additionalLoad.get(i)[1]), null);
+        }
+        callback.on(objs);
+}});
+      }
+    }
+}});
+}});
   }
 
   public lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject>>): void {
@@ -468,24 +441,21 @@ class DefaultKStore implements KStore {
       for (var i: number = 0; i < toLoad.size(); i++) {
         toLoadKeys[i] = toLoad.get(i);
       }
-      this.loadObjectInCache(originView, toLoadKeys, 
-        public on(additional: List<KObject>): void {
-          resolveds.addAll(additional);
-          var proxies: List<KObject> = new ArrayList<KObject>();
-          //TODO resolve for-each cycle
-          var res: KObject;
-          for (res in resolveds) {
-            if (res.now() != originView.now()) {
-              var proxy: KObject = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
-              proxies.add(proxy);
-            } else {
-              proxies.add(res);
-            }
-          }
-          callback.on(proxies);
+      this.loadObjectInCache(originView, toLoadKeys, {on:function(additional: List<KObject>){
+      resolveds.addAll(additional);
+      var proxies: List<KObject> = new ArrayList<KObject>();
+      //TODO resolve for-each cycle
+      var res: KObject;
+      for (res in resolveds) {
+        if (res.now() != originView.now()) {
+          var proxy: KObject = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
+          proxies.add(proxy);
+        } else {
+          proxies.add(res);
         }
-
-);
+      }
+      callback.on(proxies);
+}});
     }
   }
 
@@ -510,37 +480,31 @@ class DefaultKStore implements KStore {
       } else {
         var rootKeys: string[] = new Array();
         rootKeys[0] = this.keyRoot(dimensionCache.dimension, resolvedRoot);
-        this._db.get(rootKeys, 
-          public on(res: string[], error: Throwable): void {
-            if (error != null) {
+        this._db.get(rootKeys, {on:function(res: string[], error: Throwable){
+        if (error != null) {
+          callback.on(null);
+        } else {
+          try {
+            var idRoot: number = Long.parseLong(res[0]);
+            this.lookup(originView, idRoot, {on:function(resolved: KObject){
+            timeCache.root = resolved;
+            timeCache.rootDirty = false;
+            callback.on(resolved);
+}});
+          } catch ($ex$) {
+            if ($ex$ instanceof Exception) {
+              var e: Exception = <Exception>$ex$;
+              e.printStackTrace();
               callback.on(null);
-            } else {
-              try {
-                var idRoot: number = Long.parseLong(res[0]);
-                this.lookup(originView, idRoot, 
-                  public on(resolved: KObject): void {
-                    timeCache.root = resolved;
-                    timeCache.rootDirty = false;
-                    callback.on(resolved);
-                  }
-
-);
-              } catch ($ex$) {
-                if ($ex$ instanceof Exception) {
-                  var e: Exception = <Exception>$ex$;
-                  e.printStackTrace();
-                  callback.on(null);
-                }
-               }
             }
-          }
-
-);
+           }
+        }
+}});
       }
     }
   }
 
-  public setRoot(newRoot: KObject): void {
+  public setRoot(newRoot: KObject<any,any>): void {
     var dimensionCache: DimensionCache = this.caches.get(newRoot.dimension().key());
     var timeCache: TimeCache = dimensionCache.timesCaches.get(newRoot.now());
     timeCache.root = newRoot;

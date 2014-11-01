@@ -13,7 +13,7 @@ class JSONModelSerializer implements ModelSerializer {
   public static KEY_UUID: string = "@uuid";
   public static KEY_ROOT: string = "@root";
 
-  public serialize(model: KObject, callback: ThrowableCallback<string>): void {
+  public serialize(model: KObject<any,any>, callback: ThrowableCallback<string>): void {
     var builder: StringBuilder = new StringBuilder();
     builder.append("[\n");
     JSONModelSerializer.printJSON(model, builder);
@@ -33,7 +33,7 @@ class JSONModelSerializer implements ModelSerializer {
 );
   }
 
-  public static printJSON(elem: KObject, builder: StringBuilder): void {
+  public static printJSON(elem: KObject<any,any>, builder: StringBuilder): void {
     builder.append("{\n");
     builder.append("\t\"" + JSONModelSerializer.KEY_META + "\" : \"");
     builder.append(elem.metaClass().metaName());

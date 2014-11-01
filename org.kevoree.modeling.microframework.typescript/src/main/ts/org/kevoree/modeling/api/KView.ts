@@ -9,7 +9,7 @@ interface KView {
 
   create(clazz: MetaClass): KObject;
 
-  setRoot(elem: KObject): void;
+  setRoot(elem: KObject<any,any>): void;
 
   createJSONSerializer(): ModelSerializer;
 

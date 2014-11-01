@@ -5,7 +5,7 @@ class InboundReference {
   private reference: MetaReference = null;
   private object: KObject<any,any> = null;
 
-  constructor(reference: MetaReference, object: KObject) {
+  constructor(reference: MetaReference, object: KObject<any,any>) {
     this.reference = reference;
     this.object = object;
   }

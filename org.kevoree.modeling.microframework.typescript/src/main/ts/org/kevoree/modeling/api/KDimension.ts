@@ -1,7 +1,7 @@
 ///<reference path="time/TimeTree.ts"/>
 ///<reference path="../../../../java/util/Set.ts"/>
 
-interface KDimension<A, B, C> {
+interface KDimension<A extends KView, B extends KDimension<any,any,any>, C extends KUniverse<any>> {
 
   key(): number;
 

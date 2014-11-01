@@ -30,7 +30,7 @@ class AbstractKView implements KView {
   private _now: number = 0;
   private _dimension: KDimension<any,any,any> = null;
 
-  constructor(p_now: number, p_dimension: KDimension) {
+  constructor(p_now: number, p_dimension: KDimension<any,any,any>) {
     this._now = p_now;
     this._dimension = p_dimension;
   }
@@ -85,12 +85,12 @@ class AbstractKView implements KView {
     return this.create(this.metaClass(metaClassName));
   }
 
-  public manageCache(obj: KObject): KObject {
+  public manageCache(obj: KObject<any,any>): KObject {
     this.dimension().universe().storage().initKObject(obj, this);
     return obj;
   }
 
-  public setRoot(elem: KObject): void {
+  public setRoot(elem: KObject<any,any>): void {
     (<AbstractKObject>elem).set_referenceInParent(null);
     (<AbstractKObject>elem).setRoot(true);
     this.dimension().universe().storage().setRoot(elem);

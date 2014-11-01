@@ -65,7 +65,7 @@ class Helper {
     return path.length() == 1 && path.charAt(0) == Helper.pathSep;
   }
 
-  public static path(parent: string, reference: MetaReference, target: KObject): string {
+  public static path(parent: string, reference: MetaReference, target: KObject<any,any>): string {
     if (Helper.isRoot(parent)) {
       return Helper.pathSep + reference.metaName() + Helper.pathIDOpen + target.domainKey() + Helper.pathIDClose;
     } else {

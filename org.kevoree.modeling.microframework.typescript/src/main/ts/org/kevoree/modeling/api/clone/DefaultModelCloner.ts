@@ -12,7 +12,7 @@ class DefaultModelCloner implements ModelCloner<KObject> {
     this._factory = p_factory;
   }
 
-  public clone(originalObject: KObject, callback: Callback<KObject>): void {
+  public clone(originalObject: KObject<any,any>, callback: Callback<KObject>): void {
     if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
       callback.on(null);
     } else {

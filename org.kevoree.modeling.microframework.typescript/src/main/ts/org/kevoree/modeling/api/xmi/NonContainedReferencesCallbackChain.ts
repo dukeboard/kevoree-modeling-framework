@@ -8,7 +8,7 @@ class NonContainedReferencesCallbackChain implements CallBackChain<MetaReference
   private _context: SerializationContext = null;
   private _currentElement: KObject<any,any> = null;
 
-  constructor(p_context: SerializationContext, p_currentElement: KObject) {
+  constructor(p_context: SerializationContext, p_currentElement: KObject<any,any>) {
     this._context = p_context;
     this._currentElement = p_currentElement;
   }

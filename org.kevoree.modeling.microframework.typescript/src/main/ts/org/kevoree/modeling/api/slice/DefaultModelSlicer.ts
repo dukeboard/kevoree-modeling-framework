@@ -17,7 +17,7 @@
 
 class DefaultModelSlicer implements ModelSlicer {
 
-  private internal_prune(elem: KObject, traces: List<ModelTrace>, cache: Map<number, KObject>, parentMap: Map<number, KObject>, callback: Callback<Throwable>): void {
+  private internal_prune(elem: KObject<any,any>, traces: List<ModelTrace>, cache: Map<number, KObject>, parentMap: Map<number, KObject>, callback: Callback<Throwable>): void {
     var parents: List<KObject> = new ArrayList<KObject>();
     var parentExplorer: Callback<KObject>[] = new Array();
     parentExplorer[0] = 

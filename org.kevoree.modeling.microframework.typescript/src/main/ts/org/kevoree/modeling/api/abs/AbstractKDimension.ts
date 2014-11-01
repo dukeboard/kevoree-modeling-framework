@@ -8,13 +8,13 @@
 ///<reference path="../../../../../java/util/Map.ts"/>
 ///<reference path="../../../../../java/util/Set.ts"/>
 
-class AbstractKDimension<A, B, C> implements KDimension<A, B, C> {
+class AbstractKDimension<A extends KView, B extends KDimension<any,any,any>, C extends KUniverse<any>> implements KDimension<A, B, C> {
 
   private _universe: KUniverse<any> = null;
   private _key: number = 0;
   private _timesCache: Map<number, A> = new HashMap<number, A>();
 
-  constructor(p_universe: KUniverse, p_key: number) {
+  constructor(p_universe: KUniverse<any>, p_key: number) {
     this._universe = p_universe;
     this._key = p_key;
   }

@@ -7,7 +7,7 @@
 ///<reference path="../data/KStore.ts"/>
 ///<reference path="../ModelListener.ts"/>
 
-class AbstractKUniverse<A> implements KUniverse<A> {
+class AbstractKUniverse<A extends KDimension<any,any,any>> implements KUniverse<A> {
 
   private _storage: KStore = null;
 

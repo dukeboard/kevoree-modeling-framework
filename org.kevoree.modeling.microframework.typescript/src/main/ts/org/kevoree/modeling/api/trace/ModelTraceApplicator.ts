@@ -16,7 +16,7 @@ class ModelTraceApplicator {
   private pendingParentRef: MetaReference = null;
   private pendingObjKID: number = null;
 
-  constructor(targetModel: KObject) {
+  constructor(targetModel: KObject<any,any>) {
     this.targetModel = targetModel;
   }
 
@@ -30,7 +30,7 @@ class ModelTraceApplicator {
     }
   }
 
-  public createOrAdd(previousPath: number, target: KObject, reference: MetaReference, metaClass: MetaClass, callback: Callback<Throwable>): void {
+  public createOrAdd(previousPath: number, target: KObject<any,any>, reference: MetaReference, metaClass: MetaClass, callback: Callback<Throwable>): void {
     if (previousPath != null) {
       this.targetModel.view().lookup(previousPath, 
         public on(targetElem: KObject): void {

@@ -14,23 +14,23 @@ interface KStore {
 
   lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject>>): void;
 
-  raw(origin: KObject, accessMode: AccessMode): any[];
+  raw(origin: KObject<any,any>, accessMode: AccessMode): any[];
 
-  save(dimension: KDimension, callback: Callback<Throwable>): void;
+  save(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void;
 
-  saveUnload(dimension: KDimension, callback: Callback<Throwable>): void;
+  saveUnload(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void;
 
-  discard(dimension: KDimension, callback: Callback<Throwable>): void;
+  discard(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void;
 
-  delete(dimension: KDimension, callback: Callback<Throwable>): void;
+  delete(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void;
 
-  timeTree(dimension: KDimension, key: number, callback: Callback<TimeTree>): void;
+  timeTree(dimension: KDimension<any,any,any>, key: number, callback: Callback<TimeTree>): void;
 
-  timeTrees(dimension: KDimension, keys: number[], callback: Callback<TimeTree[]>): void;
+  timeTrees(dimension: KDimension<any,any,any>, keys: number[], callback: Callback<TimeTree[]>): void;
 
-  initKObject(obj: KObject, originView: KView): void;
+  initKObject(obj: KObject<any,any>, originView: KView): void;
 
-  initDimension(dimension: KDimension, callback: Callback<Throwable>): void;
+  initDimension(dimension: KDimension<any,any,any>, callback: Callback<Throwable>): void;
 
   nextDimensionKey(): number;
 
@@ -40,9 +40,9 @@ interface KStore {
 
   getRoot(originView: KView, callback: Callback<KObject>): void;
 
-  setRoot(newRoot: KObject): void;
+  setRoot(newRoot: KObject<any,any>): void;
 
-  cacheLookup(dimension: KDimension, time: number, key: number): KObject;
+  cacheLookup(dimension: KDimension<any,any,any>, time: number, key: number): KObject;
 
   registerListener(origin: any, listener: ModelListener): void;
 

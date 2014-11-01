@@ -96,7 +96,7 @@ class TraceSequence {
     return buffer.toString();
   }
 
-  public applyOn(target: KObject, callback: Callback<Throwable>): boolean {
+  public applyOn(target: KObject<any,any>, callback: Callback<Throwable>): boolean {
     var traceApplicator: ModelTraceApplicator = new ModelTraceApplicator(target);
     traceApplicator.applyTraceSequence(this, callback);
     return true;

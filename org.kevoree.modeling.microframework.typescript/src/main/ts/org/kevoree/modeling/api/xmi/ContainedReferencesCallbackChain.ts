@@ -9,7 +9,7 @@ class ContainedReferencesCallbackChain implements CallBackChain<MetaReference> {
   private context: SerializationContext = null;
   private currentElement: KObject<any,any> = null;
 
-  constructor(context: SerializationContext, currentElement: KObject) {
+  constructor(context: SerializationContext, currentElement: KObject<any,any>) {
     this.context = context;
     this.currentElement = currentElement;
   }
