@@ -19,6 +19,7 @@
                 <artifactId>grunt-maven-plugin</artifactId>
                 <version>1.4.1</version>
                 <configuration>
+                    <gruntExecutable>node_modules/grunt-cli/bin/grunt</gruntExecutable>
                     <gruntBuildDirectory>${project.build.directory}/grunt</gruntBuildDirectory>
                 </configuration>
                 <executions>

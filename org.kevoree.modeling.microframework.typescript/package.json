@@ -3,6 +3,8 @@
   "version": "1.0.0-SNAPSHOT",
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-typescript": "~0.2.4"
+    "grunt-cli": "~0.1.13",
+    "grunt-typescript": "~0.2.4",
+    "typescript": "~1.1.0-1"
   }
 }
