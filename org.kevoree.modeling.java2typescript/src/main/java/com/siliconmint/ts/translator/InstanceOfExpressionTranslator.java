@@ -9,7 +9,7 @@ public class InstanceOfExpressionTranslator extends Translator<PsiInstanceOfExpr
   @Override
   public void translate(PsiElementVisitor visitor, PsiInstanceOfExpression element, TranslationContext ctx) {
     element.getOperand().accept(visitor);
-    ctx.append(" instanceof ").append(TypeHelper.getType(element.getCheckType().getType(), ctx));
+    ctx.append(" instanceof ").append(TypeHelper.getType(element.getCheckType().getType(), null));
   }
 
 }

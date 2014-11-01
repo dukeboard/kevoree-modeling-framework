@@ -16,16 +16,18 @@ public class TypeHelper {
 
     public static String getGenericsIfAny(TranslationContext ctx, String type) {
         StringBuilder paramSB = new StringBuilder();
-        Integer generics = ctx.getGenerics().get(type);
-        if(generics != null) {
-            paramSB.append("<");
-            for(int i = 0; i < generics ; i++) {
-                paramSB.append("any");
-                if(i < generics-1) {
-                    paramSB.append(",");
+        if(ctx != null) {
+            Integer generics = ctx.getGenerics().get(type);
+            if (generics != null) {
+                paramSB.append("<");
+                for (int i = 0; i < generics; i++) {
+                    paramSB.append("any");
+                    if (i < generics - 1) {
+                        paramSB.append(",");
+                    }
                 }
+                paramSB.append(">");
             }
-            paramSB.append(">");
         }
         return paramSB.toString();
     }

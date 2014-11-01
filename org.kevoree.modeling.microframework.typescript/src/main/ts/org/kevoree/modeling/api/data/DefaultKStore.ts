@@ -513,7 +513,7 @@ class DefaultKStore implements KStore {
   }
 
   public registerListener(origin: any, listener: ModelListener): void {
-    if (origin instanceof KObject<any,any>) {
+    if (origin instanceof KObject) {
       var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
       var timeCache: TimeCache = dimensionCache.timesCaches.get((<KView>origin).now());
       var obj_listeners: List<ModelListener> = timeCache.obj_listeners.get((<KObject<any,any>>origin).uuid());
@@ -528,11 +528,11 @@ class DefaultKStore implements KStore {
         var timeCache: TimeCache = dimensionCache.timesCaches.get((<KView>origin).now());
         timeCache.listeners.add(listener);
       } else {
-        if (origin instanceof KDimension<any,any,any>) {
+        if (origin instanceof KDimension) {
           var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
           dimensionCache.listeners.add(listener);
         } else {
-          if (origin instanceof KUniverse<any>) {
+          if (origin instanceof KUniverse) {
             this.universeListeners.add(listener);
           }
         }

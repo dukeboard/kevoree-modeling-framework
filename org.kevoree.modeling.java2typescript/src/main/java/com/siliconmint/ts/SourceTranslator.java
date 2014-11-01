@@ -72,6 +72,10 @@ public class SourceTranslator {
     private void registerGenericsType(File source) {
         ArrayList<File> filesToParse = new ArrayList<File>();
         genericsCounts = new HashMap<String, Integer>();
+
+        genericsCounts.put("Set",1);
+        genericsCounts.put("Map",2);
+
         if(source.isFile()) {
             filesToParse.add(source);
         } else {
