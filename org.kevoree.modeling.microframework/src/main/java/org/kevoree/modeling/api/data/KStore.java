@@ -8,9 +8,6 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.time.TimeTree;
 
-import java.util.List;
-import java.util.Set;
-
 /**
  * Created by duke on 10/17/14.
  */
@@ -18,7 +15,7 @@ public interface KStore {
 
     void lookup(KView originView, long key, Callback<KObject> callback);
 
-    void lookupAll(KView originView, Set<Long> key, Callback<List<KObject>> callback);
+    void lookupAll(KView originView, Long[] key, Callback<KObject[]> callback);
 
     Object[] raw(KObject origin, AccessMode accessMode);
 

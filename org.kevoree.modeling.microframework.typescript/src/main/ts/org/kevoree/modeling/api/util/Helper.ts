@@ -36,10 +36,10 @@ class Helper {
   }
 
   public static parentPath(currentPath: string): string {
-    if (currentPath == null || currentPath.length() == 0) {
+    if (currentPath == null || currentPath.length == 0) {
       return null;
     }
-    if (currentPath.length() == 1) {
+    if (currentPath.length == 1) {
       return null;
     }
     var lastIndex: number = currentPath.lastIndexOf(Helper.pathSep);
@@ -55,11 +55,11 @@ class Helper {
   }
 
   public static attachedToRoot(path: string): boolean {
-    return path.length() > 0 && path.charAt(0) == Helper.pathSep;
+    return path.length > 0 && path.charAt(0) == Helper.pathSep;
   }
 
   public static isRoot(path: string): boolean {
-    return path.length() == 1 && path.charAt(0) == Helper.pathSep;
+    return path.length == 1 && path.charAt(0) == Helper.pathSep;
   }
 
   public static path(parent: string, reference: MetaReference, target: KObject<any,any>): string {

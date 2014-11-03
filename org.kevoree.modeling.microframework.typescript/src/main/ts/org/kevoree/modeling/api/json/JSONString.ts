@@ -8,7 +8,7 @@ class JSONString {
       return;
     }
     var i: number = 0;
-    while (i < chain.length()){
+    while (i < chain.length){
       var ch: string = chain.charAt(i);
       if (ch == '"') {
         buffer.append(JSONString.ESCAPE_CHAR);
@@ -63,7 +63,7 @@ class JSONString {
       return;
     }
     var i: number = 0;
-    while (i < chain.length()){
+    while (i < chain.length){
       var ch: string = chain.charAt(i);
       if (ch == '"') {
         buffer.append(JSONString.ESCAPE_CHAR);
@@ -117,12 +117,12 @@ class JSONString {
     if (src == null) {
       return null;
     }
-    if (src.length() == 0) {
+    if (src.length == 0) {
       return src;
     }
     var builder: StringBuilder = null;
     var i: number = 0;
-    while (i < src.length()){
+    while (i < src.length){
       var current: string = src.charAt(i);
       if (current == JSONString.ESCAPE_CHAR) {
         if (builder == null) {

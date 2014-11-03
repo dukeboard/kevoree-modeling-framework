@@ -18,11 +18,11 @@ import java.util.Set;
  */
 public class KSelector {
 
-    public static void select(final KObject root, String query, final Callback<List<KObject>> callback) {
+    public static void select(final KObject root, String query, final Callback<KObject[]> callback) {
 
         final KQuery extractedQuery = KQuery.extractFirstQuery(query);
-        if(extractedQuery == null) {
-            callback.on(new ArrayList<>());
+        if (extractedQuery == null) {
+            callback.on(new KObject[0]);
         } else {
 
             String relationNameRegex = extractedQuery.relationName.replace("*", ".*");
@@ -43,15 +43,17 @@ public class KSelector {
                     }
                 }
             }
-            root.view().lookupAll(collected, new Callback<List<KObject>>() {
+            root.view().lookupAll(collected.toArray(new Long[collected.size()]), new Callback<KObject[]>() {
                 @Override
-                public void on(List<KObject> resolveds) {
+                public void on(KObject[] resolveds) {
                     List<KObject> nextGeneration = new ArrayList<KObject>();
                     if (extractedQuery.params.isEmpty()) {
-                        nextGeneration.addAll(resolveds);
+                        for (int i = 0; i < resolveds.length; i++) {
+                            nextGeneration.add(resolveds[i]);
+                        }
                     } else {
-                        for (int i = 0; i < resolveds.size(); i++) {
-                            KObject resolved = resolveds.get(i);
+                        for (int i = 0; i < resolveds.length; i++) {
+                            KObject resolved = resolveds[i];
                             boolean selectedForNext = true;
                             for (String paramKey : extractedQuery.params.keySet()) {
                                 KQueryParam param = extractedQuery.params.get(paramKey);
@@ -85,15 +87,15 @@ public class KSelector {
                     final List<KObject> childSelected = new ArrayList<KObject>();
                     if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
                         childSelected.add(root);
-                        callback.on(nextGeneration);
+                        callback.on(nextGeneration.toArray(new KObject[nextGeneration.size()]));
                     } else {
                         //Recursive call
                         Helper.forall(nextGeneration.toArray(new KObject[nextGeneration.size()]), new CallBackChain<KObject>() {
                             @Override
                             public void on(KObject kObject, Callback<Throwable> next) {
-                                select(kObject, extractedQuery.subQuery, new Callback<List<KObject>>() {
+                                select(kObject, extractedQuery.subQuery, new Callback<KObject[]>() {
                                     @Override
-                                    public void on(List<KObject> kObjects) {
+                                    public void on(KObject[] kObjects) {
                                         childSelected.addAll(childSelected);
                                     }
                                 });
@@ -101,7 +103,7 @@ public class KSelector {
                         }, new Callback<Throwable>() {
                             @Override
                             public void on(Throwable throwable) {
-                                callback.on(childSelected);
+                                callback.on(childSelected.toArray(new KObject[childSelected.size()]));
                             }
                         });
                     }

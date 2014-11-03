@@ -95,7 +95,7 @@ public class JSONModelLoader implements ModelLoader {
                     boolean isRoot = false;
                     Object root = elem.get(JSONModelSerializer.KEY_ROOT);
                     if (root != null) {
-                        isRoot = Boolean.parseBoolean(root.toString());
+                        isRoot = root.toString().equals("true");
                     }
                     TimeTree timeTree = timeTrees[i];
                     timeTree.insert(factory.now());
@@ -178,7 +178,7 @@ public class JSONModelLoader implements ModelLoader {
             } else if (attribute.metaType().equals(MetaType.INT)) {
                 return Integer.parseInt(raw.toString());
             } else if (attribute.metaType().equals(MetaType.BOOL)) {
-                return Boolean.parseBoolean(raw.toString());
+                return raw.toString().equals("true");
             } else if (attribute.metaType().equals(MetaType.SHORT)) {
                 return Short.parseShort(raw.toString());
             } else if (attribute.metaType().equals(MetaType.DOUBLE)) {

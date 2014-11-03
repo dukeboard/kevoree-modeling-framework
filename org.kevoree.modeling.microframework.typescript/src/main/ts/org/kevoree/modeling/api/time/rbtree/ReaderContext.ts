@@ -10,7 +10,7 @@ class ReaderContext {
   }
 
   public unserialize(rightBranch: boolean): TreeNode {
-    if (this.offset >= this.payload.length()) {
+    if (this.offset >= this.payload.length) {
       return null;
     }
     var tokenBuild: StringBuilder = new StringBuilder();
@@ -52,7 +52,7 @@ class ReaderContext {
     }
     this.offset = this.offset + 1;
     ch = this.payload.charAt(this.offset);
-    while (this.offset + 1 < this.payload.length() && ch != '|' && ch != '#' && ch != '%'){
+    while (this.offset + 1 < this.payload.length && ch != '|' && ch != '#' && ch != '%'){
       tokenBuild.append(ch);
       this.offset = this.offset + 1;
       ch = this.payload.charAt(this.offset);

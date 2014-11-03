@@ -28,7 +28,7 @@ interface KObject<A extends KObject<any,any>, B extends KView> {
 
   parentUuid(): number;
 
-  select(query: string, callback: Callback<List<KObject<any,any>>>): void;
+  select(query: string, callback: Callback<KObject<any,any>[]>): void;
 
   stream(query: string, callback: Callback<KObject<any,any>>): void;
 

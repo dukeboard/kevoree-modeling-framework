@@ -56,7 +56,7 @@ class KevURLEncoder {
     }
     var buffer: StringBuilder = null;
     var i: number = 0;
-    while (i < chain.length()){
+    while (i < chain.length){
       var ch: string = chain.charAt(i);
       if (KevURLEncoder.nonEscaped.containsKey(ch)) {
         if (buffer != null) {
@@ -85,12 +85,12 @@ class KevURLEncoder {
     if (src == null) {
       return null;
     }
-    if (src.length() == 0) {
+    if (src.length == 0) {
       return src;
     }
     var builder: StringBuilder = null;
     var i: number = 0;
-    while (i < src.length()){
+    while (i < src.length){
       var current: number = <number>src.charAt(i);
       if (current == '%') {
         if (builder == null) {

@@ -171,7 +171,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public void select(String query, Callback<List<KObject>> callback) {
+    public void select(String query, Callback<KObject[]> callback) {
         KSelector.select(this, query, callback);
     }
 
@@ -396,9 +396,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         } else if (o instanceof Set) {
             Set<Long> objs = (Set<Long>) o;
-            view().lookupAll(objs, new Callback<List<KObject>>() {
+            view().lookupAll(objs.toArray(new Long[objs.size()]), new Callback<KObject[]>() {
                 @Override
-                public void on(List<KObject> result) {
+                public void on(KObject[] result) {
                     boolean endAlreadyCalled = false;
                     try {
                         for (KObject resolved : result) {
@@ -499,9 +499,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         if (toResolveds.isEmpty()) {
             end.on(null);
         } else {
-            view().lookupAll(toResolveds, new Callback<List<KObject>>() {
+            view().lookupAll(toResolveds.toArray(new Long[toResolveds.size()]), new Callback<KObject[]>() {
                 @Override
-                public void on(List<KObject> resolveds) {
+                public void on(KObject[] resolveds) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
                     for (KObject resolved : resolveds) {
                         VisitResult result = visitor.visit(resolved);
@@ -673,9 +673,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     final Map<Long, Integer> refs = (Map<Long, Integer>) payload;
                     Set<Long> oppositeKids = new HashSet<Long>();
                     oppositeKids.addAll(refs.keySet());
-                    _view.lookupAll(oppositeKids, new Callback<List<KObject>>() {
+                    _view.lookupAll(oppositeKids.toArray(new Long[oppositeKids.size()]), new Callback<KObject[]>() {
                         @Override
-                        public void on(List<KObject> oppositeElements) {
+                        public void on(KObject[] oppositeElements) {
                             if (oppositeElements != null) {
                                 for (KObject opposite : oppositeElements) {
                                     Integer inboundRef = refs.get(opposite.uuid());

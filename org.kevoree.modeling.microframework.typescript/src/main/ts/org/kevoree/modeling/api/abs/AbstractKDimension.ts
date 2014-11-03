@@ -54,7 +54,7 @@ class AbstractKDimension<A extends KView, B extends KDimension<any,any,any>, C e
   public parent(callback: Callback<B>): void {
   }
 
-  public children(callback: Callback<Set<B>>): void {
+  public children(callback: Callback<B[]>): void {
   }
 
   public fork(callback: Callback<B>): void {

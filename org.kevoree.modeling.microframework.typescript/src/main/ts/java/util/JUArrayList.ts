@@ -10,11 +10,7 @@ class JUArrayList<T> implements JUList<T> {
     remove(val:T) {
     }
 
-    toArray():T[] {
-        return undefined;
-    }
-
-    toArray(a:Array):T[] {
+    toArray(a?:Array):T[] {
         return undefined;
     }
 

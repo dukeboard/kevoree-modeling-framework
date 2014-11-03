@@ -142,7 +142,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
   public delete(callback: Callback<boolean>): void {
   }
 
-  public select(query: string, callback: Callback<List<KObject<any,any>>>): void {
+  public select(query: string, callback: Callback<KObject<any,any>[]>): void {
     KSelector.select(this, query, callback);
   }
 
@@ -165,7 +165,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     for (var i: number = 0; i < atts.length; i++) {
       var att: MetaAttribute = atts[i];
       if (att.key()) {
-        if (builder.length() != 0) {
+        if (builder.length != 0) {
           builder.append(",");
         }
         builder.append(att.metaName());
@@ -338,7 +338,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     } else {
       if (o instanceof Set) {
         var objs: Set<number> = <Set<number>>o;
-        this.view().lookupAll(objs, {on:function(result: List<KObject<any,any>>){
+        this.view().lookupAll(objs.toArray(new Array()), {on:function(result: KObject<any,any>[]){
         var endAlreadyCalled: boolean = false;
         try {
           //TODO resolve for-each cycle
@@ -438,7 +438,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     if (toResolveds.isEmpty()) {
       end.on(null);
     } else {
-      this.view().lookupAll(toResolveds, {on:function(resolveds: List<KObject<any,any>>){
+      this.view().lookupAll(toResolveds.toArray(new Array()), {on:function(resolveds: KObject<any,any>[]){
       var nextDeep: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       //TODO resolve for-each cycle
       var resolved: KObject<any,any>;
@@ -605,7 +605,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
           var refs: Map<number, number> = <Map<number, number>>payload;
           var oppositeKids: Set<number> = new HashSet<number>();
           oppositeKids.addAll(refs.keySet());
-          this._view.lookupAll(oppositeKids, {on:function(oppositeElements: List<KObject<any,any>>){
+          this._view.lookupAll(oppositeKids.toArray(new Array()), {on:function(oppositeElements: KObject<any,any>[]){
           if (oppositeElements != null) {
             //TODO resolve for-each cycle
             var opposite: KObject<any,any>;

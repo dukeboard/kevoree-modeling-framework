@@ -116,17 +116,17 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void select(final String query, final Callback<List<KObject>> callback) {
+    public void select(final String query, final Callback<KObject[]> callback) {
         dimension().universe().storage().getRoot(this, new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {
                 String cleanedQuery = query;
-                if(cleanedQuery.equals("/")) {
+                if (cleanedQuery.equals("/")) {
                     ArrayList<KObject> res = new ArrayList<KObject>();
-                    if(rootObj != null) {
+                    if (rootObj != null) {
                         res.add(rootObj);
                     }
-                    callback.on(res);
+                    callback.on(res.toArray(new KObject[res.size()]));
                 } else {
                     if (cleanedQuery.startsWith("/")) {
                         cleanedQuery = cleanedQuery.substring(1);
@@ -142,7 +142,8 @@ public abstract class AbstractKView implements KView {
         dimension().universe().storage().lookup(this, kid, callback);
     }
 
-    public void lookupAll(Set<Long> keys, Callback<List<KObject>> callback) {
+    @Override
+    public void lookupAll(Long[] keys, Callback<KObject[]> callback) {
         dimension().universe().storage().lookupAll(this, keys, callback);
     }
 
@@ -159,7 +160,7 @@ public abstract class AbstractKView implements KView {
     @Override
     public KObject create(MetaClass clazz) {
         KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
-        if(newObj != null) {
+        if (newObj != null) {
             dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, null, newObj, null, newObj));
         }
         return newObj;

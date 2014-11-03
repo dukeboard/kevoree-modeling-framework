@@ -36,7 +36,7 @@ class XMIModelSerializer implements ModelSerializer {
       return;
     }
     var i: number = 0;
-    var max: number = chain.length();
+    var max: number = chain.length;
     while (i < max){
       var c: string = chain.charAt(i);
       if (c == '"') {

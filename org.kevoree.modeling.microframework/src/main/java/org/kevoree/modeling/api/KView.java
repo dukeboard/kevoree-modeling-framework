@@ -31,11 +31,11 @@ public interface KView {
 
     public ModelSlicer createModelSlicer();
 
-    public void select(String query, Callback<List<KObject>> callback);
+    public void select(String query, Callback<KObject[]> callback);
 
     public void lookup(long key, Callback<KObject> callback);
 
-    public void lookupAll(Set<Long> keys, Callback<List<KObject>> callback);
+    public void lookupAll(Long[] keys, Callback<KObject[]> callback);
 
     public void stream(String query, Callback<KObject> callback);
 

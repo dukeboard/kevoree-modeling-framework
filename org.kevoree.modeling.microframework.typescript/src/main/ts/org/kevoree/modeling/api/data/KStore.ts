@@ -5,14 +5,12 @@
 ///<reference path="../KView.ts"/>
 ///<reference path="../ModelListener.ts"/>
 ///<reference path="../time/TimeTree.ts"/>
-///<reference path="../../../../../java/util/List.ts"/>
-///<reference path="../../../../../java/util/Set.ts"/>
 
 interface KStore {
 
   lookup(originView: KView, key: number, callback: Callback<KObject<any,any>>): void;
 
-  lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject<any,any>>>): void;
+  lookupAll(originView: KView, key: number[], callback: Callback<KObject<any,any>[]>): void;
 
   raw(origin: KObject<any,any>, accessMode: AccessMode): any[];
 

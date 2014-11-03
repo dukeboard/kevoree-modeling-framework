@@ -23,19 +23,19 @@ class KQuery {
   }
 
   public static extractFirstQuery(query: string): KQuery {
-    if (query == null || query.length() == 0) {
+    if (query == null || query.length == 0) {
       return null;
     }
     if (query.charAt(0) == KQuery.QUERY_SEP) {
       var subQuery: string = null;
-      if (query.length() > 1) {
+      if (query.length > 1) {
         subQuery = query.substring(1);
       }
       var params: Map<string, KQueryParam> = new HashMap<string, KQueryParam>();
       return new KQuery("", params, subQuery, "" + KQuery.QUERY_SEP, false, false);
     }
     if (query.startsWith("**/")) {
-      if (query.length() > 3) {
+      if (query.length > 3) {
         var next: KQuery = KQuery.extractFirstQuery(query.substring(3));
         if (next != null) {
           next.previousIsDeep = true;
@@ -47,7 +47,7 @@ class KQuery {
       }
     }
     if (query.startsWith("***/")) {
-      if (query.length() > 4) {
+      if (query.length > 4) {
         var next: KQuery = KQuery.extractFirstQuery(query.substring(4));
         if (next != null) {
           next.previousIsDeep = true;
@@ -62,7 +62,7 @@ class KQuery {
     var relationNameEnd: number = 0;
     var attsEnd: number = 0;
     var escaped: boolean = false;
-    while (i < query.length() && ((query.charAt(i) != KQuery.QUERY_SEP) || escaped)){
+    while (i < query.length && ((query.charAt(i) != KQuery.QUERY_SEP) || escaped)){
       if (escaped) {
         escaped = false;
       }
@@ -82,7 +82,7 @@ class KQuery {
     if (i > 0 && relationNameEnd > 0) {
       var oldString: string = query.substring(0, i);
       var subQuery: string = null;
-      if (i + 1 < query.length()) {
+      if (i + 1 < query.length) {
         subQuery = query.substring(i + 1);
       }
       var relName: string = query.substring(0, relationNameEnd);
@@ -93,7 +93,7 @@ class KQuery {
         var iParam: number = 0;
         var lastStart: number = iParam;
         escaped = false;
-        while (iParam < paramString.length()){
+        while (iParam < paramString.length){
           if (paramString.charAt(iParam) == ',' && !escaped) {
             var p: string = paramString.substring(lastStart, iParam).trim();
             if (p.equals("") && !p.equals("*")) {

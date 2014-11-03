@@ -34,7 +34,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public Long parentUuid();
     
-    public void select(String query, Callback<List<KObject>> callback);
+    public void select(String query, Callback<KObject[]> callback);
 
     public void stream(String query, Callback<KObject> callback);
 

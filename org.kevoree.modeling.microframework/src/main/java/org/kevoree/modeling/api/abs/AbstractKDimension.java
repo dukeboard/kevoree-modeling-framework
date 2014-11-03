@@ -71,7 +71,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
     }
 
     @Override
-    public void children(Callback<Set<B>> callback) {
+    public void children(Callback<B[]> callback) {
         //TODO
     }
 

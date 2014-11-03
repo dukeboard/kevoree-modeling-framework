@@ -2,8 +2,6 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.time.TimeTree;
 
-import java.util.Set;
-
 /**
  * Created by duke on 9/30/14.
  */
@@ -14,7 +12,7 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
 
     public void parent(Callback<B> callback);
 
-    public void children(Callback<Set<B>> callback);
+    public void children(Callback<B[]> callback);
 
     public void fork(Callback<B> callback);
 

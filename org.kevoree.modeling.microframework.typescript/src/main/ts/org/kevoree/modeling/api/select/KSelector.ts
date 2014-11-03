@@ -12,10 +12,10 @@
 
 class KSelector {
 
-  public static select(root: KObject<any,any>, query: string, callback: Callback<List<KObject<any,any>>>): void {
+  public static select(root: KObject<any,any>, query: string, callback: Callback<KObject<any,any>[]>): void {
     var extractedQuery: KQuery = KQuery.extractFirstQuery(query);
     if (extractedQuery == null) {
-      callback.on(new ArrayList());
+      callback.on(new Array());
     } else {
       var relationNameRegex: string = extractedQuery.relationName.replace("*", ".*");
       var collected: Set<number> = new HashSet<number>();
@@ -35,13 +35,15 @@ class KSelector {
           }
         }
       }
-      root.view().lookupAll(collected, {on:function(resolveds: List<KObject<any,any>>){
+      root.view().lookupAll(collected.toArray(new Array()), {on:function(resolveds: KObject<any,any>[]){
       var nextGeneration: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       if (extractedQuery.params.isEmpty()) {
-        nextGeneration.addAll(resolveds);
+        for (var i: number = 0; i < resolveds.length; i++) {
+          nextGeneration.add(resolveds[i]);
+        }
       } else {
-        for (var i: number = 0; i < resolveds.size(); i++) {
-          var resolved: KObject<any,any> = resolveds.get(i);
+        for (var i: number = 0; i < resolveds.length; i++) {
+          var resolved: KObject<any,any> = resolveds[i];
           var selectedForNext: boolean = true;
           //TODO resolve for-each cycle
           var paramKey: string;
@@ -77,14 +79,14 @@ class KSelector {
       var childSelected: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
       if (extractedQuery.subQuery == null || extractedQuery.subQuery.isEmpty()) {
         childSelected.add(root);
-        callback.on(nextGeneration);
+        callback.on(nextGeneration.toArray(new Array()));
       } else {
         Helper.forall(nextGeneration.toArray(new Array()), {on:function(kObject: KObject<any,any>, next: Callback<Throwable>){
-        KSelector.select(kObject, extractedQuery.subQuery, {on:function(kObjects: List<KObject<any,any>>){
+        KSelector.select(kObject, extractedQuery.subQuery, {on:function(kObjects: KObject<any,any>[]){
         childSelected.addAll(childSelected);
 }});
 }}, {on:function(throwable: Throwable){
-        callback.on(childSelected);
+        callback.on(childSelected.toArray(new Array()));
 }});
       }
 }});

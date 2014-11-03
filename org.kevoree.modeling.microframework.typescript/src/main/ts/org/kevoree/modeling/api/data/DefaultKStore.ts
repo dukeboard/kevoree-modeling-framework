@@ -411,12 +411,15 @@ class DefaultKStore implements KStore {
 }});
   }
 
-  public lookupAll(originView: KView, key: Set<number>, callback: Callback<List<KObject<any,any>>>): void {
-    var toLoad: List<number> = new ArrayList<number>(key);
+  public lookupAll(originView: KView, keys: number[], callback: Callback<KObject<any,any>[]>): void {
+    var toLoad: List<number> = new ArrayList<number>();
+    for (var i: number = 0; i < keys.length; i++) {
+      toLoad.add(keys[i]);
+    }
     var resolveds: List<KObject<any,any>> = new ArrayList<KObject<any,any>>();
     //TODO resolve for-each cycle
     var kid: number;
-    for (kid in key) {
+    for (kid in keys) {
       var resolved: KObject<any,any> = this.cacheLookup(originView.dimension(), originView.now(), kid);
       if (resolved != null) {
         resolveds.add(resolved);
@@ -435,7 +438,7 @@ class DefaultKStore implements KStore {
           proxies.add(res);
         }
       }
-      callback.on(proxies);
+      callback.on(proxies.toArray(new Array()));
     } else {
       var toLoadKeys: number[] = new Array();
       for (var i: number = 0; i < toLoad.size(); i++) {
@@ -454,7 +457,7 @@ class DefaultKStore implements KStore {
           proxies.add(res);
         }
       }
-      callback.on(proxies);
+      callback.on(proxies.toArray(new Array()));
 }});
     }
   }

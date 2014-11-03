@@ -1,5 +1,4 @@
 ///<reference path="time/TimeTree.ts"/>
-///<reference path="../../../../java/util/Set.ts"/>
 
 interface KDimension<A extends KView, B extends KDimension<any,any,any>, C extends KUniverse<any>> {
 
@@ -7,7 +6,7 @@ interface KDimension<A extends KView, B extends KDimension<any,any,any>, C exten
 
   parent(callback: Callback<B>): void;
 
-  children(callback: Callback<Set<B>>): void;
+  children(callback: Callback<B[]>): void;
 
   fork(callback: Callback<B>): void;
 

@@ -449,10 +449,13 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void lookupAll(final KView originView, Set<Long> key, final Callback<List<KObject>> callback) {
-        List<Long> toLoad = new ArrayList<Long>(key);
+    public void lookupAll(final KView originView, Long[] keys, final Callback<KObject[]> callback) {
+        List<Long> toLoad = new ArrayList<Long>();
+        for (int i = 0; i < keys.length; i++) {
+            toLoad.add(keys[i]);
+        }
         final List<KObject> resolveds = new ArrayList<KObject>();
-        for (Long kid : key) {
+        for (Long kid : keys) {
             KObject resolved = cacheLookup(originView.dimension(), originView.now(), kid);
             if (resolved != null) {
                 resolveds.add(resolved);
@@ -469,7 +472,7 @@ public class DefaultKStore implements KStore {
                     proxies.add(res);
                 }
             }
-            callback.on(proxies);
+            callback.on(proxies.toArray(new KObject[proxies.size()]));
         } else {
             long[] toLoadKeys = new long[toLoad.size()];
             for (int i = 0; i < toLoad.size(); i++) {
@@ -488,7 +491,7 @@ public class DefaultKStore implements KStore {
                             proxies.add(res);
                         }
                     }
-                    callback.on(proxies);
+                    callback.on(proxies.toArray(new KObject[proxies.size()]));
                 }
             });
         }

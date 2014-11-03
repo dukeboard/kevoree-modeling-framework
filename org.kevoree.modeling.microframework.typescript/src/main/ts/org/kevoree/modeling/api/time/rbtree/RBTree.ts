@@ -18,13 +18,13 @@ class RBTree {
   }
 
   public unserialize(payload: string): void {
-    if (payload == null || payload.length() == 0) {
+    if (payload == null || payload.length == 0) {
       return;
     }
     var i: number = 0;
     var buffer: StringBuilder = new StringBuilder();
     var ch: string = payload.charAt(i);
-    while (i < payload.length() && ch != '|'){
+    while (i < payload.length && ch != '|'){
       buffer.append(ch);
       i = i + 1;
       ch = payload.charAt(i);

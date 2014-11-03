@@ -21,7 +21,7 @@ class XMIModelLoader implements ModelLoader {
   public static unescapeXml(src: string): string {
     var builder: StringBuilder = null;
     var i: number = 0;
-    while (i < src.length()){
+    while (i < src.length){
       var c: string = src.charAt(i);
       if (c == '&') {
         if (builder == null) {
@@ -138,7 +138,7 @@ class XMIModelLoader implements ModelLoader {
         }
         if (xsiType != null) {
           var realTypeName: string = xsiType.substring(0, xsiType.lastIndexOf(":"));
-          var realName: string = xsiType.substring(xsiType.lastIndexOf(":") + 1, xsiType.length());
+          var realName: string = xsiType.substring(xsiType.lastIndexOf(":") + 1, xsiType.length);
           modelElem = this._factory.createFQN(realTypeName + "." + realName);
         }
       }

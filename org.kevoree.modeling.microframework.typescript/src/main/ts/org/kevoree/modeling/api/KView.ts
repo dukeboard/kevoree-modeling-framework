@@ -25,11 +25,11 @@ interface KView {
 
   createModelSlicer(): ModelSlicer;
 
-  select(query: string, callback: Callback<List<KObject<any,any>>>): void;
+  select(query: string, callback: Callback<KObject<any,any>[]>): void;
 
   lookup(key: number, callback: Callback<KObject<any,any>>): void;
 
-  lookupAll(keys: Set<number>, callback: Callback<List<KObject<any,any>>>): void;
+  lookupAll(keys: number[], callback: Callback<KObject<any,any>[]>): void;
 
   stream(query: string, callback: Callback<KObject<any,any>>): void;
 

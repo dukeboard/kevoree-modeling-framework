@@ -96,7 +96,7 @@ class AbstractKView implements KView {
     this.dimension().universe().storage().setRoot(elem);
   }
 
-  public select(query: string, callback: Callback<List<KObject<any,any>>>): void {
+  public select(query: string, callback: Callback<KObject<any,any>[]>): void {
     this.dimension().universe().storage().getRoot(this, {on:function(rootObj: KObject<any,any>){
     var cleanedQuery: string = query;
     if (cleanedQuery.equals("/")) {
@@ -104,7 +104,7 @@ class AbstractKView implements KView {
       if (rootObj != null) {
         res.add(rootObj);
       }
-      callback.on(res);
+      callback.on(res.toArray(new Array()));
     } else {
       if (cleanedQuery.startsWith("/")) {
         cleanedQuery = cleanedQuery.substring(1);
@@ -118,7 +118,7 @@ class AbstractKView implements KView {
     this.dimension().universe().storage().lookup(this, kid, callback);
   }
 
-  public lookupAll(keys: Set<number>, callback: Callback<List<KObject<any,any>>>): void {
+  public lookupAll(keys: number[], callback: Callback<KObject<any,any>[]>): void {
     this.dimension().universe().storage().lookupAll(this, keys, callback);
   }
 
