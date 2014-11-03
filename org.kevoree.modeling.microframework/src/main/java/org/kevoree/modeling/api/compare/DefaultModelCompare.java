@@ -98,7 +98,9 @@ public class DefaultModelCompare implements ModelCompare {
                                 traces.addAll(tracesRef); //references should be deleted before, deletion of elements
                                 if (!inter && !merge) {
                                     //if diff
-                                    for (Long diffChildKey : objectsMap.keySet()) {
+                                    Long[] diffChildKeys = objectsMap.keySet().toArray(new Long[objectsMap.size()]);
+                                    for(int i = 0 ; i < diffChildKeys.length; i++) {
+                                        Long diffChildKey = diffChildKeys[i];
                                         KObject diffChild = objectsMap.get(diffChildKey);
                                         Long src = diffChild.parentUuid();
                                         traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
@@ -121,6 +123,9 @@ public class DefaultModelCompare implements ModelCompare {
                 current.visitAttributes(new ModelAttributeVisitor() {
                     @Override
                     public void visit(MetaAttribute metaAttribute, Object value) {
+                        if(value == null) {
+                            System.err.println("ValueNull for:" + metaAttribute.metaName());
+                        }
                         values.put(metaAttribute, value.toString());
                     }
                 });
@@ -155,7 +160,9 @@ public class DefaultModelCompare implements ModelCompare {
                 });
             }
             if (!inter && !merge && !values.isEmpty()) {
-                for (MetaAttribute hashLoopRes : values.keySet()) {
+                MetaAttribute[] mettaAttributes = values.keySet().toArray(new MetaAttribute[values.size()]);
+                for(int i = 0; i < mettaAttributes.length; i++) {
+                    MetaAttribute hashLoopRes = mettaAttributes[i];
                     traces.add(new ModelSetTrace(current.uuid(), hashLoopRes, null));
                     values.remove(hashLoopRes);
                 }
@@ -197,16 +204,19 @@ public class DefaultModelCompare implements ModelCompare {
                         }
                     } else {
                         if (payload1 == null && payload2 != null) {
-                            Set<Long> siblingToAdd = (Set<Long>) payload2;
-                            for (Long siblingElem : siblingToAdd) {
+
+                            Long[] siblingToAdd = ((Set<Long>) payload2).toArray(new Long[((Set<Long>) payload2).size()]);
+                            for(int j = 0; j < siblingToAdd.length ; j++) {
+                                Long siblingElem = siblingToAdd[j];
                                 if (!inter) {
                                     traces.add(new ModelAddTrace(current.uuid(), reference, siblingElem, null));
                                 }
                             }
                         } else {
                             if (payload1 != null) {
-                                Set<Long> currentPaths = (Set<Long>) payload1;
-                                for (Long currentPath : currentPaths) {
+                                Long[] currentPaths = ((Set<Long>) payload1).toArray(new Long[((Set<Long>) payload1).size()]);
+                                for(int j = 0; j < currentPaths.length ; j++) {
+                                    Long currentPath = currentPaths[j];
                                     boolean isFound = false;
                                     if (payload2 != null) {
                                         Set<Long> siblingPaths = (Set<Long>) payload2;
@@ -228,12 +238,15 @@ public class DefaultModelCompare implements ModelCompare {
                     valuesRef.remove(reference);
                 }
                 if (!inter && !merge && !values.isEmpty()) {
-                    for (MetaReference hashLoopRes : valuesRef.keySet()) {
+                    MetaReference[] metaReferences = valuesRef.keySet().toArray(new MetaReference[valuesRef.size()]);
+                    for( int i = 0; i < metaReferences.length; i++) {
+                        MetaReference hashLoopRes = metaReferences[i];
                         Object payload = valuesRef.get(hashLoopRes);
                         if (payload != null) {
                             if (payload instanceof Set) {
-                                Set<Long> toRemoveSet = (Set<Long>) payload;
-                                for (Long toRemovePath : toRemoveSet) {
+                                Long[] toRemoveSet = ((Set<Long>) payload).toArray(new Long[((Set<Long>) payload).size()]);
+                                for(int j = 0; j < toRemoveSet.length; j++) {
+                                    Long toRemovePath = toRemoveSet[j];
                                     traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, toRemovePath));
                                 }
                             } else {
