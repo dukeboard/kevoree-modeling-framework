@@ -64,7 +64,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
 
 
     private void internal_feed(Long time, double value) {
-        //If this is the first point in the set, add it and return
+        //If this is the first point in the cset, add it and return
         if (weights == null) {
             weights = new double[1];
             weights[0] = value;
@@ -123,7 +123,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
 
     @Override
     public boolean insert(long time, double value) {
-        //If this is the first point in the set, add it and return
+        //If this is the first point in the cset, add it and return
         if (weights == null) {
             internal_feed(time, value);
             lastIndex = time;

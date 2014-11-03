@@ -49,7 +49,7 @@ class AdjLinearSolverQr {
       DenseMatrix64F.multTransA(this.Q, this.Y, this.Z);
       this.solveU(this.R.data, this.Z.data, this.numCols);
       for (var i: number = 0; i < this.numCols; i++) {
-        X.set(i, colB, this.Z.data[i]);
+        X.cset(i, colB, this.Z.data[i]);
       }
     }
   }

@@ -59,7 +59,7 @@ public class AdjLinearSolverQr {
             solveU(R.data, Z.data, numCols);
             // save the results
             for (int i = 0; i < numCols; i++) {
-                X.set(i, colB, Z.data[i]);
+                X.cset(i, colB, Z.data[i]);
             }
         }
     }

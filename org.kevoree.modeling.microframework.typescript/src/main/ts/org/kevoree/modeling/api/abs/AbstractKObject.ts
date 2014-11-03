@@ -639,7 +639,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
           }
 }});
         } else {
-          end.on(new Exception("Inbound refs payload is not a set"));
+          end.on(new Exception("Inbound refs payload is not a cset"));
         }
       } else {
         end.on(null);

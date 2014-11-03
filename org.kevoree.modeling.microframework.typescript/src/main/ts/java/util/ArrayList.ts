@@ -1,8 +1,8 @@
-
 class ArrayList<T> implements List<T> {
 
     clear() {
     }
+
     addAll(vals:any) {
     }
 
@@ -17,29 +17,29 @@ class ArrayList<T> implements List<T> {
         return undefined;
     }
 
-    private items: Array<T>;
+    private items:Array<T>;
 
     constructor() {
         this.items = [];
     }
 
-    constructor(size : number) {
+    constructor(size:number) {
         this.items = new Array(size);
     }
 
-    constructor(others : Collection<T>) {
+    constructor(others:Collection<T>) {
         this.items = new Array(others);
     }
 
-    size(): number {
+    size():number {
         return this.items.length;
     }
 
-    add(value: T): void {
+    add(value:T):void {
         this.items.push(value);
     }
 
-    get(index: number): T {
+    get(index:number):T {
         return this.items[index];
     }
 

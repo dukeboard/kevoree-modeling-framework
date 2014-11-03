@@ -29,11 +29,11 @@ public class PolynomialFitEjml {
         y.reshape(observations.length, 1, false);
         System.arraycopy(observations, 0, y.data, 0, observations.length);
         A.reshape(y.numRows, coef.numRows, false);
-        // set up the A matrix
+        // cset up the A matrix
         for (int i = 0; i < observations.length; i++) {
             double obs = 1;
             for (int j = 0; j < coef.numRows; j++) {
-                A.set(i, j, obs);
+                A.cset(i, j, obs);
                 obs *= samplePoints[i];
             }
         }

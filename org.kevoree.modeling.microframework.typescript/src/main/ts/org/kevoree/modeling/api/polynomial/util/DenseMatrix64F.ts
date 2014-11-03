@@ -107,10 +107,10 @@ class DenseMatrix64F {
     }
   }
 
-  public static identity(width: number): DenseMatrix64F {
+  public static widentity(width: number): DenseMatrix64F {
     var ret: DenseMatrix64F = new DenseMatrix64F(width, width);
     for (var i: number = 0; i < width; i++) {
-      ret.set(i, i, 1.0);
+      ret.cset(i, i, 1.0);
     }
     return ret;
   }
@@ -119,7 +119,7 @@ class DenseMatrix64F {
     var ret: DenseMatrix64F = new DenseMatrix64F(numRows, numCols);
     var small: number = numRows < numCols ? numRows : numCols;
     for (var i: number = 0; i < small; i++) {
-      ret.set(i, i, 1.0);
+      ret.cset(i, i, 1.0);
     }
     return ret;
   }
@@ -158,7 +158,7 @@ class DenseMatrix64F {
     this.numCols = numCols;
   }
 
-  public set(row: number, col: number, value: number): void {
+  public cset(row: number, col: number, value: number): void {
     this.data[row * this.numCols + col] = value;
   }
 

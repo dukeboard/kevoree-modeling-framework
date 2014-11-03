@@ -24,7 +24,7 @@ class PolynomialFitEjml {
     for (var i: number = 0; i < observations.length; i++) {
       var obs: number = 1;
       for (var j: number = 0; j < this.coef.numRows; j++) {
-        this.A.set(i, j, obs);
+        this.A.cset(i, j, obs);
         obs *= samplePoints[i];
       }
     }

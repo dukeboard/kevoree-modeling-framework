@@ -30,7 +30,7 @@ public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
         //By requiring a raw on the current object, we automatically create and copy the previous object
         Object[] internalPayload = current.view().dimension().universe().storage().raw(current, AccessMode.WRITE);
-        //The object is also automatically set to Dirty
+        //The object is also automatically cset to Dirty
         if (internalPayload != null) {
             internalPayload[attribute.index()] = payload;
         }

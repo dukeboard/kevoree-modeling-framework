@@ -38,7 +38,7 @@ class QRDecompositionHouseholderColumn_D64 {
       }
     } else {
       if (Q == null) {
-        Q = DenseMatrix64F.identity(this.numRows);
+        Q = DenseMatrix64F.widentity(this.numRows);
       } else {
         DenseMatrix64F.setIdentity(Q);
       }
@@ -64,7 +64,7 @@ class QRDecompositionHouseholderColumn_D64 {
       for (var i: number = 0; i < R.numRows; i++) {
         var min: number = Math.min(i, R.numCols);
         for (var j: number = 0; j < min; j++) {
-          R.set(i, j, 0);
+          R.cset(i, j, 0);
         }
       }
     }
@@ -73,7 +73,7 @@ class QRDecompositionHouseholderColumn_D64 {
       var l: number = Math.min(j, this.numRows - 1);
       for (var i: number = 0; i <= l; i++) {
         var val: number = colR[i];
-        R.set(i, j, val);
+        R.cset(i, j, val);
       }
     }
     return R;

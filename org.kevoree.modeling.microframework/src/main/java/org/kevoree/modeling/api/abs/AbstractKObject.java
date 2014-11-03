@@ -705,7 +705,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                     });
                 } else {
-                    end.on(new Exception("Inbound refs payload is not a set"));
+                    end.on(new Exception("Inbound refs payload is not a cset"));
                 }
             } else {
                 end.on(null);

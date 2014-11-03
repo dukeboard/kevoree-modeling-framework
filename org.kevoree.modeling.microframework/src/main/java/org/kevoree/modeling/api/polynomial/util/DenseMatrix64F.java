@@ -113,10 +113,10 @@ public class DenseMatrix64F {
         }
     }
 
-    public static DenseMatrix64F identity(int width) {
+    public static DenseMatrix64F widentity(int width) {
         DenseMatrix64F ret = new DenseMatrix64F(width, width);
         for (int i = 0; i < width; i++) {
-            ret.set(i, i, 1.0);
+            ret.cset(i, i, 1.0);
         }
         return ret;
     }
@@ -125,7 +125,7 @@ public class DenseMatrix64F {
         DenseMatrix64F ret = new DenseMatrix64F(numRows, numCols);
         int small = numRows < numCols ? numRows : numCols;
         for (int i = 0; i < small; i++) {
-            ret.set(i, i, 1.0);
+            ret.cset(i, i, 1.0);
         }
         return ret;
     }
@@ -166,7 +166,7 @@ public class DenseMatrix64F {
     }
 
 
-    public void set(int row, int col, double value) {
+    public void cset(int row, int col, double value) {
         data[row * numCols + col] = value;
     }
 
