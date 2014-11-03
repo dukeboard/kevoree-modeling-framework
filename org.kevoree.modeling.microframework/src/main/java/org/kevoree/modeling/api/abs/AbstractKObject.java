@@ -522,28 +522,28 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                     }
                     if (!nextDeep.isEmpty()) {
-                        final int[] i = new int[1];
-                        i[0] = 0;
+                        final int[] ii = new int[1];
+                        ii[0] = 0;
                         final Callback<Throwable>[] next = new Callback[1];
                         next[0] = new Callback<Throwable>() {
                             @Override
                             public void on(Throwable throwable) {
-                                i[0] = i[0] + 1;
-                                if (i[0] == nextDeep.size()) {
+                                ii[0] = ii[0] + 1;
+                                if (ii[0] == nextDeep.size()) {
                                     end.on(null);
                                 } else {
                                     if (treeOnly) {
-                                        nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+                                        nextDeep.get(ii[0]).treeVisit(visitor, next[0]);
                                     } else {
-                                        nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+                                        nextDeep.get(ii[0]).graphVisit(visitor, next[0]);
                                     }
                                 }
                             }
                         };
                         if (treeOnly) {
-                            nextDeep.get(i[0]).treeVisit(visitor, next[0]);
+                            nextDeep.get(ii[0]).treeVisit(visitor, next[0]);
                         } else {
-                            nextDeep.get(i[0]).graphVisit(visitor, next[0]);
+                            nextDeep.get(ii[0]).graphVisit(visitor, next[0]);
                         }
                     } else {
                         end.on(null);
