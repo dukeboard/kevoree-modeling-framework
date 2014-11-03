@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class XmlParser {
 
-    private byte[] payload;
+    private String payload;
     private int current = 0;
     private char currentChar;
     private String tagName, tagPrefix, attributePrefix;
@@ -24,7 +24,7 @@ public class XmlParser {
 
 
     public XmlParser(String str) {
-        this.payload = str.getBytes();
+        this.payload = str;
         currentChar = readChar();
     }
 
@@ -34,7 +34,7 @@ public class XmlParser {
 
     public Boolean hasNext() {
         read_lessThan();
-        return current < payload.length;
+        return current < payload.length();
     }
 
     public String getLocalName() {
@@ -58,10 +58,10 @@ public class XmlParser {
     }
 
     private char readChar() {
-        if (current < payload.length) {
-            byte re = payload[current];
+        if (current < payload.length()) {
+            char re = payload.charAt(current);
             current++;
-            return (char) re;
+            return re;
         }
         return '\0';
     }

@@ -2,7 +2,7 @@
 
 class Lexer {
 
-  private bytes: number[] = null;
+  private bytes: string = null;
   private EOF: JsonToken = null;
   private BOOLEAN_LETTERS: JUHashSet<string> = null;
   private DIGIT: JUHashSet<string> = null;
@@ -10,7 +10,7 @@ class Lexer {
   private static DEFAULT_BUFFER_SIZE: number = 1024 * 4;
 
   constructor(payload: string) {
-    this.bytes = payload.getBytes();
+    this.bytes = payload;
     this.EOF = new JsonToken(Type.EOF, null);
   }
 
@@ -19,11 +19,11 @@ class Lexer {
   }
 
   private nextChar(): string {
-    return <string>this.bytes[this.index++];
+    return this.bytes.charAt(this.index++);
   }
 
   private peekChar(): string {
-    return <string>this.bytes[this.index];
+    return this.bytes.charAt(this.index);
   }
 
   private isDone(): boolean {

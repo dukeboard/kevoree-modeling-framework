@@ -2,7 +2,7 @@
 
 class XmlParser {
 
-  private payload: number[] = null;
+  private payload: string = null;
   private current: number = 0;
   private currentChar: string = null;
   private tagName: string = null;
@@ -16,7 +16,7 @@ class XmlParser {
   private attributeValue: StringBuilder = new StringBuilder();
 
   constructor(str: string) {
-    this.payload = str.getBytes();
+    this.payload = str;
     this.currentChar = this.readChar();
   }
 
@@ -51,9 +51,9 @@ class XmlParser {
 
   private readChar(): string {
     if (this.current < this.payload.length) {
-      var re: number = this.payload[this.current];
+      var re: string = this.payload.charAt(this.current);
       this.current++;
-      return <string>re;
+      return re;
     }
     return '\0';
   }

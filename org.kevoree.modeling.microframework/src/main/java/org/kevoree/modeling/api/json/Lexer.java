@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 public class Lexer {
 
-    private byte[] bytes;
+    private String bytes;
     private JsonToken EOF;
     private HashSet<Character> BOOLEAN_LETTERS = null;
     private HashSet<Character> DIGIT = null;
@@ -13,7 +13,7 @@ public class Lexer {
 
 
     public Lexer(String payload) {
-        this.bytes = payload.getBytes();
+        this.bytes = payload;
         this.EOF = new JsonToken(Type.EOF, null);
     }
 
@@ -22,15 +22,15 @@ public class Lexer {
     }
 
     private Character nextChar() {
-        return (char) bytes[index++];
+        return bytes.charAt(index++);
     }
 
     private Character peekChar() {
-        return (char) bytes[index];
+        return bytes.charAt(index);
     }
 
     private boolean isDone() {
-        return index >= bytes.length;
+        return index >= bytes.length();
     }
 
     private boolean isBooleanLetter(Character c) {
@@ -85,9 +85,9 @@ public class Lexer {
             tokenType = Type.VALUE;
             if (!isDone()) {
                 c = nextChar();
-                while (index < bytes.length && c != '"') {
+                while (index < bytes.length() && c != '"') {
                     currentValue.append(c);
-                    if (c == '\\' && index < bytes.length) {
+                    if (c == '\\' && index < bytes.length()) {
                         c = nextChar();
                         currentValue.append(c);
                     }
