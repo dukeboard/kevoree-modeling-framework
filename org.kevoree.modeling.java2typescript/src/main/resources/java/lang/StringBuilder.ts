@@ -2,13 +2,12 @@ class StringBuilder {
 
     buffer = "";
 
+    public length = 0;
+
     append(val:any):StringBuilder {
         this.buffer = this.buffer + val;
+        length = this.buffer.length;
         return this;
-    }
-
-    length():number {
-        return this.buffer.length;
     }
 
     toString():string {

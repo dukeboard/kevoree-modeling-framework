@@ -3,7 +3,6 @@ interface String {
     equals : (other:String) => boolean;
     startsWith : (other:String) => boolean;
     endsWith : (other:String) => boolean;
-    length : () => number;
     matches :  (regEx:String) => boolean;
     getBytes : () => number[];
     isEmpty : () => boolean;
