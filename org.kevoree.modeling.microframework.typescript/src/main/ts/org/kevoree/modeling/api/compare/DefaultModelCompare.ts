@@ -79,9 +79,9 @@ class DefaultModelCompare implements ModelCompare {
       } else {
         traces.addAll(tracesRef);
         if (!inter && !merge) {
-          //TODO resolve for-each cycle
-          var diffChildKey: number;
-          for (diffChildKey in objectsMap.keySet()) {
+          var diffChildKeys: number[] = objectsMap.keySet().toArray(new Array());
+          for (var i: number = 0; i < diffChildKeys.length; i++) {
+            var diffChildKey: number = diffChildKeys[i];
             var diffChild: KObject<any,any> = objectsMap.get(diffChildKey);
             var src: number = diffChild.parentUuid();
             traces.add(new ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
@@ -100,12 +100,19 @@ class DefaultModelCompare implements ModelCompare {
     if (attributes) {
       if (current != null) {
         current.visitAttributes({visit:function(metaAttribute: MetaAttribute, value: any){
-        values.put(metaAttribute, value.toString());
+        if (value == null) {
+          values.put(metaAttribute, null);
+        } else {
+          values.put(metaAttribute, value.toString());
+        }
 }});
       }
       if (sibling != null) {
         sibling.visitAttributes({visit:function(metaAttribute: MetaAttribute, value: any){
-        var flatAtt2: string = value.toString();
+        var flatAtt2: string = null;
+        if (value != null) {
+          flatAtt2 = value.toString();
+        }
         var flatAtt1: string = values.get(metaAttribute);
         var isEquals: boolean = true;
         if (flatAtt1 == null) {
@@ -130,9 +137,9 @@ class DefaultModelCompare implements ModelCompare {
 }});
       }
       if (!inter && !merge && !values.isEmpty()) {
-        //TODO resolve for-each cycle
-        var hashLoopRes: MetaAttribute;
-        for (hashLoopRes in values.keySet()) {
+        var mettaAttributes: MetaAttribute[] = values.keySet().toArray(new Array());
+        for (var i: number = 0; i < mettaAttributes.length; i++) {
+          var hashLoopRes: MetaAttribute = mettaAttributes[i];
           traces.add(new ModelSetTrace(current.uuid(), hashLoopRes, null));
           values.remove(hashLoopRes);
         }
@@ -174,20 +181,18 @@ class DefaultModelCompare implements ModelCompare {
             }
           } else {
             if (payload1 == null && payload2 != null) {
-              var siblingToAdd: JUSet<number> = <JUSet<number>>payload2;
-              //TODO resolve for-each cycle
-              var siblingElem: number;
-              for (siblingElem in siblingToAdd) {
+              var siblingToAdd: number[] = (<JUSet<number>>payload2).toArray(new Array());
+              for (var j: number = 0; j < siblingToAdd.length; j++) {
+                var siblingElem: number = siblingToAdd[j];
                 if (!inter) {
                   traces.add(new ModelAddTrace(current.uuid(), reference, siblingElem, null));
                 }
               }
             } else {
               if (payload1 != null) {
-                var currentPaths: JUSet<number> = <JUSet<number>>payload1;
-                //TODO resolve for-each cycle
-                var currentPath: number;
-                for (currentPath in currentPaths) {
+                var currentPaths: number[] = (<JUSet<number>>payload1).toArray(new Array());
+                for (var j: number = 0; j < currentPaths.length; j++) {
+                  var currentPath: number = currentPaths[j];
                   var isFound: boolean = false;
                   if (payload2 != null) {
                     var siblingPaths: JUSet<number> = <JUSet<number>>payload2;
@@ -209,16 +214,15 @@ class DefaultModelCompare implements ModelCompare {
           valuesRef.remove(reference);
         }
         if (!inter && !merge && !values.isEmpty()) {
-          //TODO resolve for-each cycle
-          var hashLoopRes: MetaReference;
-          for (hashLoopRes in valuesRef.keySet()) {
+          var metaReferences: MetaReference[] = valuesRef.keySet().toArray(new Array());
+          for (var i: number = 0; i < metaReferences.length; i++) {
+            var hashLoopRes: MetaReference = metaReferences[i];
             var payload: any = valuesRef.get(hashLoopRes);
             if (payload != null) {
               if (payload instanceof JUSet) {
-                var toRemoveSet: JUSet<number> = <JUSet<number>>payload;
-                //TODO resolve for-each cycle
-                var toRemovePath: number;
-                for (toRemovePath in toRemoveSet) {
+                var toRemoveSet: number[] = (<JUSet<number>>payload).toArray(new Array());
+                for (var j: number = 0; j < toRemoveSet.length; j++) {
+                  var toRemovePath: number = toRemoveSet[j];
                   traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, toRemovePath));
                 }
               } else {

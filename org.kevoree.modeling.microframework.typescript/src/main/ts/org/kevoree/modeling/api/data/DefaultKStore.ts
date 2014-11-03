@@ -6,7 +6,10 @@
 ///<reference path="../KView.ts"/>
 ///<reference path="../ModelListener.ts"/>
 ///<reference path="../ThrowableCallback.ts"/>
+///<reference path="../abs/AbstractKDimension.ts"/>
 ///<reference path="../abs/AbstractKObject.ts"/>
+///<reference path="../abs/AbstractKUniverse.ts"/>
+///<reference path="../abs/AbstractKView.ts"/>
 ///<reference path="cache/DimensionCache.ts"/>
 ///<reference path="cache/TimeCache.ts"/>
 ///<reference path="../strategy/ExtrapolationStrategy.ts"/>
@@ -173,12 +176,11 @@ class DefaultKStore implements KStore {
     } else {
       var sizeCache: number = 0;
       var timeCaches: TimeCache[] = dimensionCache.timesCaches.values().toArray(new Array());
-      //TODO resolve for-each cycle
-      var timeCache: TimeCache;
-      for (timeCache in timeCaches) {
-        //TODO resolve for-each cycle
-        var cached: KObject<any,any>;
-        for (cached in timeCache.obj_cache.values()) {
+      for (var i: number = 0; i < timeCaches.length; i++) {
+        var timeCache: TimeCache = timeCaches[i];
+        var valuesArr: KObject<any,any>[] = timeCache.obj_cache.values().toArray(new Array());
+        for (var j: number = 0; j < valuesArr.length; j++) {
+          var cached: KObject<any,any> = valuesArr[j];
           if (cached.isDirty()) {
             sizeCache++;
           }
@@ -188,9 +190,8 @@ class DefaultKStore implements KStore {
         }
       }
       var timeTrees: TimeTree[] = dimensionCache.timeTreeCache.values().toArray(new Array());
-      //TODO resolve for-each cycle
-      var timeTree: TimeTree;
-      for (timeTree in timeTrees) {
+      for (var i: number = 0; i < timeTrees.length; i++) {
+        var timeTree: TimeTree = timeTrees[i];
         if (timeTree.isDirty()) {
           sizeCache++;
         }
@@ -200,12 +201,11 @@ class DefaultKStore implements KStore {
       }
       var payloads: string[][] = new Array(new Array());
       var i: number = 0;
-      //TODO resolve for-each cycle
-      var timeCache: TimeCache;
-      for (timeCache in timeCaches) {
-        //TODO resolve for-each cycle
-        var cached: KObject<any,any>;
-        for (cached in timeCache.obj_cache.values()) {
+      for (var j: number = 0; j < timeCaches.length; j++) {
+        var timeCache: TimeCache = timeCaches[j];
+        var valuesArr: KObject<any,any>[] = timeCache.obj_cache.values().toArray(new Array());
+        for (var k: number = 0; k < valuesArr.length; k++) {
+          var cached: KObject<any,any> = valuesArr[k];
           if (cached.isDirty()) {
             payloads[i][0] = this.keyPayload(dimension, cached.now(), cached.uuid());
             payloads[i][1] = cached.toJSON();
@@ -220,9 +220,9 @@ class DefaultKStore implements KStore {
           i++;
         }
       }
-      //TODO resolve for-each cycle
-      var timeTreeKey: number;
-      for (timeTreeKey in dimensionCache.timeTreeCache.keySet()) {
+      var keyArr: number[] = dimensionCache.timeTreeCache.keySet().toArray(new Array());
+      for (var k: number = 0; k < keyArr.length; k++) {
+        var timeTreeKey: number = keyArr[k];
         var timeTree: TimeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
         if (timeTree.isDirty()) {
           payloads[i][0] = this.keyTree(dimension, timeTreeKey);
@@ -418,8 +418,9 @@ class DefaultKStore implements KStore {
     }
     if (toLoad.size() == 0) {
       var proxies: JUList<KObject<any,any>> = new JUArrayList<KObject<any,any>>();
-      for (var i: number = 0; i < resolveds.size(); i++) {
-        var res: KObject<any,any> = proxies.get(i);
+      var resolvedsArr: KObject<any,any>[] = resolveds.toArray(new Array());
+      for (var i: number = 0; i < resolvedsArr.length; i++) {
+        var res: KObject<any,any> = resolvedsArr[i];
         if (res.now() != originView.now()) {
           var proxy: KObject<any,any> = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
           proxies.add(proxy);
@@ -436,8 +437,9 @@ class DefaultKStore implements KStore {
       this.loadObjectInCache(originView, toLoadKeys, {on:function(additional: JUList<KObject<any,any>>){
       resolveds.addAll(additional);
       var proxies: JUList<KObject<any,any>> = new JUArrayList<KObject<any,any>>();
-      for (var i: number = 0; i < resolveds.size(); i++) {
-        var res: KObject<any,any> = proxies.get(i);
+      var resolvedsArr: KObject<any,any>[] = resolveds.toArray(new Array());
+      for (var i: number = 0; i < resolvedsArr.length; i++) {
+        var res: KObject<any,any> = resolvedsArr[i];
         if (res.now() != originView.now()) {
           var proxy: KObject<any,any> = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
           proxies.add(proxy);
@@ -504,7 +506,7 @@ class DefaultKStore implements KStore {
   }
 
   public registerListener(origin: any, listener: ModelListener): void {
-    if (origin instanceof KObject) {
+    if (origin instanceof AbstractKObject) {
       var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
       var timeCache: TimeCache = dimensionCache.timesCaches.get((<KView>origin).now());
       var obj_listeners: JUList<ModelListener> = timeCache.obj_listeners.get((<KObject<any,any>>origin).uuid());
@@ -514,16 +516,16 @@ class DefaultKStore implements KStore {
       }
       obj_listeners.add(listener);
     } else {
-      if (origin instanceof KView) {
+      if (origin instanceof AbstractKView) {
         var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
         var timeCache: TimeCache = dimensionCache.timesCaches.get((<KView>origin).now());
         timeCache.listeners.add(listener);
       } else {
-        if (origin instanceof KDimension) {
+        if (origin instanceof AbstractKDimension) {
           var dimensionCache: DimensionCache = this.caches.get((<KDimension<any,any,any>>origin).key());
           dimensionCache.listeners.add(listener);
         } else {
-          if (origin instanceof KUniverse) {
+          if (origin instanceof AbstractKUniverse) {
             this.universeListeners.add(listener);
           }
         }

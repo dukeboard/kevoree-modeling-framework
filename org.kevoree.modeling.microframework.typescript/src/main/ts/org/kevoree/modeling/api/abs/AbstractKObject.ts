@@ -329,7 +329,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     return (<JUSet<any>>this.view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()]).size();
   }
 
-  public each<C> (metaReference: MetaReference, callback: Callback<C>, end: Callback<Throwable>): void {
+  public each<C extends KObject<any,any>> (metaReference: MetaReference, callback: Callback<C>, end: Callback<Throwable>): void {
     var o: any = this.view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()];
     if (o == null) {
       if (end != null) {
@@ -343,10 +343,8 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
         this.view().lookupAll(objs.toArray(new Array()), {on:function(result: KObject<any,any>[]){
         var endAlreadyCalled: boolean = false;
         try {
-          //TODO resolve for-each cycle
-          var resolved: KObject<any,any>;
-          for (resolved in result) {
-            callback.on(<C>resolved);
+          for (var l: number = 0; l < result.length; l++) {
+            callback.on(<C>result[l]);
           }
           endAlreadyCalled = true;
           end.on(null);
@@ -426,10 +424,9 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
         if (o != null) {
           if (o instanceof JUSet) {
             var ol: JUSet<number> = <JUSet<number>>o;
-            //TODO resolve for-each cycle
-            var toAdd: number;
-            for (toAdd in ol) {
-              toResolveds.add(toAdd);
+            var olArr: number[] = ol.toArray(new Array());
+            for (var k: number = 0; k < olArr.length; k++) {
+              toResolveds.add(olArr[k]);
             }
           } else {
             toResolveds.add(<number>o);
@@ -442,9 +439,8 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
     } else {
       this.view().lookupAll(toResolveds.toArray(new Array()), {on:function(resolveds: KObject<any,any>[]){
       var nextDeep: JUList<KObject<any,any>> = new JUArrayList<KObject<any,any>>();
-      //TODO resolve for-each cycle
-      var resolved: KObject<any,any>;
-      for (resolved in resolveds) {
+      for (var i: number = 0; i < resolveds.length; i++) {
+        var resolved: KObject<any,any> = resolveds[i];
         var result: VisitResult = visitor.visit(resolved);
         if (result.equals(VisitResult.STOP)) {
           end.on(null);
@@ -609,9 +605,8 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
           oppositeKids.addAll(refs.keySet());
           this._view.lookupAll(oppositeKids.toArray(new Array()), {on:function(oppositeElements: KObject<any,any>[]){
           if (oppositeElements != null) {
-            //TODO resolve for-each cycle
-            var opposite: KObject<any,any>;
-            for (opposite in oppositeElements) {
+            for (var k: number = 0; k < oppositeElements.length; k++) {
+              var opposite: KObject<any,any> = oppositeElements[k];
               var inboundRef: number = refs.get(opposite.uuid());
               var metaRef: MetaReference = null;
               var metaReferences: MetaReference[] = opposite.metaReferences();

@@ -37,12 +37,14 @@ public class DefaultModelSlicer implements ModelSlicer {
                     callback.on(null);
                 } else {
                     Collections.reverse(parents);
-                    for (KObject parent : parents) {
+                    KObject[] parentsArr = parents.toArray(new KObject[parents.size()]);
+                    for (int k = 0; k < parentsArr.length; k++) {
+                        KObject parent = parentsArr[k];
                         if (parent.parentUuid() != null) {
                             traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
                         }
                         ModelTrace[] toAdd = elem.traces(TraceRequest.ATTRIBUTES_ONLY);
-                        for(int i=0;i<toAdd.length;i++){
+                        for (int i = 0; i < toAdd.length; i++) {
                             traces.add(toAdd[i]);
                         }
                         parentMap.put(parent.uuid(), parent);
@@ -53,7 +55,7 @@ public class DefaultModelSlicer implements ModelSlicer {
                             traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
                         }
                         ModelTrace[] toAdd = elem.traces(TraceRequest.ATTRIBUTES_ONLY);
-                        for(int i=0;i<toAdd.length;i++){
+                        for (int i = 0; i < toAdd.length; i++) {
                             traces.add(toAdd[i]);
                         }
                     }
@@ -101,10 +103,11 @@ public class DefaultModelSlicer implements ModelSlicer {
         }, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                for (Long toLinkKey : tempMap.keySet()) {
-                    KObject toLink = tempMap.get(toLinkKey);
+                Long[] toLinkKeysArr = tempMap.keySet().toArray(new Long[tempMap.size()]);
+                for (int k = 0; k < toLinkKeysArr.length; k++) {
+                    KObject toLink = tempMap.get(toLinkKeysArr[k]);
                     ModelTrace[] toAdd = toLink.traces(TraceRequest.REFERENCES_ONLY);
-                    for(int i=0;i<toAdd.length;i++){
+                    for (int i = 0; i < toAdd.length; i++) {
                         traces.add(toAdd[i]);
                     }
                 }

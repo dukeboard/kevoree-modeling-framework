@@ -8,7 +8,10 @@ import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.abs.AbstractKDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
+import org.kevoree.modeling.api.abs.AbstractKUniverse;
+import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
@@ -568,7 +571,7 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void registerListener(Object origin, ModelListener listener) {
-        if (origin instanceof KObject) {
+        if (origin instanceof AbstractKObject) {
             DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
             TimeCache timeCache = dimensionCache.timesCaches.get(((KView) origin).now());
             List<ModelListener> obj_listeners = timeCache.obj_listeners.get(((KObject) origin).uuid());
@@ -577,14 +580,14 @@ public class DefaultKStore implements KStore {
                 timeCache.obj_listeners.put(((KObject) origin).uuid(), obj_listeners);
             }
             obj_listeners.add(listener);
-        } else if (origin instanceof KView) {
+        } else if (origin instanceof AbstractKView) {
             DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
             TimeCache timeCache = dimensionCache.timesCaches.get(((KView) origin).now());
             timeCache.listeners.add(listener);
-        } else if (origin instanceof KDimension) {
+        } else if (origin instanceof AbstractKDimension) {
             DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
             dimensionCache.listeners.add(listener);
-        } else if (origin instanceof KUniverse) {
+        } else if (origin instanceof AbstractKUniverse) {
             universeListeners.add(listener);
         }
     }

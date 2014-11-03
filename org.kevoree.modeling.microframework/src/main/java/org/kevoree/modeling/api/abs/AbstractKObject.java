@@ -403,8 +403,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 public void on(KObject[] result) {
                     boolean endAlreadyCalled = false;
                     try {
-                        for (KObject resolved : result) {
-                            callback.on((C) resolved);
+                        for (int l = 0; l < result.length; l++) {
+                            callback.on((C) result[l]);
                         }
                         endAlreadyCalled = true;
                         end.on(null);
@@ -489,8 +489,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (o != null) {
                     if (o instanceof Set) {
                         Set<Long> ol = (Set<Long>) o;
-                        for (Long toAdd : ol) {
-                            toResolveds.add(toAdd);
+                        Long[] olArr = ol.toArray(new Long[ol.size()]);
+                        for (int k = 0; k < olArr.length; k++) {
+                            toResolveds.add(olArr[k]);
                         }
                     } else {
                         toResolveds.add((Long) o);
@@ -505,7 +506,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 @Override
                 public void on(KObject[] resolveds) {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
-                    for (KObject resolved : resolveds) {
+                    for (int i = 0; i < resolveds.length; i++) {
+                        KObject resolved = resolveds[i];
                         VisitResult result = visitor.visit(resolved);
                         if (result.equals(VisitResult.STOP)) {
                             end.on(null);
@@ -679,7 +681,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         @Override
                         public void on(KObject[] oppositeElements) {
                             if (oppositeElements != null) {
-                                for (KObject opposite : oppositeElements) {
+                                for (int k = 0; k < oppositeElements.length; k++) {
+                                    KObject opposite = oppositeElements[k];
                                     Integer inboundRef = refs.get(opposite.uuid());
                                     MetaReference metaRef = null;
                                     MetaReference[] metaReferences = opposite.metaReferences();

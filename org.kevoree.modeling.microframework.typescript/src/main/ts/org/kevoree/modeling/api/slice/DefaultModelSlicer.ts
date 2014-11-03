@@ -27,9 +27,9 @@ class DefaultModelSlicer implements ModelSlicer {
       callback.on(null);
     } else {
       Collections.reverse(parents);
-      //TODO resolve for-each cycle
-      var parent: KObject<any,any>;
-      for (parent in parents) {
+      var parentsArr: KObject<any,any>[] = parents.toArray(new Array());
+      for (var k: number = 0; k < parentsArr.length; k++) {
+        var parent: KObject<any,any> = parentsArr[k];
         if (parent.parentUuid() != null) {
           traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
         }
@@ -72,10 +72,9 @@ class DefaultModelSlicer implements ModelSlicer {
     Helper.forall(elemsArr, {on:function(obj: KObject<any,any>, next: Callback<Throwable>){
     this.internal_prune(obj, traces, tempMap, parentMap, next);
 }}, {on:function(throwable: Throwable){
-    //TODO resolve for-each cycle
-    var toLinkKey: number;
-    for (toLinkKey in tempMap.keySet()) {
-      var toLink: KObject<any,any> = tempMap.get(toLinkKey);
+    var toLinkKeysArr: number[] = tempMap.keySet().toArray(new Array());
+    for (var k: number = 0; k < toLinkKeysArr.length; k++) {
+      var toLink: KObject<any,any> = tempMap.get(toLinkKeysArr[k]);
       var toAdd: ModelTrace[] = toLink.traces(TraceRequest.REFERENCES_ONLY);
       for (var i: number = 0; i < toAdd.length; i++) {
         traces.add(toAdd[i]);
