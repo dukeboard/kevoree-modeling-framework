@@ -16,9 +16,9 @@
 ///<reference path="../time/DefaultTimeTree.ts"/>
 ///<reference path="../../../../../java/util/JUArrayList.ts"/>
 ///<reference path="../../../../../java/util/JUHashMap.ts"/>
-///<reference path="../../../../../java/util/JUHashSet.ts"/>
 ///<reference path="../../../../../java/util/JUList.ts"/>
 ///<reference path="../../../../../java/util/JUMap.ts"/>
+///<reference path="../../../../../java/util/JUHashSet.ts"/>
 ///<reference path="../../../../../java/util/JUSet.ts"/>
 
 class DefaultKStore implements KStore {
@@ -105,19 +105,6 @@ class DefaultKStore implements KStore {
     }
   }
 
-  private cacheLookupAll(dimension: KDimension<any,any,any>, time: number, keys: JUSet<number>): JUList<KObject<any,any>> {
-    var resolved: JUList<KObject<any,any>> = new JUArrayList<KObject<any,any>>();
-    //TODO resolve for-each cycle
-    var kid: number;
-    for (kid in keys) {
-      var res: KObject<any,any> = this.cacheLookup(dimension, time, kid);
-      if (res != null) {
-        resolved.add(res);
-      }
-    }
-    return resolved;
-  }
-
   public raw(origin: KObject<any,any>, accessMode: AccessMode): any[] {
     if (accessMode.equals(AccessMode.WRITE)) {
       (<AbstractKObject<any,any>>origin).setDirty(true);
@@ -145,11 +132,13 @@ class DefaultKStore implements KStore {
         var resolved: any = payload[i];
         if (resolved != null) {
           if (resolved instanceof JUSet) {
-            var clonedSet: JUHashSet<string> = new JUHashSet<string>(<JUSet<string>>resolved);
+            var clonedSet: JUHashSet<number> = new JUHashSet<number>();
+            clonedSet.addAll(<JUSet<number>>resolved);
             cloned[i] = clonedSet;
           } else {
             if (resolved instanceof JUList) {
-              var clonedSet: JUArrayList<string> = new JUArrayList<string>(<JUList<string>>resolved);
+              var clonedSet: JUArrayList<number> = new JUArrayList<number>();
+              clonedSet.addAll(<JUList<number>>resolved);
               cloned[i] = clonedSet;
             } else {
               cloned[i] = resolved;
@@ -183,9 +172,10 @@ class DefaultKStore implements KStore {
       callback.on(null);
     } else {
       var sizeCache: number = 0;
+      var timeCaches: TimeCache[] = dimensionCache.timesCaches.values().toArray(new Array());
       //TODO resolve for-each cycle
       var timeCache: TimeCache;
-      for (timeCache in dimensionCache.timesCaches.values()) {
+      for (timeCache in timeCaches) {
         //TODO resolve for-each cycle
         var cached: KObject<any,any>;
         for (cached in timeCache.obj_cache.values()) {
@@ -197,9 +187,10 @@ class DefaultKStore implements KStore {
           sizeCache++;
         }
       }
+      var timeTrees: TimeTree[] = dimensionCache.timeTreeCache.values().toArray(new Array());
       //TODO resolve for-each cycle
       var timeTree: TimeTree;
-      for (timeTree in dimensionCache.timeTreeCache.values()) {
+      for (timeTree in timeTrees) {
         if (timeTree.isDirty()) {
           sizeCache++;
         }
@@ -211,7 +202,7 @@ class DefaultKStore implements KStore {
       var i: number = 0;
       //TODO resolve for-each cycle
       var timeCache: TimeCache;
-      for (timeCache in dimensionCache.timesCaches.values()) {
+      for (timeCache in timeCaches) {
         //TODO resolve for-each cycle
         var cached: KObject<any,any>;
         for (cached in timeCache.obj_cache.values()) {
@@ -378,9 +369,9 @@ class DefaultKStore implements KStore {
           var metaAttribute: MetaAttribute = obj.metaAttributes()[h];
           strategies.add(metaAttribute.strategy());
         }
-        //TODO resolve for-each cycle
-        var strategy: ExtrapolationStrategy;
-        for (strategy in strategies) {
+        var strategiesArr: ExtrapolationStrategy[] = strategies.toArray(new Array());
+        for (var k: number = 0; k < strategiesArr.length; k++) {
+          var strategy: ExtrapolationStrategy = strategiesArr[k];
           var additionalTimes: number[] = strategy.timedDependencies(obj);
           for (var j: number = 0; j < additionalTimes.length; j++) {
             if (additionalTimes[j] != obj.now()) {
@@ -417,9 +408,8 @@ class DefaultKStore implements KStore {
       toLoad.add(keys[i]);
     }
     var resolveds: JUList<KObject<any,any>> = new JUArrayList<KObject<any,any>>();
-    //TODO resolve for-each cycle
-    var kid: number;
-    for (kid in keys) {
+    for (var i: number = 0; i < keys.length; i++) {
+      var kid: number = keys[i];
       var resolved: KObject<any,any> = this.cacheLookup(originView.dimension(), originView.now(), kid);
       if (resolved != null) {
         resolveds.add(resolved);
@@ -428,9 +418,8 @@ class DefaultKStore implements KStore {
     }
     if (toLoad.size() == 0) {
       var proxies: JUList<KObject<any,any>> = new JUArrayList<KObject<any,any>>();
-      //TODO resolve for-each cycle
-      var res: KObject<any,any>;
-      for (res in resolveds) {
+      for (var i: number = 0; i < resolveds.size(); i++) {
+        var res: KObject<any,any> = proxies.get(i);
         if (res.now() != originView.now()) {
           var proxy: KObject<any,any> = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
           proxies.add(proxy);
@@ -447,9 +436,8 @@ class DefaultKStore implements KStore {
       this.loadObjectInCache(originView, toLoadKeys, {on:function(additional: JUList<KObject<any,any>>){
       resolveds.addAll(additional);
       var proxies: JUList<KObject<any,any>> = new JUArrayList<KObject<any,any>>();
-      //TODO resolve for-each cycle
-      var res: KObject<any,any>;
-      for (res in resolveds) {
+      for (var i: number = 0; i < resolveds.size(); i++) {
+        var res: KObject<any,any> = proxies.get(i);
         if (res.now() != originView.now()) {
           var proxy: KObject<any,any> = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
           proxies.add(proxy);

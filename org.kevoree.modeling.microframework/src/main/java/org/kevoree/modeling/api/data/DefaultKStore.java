@@ -19,10 +19,11 @@ import org.kevoree.modeling.api.time.DefaultTimeTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
+
 
 /**
  * Created by duke on 10/17/14.
@@ -122,17 +123,6 @@ public class DefaultKStore implements KStore {
         }
     }
 
-    private List<KObject> cacheLookupAll(KDimension dimension, long time, Set<Long> keys) {
-        List<KObject> resolved = new ArrayList<KObject>();
-        for (Long kid : keys) {
-            KObject res = cacheLookup(dimension, time, kid);
-            if (res != null) {
-                resolved.add(res);
-            }
-        }
-        return resolved;
-    }
-
     @Override
     public Object[] raw(KObject origin, AccessMode accessMode) {
         if (accessMode.equals(AccessMode.WRITE)) {
@@ -162,10 +152,12 @@ public class DefaultKStore implements KStore {
                 Object resolved = payload[i];
                 if (resolved != null) {
                     if (resolved instanceof Set) {
-                        HashSet<String> clonedSet = new HashSet<String>((Set<String>) resolved);
+                        HashSet<Long> clonedSet = new HashSet<Long>();
+                        clonedSet.addAll((Set<Long>) resolved);
                         cloned[i] = clonedSet;
                     } else if (resolved instanceof List) {
-                        ArrayList<String> clonedSet = new ArrayList<String>((List<String>) resolved);
+                        ArrayList<Long> clonedSet = new ArrayList<Long>();
+                        clonedSet.addAll((List<Long>) resolved);
                         cloned[i] = clonedSet;
                     } else {
                         cloned[i] = resolved;
@@ -201,8 +193,12 @@ public class DefaultKStore implements KStore {
             callback.on(null);
         } else {
             int sizeCache = 0;
-            for (TimeCache timeCache : dimensionCache.timesCaches.values()) {
-                for (KObject cached : timeCache.obj_cache.values()) {
+            TimeCache[] timeCaches = dimensionCache.timesCaches.values().toArray(new TimeCache[dimensionCache.timesCaches.size()]);
+            for (int i = 0; i < timeCaches.length; i++) {
+                TimeCache timeCache = timeCaches[i];
+                KObject[] valuesArr = timeCache.obj_cache.values().toArray(new KObject[timeCache.obj_cache.size()]);
+                for (int j = 0; j < valuesArr.length; j++) {
+                    KObject cached = valuesArr[j];
                     if (cached.isDirty()) {
                         sizeCache++;
                     }
@@ -211,7 +207,9 @@ public class DefaultKStore implements KStore {
                     sizeCache++;
                 }
             }
-            for (TimeTree timeTree : dimensionCache.timeTreeCache.values()) {
+            TimeTree[] timeTrees = dimensionCache.timeTreeCache.values().toArray(new TimeTree[dimensionCache.timeTreeCache.size()]);
+            for (int i = 0; i < timeTrees.length; i++) {
+                TimeTree timeTree = timeTrees[i];
                 if (timeTree.isDirty()) {
                     sizeCache++;
                 }
@@ -221,8 +219,11 @@ public class DefaultKStore implements KStore {
             }
             String[][] payloads = new String[sizeCache][2];
             int i = 0;
-            for (TimeCache timeCache : dimensionCache.timesCaches.values()) {
-                for (KObject cached : timeCache.obj_cache.values()) { //TODO call directly the ToJSON on the the Object[] raw
+            for (int j = 0; j < timeCaches.length; j++) {
+                TimeCache timeCache = timeCaches[j];
+                KObject[] valuesArr = timeCache.obj_cache.values().toArray(new KObject[timeCache.obj_cache.size()]);
+                for (int k = 0; k < valuesArr.length; k++) { //TODO call directly the ToJSON on the the Object[] raw
+                    KObject cached = valuesArr[k];
                     if (cached.isDirty()) {
                         payloads[i][0] = keyPayload(dimension, cached.now(), cached.uuid());
                         payloads[i][1] = cached.toJSON();
@@ -237,7 +238,11 @@ public class DefaultKStore implements KStore {
                     i++;
                 }
             }
-            for (Long timeTreeKey : dimensionCache.timeTreeCache.keySet()) {
+
+
+            Long[] keyArr = dimensionCache.timeTreeCache.keySet().toArray(new Long[dimensionCache.timeTreeCache.size()]);
+            for (int k = 0; k < keyArr.length; k++) {
+                Long timeTreeKey = keyArr[k];
                 TimeTree timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
                 if (timeTree.isDirty()) {
                     payloads[i][0] = keyTree(dimension, timeTreeKey);
@@ -411,7 +416,9 @@ public class DefaultKStore implements KStore {
                                     MetaAttribute metaAttribute = obj.metaAttributes()[h];
                                     strategies.add(metaAttribute.strategy());
                                 }
-                                for (ExtrapolationStrategy strategy : strategies) {
+                                ExtrapolationStrategy[] strategiesArr = strategies.toArray(new ExtrapolationStrategy[strategies.size()]);
+                                for (int k = 0; k < strategiesArr.length; k++) {
+                                    ExtrapolationStrategy strategy = strategiesArr[k];
                                     Long[] additionalTimes = strategy.timedDependencies(obj);
                                     for (int j = 0; j < additionalTimes.length; j++) {
                                         if (additionalTimes[j] != obj.now()) {
@@ -455,7 +462,8 @@ public class DefaultKStore implements KStore {
             toLoad.add(keys[i]);
         }
         final List<KObject> resolveds = new ArrayList<KObject>();
-        for (Long kid : keys) {
+        for (int i = 0; i < keys.length; i++) {
+            Long kid = keys[i];
             KObject resolved = cacheLookup(originView.dimension(), originView.now(), kid);
             if (resolved != null) {
                 resolveds.add(resolved);
@@ -464,7 +472,9 @@ public class DefaultKStore implements KStore {
         }
         if (toLoad.size() == 0) {
             List<KObject> proxies = new ArrayList<KObject>();
-            for (KObject res : resolveds) {
+            KObject[] resolvedsArr = resolveds.toArray(new KObject[resolveds.size()]);
+            for (int i = 0; i < resolvedsArr.length; i++) {
+                KObject res = resolvedsArr[i];
                 if (res.now() != originView.now()) {
                     KObject proxy = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
                     proxies.add(proxy);
@@ -483,7 +493,9 @@ public class DefaultKStore implements KStore {
                 public void on(List<KObject> additional) {
                     resolveds.addAll(additional);
                     List<KObject> proxies = new ArrayList<KObject>();
-                    for (KObject res : resolveds) {
+                    KObject[] resolvedsArr = resolveds.toArray(new KObject[resolveds.size()]);
+                    for (int i = 0; i < resolvedsArr.length; i++) {
+                        KObject res = resolvedsArr[i];
                         if (res.now() != originView.now()) {
                             KObject proxy = originView.createProxy(res.metaClass(), res.timeTree(), res.uuid());
                             proxies.add(proxy);

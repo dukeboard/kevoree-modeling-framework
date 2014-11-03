@@ -123,10 +123,11 @@ public class DefaultModelCompare implements ModelCompare {
                 current.visitAttributes(new ModelAttributeVisitor() {
                     @Override
                     public void visit(MetaAttribute metaAttribute, Object value) {
-                        if(value == null) {
-                            System.err.println("ValueNull for:" + metaAttribute.metaName());
+                        if (value == null) {
+                            values.put(metaAttribute, null);
+                        } else {
+                            values.put(metaAttribute, value.toString());
                         }
-                        values.put(metaAttribute, value.toString());
                     }
                 });
             }
@@ -134,7 +135,10 @@ public class DefaultModelCompare implements ModelCompare {
                 sibling.visitAttributes(new ModelAttributeVisitor() {
                     @Override
                     public void visit(MetaAttribute metaAttribute, Object value) {
-                        String flatAtt2 = value.toString();
+                        String flatAtt2 = null;
+                        if(value!= null){
+                            flatAtt2 = value.toString();
+                        }
                         String flatAtt1 = values.get(metaAttribute);
                         boolean isEquals = true;
                         if (flatAtt1 == null) {
