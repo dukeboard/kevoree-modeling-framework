@@ -17,6 +17,7 @@ class JUList<T> extends JUCollection<T> {
     }
 
     toArray(a:Array<T>):T[] {
+        //TODO
         var result = new Array<T>(this.internalArray.length);
         this.internalArray.forEach((value:T, index:number, p1:T[])=> {
             result[index] = value;

@@ -6,7 +6,7 @@ class Collections {
             temp.add(p.get(i));
         }
         p.clear();
-        for (var i = temp.size - 1; i >= 0; i--) {
+        for (var i = temp.size() - 1; i >= 0; i--) {
             p.add(temp.get(i));
         }
     }

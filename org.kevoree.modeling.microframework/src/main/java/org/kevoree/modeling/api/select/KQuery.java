@@ -93,7 +93,7 @@ public class KQuery {
                 subQuery = query.substring(i + 1);
             }
             String relName = query.substring(0, relationNameEnd);
-            HashMap<String, KQueryParam> params = new HashMap<String, KQueryParam>();
+            Map<String, KQueryParam> params = new HashMap<String, KQueryParam>();
             relName = relName.replace("\\", "");
             //parse param
             if (attsEnd != 0) {

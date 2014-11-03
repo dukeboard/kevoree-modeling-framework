@@ -24,7 +24,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
     private int maxDegree;
     private double toleratedError;
     //TODO add to save
-    private long lastIndex = -1;
+    private long _lastIndex = -1;
 
     public DefaultPolynomialExtrapolation(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
         this.timeOrigin = timeOrigin;
@@ -126,14 +126,14 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         //If this is the first point in the cset, add it and return
         if (weights == null) {
             internal_feed(time, value);
-            lastIndex = time;
+            _lastIndex = time;
             return true;
         }
         double maxError = getMaxErr(this.getDegree(), toleratedError, maxDegree, prioritization);
         //If the current model fits well the new value, return
         if (Math.abs(extrapolate(time) - value) <= maxError) {
             samples.add(new DataSample(time, value));
-            lastIndex = time;
+            _lastIndex = time;
             return true;
         }
         //If not, first check if we can increase the degree
@@ -159,7 +159,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
                     weights[i] = pf.getCoef()[i];
                 }
                 samples.add(new DataSample(time, value));
-                lastIndex = time;
+                _lastIndex = time;
                 return true;
             }
         }

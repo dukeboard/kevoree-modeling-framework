@@ -159,9 +159,9 @@ public class DefaultKStore implements KStore {
                         clonedSet.addAll((Set<Long>) resolved);
                         cloned[i] = clonedSet;
                     } else if (resolved instanceof List) {
-                        ArrayList<Long> clonedSet = new ArrayList<Long>();
-                        clonedSet.addAll((List<Long>) resolved);
-                        cloned[i] = clonedSet;
+                        ArrayList<Long> clonedList = new ArrayList<Long>();
+                        clonedList.addAll((List<Long>) resolved);
+                        cloned[i] = clonedList;
                     } else {
                         cloned[i] = resolved;
                     }

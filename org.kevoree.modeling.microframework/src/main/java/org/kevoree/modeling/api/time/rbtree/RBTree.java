@@ -7,15 +7,15 @@ public class RBTree {
 
     public TreeNode root = null;
 
-    private int size = 0;
+    private int _size = 0;
 
     public int size() {
-        return size;
+        return _size;
     }
 
     public String serialize() {
         StringBuilder builder = new StringBuilder();
-        builder.append(size);
+        builder.append(_size);
         if (root != null) {
             root.serialize(builder);
         }
@@ -24,7 +24,7 @@ public class RBTree {
 
     /*
      fun serializeBinary() : ByteBuffer {
-         var bb = ByteBuffer.allocate(size*13)
+         var bb = ByteBuffer.allocate(_size*13)
          root?.serializeBinary(bb)
          return bb
      }*/
@@ -42,7 +42,7 @@ public class RBTree {
             i = i + 1;
             ch = payload.charAt(i);
         }
-        size = Integer.parseInt(buffer.toString());
+        _size = Integer.parseInt(buffer.toString());
         root = new ReaderContext(i, payload).unserialize(true);
     }
 
@@ -330,19 +330,19 @@ public class RBTree {
     public void insert(long key, State value) {
         TreeNode insertedNode = new TreeNode(key, value, Color.RED, null, null);
         if (root == null) {
-            size++;
+            _size++;
             root = insertedNode;
         } else {
             TreeNode n = root;
             while (true) {
                 if (key == n.key) {
                     n.value = value;
-                    //nop size
+                    //nop _size
                     return;
                 } else if (key < n.key) {
                     if (n.getLeft() == null) {
                         n.setLeft(insertedNode);
-                        size++;
+                        _size++;
                         break;
                     } else {
                         n = n.getLeft();
@@ -350,7 +350,7 @@ public class RBTree {
                 } else {
                     if (n.getRight() == null) {
                         n.setRight(insertedNode);
-                        size++;
+                        _size++;
                         break;
                     } else {
                         n = n.getRight();
@@ -418,7 +418,7 @@ public class RBTree {
         if (n == null) {
             return;
         } else {
-            size--;
+            _size--;
             if (n.getLeft() != null && n.getRight() != null) {
                 // Copy domainKey/value from predecessor and then delete it instead
                 TreeNode pred = n.getLeft();

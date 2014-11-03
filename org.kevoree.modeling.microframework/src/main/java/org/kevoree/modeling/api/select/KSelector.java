@@ -34,11 +34,11 @@ public class KSelector {
                     Object refPayLoad = raw[reference.index()];
                     if (refPayLoad != null) {
                         if (refPayLoad instanceof Set) {
-                            Set<Long> casted = (Set<Long>) refPayLoad;
-                            collected.addAll(casted);
+                            Set<Long> castedSet = (Set<Long>) refPayLoad;
+                            collected.addAll(castedSet);
                         } else {
-                            Long casted = (Long) refPayLoad;
-                            collected.add(casted);
+                            Long castedLong = (Long) refPayLoad;
+                            collected.add(castedLong);
                         }
                     }
                 }

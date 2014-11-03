@@ -241,20 +241,20 @@ public class DefaultModelCompare implements ModelCompare {
                     }
                     valuesRef.remove(reference);
                 }
-                if (!inter && !merge && !values.isEmpty()) {
+                if (!inter && !merge && !valuesRef.isEmpty()) {
                     MetaReference[] metaReferences = valuesRef.keySet().toArray(new MetaReference[valuesRef.size()]);
                     for( int i = 0; i < metaReferences.length; i++) {
-                        MetaReference hashLoopRes = metaReferences[i];
-                        Object payload = valuesRef.get(hashLoopRes);
+                        MetaReference hashLoopResRef = metaReferences[i];
+                        Object payload = valuesRef.get(hashLoopResRef);
                         if (payload != null) {
                             if (payload instanceof Set) {
                                 Long[] toRemoveSet = ((Set<Long>) payload).toArray(new Long[((Set<Long>) payload).size()]);
                                 for(int j = 0; j < toRemoveSet.length; j++) {
                                     Long toRemovePath = toRemoveSet[j];
-                                    traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, toRemovePath));
+                                    traces.add(new ModelRemoveTrace(current.uuid(), hashLoopResRef, toRemovePath));
                                 }
                             } else {
-                                traces.add(new ModelRemoveTrace(current.uuid(), hashLoopRes, (Long) payload));
+                                traces.add(new ModelRemoveTrace(current.uuid(), hashLoopResRef, (Long) payload));
                             }
                         }
                     }
