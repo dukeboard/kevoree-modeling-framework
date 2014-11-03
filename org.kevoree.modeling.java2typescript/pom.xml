@@ -6,6 +6,7 @@
 
     <groupId>org.kevoree.modeling</groupId>
     <artifactId>org.kevoree.modeling.java2typescript</artifactId>
+    <name>Kevoree :: Modeling :: Java2TypeScript</name>
 
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>

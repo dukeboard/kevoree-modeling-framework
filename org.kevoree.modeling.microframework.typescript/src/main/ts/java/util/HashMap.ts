@@ -19,7 +19,7 @@ class HashMap<K, V> implements Map<K,V> {
         this.delete(key);
     }
 
-    forEach(callbackfn:(p1:V, p1:K, p1:Map<K, V>)=>void, thisArg?: any) {
+    forEach(callbackfn:(p1:V, p2:K, p3:Map<K, V>)=>void, thisArg?: any) {
         this.map.forEach(callbackfn, thisArg);
     }
 
