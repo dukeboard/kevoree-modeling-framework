@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaType;
-import org.kevoree.modeling.api.strategy.ExtrapolationStrategies;
+import org.kevoree.modeling.api.Extrapolations;
 import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -14,8 +14,8 @@ public interface Element extends KObject<Element, CloudView> {
 
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, 5, true, MetaType.STRING, ExtrapolationStrategies.DISCRETE.strategy()),
-        VALUE("value", 3, 5, false, MetaType.LONG, ExtrapolationStrategies.POLYNOMIAL.strategy()); //lexicographic order
+        NAME("name", 2, 5, true, MetaType.STRING, Extrapolations.DISCRETE.strategy()),
+        VALUE("value", 3, 5, false, MetaType.LONG, Extrapolations.POLYNOMIAL.strategy()); //lexicographic order
 
         private String name;
 

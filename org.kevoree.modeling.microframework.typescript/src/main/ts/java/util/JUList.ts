@@ -1,3 +1,4 @@
+///<reference path="JUCollection.ts"/>
 class JUList<T> extends JUCollection<T> {
     private internalArray:Array<T> = [];
 

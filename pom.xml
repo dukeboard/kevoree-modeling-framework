@@ -68,7 +68,6 @@
 
     <modules>
         <module>org.kevoree.modeling.microframework</module>
-        <module>org.kevoree.modeling.java2typescript</module>
         <module>org.kevoree.modeling.microframework.typescript</module>
         <module>org.kevoree.modeling.ast</module>
         <module>org.kevoree.modeling.generator</module>

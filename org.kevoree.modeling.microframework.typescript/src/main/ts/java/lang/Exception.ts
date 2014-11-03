@@ -1,8 +1,10 @@
-class Exception implements Throwable {
+///<reference path="Throwable.ts"/>
+class Exception extends Throwable {
 
     private message:string;
 
     constructor(message:string) {
+        super();
         this.message = message;
     }
 

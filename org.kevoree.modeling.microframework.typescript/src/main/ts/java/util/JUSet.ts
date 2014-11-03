@@ -1,3 +1,4 @@
+///<reference path="JUCollection.ts"/>
 class JUSet<T> extends JUCollection<T> {
 
     private internalSet = new Set<T>();
