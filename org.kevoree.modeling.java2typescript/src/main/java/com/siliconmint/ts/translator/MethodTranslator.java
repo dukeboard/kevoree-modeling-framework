@@ -41,8 +41,20 @@ public class MethodTranslator extends Translator<PsiMethod> {
             PsiTypeParameter[] typeParameters = element.getTypeParameters();
             if (typeParameters != null && typeParameters.length > 0){
                 ctx.append('<');
-                for (int i=0; i < typeParameters.length; i++){
-                    ctx.append(typeParameters[i].getName());
+                for (int i=0; i < typeParameters.length; i++) {
+                    PsiTypeParameter p = typeParameters[i];
+                    ctx.append(p.getName());
+                    if(p.getExtendsList() != null) {
+                        PsiClassType[] extentions = p.getExtendsList().getReferencedTypes();
+                        if(extentions.length > 0) {
+                            ctx.append(" extends ");
+                            for(PsiClassType ext : extentions) {
+                                ctx.append(ext.getClassName());
+                                ctx.append(TypeHelper.getGenericsIfAny(ctx, ext.getClassName()));
+                            }
+                        }
+
+                    }
                     if (i != typeParameters.length - 1) {
                         ctx.append(", ");
                     }
