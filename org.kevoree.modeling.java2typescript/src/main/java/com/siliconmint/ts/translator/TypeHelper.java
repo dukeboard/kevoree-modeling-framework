@@ -9,7 +9,10 @@ import com.intellij.psi.impl.source.PsiClassReferenceType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class TypeHelper {
@@ -106,6 +109,8 @@ public class TypeHelper {
             return "string";
         } else if (booleans.contains(type)) {
             return "boolean";
+        } else if (jUtilsExceptions.contains(type)) {
+            return "JU" + type;
         } else {
             return type;
         }
@@ -162,6 +167,21 @@ public class TypeHelper {
     public static final Set<String> objects = ImmutableSet.of(
             Object.class.getName(),
             Object.class.getSimpleName()
+    );
+
+    public static final Set<String> jUtilsExceptions = ImmutableSet.of(
+            List.class.getName(),
+            List.class.getSimpleName(),
+            ArrayList.class.getName(),
+            ArrayList.class.getSimpleName(),
+            Set.class.getName(),
+            Set.class.getSimpleName(),
+            HashSet.class.getName(),
+            HashSet.class.getSimpleName(),
+            Map.class.getName(),
+            Map.class.getSimpleName(),
+            HashMap.class.getName(),
+            HashMap.class.getSimpleName()
     );
 
 }

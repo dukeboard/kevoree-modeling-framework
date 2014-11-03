@@ -1,4 +1,11 @@
-class HashMap<K, V> implements Map<K,V> {
+class JUHashMap<K, V> implements JUMap<K,V> {
+    keySet():JUList<K> {
+        return undefined;
+    }
+
+    values():JUList<K> {
+        return undefined;
+    }
 
     private map : Map<K,V> = new Map<K,V>();
 
@@ -45,15 +52,7 @@ class HashMap<K, V> implements Map<K,V> {
         return this.has(key);
     }
 
-    keySet() : List<K> {
-        return undefined;
-    }
-
     isEmpty():boolean {
-        return undefined;
-    }
-
-    values():List<K> {
         return undefined;
     }
 

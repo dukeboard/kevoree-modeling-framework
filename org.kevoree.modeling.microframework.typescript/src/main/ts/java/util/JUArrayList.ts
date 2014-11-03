@@ -1,4 +1,5 @@
-class ArrayList<T> implements List<T> {
+
+class JUArrayList<T> implements JUList<T> {
 
     clear() {
     }
@@ -27,7 +28,7 @@ class ArrayList<T> implements List<T> {
         this.items = new Array(size);
     }
 
-    constructor(others:Collection<T>) {
+    constructor(others : JUCollection<T>) {
         this.items = new Array(others);
     }
 

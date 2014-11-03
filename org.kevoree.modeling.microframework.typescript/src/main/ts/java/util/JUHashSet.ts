@@ -1,6 +1,8 @@
-class HashSet<T> implements Set<T> {
+class JUHashSet<T> implements JUSet<T> {
+    size():number {
+        return undefined;
+    }
 
-    size:number;
 
     constructor(other? : Set<T>) {
 

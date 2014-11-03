@@ -1,5 +1,5 @@
 
-interface Collection<T> {
+interface JUCollection<T> {
 
     add(val : T);
     addAll(vals : any);
