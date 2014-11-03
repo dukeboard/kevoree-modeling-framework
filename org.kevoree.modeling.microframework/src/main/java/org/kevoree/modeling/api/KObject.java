@@ -6,8 +6,7 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
-
-import java.util.List;
+import org.kevoree.modeling.api.trace.TraceSequence;
 
 /**
  * Created by thomas on 10/2/14.
@@ -33,7 +32,7 @@ public interface KObject<A extends KObject, B extends KView> {
     public void parent(Callback<KObject> callback);
 
     public Long parentUuid();
-    
+
     public void select(String query, Callback<KObject[]> callback);
 
     public void stream(String query, Callback<KObject> callback);
@@ -84,7 +83,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     /* End Reflexive API */
 
-    public List<ModelTrace> traces(TraceRequest request);
+    public ModelTrace[] traces(TraceRequest request);
 
     public Object get(MetaAttribute attribute);
 

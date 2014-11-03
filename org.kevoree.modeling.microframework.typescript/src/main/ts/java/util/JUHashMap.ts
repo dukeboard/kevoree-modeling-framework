@@ -1,59 +1,41 @@
 class JUHashMap<K, V> implements JUMap<K,V> {
-    keySet():JUList<K> {
-        return undefined;
-    }
-
-    values():JUList<K> {
-        return undefined;
-    }
-
-    private map : Map<K,V> = new Map<K,V>();
-
-    size:number = 0;
-
-    clear():void {
-        this.map.clear();
-        this.size = this.map.size;
-    }
-
-    delete(key:K):boolean {
-        var res = this.map.delete(key);
-        this.size = this.map.size;
-        return res;
-    }
-
-    remove(key:K):void {
-        this.delete(key);
-    }
-
-    forEach(callbackfn:(p1:V, p2:K, p3:Map<K, V>)=>void, thisArg?: any) {
-        this.map.forEach(callbackfn, thisArg);
-    }
 
     get(key:K):V {
-        return this.map.get(key);
-    }
-
-    has(key:K):boolean {
-        return this.map.has(key);
-    }
-
-    set(key:K, value:V):Map<K, V> {
-        var res = this.map.set(key, value);
-        this.size = this.map.size;
-        return res;
+        return this.internalMap.get(key);
     }
 
     put(key:K, value:V):void {
-        this.set(key, value);
+        this.internalMap.set(key,value);
     }
 
     containsKey(key:K):boolean {
-        return this.has(key);
+        return this.internalMap.has(key);
+    }
+
+    remove(key:K):void {
+        return this.remove(key);
+    }
+
+    keySet(): JUSet<K> {
+        var result = new JUHashSet<K>();
+        this.internalMap.forEach((value:V, index:K, p1:Map<K,V>)=> {
+            result.add(index);
+        });
+        return result;
     }
 
     isEmpty():boolean {
-        return undefined;
+        return this.internalMap.size == 0;
     }
+
+    values():JUSet<K> {
+        var result = new JUHashSet<V>();
+        this.internalMap.forEach((value:V, index:K, p1:Map<K,V>)=> {
+            result.add(value);
+        });
+        return result;
+    }
+
+    private internalMap : Map<K,V> = new Map<K,V>();
 
 }

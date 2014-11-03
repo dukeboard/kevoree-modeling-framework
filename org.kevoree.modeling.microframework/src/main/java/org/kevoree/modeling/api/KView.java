@@ -3,9 +3,6 @@ package org.kevoree.modeling.api;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 
-import java.util.List;
-import java.util.Set;
-
 /**
  * Created by thomas on 10/2/14.
  */

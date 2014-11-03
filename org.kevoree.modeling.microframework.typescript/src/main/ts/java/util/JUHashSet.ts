@@ -1,49 +1,44 @@
 class JUHashSet<T> implements JUSet<T> {
-    size():number {
-        return undefined;
+
+    private internalSet = new Set<T>();
+
+    add(val:T) {
+        this.internalSet.add(val);
     }
 
-
-    constructor(other? : Set<T>) {
-
-    }
-
-    remove(val:T) {
-
-    }
-    isEmpty():boolean {
-        return undefined;
+    clear() {
+        this.internalSet = new Set<T>();
     }
 
     contains(val:T):boolean {
-        return undefined;
+        return this.internalSet.has(val);
     }
 
-    toArray(a?:Array<T>):T[] {
-        return undefined;
+    addAll(vals:JUCollection<T>) {
+        var tempArray = vals.toArray(null);
+        for (var i = 0; i < tempArray.length; i++) {
+            this.internalSet.add(tempArray[i]);
+        }
     }
 
-    addAll(vals : any) {
-
+    remove(val:T) {
+        this.internalSet.delete(val);
     }
 
-    add(value:T):Set<T> {
-        return undefined;
+    size():number {
+        return this.internalSet.size;
     }
 
-    clear():void {
+    isEmpty():boolean {
+        return this.internalSet.size == 0;
     }
 
-    delete(value:T):boolean {
-        return undefined;
-    }
-
-    forEach(callbackfn:(p1:T, p2:T, p3:Set<T>)=>void, args?:any) {
-
-    }
-
-    has(value:T):boolean {
-        return undefined;
+    toArray(other:Array<T>):T[] {
+        var result = new Array<T>[this.internalSet.size]();
+        this.internalSet.forEach((value:T, index:T, p1:Set<T>)=> {
+            result[index] = value;
+        });
+        return result;
     }
 
 }

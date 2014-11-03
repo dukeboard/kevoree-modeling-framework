@@ -1,9 +1,9 @@
-
 interface JUMap<K, V> {
+    get(key:K):V;
     put(key:K, value:V):void;
     containsKey(key:K):boolean;
     remove(key:K):void;
-    keySet() : JUList<K>;
+    keySet() : JUSet<K>;
     isEmpty() : boolean;
-    values() : JUList<K>;
+    values() : JUSet<K>;
 }

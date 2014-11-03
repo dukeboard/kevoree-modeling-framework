@@ -24,6 +24,7 @@ import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
+import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Helper;
 
 import java.util.ArrayList;
@@ -628,7 +629,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public List<ModelTrace> traces(TraceRequest request) {
+    public ModelTrace[] traces(TraceRequest request) {
         List<ModelTrace> traces = new ArrayList<ModelTrace>();
         if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
             for (int i = 0; i < metaAttributes().length; i++) {
@@ -658,7 +659,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 }
             }
         }
-        return traces;
+        return traces.toArray(new ModelTrace[traces.size()]);
     }
 
 

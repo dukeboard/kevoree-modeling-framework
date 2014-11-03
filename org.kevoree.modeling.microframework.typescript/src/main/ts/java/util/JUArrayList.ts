@@ -1,50 +1,56 @@
-
 class JUArrayList<T> implements JUList<T> {
 
-    clear() {
+    private internalArray:Array<T>;
+
+    addAll(vals:JUCollection<T>) {
+        var tempArray = vals.toArray(null);
+        for (var i = 0; i < tempArray.length; i++) {
+            this.internalArray.push(tempArray[i]);
+        }
     }
 
-    addAll(vals:any) {
+    clear() {
+        this.internalArray = [];
     }
 
     remove(val:T) {
+//TODO with filter
     }
 
-    toArray(a?:Array):T[] {
-        return undefined;
+    toArray(a:Array<T>):T[] {
+        var result = new Array<T>[this.internalArray.length];
+        this.internalArray.forEach((value:T, index:number, p1:T[])=> {
+            result[index] = value;
+        });
+        return result;
     }
-
-    private items:Array<T>;
 
     constructor() {
-        this.items = [];
-    }
-
-    constructor(size:number) {
-        this.items = new Array(size);
-    }
-
-    constructor(others : JUCollection<T>) {
-        this.items = new Array(others);
+        this.internalArray = [];
     }
 
     size():number {
-        return this.items.length;
+        return this.internalArray.length;
     }
 
     add(value:T):void {
-        this.items.push(value);
+        this.internalArray.push(value);
     }
 
     get(index:number):T {
-        return this.items[index];
+        return this.internalArray[index];
     }
 
     contains(val:T):boolean {
-        return undefined;
+        for(var i=0;i<this.internalArray.length;i++){
+            if(this.internalArray[i]==val){
+                return true;
+            }
+        }
+        return false;
     }
 
     isEmpty():boolean {
-        return undefined;
+        return this.internalArray.length==0;
     }
 }

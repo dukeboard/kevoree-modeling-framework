@@ -41,7 +41,10 @@ public class DefaultModelSlicer implements ModelSlicer {
                         if (parent.parentUuid() != null) {
                             traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
                         }
-                        traces.addAll(elem.traces(TraceRequest.ATTRIBUTES_ONLY));
+                        ModelTrace[] toAdd = elem.traces(TraceRequest.ATTRIBUTES_ONLY);
+                        for(int i=0;i<toAdd.length;i++){
+                            traces.add(toAdd[i]);
+                        }
                         parentMap.put(parent.uuid(), parent);
                     }
                     //Add attributes and references of pruned object
@@ -49,7 +52,10 @@ public class DefaultModelSlicer implements ModelSlicer {
                         if (elem.parentUuid() != null) {
                             traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
                         }
-                        traces.addAll(elem.traces(TraceRequest.ATTRIBUTES_ONLY));
+                        ModelTrace[] toAdd = elem.traces(TraceRequest.ATTRIBUTES_ONLY);
+                        for(int i=0;i<toAdd.length;i++){
+                            traces.add(toAdd[i]);
+                        }
                     }
                     //We register this element as reachable
                     cache.put(elem.uuid(), elem);
@@ -97,7 +103,10 @@ public class DefaultModelSlicer implements ModelSlicer {
             public void on(Throwable throwable) {
                 for (Long toLinkKey : tempMap.keySet()) {
                     KObject toLink = tempMap.get(toLinkKey);
-                    traces.addAll(toLink.traces(TraceRequest.REFERENCES_ONLY));
+                    ModelTrace[] toAdd = toLink.traces(TraceRequest.REFERENCES_ONLY);
+                    for(int i=0;i<toAdd.length;i++){
+                        traces.add(toAdd[i]);
+                    }
                 }
                 callback.on(new TraceSequence().populate(traces));
             }
