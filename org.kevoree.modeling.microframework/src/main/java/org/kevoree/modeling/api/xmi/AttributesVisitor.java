@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.util.Converters;
 
 class AttributesVisitor implements ModelAttributeVisitor {
 
@@ -18,7 +17,7 @@ class AttributesVisitor implements ModelAttributeVisitor {
                 return;
             }
             context.printer.append(" " + metaAttribute.metaName() + "=\"");
-            XMIModelSerializer.escapeXml(context.printer, Converters.convFlatAtt(value));
+            XMIModelSerializer.escapeXml(context.printer, value.toString());
             context.printer.append("\"");
         }
     }

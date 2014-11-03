@@ -24,7 +24,6 @@ import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Helper;
 
 import java.util.ArrayList;
@@ -359,7 +358,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 if (previous != null) {
                     Set<Long> previousList = (Set<Long>) previous;
                     if (now() != _now) {
-                        previousList = new HashSet<Long>(previousList);
+                        Set<Long> previousListNew = new HashSet<Long>();
+                        previousListNew.addAll(previousList);
+                        previousList = previousListNew;
                         payload[metaReference.index()] = previousList;
                     }
                     previousList.remove(param.uuid());

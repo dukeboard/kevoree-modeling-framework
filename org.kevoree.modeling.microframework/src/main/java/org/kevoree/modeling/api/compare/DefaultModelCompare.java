@@ -11,7 +11,6 @@ import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.*;
-import org.kevoree.modeling.api.util.Converters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,7 +121,7 @@ public class DefaultModelCompare implements ModelCompare {
                 current.visitAttributes(new ModelAttributeVisitor() {
                     @Override
                     public void visit(MetaAttribute metaAttribute, Object value) {
-                        values.put(metaAttribute, Converters.convFlatAtt(value));
+                        values.put(metaAttribute, value.toString());
                     }
                 });
             }
@@ -130,7 +129,7 @@ public class DefaultModelCompare implements ModelCompare {
                 sibling.visitAttributes(new ModelAttributeVisitor() {
                     @Override
                     public void visit(MetaAttribute metaAttribute, Object value) {
-                        String flatAtt2 = Converters.convFlatAtt(value);
+                        String flatAtt2 = value.toString();
                         String flatAtt1 = values.get(metaAttribute);
                         boolean isEquals = true;
                         if (flatAtt1 == null) {

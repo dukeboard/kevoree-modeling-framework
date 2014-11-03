@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api.json;
 
-import org.kevoree.modeling.api.util.Converters;
-
 import java.util.HashSet;
 
 public class Lexer {
@@ -24,11 +22,11 @@ public class Lexer {
     }
 
     private Character nextChar() {
-        return new Converters().toChar(bytes[index++]);
+        return (char) bytes[index++];
     }
 
     private Character peekChar() {
-        return new Converters().toChar(bytes[index]);
+        return (char) bytes[index];
     }
 
     private boolean isDone() {

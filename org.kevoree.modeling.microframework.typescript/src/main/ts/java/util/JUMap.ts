@@ -37,4 +37,8 @@ class JUMap<K, V> {
 
     private internalMap:Map<K,V> = new Map<K,V>();
 
+    clear():void {
+        this.internalMap = new Map<K,V>();
+    }
+
 }

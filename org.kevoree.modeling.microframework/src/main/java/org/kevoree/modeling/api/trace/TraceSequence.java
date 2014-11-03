@@ -26,26 +26,23 @@ import java.util.Map;
 
 public class TraceSequence {
 
-    public TraceSequence() {
-    }
+    private List<ModelTrace> _traces = new ArrayList<ModelTrace>();
 
     public ModelTrace[] traces() {
-        return traces.toArray(new ModelTrace[traces.size()]);
+        return _traces.toArray(new ModelTrace[_traces.size()]);
     }
 
-    private List<ModelTrace> traces = new ArrayList<ModelTrace>();
-
     public TraceSequence populate(List<ModelTrace> addtraces) {
-        traces.addAll(addtraces);
+        _traces.addAll(addtraces);
         return this;
     }
 
     public TraceSequence append(TraceSequence seq) {
-        traces.addAll(seq.traces);
+        _traces.addAll(seq._traces);
         return this;
     }
 
-    public TraceSequence populate(String addtracesTxt) throws Exception {
+    public TraceSequence parse(String addtracesTxt) throws Exception {
         Lexer lexer = new Lexer(addtracesTxt);
         JsonToken currentToken = lexer.nextToken();
         if (currentToken.tokenType() != Type.LEFT_BRACKET) {
@@ -71,17 +68,17 @@ public class TraceSequence {
                 if (traceTypeRead.equals(KActionType.SET.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     srcFound = JSONString.unescape(srcFound);
-                    traces.add(new ModelSetTrace(Long.parseLong(srcFound), new UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString()))));
+                    _traces.add(new ModelSetTrace(Long.parseLong(srcFound), new UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString()))));
                 }
                 if (traceTypeRead.equals(KActionType.ADD.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     srcFound = JSONString.unescape(srcFound);
-                    traces.add(new ModelAddTrace(Long.parseLong(srcFound), new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), Long.parseLong(keys.get(ModelTraceConstants.previouspath.toString())), new UnresolvedMetaClass(keys.get(ModelTraceConstants.typename.toString()))));
+                    _traces.add(new ModelAddTrace(Long.parseLong(srcFound), new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), Long.parseLong(keys.get(ModelTraceConstants.previouspath.toString())), new UnresolvedMetaClass(keys.get(ModelTraceConstants.typename.toString()))));
                 }
                 if (traceTypeRead.equals(KActionType.REMOVE.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
                     srcFound = JSONString.unescape(srcFound);
-                    traces.add(new ModelRemoveTrace(Long.parseLong(srcFound), new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), Long.parseLong(keys.get(ModelTraceConstants.objpath.toString()))));
+                    _traces.add(new ModelRemoveTrace(Long.parseLong(srcFound), new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), Long.parseLong(keys.get(ModelTraceConstants.objpath.toString()))));
                 }
             }
             currentToken = lexer.nextToken();
@@ -94,7 +91,8 @@ public class TraceSequence {
         StringBuilder buffer = new StringBuilder();
         buffer.append("[");
         boolean isFirst = true;
-        for (ModelTrace trace : traces) {
+        for (int i = 0; i < _traces.size(); i++) {
+            ModelTrace trace = _traces.get(i);
             if (!isFirst) {
                 buffer.append(",\n");
             }
@@ -113,7 +111,7 @@ public class TraceSequence {
     }
 
     public TraceSequence reverse() {
-        Collections.reverse(traces);
+        Collections.reverse(_traces);
         return this;
     }
 

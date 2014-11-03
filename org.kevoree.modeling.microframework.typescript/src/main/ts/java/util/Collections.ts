@@ -1,13 +1,14 @@
 class Collections {
 
-    public static reverse<A>(p : A[]) : A[] {
-        var result = new Array<A>(p.length);
-        var newIndex = p.length-1;
-        for(var i=0;i<p.length;i++){
-            result[newIndex] = p[i];
-            newIndex--;
+    public static reverse<A>(p:JUList<A>):void {
+        var temp = new JUList<A>();
+        for (var i = 0; i < p.size(); i++) {
+            temp.add(p.get(i));
         }
-        return result;
+        p.clear();
+        for (var i = temp.size - 1; i >= 0; i--) {
+            p.add(temp.get(i));
+        }
     }
 
 }
