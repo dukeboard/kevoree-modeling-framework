@@ -1,0 +1,5 @@
+
+interface MetaOperation extends Meta {
+
+}
+
