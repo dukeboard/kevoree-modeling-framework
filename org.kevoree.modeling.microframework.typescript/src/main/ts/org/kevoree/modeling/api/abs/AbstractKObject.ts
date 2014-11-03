@@ -326,7 +326,7 @@ class AbstractKObject<A extends KObject<any,any>, B extends KView> implements KO
   }
 
   public size(metaReference: MetaReference): number {
-    return (<JUSet>this.view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()]).size();
+    return (<JUSet<any>>this.view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()]).size();
   }
 
   public each<C> (metaReference: MetaReference, callback: Callback<C>, end: Callback<Throwable>): void {

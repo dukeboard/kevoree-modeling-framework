@@ -73,8 +73,13 @@ public class SourceTranslator {
         ArrayList<File> filesToParse = new ArrayList<File>();
         genericsCounts = new HashMap<String, Integer>();
 
-        genericsCounts.put("Set",1);
-        genericsCounts.put("Map",2);
+        genericsCounts.put("JUSet",1);
+        genericsCounts.put("JUHsetSet",1);
+        genericsCounts.put("JUCollection",1);
+        genericsCounts.put("JUList",1);
+        genericsCounts.put("JUArrayList",1);
+        genericsCounts.put("JUMap",2);
+        genericsCounts.put("JUHashMap",2);
 
         if(source.isFile()) {
             filesToParse.add(source);
