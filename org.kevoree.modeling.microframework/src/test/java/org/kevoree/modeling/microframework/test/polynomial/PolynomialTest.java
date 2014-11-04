@@ -1,10 +1,10 @@
 package org.kevoree.modeling.microframework.test.polynomial;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Random;
 import java.util.TreeMap;
-import static org.junit.Assert.*;
 
 /**
  * Created by duke on 10/28/14.
@@ -41,7 +41,7 @@ public class PolynomialTest {
         System.out.println("Statistic calculated in: " + res + " ms!");
 
         System.out.println("Max error respected: " + String.valueOf(sc.maxErr < toleratedError));
-        assertTrue(sc.maxErr < toleratedError);
+        Assert.assertTrue(sc.maxErr < toleratedError);
 
         starttime = System.nanoTime();
         for (long i = initTimeStamp; i < finalTimeStamp; i++) {

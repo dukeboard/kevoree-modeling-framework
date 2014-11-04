@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.json;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
@@ -8,9 +9,6 @@ import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
-
-import static org.junit.Assert.*;
-
 
 /**
  * Created by duke on 10/16/14.
@@ -63,7 +61,7 @@ public class JSONSaveTest {
                         "}\n" +
                         "]\n";
 
-                assertEquals(result[0], payloadResult);
+                Assert.assertEquals(result[0], payloadResult);
                 final String[] pathN2 = {null};
                 n2.path(new Callback<String>() {
                     @Override
@@ -71,7 +69,7 @@ public class JSONSaveTest {
                         pathN2[0] = p;
                     }
                 });
-                assertEquals("/children[name=n2]", pathN2[0]);
+                Assert.assertEquals("/children[name=n2]", pathN2[0]);
                 final String[] pathN1 = {null};
                 n1.path(new Callback<String>() {
                     @Override
@@ -79,7 +77,7 @@ public class JSONSaveTest {
                         pathN1[0] = p;
                     }
                 });
-                assertEquals("/children[name=n1]", pathN1[0]);
+                Assert.assertEquals("/children[name=n1]", pathN1[0]);
                 final String[] pathR = {null};
                 root.path(new Callback<String>() {
                     @Override
@@ -87,7 +85,7 @@ public class JSONSaveTest {
                         pathR[0] = p;
                     }
                 });
-                assertEquals("/", pathR[0]);
+                Assert.assertEquals("/", pathR[0]);
             }
         });
     }

@@ -73,6 +73,10 @@
         <module>org.kevoree.modeling.generator</module>
         <module>org.kevoree.modeling.generator.standalone</module>
         <module>org.kevoree.modeling.generator.mavenplugin</module>
+
+        <!-- DataStores -->
+        <module>databases/org.kevoree.modeling.microframework.databases.leveldb</module>
+
     </modules>
 
     <dependencies>
