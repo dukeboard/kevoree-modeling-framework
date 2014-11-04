@@ -17,34 +17,34 @@ public interface Element extends KObject<Element, CloudView> {
         NAME("name", 2, 5, true, MetaType.STRING, Extrapolations.DISCRETE.strategy()),
         VALUE("value", 3, 5, false, MetaType.LONG, Extrapolations.POLYNOMIAL.strategy()); //lexicographic order
 
-        private String name;
+        private String _name;
 
-        private int index;
+        private int _index;
 
-        private double precision;
+        private double _precision;
 
-        private boolean key;
+        private boolean _key;
 
-        private MetaType metaType;
+        private MetaType _metaType;
 
         public MetaType metaType() {
-            return metaType;
+            return _metaType;
         }
 
         public int index() {
-            return index;
+            return _index;
         }
 
         public String metaName() {
-            return name;
+            return _name;
         }
 
         public double precision() {
-            return precision;
+            return _precision;
         }
 
         public boolean key() {
-            return key;
+            return _key;
         }
 
         public MetaClass origin() {
@@ -64,11 +64,11 @@ public interface Element extends KObject<Element, CloudView> {
         }
 
         METAATTRIBUTES(String name, int index, double precision, boolean key, MetaType metaType, ExtrapolationStrategy extrapolationStrategy) {
-            this.name = name;
-            this.index = index;
-            this.precision = precision;
-            this.key = key;
-            this.metaType = metaType;
+            this._name = name;
+            this._index = index;
+            this._precision = precision;
+            this._key = key;
+            this._metaType = metaType;
             this.extrapolationStrategy = extrapolationStrategy;
         }
 

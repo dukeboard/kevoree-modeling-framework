@@ -26,6 +26,7 @@
                         <configuration>
                             <tasks>
                                 <delete dir="${basedir}/src/main/ts" />
+                                <delete dir="${basedir}/src/test/ts" />
                             </tasks>
                         </configuration>
                         <goals>
@@ -41,12 +42,33 @@
                 <version>1-SNAPSHOT</version>
                 <executions>
                     <execution>
+                        <id>compile-src</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
                             <source>${basedir}/../org.kevoree.modeling.microframework/src/main/java</source>
                             <target>${basedir}/src/main/ts</target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-test</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <source>${basedir}/../org.kevoree.modeling.microframework/src/test/java</source>
+                            <target>${basedir}/src/test/ts</target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-test2</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <source>${basedir}/../org.kevoree.modeling.microframework/src/main/java</source>
+                            <target>${basedir}/src/test/ts</target>
                         </configuration>
                     </execution>
                 </executions>

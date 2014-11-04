@@ -13,21 +13,21 @@ public interface CloudView extends KView {
         ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE("org.kevoree.modeling.microframework.test.cloud.Node", 0),
         ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT("org.kevoree.modeling.microframework.test.cloud.Element", 1);
 
-        private String name;
+        private String _name;
 
-        private int index;
+        private int _index;
 
         public int index() {
-            return index;
+            return _index;
         }
 
         public String metaName() {
-            return name;
+            return _name;
         }
 
         METACLASSES(String name, int index) {
-            this.name = name;
-            this.index = index;
+            this._name = name;
+            this._index = index;
         }
 
     }

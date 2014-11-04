@@ -17,18 +17,18 @@ public interface Node extends KObject<Node, CloudView> {
         NAME("name", 2, 5, true, MetaType.STRING, Extrapolations.DISCRETE.strategy()),
         VALUE("value", 3, 5, false, MetaType.STRING, Extrapolations.DISCRETE.strategy()); //lexicographic order
 
-        private String name;
+        private String _name;
 
-        private int index;
+        private int _index;
 
-        private double precision;
+        private double _precision;
 
-        private boolean key;
+        private boolean _key;
 
-        private MetaType metaType;
+        private MetaType _metaType;
 
         public MetaType metaType() {
-            return metaType;
+            return _metaType;
         }
 
         public MetaClass origin() {
@@ -36,19 +36,19 @@ public interface Node extends KObject<Node, CloudView> {
         }
 
         public int index() {
-            return index;
+            return _index;
         }
 
         public String metaName() {
-            return name;
+            return _name;
         }
 
         public double precision() {
-            return precision;
+            return _precision;
         }
 
         public boolean key() {
-            return key;
+            return _key;
         }
 
         private ExtrapolationStrategy extrapolationStrategy;
@@ -64,11 +64,11 @@ public interface Node extends KObject<Node, CloudView> {
         }
 
         METAATTRIBUTES(String name, int index, double precision, boolean key, MetaType metaType, ExtrapolationStrategy extrapolationStrategy) {
-            this.name = name;
-            this.index = index;
-            this.precision = precision;
-            this.key = key;
-            this.metaType = metaType;
+            this._name = name;
+            this._index = index;
+            this._precision = precision;
+            this._key = key;
+            this._metaType = metaType;
             this.extrapolationStrategy = extrapolationStrategy;
         }
     }
@@ -78,40 +78,40 @@ public interface Node extends KObject<Node, CloudView> {
         CHILDREN("children", 4, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null),
         ELEMENT("element", 5, true, true, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
 
-        private String name;
+        private String _name;
 
-        private int index;
+        private int _index;
 
-        private boolean contained;
+        private boolean _contained;
 
-        private boolean single;
+        private boolean _single;
 
         public boolean single() {
-            return single;
+            return _single;
         }
 
-        private MetaClass metaType;
+        private MetaClass _metaType;
 
         public MetaClass metaType() {
-            return metaType;
+            return _metaType;
         }
 
-        private MetaReference opposite;
+        private MetaReference _opposite;
 
         public MetaReference opposite() {
-            return opposite;
+            return _opposite;
         }
 
         public int index() {
-            return index;
+            return _index;
         }
 
         public String metaName() {
-            return name;
+            return _name;
         }
 
         public boolean contained() {
-            return contained;
+            return _contained;
         }
 
         public MetaClass origin() {
@@ -119,12 +119,12 @@ public interface Node extends KObject<Node, CloudView> {
         }
 
         METAREFERENCES(String name, int index, boolean contained, boolean single, MetaClass metaType, MetaReference opposite) {
-            this.name = name;
-            this.index = index;
-            this.contained = contained;
-            this.single = single;
-            this.metaType = metaType;
-            this.opposite = opposite;
+            this._name = name;
+            this._index = index;
+            this._contained = contained;
+            this._single = single;
+            this._metaType = metaType;
+            this._opposite = opposite;
         }
     }
 
@@ -132,16 +132,16 @@ public interface Node extends KObject<Node, CloudView> {
 
         TRIGGER("trigger", 6);
 
-        private String name;
+        private String _name;
 
-        private int index;
+        private int _index;
 
         public int index() {
-            return index;
+            return _index;
         }
 
         public String metaName() {
-            return name;
+            return _name;
         }
 
         public MetaClass origin() {
@@ -149,8 +149,8 @@ public interface Node extends KObject<Node, CloudView> {
         }
 
         METAOPERATION(String name, int index) {
-            this.name = name;
-            this.index = index;
+            this._name = name;
+            this._index = index;
         }
 
     }
