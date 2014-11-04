@@ -19,15 +19,15 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
     }
 
     @Override
-    protected KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key) {
-        if (clazz == null) {
+    protected KObject internalCreate(MetaClass p_clazz, TimeTree p_timeTree, long p_key) {
+        if (p_clazz == null) {
             return null;
         }
-        switch (clazz.index()) {
+        switch (p_clazz.index()) {
             case 0:
-                return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, key, now(), dimension(), timeTree));
+                return this.manageCache(new NodeImpl(this, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, p_key, this.now(), this.dimension(), p_timeTree));
             case 1:
-                return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, key, now(), dimension(), timeTree));
+                return this.manageCache(new ElementImpl(this, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, p_key, this.now(), this.dimension(), p_timeTree));
             default:
                 return null;
         }

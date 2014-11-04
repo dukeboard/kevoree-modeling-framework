@@ -6752,8 +6752,8 @@ module org {
 						  createElement(): Element;
 						
 						}
-
-                        export module CloudView {
+						
+						export module CloudView { 
 						
 						  export class METACLASSES implements org.kevoree.modeling.api.meta.MetaClass {
 						
@@ -6796,20 +6796,20 @@ module org {
 						
 						}
 						
-						module Element { 
+						export module Element { 
 						
-						  export class METAATTRIBUTES implements MetaAttribute {
+						  export class METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
 						
-						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, MetaType.STRING, Extrapolations.DISCRETE.strategy());
-						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, MetaType.LONG, Extrapolations.POLYNOMIAL.strategy());
+						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy());
+						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, org.kevoree.modeling.api.meta.MetaType.LONG, org.kevoree.modeling.api.Extrapolations.POLYNOMIAL.strategy());
 						    private _name: string = null;
 						    private _index: number = 0;
 						    private _precision: number = 0;
 						    private _key: boolean = null;
-						    private _metaType: MetaType = null;
-						    private extrapolationStrategy: ExtrapolationStrategy = null;
+						    private _metaType: org.kevoree.modeling.api.meta.MetaType = null;
+						    private extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy = null;
 						
-						    public metaType(): MetaType {
+						    public metaType(): org.kevoree.modeling.api.meta.MetaType {
 						      return this._metaType;
 						    }
 						
@@ -6829,19 +6829,19 @@ module org {
 						      return this._key;
 						    }
 						
-						    public origin(): MetaClass {
+						    public origin(): org.kevoree.modeling.api.meta.MetaClass {
 						      return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT;
 						    }
 						
-						    public strategy(): ExtrapolationStrategy {
+						    public strategy(): org.kevoree.modeling.api.strategy.ExtrapolationStrategy {
 						      return this.extrapolationStrategy;
 						    }
 						
-						    public setExtrapolationStrategy(extrapolationStrategy: ExtrapolationStrategy): void {
+						    public setExtrapolationStrategy(extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy): void {
 						      this.extrapolationStrategy = extrapolationStrategy;
 						    }
 						
-						    constructor(name: string, index: number, precision: number, key: boolean, metaType: MetaType, extrapolationStrategy: ExtrapolationStrategy) {
+						    constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy) {
 						      this._name = name;
 						      this._index = index;
 						      this._precision = precision;
@@ -6866,15 +6866,15 @@ module org {
 							    super(now, dimension);
 							  }
 							
-							  public internalCreate(clazz: org.kevoree.modeling.api.meta.MetaClass, timeTree: org.kevoree.modeling.api.time.TimeTree, key: number): org.kevoree.modeling.api.KObject<any,any> {
-							    if (clazz == null) {
+							  public internalCreate(p_clazz: org.kevoree.modeling.api.meta.MetaClass, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_key: number): org.kevoree.modeling.api.KObject<any,any> {
+							    if (p_clazz == null) {
 							      return null;
 							    }
-							    switch (clazz.index()) {
+							    switch (p_clazz.index()) {
 							      case 0: 
-							      return manageCache(new NodeImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, key, now(), dimension(), timeTree));
+							      return this.manageCache(new NodeImpl(this, org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, p_key, this.now(), this.dimension(), p_timeTree));
 							      case 1: 
-							      return manageCache(new ElementImpl(this, METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, key, now(), dimension(), timeTree));
+							      return this.manageCache(new ElementImpl(this, org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, p_key, this.now(), this.dimension(), p_timeTree));
 							      default: 
 							      return null;
 							    }
@@ -7020,24 +7020,24 @@ module org {
 						
 						}
 						
-						module Node { 
+						export module Node { 
 						
-						  export class METAATTRIBUTES implements MetaAttribute {
+						  export class METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
 						
-						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, MetaType.STRING, Extrapolations.DISCRETE.strategy());
-						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, MetaType.STRING, Extrapolations.DISCRETE.strategy());
+						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy());
+						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy());
 						    private _name: string = null;
 						    private _index: number = 0;
 						    private _precision: number = 0;
 						    private _key: boolean = null;
-						    private _metaType: MetaType = null;
-						    private extrapolationStrategy: ExtrapolationStrategy = null;
+						    private _metaType: org.kevoree.modeling.api.meta.MetaType = null;
+						    private extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy = null;
 						
-						    public metaType(): MetaType {
+						    public metaType(): org.kevoree.modeling.api.meta.MetaType {
 						      return this._metaType;
 						    }
 						
-						    public origin(): MetaClass {
+						    public origin(): org.kevoree.modeling.api.meta.MetaClass {
 						      return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
 						    }
 						
@@ -7057,15 +7057,15 @@ module org {
 						      return this._key;
 						    }
 						
-						    public strategy(): ExtrapolationStrategy {
+						    public strategy(): org.kevoree.modeling.api.strategy.ExtrapolationStrategy {
 						      return this.extrapolationStrategy;
 						    }
 						
-						    public setExtrapolationStrategy(extrapolationStrategy: ExtrapolationStrategy): void {
+						    public setExtrapolationStrategy(extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy): void {
 						      this.extrapolationStrategy = extrapolationStrategy;
 						    }
 						
-						    constructor(name: string, index: number, precision: number, key: boolean, metaType: MetaType, extrapolationStrategy: ExtrapolationStrategy) {
+						    constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy) {
 						      this._name = name;
 						      this._index = index;
 						      this._precision = precision;
@@ -7081,7 +7081,7 @@ module org {
 						  }
 						
 						
-						  export class METAREFERENCES implements MetaReference {
+						  export class METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReference {
 						
 						    public static CHILDREN: METAREFERENCES = new METAREFERENCES("children", 4, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null);
 						    public static ELEMENT: METAREFERENCES = new METAREFERENCES("element", 5, true, true, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
@@ -7089,18 +7089,18 @@ module org {
 						    private _index: number = 0;
 						    private _contained: boolean = null;
 						    private _single: boolean = null;
-						    private _metaType: MetaClass = null;
-						    private _opposite: MetaReference = null;
+						    private _metaType: org.kevoree.modeling.api.meta.MetaClass = null;
+						    private _opposite: org.kevoree.modeling.api.meta.MetaReference = null;
 						
 						    public single(): boolean {
 						      return this._single;
 						    }
 						
-						    public metaType(): MetaClass {
+						    public metaType(): org.kevoree.modeling.api.meta.MetaClass {
 						      return this._metaType;
 						    }
 						
-						    public opposite(): MetaReference {
+						    public opposite(): org.kevoree.modeling.api.meta.MetaReference {
 						      return this._opposite;
 						    }
 						
@@ -7116,11 +7116,11 @@ module org {
 						      return this._contained;
 						    }
 						
-						    public origin(): MetaClass {
+						    public origin(): org.kevoree.modeling.api.meta.MetaClass {
 						      return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
 						    }
 						
-						    constructor(name: string, index: number, contained: boolean, single: boolean, metaType: MetaClass, opposite: MetaReference) {
+						    constructor(name: string, index: number, contained: boolean, single: boolean, metaType: org.kevoree.modeling.api.meta.MetaClass, opposite: org.kevoree.modeling.api.meta.MetaReference) {
 						      this._name = name;
 						      this._index = index;
 						      this._contained = contained;
@@ -7136,7 +7136,7 @@ module org {
 						  }
 						
 						
-						  export class METAOPERATION implements MetaOperation {
+						  export class METAOPERATION implements org.kevoree.modeling.api.meta.MetaOperation {
 						
 						    public static TRIGGER: METAOPERATION = new METAOPERATION("trigger", 6);
 						    private _name: string = null;
@@ -7150,7 +7150,7 @@ module org {
 						      return this._name;
 						    }
 						
-						    public origin(): MetaClass {
+						    public origin(): org.kevoree.modeling.api.meta.MetaClass {
 						      return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
 						    }
 						

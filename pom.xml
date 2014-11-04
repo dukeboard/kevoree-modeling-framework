@@ -76,6 +76,7 @@
 
         <!-- DataStores -->
         <module>databases/org.kevoree.modeling.microframework.databases.leveldb</module>
+        <module>databases/org.kevoree.modeling.microframework.databases.redis</module>
 
     </modules>
 
