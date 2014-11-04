@@ -39,7 +39,7 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public String getName() {
-        return (String) get(METAATTRIBUTES.NAME);
+        return (String) this.get(Node.METAATTRIBUTES.NAME);
     }
 
     @Override

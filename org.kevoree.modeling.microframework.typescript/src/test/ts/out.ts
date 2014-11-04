@@ -6915,7 +6915,7 @@ module org {
 							  }
 							
 							  public getName(): string {
-							    return <string>get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.NAME);
+							    return <string>this.get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.NAME);
 							  }
 							
 							  public setName(p_name: string): org.kevoree.modeling.microframework.test.cloud.Element {
@@ -6953,7 +6953,7 @@ module org {
 							  }
 							
 							  public getName(): string {
-							    return <string>get(METAATTRIBUTES.NAME);
+							    return <string>this.get(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.NAME);
 							  }
 							
 							  public setName(p_name: string): org.kevoree.modeling.microframework.test.cloud.Node {
