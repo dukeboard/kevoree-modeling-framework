@@ -8,7 +8,6 @@ import org.kevoree.modeling.api.time.rbtree.RBTree;
 import org.kevoree.modeling.api.time.rbtree.State;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
 
 /**
@@ -38,7 +37,7 @@ public class RBTreeTest {
     }
 
     private void printTree(TreeNode root) {
-        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        LinkedList<TreeNode> queue = new LinkedList<TreeNode>();
         queue.add(root);
         queue.add(null);
         while (!queue.isEmpty()) {

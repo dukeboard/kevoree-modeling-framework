@@ -230,6 +230,10 @@ module java {
                 this.internalArray = [];
             }
 
+            public poll(){
+                return this.internalArray.pop;
+            }
+
             remove(val:T) {
                 //TODO with filter
             }
@@ -270,6 +274,10 @@ module java {
         }
 
         export class ArrayList<T> extends List<T> {
+
+        }
+
+        export class LinkedList<T> extends List<T> {
 
         }
 
@@ -395,6 +403,12 @@ module org {
 
             public static assertEquals(p:any, p2:any):void {
                 if (p != p2) {
+                    throw new java.lang.Exception("Assert Error " + p + " must be equals to " + p2);
+                }
+            }
+
+            public static assertNotEquals(p:any, p2:any):void {
+                if (p == p2) {
                     throw new java.lang.Exception("Assert Error " + p + " must be equals to " + p2);
                 }
             }

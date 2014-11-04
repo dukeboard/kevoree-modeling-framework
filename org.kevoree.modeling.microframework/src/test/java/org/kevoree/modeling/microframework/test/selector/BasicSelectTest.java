@@ -9,7 +9,7 @@ import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
 
 /**
  * Created by duke on 10/27/14.
@@ -47,84 +47,84 @@ public class BasicSelectTest {
                 t0.select("children[]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(1, selecteds.length);
-                        assertEquals(node2, selecteds[0]);
+                        Assert.assertEquals(1, selecteds.length);
+                        Assert.assertEquals(node2, selecteds[0]);
                     }
                 });
 
                 t0.select("children[name=*]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(1, selecteds.length);
-                        assertEquals(node2, selecteds[0]);
+                        Assert.assertEquals(1, selecteds.length);
+                        Assert.assertEquals(node2, selecteds[0]);
                     }
                 });
 
                 t0.select("children[name=n*]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(1, selecteds.length);
-                        assertEquals(node2, selecteds[0]);
+                        Assert.assertEquals(1, selecteds.length);
+                        Assert.assertEquals(node2, selecteds[0]);
                     }
                 });
 
                 t0.select("children[name=n1]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(1, selecteds.length);
-                        assertEquals(node2, selecteds[0]);
+                        Assert.assertEquals(1, selecteds.length);
+                        Assert.assertEquals(node2, selecteds[0]);
                     }
                 });
 
                 t0.select("children[name=!n1]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(0, selecteds.length);
+                        Assert.assertEquals(0, selecteds.length);
                     }
                 });
 
                 t0.select("children[name!=n1]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(0, selecteds.length);
+                        Assert.assertEquals(0, selecteds.length);
                     }
                 });
 
                 t0.select("children[name=n1]/children[name=n2]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(1, selecteds.length);
-                        assertEquals(node3, selecteds[0]);
+                        Assert.assertEquals(1, selecteds.length);
+                        Assert.assertEquals(node3, selecteds[0]);
                     }
                 });
 
                 t0.select("/children[name=n1]/children[name=n2]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(1, selecteds.length);
-                        assertEquals(node3, selecteds[0]);
+                        Assert.assertEquals(1, selecteds.length);
+                        Assert.assertEquals(node3, selecteds[0]);
                     }
                 });
 
                 node.select("children[name=n1]/children[name=n2]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(1, selecteds.length);
-                        assertEquals(node3, selecteds[0]);
+                        Assert.assertEquals(1, selecteds.length);
+                        Assert.assertEquals(node3, selecteds[0]);
                     }
                 });
 
                 node.select("/children[name=n1]/children[name=n2]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(0, selecteds.length);
+                        Assert.assertEquals(0, selecteds.length);
                     }
                 });
 
                 node.select("children[name=n1]/children[name=n2]/children[name=*]", new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] selecteds) {
-                        assertEquals(2, selecteds.length);
+                        Assert.assertEquals(2, selecteds.length);
                     }
                 });
 
