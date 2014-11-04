@@ -15,7 +15,7 @@ class BasicSelectTest {
     var dataBase: MemoryKDataBase = new MemoryKDataBase();
     var universe: CloudUniverse = new CloudUniverse(dataBase);
     universe.newDimension({on:function(dimension0: CloudDimension){
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node: Node = t0.createNode();
     node.setName("n0");
     t0.setRoot(node);

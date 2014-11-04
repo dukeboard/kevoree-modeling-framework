@@ -31,9 +31,9 @@ public class RBTreeTest {
                 }
             }
             for (long i = MIN; i < j - 1; i++) {
-                Assert.assertTrue("I: " + i + " -> " + tree.next(i).getKey() + " != " + (i + 1), tree.next(i).getKey() == i + 1);
+                Assert.assertTrue(tree.next(i).getKey() == i + 1);
             }
-            Assert.assertTrue("I: " + j + " -> " + tree.next(j) + " != null", tree.next(j) == null);
+            Assert.assertTrue(tree.next(j) == null);
         }
     }
 
@@ -74,9 +74,9 @@ public class RBTreeTest {
                 }
             }
             for (long i = j; i > MIN; i--) {
-                Assert.assertTrue("I: " + i + " -> " + tree.previous(i).getKey() + " != " + (i - 1), tree.previous(i).getKey() == i - 1);
+                Assert.assertTrue(tree.previous(i).getKey() == i - 1);
             }
-            Assert.assertTrue("I: " + j + " -> " + tree.previous(MIN) + " != null", tree.previous(MIN) == null);
+            Assert.assertTrue(tree.previous(MIN) == null);
         }
     }
 
@@ -100,7 +100,7 @@ public class RBTreeTest {
         Assert.assertNull(tree.nextWhileNot(6, State.DELETED));
         Assert.assertNull(tree.nextWhileNot(7, State.DELETED));
         Assert.assertNull(tree.nextWhileNot(8, State.DELETED));
-        Assert.assertTrue("" + tree.nextWhileNot(9, State.DELETED).getKey(), tree.nextWhileNot(9, State.DELETED) != null && tree.nextWhileNot(9, State.DELETED).getKey() == 10L);
+        Assert.assertTrue(tree.nextWhileNot(9, State.DELETED) != null && tree.nextWhileNot(9, State.DELETED).getKey() == 10L);
         Assert.assertTrue(tree.nextWhileNot(10, State.DELETED) != null && tree.nextWhileNot(10, State.DELETED).getKey() == 11L);
     }
 
@@ -155,7 +155,7 @@ public class RBTreeTest {
                     tree.insert(i, State.EXISTS);
                 }
             }
-            Assert.assertTrue("" + tree.last().getKey() + " != " + j, tree.last().getKey() == j);
+            Assert.assertTrue(tree.last().getKey() == j);
         }
     }
 
@@ -177,7 +177,7 @@ public class RBTreeTest {
         Assert.assertTrue(tree.firstWhileNot(10, State.DELETED).getKey() == 10L);
         Assert.assertNull(tree.firstWhileNot(9, State.DELETED));
         Assert.assertNull(tree.firstWhileNot(8, State.DELETED));
-        Assert.assertTrue("" + tree.firstWhileNot(7, State.DELETED).getKey(), tree.firstWhileNot(7, State.DELETED).getKey() == 0L);
+        Assert.assertTrue(tree.firstWhileNot(7, State.DELETED).getKey() == 0L);
         Assert.assertTrue(tree.firstWhileNot(6, State.DELETED).getKey() == 0L);
     }
 

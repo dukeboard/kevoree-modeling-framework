@@ -15,14 +15,14 @@ class PolynomialKMFTest {
     var dataBase: MemoryKDataBase = new MemoryKDataBase();
     var universe: CloudUniverse = new CloudUniverse(dataBase);
     universe.newDimension({on:function(dimension0: CloudDimension){
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node: Node = t0.createNode();
     node.setName("n0");
     t0.setRoot(node);
     var element: Element = t0.createElement();
     element.setName("e0");
     node.setElement(element);
-    element.setValue(0l);
+    element.setValue(0);
     for (var i: number = 1; i <= 10000; i++) {
       var finalI: number = i;
       dimension0.time(finalI).lookup(element.uuid(), {on:function(kObject: KObject){

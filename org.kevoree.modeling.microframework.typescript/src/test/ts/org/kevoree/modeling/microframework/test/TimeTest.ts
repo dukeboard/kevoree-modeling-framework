@@ -15,12 +15,12 @@ class TimeTest {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     Assert.assertNotNull(t0);
-    Assert.assertEquals(t0.now(), 0l);
-    var t1: CloudView = dimension0.time(1l);
+    Assert.assertEquals(t0.now(), 0);
+    var t1: CloudView = dimension0.time(1);
     Assert.assertNotNull(t1);
-    Assert.assertEquals(t1.now(), 1l);
+    Assert.assertEquals(t1.now(), 1);
 }});
   }
 
@@ -28,7 +28,7 @@ class TimeTest {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node0: Node = t0.createNode();
     var element0: Element = t0.createElement();
     node0.setElement(element0);
@@ -49,7 +49,7 @@ class TimeTest {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node0: Node = t0.createNode();
     node0.getElement({on:function(element: Element){
     Assert.assertNull(element);
@@ -59,7 +59,7 @@ class TimeTest {
     Assert.assertNull(element);
 }});
 }});
-    var t1: CloudView = dimension0.time(1l);
+    var t1: CloudView = dimension0.time(1);
     var elem1: Element = t1.createElement();
     node0.setElement(elem1);
     t0.lookup(node0.uuid(), {on:function(kObject: KObject){
@@ -81,13 +81,13 @@ class TimeTest {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node0: Node = t0.createNode();
     node0.setName("node at 0");
     node0.setValue("0");
     var elem0: Element = t0.createElement();
     node0.setElement(elem0);
-    var t1: CloudView = dimension0.time(1l);
+    var t1: CloudView = dimension0.time(1);
     t1.lookup(node0.uuid(), {on:function(kObject: KObject){
     (<Node>kObject).setName("node at 1");
     (<Node>kObject).setValue("1");

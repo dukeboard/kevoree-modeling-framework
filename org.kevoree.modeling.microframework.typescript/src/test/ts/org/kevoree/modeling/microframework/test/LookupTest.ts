@@ -14,7 +14,7 @@ class LookupTest {
     var dataBase: MemoryKDataBase = new MemoryKDataBase();
     var universe: CloudUniverse = new CloudUniverse(dataBase);
     universe.newDimension({on:function(dimension0: CloudDimension){
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node: Node = t0.createNode();
     node.setName("n0");
     t0.setRoot(node);
@@ -26,7 +26,7 @@ class LookupTest {
     dimension0.save({on:function(e: Throwable){
     var universe2: CloudUniverse = new CloudUniverse(dataBase);
     universe2.dimension(dimension0.key(), {on:function(dimension0_2: CloudDimension){
-    var t0_2: CloudView = dimension0_2.time(0l);
+    var t0_2: CloudView = dimension0_2.time(0);
     t0_2.lookup(node.uuid(), {on:function(resolved: KObject){
     t0_2.lookup(node.uuid(), {on:function(resolved2: KObject){
     Assert.assertEquals(resolved, resolved2);

@@ -14,7 +14,7 @@ class Serializer {
   public serializeTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var nodeT0: Node = t0.createNode();
     nodeT0.setName("node0");
     t0.setRoot(nodeT0);

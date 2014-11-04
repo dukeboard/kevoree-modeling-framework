@@ -14,7 +14,7 @@ class JSONSaveTest {
   public jsonTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    var time0: CloudView = dimension0.time(0l);
+    var time0: CloudView = dimension0.time(0);
     var root: Node = time0.createNode();
     time0.setRoot(root);
     root.setName("root");
@@ -33,17 +33,17 @@ class JSONSaveTest {
 }});
     var payloadResult: string = "[\n" + "{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"1\",\n" + "\t\"@root\" : \"true\",\n" + "\t\"name\" : \"root\",\n" + "\t\"children\" : [\"2\",\"3\"],\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"2\",\n" + "\t\"name\" : \"n1\",\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"3\",\n" + "\t\"name\" : \"n2\",\n" + "}\n" + "]\n";
     assertEquals(result[0], payloadResult);
-    var pathN2: string[] = {null};
+    var pathN2: string[] = [null];
     n2.path({on:function(p: string){
     pathN2[0] = p;
 }});
     assertEquals("/children[name=n2]", pathN2[0]);
-    var pathN1: string[] = {null};
+    var pathN1: string[] = [null];
     n1.path({on:function(p: string){
     pathN1[0] = p;
 }});
     assertEquals("/children[name=n1]", pathN1[0]);
-    var pathR: string[] = {null};
+    var pathR: string[] = [null];
     root.path({on:function(p: string){
     pathR[0] = p;
 }});

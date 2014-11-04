@@ -12,7 +12,7 @@ class SliceTest {
   public slideTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    var time0: CloudView = dimension0.time(0l);
+    var time0: CloudView = dimension0.time(0);
     var root: Node = time0.createNode();
     time0.setRoot(root);
     root.setName("root");

@@ -24,9 +24,9 @@ class HelloTest {
 }});
     univers.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     Assert.assertNotNull(t0);
-    Assert.assertEquals(t0.now(), 0l);
+    Assert.assertEquals(t0.now(), 0);
     var nodeT0: Node = t0.createNode();
     Assert.assertNotNull(nodeT0);
     Assert.assertNotNull(nodeT0.uuid());
@@ -35,17 +35,17 @@ class HelloTest {
     nodeT0.setName("node0");
     Assert.assertEquals("node0", nodeT0.getName());
     Assert.assertEquals("name=node0", nodeT0.domainKey());
-    Assert.assertEquals(0l, nodeT0.now());
+    Assert.assertEquals(0, nodeT0.now());
     var child0: Element = t0.createElement();
     Assert.assertNotNull(child0.timeTree());
-    Assert.assertTrue(child0.timeTree().last().equals(0l));
-    Assert.assertTrue(child0.timeTree().first().equals(0l));
+    Assert.assertTrue(child0.timeTree().last().equals(0));
+    Assert.assertTrue(child0.timeTree().first().equals(0));
     var nodeT1: Node = t0.createNode();
     nodeT1.setName("n1");
     nodeT0.addChildren(nodeT1);
     var refs: JUMap<number, number> = <JUMap<number, number>>t0.dimension().universe().storage().raw(nodeT1, AccessMode.READ)[1];
     Assert.assertTrue(refs.containsKey(nodeT0.uuid()));
-    var i: number[] = {0};
+    var i: number[] = [0];
     nodeT0.eachChildren({on:function(n: Node){
     i[0]++;
 }}, null);
@@ -54,7 +54,7 @@ class HelloTest {
     nodeT3.setName("n3");
     nodeT1.addChildren(nodeT3);
     i[0] = 0;
-    var j: number[] = {0};
+    var j: number[] = [0];
     nodeT0.visit({visit:function(elem: KObject){
     i[0]++;
     return VisitResult.CONTINUE;

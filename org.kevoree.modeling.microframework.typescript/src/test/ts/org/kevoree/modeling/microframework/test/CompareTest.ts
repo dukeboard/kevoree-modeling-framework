@@ -16,7 +16,7 @@ class CompareTest {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node0_0: Node = t0.createNode();
     node0_0.setName("node0_0");
     node0_0.setValue("0_0");
@@ -42,7 +42,7 @@ class CompareTest {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node0_0: Node = t0.createNode();
     node0_0.setName("node0_0");
     node0_0.setValue("0_0");
@@ -66,7 +66,7 @@ class CompareTest {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
     Assert.assertNotNull(dimension0);
-    var t0: CloudView = dimension0.time(0l);
+    var t0: CloudView = dimension0.time(0);
     var node0_0: Node = t0.createNode();
     node0_0.setName("node0_0");
     node0_0.setValue("0_0");
