@@ -4,13 +4,10 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ModelSlicer;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
-
-import java.util.Arrays;
 
 /**
  * Created by duke on 10/16/14.

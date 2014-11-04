@@ -1,13 +1,16 @@
 package org.kevoree.modeling.microframework.test;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.api.trace.ModelTraceApplicator;
 import org.kevoree.modeling.api.trace.TraceSequence;
-import org.kevoree.modeling.microframework.test.cloud.*;
-
-import static org.junit.Assert.*;
+import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
+import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudView;
+import org.kevoree.modeling.microframework.test.cloud.Node;
+import org.kevoree.modeling.microframework.test.cloud.Element;
 
 /**
  * Created by thomas on 31/10/14.
@@ -24,7 +27,7 @@ public class CompareTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull("Dimension should be created", dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -42,8 +45,8 @@ public class CompareTest {
                 t0.createModelCompare().diff(node0_0, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
-                        assertNotEquals(traceSequence.traces().length, 0);
-                        assertEquals("[{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"},\n" +
+                        Assert.assertNotEquals(traceSequence.traces().length, 0);
+                        Assert.assertEquals("[{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"},\n" +
                                 "{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"value\",\"val\":\"0_1\"}]", traceSequence.toString());
                     }
                 });
@@ -55,12 +58,12 @@ public class CompareTest {
                         new ModelTraceApplicator(node0_0).applyTraceSequence(traceSequence, new Callback<Throwable>() {
                             @Override
                             public void on(Throwable throwable) {
-                                assertNull(throwable);
+                                Assert.assertNull(throwable);
                                 // compare new node0_0 with node0_1
                                 t0.createModelCompare().diff(node0_0, node0_1, new Callback<TraceSequence>() {
                                     @Override
                                     public void on(TraceSequence traceSequence) {
-                                        assertEquals(traceSequence.traces().length, 0);
+                                        Assert.assertEquals(traceSequence.traces().length, 0);
                                     }
                                 });
                             }
@@ -81,7 +84,7 @@ public class CompareTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull("Dimension should be created", dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -99,7 +102,7 @@ public class CompareTest {
                 t0.createModelCompare().intersection(node0_0, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
-                        assertEquals(traceSequence.traces().length, 0);
+                        Assert.assertEquals(traceSequence.traces().length, 0);
                     }
                 });
 
@@ -111,8 +114,8 @@ public class CompareTest {
                 t0.createModelCompare().intersection(node0_2, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
-                        assertEquals(traceSequence.traces().length, 1);
-                        assertEquals("[{\"type\":\"SET\",\"src\":\"3\",\"meta\":\"value\",\"val\":\"0_1\"}]", traceSequence.toString());
+                        Assert.assertEquals(traceSequence.traces().length, 1);
+                        Assert.assertEquals("[{\"type\":\"SET\",\"src\":\"3\",\"meta\":\"value\",\"val\":\"0_1\"}]", traceSequence.toString());
                     }
                 });
 
@@ -129,7 +132,7 @@ public class CompareTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull("Dimension should be created", dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -150,9 +153,9 @@ public class CompareTest {
                 t0.createModelCompare().union(node0_0, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
-                        assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"}", traceSequence.traces()[0].toString()); // merge behaviour
-                        assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"value\",\"val\":\"0_1\"}", traceSequence.traces()[1].toString()); // merge behaviour
-                        assertEquals("{\"type\":\"ADD\",\"src\":\"1\",\"meta\":\"element\"}", traceSequence.traces()[2].toString()); // union behaviour
+                        Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"}", traceSequence.traces()[0].toString()); // merge behaviour
+                        Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"value\",\"val\":\"0_1\"}", traceSequence.traces()[1].toString()); // merge behaviour
+                        Assert.assertEquals("{\"type\":\"ADD\",\"src\":\"1\",\"meta\":\"element\"}", traceSequence.traces()[2].toString()); // union behaviour
 
                         new ModelTraceApplicator(node0_0).applyTraceSequence(traceSequence, new Callback<Throwable>() {
                             @Override
@@ -160,7 +163,7 @@ public class CompareTest {
                                 node0_0.getElement(new Callback<Element>() {
                                     @Override
                                     public void on(Element element) {
-                                        assertEquals(elem0_0, element); // union behaviour
+                                        Assert.assertEquals(elem0_0, element); // union behaviour
                                     }
                                 });
                             }

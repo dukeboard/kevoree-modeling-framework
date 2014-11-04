@@ -7,7 +7,6 @@
 ///<reference path="../../../../api/time/TimeTree.ts"/>
 ///<reference path="../CloudView.ts"/>
 ///<reference path="../Element.ts"/>
-///<reference path="../Node.ts"/>
 
 class ElementImpl extends AbstractKObject<Element, CloudView> implements Element {
 

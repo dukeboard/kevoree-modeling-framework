@@ -4,12 +4,13 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.api.time.TimeWalker;
-import org.kevoree.modeling.microframework.test.cloud.*;
+import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
+import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudView;
+import org.kevoree.modeling.microframework.test.cloud.Node;
+import org.kevoree.modeling.microframework.test.cloud.Element;
 
 import java.util.Random;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by duke on 10/29/14.

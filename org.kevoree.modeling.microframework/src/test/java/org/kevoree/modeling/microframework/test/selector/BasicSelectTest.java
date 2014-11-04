@@ -9,10 +9,7 @@ import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by duke on 10/27/14.

@@ -1,3 +1,4 @@
+///<reference path="../../../../junit/Assert.ts"/>
 ///<reference path="../../../../junit/Test.ts"/>
 ///<reference path="../../api/Callback.ts"/>
 ///<reference path="../../api/KObject.ts"/>
@@ -6,8 +7,6 @@
 ///<reference path="cloud/CloudUniverse.ts"/>
 ///<reference path="cloud/CloudView.ts"/>
 ///<reference path="cloud/Node.ts"/>
-// TODO Resolve static imports
-///<reference path="../../../../junit/Assert.ts"/>
 
 class LookupTest {
 
@@ -19,23 +18,23 @@ class LookupTest {
     var node: Node = t0.createNode();
     node.setName("n0");
     t0.setRoot(node);
-    assertTrue(node.isRoot());
+    Assert.assertTrue(node.isRoot());
     universe.storage().getRoot(t0, {on:function(resolvedRoot: KObject){
-    assertEquals(node, resolvedRoot);
+    Assert.assertEquals(node, resolvedRoot);
 }});
-    assertTrue(node.isRoot());
+    Assert.assertTrue(node.isRoot());
     dimension0.save({on:function(e: Throwable){
     var universe2: CloudUniverse = new CloudUniverse(dataBase);
     universe2.dimension(dimension0.key(), {on:function(dimension0_2: CloudDimension){
     var t0_2: CloudView = dimension0_2.time(0l);
     t0_2.lookup(node.uuid(), {on:function(resolved: KObject){
     t0_2.lookup(node.uuid(), {on:function(resolved2: KObject){
-    assertEquals(resolved, resolved2);
+    Assert.assertEquals(resolved, resolved2);
 }});
     universe2.storage().getRoot(t0_2, {on:function(resolvedRoot: KObject){
-    assertEquals(resolved, resolvedRoot);
+    Assert.assertEquals(resolved, resolvedRoot);
 }});
-    assertTrue(resolved.isRoot());
+    Assert.assertTrue(resolved.isRoot());
 }});
 }});
 }});

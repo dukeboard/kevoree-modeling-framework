@@ -1,8 +1,11 @@
 ///<reference path="../../../api/Callback.ts"/>
 ///<reference path="../../../api/KObject.ts"/>
-//TODO Resolve multi-import
-///<reference path="../../../api/meta/"/>
 ///<reference path="../../../api/Extrapolations.ts"/>
+///<reference path="../../../api/meta/MetaAttribute.ts"/>
+///<reference path="../../../api/meta/MetaClass.ts"/>
+///<reference path="../../../api/meta/MetaReference.ts"/>
+///<reference path="../../../api/meta/MetaOperation.ts"/>
+///<reference path="../../../api/meta/MetaType.ts"/>
 ///<reference path="../../../api/strategy/ExtrapolationStrategy.ts"/>
 
 interface Node extends KObject<Node, CloudView> {

@@ -4,8 +4,6 @@
 ///<reference path="../../../../junit/Assert.ts"/>
 // TODO Resolve static imports
 ///<reference path="../../../../junit/Assert.ts"/>
-// TODO Resolve static imports
-///<reference path="../../../../junit/Assert.ts"/>
 
 class HelperTest {
 

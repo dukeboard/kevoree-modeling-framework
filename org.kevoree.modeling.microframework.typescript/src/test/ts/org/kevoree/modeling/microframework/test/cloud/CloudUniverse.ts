@@ -1,6 +1,5 @@
 ///<reference path="../../../api/abs/AbstractKUniverse.ts"/>
 ///<reference path="../../../api/data/KDataBase.ts"/>
-///<reference path="../../../api/data/KStore.ts"/>
 
 class CloudUniverse extends AbstractKUniverse<CloudDimension> {
 

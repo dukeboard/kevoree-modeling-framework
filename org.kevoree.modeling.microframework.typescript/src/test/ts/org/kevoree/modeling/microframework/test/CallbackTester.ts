@@ -1,4 +1,3 @@
-///<reference path="../../../../junit/Test.ts"/>
 ///<reference path="../../api/Callback.ts"/>
 ///<reference path="../../api/util/CallBackChain.ts"/>
 ///<reference path="../../api/util/Helper.ts"/>

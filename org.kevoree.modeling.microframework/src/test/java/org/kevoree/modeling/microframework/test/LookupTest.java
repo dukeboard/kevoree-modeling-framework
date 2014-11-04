@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
@@ -8,8 +9,6 @@ import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by duke on 10/23/14.
@@ -27,14 +26,14 @@ public class LookupTest {
                 final Node node = t0.createNode();
                 node.setName("n0");
                 t0.setRoot(node);
-                assertTrue(node.isRoot());
+                Assert.assertTrue(node.isRoot());
                 universe.storage().getRoot(t0, new Callback<KObject>() {
                     @Override
                     public void on(KObject resolvedRoot) {
-                        assertEquals(node, resolvedRoot);
+                        Assert.assertEquals(node, resolvedRoot);
                     }
                 });
-                assertTrue(node.isRoot());
+                Assert.assertTrue(node.isRoot());
                 dimension0.save(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable e) {
@@ -49,16 +48,16 @@ public class LookupTest {
                                         t0_2.lookup(node.uuid(), new Callback<KObject>() {
                                             @Override
                                             public void on(KObject resolved2) {
-                                                assertEquals(resolved, resolved2);
+                                                Assert.assertEquals(resolved, resolved2);
                                             }
                                         });
                                         universe2.storage().getRoot(t0_2, new Callback<KObject>() {
                                             @Override
                                             public void on(KObject resolvedRoot) {
-                                                assertEquals(resolved, resolvedRoot);
+                                                Assert.assertEquals(resolved, resolvedRoot);
                                             }
                                         });
-                                        assertTrue(resolved.isRoot());
+                                        Assert.assertTrue(resolved.isRoot());
                                     }
                                 });
                             }

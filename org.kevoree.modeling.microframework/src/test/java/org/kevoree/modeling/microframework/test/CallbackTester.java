@@ -1,6 +1,5 @@
 package org.kevoree.modeling.microframework.test;
 
-import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;

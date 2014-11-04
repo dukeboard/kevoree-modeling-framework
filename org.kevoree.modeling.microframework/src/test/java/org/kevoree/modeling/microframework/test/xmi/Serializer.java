@@ -5,12 +5,11 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.microframework.test.cloud.*;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-
+import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
+import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudView;
+import org.kevoree.modeling.microframework.test.cloud.Node;
+import org.kevoree.modeling.microframework.test.cloud.Element;
 
 /**
  * Created by gregory.nain on 16/10/2014.

@@ -6,9 +6,6 @@
 ///<reference path="../cloud/CloudUniverse.ts"/>
 ///<reference path="../cloud/CloudView.ts"/>
 ///<reference path="../cloud/Node.ts"/>
-///<reference path="../../../../../../java/util/JUList.ts"/>
-// TODO Resolve static imports
-///<reference path="../../../../../junit/Assert.ts"/>
 // TODO Resolve static imports
 ///<reference path="../../../../../junit/Assert.ts"/>
 

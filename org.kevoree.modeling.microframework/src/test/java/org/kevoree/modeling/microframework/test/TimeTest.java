@@ -1,12 +1,15 @@
 package org.kevoree.modeling.microframework.test;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.microframework.test.cloud.*;
-
-import static org.junit.Assert.*;
+import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
+import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
+import org.kevoree.modeling.microframework.test.cloud.CloudView;
+import org.kevoree.modeling.microframework.test.cloud.Node;
+import org.kevoree.modeling.microframework.test.cloud.Element;
 
 /**
  * Created by thomas on 10/21/14.
@@ -19,17 +22,17 @@ public class TimeTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull(dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
-                assertNotNull("Time0 should be created", t0);
-                assertEquals("Time0 should be created with time 0", t0.now(), 0l);
+                Assert.assertNotNull(t0);
+                Assert.assertEquals(t0.now(), 0l);
 
                 // create time1
                 final CloudView t1 = dimension0.time(1l);
-                assertNotNull("Time1 should be created", t1);
-                assertEquals("Time1 should be created with time 0", t1.now(), 1l);
+                Assert.assertNotNull(t1);
+                Assert.assertEquals(t1.now(), 1l);
             }
         });
     }
@@ -40,7 +43,7 @@ public class TimeTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull(dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -53,8 +56,8 @@ public class TimeTest {
                 node0.getElement(new Callback<Element>() {
                     @Override
                     public void on(Element element) {
-                        assertEquals(element, element0);
-                        assertEquals(element.now(), t0.now());
+                        Assert.assertEquals(element, element0);
+                        Assert.assertEquals(element.now(), t0.now());
                     }
                 });
 
@@ -64,8 +67,8 @@ public class TimeTest {
                         ((Node) kObject).getElement(new Callback<Element>() {
                             @Override
                             public void on(Element element) {
-                                assertEquals(element, element0);
-                                assertEquals(element.now(), t0.now());
+                                Assert.assertEquals(element, element0);
+                                Assert.assertEquals(element.now(), t0.now());
                             }
                         });
                     }
@@ -81,7 +84,7 @@ public class TimeTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull(dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -91,7 +94,7 @@ public class TimeTest {
                 node0.getElement(new Callback<Element>() {
                     @Override
                     public void on(Element element) {
-                        assertNull(element);
+                        Assert.assertNull(element);
                     }
                 });
 
@@ -101,7 +104,7 @@ public class TimeTest {
                         ((Node) kObject).getElement(new Callback<Element>() {
                             @Override
                             public void on(Element element) {
-                                assertNull(element);
+                                Assert.assertNull(element);
                             }
                         });
                     }
@@ -121,7 +124,7 @@ public class TimeTest {
                         ((Node) kObject).getElement(new Callback<Element>() {
                             @Override
                             public void on(Element element) {
-                                assertNull(element);
+                                Assert.assertNull(element);
                             }
                         });
                     }
@@ -134,9 +137,9 @@ public class TimeTest {
                         ((Node) kObject).getElement(new Callback<Element>() {
                             @Override
                             public void on(Element element) {
-                                assertNotNull(element);
-                                assertEquals(element, elem1);
-                                assertEquals(element.now(), t1.now());
+                                Assert.assertNotNull(element);
+                                Assert.assertEquals(element, elem1);
+                                Assert.assertEquals(element.now(), t1.now());
                             }
                         });
                     }
@@ -152,7 +155,7 @@ public class TimeTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull(dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -178,8 +181,8 @@ public class TimeTest {
                 t0.lookup(node0.uuid(), new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
-                        assertEquals(((Node) kObject).getName(), "node at 0");
-                        assertEquals(((Node) kObject).getValue(), "0");
+                        Assert.assertEquals(((Node) kObject).getName(), "node at 0");
+                        Assert.assertEquals(((Node) kObject).getValue(), "0");
                     }
                 });
 
@@ -188,8 +191,8 @@ public class TimeTest {
                 t1.lookup(node0.uuid(), new Callback<KObject>() {
                     @Override
                     public void on(KObject kObject) {
-                        assertEquals(((Node) kObject).getName(), "node at 1");
-                        assertEquals(((Node) kObject).getValue(), "1");
+                        Assert.assertEquals(((Node) kObject).getName(), "node at 1");
+                        Assert.assertEquals(((Node) kObject).getValue(), "1");
                     }
                 });
             }

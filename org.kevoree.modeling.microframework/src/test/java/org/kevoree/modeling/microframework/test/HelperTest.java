@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.kevoree.modeling.api.util.Helper;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**

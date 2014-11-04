@@ -2,12 +2,10 @@
 ///<reference path="../../api/Callback.ts"/>
 ///<reference path="../../api/ModelSlicer.ts"/>
 ///<reference path="../../api/data/MemoryKDataBase.ts"/>
-///<reference path="../../api/trace/TraceSequence.ts"/>
 ///<reference path="cloud/CloudDimension.ts"/>
 ///<reference path="cloud/CloudUniverse.ts"/>
 ///<reference path="cloud/CloudView.ts"/>
 ///<reference path="cloud/Node.ts"/>
-///<reference path="../../../../../java/util/Arrays.ts"/>
 
 class SliceTest {
 
