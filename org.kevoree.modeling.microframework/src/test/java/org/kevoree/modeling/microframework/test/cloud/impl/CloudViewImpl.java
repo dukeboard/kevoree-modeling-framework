@@ -40,11 +40,11 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
 
     @Override
     public Node createNode() {
-        return (Node) create(METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE);
+        return (Node) this.create(CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE);
     }
 
     @Override
     public Element createElement() {
-        return (Element) create(METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT);
+        return (Element) this.create(CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT);
     }
 }

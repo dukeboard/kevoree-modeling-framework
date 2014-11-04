@@ -6885,11 +6885,11 @@ module org {
 							  }
 							
 							  public createNode(): org.kevoree.modeling.microframework.test.cloud.Node {
-							    return <org.kevoree.modeling.microframework.test.cloud.Node>create(METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE);
+							    return <org.kevoree.modeling.microframework.test.cloud.Node>this.create(org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE);
 							  }
 							
 							  public createElement(): org.kevoree.modeling.microframework.test.cloud.Element {
-							    return <org.kevoree.modeling.microframework.test.cloud.Element>create(METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT);
+							    return <org.kevoree.modeling.microframework.test.cloud.Element>this.create(org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT);
 							  }
 							
 							}
@@ -6915,20 +6915,20 @@ module org {
 							  }
 							
 							  public getName(): string {
-							    return <string>get(METAATTRIBUTES.NAME);
+							    return <string>get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.NAME);
 							  }
 							
 							  public setName(name: string): org.kevoree.modeling.microframework.test.cloud.Element {
-							    set(METAATTRIBUTES.NAME, name);
+							    set(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.NAME, name);
 							    return this;
 							  }
 							
 							  public getValue(): number {
-							    return <number>get(METAATTRIBUTES.VALUE);
+							    return <number>get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE);
 							  }
 							
 							  public setValue(name: number): org.kevoree.modeling.microframework.test.cloud.Element {
-							    set(METAATTRIBUTES.VALUE, name);
+							    set(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE, name);
 							    return this;
 							  }
 							
@@ -6936,8 +6936,8 @@ module org {
 							
 							export class NodeImpl extends org.kevoree.modeling.api.abs.AbstractKObject<org.kevoree.modeling.microframework.test.cloud.Node, org.kevoree.modeling.microframework.test.cloud.CloudView> implements org.kevoree.modeling.microframework.test.cloud.Node {
 							
-							  constructor(factory: org.kevoree.modeling.microframework.test.cloud.CloudView, metaClass: org.kevoree.modeling.api.meta.MetaClass, kid: number, now: number, dimension: org.kevoree.modeling.api.KDimension<any,any,any>, timeTree: org.kevoree.modeling.api.time.TimeTree) {
-							    super(factory, metaClass, kid, now, dimension, timeTree);
+							  constructor(p_factory: org.kevoree.modeling.microframework.test.cloud.CloudView, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, p_uuid: number, p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any,any,any>, p_timeTree: org.kevoree.modeling.api.time.TimeTree) {
+							    super(p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree);
 							  }
 							
 							  public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
@@ -6956,38 +6956,38 @@ module org {
 							    return <string>get(METAATTRIBUTES.NAME);
 							  }
 							
-							  public setName(name: string): org.kevoree.modeling.microframework.test.cloud.Node {
-							    set(METAATTRIBUTES.NAME, name);
+							  public setName(p_name: string): org.kevoree.modeling.microframework.test.cloud.Node {
+							    set(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.NAME, p_name);
 							    return this;
 							  }
 							
 							  public getValue(): string {
-							    return <string>get(METAATTRIBUTES.VALUE);
+							    return <string>get(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.VALUE);
 							  }
 							
-							  public setValue(name: string): org.kevoree.modeling.microframework.test.cloud.Node {
-							    set(METAATTRIBUTES.VALUE, name);
+							  public setValue(p_value: string): org.kevoree.modeling.microframework.test.cloud.Node {
+							    set(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.VALUE, p_value);
 							    return this;
 							  }
 							
-							  public addChildren(obj: org.kevoree.modeling.microframework.test.cloud.Node): void {
-							    mutate(org.kevoree.modeling.api.KActionType.ADD, METAREFERENCES.CHILDREN, obj, true);
+							  public addChildren(p_obj: org.kevoree.modeling.microframework.test.cloud.Node): void {
+							    mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.CHILDREN, p_obj, true);
 							  }
 							
-							  public removeChildren(obj: org.kevoree.modeling.microframework.test.cloud.Node): void {
-							    mutate(org.kevoree.modeling.api.KActionType.REMOVE, METAREFERENCES.CHILDREN, obj, true);
+							  public removeChildren(p_obj: org.kevoree.modeling.microframework.test.cloud.Node): void {
+							    mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.CHILDREN, p_obj, true);
 							  }
 							
-							  public eachChildren(callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.microframework.test.cloud.Node>, end: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
-							    each(METAREFERENCES.CHILDREN, callback, end);
+							  public eachChildren(p_callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.microframework.test.cloud.Node>, p_end: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
+							    each(org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.CHILDREN, p_callback, p_end);
 							  }
 							
-							  public setElement(obj: org.kevoree.modeling.microframework.test.cloud.Element): void {
-							    mutate(org.kevoree.modeling.api.KActionType.SET, METAREFERENCES.ELEMENT, obj, true);
+							  public setElement(p_obj: org.kevoree.modeling.microframework.test.cloud.Element): void {
+							    mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.ELEMENT, p_obj, true);
 							  }
 							
-							  public getElement(callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.microframework.test.cloud.Element>): void {
-							    each(METAREFERENCES.ELEMENT, callback, null);
+							  public getElement(p_callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.microframework.test.cloud.Element>): void {
+							    each(org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.ELEMENT, p_callback, null);
 							  }
 							
 							  public trigger(param: string, callback: org.kevoree.modeling.api.Callback<string>): void {

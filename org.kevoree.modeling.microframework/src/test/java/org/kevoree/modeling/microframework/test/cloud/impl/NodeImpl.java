@@ -18,8 +18,8 @@ import org.kevoree.modeling.microframework.test.cloud.Node;
  */
 public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
-    public NodeImpl(CloudView factory, MetaClass metaClass, long kid, Long now, KDimension dimension, TimeTree timeTree) {
-        super(factory, metaClass, kid, now, dimension, timeTree);
+    public NodeImpl(CloudView p_factory, MetaClass p_metaClass, long p_uuid, Long p_now, KDimension p_dimension, TimeTree p_timeTree) {
+        super(p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree);
     }
 
     @Override
@@ -43,45 +43,48 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     }
 
     @Override
-    public Node setName(String name) {
-        set(METAATTRIBUTES.NAME, name);
+    public Node setName(String p_name) {
+        set(Node.METAATTRIBUTES.NAME, p_name);
         return this;
     }
 
     @Override
     public String getValue() {
-        return (String) get(METAATTRIBUTES.VALUE);
+        return (String) get(Node.METAATTRIBUTES.VALUE);
     }
 
     @Override
-    public Node setValue(String name) {
-        set(METAATTRIBUTES.VALUE, name);
+    public Node setValue(String p_value) {
+        set(Node.METAATTRIBUTES.VALUE, p_value);
         return this;
     }
 
     @Override
-    public void addChildren(Node obj) {
-        mutate(KActionType.ADD, METAREFERENCES.CHILDREN, obj, true);
+    public Node addChildren(Node p_obj) {
+        mutate(KActionType.ADD, Node.METAREFERENCES.CHILDREN, p_obj, true);
+        return this;
     }
 
     @Override
-    public void removeChildren(Node obj) {
-        mutate(KActionType.REMOVE, METAREFERENCES.CHILDREN, obj, true);
+    public Node removeChildren(Node p_obj) {
+        mutate(KActionType.REMOVE, Node.METAREFERENCES.CHILDREN, p_obj, true);
+        return this;
     }
 
     @Override
-    public void eachChildren(Callback<Node> callback, Callback<Throwable> end) {
-        each(METAREFERENCES.CHILDREN, callback, end);
+    public void eachChildren(Callback<Node> p_callback, Callback<Throwable> p_end) {
+        each(Node.METAREFERENCES.CHILDREN, p_callback, p_end);
     }
 
     @Override
-    public void setElement(Element obj) {
-        mutate(KActionType.SET, METAREFERENCES.ELEMENT, obj, true);
+    public Node setElement(Element p_obj) {
+        mutate(KActionType.SET, Node.METAREFERENCES.ELEMENT, p_obj, true);
+        return this;
     }
 
     @Override
-    public void getElement(Callback<Element> callback) {
-        each(METAREFERENCES.ELEMENT, callback, null);
+    public void getElement(Callback<Element> p_callback) {
+        each(Node.METAREFERENCES.ELEMENT, p_callback, null);
     }
 
     @Override
