@@ -3,7 +3,9 @@ package org.kevoree.modeling.api.trace;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.util.CallBackChain;
 import org.kevoree.modeling.api.util.Helper;
 

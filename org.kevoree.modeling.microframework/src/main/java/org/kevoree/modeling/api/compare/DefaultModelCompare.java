@@ -10,7 +10,11 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.trace.*;
+import org.kevoree.modeling.api.trace.ModelAddTrace;
+import org.kevoree.modeling.api.trace.ModelRemoveTrace;
+import org.kevoree.modeling.api.trace.ModelSetTrace;
+import org.kevoree.modeling.api.trace.ModelTrace;
+import org.kevoree.modeling.api.trace.TraceSequence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
