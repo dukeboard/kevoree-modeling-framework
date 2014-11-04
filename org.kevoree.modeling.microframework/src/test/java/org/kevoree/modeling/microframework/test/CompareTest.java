@@ -27,7 +27,7 @@ public class CompareTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                Assert.assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull(dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -84,7 +84,7 @@ public class CompareTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                Assert.assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull(dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);
@@ -132,7 +132,7 @@ public class CompareTest {
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-                Assert.assertNotNull("Dimension should be created", dimension0);
+                Assert.assertNotNull(dimension0);
 
                 // create time0
                 final CloudView t0 = dimension0.time(0l);

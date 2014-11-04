@@ -15,7 +15,7 @@ class CompareTest {
   public diffTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
     var node0_0: Node = t0.createNode();
     node0_0.setName("node0_0");
@@ -41,7 +41,7 @@ class CompareTest {
   public intersectionTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
     var node0_0: Node = t0.createNode();
     node0_0.setName("node0_0");
@@ -65,7 +65,7 @@ class CompareTest {
   public unionTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
     var node0_0: Node = t0.createNode();
     node0_0.setName("node0_0");

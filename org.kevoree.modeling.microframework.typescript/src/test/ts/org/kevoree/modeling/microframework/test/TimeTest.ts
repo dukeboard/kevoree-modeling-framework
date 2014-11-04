@@ -14,20 +14,20 @@ class TimeTest {
   public timeCreationTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
-    Assert.assertNotNull("Time0 should be created", t0);
-    Assert.assertEquals("Time0 should be created with time 0", t0.now(), 0l);
+    Assert.assertNotNull(t0);
+    Assert.assertEquals(t0.now(), 0l);
     var t1: CloudView = dimension0.time(1l);
-    Assert.assertNotNull("Time1 should be created", t1);
-    Assert.assertEquals("Time1 should be created with time 0", t1.now(), 1l);
+    Assert.assertNotNull(t1);
+    Assert.assertEquals(t1.now(), 1l);
 }});
   }
 
   public simpleTimeNavigationTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
     var node0: Node = t0.createNode();
     var element0: Element = t0.createElement();
@@ -48,7 +48,7 @@ class TimeTest {
   public distortedTimeNavigationTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
     var node0: Node = t0.createNode();
     node0.getElement({on:function(element: Element){
@@ -80,7 +80,7 @@ class TimeTest {
   public objectModificationTest(): void {
     var universe: CloudUniverse = new CloudUniverse(new MemoryKDataBase());
     universe.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
     var node0: Node = t0.createNode();
     node0.setName("node at 0");

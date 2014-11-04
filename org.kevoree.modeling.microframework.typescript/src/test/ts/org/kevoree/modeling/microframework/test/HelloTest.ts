@@ -23,10 +23,10 @@ class HelloTest {
     System.err.println(evt);
 }});
     univers.newDimension({on:function(dimension0: CloudDimension){
-    Assert.assertNotNull("Dimension should be created", dimension0);
+    Assert.assertNotNull(dimension0);
     var t0: CloudView = dimension0.time(0l);
-    Assert.assertNotNull("Time0 should be created", t0);
-    Assert.assertEquals("Time0 should be created with time 0", t0.now(), 0l);
+    Assert.assertNotNull(t0);
+    Assert.assertEquals(t0.now(), 0l);
     var nodeT0: Node = t0.createNode();
     Assert.assertNotNull(nodeT0);
     Assert.assertNotNull(nodeT0.uuid());
