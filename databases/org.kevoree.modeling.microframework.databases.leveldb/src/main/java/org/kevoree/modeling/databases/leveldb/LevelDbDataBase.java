@@ -40,7 +40,7 @@ public class LevelDbDataBase implements KDataBase {
     @Override
     public void put(String[][] payloads, Callback<Throwable> error) {
         for (int i = 0; i < payloads.length; i++) {
-            db.put(JniDBFactory.bytes(payloads[i][0]), JniDBFactory.bytes(payloads[i][0]));
+            db.put(JniDBFactory.bytes(payloads[i][0]), JniDBFactory.bytes(payloads[i][1]));
         }
         error.on(null);
     }
