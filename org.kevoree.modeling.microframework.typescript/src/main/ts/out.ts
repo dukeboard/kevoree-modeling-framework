@@ -1,6 +1,6 @@
 class System {
     static out = {
-        println(obj:any) {
+        println(obj?:any) {
             console.log(obj);
         },
         print(obj:any) {
@@ -9,7 +9,7 @@ class System {
     };
     
     static err = {
-        println(obj:any) {
+        println(obj?:any) {
             console.log(obj);
         },
         print(obj:any) {
@@ -158,6 +158,12 @@ module java {
 
     export module util {
 
+        export class Random {
+            public nextInt(max:number):number{
+                return Math.random() * max;
+            }
+        }
+
         export class Arrays {
             static fill(data:Number[], begin:number, nbElem:number, param:number):void {
                 var max = begin + nbElem;
@@ -230,8 +236,8 @@ module java {
                 this.internalArray = [];
             }
 
-            public poll(){
-                return this.internalArray.pop;
+            public poll():T{
+                return this.internalArray.pop();
             }
 
             remove(val:T) {

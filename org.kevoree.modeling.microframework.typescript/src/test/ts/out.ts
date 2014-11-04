@@ -1,6 +1,6 @@
 class System {
     static out = {
-        println(obj:any) {
+        println(obj?:any) {
             console.log(obj);
         },
         print(obj:any) {
@@ -9,7 +9,7 @@ class System {
     };
     
     static err = {
-        println(obj:any) {
+        println(obj?:any) {
             console.log(obj);
         },
         print(obj:any) {
@@ -158,6 +158,12 @@ module java {
 
     export module util {
 
+        export class Random {
+            public nextInt(max:number):number{
+                return Math.random() * max;
+            }
+        }
+
         export class Arrays {
             static fill(data:Number[], begin:number, nbElem:number, param:number):void {
                 var max = begin + nbElem;
@@ -230,8 +236,8 @@ module java {
                 this.internalArray = [];
             }
 
-            public poll(){
-                return this.internalArray.pop;
+            public poll():T{
+                return this.internalArray.pop();
             }
 
             remove(val:T) {
@@ -7506,211 +7512,6 @@ module org {
 						    System.out.println(element.timeTree().size());
 						}});
 						  }
-						
-						}
-						
-						export class PolynomialModel {
-						
-						  private degradeFactor: number = 0;
-						  private toleratedError: number = 0;
-						  private maxDegree: number = 0;
-						  private prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization = org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES;
-						  private polynomTree: java.util.TreeMap<number, org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation> = new java.util.TreeMap<number, org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation>();
-						  private defaultPolynomialExtrapolation: org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation = null;
-						  private fast: org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation = null;
-						  private timeE: number = 0;
-						
-						  constructor(degradeFactor: number, toleratedError: number, maxDegree: number) {
-						    if (degradeFactor == 0) {
-						      degradeFactor = 1;
-						    }
-						    this.degradeFactor = degradeFactor;
-						    this.toleratedError = toleratedError;
-						    this.maxDegree = maxDegree;
-						  }
-						
-						  public feed(time: number, value: number): void {
-						    if (this.defaultPolynomialExtrapolation == null) {
-						      this.defaultPolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation(time, this.toleratedError, this.maxDegree, this.degradeFactor, this.prioritization);
-						      this.defaultPolynomialExtrapolation.insert(time, value);
-						      return;
-						    }
-						    if (this.defaultPolynomialExtrapolation.insert(time, value)) {
-						      return;
-						    }
-						    var prev: org.kevoree.modeling.api.polynomial.util.DataSample = this.defaultPolynomialExtrapolation.getSamples().get(this.defaultPolynomialExtrapolation.getSamples().size() - 1);
-						    var newPrev: org.kevoree.modeling.api.polynomial.util.DataSample = new org.kevoree.modeling.api.polynomial.util.DataSample(prev.time, this.defaultPolynomialExtrapolation.extrapolate(prev.time));
-						    this.polynomTree.put(this.defaultPolynomialExtrapolation.getTimeOrigin(), this.defaultPolynomialExtrapolation);
-						    this.defaultPolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation(newPrev.time, this.toleratedError, this.maxDegree, this.degradeFactor, this.prioritization);
-						    this.defaultPolynomialExtrapolation.insert(newPrev.time, newPrev.value);
-						    this.defaultPolynomialExtrapolation.insert(time, value);
-						  }
-						
-						  public finalSave(): void {
-						    if (this.defaultPolynomialExtrapolation != null) {
-						      this.polynomTree.put(this.defaultPolynomialExtrapolation.getTimeOrigin(), this.defaultPolynomialExtrapolation);
-						    }
-						  }
-						
-						  public reconstruct(time: number): number {
-						    var timeO: number = this.polynomTree.floorKey(time);
-						    var p: org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation = this.polynomTree.get(timeO);
-						    return p.extrapolate(time);
-						  }
-						
-						  public fastReconstruct(time: number): number {
-						    if (this.fast != null) {
-						      if (time < this.timeE || this.timeE == -1) {
-						        return this.fast.extrapolate(time);
-						      }
-						    }
-						    var timeO: number = this.polynomTree.floorKey(time);
-						    this.fast = this.polynomTree.get(timeO);
-						    try {
-						      this.timeE = this.polynomTree.ceilingKey(time);
-						    } catch ($ex$) {
-						      if ($ex$ instanceof java.lang.Exception) {
-						        var ex: java.lang.Exception = <java.lang.Exception>$ex$;
-						        this.timeE = -1;
-						      }
-						     }
-						    return this.fast.extrapolate(time);
-						  }
-						
-						  public displayStatistics(display: boolean): StatClass {
-						    var global: StatClass = new StatClass();
-						    var temp: StatClass = new StatClass();
-						    var debug: java.util.ArrayList<StatClass> = new java.util.ArrayList<StatClass>();
-						    var pol: number = 0;
-						    //TODO resolve for-each cycle
-						    var t: number;
-						    for (t in this.polynomTree.keySet()) {
-						      pol++;
-						      temp = this.calculateError(this.polynomTree.get(t));
-						      debug.add(temp);
-						      if (temp.maxErr > global.maxErr) {
-						        global.maxErr = temp.maxErr;
-						        global.time = temp.time;
-						        global.value = temp.value;
-						        global.calculatedValue = temp.calculatedValue;
-						      }
-						      global.avgError += temp.avgError * temp.samples;
-						      global.samples += temp.samples;
-						      global.degree += temp.degree;
-						    }
-						    global.avgError = global.avgError / global.samples;
-						    global.polynoms = pol;
-						    global.storage = (global.degree + pol);
-						    global.avgDegree = (<number>global.degree) / pol;
-						    global.timeCompression = (1 - (<number>pol) / global.samples) * 100;
-						    global.diskCompression = (1 - (<number>global.degree + 2 * pol) / (global.samples * 2)) * 100;
-						    if (display) {
-						      System.out.println("Total number of samples: " + global.samples);
-						      System.out.println("Total number of Polynoms: " + global.polynoms);
-						      System.out.println("Total doubles in polynoms: " + global.storage);
-						      System.out.println("Average degrees in polynoms: " + global.avgDegree);
-						      System.out.println("Time points compression: " + global.timeCompression + " %");
-						      System.out.println("Disk compression: " + global.diskCompression + " %");
-						      System.out.println("Maximum error: " + global.maxErr + " at time: " + global.time + " original value was: " + global.value + " calculated value: " + global.calculatedValue);
-						      System.out.println("Average error: " + global.avgError);
-						    }
-						    return global;
-						  }
-						
-						  public calculateError(pol: org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation): StatClass {
-						    var ec: StatClass = new StatClass();
-						    var temp: number = 0;
-						    var err: number = 0;
-						    var ds: org.kevoree.modeling.api.polynomial.util.DataSample;
-						    ec.degree = pol.getDegree();
-						    ec.samples = pol.getSamples().size();
-						    for (var i: number = 0; i < pol.getSamples().size(); i++) {
-						      ds = pol.getSamples().get(i);
-						      temp = pol.extrapolate(ds.time);
-						      err = Math.abs(temp - ds.value);
-						      ec.avgError += err;
-						      if (err > ec.maxErr) {
-						        ec.time = ds.time;
-						        ec.value = ds.value;
-						        ec.calculatedValue = temp;
-						        ec.maxErr = err;
-						      }
-						    }
-						    ec.avgError = ec.avgError / pol.getSamples().size();
-						    return ec;
-						  }
-						
-						}
-						
-						export class PolynomialTest {
-						
-						  public test(): void {
-						    var testVal: java.util.TreeMap<number, number> = new java.util.TreeMap<number, number>();
-						    var rand: java.util.Random = new java.util.Random();
-						    var degradeFactor: number = 10;
-						    var toleratedError: number = 0.001;
-						    var maxDegree: number = 20;
-						    var starttime: number;
-						    var endtime: number;
-						    var res: number;
-						    var pm: PolynomialModel = new PolynomialModel(degradeFactor, toleratedError, maxDegree);
-						    var l: number;
-						    var d: number;
-						    var initTimeStamp: number = 0;
-						    var finalTimeStamp: number = 10000000;
-						    for (var i: number = initTimeStamp; i < finalTimeStamp; i += degradeFactor) {
-						      l = new number(i);
-						      d = new number(rand.nextDouble());
-						      testVal.put(l, d);
-						      pm.feed(l, d);
-						    }
-						    pm.finalSave();
-						    starttime = System.nanoTime();
-						    var sc: StatClass = pm.displayStatistics(true);
-						    endtime = System.nanoTime();
-						    res = (<number>(endtime - starttime)) / (1000000);
-						    System.out.println("Statistic calculated in: " + res + " ms!");
-						    System.out.println("Max error respected: " + String.valueOf(sc.maxErr < toleratedError));
-						    org.junit.Assert.assertTrue(sc.maxErr < toleratedError);
-						    starttime = System.nanoTime();
-						    for (var i: number = initTimeStamp; i < finalTimeStamp; i++) {
-						      pm.reconstruct(i);
-						    }
-						    endtime = System.nanoTime();
-						    res = (<number>(endtime - starttime)) / (1000000);
-						    System.out.println("Polynomial chain reconstructed in: " + res + " ms!");
-						    starttime = System.nanoTime();
-						    for (var i: number = initTimeStamp; i < finalTimeStamp; i++) {
-						      pm.fastReconstruct(i);
-						    }
-						    endtime = System.nanoTime();
-						    res = (<number>(endtime - starttime)) / (1000000);
-						    System.out.println("Polynomial fast reconstructed in: " + res + " ms!");
-						    starttime = System.nanoTime();
-						    for (var i: number = initTimeStamp; i < finalTimeStamp; i++) {
-						      testVal.get(testVal.floorKey(i));
-						    }
-						    endtime = System.nanoTime();
-						    res = (<number>(endtime - starttime)) / (1000000);
-						    System.out.println("normal chain in: " + res + " ms!");
-						  }
-						
-						}
-						
-						export class StatClass {
-						
-						  public maxErr: number = 0;
-						  public avgError: number = 0;
-						  public time: number = null;
-						  public value: number = 0;
-						  public calculatedValue: number = 0;
-						  public samples: number = 0;
-						  public degree: number = 0;
-						  public polynoms: number = 0;
-						  public storage: number = 0;
-						  public avgDegree: number = 0;
-						  public diskCompression: number = 0;
-						  public timeCompression: number = 0;
 						
 						}
 					}
