@@ -44,47 +44,47 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public Node setName(String p_name) {
-        set(Node.METAATTRIBUTES.NAME, p_name);
+        this.set(Node.METAATTRIBUTES.NAME, p_name);
         return this;
     }
 
     @Override
     public String getValue() {
-        return (String) get(Node.METAATTRIBUTES.VALUE);
+        return (String) this.get(Node.METAATTRIBUTES.VALUE);
     }
 
     @Override
     public Node setValue(String p_value) {
-        set(Node.METAATTRIBUTES.VALUE, p_value);
+        this.set(Node.METAATTRIBUTES.VALUE, p_value);
         return this;
     }
 
     @Override
     public Node addChildren(Node p_obj) {
-        mutate(KActionType.ADD, Node.METAREFERENCES.CHILDREN, p_obj, true);
+        this.mutate(KActionType.ADD, Node.METAREFERENCES.CHILDREN, p_obj, true);
         return this;
     }
 
     @Override
     public Node removeChildren(Node p_obj) {
-        mutate(KActionType.REMOVE, Node.METAREFERENCES.CHILDREN, p_obj, true);
+        this.mutate(KActionType.REMOVE, Node.METAREFERENCES.CHILDREN, p_obj, true);
         return this;
     }
 
     @Override
     public void eachChildren(Callback<Node> p_callback, Callback<Throwable> p_end) {
-        each(Node.METAREFERENCES.CHILDREN, p_callback, p_end);
+        this.each(Node.METAREFERENCES.CHILDREN, p_callback, p_end);
     }
 
     @Override
     public Node setElement(Element p_obj) {
-        mutate(KActionType.SET, Node.METAREFERENCES.ELEMENT, p_obj, true);
+        this.mutate(KActionType.SET, Node.METAREFERENCES.ELEMENT, p_obj, true);
         return this;
     }
 
     @Override
     public void getElement(Callback<Element> p_callback) {
-        each(Node.METAREFERENCES.ELEMENT, p_callback, null);
+        this.each(Node.METAREFERENCES.ELEMENT, p_callback, null);
     }
 
     @Override
