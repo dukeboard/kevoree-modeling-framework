@@ -13,23 +13,23 @@ public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject
 #foreach($attribute in $classDeclaration.attributes)
 #if($attribute.single)
     public $attribute.getType() get${context.generationContext.helper.toCamelCase($attribute.getName())}();
-    public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
+    public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() p_obj);
 #{else}
-    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
-    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() _value);
-    public void each${context.generationContext.helper.toCamelCase($attribute.getName())}(org.kevoree.modeling.api.Callback<$attribute.getType()> callback, org.kevoree.modeling.api.Callback<Throwable> end);
+    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() p_obj);
+    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($attribute.getName())}($attribute.getType() p_obj);
+    public void each${context.generationContext.helper.toCamelCase($attribute.getName())}(org.kevoree.modeling.api.Callback<$attribute.getType()> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end);
 #end
 #end
 
 
 #foreach($rel in $classDeclaration.references)
 #if($rel.single)
-    public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
-    public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> _value);
+    public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
+    public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> p_obj);
 #{else}
-    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
-    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
-    public void each${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> callback, org.kevoree.modeling.api.Callback<Throwable> end);
+    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
+    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn p_obj);
+    public void each${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end);
     public int sizeOf${context.generationContext.helper.toCamelCase($rel.getName())}();
 #end
 #end
