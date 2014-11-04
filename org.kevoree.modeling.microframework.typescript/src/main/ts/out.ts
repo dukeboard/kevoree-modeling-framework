@@ -1579,6 +1579,13 @@ module org {
 					  public equals(other: any): boolean {
 					        return this == other;
 					    }
+					  public static _AccessModeVALUES : AccessMode[] = [
+					  AccessMode.READ,
+					AccessMode.WRITE  ];
+					
+					public static values():AccessMode[] {
+					   return AccessMode._AccessModeVALUES;
+					}
 					
 					}
 					export module cache {
@@ -2298,6 +2305,14 @@ module org {
 				  public equals(other: any): boolean {
 				        return this == other;
 				    }
+				  public static _ExtrapolationsVALUES : Extrapolations[] = [
+				  Extrapolations.DISCRETE,
+				Extrapolations.LINEAR_REGRESSION,
+				Extrapolations.POLYNOMIAL  ];
+				
+				public static values():Extrapolations[] {
+				   return Extrapolations._ExtrapolationsVALUES;
+				}
 				
 				}
 				
@@ -2968,6 +2983,19 @@ module org {
 					  public equals(other: any): boolean {
 					        return this == other;
 					    }
+					  public static _TypeVALUES : Type[] = [
+					  Type.VALUE,
+					Type.LEFT_BRACE,
+					Type.RIGHT_BRACE,
+					Type.LEFT_BRACKET,
+					Type.RIGHT_BRACKET,
+					Type.COMMA,
+					Type.COLON,
+					Type.EOF  ];
+					
+					public static values():Type[] {
+					   return Type._TypeVALUES;
+					}
 					
 					}
 				}
@@ -2991,6 +3019,15 @@ module org {
 				  public equals(other: any): boolean {
 				        return this == other;
 				    }
+				  public static _KActionTypeVALUES : KActionType[] = [
+				  KActionType.SET,
+				KActionType.ADD,
+				KActionType.REMOVE,
+				KActionType.NEW  ];
+				
+				public static values():KActionType[] {
+				   return KActionType._KActionTypeVALUES;
+				}
 				
 				}
 				
@@ -3237,6 +3274,18 @@ module org {
 					  public equals(other: any): boolean {
 					        return this == other;
 					    }
+					  public static _MetaTypeVALUES : MetaType[] = [
+					  MetaType.STRING,
+					MetaType.LONG,
+					MetaType.INT,
+					MetaType.BOOL,
+					MetaType.SHORT,
+					MetaType.DOUBLE,
+					MetaType.FLOAT  ];
+					
+					public static values():MetaType[] {
+					   return MetaType._MetaTypeVALUES;
+					}
 					
 					}
 				}
@@ -3780,6 +3829,14 @@ module org {
 						  public equals(other: any): boolean {
 						        return this == other;
 						    }
+						  public static _PrioritizationVALUES : Prioritization[] = [
+						  Prioritization.SAMEPRIORITY,
+						Prioritization.HIGHDEGREES,
+						Prioritization.LOWDEGREES  ];
+						
+						public static values():Prioritization[] {
+						   return Prioritization._PrioritizationVALUES;
+						}
 						
 						}
 						
@@ -4550,6 +4607,13 @@ module org {
 						  public equals(other: any): boolean {
 						        return this == other;
 						    }
+						  public static _ColorVALUES : Color[] = [
+						  Color.RED,
+						Color.BLACK  ];
+						
+						public static values():Color[] {
+						   return Color._ColorVALUES;
+						}
 						
 						}
 						
@@ -5150,6 +5214,13 @@ module org {
 						  public equals(other: any): boolean {
 						        return this == other;
 						    }
+						  public static _StateVALUES : State[] = [
+						  State.EXISTS,
+						State.DELETED  ];
+						
+						public static values():State[] {
+						   return State._StateVALUES;
+						}
 						
 						}
 						
@@ -5745,6 +5816,23 @@ module org {
 					  public equals(other: any): boolean {
 					        return this == other;
 					    }
+					  public static _ModelTraceConstantsVALUES : ModelTraceConstants[] = [
+					  ModelTraceConstants.traceType,
+					ModelTraceConstants.src,
+					ModelTraceConstants.meta,
+					ModelTraceConstants.previouspath,
+					ModelTraceConstants.typename,
+					ModelTraceConstants.objpath,
+					ModelTraceConstants.content,
+					ModelTraceConstants.openJSON,
+					ModelTraceConstants.closeJSON,
+					ModelTraceConstants.bb,
+					ModelTraceConstants.coma,
+					ModelTraceConstants.dp  ];
+					
+					public static values():ModelTraceConstants[] {
+					   return ModelTraceConstants._ModelTraceConstantsVALUES;
+					}
 					
 					}
 					
@@ -5947,6 +6035,14 @@ module org {
 				  public equals(other: any): boolean {
 				        return this == other;
 				    }
+				  public static _TraceRequestVALUES : TraceRequest[] = [
+				  TraceRequest.ATTRIBUTES_ONLY,
+				TraceRequest.REFERENCES_ONLY,
+				TraceRequest.ATTRIBUTES_REFERENCES  ];
+				
+				public static values():TraceRequest[] {
+				   return TraceRequest._TraceRequestVALUES;
+				}
 				
 				}
 				export module util {
@@ -6036,6 +6132,14 @@ module org {
 				  public equals(other: any): boolean {
 				        return this == other;
 				    }
+				  public static _VisitResultVALUES : VisitResult[] = [
+				  VisitResult.CONTINUE,
+				VisitResult.SKIP,
+				VisitResult.STOP  ];
+				
+				public static values():VisitResult[] {
+				   return VisitResult._VisitResultVALUES;
+				}
 				
 				}
 				export module xmi {
@@ -6716,6 +6820,17 @@ module org {
 					  public equals(other: any): boolean {
 					        return this == other;
 					    }
+					  public static _XmlTokenVALUES : XmlToken[] = [
+					  XmlToken.XML_HEADER,
+					XmlToken.END_DOCUMENT,
+					XmlToken.START_TAG,
+					XmlToken.END_TAG,
+					XmlToken.COMMENT,
+					XmlToken.SINGLETON_TAG  ];
+					
+					public static values():XmlToken[] {
+					   return XmlToken._XmlTokenVALUES;
+					}
 					
 					}
 				}

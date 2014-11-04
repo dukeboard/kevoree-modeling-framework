@@ -6,11 +6,13 @@
 </head>
 <body>
 
-<script src="org.kevoree.modeling.microframework.typescript.js"></script>
+<script src="../ts/out.js"></script>
 <script>
-console.log("SayHello");
-var obj = new AbstractKObject();
-console.log(obj);
+var universe = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
+
+
+    var helloTest = new org.kevoree.modeling.microframework.test.HelloTest();
+    helloTest.helloTest();
 
 </script>
 
