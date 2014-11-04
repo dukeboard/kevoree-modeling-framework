@@ -30,22 +30,41 @@ public class LevelDbDataBase implements KDataBase {
 
     @Override
     public void get(String[] keys, ThrowableCallback<String[]> callback) {
-
+        String[] result = new String[keys.length];
+        for (int i = 0; i < keys.length; i++) {
+            result[i] = JniDBFactory.asString(db.get(JniDBFactory.bytes(keys[i])));
+        }
+        callback.on(result, null);
     }
 
     @Override
     public void put(String[][] payloads, Callback<Throwable> error) {
-
+        for (int i = 0; i < payloads.length; i++) {
+            db.put(JniDBFactory.bytes(payloads[i][0]), JniDBFactory.bytes(payloads[i][0]));
+        }
+        error.on(null);
     }
 
     @Override
     public void remove(String[] keys, Callback<Throwable> error) {
-
+        try {
+            for (int i = 0; i < keys.length; i++) {
+                db.delete(JniDBFactory.bytes(keys[i]));
+            }
+            error.on(null);
+        } catch (Exception e) {
+            error.on(e);
+        }
     }
 
     @Override
     public void commit(Callback<Throwable> error) {
-
+        try {
+            db.write(db.createWriteBatch());
+            error.on(null);
+        } catch (Exception e) {
+            error.on(e);
+        }
     }
 
     @Override
