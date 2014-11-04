@@ -9,7 +9,6 @@ import org.kevoree.modeling.api.ModelListener;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by duke on 10/10/14.
