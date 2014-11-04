@@ -24,11 +24,11 @@ public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject
 
 #foreach($rel in $classDeclaration.references)
 #if($rel.single)
-    public void set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
+    public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
     public void get${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> _value);
 #{else}
-    public void add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
-    public void remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
+    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
+    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase($rel.getName())}($rel.getType().fqn _value);
     public void each${context.generationContext.helper.toCamelCase($rel.getName())}(org.kevoree.modeling.api.Callback<$rel.getType().fqn> callback, org.kevoree.modeling.api.Callback<Throwable> end);
     public int sizeOf${context.generationContext.helper.toCamelCase($rel.getName())}();
 #end

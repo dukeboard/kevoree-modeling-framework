@@ -12,21 +12,21 @@ public interface ${context.metaModelName}View extends org.kevoree.modeling.api.K
 #end
 #set($classIdx = $classIdx + 1)
 #end
-        private String name;
+        private String _name;
 
-        private int index;
+        private int _index;
 
         public int index() {
-            return index;
+            return _index;
         }
 
         public String metaName() {
-            return name;
+            return _name;
         }
 
         METACLASSES(String name, int index) {
-            this.name = name;
-            this.index = index;
+            this._name = name;
+            this._index = index;
         }
 
     }

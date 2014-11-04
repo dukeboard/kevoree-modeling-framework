@@ -93,13 +93,13 @@ public class SaveXMITest {
                                 if(error!=null) {
                                     error.printStackTrace();
                                 } else {
-                                    loadView.select("/", new Callback<List<KObject>>() {
+                                    loadView.select("/", new Callback<KObject[]>() {
                                         @Override
-                                        public void on(List<KObject> kObjects) {
-                                            System.out.println("Roots:" + kObjects.size());
-                                            if(kObjects.size() == 1) {
+                                        public void on(KObject[] kObjects) {
+                                            System.out.println("Roots:" + kObjects.length);
+                                            if(kObjects.length == 1) {
 
-                                                KObject kObject = kObjects.get(0);
+                                                KObject kObject = kObjects[0];
                                                 kObject.treeVisit(new ModelVisitor() {
                                                     @Override
                                                     public VisitResult visit(KObject elem) {

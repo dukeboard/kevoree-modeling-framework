@@ -6,7 +6,7 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
 #set($attIdx = 0)
 #set($attIdxMax = $classDeclaration.attributes.size() - 1)
 #foreach($attribute in $classDeclaration.attributes)
-    ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, 0, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.ExtrapolationStrategies.DISCRETE.strategy())#if($attIdx < $attIdxMax),
+    ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, 0, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy())#if($attIdx < $attIdxMax),
 #{else};
 #end
 #set($enumIdx = $enumIdx + 1)

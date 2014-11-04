@@ -37,13 +37,15 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
     #{else}
     @Override
-    public void add${context.generationContext.helper.toCamelCase(${attribute.getName()})}(${attribute.getType()} _value) {
+    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase(${attribute.getName()})}(${attribute.getType()} _value) {
         mutate(org.kevoree.modeling.api.KActionType.ADD, METAATTRIBUTES.${attribute.getName().toUpperCase()}, _value, true, true, null);
+        return this;
     }
 
     @Override
-    public void remove${context.generationContext.helper.toCamelCase(${attribute.getName()})}(${attribute.getType()} _value) {
+    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase(${attribute.getName()})}(${attribute.getType()} _value) {
         mutate(org.kevoree.modeling.api.KActionType.REMOVE, METAATTRIBUTES.${attribute.getName().toUpperCase()}, _value, true, true, null);
+        return this;
     }
 
     @Override
@@ -57,8 +59,9 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 #foreach($ref in $classDeclaration.references)
     #if($ref.single)
     @Override
-    public void set${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} _value) {
+    public ${classDeclaration.pack}.${classDeclaration.name} set${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} _value) {
         mutate(org.kevoree.modeling.api.KActionType.SET, METAREFERENCES.${ref.getName().toUpperCase()}, _value, true);
+        return this;
     }
 
     @Override
@@ -67,13 +70,15 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
     #{else}
     @Override
-    public void add${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} obj) {
+    public ${classDeclaration.pack}.${classDeclaration.name} add${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} obj) {
         mutate(org.kevoree.modeling.api.KActionType.ADD, METAREFERENCES.${ref.getName().toUpperCase()}, obj, true);
+        return this;
     }
 
     @Override
-    public void remove${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} obj) {
+    public ${classDeclaration.pack}.${classDeclaration.name} remove${context.generationContext.helper.toCamelCase(${ref.getName()})}(${ref.getType().fqn} obj) {
         mutate(org.kevoree.modeling.api.KActionType.REMOVE, METAREFERENCES.${ref.getName().toUpperCase()}, obj, true);
+        return this;
     }
 
     @Override

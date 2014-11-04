@@ -7,6 +7,7 @@ import kmf.opposite.test.OppositeUniverse;
 import kmf.opposite.test.OppositeView;
 import kmf.opposite.test.A;
 import kmf.opposite.test.B;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
@@ -20,9 +21,22 @@ import static org.junit.Assert.assertNull;
 
 public class OppositeTest {
 
-    private static OppositeUniverse universe = new OppositeUniverse(new MemoryKDataBase());
-    private static OppositeDimension localDimension = universe.create();
-    private static OppositeView factory = localDimension.time(0l);
+    private static OppositeUniverse universe;
+    private static OppositeDimension localDimension;
+    private static OppositeView factory;
+
+    @BeforeClass
+    public static void setUp() {
+        universe = new OppositeUniverse(new MemoryKDataBase());
+        universe.newDimension(new Callback<OppositeDimension>() {
+            @Override
+            public void on(OppositeDimension localDimension) {
+                factory = localDimension.time(0l);
+
+            }
+        });
+    }
+
 
 
     @Test
