@@ -42,7 +42,7 @@ public class CompareTest {
                 node0_1.setValue("0_1");
 
                 // test diff
-                t0.createModelCompare().diff(node0_0, node0_1, new Callback<TraceSequence>() {
+                t0.diff(node0_0, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
                         Assert.assertNotEquals(traceSequence.traces().length, 0);
@@ -52,7 +52,7 @@ public class CompareTest {
                 });
 
                 // model trace applicator
-                t0.createModelCompare().diff(node0_0, node0_1, new Callback<TraceSequence>() {
+                t0.diff(node0_0, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
                         new ModelTraceApplicator(node0_0).applyTraceSequence(traceSequence, new Callback<Throwable>() {
@@ -60,7 +60,7 @@ public class CompareTest {
                             public void on(Throwable throwable) {
                                 Assert.assertNull(throwable);
                                 // compare new node0_0 with node0_1
-                                t0.createModelCompare().diff(node0_0, node0_1, new Callback<TraceSequence>() {
+                                t0.diff(node0_0, node0_1, new Callback<TraceSequence>() {
                                     @Override
                                     public void on(TraceSequence traceSequence) {
                                         Assert.assertEquals(traceSequence.traces().length, 0);
@@ -99,7 +99,7 @@ public class CompareTest {
                 node0_1.setValue("0_1");
 
                 // test intersection
-                t0.createModelCompare().intersection(node0_0, node0_1, new Callback<TraceSequence>() {
+                t0.intersection(node0_0, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
                         Assert.assertEquals(traceSequence.traces().length, 0);
@@ -111,7 +111,7 @@ public class CompareTest {
                 node0_2.setName("node0_2");
                 node0_2.setValue("0_1");
 
-                t0.createModelCompare().intersection(node0_2, node0_1, new Callback<TraceSequence>() {
+                t0.intersection(node0_2, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
                         Assert.assertEquals(traceSequence.traces().length, 1);
@@ -150,7 +150,7 @@ public class CompareTest {
                 node0_1.setValue("0_1");
 
                 // test union
-                t0.createModelCompare().union(node0_0, node0_1, new Callback<TraceSequence>() {
+                t0.merge(node0_0, node0_1, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
                         Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"}", traceSequence.traces()[0].toString()); // merge behaviour

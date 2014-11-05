@@ -39,7 +39,7 @@ public class Serializer {
                 t0.lookup(nodeT0.uuid(), new Callback<KObject>() {
                     @Override
                     public void on(KObject root) {
-                        t0.createXMISerializer().serialize(root, new ThrowableCallback<String>() {
+                        t0.xmi().save(root, new ThrowableCallback<String>() {
                             @Override
                             public void on(String result, Throwable error) {
                                 if (error != null) {

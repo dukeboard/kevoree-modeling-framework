@@ -4,7 +4,6 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ThrowableCallback;
@@ -14,8 +13,8 @@ import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
-import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
-import org.kevoree.modeling.api.json.JSONModelLoader;
+import org.kevoree.modeling.api.extrapolation.Extrapolation;
+import org.kevoree.modeling.api.json.JsonModelLoader;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
@@ -41,10 +40,10 @@ public class DefaultKStore implements KStore {
 
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
 
-    //TODO load and save from DB
+    //TODO loadDirect and save from DB
     long dimKeyCounter = 0;
 
-    //TODO load and save from DB
+    //TODO loadDirect and save from DB
     long objectKey = 0;
 
     public DefaultKStore(KDataBase p_db) {
@@ -410,18 +409,18 @@ public class DefaultKStore implements KStore {
                             final List<Object[]> additionalLoad = new ArrayList<Object[]>();
                             final List<KObject> objs = new ArrayList<KObject>();
                             for (int i = 0; i < objectPayloads.length; i++) {
-                                KObject obj = JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+                                KObject obj = JsonModelLoader.loadDirect(objectPayloads[i], originView.dimension().time(resolved[i]), null);
                                 //Put in cache
                                 objs.add(obj);
                                 //additional from strategy
-                                Set<ExtrapolationStrategy> strategies = new HashSet<ExtrapolationStrategy>();
+                                Set<Extrapolation> strategies = new HashSet<Extrapolation>();
                                 for (int h = 0; h < obj.metaAttributes().length; h++) {
                                     MetaAttribute metaAttribute = obj.metaAttributes()[h];
                                     strategies.add(metaAttribute.strategy());
                                 }
-                                ExtrapolationStrategy[] strategiesArr = strategies.toArray(new ExtrapolationStrategy[strategies.size()]);
+                                Extrapolation[] strategiesArr = strategies.toArray(new Extrapolation[strategies.size()]);
                                 for (int k = 0; k < strategiesArr.length; k++) {
-                                    ExtrapolationStrategy strategy = strategiesArr[k];
+                                    Extrapolation strategy = strategiesArr[k];
                                     Long[] additionalTimes = strategy.timedDependencies(obj);
                                     for (int j = 0; j < additionalTimes.length; j++) {
                                         if (additionalTimes[j] != obj.now()) {
@@ -445,7 +444,7 @@ public class DefaultKStore implements KStore {
                                     @Override
                                     public void on(String[] additionalPayloads, Throwable error) {
                                         for (int i = 0; i < objectPayloads.length; i++) {
-                                            JSONModelLoader.load(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
+                                            JsonModelLoader.loadDirect(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
                                         }
                                         callback.on(objs); //we still return the first layer of objects
                                     }

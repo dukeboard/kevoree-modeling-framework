@@ -69,48 +69,18 @@ when(metaClassName){
     override fun select(query: String): List<org.kevoree.modeling.api.KObject> {
         //TODO
         return java.util.ArrayList<org.kevoree.modeling.api.KObject>();
-    }
-    override fun root(elem : org.kevoree.modeling.api.KObject){
-    (elem as ${ctx.getKevoreeContainerImplFQN()}).is_root = true
-    (elem as ${ctx.getKevoreeContainerImplFQN()}).path_cache = "/"
-    }
-    #else
-    override fun root(elem : org.kevoree.modeling.api.KObject){
-    if(elem !is org.kevoree.modeling.api.persistence.KObjectProxy || (elem as org.kevoree.modeling.api.persistence.KObjectProxy).originFactory != this){
+        }
+        override fun root(elem : org.kevoree.modeling.api.KObject){
+        (elem as ${ctx.getKevoreeContainerImplFQN()}).is_root = true
+        (elem as ${ctx.getKevoreeContainerImplFQN()}).path_cache = "/"
+        }
+        #else
+        override fun root(elem : org.kevoree.modeling.api.KObject){
+        if(elem !is org.kevoree.modeling.api.persistence.KObjectProxy || (elem as
+        org.kevoree.modeling.api.persistence.KObjectProxy).originFactory != this){
         throw Exception("KMFObject created in another factory of TimeView cannot be set as root of this TimeView")
-    }
-    if(lookup("/") != elem){
-       elem.isDirty = true;
-    }
-    (elem as ${ctx.getKevoreeContainerImplFQN()}#if($ctx.timeAware)<*>#end).is_root = true
-    (elem as ${ctx.getKevoreeContainerImplFQN()}#if($ctx.timeAware)<*>#end).path_cache = "/"
-    modified_elements.put(elem.hashCode().toString() + elem.internalGetKey(), elem)
-    elem_cache.put("/", elem)
-    }
-    #end
-
-    override fun createJSONSerializer(): org.kevoree.modeling.api.json.JSONModelSerializer {
-        return org.kevoree.modeling.api.json.JSONModelSerializer()
-    }
-    override fun createJSONLoader(): org.kevoree.modeling.api.json.JSONModelLoader {
-        return org.kevoree.modeling.api.json.JSONModelLoader(this)
-    }
-    override fun createXMISerializer(): org.kevoree.modeling.api.xmi.XMIModelSerializer {
-        return org.kevoree.modeling.api.xmi.XMIModelSerializer()
-    }
-    override fun createXMILoader(): org.kevoree.modeling.api.xmi.XMIModelLoader {
-        return org.kevoree.modeling.api.xmi.XMIModelLoader(this)
-    }
-    override fun createModelCompare(): org.kevoree.modeling.api.compare.ModelCompare {
-        return org.kevoree.modeling.api.compare.ModelCompare(this)
-    }
-
-    override fun createModelCloner() : org.kevoree.modeling.api.clone.ModelCloner {
-        return org.kevoree.modeling.api.clone.ModelCloner(this)
-    }
-
-    override fun createModelPruner() : org.kevoree.modeling.api.ModelPruner {
-        return org.kevoree.modeling.api.ModelPruner(this)
-    }
-
-}
+        }
+        if(lookup("/") != elem){
+        elem.isDirty = true;
+        }
+        (elem as ${ctx.getKevoreeContainerImplFQN()}#if($ctx.timeAware)

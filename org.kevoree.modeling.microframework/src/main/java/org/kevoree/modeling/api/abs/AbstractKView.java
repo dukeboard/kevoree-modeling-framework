@@ -5,28 +5,22 @@ import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelCloner;
-import org.kevoree.modeling.api.ModelCompare;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.ModelLoader;
-import org.kevoree.modeling.api.ModelSerializer;
-import org.kevoree.modeling.api.ModelSlicer;
-import org.kevoree.modeling.api.clone.DefaultModelCloner;
-import org.kevoree.modeling.api.compare.DefaultModelCompare;
+import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.api.json.JSONModelLoader;
-import org.kevoree.modeling.api.json.JSONModelSerializer;
+import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.operation.DefaultModelCloner;
+import org.kevoree.modeling.api.operation.DefaultModelCompare;
+import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.select.KSelector;
-import org.kevoree.modeling.api.slice.DefaultModelSlicer;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
-import org.kevoree.modeling.api.xmi.XMIModelLoader;
-import org.kevoree.modeling.api.xmi.XMIModelSerializer;
+import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.xmi.XmiFormat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -51,41 +45,6 @@ public abstract class AbstractKView implements KView {
     @Override
     public KDimension dimension() {
         return _dimension;
-    }
-
-    @Override
-    public ModelSerializer createJSONSerializer() {
-        return new JSONModelSerializer();
-    }
-
-    @Override
-    public ModelLoader createJSONLoader() {
-        return new JSONModelLoader(this);
-    }
-
-    @Override
-    public ModelSerializer createXMISerializer() {
-        return new XMIModelSerializer();
-    }
-
-    @Override
-    public ModelLoader createXMILoader() {
-        return new XMIModelLoader(this);
-    }
-
-    @Override
-    public ModelCompare createModelCompare() {
-        return new DefaultModelCompare(this);
-    }
-
-    @Override
-    public ModelCloner createModelCloner() {
-        return new DefaultModelCloner(this);
-    }
-
-    @Override
-    public ModelSlicer createModelSlicer() {
-        return new DefaultModelSlicer();
     }
 
     public MetaClass metaClass(String fqName) {
@@ -173,5 +132,39 @@ public abstract class AbstractKView implements KView {
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
 
     public abstract MetaClass[] metaClasses();
+
+    @Override
+    public void diff(KObject origin, KObject target, Callback<TraceSequence> callback) {
+        DefaultModelCompare.diff(origin, target, callback);
+    }
+
+    @Override
+    public void merge(KObject origin, KObject target, Callback<TraceSequence> callback) {
+        DefaultModelCompare.merge(origin, target, callback);
+    }
+
+    @Override
+    public void intersection(KObject origin, KObject target, Callback<TraceSequence> callback) {
+        DefaultModelCompare.intersection(origin, target, callback);
+    }
+
+    @Override
+    public void slice(List<KObject> elems, Callback<TraceSequence> callback) {
+        DefaultModelSlicer.slice(elems, callback);
+    }
+
+    @Override
+    public <A extends KObject> void clone(A o, Callback<A> callback) {
+        DefaultModelCloner.clone(o, callback);
+    }
+
+    @Override
+    public ModelFormat json() {
+        return new JsonFormat(this);
+    }
+
+    public ModelFormat xmi() {
+        return new XmiFormat(this);
+    }
 
 }

@@ -2,7 +2,6 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.ModelCompare;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -34,16 +33,8 @@ public class TraceTest {
                 root.addChildren(n1);
                 root.addChildren(n2);
 
-                ModelCompare compare = time0.createModelCompare();
             }
         });
-
-/*
-        compare.intersection(root,root,(seq)->{
-           System.err.println(seq);
-        });
-*/
-
     }
 
 }

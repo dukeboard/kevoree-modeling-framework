@@ -2,13 +2,13 @@ package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.Extrapolations;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaType;
-import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
+import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
+import org.kevoree.modeling.api.extrapolation.Extrapolation;
 
 /**
  * Created by duke on 10/9/14.
@@ -18,8 +18,8 @@ public interface Node extends KObject<Node, CloudView> {
     /* Reflexive API Attributes */
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, 5, true, MetaType.STRING, Extrapolations.DISCRETE.strategy()),
-        VALUE("value", 3, 5, false, MetaType.STRING, Extrapolations.DISCRETE.strategy()); //lexicographic order
+        NAME("name", 2, 5, true, MetaType.STRING, DiscreteExtrapolation.instance()),
+        VALUE("value", 3, 5, false, MetaType.STRING, DiscreteExtrapolation.instance()); //lexicographic order
 
         private String _name;
 
@@ -55,25 +55,25 @@ public interface Node extends KObject<Node, CloudView> {
             return _key;
         }
 
-        private ExtrapolationStrategy extrapolationStrategy;
+        private Extrapolation extrapolation;
 
         @Override
-        public ExtrapolationStrategy strategy() {
-            return extrapolationStrategy;
+        public Extrapolation strategy() {
+            return extrapolation;
         }
 
         @Override
-        public void setExtrapolationStrategy(ExtrapolationStrategy extrapolationStrategy) {
-            this.extrapolationStrategy = extrapolationStrategy;
+        public void setExtrapolation(Extrapolation extrapolation) {
+            this.extrapolation = extrapolation;
         }
 
-        METAATTRIBUTES(String name, int index, double precision, boolean key, MetaType metaType, ExtrapolationStrategy extrapolationStrategy) {
+        METAATTRIBUTES(String name, int index, double precision, boolean key, MetaType metaType, Extrapolation extrapolation) {
             this._name = name;
             this._index = index;
             this._precision = precision;
             this._key = key;
             this._metaType = metaType;
-            this.extrapolationStrategy = extrapolationStrategy;
+            this.extrapolation = extrapolation;
         }
     }
 

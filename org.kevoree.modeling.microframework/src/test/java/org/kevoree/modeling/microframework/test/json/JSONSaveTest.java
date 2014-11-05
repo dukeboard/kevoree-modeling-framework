@@ -32,7 +32,7 @@ public class JSONSaveTest {
                 root.addChildren(n1);
                 root.addChildren(n2);
                 final String[] result = new String[1];
-                time0.createJSONSerializer().serialize(root, new ThrowableCallback<String>() {
+                time0.json().save(root, new ThrowableCallback<String>() {
                     @Override
                     public void on(String model, Throwable err) {
                         result[0] = model;
