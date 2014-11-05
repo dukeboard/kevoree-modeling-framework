@@ -20,11 +20,11 @@ public class JsonFormat implements ModelFormat {
 
     @Override
     public void save(KObject model, ThrowableCallback<String> callback) {
-        JsonModelSerializer2.serialize(model, callback);
+        JsonModelSerializer.serialize(model, callback);
     }
 
     @Override
     public void load(String payload, Callback<Throwable> callback) {
-        JsonModelLoader2.load(_view, payload, callback);
+        JsonModelLoader.load(_view, payload, callback);
     }
 }

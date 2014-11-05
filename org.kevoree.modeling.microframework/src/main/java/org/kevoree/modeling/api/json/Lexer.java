@@ -5,7 +5,7 @@ import java.util.HashSet;
 public class Lexer {
 
     private String bytes;
-    private JsonToken2 EOF;
+    private JsonToken EOF;
     private HashSet<Character> BOOLEAN_LETTERS = null;
     private HashSet<Character> DIGIT = null;
 
@@ -14,7 +14,7 @@ public class Lexer {
 
     public Lexer(String payload) {
         this.bytes = payload;
-        this.EOF = new JsonToken2(Type.EOF, null);
+        this.EOF = new JsonToken(Type.EOF, null);
     }
 
     public boolean isSpace(Character c) {
@@ -70,7 +70,7 @@ public class Lexer {
         return c == '-' || c == '+' || c == '.' || isDigit(c) || isBooleanLetter(c);
     }
 
-    public JsonToken2 nextToken() {
+    public JsonToken nextToken() {
         if (isDone()) {
             return EOF;
         }
@@ -130,7 +130,7 @@ public class Lexer {
             tokenType = Type.EOF;
         }
 
-        return new JsonToken2(tokenType, jsonValue);
+        return new JsonToken(tokenType, jsonValue);
     }
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;

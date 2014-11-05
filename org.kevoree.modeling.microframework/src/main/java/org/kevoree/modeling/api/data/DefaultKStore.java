@@ -14,7 +14,7 @@ import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.extrapolation.Extrapolation;
-import org.kevoree.modeling.api.json.JsonModelLoader2;
+import org.kevoree.modeling.api.json.JsonModelLoader;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
@@ -409,7 +409,7 @@ public class DefaultKStore implements KStore {
                             final List<Object[]> additionalLoad = new ArrayList<Object[]>();
                             final List<KObject> objs = new ArrayList<KObject>();
                             for (int i = 0; i < objectPayloads.length; i++) {
-                                KObject obj = JsonModelLoader2.loadDirect(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+                                KObject obj = JsonModelLoader.loadDirect(objectPayloads[i], originView.dimension().time(resolved[i]), null);
                                 //Put in cache
                                 objs.add(obj);
                                 //additional from strategy
@@ -444,7 +444,7 @@ public class DefaultKStore implements KStore {
                                     @Override
                                     public void on(String[] additionalPayloads, Throwable error) {
                                         for (int i = 0; i < objectPayloads.length; i++) {
-                                            JsonModelLoader2.loadDirect(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
+                                            JsonModelLoader.loadDirect(additionalPayloads[i], originView.dimension().time((Long) additionalLoad.get(i)[1]), null);
                                         }
                                         callback.on(objs); //we still return the first layer of objects
                                     }

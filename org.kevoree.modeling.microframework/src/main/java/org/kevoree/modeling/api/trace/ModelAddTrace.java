@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.json.JsonString2;
+import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -53,7 +53,7 @@ public class ModelAddTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JsonString2.encodeBuffer(buffer, srcKID + "");
+        JsonString.encodeBuffer(buffer, srcKID + "");
         buffer.append(ModelTraceConstants.bb);
         if (reference != null) {
             buffer.append(ModelTraceConstants.coma);
@@ -72,7 +72,7 @@ public class ModelAddTrace implements ModelTrace {
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            JsonString2.encodeBuffer(buffer, previousKID + "");
+            JsonString.encodeBuffer(buffer, previousKID + "");
             buffer.append(ModelTraceConstants.bb);
         }
         if (metaClass != null) {
@@ -82,7 +82,7 @@ public class ModelAddTrace implements ModelTrace {
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            JsonString2.encodeBuffer(buffer, metaClass.metaName());
+            JsonString.encodeBuffer(buffer, metaClass.metaName());
             buffer.append(ModelTraceConstants.bb);
         }
         buffer.append(ModelTraceConstants.closeJSON);

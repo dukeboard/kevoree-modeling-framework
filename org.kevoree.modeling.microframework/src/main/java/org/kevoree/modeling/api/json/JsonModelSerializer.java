@@ -15,7 +15,7 @@ import java.util.Set;
  * Time: 11:08
  */
 
-public class JsonModelSerializer2 /*implements ModelSerializer*/ {
+public class JsonModelSerializer /*implements ModelSerializer*/ {
 
     public static final String KEY_META = "@meta";
 

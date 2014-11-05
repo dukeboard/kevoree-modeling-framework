@@ -24,7 +24,7 @@ import java.util.Set;
  * Time: 13:08
  */
 
-public class JsonModelLoader2 {
+public class JsonModelLoader {
 
     //TODO optimize object creation
     public static KObject loadDirect(String payload, KView factory, Callback<KObject> callback) {
@@ -45,7 +45,7 @@ public class JsonModelLoader2 {
         Map<String, Object> content = new HashMap<String, Object>();
         String currentAttributeName = null;
         Set<String> arrayPayload = null;
-        JsonToken2 currentToken = lexer.nextToken();
+        JsonToken currentToken = lexer.nextToken();
         while (currentToken.tokenType() != Type.EOF) {
             if (currentToken.tokenType().equals(Type.LEFT_BRACKET)) {
                 arrayPayload = new HashSet<String>();
@@ -74,7 +74,7 @@ public class JsonModelLoader2 {
         }
         long[] keys = new long[alls.size()];
         for (int i = 0; i < keys.length; i++) {
-            Long kid = Long.parseLong(alls.get(i).get(JsonModelSerializer2.KEY_UUID).toString());
+            Long kid = Long.parseLong(alls.get(i).get(JsonModelSerializer.KEY_UUID).toString());
             keys[i] = kid;
         }
         factory.dimension().timeTrees(keys, new Callback<TimeTree[]>() {
@@ -82,10 +82,10 @@ public class JsonModelLoader2 {
             public void on(TimeTree[] timeTrees) {
                 for (int i = 0; i < alls.size(); i++) {
                     Map<String, Object> elem = alls.get(i);
-                    String meta = elem.get(JsonModelSerializer2.KEY_META).toString();
-                    Long kid = Long.parseLong(elem.get(JsonModelSerializer2.KEY_UUID).toString());
+                    String meta = elem.get(JsonModelSerializer.KEY_META).toString();
+                    Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
                     boolean isRoot = false;
-                    Object root = elem.get(JsonModelSerializer2.KEY_ROOT);
+                    Object root = elem.get(JsonModelSerializer.KEY_ROOT);
                     if (root != null) {
                         isRoot = root.toString().equals("true");
                     }
@@ -100,7 +100,7 @@ public class JsonModelLoader2 {
                     for (String k : elem.keySet()) {
                         MetaAttribute att = current.metaAttribute(k);
                         if (att != null) {
-                            payloadObj[att.index()] = JsonModelLoader2.convertRaw(att, elem.get(k));//TODO manage ARRAY for multiplicity 0..*
+                            payloadObj[att.index()] = JsonModelLoader.convertRaw(att, elem.get(k));//TODO manage ARRAY for multiplicity 0..*
                         } else {
                             MetaReference ref = current.metaReference(k);
                             if (ref != null) {
@@ -146,7 +146,7 @@ public class JsonModelLoader2 {
             callback.on(null);
         } else {
             Lexer lexer = new Lexer(payload);
-            JsonToken2 currentToken = lexer.nextToken();
+            JsonToken currentToken = lexer.nextToken();
             if (currentToken.tokenType() != Type.LEFT_BRACKET) {
                 callback.on(null);
             } else {
