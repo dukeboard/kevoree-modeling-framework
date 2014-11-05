@@ -2,7 +2,6 @@ package org.kevoree.modeling.api.json;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelSerializer;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.VisitResult;
@@ -16,7 +15,7 @@ import java.util.Set;
  * Time: 11:08
  */
 
-public class JSONModelSerializer implements ModelSerializer {
+public class JsonModelSerializer /*implements ModelSerializer*/ {
 
     public static final String KEY_META = "@meta";
 
@@ -24,8 +23,8 @@ public class JSONModelSerializer implements ModelSerializer {
 
     public static final String KEY_ROOT = "@root";
 
-    @Override
-    public void serialize(KObject model, final ThrowableCallback<String> callback) {
+    //@Override
+    public static void serialize(KObject model, final ThrowableCallback<String> callback) {
         StringBuilder builder = new StringBuilder();
         builder.append("[\n");
         printJSON(model, builder);

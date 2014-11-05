@@ -77,6 +77,8 @@
         <!-- DataStores -->
         <module>databases/org.kevoree.modeling.microframework.databases.leveldb</module>
         <module>databases/org.kevoree.modeling.microframework.databases.redis</module>
+        <module>databases/org.kevoree.modeling.microframework.databases.mongodb</module>
+        <module>databases/org.kevoree.modeling.microframework.databases.websocket</module>
 
     </modules>
 

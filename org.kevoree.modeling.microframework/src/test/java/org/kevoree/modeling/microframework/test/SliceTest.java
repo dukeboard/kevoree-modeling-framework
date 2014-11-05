@@ -2,7 +2,6 @@ package org.kevoree.modeling.microframework.test;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.ModelSlicer;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -34,7 +33,6 @@ public class SliceTest {
                 root.addChildren(n1);
                 root.addChildren(n2);
 
-                ModelSlicer slicer = time0.createModelSlicer();
                 /*
                 slicer.slice(Arrays.asList(root), new Callback<TraceSequence>() {
                     @Override

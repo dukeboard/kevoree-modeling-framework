@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.json;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -25,14 +24,7 @@ import java.util.Set;
  * Time: 13:08
  */
 
-
-public class JSONModelLoader implements ModelLoader {
-
-    private KView _factory;
-
-    public JSONModelLoader(KView p_factory) {
-        this._factory = p_factory;
-    }
+public class JsonModelLoader {
 
     //TODO optimize object creation
     public static KObject load(String payload, KView factory, Callback<KObject> callback) {
@@ -82,7 +74,7 @@ public class JSONModelLoader implements ModelLoader {
         }
         long[] keys = new long[alls.size()];
         for (int i = 0; i < keys.length; i++) {
-            Long kid = Long.parseLong(alls.get(i).get(JSONModelSerializer.KEY_UUID).toString());
+            Long kid = Long.parseLong(alls.get(i).get(JsonModelSerializer.KEY_UUID).toString());
             keys[i] = kid;
         }
         factory.dimension().timeTrees(keys, new Callback<TimeTree[]>() {
@@ -90,10 +82,10 @@ public class JSONModelLoader implements ModelLoader {
             public void on(TimeTree[] timeTrees) {
                 for (int i = 0; i < alls.size(); i++) {
                     Map<String, Object> elem = alls.get(i);
-                    String meta = elem.get(JSONModelSerializer.KEY_META).toString();
-                    Long kid = Long.parseLong(elem.get(JSONModelSerializer.KEY_UUID).toString());
+                    String meta = elem.get(JsonModelSerializer.KEY_META).toString();
+                    Long kid = Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
                     boolean isRoot = false;
-                    Object root = elem.get(JSONModelSerializer.KEY_ROOT);
+                    Object root = elem.get(JsonModelSerializer.KEY_ROOT);
                     if (root != null) {
                         isRoot = root.toString().equals("true");
                     }
@@ -108,7 +100,7 @@ public class JSONModelLoader implements ModelLoader {
                     for (String k : elem.keySet()) {
                         MetaAttribute att = current.metaAttribute(k);
                         if (att != null) {
-                            payloadObj[att.index()] = JSONModelLoader.convertRaw(att, elem.get(k));//TODO manage ARRAY for multiplicity 0..*
+                            payloadObj[att.index()] = JsonModelLoader.convertRaw(att, elem.get(k));//TODO manage ARRAY for multiplicity 0..*
                         } else {
                             MetaReference ref = current.metaReference(k);
                             if (ref != null) {
@@ -149,8 +141,7 @@ public class JSONModelLoader implements ModelLoader {
     }
 
 
-    @Override
-    public void load(String payload, Callback<Throwable> callback) {
+    public static void load(KView _factory, String payload, Callback<Throwable> callback) {
         if (payload == null) {
             callback.on(null);
         } else {

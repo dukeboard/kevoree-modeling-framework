@@ -8,23 +8,33 @@
 
 <script src="../ts/out.js"></script>
 <script>
-var universe = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
 
-
-var helloTest = new org.kevoree.modeling.microframework.test.HelloTest();
-helloTest.helloTest();
-
-var rbTreeTest = new org.kevoree.modeling.microframework.test.RBTreeTest();
-rbTreeTest.firstTest();
-rbTreeTest.previousTest();
-
-var lookupTest = new org.kevoree.modeling.microframework.test.LookupTest();
-lookupTest.lookupTest();
-
-var polyTest = new org.kevoree.modeling.microframework.test.polynomial.PolynomialKMFTest();
-polyTest.test();
-
-console.log("Exec");
+    var dataBase = new org.kevoree.modeling.api.data.MemoryKDataBase();
+    var universe = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(dataBase);
+    universe.newDimension({
+        on: function (dimension0) {
+            var t0 = dimension0.time(0);
+            var node = t0.createNode();
+            node.setName("n0");
+            t0.setRoot(node);
+            var element = t0.createElement();
+            element.setName("e0");
+            node.setElement(element);
+            element.setValue(0);
+            /*
+            for (var i = 1; i <= 10000; i++) {
+                var finalI = i;
+                dimension0.time(finalI).lookup(element.uuid(), {
+                    on: function (kObject) {
+                        var casted = kObject;
+                        casted.setValue(new java.util.Random().nextInt(100000));
+                    }
+                });
+            }*/
+            console.log("Yop");
+            System.out.println(element.timeTree().size());
+        }
+    });
 
 </script>
 

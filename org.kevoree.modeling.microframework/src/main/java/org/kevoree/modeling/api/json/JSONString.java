@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.json;
 /**
  * Created by thomas on 10/3/14.
  */
-public class JSONString {
+public class JsonString {
 
     private final static Character ESCAPE_CHAR = '\\';
 

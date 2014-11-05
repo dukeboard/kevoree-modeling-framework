@@ -3,7 +3,6 @@ package org.kevoree.modeling.microframework.test.json;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
@@ -21,8 +20,7 @@ public class JSONLoadTest {
             @Override
             public void on(CloudDimension dimension0) {
                 final CloudView time0 = dimension0.time(0l);
-                ModelLoader loader = time0.createJSONLoader();
-                loader.load("[\n" +
+                time0.json().load("[\n" +
                         "{\n" +
                         "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
                         "\t\"@uuid\" : \"1\",\n" +

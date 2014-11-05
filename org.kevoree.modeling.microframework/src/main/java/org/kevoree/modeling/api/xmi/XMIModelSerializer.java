@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelSerializer;
 import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.VisitResult;
@@ -11,10 +10,9 @@ import org.kevoree.modeling.api.VisitResult;
 * Date : 02/09/13
 */
 
-public class XMIModelSerializer implements ModelSerializer {
+public class XMIModelSerializer {
 
-    @Override
-    public void serialize(KObject model, final ThrowableCallback<String> callback) {
+    public static void save(KObject model, final ThrowableCallback<String> callback) {
         final SerializationContext context = new SerializationContext();
         context.model = model;
         context.finishCallback = callback;
@@ -22,7 +20,6 @@ public class XMIModelSerializer implements ModelSerializer {
         context.printer = new StringBuilder();
         //First Pass for building address table
         context.addressTable.put(model.uuid(), "/");
-        //ystem.out.println("Addresses Visit");
         model.treeVisit(new ModelVisitor() {
             @Override
             public VisitResult visit(KObject elem) {

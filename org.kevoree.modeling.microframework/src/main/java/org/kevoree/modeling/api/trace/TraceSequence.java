@@ -3,7 +3,7 @@ package org.kevoree.modeling.api.trace;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.json.JSONString;
+import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.JsonToken;
 import org.kevoree.modeling.api.json.Type;
@@ -67,17 +67,17 @@ public class TraceSequence {
                 String traceTypeRead = keys.get(ModelTraceConstants.traceType.toString());
                 if (traceTypeRead.equals(KActionType.SET.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    srcFound = JSONString.unescape(srcFound);
-                    _traces.add(new ModelSetTrace(Long.parseLong(srcFound), new UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), JSONString.unescape(keys.get(ModelTraceConstants.content.toString()))));
+                    srcFound = JsonString.unescape(srcFound);
+                    _traces.add(new ModelSetTrace(Long.parseLong(srcFound), new UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), JsonString.unescape(keys.get(ModelTraceConstants.content.toString()))));
                 }
                 if (traceTypeRead.equals(KActionType.ADD.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    srcFound = JSONString.unescape(srcFound);
+                    srcFound = JsonString.unescape(srcFound);
                     _traces.add(new ModelAddTrace(Long.parseLong(srcFound), new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), Long.parseLong(keys.get(ModelTraceConstants.previouspath.toString())), new UnresolvedMetaClass(keys.get(ModelTraceConstants.typename.toString()))));
                 }
                 if (traceTypeRead.equals(KActionType.REMOVE.toString())) {
                     String srcFound = keys.get(ModelTraceConstants.src.toString());
-                    srcFound = JSONString.unescape(srcFound);
+                    srcFound = JsonString.unescape(srcFound);
                     _traces.add(new ModelRemoveTrace(Long.parseLong(srcFound), new UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), Long.parseLong(keys.get(ModelTraceConstants.objpath.toString()))));
                 }
             }
