@@ -4,6 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.microframework.typescript</artifactId>
     <name>Kevoree :: Modeling :: MicroFramework :: TypeScript</name>
+    <packaging>jszip</packaging>
 
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
@@ -54,7 +55,7 @@
                         </goals>
                         <configuration>
                             <source>${basedir}/../org.kevoree.modeling.microframework/src/main/java</source>
-                            <target>${basedir}/src/main/ts</target>
+                            <target>${basedir}/src/main/js</target>
                         </configuration>
                     </execution>
                     <execution>
@@ -75,7 +76,7 @@
                 <artifactId>grunt-maven-plugin</artifactId>
                 <version>1.4.1</version>
                 <configuration>
-                    <gruntExecutable>node_modules/grunt-cli/bin/grunt</gruntExecutable>
+                    <gruntExecutable>${basedir}/node_modules/grunt-cli/bin/grunt</gruntExecutable>
                     <gruntBuildDirectory>${project.build.directory}/grunt</gruntBuildDirectory>
                 </configuration>
                 <executions>
@@ -85,6 +86,55 @@
                             <goal>npm</goal>
                             <goal>grunt</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>prepare-package-javascript</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/${project.artifactId}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/ts</directory>
+                                    <includes>
+                                        <include>**/*.ts</include>
+                                        <include>**/*.js</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.jszip.maven</groupId>
+                <artifactId>jszip-maven-plugin</artifactId>
+                <version>0.1-alpha-9</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>JZIP</id>
+                        <phase>package</phase>
+                        <goals><goal>jszip</goal></goals>
+                        <configuration>
+                            <contentDirectory>${basedir}/src/main</contentDirectory>
+                            <!--
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                            -->
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

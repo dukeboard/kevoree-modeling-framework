@@ -971,14 +971,14 @@ module org {
 					  public toJSON(): string {
 					    var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
 					    builder.append("{\n");
-					    builder.append("\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_META + "\" : \"");
+					    builder.append("\t\"" + org.kevoree.modeling.api.json.JSONModelSerializer.KEY_META + "\" : \"");
 					    builder.append(this.metaClass().metaName());
 					    builder.append("\",\n");
-					    builder.append("\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID + "\" : \"");
+					    builder.append("\t\"" + org.kevoree.modeling.api.json.JSONModelSerializer.KEY_UUID + "\" : \"");
 					    builder.append(this.uuid());
 					    if (this.isRoot()) {
 					      builder.append("\",\n");
-					      builder.append("\t\"" + org.kevoree.modeling.api.json.JsonModelSerializer.KEY_ROOT + "\" : \"");
+					      builder.append("\t\"" + org.kevoree.modeling.api.json.JSONModelSerializer.KEY_ROOT + "\" : \"");
 					      builder.append("true");
 					    }
 					    builder.append("\",\n");
@@ -1211,6 +1211,34 @@ module org {
 					    return this._dimension;
 					  }
 					
+					  public createJSONSerializer(): org.kevoree.modeling.api.ModelSerializer {
+					    return new org.kevoree.modeling.api.json.JSONModelSerializer();
+					  }
+					
+					  public createJSONLoader(): org.kevoree.modeling.api.ModelLoader {
+					    return new org.kevoree.modeling.api.json.JSONModelLoader(this);
+					  }
+					
+					  public createXMISerializer(): org.kevoree.modeling.api.ModelSerializer {
+					    return new org.kevoree.modeling.api.xmi.XMIModelSerializer();
+					  }
+					
+					  public createXMILoader(): org.kevoree.modeling.api.ModelLoader {
+					    return new org.kevoree.modeling.api.xmi.XMIModelLoader(this);
+					  }
+					
+					  public createModelCompare(): org.kevoree.modeling.api.ModelCompare {
+					    return new org.kevoree.modeling.api.compare.DefaultModelCompare(this);
+					  }
+					
+					  public createModelCloner(): org.kevoree.modeling.api.ModelCloner<any> {
+					    return new org.kevoree.modeling.api.clone.DefaultModelCloner(this);
+					  }
+					
+					  public createModelSlicer(): org.kevoree.modeling.api.ModelSlicer {
+					    return new org.kevoree.modeling.api.slice.DefaultModelSlicer();
+					  }
+					
 					  public metaClass(fqName: string): org.kevoree.modeling.api.meta.MetaClass {
 					    var metaClasses: org.kevoree.modeling.api.meta.MetaClass[] = this.metaClasses();
 					    for (var i: number = 0; i < metaClasses.length; i++) {
@@ -1289,34 +1317,6 @@ module org {
 					    throw "Abstract method";
 					  }
 					
-					  public diff(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    org.kevoree.modeling.api.operation.DefaultModelCompare.diff(origin, target, callback);
-					  }
-					
-					  public merge(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    org.kevoree.modeling.api.operation.DefaultModelCompare.merge(origin, target, callback);
-					  }
-					
-					  public intersection(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(origin, target, callback);
-					  }
-					
-					  public slice(elems: java.util.List<org.kevoree.modeling.api.KObject<any,any>>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(elems, callback);
-					  }
-					
-					  public clone<A extends org.kevoree.modeling.api.KObject<any,any>> (o: A, callback: org.kevoree.modeling.api.Callback<A>): void {
-					    org.kevoree.modeling.api.operation.DefaultModelCloner.clone(o, callback);
-					  }
-					
-					  public json(): org.kevoree.modeling.api.ModelFormat {
-					    return new org.kevoree.modeling.api.json.JsonFormat(this);
-					  }
-					
-					  public xmi(): org.kevoree.modeling.api.ModelFormat {
-					    return new org.kevoree.modeling.api.xmi.XmiFormat(this);
-					  }
-					
 					}
 				}
 				
@@ -1324,6 +1324,251 @@ module org {
 				
 				  on(a: A): void;
 				
+				}
+				export module clone {
+					
+					export class DefaultModelCloner implements org.kevoree.modeling.api.ModelCloner<org.kevoree.modeling.api.KObject<any,any>> {
+					
+					  private _factory: org.kevoree.modeling.api.KView = null;
+					
+					  constructor(p_factory: org.kevoree.modeling.api.KView) {
+					    this._factory = p_factory;
+					  }
+					
+					  public clone(originalObject: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject<any,any>>): void {
+					    if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
+					      callback.on(null);
+					    } else {
+					      originalObject.view().dimension().fork({on:function(o: org.kevoree.modeling.api.KDimension<any,any,any>){
+					      o.time(originalObject.view().now()).lookup(originalObject.uuid(), {on:function(clonedObject: org.kevoree.modeling.api.KObject<any,any>){
+					      callback.on(clonedObject);
+					}});
+					}});
+					    }
+					  }
+					
+					}
+				}
+				export module compare {
+					
+					export class DefaultModelCompare implements org.kevoree.modeling.api.ModelCompare {
+					
+					  private _factory: org.kevoree.modeling.api.KView = null;
+					
+					  constructor(p_factory: org.kevoree.modeling.api.KView) {
+					    this._factory = p_factory;
+					  }
+					
+					  public diff(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
+					    this.internal_diff(origin, target, false, false, callback);
+					  }
+					
+					  public union(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
+					    this.internal_diff(origin, target, false, true, callback);
+					  }
+					
+					  public intersection(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
+					    this.internal_diff(origin, target, true, false, callback);
+					  }
+					
+					  private internal_diff(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, inter: boolean, merge: boolean, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
+					    var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
+					    var tracesRef: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
+					    var objectsMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject<any,any>>();
+					    traces.addAll(this.internal_createTraces(origin, target, inter, merge, false, true));
+					    tracesRef.addAll(this.internal_createTraces(origin, target, inter, merge, true, false));
+					    origin.treeVisit({visit:function(elem: org.kevoree.modeling.api.KObject<any,any>){
+					    objectsMap.put(elem.uuid(), elem);
+					    return org.kevoree.modeling.api.VisitResult.CONTINUE;
+					}}, {on:function(throwable: java.lang.Throwable){
+					    if (throwable != null) {
+					      throwable.printStackTrace();
+					      callback.on(null);
+					    } else {
+					      target.treeVisit({visit:function(elem: org.kevoree.modeling.api.KObject<any,any>){
+					      var childPath: number = elem.uuid();
+					      if (objectsMap.containsKey(childPath)) {
+					        if (inter) {
+					          var currentReference: org.kevoree.modeling.api.meta.MetaReference = null;
+					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
+					        }
+					        traces.addAll(this.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
+					        tracesRef.addAll(this.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
+					        objectsMap.remove(childPath);
+					      } else {
+					        if (!inter) {
+					          var currentReference: org.kevoree.modeling.api.meta.MetaReference = null;
+					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
+					          traces.addAll(this.internal_createTraces(elem, elem, true, merge, false, true));
+					          tracesRef.addAll(this.internal_createTraces(elem, elem, true, merge, true, false));
+					        }
+					      }
+					      return org.kevoree.modeling.api.VisitResult.CONTINUE;
+					}}, {on:function(throwable: java.lang.Throwable){
+					      if (throwable != null) {
+					        throwable.printStackTrace();
+					        callback.on(null);
+					      } else {
+					        traces.addAll(tracesRef);
+					        if (!inter && !merge) {
+					          var diffChildKeys: number[] = objectsMap.keySet().toArray(new Array());
+					          for (var i: number = 0; i < diffChildKeys.length; i++) {
+					            var diffChildKey: number = diffChildKeys[i];
+					            var diffChild: org.kevoree.modeling.api.KObject<any,any> = objectsMap.get(diffChildKey);
+					            var src: number = diffChild.parentUuid();
+					            traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
+					          }
+					        }
+					        callback.on(new org.kevoree.modeling.api.trace.TraceSequence().populate(traces));
+					      }
+					}});
+					    }
+					}});
+					  }
+					
+					  public internal_createTraces(current: org.kevoree.modeling.api.KObject<any,any>, sibling: org.kevoree.modeling.api.KObject<any,any>, inter: boolean, merge: boolean, references: boolean, attributes: boolean): java.util.List<org.kevoree.modeling.api.trace.ModelTrace> {
+					    var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
+					    var values: java.util.Map<org.kevoree.modeling.api.meta.MetaAttribute, string> = new java.util.HashMap<org.kevoree.modeling.api.meta.MetaAttribute, string>();
+					    if (attributes) {
+					      if (current != null) {
+					        current.visitAttributes({visit:function(metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute, value: any){
+					        if (value == null) {
+					          values.put(metaAttribute, null);
+					        } else {
+					          values.put(metaAttribute, value.toString());
+					        }
+					}});
+					      }
+					      if (sibling != null) {
+					        sibling.visitAttributes({visit:function(metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute, value: any){
+					        var flatAtt2: string = null;
+					        if (value != null) {
+					          flatAtt2 = value.toString();
+					        }
+					        var flatAtt1: string = values.get(metaAttribute);
+					        var isEquals: boolean = true;
+					        if (flatAtt1 == null) {
+					          if (flatAtt2 == null) {
+					            isEquals = true;
+					          } else {
+					            isEquals = false;
+					          }
+					        } else {
+					          isEquals = flatAtt1.equals(flatAtt2);
+					        }
+					        if (isEquals) {
+					          if (inter) {
+					            traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
+					          }
+					        } else {
+					          if (!inter) {
+					            traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
+					          }
+					        }
+					        values.remove(metaAttribute);
+					}});
+					      }
+					      if (!inter && !merge && !values.isEmpty()) {
+					        var mettaAttributes: org.kevoree.modeling.api.meta.MetaAttribute[] = values.keySet().toArray(new Array());
+					        for (var i: number = 0; i < mettaAttributes.length; i++) {
+					          var hashLoopRes: org.kevoree.modeling.api.meta.MetaAttribute = mettaAttributes[i];
+					          traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), hashLoopRes, null));
+					          values.remove(hashLoopRes);
+					        }
+					      }
+					    }
+					    var valuesRef: java.util.Map<org.kevoree.modeling.api.meta.MetaReference, any> = new java.util.HashMap<org.kevoree.modeling.api.meta.MetaReference, any>();
+					    if (references) {
+					      for (var i: number = 0; i < current.metaReferences().length; i++) {
+					        var reference: org.kevoree.modeling.api.meta.MetaReference = current.metaReferences()[i];
+					        var payload: any = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
+					        valuesRef.put(reference, payload);
+					      }
+					      if (sibling != null) {
+					        for (var i: number = 0; i < sibling.metaReferences().length; i++) {
+					          var reference: org.kevoree.modeling.api.meta.MetaReference = sibling.metaReferences()[i];
+					          var payload2: any = sibling.view().dimension().universe().storage().raw(sibling, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
+					          var payload1: any = valuesRef.get(reference);
+					          if (reference.single()) {
+					            var isEquals: boolean = true;
+					            if (payload1 == null) {
+					              if (payload2 == null) {
+					                isEquals = true;
+					              } else {
+					                isEquals = false;
+					              }
+					            } else {
+					              isEquals = payload1.equals(payload2);
+					            }
+					            if (isEquals) {
+					              if (inter) {
+					                if (payload2 != null) {
+					                  traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, <number>payload2, null));
+					                }
+					              }
+					            } else {
+					              if (!inter) {
+					                traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, <number>payload2, null));
+					              }
+					            }
+					          } else {
+					            if (payload1 == null && payload2 != null) {
+					              var siblingToAdd: number[] = (<java.util.Set<number>>payload2).toArray(new Array());
+					              for (var j: number = 0; j < siblingToAdd.length; j++) {
+					                var siblingElem: number = siblingToAdd[j];
+					                if (!inter) {
+					                  traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, siblingElem, null));
+					                }
+					              }
+					            } else {
+					              if (payload1 != null) {
+					                var currentPaths: number[] = (<java.util.Set<number>>payload1).toArray(new Array());
+					                for (var j: number = 0; j < currentPaths.length; j++) {
+					                  var currentPath: number = currentPaths[j];
+					                  var isFound: boolean = false;
+					                  if (payload2 != null) {
+					                    var siblingPaths: java.util.Set<number> = <java.util.Set<number>>payload2;
+					                    isFound = siblingPaths.contains(currentPath);
+					                  }
+					                  if (isFound) {
+					                    if (inter) {
+					                      traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, currentPath, null));
+					                    }
+					                  } else {
+					                    if (!inter) {
+					                      traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), reference, currentPath));
+					                    }
+					                  }
+					                }
+					              }
+					            }
+					          }
+					          valuesRef.remove(reference);
+					        }
+					        if (!inter && !merge && !valuesRef.isEmpty()) {
+					          var metaReferences: org.kevoree.modeling.api.meta.MetaReference[] = valuesRef.keySet().toArray(new Array());
+					          for (var i: number = 0; i < metaReferences.length; i++) {
+					            var hashLoopResRef: org.kevoree.modeling.api.meta.MetaReference = metaReferences[i];
+					            var payload: any = valuesRef.get(hashLoopResRef);
+					            if (payload != null) {
+					              if (payload instanceof java.util.Set) {
+					                var toRemoveSet: number[] = (<java.util.Set<number>>payload).toArray(new Array());
+					                for (var j: number = 0; j < toRemoveSet.length; j++) {
+					                  var toRemovePath: number = toRemoveSet[j];
+					                  traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), hashLoopResRef, toRemovePath));
+					                }
+					              } else {
+					                traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), hashLoopResRef, <number>payload));
+					              }
+					            }
+					          }
+					        }
+					      }
+					    }
+					    return traces;
+					  }
+					
+					}
 				}
 				export module data {
 					
@@ -1709,16 +1954,16 @@ module org {
 					      var additionalLoad: java.util.List<any[]> = new java.util.ArrayList<any[]>();
 					      var objs: java.util.List<org.kevoree.modeling.api.KObject<any,any>> = new java.util.ArrayList<org.kevoree.modeling.api.KObject<any,any>>();
 					      for (var i: number = 0; i < objectPayloads.length; i++) {
-					        var obj: org.kevoree.modeling.api.KObject<any,any> = org.kevoree.modeling.api.json.JsonModelLoader.loadDirect(objectPayloads[i], originView.dimension().time(resolved[i]), null);
+					        var obj: org.kevoree.modeling.api.KObject<any,any> = org.kevoree.modeling.api.json.JSONModelLoader.load(objectPayloads[i], originView.dimension().time(resolved[i]), null);
 					        objs.add(obj);
-					        var strategies: java.util.Set<org.kevoree.modeling.api.extrapolation.Extrapolation> = new java.util.HashSet<org.kevoree.modeling.api.extrapolation.Extrapolation>();
+					        var strategies: java.util.Set<org.kevoree.modeling.api.strategy.ExtrapolationStrategy> = new java.util.HashSet<org.kevoree.modeling.api.strategy.ExtrapolationStrategy>();
 					        for (var h: number = 0; h < obj.metaAttributes().length; h++) {
 					          var metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute = obj.metaAttributes()[h];
 					          strategies.add(metaAttribute.strategy());
 					        }
-					        var strategiesArr: org.kevoree.modeling.api.extrapolation.Extrapolation[] = strategies.toArray(new Array());
+					        var strategiesArr: org.kevoree.modeling.api.strategy.ExtrapolationStrategy[] = strategies.toArray(new Array());
 					        for (var k: number = 0; k < strategiesArr.length; k++) {
-					          var strategy: org.kevoree.modeling.api.extrapolation.Extrapolation = strategiesArr[k];
+					          var strategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy = strategiesArr[k];
 					          var additionalTimes: number[] = strategy.timedDependencies(obj);
 					          for (var j: number = 0; j < additionalTimes.length; j++) {
 					            if (additionalTimes[j] != obj.now()) {
@@ -1739,7 +1984,7 @@ module org {
 					        }
 					        this._db.get(addtionalDBKeys, {on:function(additionalPayloads: string[], error: java.lang.Throwable){
 					        for (var i: number = 0; i < objectPayloads.length; i++) {
-					          org.kevoree.modeling.api.json.JsonModelLoader.loadDirect(additionalPayloads[i], originView.dimension().time(<number>additionalLoad.get(i)[1]), null);
+					          org.kevoree.modeling.api.json.JSONModelLoader.load(additionalPayloads[i], originView.dimension().time(<number>additionalLoad.get(i)[1]), null);
 					        }
 					        callback.on(objs);
 					}});
@@ -2041,112 +2286,34 @@ module org {
 					
 					}
 				}
-				export module extrapolation {
-					
-					export class DiscreteExtrapolation implements Extrapolation {
-					
-					  private static INSTANCE: DiscreteExtrapolation = new DiscreteExtrapolation();
-					
-					  public timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[] {
-					    var times: number[] = new Array();
-					    times[0] = current.timeTree().resolve(current.now());
-					    return times;
-					  }
-					
-					  public extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any {
-					    var payload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
-					    if (payload != null) {
-					      return payload[attribute.index()];
-					    } else {
-					      return null;
-					    }
-					  }
-					
-					  public mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void {
-					    var internalPayload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
-					    if (internalPayload != null) {
-					      internalPayload[attribute.index()] = payload;
-					    }
-					  }
-					
-					  public static instance(): Extrapolation {
-					    return DiscreteExtrapolation.INSTANCE;
-					  }
-					
-					}
-					
-					export interface Extrapolation {
-					
-					  timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[];
-					
-					  extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any;
-					
-					  mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void;
-					
-					}
-					
-					export class LinearRegressionExtrapolation implements Extrapolation {
-					
-					  private static INSTANCE: LinearRegressionExtrapolation = new LinearRegressionExtrapolation();
-					
-					  public timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[] {
-					    return new Array();
-					  }
-					
-					  public extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any {
-					    return null;
-					  }
-					
-					  public mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void {
-					  }
-					
-					  public static instance(): Extrapolation {
-					    return LinearRegressionExtrapolation.INSTANCE;
-					  }
-					
-					}
-					
-					export class PolynomialExtrapolation implements Extrapolation {
-					
-					  private static INSTANCE: PolynomialExtrapolation = new PolynomialExtrapolation();
-					
-					  public timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[] {
-					    var times: number[] = new Array();
-					    times[0] = current.timeTree().resolve(current.now());
-					    return times;
-					  }
-					
-					  public extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any {
-					    var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = <org.kevoree.modeling.api.polynomial.PolynomialExtrapolation>current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
-					    if (pol != null) {
-					      return pol.extrapolate(current.now());
-					    } else {
-					      return null;
-					    }
-					  }
-					
-					  public mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void {
-					    var previous: any = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
-					    if (previous == null) {
-					      var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation(current.now(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
-					      pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
-					      current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
-					    } else {
-					      var previousPol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = <org.kevoree.modeling.api.polynomial.PolynomialExtrapolation>previous;
-					      if (!previousPol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()))) {
-					        var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation(previousPol.lastIndex(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
-					        pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
-					        pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
-					        current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
-					      }
-					    }
-					  }
-					
-					  public static instance(): Extrapolation {
-					    return PolynomialExtrapolation.INSTANCE;
-					  }
-					
-					}
+				
+				export class Extrapolations {
+				
+				  public static DISCRETE: Extrapolations = new Extrapolations(new org.kevoree.modeling.api.strategy.DiscreteExtrapolationStrategy());
+				  public static LINEAR_REGRESSION: Extrapolations = new Extrapolations(new org.kevoree.modeling.api.strategy.LinearRegressionExtrapolationStrategy());
+				  public static POLYNOMIAL: Extrapolations = new Extrapolations(new org.kevoree.modeling.api.strategy.PolynomialExtrapolationStrategy());
+				  private extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy = null;
+				
+				  constructor(wrappedStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy) {
+				    this.extrapolationStrategy = wrappedStrategy;
+				  }
+				
+				  public strategy(): org.kevoree.modeling.api.strategy.ExtrapolationStrategy {
+				    return this.extrapolationStrategy;
+				  }
+				
+				  public equals(other: any): boolean {
+				        return this == other;
+				    }
+				  public static _ExtrapolationsVALUES : Extrapolations[] = [
+				  Extrapolations.DISCRETE,
+				Extrapolations.LINEAR_REGRESSION,
+				Extrapolations.POLYNOMIAL  ];
+				
+				public static values():Extrapolations[] {
+				   return Extrapolations._ExtrapolationsVALUES;
+				}
+				
 				}
 				
 				export class InboundReference {
@@ -2170,30 +2337,18 @@ module org {
 				}
 				export module json {
 					
-					export class JsonFormat implements org.kevoree.modeling.api.ModelFormat {
+					export class JSONModelLoader implements org.kevoree.modeling.api.ModelLoader {
 					
-					  private _view: org.kevoree.modeling.api.KView = null;
+					  private _factory: org.kevoree.modeling.api.KView = null;
 					
-					  constructor(p_view: org.kevoree.modeling.api.KView) {
-					    this._view = p_view;
+					  constructor(p_factory: org.kevoree.modeling.api.KView) {
+					    this._factory = p_factory;
 					  }
 					
-					  public save(model: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.ThrowableCallback<string>): void {
-					    JsonModelSerializer.serialize(model, callback);
-					  }
-					
-					  public load(payload: string, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
-					    JsonModelLoader.load(this._view, payload, callback);
-					  }
-					
-					}
-					
-					export class JsonModelLoader {
-					
-					  public static loadDirect(payload: string, factory: org.kevoree.modeling.api.KView, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject<any,any>>): org.kevoree.modeling.api.KObject<any,any> {
+					  public static load(payload: string, factory: org.kevoree.modeling.api.KView, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject<any,any>>): org.kevoree.modeling.api.KObject<any,any> {
 					    var lexer: Lexer = new Lexer(payload);
 					    var loaded: org.kevoree.modeling.api.KObject<any,any>[] = new Array();
-					    JsonModelLoader.loadObjects(lexer, factory, {on:function(objs: java.util.List<org.kevoree.modeling.api.KObject<any,any>>){
+					    JSONModelLoader.loadObjects(lexer, factory, {on:function(objs: java.util.List<org.kevoree.modeling.api.KObject<any,any>>){
 					    loaded[0] = objs.get(0);
 					}});
 					    return loaded[0];
@@ -2242,16 +2397,16 @@ module org {
 					    }
 					    var keys: number[] = new Array();
 					    for (var i: number = 0; i < keys.length; i++) {
-					      var kid: number = java.lang.Long.parseLong(alls.get(i).get(JsonModelSerializer.KEY_UUID).toString());
+					      var kid: number = java.lang.Long.parseLong(alls.get(i).get(JSONModelSerializer.KEY_UUID).toString());
 					      keys[i] = kid;
 					    }
 					    factory.dimension().timeTrees(keys, {on:function(timeTrees: org.kevoree.modeling.api.time.TimeTree[]){
 					    for (var i: number = 0; i < alls.size(); i++) {
 					      var elem: java.util.Map<string, any> = alls.get(i);
-					      var meta: string = elem.get(JsonModelSerializer.KEY_META).toString();
-					      var kid: number = java.lang.Long.parseLong(elem.get(JsonModelSerializer.KEY_UUID).toString());
+					      var meta: string = elem.get(JSONModelSerializer.KEY_META).toString();
+					      var kid: number = java.lang.Long.parseLong(elem.get(JSONModelSerializer.KEY_UUID).toString());
 					      var isRoot: boolean = false;
-					      var root: any = elem.get(JsonModelSerializer.KEY_ROOT);
+					      var root: any = elem.get(JSONModelSerializer.KEY_ROOT);
 					      if (root != null) {
 					        isRoot = root.toString().equals("true");
 					      }
@@ -2268,7 +2423,7 @@ module org {
 					      for (k in elem.keySet()) {
 					        var att: org.kevoree.modeling.api.meta.MetaAttribute = current.metaAttribute(k);
 					        if (att != null) {
-					          payloadObj[att.index()] = JsonModelLoader.convertRaw(att, elem.get(k));
+					          payloadObj[att.index()] = JSONModelLoader.convertRaw(att, elem.get(k));
 					        } else {
 					          var ref: org.kevoree.modeling.api.meta.MetaReference = current.metaReference(k);
 					          if (ref != null) {
@@ -2318,7 +2473,7 @@ module org {
 					}});
 					  }
 					
-					  public static load(_factory: org.kevoree.modeling.api.KView, payload: string, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
+					  public load(payload: string, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
 					    if (payload == null) {
 					      callback.on(null);
 					    } else {
@@ -2327,7 +2482,7 @@ module org {
 					      if (currentToken.tokenType() != Type.LEFT_BRACKET) {
 					        callback.on(null);
 					      } else {
-					        JsonModelLoader.loadObjects(lexer, _factory, {on:function(kObjects: java.util.List<org.kevoree.modeling.api.KObject<any,any>>){
+					        JSONModelLoader.loadObjects(lexer, this._factory, {on:function(kObjects: java.util.List<org.kevoree.modeling.api.KObject<any,any>>){
 					        callback.on(null);
 					}});
 					      }
@@ -2376,19 +2531,19 @@ module org {
 					
 					}
 					
-					export class JsonModelSerializer {
+					export class JSONModelSerializer implements org.kevoree.modeling.api.ModelSerializer {
 					
 					  public static KEY_META: string = "@meta";
 					  public static KEY_UUID: string = "@uuid";
 					  public static KEY_ROOT: string = "@root";
 					
-					  public static serialize(model: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.ThrowableCallback<string>): void {
+					  public serialize(model: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.ThrowableCallback<string>): void {
 					    var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
 					    builder.append("[\n");
-					    JsonModelSerializer.printJSON(model, builder);
+					    JSONModelSerializer.printJSON(model, builder);
 					    model.graphVisit({visit:function(elem: org.kevoree.modeling.api.KObject<any,any>){
 					    builder.append(",");
-					    JsonModelSerializer.printJSON(elem, builder);
+					    JSONModelSerializer.printJSON(elem, builder);
 					    return org.kevoree.modeling.api.VisitResult.CONTINUE;
 					}}, {on:function(throwable: java.lang.Throwable){
 					    builder.append("]\n");
@@ -2398,14 +2553,14 @@ module org {
 					
 					  public static printJSON(elem: org.kevoree.modeling.api.KObject<any,any>, builder: java.lang.StringBuilder): void {
 					    builder.append("{\n");
-					    builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
+					    builder.append("\t\"" + JSONModelSerializer.KEY_META + "\" : \"");
 					    builder.append(elem.metaClass().metaName());
 					    builder.append("\",\n");
-					    builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
+					    builder.append("\t\"" + JSONModelSerializer.KEY_UUID + "\" : \"");
 					    builder.append(elem.uuid() + "");
 					    if (elem.isRoot()) {
 					      builder.append("\",\n");
-					      builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
+					      builder.append("\t\"" + JSONModelSerializer.KEY_ROOT + "\" : \"");
 					      builder.append("true");
 					    }
 					    builder.append("\",\n");
@@ -2459,7 +2614,7 @@ module org {
 					
 					}
 					
-					export class JsonString {
+					export class JSONString {
 					
 					  private static ESCAPE_CHAR: string = '\\';
 					
@@ -2471,27 +2626,27 @@ module org {
 					    while (i < chain.length){
 					      var ch: string = chain.charAt(i);
 					      if (ch == '"') {
-					        buffer.append(JsonString.ESCAPE_CHAR);
+					        buffer.append(JSONString.ESCAPE_CHAR);
 					        buffer.append('"');
 					      } else {
-					        if (ch == JsonString.ESCAPE_CHAR) {
-					          buffer.append(JsonString.ESCAPE_CHAR);
-					          buffer.append(JsonString.ESCAPE_CHAR);
+					        if (ch == JSONString.ESCAPE_CHAR) {
+					          buffer.append(JSONString.ESCAPE_CHAR);
+					          buffer.append(JSONString.ESCAPE_CHAR);
 					        } else {
 					          if (ch == '\n') {
-					            buffer.append(JsonString.ESCAPE_CHAR);
+					            buffer.append(JSONString.ESCAPE_CHAR);
 					            buffer.append('n');
 					          } else {
 					            if (ch == '\r') {
-					              buffer.append(JsonString.ESCAPE_CHAR);
+					              buffer.append(JSONString.ESCAPE_CHAR);
 					              buffer.append('r');
 					            } else {
 					              if (ch == '\t') {
-					                buffer.append(JsonString.ESCAPE_CHAR);
+					                buffer.append(JSONString.ESCAPE_CHAR);
 					                buffer.append('t');
 					              } else {
 					                if (ch == '\u2028') {
-					                  buffer.append(JsonString.ESCAPE_CHAR);
+					                  buffer.append(JSONString.ESCAPE_CHAR);
 					                  buffer.append('u');
 					                  buffer.append('2');
 					                  buffer.append('0');
@@ -2499,7 +2654,7 @@ module org {
 					                  buffer.append('8');
 					                } else {
 					                  if (ch == '\u2029') {
-					                    buffer.append(JsonString.ESCAPE_CHAR);
+					                    buffer.append(JSONString.ESCAPE_CHAR);
 					                    buffer.append('u');
 					                    buffer.append('2');
 					                    buffer.append('0');
@@ -2526,27 +2681,27 @@ module org {
 					    while (i < chain.length){
 					      var ch: string = chain.charAt(i);
 					      if (ch == '"') {
-					        buffer.append(JsonString.ESCAPE_CHAR);
+					        buffer.append(JSONString.ESCAPE_CHAR);
 					        buffer.append('"');
 					      } else {
-					        if (ch == JsonString.ESCAPE_CHAR) {
-					          buffer.append(JsonString.ESCAPE_CHAR);
-					          buffer.append(JsonString.ESCAPE_CHAR);
+					        if (ch == JSONString.ESCAPE_CHAR) {
+					          buffer.append(JSONString.ESCAPE_CHAR);
+					          buffer.append(JSONString.ESCAPE_CHAR);
 					        } else {
 					          if (ch == '\n') {
-					            buffer.append(JsonString.ESCAPE_CHAR);
+					            buffer.append(JSONString.ESCAPE_CHAR);
 					            buffer.append('n');
 					          } else {
 					            if (ch == '\r') {
-					              buffer.append(JsonString.ESCAPE_CHAR);
+					              buffer.append(JSONString.ESCAPE_CHAR);
 					              buffer.append('r');
 					            } else {
 					              if (ch == '\t') {
-					                buffer.append(JsonString.ESCAPE_CHAR);
+					                buffer.append(JSONString.ESCAPE_CHAR);
 					                buffer.append('t');
 					              } else {
 					                if (ch == '\u2028') {
-					                  buffer.append(JsonString.ESCAPE_CHAR);
+					                  buffer.append(JSONString.ESCAPE_CHAR);
 					                  buffer.append('u');
 					                  buffer.append('2');
 					                  buffer.append('0');
@@ -2554,7 +2709,7 @@ module org {
 					                  buffer.append('8');
 					                } else {
 					                  if (ch == '\u2029') {
-					                    buffer.append(JsonString.ESCAPE_CHAR);
+					                    buffer.append(JSONString.ESCAPE_CHAR);
 					                    buffer.append('u');
 					                    buffer.append('2');
 					                    buffer.append('0');
@@ -2584,7 +2739,7 @@ module org {
 					    var i: number = 0;
 					    while (i < src.length){
 					      var current: string = src.charAt(i);
-					      if (current == JsonString.ESCAPE_CHAR) {
+					      if (current == JSONString.ESCAPE_CHAR) {
 					        if (builder == null) {
 					          builder = new java.lang.StringBuilder();
 					          builder.append(src.substring(0, i));
@@ -3024,6 +3179,20 @@ module org {
 				
 				  setRoot(elem: KObject<any,any>): void;
 				
+				  createJSONSerializer(): ModelSerializer;
+				
+				  createJSONLoader(): ModelLoader;
+				
+				  createXMISerializer(): ModelSerializer;
+				
+				  createXMILoader(): ModelLoader;
+				
+				  createModelCompare(): ModelCompare;
+				
+				  createModelCloner(): ModelCloner<any>;
+				
+				  createModelSlicer(): ModelSlicer;
+				
 				  select(query: string, callback: Callback<KObject<any,any>[]>): void;
 				
 				  lookup(key: number, callback: Callback<KObject<any,any>>): void;
@@ -3044,20 +3213,6 @@ module org {
 				
 				  listen(listener: ModelListener): void;
 				
-				  diff(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
-				
-				  merge(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
-				
-				  intersection(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
-				
-				  slice(elems: java.util.List<KObject<any,any>>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
-				
-				  clone<A extends KObject<any,any>> (o: A, callback: Callback<A>): void;
-				
-				  json(): ModelFormat;
-				
-				  xmi(): ModelFormat;
-				
 				}
 				export module meta {
 					
@@ -3077,11 +3232,11 @@ module org {
 					
 					  metaType(): MetaType;
 					
-					  strategy(): org.kevoree.modeling.api.extrapolation.Extrapolation;
+					  strategy(): org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
 					
 					  precision(): number;
 					
-					  setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void;
+					  setExtrapolationStrategy(extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy): void;
 					
 					}
 					
@@ -3141,11 +3296,19 @@ module org {
 				
 				}
 				
-				export interface ModelFormat {
+				export interface ModelCloner<A extends KObject<any,any>> {
 				
-				  save(model: KObject<any,any>, callback: ThrowableCallback<string>): void;
+				  clone(o: A, callback: Callback<A>): void;
 				
-				  load(payload: string, callback: Callback<java.lang.Throwable>): void;
+				}
+				
+				export interface ModelCompare {
+				
+				  diff(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
+				
+				  union(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
+				
+				  intersection(origin: KObject<any,any>, target: KObject<any,any>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
 				
 				}
 				
@@ -3155,312 +3318,28 @@ module org {
 				
 				}
 				
+				export interface ModelLoader {
+				
+				  load(payload: string, callback: Callback<java.lang.Throwable>): void;
+				
+				}
+				
+				export interface ModelSerializer {
+				
+				  serialize(model: KObject<any,any>, callback: ThrowableCallback<string>): void;
+				
+				}
+				
+				export interface ModelSlicer {
+				
+				  slice(elems: java.util.List<KObject<any,any>>, callback: Callback<org.kevoree.modeling.api.trace.TraceSequence>): void;
+				
+				}
+				
 				export interface ModelVisitor {
 				
 				  visit(elem: KObject<any,any>): VisitResult;
 				
-				}
-				export module operation {
-					
-					export class DefaultModelCloner {
-					
-					  public static clone<A extends org.kevoree.modeling.api.KObject<any,any>> (originalObject: A, callback: org.kevoree.modeling.api.Callback<A>): void {
-					    if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
-					      callback.on(null);
-					    } else {
-					      originalObject.view().dimension().fork({on:function(o: org.kevoree.modeling.api.KDimension<any,any,any>){
-					      o.time(originalObject.view().now()).lookup(originalObject.uuid(), {on:function(clonedObject: org.kevoree.modeling.api.KObject<any,any>){
-					      callback.on(<A>clonedObject);
-					}});
-					}});
-					    }
-					  }
-					
-					}
-					
-					export class DefaultModelCompare {
-					
-					  public static diff(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    DefaultModelCompare.internal_diff(origin, target, false, false, callback);
-					  }
-					
-					  public static merge(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    DefaultModelCompare.internal_diff(origin, target, false, true, callback);
-					  }
-					
-					  public static intersection(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    DefaultModelCompare.internal_diff(origin, target, true, false, callback);
-					  }
-					
-					  private static internal_diff(origin: org.kevoree.modeling.api.KObject<any,any>, target: org.kevoree.modeling.api.KObject<any,any>, inter: boolean, merge: boolean, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
-					    var tracesRef: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
-					    var objectsMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject<any,any>>();
-					    traces.addAll(DefaultModelCompare.internal_createTraces(origin, target, inter, merge, false, true));
-					    tracesRef.addAll(DefaultModelCompare.internal_createTraces(origin, target, inter, merge, true, false));
-					    origin.treeVisit({visit:function(elem: org.kevoree.modeling.api.KObject<any,any>){
-					    objectsMap.put(elem.uuid(), elem);
-					    return org.kevoree.modeling.api.VisitResult.CONTINUE;
-					}}, {on:function(throwable: java.lang.Throwable){
-					    if (throwable != null) {
-					      throwable.printStackTrace();
-					      callback.on(null);
-					    } else {
-					      target.treeVisit({visit:function(elem: org.kevoree.modeling.api.KObject<any,any>){
-					      var childPath: number = elem.uuid();
-					      if (objectsMap.containsKey(childPath)) {
-					        if (inter) {
-					          var currentReference: org.kevoree.modeling.api.meta.MetaReference = null;
-					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
-					        }
-					        traces.addAll(DefaultModelCompare.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
-					        tracesRef.addAll(DefaultModelCompare.internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
-					        objectsMap.remove(childPath);
-					      } else {
-					        if (!inter) {
-					          var currentReference: org.kevoree.modeling.api.meta.MetaReference = null;
-					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
-					          traces.addAll(DefaultModelCompare.internal_createTraces(elem, elem, true, merge, false, true));
-					          tracesRef.addAll(DefaultModelCompare.internal_createTraces(elem, elem, true, merge, true, false));
-					        }
-					      }
-					      return org.kevoree.modeling.api.VisitResult.CONTINUE;
-					}}, {on:function(throwable: java.lang.Throwable){
-					      if (throwable != null) {
-					        throwable.printStackTrace();
-					        callback.on(null);
-					      } else {
-					        traces.addAll(tracesRef);
-					        if (!inter && !merge) {
-					          var diffChildKeys: number[] = objectsMap.keySet().toArray(new Array());
-					          for (var i: number = 0; i < diffChildKeys.length; i++) {
-					            var diffChildKey: number = diffChildKeys[i];
-					            var diffChild: org.kevoree.modeling.api.KObject<any,any> = objectsMap.get(diffChildKey);
-					            var src: number = diffChild.parentUuid();
-					            traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(src, diffChild.referenceInParent(), diffChild.uuid()));
-					          }
-					        }
-					        callback.on(new org.kevoree.modeling.api.trace.TraceSequence().populate(traces));
-					      }
-					}});
-					    }
-					}});
-					  }
-					
-					  private static internal_createTraces(current: org.kevoree.modeling.api.KObject<any,any>, sibling: org.kevoree.modeling.api.KObject<any,any>, inter: boolean, merge: boolean, references: boolean, attributes: boolean): java.util.List<org.kevoree.modeling.api.trace.ModelTrace> {
-					    var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
-					    var values: java.util.Map<org.kevoree.modeling.api.meta.MetaAttribute, string> = new java.util.HashMap<org.kevoree.modeling.api.meta.MetaAttribute, string>();
-					    if (attributes) {
-					      if (current != null) {
-					        current.visitAttributes({visit:function(metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute, value: any){
-					        if (value == null) {
-					          values.put(metaAttribute, null);
-					        } else {
-					          values.put(metaAttribute, value.toString());
-					        }
-					}});
-					      }
-					      if (sibling != null) {
-					        sibling.visitAttributes({visit:function(metaAttribute: org.kevoree.modeling.api.meta.MetaAttribute, value: any){
-					        var flatAtt2: string = null;
-					        if (value != null) {
-					          flatAtt2 = value.toString();
-					        }
-					        var flatAtt1: string = values.get(metaAttribute);
-					        var isEquals: boolean = true;
-					        if (flatAtt1 == null) {
-					          if (flatAtt2 == null) {
-					            isEquals = true;
-					          } else {
-					            isEquals = false;
-					          }
-					        } else {
-					          isEquals = flatAtt1.equals(flatAtt2);
-					        }
-					        if (isEquals) {
-					          if (inter) {
-					            traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
-					          }
-					        } else {
-					          if (!inter) {
-					            traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), metaAttribute, flatAtt2));
-					          }
-					        }
-					        values.remove(metaAttribute);
-					}});
-					      }
-					      if (!inter && !merge && !values.isEmpty()) {
-					        var mettaAttributes: org.kevoree.modeling.api.meta.MetaAttribute[] = values.keySet().toArray(new Array());
-					        for (var i: number = 0; i < mettaAttributes.length; i++) {
-					          var hashLoopRes: org.kevoree.modeling.api.meta.MetaAttribute = mettaAttributes[i];
-					          traces.add(new org.kevoree.modeling.api.trace.ModelSetTrace(current.uuid(), hashLoopRes, null));
-					          values.remove(hashLoopRes);
-					        }
-					      }
-					    }
-					    var valuesRef: java.util.Map<org.kevoree.modeling.api.meta.MetaReference, any> = new java.util.HashMap<org.kevoree.modeling.api.meta.MetaReference, any>();
-					    if (references) {
-					      for (var i: number = 0; i < current.metaReferences().length; i++) {
-					        var reference: org.kevoree.modeling.api.meta.MetaReference = current.metaReferences()[i];
-					        var payload: any = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
-					        valuesRef.put(reference, payload);
-					      }
-					      if (sibling != null) {
-					        for (var i: number = 0; i < sibling.metaReferences().length; i++) {
-					          var reference: org.kevoree.modeling.api.meta.MetaReference = sibling.metaReferences()[i];
-					          var payload2: any = sibling.view().dimension().universe().storage().raw(sibling, org.kevoree.modeling.api.data.AccessMode.READ)[reference.index()];
-					          var payload1: any = valuesRef.get(reference);
-					          if (reference.single()) {
-					            var isEquals: boolean = true;
-					            if (payload1 == null) {
-					              if (payload2 == null) {
-					                isEquals = true;
-					              } else {
-					                isEquals = false;
-					              }
-					            } else {
-					              isEquals = payload1.equals(payload2);
-					            }
-					            if (isEquals) {
-					              if (inter) {
-					                if (payload2 != null) {
-					                  traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, <number>payload2, null));
-					                }
-					              }
-					            } else {
-					              if (!inter) {
-					                traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, <number>payload2, null));
-					              }
-					            }
-					          } else {
-					            if (payload1 == null && payload2 != null) {
-					              var siblingToAdd: number[] = (<java.util.Set<number>>payload2).toArray(new Array());
-					              for (var j: number = 0; j < siblingToAdd.length; j++) {
-					                var siblingElem: number = siblingToAdd[j];
-					                if (!inter) {
-					                  traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, siblingElem, null));
-					                }
-					              }
-					            } else {
-					              if (payload1 != null) {
-					                var currentPaths: number[] = (<java.util.Set<number>>payload1).toArray(new Array());
-					                for (var j: number = 0; j < currentPaths.length; j++) {
-					                  var currentPath: number = currentPaths[j];
-					                  var isFound: boolean = false;
-					                  if (payload2 != null) {
-					                    var siblingPaths: java.util.Set<number> = <java.util.Set<number>>payload2;
-					                    isFound = siblingPaths.contains(currentPath);
-					                  }
-					                  if (isFound) {
-					                    if (inter) {
-					                      traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(current.uuid(), reference, currentPath, null));
-					                    }
-					                  } else {
-					                    if (!inter) {
-					                      traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), reference, currentPath));
-					                    }
-					                  }
-					                }
-					              }
-					            }
-					          }
-					          valuesRef.remove(reference);
-					        }
-					        if (!inter && !merge && !valuesRef.isEmpty()) {
-					          var metaReferences: org.kevoree.modeling.api.meta.MetaReference[] = valuesRef.keySet().toArray(new Array());
-					          for (var i: number = 0; i < metaReferences.length; i++) {
-					            var hashLoopResRef: org.kevoree.modeling.api.meta.MetaReference = metaReferences[i];
-					            var payload: any = valuesRef.get(hashLoopResRef);
-					            if (payload != null) {
-					              if (payload instanceof java.util.Set) {
-					                var toRemoveSet: number[] = (<java.util.Set<number>>payload).toArray(new Array());
-					                for (var j: number = 0; j < toRemoveSet.length; j++) {
-					                  var toRemovePath: number = toRemoveSet[j];
-					                  traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), hashLoopResRef, toRemovePath));
-					                }
-					              } else {
-					                traces.add(new org.kevoree.modeling.api.trace.ModelRemoveTrace(current.uuid(), hashLoopResRef, <number>payload));
-					              }
-					            }
-					          }
-					        }
-					      }
-					    }
-					    return traces;
-					  }
-					
-					}
-					
-					export class DefaultModelSlicer {
-					
-					  private static internal_prune(elem: org.kevoree.modeling.api.KObject<any,any>, traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace>, cache: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>>, parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>>, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
-					    var parents: java.util.List<org.kevoree.modeling.api.KObject<any,any>> = new java.util.ArrayList<org.kevoree.modeling.api.KObject<any,any>>();
-					    var parentExplorer: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject<any,any>>[] = new Array();
-					    parentExplorer[0] = {on:function(currentParent: org.kevoree.modeling.api.KObject<any,any>){
-					    if (currentParent != null && parentMap.get(currentParent.uuid()) == null && cache.get(currentParent.uuid()) == null) {
-					      parents.add(currentParent);
-					      currentParent.parent(parentExplorer[0]);
-					      callback.on(null);
-					    } else {
-					      java.util.Collections.reverse(parents);
-					      var parentsArr: org.kevoree.modeling.api.KObject<any,any>[] = parents.toArray(new Array());
-					      for (var k: number = 0; k < parentsArr.length; k++) {
-					        var parent: org.kevoree.modeling.api.KObject<any,any> = parentsArr[k];
-					        if (parent.parentUuid() != null) {
-					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
-					        }
-					        var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = elem.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY);
-					        for (var i: number = 0; i < toAdd.length; i++) {
-					          traces.add(toAdd[i]);
-					        }
-					        parentMap.put(parent.uuid(), parent);
-					      }
-					      if (cache.get(elem.uuid()) == null && parentMap.get(elem.uuid()) == null) {
-					        if (elem.parentUuid() != null) {
-					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
-					        }
-					        var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = elem.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY);
-					        for (var i: number = 0; i < toAdd.length; i++) {
-					          traces.add(toAdd[i]);
-					        }
-					      }
-					      cache.put(elem.uuid(), elem);
-					      elem.graphVisit({visit:function(elem: org.kevoree.modeling.api.KObject<any,any>){
-					      if (cache.get(elem.uuid()) == null) {
-					        DefaultModelSlicer.internal_prune(elem, traces, cache, parentMap, {on:function(throwable: java.lang.Throwable){
-					}});
-					      }
-					      return org.kevoree.modeling.api.VisitResult.CONTINUE;
-					}}, {on:function(throwable: java.lang.Throwable){
-					      callback.on(null);
-					}});
-					    }
-					}};
-					    traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.uuid(), null, elem.uuid(), elem.metaClass()));
-					    elem.parent(parentExplorer[0]);
-					  }
-					
-					  public static slice(elems: java.util.List<org.kevoree.modeling.api.KObject<any,any>>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
-					    var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
-					    var tempMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject<any,any>>();
-					    var parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject<any,any>>();
-					    var elemsArr: org.kevoree.modeling.api.KObject<any,any>[] = elems.toArray(new Array());
-					    org.kevoree.modeling.api.util.Helper.forall(elemsArr, {on:function(obj: org.kevoree.modeling.api.KObject<any,any>, next: org.kevoree.modeling.api.Callback<java.lang.Throwable>){
-					    DefaultModelSlicer.internal_prune(obj, traces, tempMap, parentMap, next);
-					}}, {on:function(throwable: java.lang.Throwable){
-					    var toLinkKeysArr: number[] = tempMap.keySet().toArray(new Array());
-					    for (var k: number = 0; k < toLinkKeysArr.length; k++) {
-					      var toLink: org.kevoree.modeling.api.KObject<any,any> = tempMap.get(toLinkKeysArr[k]);
-					      var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = toLink.traces(org.kevoree.modeling.api.TraceRequest.REFERENCES_ONLY);
-					      for (var i: number = 0; i < toAdd.length; i++) {
-					        traces.add(toAdd[i]);
-					      }
-					    }
-					    callback.on(new org.kevoree.modeling.api.trace.TraceSequence().populate(traces));
-					}});
-					  }
-					
-					}
 				}
 				export module polynomial {
 					
@@ -4407,6 +4286,168 @@ module org {
 					}});
 					      }
 					}});
+					    }
+					  }
+					
+					}
+				}
+				export module slice {
+					
+					export class DefaultModelSlicer implements org.kevoree.modeling.api.ModelSlicer {
+					
+					  private internal_prune(elem: org.kevoree.modeling.api.KObject<any,any>, traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace>, cache: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>>, parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>>, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
+					    var parents: java.util.List<org.kevoree.modeling.api.KObject<any,any>> = new java.util.ArrayList<org.kevoree.modeling.api.KObject<any,any>>();
+					    var parentExplorer: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject<any,any>>[] = new Array();
+					    parentExplorer[0] = {on:function(currentParent: org.kevoree.modeling.api.KObject<any,any>){
+					    if (currentParent != null && parentMap.get(currentParent.uuid()) == null && cache.get(currentParent.uuid()) == null) {
+					      parents.add(currentParent);
+					      currentParent.parent(parentExplorer[0]);
+					      callback.on(null);
+					    } else {
+					      java.util.Collections.reverse(parents);
+					      var parentsArr: org.kevoree.modeling.api.KObject<any,any>[] = parents.toArray(new Array());
+					      for (var k: number = 0; k < parentsArr.length; k++) {
+					        var parent: org.kevoree.modeling.api.KObject<any,any> = parentsArr[k];
+					        if (parent.parentUuid() != null) {
+					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
+					        }
+					        var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = elem.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY);
+					        for (var i: number = 0; i < toAdd.length; i++) {
+					          traces.add(toAdd[i]);
+					        }
+					        parentMap.put(parent.uuid(), parent);
+					      }
+					      if (cache.get(elem.uuid()) == null && parentMap.get(elem.uuid()) == null) {
+					        if (elem.parentUuid() != null) {
+					          traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
+					        }
+					        var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = elem.traces(org.kevoree.modeling.api.TraceRequest.ATTRIBUTES_ONLY);
+					        for (var i: number = 0; i < toAdd.length; i++) {
+					          traces.add(toAdd[i]);
+					        }
+					      }
+					      cache.put(elem.uuid(), elem);
+					      elem.graphVisit({visit:function(elem: org.kevoree.modeling.api.KObject<any,any>){
+					      if (cache.get(elem.uuid()) == null) {
+					        this.internal_prune(elem, traces, cache, parentMap, {on:function(throwable: java.lang.Throwable){
+					}});
+					      }
+					      return org.kevoree.modeling.api.VisitResult.CONTINUE;
+					}}, {on:function(throwable: java.lang.Throwable){
+					      callback.on(null);
+					}});
+					    }
+					}};
+					    traces.add(new org.kevoree.modeling.api.trace.ModelAddTrace(elem.uuid(), null, elem.uuid(), elem.metaClass()));
+					    elem.parent(parentExplorer[0]);
+					  }
+					
+					  public slice(elems: java.util.List<org.kevoree.modeling.api.KObject<any,any>>, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.trace.TraceSequence>): void {
+					    var traces: java.util.List<org.kevoree.modeling.api.trace.ModelTrace> = new java.util.ArrayList<org.kevoree.modeling.api.trace.ModelTrace>();
+					    var tempMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject<any,any>>();
+					    var parentMap: java.util.Map<number, org.kevoree.modeling.api.KObject<any,any>> = new java.util.HashMap<number, org.kevoree.modeling.api.KObject<any,any>>();
+					    var elemsArr: org.kevoree.modeling.api.KObject<any,any>[] = elems.toArray(new Array());
+					    org.kevoree.modeling.api.util.Helper.forall(elemsArr, {on:function(obj: org.kevoree.modeling.api.KObject<any,any>, next: org.kevoree.modeling.api.Callback<java.lang.Throwable>){
+					    this.internal_prune(obj, traces, tempMap, parentMap, next);
+					}}, {on:function(throwable: java.lang.Throwable){
+					    var toLinkKeysArr: number[] = tempMap.keySet().toArray(new Array());
+					    for (var k: number = 0; k < toLinkKeysArr.length; k++) {
+					      var toLink: org.kevoree.modeling.api.KObject<any,any> = tempMap.get(toLinkKeysArr[k]);
+					      var toAdd: org.kevoree.modeling.api.trace.ModelTrace[] = toLink.traces(org.kevoree.modeling.api.TraceRequest.REFERENCES_ONLY);
+					      for (var i: number = 0; i < toAdd.length; i++) {
+					        traces.add(toAdd[i]);
+					      }
+					    }
+					    callback.on(new org.kevoree.modeling.api.trace.TraceSequence().populate(traces));
+					}});
+					  }
+					
+					}
+				}
+				export module strategy {
+					
+					export class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
+					
+					  public timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[] {
+					    var times: number[] = new Array();
+					    times[0] = current.timeTree().resolve(current.now());
+					    return times;
+					  }
+					
+					  public extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any {
+					    var payload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
+					    if (payload != null) {
+					      return payload[attribute.index()];
+					    } else {
+					      return null;
+					    }
+					  }
+					
+					  public mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void {
+					    var internalPayload: any[] = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
+					    if (internalPayload != null) {
+					      internalPayload[attribute.index()] = payload;
+					    }
+					  }
+					
+					}
+					
+					export interface ExtrapolationStrategy {
+					
+					  timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[];
+					
+					  extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any;
+					
+					  mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void;
+					
+					}
+					
+					export class LinearRegressionExtrapolationStrategy implements ExtrapolationStrategy {
+					
+					  public timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[] {
+					    return new Array();
+					  }
+					
+					  public extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any {
+					    return null;
+					  }
+					
+					  public mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void {
+					  }
+					
+					}
+					
+					export class PolynomialExtrapolationStrategy implements ExtrapolationStrategy {
+					
+					  public timedDependencies(current: org.kevoree.modeling.api.KObject<any,any>): number[] {
+					    var times: number[] = new Array();
+					    times[0] = current.timeTree().resolve(current.now());
+					    return times;
+					  }
+					
+					  public extrapolate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): any {
+					    var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = <org.kevoree.modeling.api.polynomial.PolynomialExtrapolation>current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
+					    if (pol != null) {
+					      return pol.extrapolate(current.now());
+					    } else {
+					      return null;
+					    }
+					  }
+					
+					  public mutate(current: org.kevoree.modeling.api.KObject<any,any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any,any>[]): void {
+					    var previous: any = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
+					    if (previous == null) {
+					      var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation(current.now(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+					      pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
+					      current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+					    } else {
+					      var previousPol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = <org.kevoree.modeling.api.polynomial.PolynomialExtrapolation>previous;
+					      if (!previousPol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()))) {
+					        var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation(previousPol.lastIndex(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+					        pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
+					        pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
+					        current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+					      }
 					    }
 					  }
 					
@@ -5427,7 +5468,7 @@ module org {
 					    buffer.append(ModelTraceConstants.bb);
 					    buffer.append(ModelTraceConstants.dp);
 					    buffer.append(ModelTraceConstants.bb);
-					    org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this.srcKID + "");
+					    org.kevoree.modeling.api.json.JSONString.encodeBuffer(buffer, this.srcKID + "");
 					    buffer.append(ModelTraceConstants.bb);
 					    if (this.reference != null) {
 					      buffer.append(ModelTraceConstants.coma);
@@ -5446,7 +5487,7 @@ module org {
 					      buffer.append(ModelTraceConstants.bb);
 					      buffer.append(ModelTraceConstants.dp);
 					      buffer.append(ModelTraceConstants.bb);
-					      org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this.previousKID + "");
+					      org.kevoree.modeling.api.json.JSONString.encodeBuffer(buffer, this.previousKID + "");
 					      buffer.append(ModelTraceConstants.bb);
 					    }
 					    if (this.metaClass != null) {
@@ -5456,7 +5497,7 @@ module org {
 					      buffer.append(ModelTraceConstants.bb);
 					      buffer.append(ModelTraceConstants.dp);
 					      buffer.append(ModelTraceConstants.bb);
-					      org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this.metaClass.metaName());
+					      org.kevoree.modeling.api.json.JSONString.encodeBuffer(buffer, this.metaClass.metaName());
 					      buffer.append(ModelTraceConstants.bb);
 					    }
 					    buffer.append(ModelTraceConstants.closeJSON);
@@ -5522,7 +5563,7 @@ module org {
 					    buffer.append(ModelTraceConstants.bb);
 					    buffer.append(ModelTraceConstants.dp);
 					    buffer.append(ModelTraceConstants.bb);
-					    org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this.srcKID + "");
+					    org.kevoree.modeling.api.json.JSONString.encodeBuffer(buffer, this.srcKID + "");
 					    buffer.append(ModelTraceConstants.bb);
 					    buffer.append(ModelTraceConstants.coma);
 					    buffer.append(ModelTraceConstants.bb);
@@ -5538,7 +5579,7 @@ module org {
 					    buffer.append(ModelTraceConstants.bb);
 					    buffer.append(ModelTraceConstants.dp);
 					    buffer.append(ModelTraceConstants.bb);
-					    org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this.objKID + "");
+					    org.kevoree.modeling.api.json.JSONString.encodeBuffer(buffer, this.objKID + "");
 					    buffer.append(ModelTraceConstants.bb);
 					    buffer.append(ModelTraceConstants.closeJSON);
 					    return buffer.toString();
@@ -5591,7 +5632,7 @@ module org {
 					    buffer.append(ModelTraceConstants.bb);
 					    buffer.append(ModelTraceConstants.dp);
 					    buffer.append(ModelTraceConstants.bb);
-					    org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this.srcKID + "");
+					    org.kevoree.modeling.api.json.JSONString.encodeBuffer(buffer, this.srcKID + "");
 					    buffer.append(ModelTraceConstants.bb);
 					    buffer.append(ModelTraceConstants.coma);
 					    buffer.append(ModelTraceConstants.bb);
@@ -5608,7 +5649,7 @@ module org {
 					      buffer.append(ModelTraceConstants.bb);
 					      buffer.append(ModelTraceConstants.dp);
 					      buffer.append(ModelTraceConstants.bb);
-					      org.kevoree.modeling.api.json.JsonString.encodeBuffer(buffer, this.content.toString());
+					      org.kevoree.modeling.api.json.JSONString.encodeBuffer(buffer, this.content.toString());
 					      buffer.append(ModelTraceConstants.bb);
 					    }
 					    buffer.append(ModelTraceConstants.closeJSON);
@@ -5838,17 +5879,17 @@ module org {
 					        var traceTypeRead: string = keys.get(ModelTraceConstants.traceType.toString());
 					        if (traceTypeRead.equals(org.kevoree.modeling.api.KActionType.SET.toString())) {
 					          var srcFound: string = keys.get(ModelTraceConstants.src.toString());
-					          srcFound = org.kevoree.modeling.api.json.JsonString.unescape(srcFound);
-					          this._traces.add(new ModelSetTrace(java.lang.Long.parseLong(srcFound), new org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), org.kevoree.modeling.api.json.JsonString.unescape(keys.get(ModelTraceConstants.content.toString()))));
+					          srcFound = org.kevoree.modeling.api.json.JSONString.unescape(srcFound);
+					          this._traces.add(new ModelSetTrace(java.lang.Long.parseLong(srcFound), new org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaAttribute(keys.get(ModelTraceConstants.meta.toString())), org.kevoree.modeling.api.json.JSONString.unescape(keys.get(ModelTraceConstants.content.toString()))));
 					        }
 					        if (traceTypeRead.equals(org.kevoree.modeling.api.KActionType.ADD.toString())) {
 					          var srcFound: string = keys.get(ModelTraceConstants.src.toString());
-					          srcFound = org.kevoree.modeling.api.json.JsonString.unescape(srcFound);
+					          srcFound = org.kevoree.modeling.api.json.JSONString.unescape(srcFound);
 					          this._traces.add(new ModelAddTrace(java.lang.Long.parseLong(srcFound), new org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), java.lang.Long.parseLong(keys.get(ModelTraceConstants.previouspath.toString())), new org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaClass(keys.get(ModelTraceConstants.typename.toString()))));
 					        }
 					        if (traceTypeRead.equals(org.kevoree.modeling.api.KActionType.REMOVE.toString())) {
 					          var srcFound: string = keys.get(ModelTraceConstants.src.toString());
-					          srcFound = org.kevoree.modeling.api.json.JsonString.unescape(srcFound);
+					          srcFound = org.kevoree.modeling.api.json.JSONString.unescape(srcFound);
 					          this._traces.add(new ModelRemoveTrace(java.lang.Long.parseLong(srcFound), new org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaReference(keys.get(ModelTraceConstants.meta.toString())), java.lang.Long.parseLong(keys.get(ModelTraceConstants.objpath.toString()))));
 					        }
 					      }
@@ -5907,7 +5948,7 @@ module org {
 						    return null;
 						  }
 						
-						  public strategy(): org.kevoree.modeling.api.extrapolation.Extrapolation {
+						  public strategy(): org.kevoree.modeling.api.strategy.ExtrapolationStrategy {
 						    return null;
 						  }
 						
@@ -5915,7 +5956,7 @@ module org {
 						    return 0;
 						  }
 						
-						  public setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void {
+						  public setExtrapolationStrategy(extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy): void {
 						  }
 						
 						  public metaName(): string {
@@ -6255,24 +6296,6 @@ module org {
 					
 					}
 					
-					export class XmiFormat implements org.kevoree.modeling.api.ModelFormat {
-					
-					  private _view: org.kevoree.modeling.api.KView = null;
-					
-					  constructor(p_view: org.kevoree.modeling.api.KView) {
-					    this._view = p_view;
-					  }
-					
-					  public save(model: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.ThrowableCallback<string>): void {
-					    XMIModelSerializer.save(model, callback);
-					  }
-					
-					  public load(payload: string, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
-					    XMIModelLoader.load(this._view, payload, callback);
-					  }
-					
-					}
-					
 					export class XMILoadingContext {
 					
 					  public xmiReader: XmlParser = null;
@@ -6294,7 +6317,7 @@ module org {
 					
 					}
 					
-					export class XMIModelLoader {
+					export class XMIModelLoader implements org.kevoree.modeling.api.ModelLoader {
 					
 					  private _factory: org.kevoree.modeling.api.KView = null;
 					  public static LOADER_XMI_LOCAL_NAME: string = "type";
@@ -6355,7 +6378,7 @@ module org {
 					    }
 					  }
 					
-					  public static load(p_view: org.kevoree.modeling.api.KView, str: string, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
+					  public load(str: string, callback: org.kevoree.modeling.api.Callback<java.lang.Throwable>): void {
 					    var parser: XmlParser = new XmlParser(str);
 					    if (!parser.hasNext()) {
 					      callback.on(null);
@@ -6363,11 +6386,11 @@ module org {
 					      var context: XMILoadingContext = new XMILoadingContext();
 					      context.successCallback = callback;
 					      context.xmiReader = parser;
-					      XMIModelLoader.deserialize(p_view, context);
+					      this.deserialize(context);
 					    }
 					  }
 					
-					  private static deserialize(p_view: org.kevoree.modeling.api.KView, context: XMILoadingContext): void {
+					  private deserialize(context: XMILoadingContext): void {
 					    try {
 					      var nsURI: string;
 					      var reader: XmlParser = context.xmiReader;
@@ -6390,14 +6413,14 @@ module org {
 					            if (realTypeName == null) {
 					              realTypeName = xsiType;
 					            }
-					            context.loadedRoots = XMIModelLoader.loadObject(p_view, context, "/", xsiType + "." + localName);
+					            context.loadedRoots = this.loadObject(context, "/", xsiType + "." + localName);
 					          }
 					        }
 					      }
 					      for (var i: number = 0; i < context.resolvers.size(); i++) {
 					        context.resolvers.get(i).run();
 					      }
-					      p_view.setRoot(context.loadedRoots);
+					      this._factory.setRoot(context.loadedRoots);
 					      context.successCallback.on(null);
 					    } catch ($ex$) {
 					      if ($ex$ instanceof java.lang.Exception) {
@@ -6407,10 +6430,10 @@ module org {
 					     }
 					  }
 					
-					  private static callFactory(p_view: org.kevoree.modeling.api.KView, ctx: XMILoadingContext, objectType: string): org.kevoree.modeling.api.KObject<any,any> {
+					  private callFactory(ctx: XMILoadingContext, objectType: string): org.kevoree.modeling.api.KObject<any,any> {
 					    var modelElem: org.kevoree.modeling.api.KObject<any,any> = null;
 					    if (objectType != null) {
-					      modelElem = p_view.createFQN(objectType);
+					      modelElem = this._factory.createFQN(objectType);
 					      if (modelElem == null) {
 					        var xsiType: string = null;
 					        for (var i: number = 0; i < (ctx.xmiReader.getAttributeCount() - 1); i++) {
@@ -6424,18 +6447,18 @@ module org {
 					        if (xsiType != null) {
 					          var realTypeName: string = xsiType.substring(0, xsiType.lastIndexOf(":"));
 					          var realName: string = xsiType.substring(xsiType.lastIndexOf(":") + 1, xsiType.length);
-					          modelElem = p_view.createFQN(realTypeName + "." + realName);
+					          modelElem = this._factory.createFQN(realTypeName + "." + realName);
 					        }
 					      }
 					    } else {
-					      modelElem = p_view.createFQN(ctx.xmiReader.getLocalName());
+					      modelElem = this._factory.createFQN(ctx.xmiReader.getLocalName());
 					    }
 					    return modelElem;
 					  }
 					
-					  private static loadObject(p_view: org.kevoree.modeling.api.KView, ctx: XMILoadingContext, xmiAddress: string, objectType: string): org.kevoree.modeling.api.KObject<any,any> {
+					  private loadObject(ctx: XMILoadingContext, xmiAddress: string, objectType: string): org.kevoree.modeling.api.KObject<any,any> {
 					    var elementTagName: string = ctx.xmiReader.getLocalName();
-					    var modelElem: org.kevoree.modeling.api.KObject<any,any> = XMIModelLoader.callFactory(p_view, ctx, objectType);
+					    var modelElem: org.kevoree.modeling.api.KObject<any,any> = this.callFactory(ctx, objectType);
 					    if (modelElem == null) {
 					      throw new java.lang.Exception("Could not create an object for local name " + elementTagName);
 					    }
@@ -6483,7 +6506,7 @@ module org {
 					            ctx.elementsCount.put(key, i);
 					          }
 					          var subElementId: string = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
-					          var containedElement: org.kevoree.modeling.api.KObject<any,any> = XMIModelLoader.loadObject(p_view, ctx, subElementId, subElemName);
+					          var containedElement: org.kevoree.modeling.api.KObject<any,any> = this.loadObject(ctx, subElementId, subElemName);
 					          modelElem.mutate(org.kevoree.modeling.api.KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true);
 					          ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
 					        } else {
@@ -6502,9 +6525,9 @@ module org {
 					
 					}
 					
-					export class XMIModelSerializer {
+					export class XMIModelSerializer implements org.kevoree.modeling.api.ModelSerializer {
 					
-					  public static save(model: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.ThrowableCallback<string>): void {
+					  public serialize(model: org.kevoree.modeling.api.KObject<any,any>, callback: org.kevoree.modeling.api.ThrowableCallback<string>): void {
 					    var context: SerializationContext = new SerializationContext();
 					    context.model = model;
 					    context.finishCallback = callback;
@@ -6919,14 +6942,14 @@ module org {
 						
 						  export class METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
 						
-						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, org.kevoree.modeling.api.meta.MetaType.LONG, org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance());
+						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy());
+						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, org.kevoree.modeling.api.meta.MetaType.LONG, org.kevoree.modeling.api.Extrapolations.POLYNOMIAL.strategy());
 						    private _name: string = null;
 						    private _index: number = 0;
 						    private _precision: number = 0;
 						    private _key: boolean = null;
 						    private _metaType: org.kevoree.modeling.api.meta.MetaType = null;
-						    private extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation = null;
+						    private extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy = null;
 						
 						    public metaType(): org.kevoree.modeling.api.meta.MetaType {
 						      return this._metaType;
@@ -6952,21 +6975,21 @@ module org {
 						      return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT;
 						    }
 						
-						    public strategy(): org.kevoree.modeling.api.extrapolation.Extrapolation {
-						      return this.extrapolation;
+						    public strategy(): org.kevoree.modeling.api.strategy.ExtrapolationStrategy {
+						      return this.extrapolationStrategy;
 						    }
 						
-						    public setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void {
-						      this.extrapolation = extrapolation;
+						    public setExtrapolationStrategy(extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy): void {
+						      this.extrapolationStrategy = extrapolationStrategy;
 						    }
 						
-						    constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
+						    constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy) {
 						      this._name = name;
 						      this._index = index;
 						      this._precision = precision;
 						      this._key = key;
 						      this._metaType = metaType;
-						      this.extrapolation = extrapolation;
+						      this.extrapolationStrategy = extrapolationStrategy;
 						    }
 						
 						    public equals(other: any): boolean {
@@ -7050,7 +7073,7 @@ module org {
 							  }
 							
 							  public getValue(): number {
-							    return <number>java.lang.Double.parseDouble(this.get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE).toString());
+							    return <number>this.get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE);
 							  }
 							
 							  public setValue(p_name: number): org.kevoree.modeling.microframework.test.cloud.Element {
@@ -7153,14 +7176,14 @@ module org {
 						
 						  export class METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
 						
-						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+						    public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 2, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy());
+						    public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 3, 5, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy());
 						    private _name: string = null;
 						    private _index: number = 0;
 						    private _precision: number = 0;
 						    private _key: boolean = null;
 						    private _metaType: org.kevoree.modeling.api.meta.MetaType = null;
-						    private extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation = null;
+						    private extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy = null;
 						
 						    public metaType(): org.kevoree.modeling.api.meta.MetaType {
 						      return this._metaType;
@@ -7186,21 +7209,21 @@ module org {
 						      return this._key;
 						    }
 						
-						    public strategy(): org.kevoree.modeling.api.extrapolation.Extrapolation {
-						      return this.extrapolation;
+						    public strategy(): org.kevoree.modeling.api.strategy.ExtrapolationStrategy {
+						      return this.extrapolationStrategy;
 						    }
 						
-						    public setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void {
-						      this.extrapolation = extrapolation;
+						    public setExtrapolationStrategy(extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy): void {
+						      this.extrapolationStrategy = extrapolationStrategy;
 						    }
 						
-						    constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
+						    constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolationStrategy: org.kevoree.modeling.api.strategy.ExtrapolationStrategy) {
 						      this._name = name;
 						      this._index = index;
 						      this._precision = precision;
 						      this._key = key;
 						      this._metaType = metaType;
-						      this.extrapolation = extrapolation;
+						      this.extrapolationStrategy = extrapolationStrategy;
 						    }
 						
 						    public equals(other: any): boolean {
@@ -7331,14 +7354,14 @@ module org {
 					    var node0_1: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
 					    node0_1.setName("node0_1");
 					    node0_1.setValue("0_1");
-					    t0.diff(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
+					    t0.createModelCompare().diff(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
 					    org.junit.Assert.assertNotEquals(traceSequence.traces().length, 0);
 					    org.junit.Assert.assertEquals("[{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"},\n" + "{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"value\",\"val\":\"0_1\"}]", traceSequence.toString());
 					}});
-					    t0.diff(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
+					    t0.createModelCompare().diff(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
 					    new org.kevoree.modeling.api.trace.ModelTraceApplicator(node0_0).applyTraceSequence(traceSequence, {on:function(throwable: java.lang.Throwable){
 					    org.junit.Assert.assertNull(throwable);
-					    t0.diff(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
+					    t0.createModelCompare().diff(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
 					    org.junit.Assert.assertEquals(traceSequence.traces().length, 0);
 					}});
 					}});
@@ -7357,13 +7380,13 @@ module org {
 					    var node0_1: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
 					    node0_1.setName("node0_1");
 					    node0_1.setValue("0_1");
-					    t0.intersection(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
+					    t0.createModelCompare().intersection(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
 					    org.junit.Assert.assertEquals(traceSequence.traces().length, 0);
 					}});
 					    var node0_2: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
 					    node0_2.setName("node0_2");
 					    node0_2.setValue("0_1");
-					    t0.intersection(node0_2, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
+					    t0.createModelCompare().intersection(node0_2, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
 					    org.junit.Assert.assertEquals(traceSequence.traces().length, 1);
 					    org.junit.Assert.assertEquals("[{\"type\":\"SET\",\"src\":\"3\",\"meta\":\"value\",\"val\":\"0_1\"}]", traceSequence.toString());
 					}});
@@ -7384,7 +7407,7 @@ module org {
 					    var node0_1: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
 					    node0_1.setName("node0_1");
 					    node0_1.setValue("0_1");
-					    t0.merge(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
+					    t0.createModelCompare().union(node0_0, node0_1, {on:function(traceSequence: org.kevoree.modeling.api.trace.TraceSequence){
 					    org.junit.Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"}", traceSequence.traces()[0].toString());
 					    org.junit.Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"value\",\"val\":\"0_1\"}", traceSequence.traces()[1].toString());
 					    org.junit.Assert.assertEquals("{\"type\":\"ADD\",\"src\":\"1\",\"meta\":\"element\"}", traceSequence.traces()[2].toString());
@@ -7522,7 +7545,8 @@ module org {
 						    var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(new org.kevoree.modeling.api.data.MemoryKDataBase());
 						    universe.newDimension({on:function(dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension){
 						    var time0: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(0);
-						    time0.json().load("[\n" + "{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"1\",\n" + "\t\"name\":\"root\",\n" + "\t\"children\": [\"2\",\"3\"],\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"2\",\n" + "\t\"name\":\"n1\",\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"3\",\n" + "\t\"name\":\"n2\",\n" + "}\n" + "]", {on:function(res: java.lang.Throwable){
+						    var loader: org.kevoree.modeling.api.ModelLoader = time0.createJSONLoader();
+						    loader.load("[\n" + "{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"1\",\n" + "\t\"name\":\"root\",\n" + "\t\"children\": [\"2\",\"3\"],\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"2\",\n" + "\t\"name\":\"n1\",\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"3\",\n" + "\t\"name\":\"n2\",\n" + "}\n" + "]", {on:function(res: java.lang.Throwable){
 						    time0.lookup(1, {on:function(r: org.kevoree.modeling.api.KObject<any,any>){
 						    System.err.println(r);
 						}});
@@ -7548,7 +7572,7 @@ module org {
 						    root.addChildren(n1);
 						    root.addChildren(n2);
 						    var result: string[] = new Array();
-						    time0.json().save(root, {on:function(model: string, err: java.lang.Throwable){
+						    time0.createJSONSerializer().serialize(root, {on:function(model: string, err: java.lang.Throwable){
 						    result[0] = model;
 						    if (err != null) {
 						      err.printStackTrace();
@@ -7616,43 +7640,6 @@ module org {
 						export class PolynomialKMFTest {
 						
 						  public test(): void {
-						    var dataBase: org.kevoree.modeling.api.data.MemoryKDataBase = new org.kevoree.modeling.api.data.MemoryKDataBase();
-						    var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(dataBase);
-						    universe.newDimension({on:function(dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension){
-						    var val: number[] = new Array();
-						    var coef: number[] = [2, 2, 3];
-						    var t0: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(0);
-						    var node: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
-						    node.setName("n0");
-						    t0.setRoot(node);
-						    var element: org.kevoree.modeling.microframework.test.cloud.Element = t0.createElement();
-						    element.setName("e0");
-						    node.setElement(element);
-						    element.setValue(0);
-						    for (var i: number = 0; i < 1000; i++) {
-						      var temp: number = 1;
-						      for (var j: number = 0; j < coef.length; j++) {
-						        val[i] = val[i] + coef[j] * temp;
-						        temp = temp * i;
-						      }
-						      var vv: number = <number>val[i];
-						      var finalI: number = i;
-						      dimension0.time(finalI).lookup(element.uuid(), {on:function(kObject: org.kevoree.modeling.api.KObject<any,any>){
-						      var casted: org.kevoree.modeling.microframework.test.cloud.Element = <org.kevoree.modeling.microframework.test.cloud.Element>kObject;
-						      casted.setValue(vv);
-						}});
-						    }
-						    System.out.println(element.timeTree().size());
-						    for (var i: number = 0; i < 1000; i++) {
-						      element.timeTree().walk({walk:function(timePoint: number){
-						      element.jump(timePoint, {on:function(element: org.kevoree.modeling.microframework.test.cloud.Element){
-						}});
-						}});
-						    }
-						}});
-						  }
-						
-						  public test2(): void {
 						    var dataBase: org.kevoree.modeling.api.data.MemoryKDataBase = new org.kevoree.modeling.api.data.MemoryKDataBase();
 						    var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(dataBase);
 						    universe.newDimension({on:function(dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension){
@@ -7981,6 +7968,7 @@ module org {
 					    n2.setName("n2");
 					    root.addChildren(n1);
 					    root.addChildren(n2);
+					    var slicer: org.kevoree.modeling.api.ModelSlicer = time0.createModelSlicer();
 					}});
 					  }
 					
@@ -8097,6 +8085,7 @@ module org {
 					    n2.setName("n2");
 					    root.addChildren(n1);
 					    root.addChildren(n2);
+					    var compare: org.kevoree.modeling.api.ModelCompare = time0.createModelCompare();
 					}});
 					  }
 					
@@ -8118,7 +8107,7 @@ module org {
 						    nodeT1.setName("n1");
 						    nodeT0.addChildren(nodeT1);
 						    t0.lookup(nodeT0.uuid(), {on:function(root: org.kevoree.modeling.api.KObject<any,any>){
-						    t0.xmi().save(root, {on:function(result: string, error: java.lang.Throwable){
+						    t0.createXMISerializer().serialize(root, {on:function(result: string, error: java.lang.Throwable){
 						    if (error != null) {
 						      error.printStackTrace();
 						    }
