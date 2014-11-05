@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.json.JsonString;
+import org.kevoree.modeling.api.json.JsonString2;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 
@@ -60,7 +60,7 @@ public class ModelSetTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JsonString.encodeBuffer(buffer, srcKID + "");
+        JsonString2.encodeBuffer(buffer, srcKID + "");
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);
@@ -77,7 +77,7 @@ public class ModelSetTrace implements ModelTrace {
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            JsonString.encodeBuffer(buffer, content.toString());//TODO manage for array
+            JsonString2.encodeBuffer(buffer, content.toString());//TODO manage for array
             buffer.append(ModelTraceConstants.bb);
         }
         buffer.append(ModelTraceConstants.closeJSON);

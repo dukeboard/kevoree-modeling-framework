@@ -14,7 +14,7 @@ import org.kevoree.modeling.api.TraceRequest;
 import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.api.json.JsonModelSerializer;
+import org.kevoree.modeling.api.json.JsonModelSerializer2;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -564,14 +564,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public String toJSON() {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
-        builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
+        builder.append("\t\"" + JsonModelSerializer2.KEY_META + "\" : \"");
         builder.append(metaClass().metaName());
         builder.append("\",\n");
-        builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
+        builder.append("\t\"" + JsonModelSerializer2.KEY_UUID + "\" : \"");
         builder.append(uuid());
         if (isRoot()) {
             builder.append("\",\n");
-            builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
+            builder.append("\t\"" + JsonModelSerializer2.KEY_ROOT + "\" : \"");
             builder.append("true");
         }
         builder.append("\",\n");
