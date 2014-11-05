@@ -141,7 +141,7 @@ public class JsonModelLoader {
     }
 
 
-    public static void load(KView _factory, String payload, Callback<Throwable> callback) {
+    public static void load(KView _factory, String payload, final Callback<Throwable> callback) {
         if (payload == null) {
             callback.on(null);
         } else {

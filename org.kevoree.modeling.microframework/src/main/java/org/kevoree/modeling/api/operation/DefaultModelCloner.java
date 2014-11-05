@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.KObject;
 
 public class DefaultModelCloner {
 
-    public static <A extends KObject> void clone(A originalObject, Callback<A> callback) {
+    public static <A extends KObject> void clone(final A originalObject, final Callback<A> callback) {
         if (originalObject == null || originalObject.view() == null || originalObject.view().dimension() == null) {
             callback.on(null);
         } else {

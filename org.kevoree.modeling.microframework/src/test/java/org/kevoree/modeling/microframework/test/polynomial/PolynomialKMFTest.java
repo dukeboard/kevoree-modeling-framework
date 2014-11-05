@@ -28,7 +28,7 @@ public class PolynomialKMFTest {
             @Override
             public void on(CloudDimension dimension0) {
 
-                double[] val= new double[1000];
+                final double[] val= new double[1000];
                 double[] coef={2,2,3};
 
 
@@ -36,7 +36,7 @@ public class PolynomialKMFTest {
                 Node node = t0.createNode();
                 node.setName("n0");
                 t0.setRoot(node);
-                Element element = t0.createElement();
+                final Element element = t0.createElement();
                 element.setName("e0");
                 node.setElement(element);
                 element.setValue(0l);
@@ -63,7 +63,7 @@ public class PolynomialKMFTest {
                 for (int i = 0; i < 1000; i++) {
                     element.timeTree().walk(new TimeWalker() {
                         @Override
-                        public void walk(long timePoint) {
+                        public void walk(final long timePoint) {
                             element.jump(timePoint, new Callback<Element>() {
                                 @Override
                                 public void on(Element element) {

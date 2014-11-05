@@ -25,7 +25,7 @@ public class JsonModelSerializer /*implements ModelSerializer*/ {
 
     //@Override
     public static void serialize(KObject model, final ThrowableCallback<String> callback) {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("[\n");
         printJSON(model, builder);
         model.graphVisit(new ModelVisitor() {

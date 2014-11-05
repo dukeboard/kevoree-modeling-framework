@@ -50,7 +50,7 @@ public class TimeTest {
 
                 // create node0 and element0 and link them
                 final Node node0 = t0.createNode();
-                Element element0 = t0.createElement();
+                final Element element0 = t0.createElement();
                 node0.setElement(element0);
 
                 node0.getElement(new Callback<Element>() {

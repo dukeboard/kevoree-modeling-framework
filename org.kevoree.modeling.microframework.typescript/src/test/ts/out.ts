@@ -7050,7 +7050,7 @@ module org {
 							  }
 							
 							  public getValue(): number {
-							    return <number>this.get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE);
+							    return <number>java.lang.Double.parseDouble(this.get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE).toString());
 							  }
 							
 							  public setValue(p_name: number): org.kevoree.modeling.microframework.test.cloud.Element {
@@ -7619,6 +7619,8 @@ module org {
 						    var dataBase: org.kevoree.modeling.api.data.MemoryKDataBase = new org.kevoree.modeling.api.data.MemoryKDataBase();
 						    var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(dataBase);
 						    universe.newDimension({on:function(dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension){
+						    var val: number[] = new Array();
+						    var coef: number[] = [2, 2, 3];
 						    var t0: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(0);
 						    var node: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
 						    node.setName("n0");
@@ -7627,14 +7629,26 @@ module org {
 						    element.setName("e0");
 						    node.setElement(element);
 						    element.setValue(0);
-						    for (var i: number = 1; i <= 10000; i++) {
+						    for (var i: number = 0; i < 1000; i++) {
+						      var temp: number = 1;
+						      for (var j: number = 0; j < coef.length; j++) {
+						        val[i] = val[i] + coef[j] * temp;
+						        temp = temp * i;
+						      }
+						      var vv: number = <number>val[i];
 						      var finalI: number = i;
 						      dimension0.time(finalI).lookup(element.uuid(), {on:function(kObject: org.kevoree.modeling.api.KObject<any,any>){
 						      var casted: org.kevoree.modeling.microframework.test.cloud.Element = <org.kevoree.modeling.microframework.test.cloud.Element>kObject;
-						      casted.setValue(finalI);
+						      casted.setValue(vv);
 						}});
 						    }
 						    System.out.println(element.timeTree().size());
+						    for (var i: number = 0; i < 1000; i++) {
+						      element.timeTree().walk({walk:function(timePoint: number){
+						      element.jump(timePoint, {on:function(element: org.kevoree.modeling.microframework.test.cloud.Element){
+						}});
+						}});
+						    }
 						}});
 						  }
 						

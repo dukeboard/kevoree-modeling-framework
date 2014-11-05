@@ -6,11 +6,12 @@
 </head>
 <body>
 
-<script src="../ts/out.js"></script>
+<script src="../../../target/js-test/out.js"></script>
 <script>
 
     var dataBase = new org.kevoree.modeling.api.data.MemoryKDataBase();
     var universe = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(dataBase);
+
     universe.newDimension({
         on: function (dimension0) {
             var t0 = dimension0.time(0);
@@ -21,18 +22,18 @@
             element.setName("e0");
             node.setElement(element);
             element.setValue(0);
-            /*
-            for (var i = 1; i <= 10000; i++) {
-                var finalI = i;
-                dimension0.time(finalI).lookup(element.uuid(), {
-                    on: function (kObject) {
-                        var casted = kObject;
-                        casted.setValue(new java.util.Random().nextInt(100000));
-                    }
-                });
-            }*/
-            console.log("Yop");
-            System.out.println(element.timeTree().size());
+            for (var i = 1; i <= 1; i++) {
+                try {
+                    dimension0.time(i).lookup(element.uuid(), {
+                        on: function (kObject) {
+                            console.log(kObject);
+                        }
+                    });
+                } catch (e) {
+                    console.trace(e);
+                }
+            }
+            System.out.println("TreeSize=" + element.timeTree().size());
         }
     });
 

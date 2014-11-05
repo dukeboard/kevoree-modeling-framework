@@ -1654,7 +1654,9 @@ module org {
 					}});
 					    }
 					  }
-					
+
+                        var 
+
 					  public lookup(originView: org.kevoree.modeling.api.KView, key: number, callback: org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject<any,any>>): void {
 					    if (callback == null) {
 					      return;
