@@ -10,11 +10,11 @@ import org.kevoree.modeling.api.ThrowableCallback;
 /**
  * Created by duke on 11/5/14.
  */
-public class JsonFormat2 implements ModelFormat {
+public class JsonFormat implements ModelFormat {
 
     private KView _view;
 
-    public JsonFormat2(KView p_view) {
+    public JsonFormat(KView p_view) {
         this._view = p_view;
     }
 

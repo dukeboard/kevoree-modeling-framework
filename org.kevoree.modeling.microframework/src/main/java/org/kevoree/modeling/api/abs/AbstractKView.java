@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.api.json.JsonFormat2;
+import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.operation.DefaultModelCloner;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
@@ -160,7 +160,7 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public ModelFormat json() {
-        return new JsonFormat2(this);
+        return new JsonFormat(this);
     }
 
     public ModelFormat xmi() {
