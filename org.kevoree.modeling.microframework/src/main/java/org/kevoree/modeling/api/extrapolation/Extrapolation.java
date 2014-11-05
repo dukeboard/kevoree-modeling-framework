@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.strategy;
+package org.kevoree.modeling.api.extrapolation;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 /**
  * Created by duke on 10/28/14.
  */
-public interface ExtrapolationStrategy {
+public interface Extrapolation {
 
     public Long[] timedDependencies(KObject current);
 

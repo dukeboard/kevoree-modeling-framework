@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.strategy;
+package org.kevoree.modeling.api.extrapolation;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -6,7 +6,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 /**
  * Created by duke on 10/28/14.
  */
-public class LinearRegressionExtrapolationStrategy implements ExtrapolationStrategy {
+public class LinearRegressionExtrapolation implements Extrapolation {
     @Override
     public Long[] timedDependencies(KObject current) {
         //TODO ASSAD HERE, thinks about the case that the object
@@ -23,4 +23,11 @@ public class LinearRegressionExtrapolationStrategy implements ExtrapolationStrat
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
         
     }
+
+    private static LinearRegressionExtrapolation INSTANCE = new LinearRegressionExtrapolation();
+
+    public static Extrapolation instance(){
+        return INSTANCE;
+    }
+
 }

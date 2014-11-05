@@ -1,6 +1,10 @@
 package org.kevoree.modeling.api.xmi;
 
-import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.ModelFormat;
+import org.kevoree.modeling.api.ThrowableCallback;
 
 /**
  * Created by duke on 11/5/14.

@@ -1,4 +1,4 @@
-package org.kevoree.modeling.api.strategy;
+package org.kevoree.modeling.api.extrapolation;
 
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.AccessMode;
@@ -7,7 +7,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 /**
  * Created by duke on 10/28/14.
  */
-public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
+public class DiscreteExtrapolation implements Extrapolation {
 
     @Override
     public Long[] timedDependencies(KObject current) {
@@ -34,6 +34,12 @@ public class DiscreteExtrapolationStrategy implements ExtrapolationStrategy {
         if (internalPayload != null) {
             internalPayload[attribute.index()] = payload;
         }
+    }
+
+    private static DiscreteExtrapolation INSTANCE = new DiscreteExtrapolation();
+
+    public static Extrapolation instance(){
+        return INSTANCE;
     }
 
 }

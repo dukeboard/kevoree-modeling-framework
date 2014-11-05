@@ -27,7 +27,7 @@ import java.util.Set;
 public class JsonModelLoader {
 
     //TODO optimize object creation
-    public static KObject load(String payload, KView factory, Callback<KObject> callback) {
+    public static KObject loadDirect(String payload, KView factory, Callback<KObject> callback) {
         Lexer lexer = new Lexer(payload);
         final KObject[] loaded = new KObject[1];
         loadObjects(lexer, factory, new Callback<List<KObject>>() {

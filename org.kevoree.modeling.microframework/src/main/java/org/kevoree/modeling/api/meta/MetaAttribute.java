@@ -1,6 +1,6 @@
 package org.kevoree.modeling.api.meta;
 
-import org.kevoree.modeling.api.strategy.ExtrapolationStrategy;
+import org.kevoree.modeling.api.extrapolation.Extrapolation;
 
 /**
  * Created by duke on 10/9/14.
@@ -13,10 +13,10 @@ public interface MetaAttribute extends Meta {
 
     MetaType metaType();
 
-    ExtrapolationStrategy strategy();
+    Extrapolation strategy();
 
     double precision();
 
-    public void setExtrapolationStrategy(ExtrapolationStrategy extrapolationStrategy);
+    public void setExtrapolation(Extrapolation extrapolation);
 
 }
