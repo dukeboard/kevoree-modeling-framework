@@ -598,17 +598,21 @@ public class DefaultKStore implements KStore {
         List<ModelListener> obj_listeners = timeCache.obj_listeners.get(event.src().uuid());
         if (obj_listeners != null) {
             for (int i = 0; i < obj_listeners.size(); i++) {
-                obj_listeners.get(i).on(event);
+                ModelListener listener = obj_listeners.get(i);
+                listener.on(event);
             }
         }
         for (int i = 0; i < timeCache.listeners.size(); i++) {
-            timeCache.listeners.get(i).on(event);
+            ModelListener listener = timeCache.listeners.get(i);
+            listener.on(event);
         }
         for (int i = 0; i < dimensionCache.listeners.size(); i++) {
-            dimensionCache.listeners.get(i).on(event);
+            ModelListener listener = dimensionCache.listeners.get(i);
+            listener.on(event);
         }
         for (int i = 0; i < universeListeners.size(); i++) {
-            universeListeners.get(i).on(event);
+            ModelListener listener = universeListeners.get(i);
+            listener.on(event);
         }
     }
 

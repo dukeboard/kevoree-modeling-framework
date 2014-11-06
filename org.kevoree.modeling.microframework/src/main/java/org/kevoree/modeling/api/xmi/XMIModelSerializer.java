@@ -1,9 +1,8 @@
 package org.kevoree.modeling.api.xmi;
 
-import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelVisitor;
-import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.VisitResult;
+import org.kevoree.modeling.api.*;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.util.Helper;
 
 /*
 * Author : Gregory Nain
@@ -16,7 +15,20 @@ public class XMIModelSerializer {
         final SerializationContext context = new SerializationContext();
         context.model = model;
         context.finishCallback = callback;
-        context.attributesVisitor = new AttributesVisitor(context);
+        context.attributesVisitor = new ModelAttributeVisitor() {
+            @Override
+            public void visit(MetaAttribute metaAttribute, Object value) {
+                if (value != null) {
+                    if (context.ignoreGeneratedID && metaAttribute.metaName().equals("generated_KMF_ID")) {
+                        return;
+                    }
+                    context.printer.append(" " + metaAttribute.metaName() + "=\"");
+                    XMIModelSerializer.escapeXml(context.printer, value.toString());
+                    context.printer.append("\"");
+                }
+            }
+        };
+
         context.printer = new StringBuilder();
         //First Pass for building address table
         context.addressTable.put(model.uuid(), "/");
@@ -38,7 +50,48 @@ public class XMIModelSerializer {
                 }
                 return VisitResult.CONTINUE;
             }
-        }, new PrettyPrinter(context));
+        }, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                if (throwable != null) {
+                    context.finishCallback.on(null, throwable);
+                } else {
+                    context.printer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                    context.printer.append("<" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_"));
+                    context.printer.append(" xmlns:xsi=\"http://wwww.w3.org/2001/XMLSchema-instance\"");
+                    context.printer.append(" xmi:version=\"2.0\"");
+                    context.printer.append(" xmlns:xmi=\"http://www.omg.org/XMI\"");
+
+                    int index = 0;
+                    while (index < context.packageList.size()) {
+                        context.printer.append(" xmlns:" + context.packageList.get(index).replace(".", "_") + "=\"http://" + context.packageList.get(index) + "\"");
+                        index++;
+                    }
+                    context.model.visitAttributes(context.attributesVisitor);
+                    Helper.forall(context.model.metaReferences(), new NonContainedReferencesCallbackChain(context, context.model), new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable err) {
+                            if (err == null) {
+                                context.printer.append(">\n");
+                                Helper.forall(context.model.metaReferences(), new ContainedReferencesCallbackChain(context, context.model), new Callback<Throwable>() {
+                                    @Override
+                                    public void on(Throwable containedRefsEnd) {
+                                        if (containedRefsEnd == null) {
+                                            context.printer.append("</" + XMIModelSerializer.formatMetaClassName(context.model.metaClass().metaName()).replace(".", "_") + ">\n");
+                                            context.finishCallback.on(context.printer.toString(), null);
+                                        } else {
+                                            context.finishCallback.on(null, containedRefsEnd);
+                                        }
+                                    }
+                                });
+                            } else {
+                                context.finishCallback.on(null, err);
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
 

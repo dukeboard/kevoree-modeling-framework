@@ -28,8 +28,8 @@ public class PolynomialKMFTest {
             @Override
             public void on(CloudDimension dimension0) {
 
-                final double[] val= new double[1000];
-                double[] coef={2,2,3};
+                final double[] val = new double[1000];
+                double[] coef = {2, 2, 3};
 
 
                 CloudView t0 = dimension0.time(0l);
@@ -42,12 +42,12 @@ public class PolynomialKMFTest {
                 element.setValue(0.0);
                 //insert 20 variations in time
                 for (int i = 0; i < 1000; i++) {
-                    long temp=1;
-                    for (int j=0; j<coef.length;j++) {
-                        val[i] = val[i] + coef[j]*temp;
-                        temp=temp*i;
+                    long temp = 1;
+                    for (int j = 0; j < coef.length; j++) {
+                        val[i] = val[i] + coef[j] * temp;
+                        temp = temp * i;
                     }
-                    final double vv = val[i] ;
+                    final double vv = val[i];
                     final long finalI = i;
                     dimension0.time(finalI).lookup(element.uuid(), new Callback<KObject>() {
                         @Override
@@ -58,7 +58,7 @@ public class PolynomialKMFTest {
                     });
                 }
 
-              System.out.println(element.timeTree().size());
+                System.out.println(element.timeTree().size());
 
                 for (int i = 0; i < 1000; i++) {
                     element.timeTree().walk(new TimeWalker() {
@@ -67,7 +67,7 @@ public class PolynomialKMFTest {
                             element.jump(timePoint, new Callback<Element>() {
                                 @Override
                                 public void on(Element element) {
-                                    assert ((element.getValue()- val[(int)timePoint])<5);
+                                    assert ((element.getValue() - val[(int) timePoint]) < 5);
                                 }
                             });
                         }

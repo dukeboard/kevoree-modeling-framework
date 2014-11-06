@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.xmi;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelAttributeVisitor;
 import org.kevoree.modeling.api.ThrowableCallback;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ class SerializationContext {
     public KObject model;
     public ThrowableCallback<String> finishCallback;
     public StringBuilder printer;
-    public AttributesVisitor attributesVisitor;
+    public ModelAttributeVisitor attributesVisitor;
 
     // KPath -> XMIPath
     HashMap<Long, String> addressTable = new HashMap<Long, String>();
