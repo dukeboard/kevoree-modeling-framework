@@ -49,7 +49,7 @@ public class ElementImpl extends AbstractKObject<Element, CloudView> implements 
 
     @Override
     public Long getValue() {
-        return (long) Double.parseDouble(this.get(Element.METAATTRIBUTES.VALUE).toString());
+        return (Long) this.get(Element.METAATTRIBUTES.VALUE);
     }
 
     @Override

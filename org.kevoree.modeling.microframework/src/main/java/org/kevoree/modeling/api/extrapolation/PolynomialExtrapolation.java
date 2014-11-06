@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.extrapolation;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
@@ -22,7 +23,20 @@ public class PolynomialExtrapolation implements Extrapolation {
     public Object extrapolate(KObject current, MetaAttribute attribute, KObject[] dependencies) {
         org.kevoree.modeling.api.polynomial.PolynomialExtrapolation pol = (org.kevoree.modeling.api.polynomial.PolynomialExtrapolation) current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
         if (pol != null) {
-            return pol.extrapolate(current.now());
+            Double extrapolatedValue = pol.extrapolate(current.now());
+            if (attribute.metaType().equals(MetaType.DOUBLE)) {
+                return extrapolatedValue;
+            } else if (attribute.metaType().equals(MetaType.LONG)) {
+                return extrapolatedValue.longValue();
+            } else if (attribute.metaType().equals(MetaType.FLOAT)) {
+                return extrapolatedValue.floatValue();
+            } else if (attribute.metaType().equals(MetaType.INT)) {
+                return extrapolatedValue.intValue();
+            } else if (attribute.metaType().equals(MetaType.SHORT)) {
+                return extrapolatedValue.shortValue();
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
@@ -48,7 +62,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     private static PolynomialExtrapolation INSTANCE = new PolynomialExtrapolation();
 
-    public static Extrapolation instance(){
+    public static Extrapolation instance() {
         return INSTANCE;
     }
 
