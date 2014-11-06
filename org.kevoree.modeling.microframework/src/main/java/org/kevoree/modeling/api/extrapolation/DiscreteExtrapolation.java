@@ -36,9 +36,12 @@ public class DiscreteExtrapolation implements Extrapolation {
         }
     }
 
-    private static DiscreteExtrapolation INSTANCE = new DiscreteExtrapolation();
+    private static DiscreteExtrapolation INSTANCE;
 
     public static Extrapolation instance(){
+        if(INSTANCE==null){
+            INSTANCE = new DiscreteExtrapolation();
+        }
         return INSTANCE;
     }
 

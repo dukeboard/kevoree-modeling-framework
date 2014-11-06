@@ -138,27 +138,27 @@ declare module org {
         module modeling {
             module api {
                 module abs {
-                    class AbstractKDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> implements KDimension<A, B, C> {
+                    class AbstractKDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> implements KDimension<any, any, any> {
                         private _universe;
                         private _key;
                         private _timesCache;
                         constructor(p_universe: KUniverse<any>, p_key: number);
                         public key(): number;
                         public universe(): C;
-                        public save(callback: Callback<java.lang.Throwable>): void;
-                        public saveUnload(callback: Callback<java.lang.Throwable>): void;
-                        public delete(callback: Callback<java.lang.Throwable>): void;
-                        public discard(callback: Callback<java.lang.Throwable>): void;
-                        public timeTrees(keys: number[], callback: Callback<time.TimeTree[]>): void;
-                        public timeTree(key: number, callback: Callback<time.TimeTree>): void;
-                        public parent(callback: Callback<B>): void;
-                        public children(callback: Callback<B[]>): void;
-                        public fork(callback: Callback<B>): void;
+                        public save(callback: (a: java.lang.Throwable) => void): void;
+                        public saveUnload(callback: (a: java.lang.Throwable) => void): void;
+                        public delete(callback: (a: java.lang.Throwable) => void): void;
+                        public discard(callback: (a: java.lang.Throwable) => void): void;
+                        public timeTrees(keys: number[], callback: (a: time.TimeTree[]) => void): void;
+                        public timeTree(key: number, callback: (a: time.TimeTree) => void): void;
+                        public parent(callback: (a: B) => void): void;
+                        public children(callback: (a: B[]) => void): void;
+                        public fork(callback: (a: B) => void): void;
                         public time(timePoint: number): A;
-                        public listen(listener: ModelListener): void;
+                        public listen(listener: (evt: KEvent) => void): void;
                         public internal_create(timePoint: number): A;
                     }
-                    class AbstractKObject<A extends KObject<any, any>, B extends KView> implements KObject<A, B> {
+                    class AbstractKObject<A extends KObject<any, any>, B extends KView> implements KObject<any, any> {
                         static PARENT_INDEX: number;
                         static INBOUNDS_INDEX: number;
                         private _isDirty;
@@ -183,17 +183,17 @@ declare module org {
                         public now(): number;
                         public timeTree(): time.TimeTree;
                         public dimension(): KDimension<any, any, any>;
-                        public path(callback: Callback<string>): void;
+                        public path(callback: (a: string) => void): void;
                         public parentUuid(): number;
                         public setParentUuid(parentKID: number): void;
-                        public parent(callback: Callback<KObject<any, any>>): void;
+                        public parent(callback: (a: KObject<any, any>) => void): void;
                         public set_referenceInParent(_referenceInParent: meta.MetaReference): void;
                         public referenceInParent(): meta.MetaReference;
-                        public delete(callback: Callback<boolean>): void;
-                        public select(query: string, callback: Callback<KObject<any, any>[]>): void;
-                        public stream(query: string, callback: Callback<KObject<any, any>>): void;
-                        public listen(listener: ModelListener): void;
-                        public jump(time: number, callback: Callback<A>): void;
+                        public delete(callback: (a: boolean) => void): void;
+                        public select(query: string, callback: (a: KObject<any, any>[]) => void): void;
+                        public stream(query: string, callback: (a: KObject<any, any>) => void): void;
+                        public listen(listener: (evt: KEvent) => void): void;
+                        public jump(time: number, callback: (a: A) => void): void;
                         public domainKey(): string;
                         public get(attribute: meta.MetaAttribute): any;
                         public set(attribute: meta.MetaAttribute, payload: any): void;
@@ -202,36 +202,36 @@ declare module org {
                         private removeFromContainer(param);
                         public mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject<any, any>, setOpposite: boolean): void;
                         public size(metaReference: meta.MetaReference): number;
-                        public each<C extends KObject<any, any>>(metaReference: meta.MetaReference, callback: Callback<C>, end: Callback<java.lang.Throwable>): void;
-                        public visitAttributes(visitor: ModelAttributeVisitor): void;
+                        public each<C extends KObject<any, any>>(metaReference: meta.MetaReference, callback: (a: C) => void, end: (a: java.lang.Throwable) => void): void;
+                        public visitAttributes(visitor: (metaAttribute: meta.MetaAttribute, value: any) => void): void;
                         public metaAttribute(name: string): meta.MetaAttribute;
                         public metaReference(name: string): meta.MetaReference;
                         public metaOperation(name: string): meta.MetaOperation;
-                        public visit(visitor: ModelVisitor, end: Callback<java.lang.Throwable>): void;
+                        public visit(visitor: (elem: KObject<any, any>) => VisitResult, end: (a: java.lang.Throwable) => void): void;
                         private internal_visit(visitor, end, deep, treeOnly, alreadyVisited);
-                        public graphVisit(visitor: ModelVisitor, end: Callback<java.lang.Throwable>): void;
-                        public treeVisit(visitor: ModelVisitor, end: Callback<java.lang.Throwable>): void;
+                        public graphVisit(visitor: (elem: KObject<any, any>) => VisitResult, end: (a: java.lang.Throwable) => void): void;
+                        public treeVisit(visitor: (elem: KObject<any, any>) => VisitResult, end: (a: java.lang.Throwable) => void): void;
                         public toJSON(): string;
                         public toString(): string;
                         public traces(request: TraceRequest): trace.ModelTrace[];
-                        public inbounds(callback: Callback<InboundReference>, end: Callback<java.lang.Throwable>): void;
+                        public inbounds(callback: (a: InboundReference) => void, end: (a: java.lang.Throwable) => void): void;
                         public metaAttributes(): meta.MetaAttribute[];
                         public metaReferences(): meta.MetaReference[];
                         public metaOperations(): meta.MetaOperation[];
                     }
-                    class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<A> {
+                    class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
                         constructor(kDataBase: data.KDataBase);
                         public storage(): data.KStore;
-                        public newDimension(callback: Callback<A>): void;
+                        public newDimension(callback: (a: A) => void): void;
                         public internal_create(key: number): A;
-                        public dimension(key: number, callback: Callback<A>): void;
-                        public saveAll(callback: Callback<boolean>): void;
-                        public deleteAll(callback: Callback<boolean>): void;
-                        public unloadAll(callback: Callback<boolean>): void;
-                        public disable(listener: ModelListener): void;
-                        public stream(query: string, callback: Callback<KObject<any, any>>): void;
-                        public listen(listener: ModelListener): void;
+                        public dimension(key: number, callback: (a: A) => void): void;
+                        public saveAll(callback: (a: boolean) => void): void;
+                        public deleteAll(callback: (a: boolean) => void): void;
+                        public unloadAll(callback: (a: boolean) => void): void;
+                        public disable(listener: (evt: KEvent) => void): void;
+                        public stream(query: string, callback: (a: KObject<any, any>) => void): void;
+                        public listen(listener: (evt: KEvent) => void): void;
                     }
                     class AbstractKView implements KView {
                         private _now;
@@ -243,20 +243,20 @@ declare module org {
                         public createFQN(metaClassName: string): KObject<any, any>;
                         public manageCache(obj: KObject<any, any>): KObject<any, any>;
                         public setRoot(elem: KObject<any, any>): void;
-                        public select(query: string, callback: Callback<KObject<any, any>[]>): void;
-                        public lookup(kid: number, callback: Callback<KObject<any, any>>): void;
-                        public lookupAll(keys: number[], callback: Callback<KObject<any, any>[]>): void;
-                        public stream(query: string, callback: Callback<KObject<any, any>>): void;
+                        public select(query: string, callback: (a: KObject<any, any>[]) => void): void;
+                        public lookup(kid: number, callback: (a: KObject<any, any>) => void): void;
+                        public lookupAll(keys: number[], callback: (a: KObject<any, any>[]) => void): void;
+                        public stream(query: string, callback: (a: KObject<any, any>) => void): void;
                         public createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject<any, any>;
                         public create(clazz: meta.MetaClass): KObject<any, any>;
-                        public listen(listener: ModelListener): void;
+                        public listen(listener: (evt: KEvent) => void): void;
                         public internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject<any, any>;
                         public metaClasses(): meta.MetaClass[];
-                        public diff(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                        public merge(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                        public intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                        public slice(elems: java.util.List<KObject<any, any>>, callback: Callback<trace.TraceSequence>): void;
-                        public clone<A extends KObject<any, any>>(o: A, callback: Callback<A>): void;
+                        public diff(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                        public merge(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                        public intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                        public slice(elems: java.util.List<KObject<any, any>>, callback: (a: trace.TraceSequence) => void): void;
+                        public clone<A extends KObject<any, any>>(o: A, callback: (a: A) => void): void;
                         public json(): ModelFormat;
                         public xmi(): ModelFormat;
                     }
@@ -278,7 +278,7 @@ declare module org {
                             public timesCaches: java.util.Map<number, TimeCache>;
                             public dimension: KDimension<any, any, any>;
                             public rootTimeTree: time.TimeTree;
-                            public listeners: java.util.List<ModelListener>;
+                            public listeners: java.util.List<(evt: KEvent) => void>;
                             constructor(dimension: KDimension<any, any, any>);
                         }
                         class TimeCache {
@@ -286,8 +286,8 @@ declare module org {
                             public payload_cache: java.util.Map<number, any[]>;
                             public root: KObject<any, any>;
                             public rootDirty: boolean;
-                            public listeners: java.util.List<ModelListener>;
-                            public obj_listeners: java.util.Map<number, java.util.List<ModelListener>>;
+                            public listeners: java.util.List<(evt: KEvent) => void>;
+                            public obj_listeners: java.util.Map<number, java.util.List<(evt: KEvent) => void>>;
                         }
                     }
                     class DefaultKStore implements KStore {
@@ -302,62 +302,62 @@ declare module org {
                         private keyRoot(dim, time);
                         private keyRootTree(dim);
                         private keyPayload(dim, time, key);
-                        public initDimension(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
+                        public initDimension(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
                         public initKObject(obj: KObject<any, any>, originView: KView): void;
                         public nextDimensionKey(): number;
                         public nextObjectKey(): number;
                         public cacheLookup(dimension: KDimension<any, any, any>, time: number, key: number): KObject<any, any>;
                         public raw(origin: KObject<any, any>, accessMode: AccessMode): any[];
-                        public discard(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        public delete(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        public save(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        public saveUnload(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        public timeTree(dimension: KDimension<any, any, any>, key: number, callback: Callback<time.TimeTree>): void;
-                        public timeTrees(dimension: KDimension<any, any, any>, keys: number[], callback: Callback<time.TimeTree[]>): void;
-                        public lookup(originView: KView, key: number, callback: Callback<KObject<any, any>>): void;
+                        public discard(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        public delete(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        public save(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        public saveUnload(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        public timeTree(dimension: KDimension<any, any, any>, key: number, callback: (a: time.TimeTree) => void): void;
+                        public timeTrees(dimension: KDimension<any, any, any>, keys: number[], callback: (a: time.TimeTree[]) => void): void;
+                        public lookup(originView: KView, key: number, callback: (a: KObject<any, any>) => void): void;
                         private loadObjectInCache(originView, keys, callback);
-                        public lookupAll(originView: KView, keys: number[], callback: Callback<KObject<any, any>[]>): void;
+                        public lookupAll(originView: KView, keys: number[], callback: (a: KObject<any, any>[]) => void): void;
                         public getDimension(key: number): KDimension<any, any, any>;
-                        public getRoot(originView: KView, callback: Callback<KObject<any, any>>): void;
+                        public getRoot(originView: KView, callback: (a: KObject<any, any>) => void): void;
                         public setRoot(newRoot: KObject<any, any>): void;
-                        public registerListener(origin: any, listener: ModelListener): void;
+                        public registerListener(origin: any, listener: (evt: KEvent) => void): void;
                         public notify(event: KEvent): void;
                     }
                     interface KDataBase {
-                        get(keys: string[], callback: ThrowableCallback<string[]>): void;
-                        put(payloads: string[][], error: Callback<java.lang.Throwable>): void;
-                        remove(keys: string[], error: Callback<java.lang.Throwable>): void;
-                        commit(error: Callback<java.lang.Throwable>): void;
-                        close(error: Callback<java.lang.Throwable>): void;
+                        get(keys: string[], callback: (a: string[], error: java.lang.Throwable) => void): void;
+                        put(payloads: string[][], error: (a: java.lang.Throwable) => void): void;
+                        remove(keys: string[], error: (a: java.lang.Throwable) => void): void;
+                        commit(error: (a: java.lang.Throwable) => void): void;
+                        close(error: (a: java.lang.Throwable) => void): void;
                     }
                     interface KStore {
-                        lookup(originView: KView, key: number, callback: Callback<KObject<any, any>>): void;
-                        lookupAll(originView: KView, key: number[], callback: Callback<KObject<any, any>[]>): void;
+                        lookup(originView: KView, key: number, callback: (a: KObject<any, any>) => void): void;
+                        lookupAll(originView: KView, key: number[], callback: (a: KObject<any, any>[]) => void): void;
                         raw(origin: KObject<any, any>, accessMode: AccessMode): any[];
-                        save(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        saveUnload(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        discard(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        delete(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
-                        timeTree(dimension: KDimension<any, any, any>, key: number, callback: Callback<time.TimeTree>): void;
-                        timeTrees(dimension: KDimension<any, any, any>, keys: number[], callback: Callback<time.TimeTree[]>): void;
+                        save(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        saveUnload(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        discard(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        delete(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
+                        timeTree(dimension: KDimension<any, any, any>, key: number, callback: (a: time.TimeTree) => void): void;
+                        timeTrees(dimension: KDimension<any, any, any>, keys: number[], callback: (a: time.TimeTree[]) => void): void;
                         initKObject(obj: KObject<any, any>, originView: KView): void;
-                        initDimension(dimension: KDimension<any, any, any>, callback: Callback<java.lang.Throwable>): void;
+                        initDimension(dimension: KDimension<any, any, any>, callback: (a: java.lang.Throwable) => void): void;
                         nextDimensionKey(): number;
                         nextObjectKey(): number;
                         getDimension(key: number): KDimension<any, any, any>;
-                        getRoot(originView: KView, callback: Callback<KObject<any, any>>): void;
+                        getRoot(originView: KView, callback: (a: KObject<any, any>) => void): void;
                         setRoot(newRoot: KObject<any, any>): void;
                         cacheLookup(dimension: KDimension<any, any, any>, time: number, key: number): KObject<any, any>;
-                        registerListener(origin: any, listener: ModelListener): void;
+                        registerListener(origin: any, listener: (evt: KEvent) => void): void;
                         notify(event: KEvent): void;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
-                        public put(payloads: string[][], callback: Callback<java.lang.Throwable>): void;
-                        public get(keys: string[], callback: ThrowableCallback<string[]>): void;
-                        public remove(keys: string[], callback: Callback<java.lang.Throwable>): void;
-                        public commit(callback: Callback<java.lang.Throwable>): void;
-                        public close(callback: Callback<java.lang.Throwable>): void;
+                        public put(payloads: string[][], callback: (a: java.lang.Throwable) => void): void;
+                        public get(keys: string[], callback: (a: string[], error: java.lang.Throwable) => void): void;
+                        public remove(keys: string[], callback: (a: java.lang.Throwable) => void): void;
+                        public commit(callback: (a: java.lang.Throwable) => void): void;
+                        public close(callback: (a: java.lang.Throwable) => void): void;
                     }
                 }
                 module event {
@@ -415,20 +415,20 @@ declare module org {
                     class JsonFormat implements ModelFormat {
                         private _view;
                         constructor(p_view: KView);
-                        public save(model: KObject<any, any>, callback: ThrowableCallback<string>): void;
-                        public load(payload: string, callback: Callback<java.lang.Throwable>): void;
+                        public save(model: KObject<any, any>, callback: (a: string, error: java.lang.Throwable) => void): void;
+                        public load(payload: string, callback: (a: java.lang.Throwable) => void): void;
                     }
                     class JsonModelLoader {
-                        static loadDirect(payload: string, factory: KView, callback: Callback<KObject<any, any>>): KObject<any, any>;
+                        static loadDirect(payload: string, factory: KView, callback: (a: KObject<any, any>) => void): KObject<any, any>;
                         private static loadObjects(lexer, factory, callback);
-                        static load(_factory: KView, payload: string, callback: Callback<java.lang.Throwable>): void;
+                        static load(_factory: KView, payload: string, callback: (a: java.lang.Throwable) => void): void;
                         static convertRaw(attribute: meta.MetaAttribute, raw: any): any;
                     }
                     class JsonModelSerializer {
                         static KEY_META: string;
                         static KEY_UUID: string;
                         static KEY_ROOT: string;
-                        static serialize(model: KObject<any, any>, callback: ThrowableCallback<string>): void;
+                        static serialize(model: KObject<any, any>, callback: (a: string, error: java.lang.Throwable) => void): void;
                         static printJSON(elem: KObject<any, any>, builder: java.lang.StringBuilder): void;
                     }
                     class JsonString {
@@ -492,16 +492,16 @@ declare module org {
                 }
                 interface KDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> {
                     key(): number;
-                    parent(callback: Callback<B>): void;
-                    children(callback: Callback<B[]>): void;
-                    fork(callback: Callback<B>): void;
-                    save(callback: Callback<java.lang.Throwable>): void;
-                    saveUnload(callback: Callback<java.lang.Throwable>): void;
-                    delete(callback: Callback<java.lang.Throwable>): void;
-                    discard(callback: Callback<java.lang.Throwable>): void;
+                    parent(callback: (a: B) => void): void;
+                    children(callback: (a: B[]) => void): void;
+                    fork(callback: (a: B) => void): void;
+                    save(callback: (a: java.lang.Throwable) => void): void;
+                    saveUnload(callback: (a: java.lang.Throwable) => void): void;
+                    delete(callback: (a: java.lang.Throwable) => void): void;
+                    discard(callback: (a: java.lang.Throwable) => void): void;
                     time(timePoint: number): A;
-                    timeTrees(keys: number[], callback: Callback<time.TimeTree[]>): void;
-                    timeTree(key: number, callback: Callback<time.TimeTree>): void;
+                    timeTrees(keys: number[], callback: (a: time.TimeTree[]) => void): void;
+                    timeTree(key: number, callback: (a: time.TimeTree) => void): void;
                     universe(): C;
                 }
                 interface KEvent {
@@ -517,20 +517,20 @@ declare module org {
                     isDeleted(): boolean;
                     isRoot(): boolean;
                     uuid(): number;
-                    path(callback: Callback<string>): void;
+                    path(callback: (a: string) => void): void;
                     view(): B;
-                    delete(callback: Callback<boolean>): void;
-                    parent(callback: Callback<KObject<any, any>>): void;
+                    delete(callback: (a: boolean) => void): void;
+                    parent(callback: (a: KObject<any, any>) => void): void;
                     parentUuid(): number;
-                    select(query: string, callback: Callback<KObject<any, any>[]>): void;
-                    stream(query: string, callback: Callback<KObject<any, any>>): void;
-                    listen(listener: ModelListener): void;
-                    visitAttributes(visitor: ModelAttributeVisitor): void;
-                    visit(visitor: ModelVisitor, end: Callback<java.lang.Throwable>): void;
-                    graphVisit(visitor: ModelVisitor, end: Callback<java.lang.Throwable>): void;
-                    treeVisit(visitor: ModelVisitor, end: Callback<java.lang.Throwable>): void;
+                    select(query: string, callback: (a: KObject<any, any>[]) => void): void;
+                    stream(query: string, callback: (a: KObject<any, any>) => void): void;
+                    listen(listener: (evt: KEvent) => void): void;
+                    visitAttributes(visitor: (metaAttribute: meta.MetaAttribute, value: any) => void): void;
+                    visit(visitor: (elem: KObject<any, any>) => VisitResult, end: (a: java.lang.Throwable) => void): void;
+                    graphVisit(visitor: (elem: KObject<any, any>) => VisitResult, end: (a: java.lang.Throwable) => void): void;
+                    treeVisit(visitor: (elem: KObject<any, any>) => VisitResult, end: (a: java.lang.Throwable) => void): void;
                     now(): number;
-                    jump(time: number, callback: Callback<A>): void;
+                    jump(time: number, callback: (a: A) => void): void;
                     timeTree(): time.TimeTree;
                     referenceInParent(): meta.MetaReference;
                     domainKey(): string;
@@ -542,43 +542,43 @@ declare module org {
                     metaReference(name: string): meta.MetaReference;
                     metaOperation(name: string): meta.MetaOperation;
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject<any, any>, setOpposite: boolean): void;
-                    each<C extends KObject<any, any>>(metaReference: meta.MetaReference, callback: Callback<C>, end: Callback<java.lang.Throwable>): void;
-                    inbounds(callback: Callback<InboundReference>, end: Callback<java.lang.Throwable>): void;
+                    each<C extends KObject<any, any>>(metaReference: meta.MetaReference, callback: (a: C) => void, end: (a: java.lang.Throwable) => void): void;
+                    inbounds(callback: (a: InboundReference) => void, end: (a: java.lang.Throwable) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
                     set(attribute: meta.MetaAttribute, payload: any): void;
                     toJSON(): string;
                 }
                 interface KUniverse<A extends KDimension<any, any, any>> {
-                    newDimension(callback: Callback<A>): void;
-                    dimension(key: number, callback: Callback<A>): void;
-                    saveAll(callback: Callback<boolean>): void;
-                    deleteAll(callback: Callback<boolean>): void;
-                    unloadAll(callback: Callback<boolean>): void;
-                    disable(listener: ModelListener): void;
-                    stream(query: string, callback: Callback<KObject<any, any>>): void;
+                    newDimension(callback: (a: A) => void): void;
+                    dimension(key: number, callback: (a: A) => void): void;
+                    saveAll(callback: (a: boolean) => void): void;
+                    deleteAll(callback: (a: boolean) => void): void;
+                    unloadAll(callback: (a: boolean) => void): void;
+                    disable(listener: (evt: KEvent) => void): void;
+                    stream(query: string, callback: (a: KObject<any, any>) => void): void;
                     storage(): data.KStore;
-                    listen(listener: ModelListener): void;
+                    listen(listener: (evt: KEvent) => void): void;
                 }
                 interface KView {
                     createFQN(metaClassName: string): KObject<any, any>;
                     create(clazz: meta.MetaClass): KObject<any, any>;
                     setRoot(elem: KObject<any, any>): void;
-                    select(query: string, callback: Callback<KObject<any, any>[]>): void;
-                    lookup(key: number, callback: Callback<KObject<any, any>>): void;
-                    lookupAll(keys: number[], callback: Callback<KObject<any, any>[]>): void;
-                    stream(query: string, callback: Callback<KObject<any, any>>): void;
+                    select(query: string, callback: (a: KObject<any, any>[]) => void): void;
+                    lookup(key: number, callback: (a: KObject<any, any>) => void): void;
+                    lookupAll(keys: number[], callback: (a: KObject<any, any>[]) => void): void;
+                    stream(query: string, callback: (a: KObject<any, any>) => void): void;
                     metaClasses(): meta.MetaClass[];
                     metaClass(fqName: string): meta.MetaClass;
                     dimension(): KDimension<any, any, any>;
                     now(): number;
                     createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject<any, any>;
-                    listen(listener: ModelListener): void;
-                    diff(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                    merge(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                    intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                    slice(elems: java.util.List<KObject<any, any>>, callback: Callback<trace.TraceSequence>): void;
-                    clone<A extends KObject<any, any>>(o: A, callback: Callback<A>): void;
+                    listen(listener: (evt: KEvent) => void): void;
+                    diff(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                    merge(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                    intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                    slice(elems: java.util.List<KObject<any, any>>, callback: (a: trace.TraceSequence) => void): void;
+                    clone<A extends KObject<any, any>>(o: A, callback: (a: A) => void): void;
                     json(): ModelFormat;
                     xmi(): ModelFormat;
                 }
@@ -623,8 +623,8 @@ declare module org {
                     visit(metaAttribute: meta.MetaAttribute, value: any): void;
                 }
                 interface ModelFormat {
-                    save(model: KObject<any, any>, callback: ThrowableCallback<string>): void;
-                    load(payload: string, callback: Callback<java.lang.Throwable>): void;
+                    save(model: KObject<any, any>, callback: (a: string, error: java.lang.Throwable) => void): void;
+                    load(payload: string, callback: (a: java.lang.Throwable) => void): void;
                 }
                 interface ModelListener {
                     on(evt: KEvent): void;
@@ -634,18 +634,18 @@ declare module org {
                 }
                 module operation {
                     class DefaultModelCloner {
-                        static clone<A extends KObject<any, any>>(originalObject: A, callback: Callback<A>): void;
+                        static clone<A extends KObject<any, any>>(originalObject: A, callback: (a: A) => void): void;
                     }
                     class DefaultModelCompare {
-                        static diff(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                        static merge(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
-                        static intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: Callback<trace.TraceSequence>): void;
+                        static diff(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                        static merge(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
+                        static intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: (a: trace.TraceSequence) => void): void;
                         private static internal_diff(origin, target, inter, merge, callback);
                         private static internal_createTraces(current, sibling, inter, merge, references, attributes);
                     }
                     class DefaultModelSlicer {
                         private static internal_prune(elem, traces, cache, parentMap, callback);
-                        static slice(elems: java.util.List<KObject<any, any>>, callback: Callback<trace.TraceSequence>): void;
+                        static slice(elems: java.util.List<KObject<any, any>>, callback: (a: trace.TraceSequence) => void): void;
                     }
                 }
                 module polynomial {
@@ -791,7 +791,7 @@ declare module org {
                         public isNegative(): boolean;
                     }
                     class KSelector {
-                        static select(root: KObject<any, any>, query: string, callback: Callback<KObject<any, any>[]>): void;
+                        static select(root: KObject<any, any>, query: string, callback: (a: KObject<any, any>[]) => void): void;
                     }
                 }
                 interface ThrowableCallback<A> {
@@ -801,11 +801,11 @@ declare module org {
                     class DefaultTimeTree implements TimeTree {
                         public dirty: boolean;
                         public versionTree: rbtree.RBTree;
-                        public walk(walker: TimeWalker): void;
-                        public walkAsc(walker: TimeWalker): void;
-                        public walkDesc(walker: TimeWalker): void;
-                        public walkRangeAsc(walker: TimeWalker, from: number, to: number): void;
-                        public walkRangeDesc(walker: TimeWalker, from: number, to: number): void;
+                        public walk(walker: (timePoint: number) => void): void;
+                        public walkAsc(walker: (timePoint: number) => void): void;
+                        public walkDesc(walker: (timePoint: number) => void): void;
+                        public walkRangeAsc(walker: (timePoint: number) => void, from: number, to: number): void;
+                        public walkRangeDesc(walker: (timePoint: number) => void, from: number, to: number): void;
                         public first(): number;
                         public last(): number;
                         public next(from: number): number;
@@ -903,11 +903,11 @@ declare module org {
                         }
                     }
                     interface TimeTree {
-                        walk(walker: TimeWalker): void;
-                        walkAsc(walker: TimeWalker): void;
-                        walkDesc(walker: TimeWalker): void;
-                        walkRangeAsc(walker: TimeWalker, from: number, to: number): void;
-                        walkRangeDesc(walker: TimeWalker, from: number, to: number): void;
+                        walk(walker: (timePoint: number) => void): void;
+                        walkAsc(walker: (timePoint: number) => void): void;
+                        walkDesc(walker: (timePoint: number) => void): void;
+                        walkRangeAsc(walker: (timePoint: number) => void, from: number, to: number): void;
+                        walkRangeDesc(walker: (timePoint: number) => void, from: number, to: number): void;
                         first(): number;
                         last(): number;
                         next(from: number): number;
@@ -973,9 +973,9 @@ declare module org {
                         private pendingObjKID;
                         constructor(targetModel: KObject<any, any>);
                         private tryClosePending(srcKID);
-                        public createOrAdd(previousPath: number, target: KObject<any, any>, reference: meta.MetaReference, metaClass: meta.MetaClass, callback: Callback<java.lang.Throwable>): void;
-                        public applyTraceSequence(traceSeq: TraceSequence, callback: Callback<java.lang.Throwable>): void;
-                        public applyTrace(trace: ModelTrace, callback: Callback<java.lang.Throwable>): void;
+                        public createOrAdd(previousPath: number, target: KObject<any, any>, reference: meta.MetaReference, metaClass: meta.MetaClass, callback: (a: java.lang.Throwable) => void): void;
+                        public applyTraceSequence(traceSeq: TraceSequence, callback: (a: java.lang.Throwable) => void): void;
+                        public applyTrace(trace: ModelTrace, callback: (a: java.lang.Throwable) => void): void;
                     }
                     class ModelTraceConstants {
                         static traceType: ModelTraceConstants;
@@ -1004,7 +1004,7 @@ declare module org {
                         public append(seq: TraceSequence): TraceSequence;
                         public parse(addtracesTxt: string): TraceSequence;
                         public toString(): string;
-                        public applyOn(target: KObject<any, any>, callback: Callback<java.lang.Throwable>): boolean;
+                        public applyOn(target: KObject<any, any>, callback: (a: java.lang.Throwable) => void): boolean;
                         public reverse(): TraceSequence;
                     }
                     module unresolved {
@@ -1049,14 +1049,14 @@ declare module org {
                 }
                 module util {
                     interface CallBackChain<A> {
-                        on(a: A, next: Callback<java.lang.Throwable>): void;
+                        on(a: A, next: (a: java.lang.Throwable) => void): void;
                     }
                     class Helper {
                         static pathSep: string;
                         private static pathIDOpen;
                         private static pathIDClose;
                         private static rootPath;
-                        static forall<A>(inputs: A[], each: CallBackChain<A>, end: Callback<java.lang.Throwable>): void;
+                        static forall<A>(inputs: A[], each: (a: A, next: (a: java.lang.Throwable) => void) => void, end: (a: java.lang.Throwable) => void): void;
                         private static process<A>(arr, index, each, end);
                         static parentPath(currentPath: string): string;
                         static attachedToRoot(path: string): boolean;
@@ -1073,34 +1073,12 @@ declare module org {
                     static values(): VisitResult[];
                 }
                 module xmi {
-                    class AttributesVisitor implements ModelAttributeVisitor {
-                        private context;
-                        constructor(context: SerializationContext);
-                        public visit(metaAttribute: meta.MetaAttribute, value: any): void;
-                    }
-                    class ContainedReferencesCallbackChain implements util.CallBackChain<meta.MetaReference> {
-                        private context;
-                        private currentElement;
-                        constructor(context: SerializationContext, currentElement: KObject<any, any>);
-                        public on(ref: meta.MetaReference, nextReference: Callback<java.lang.Throwable>): void;
-                    }
-                    class NonContainedReferencesCallbackChain implements util.CallBackChain<meta.MetaReference> {
-                        private _context;
-                        private _currentElement;
-                        constructor(p_context: SerializationContext, p_currentElement: KObject<any, any>);
-                        public on(ref: meta.MetaReference, next: Callback<java.lang.Throwable>): void;
-                    }
-                    class PrettyPrinter implements Callback<java.lang.Throwable> {
-                        private context;
-                        constructor(context: SerializationContext);
-                        public on(throwable: java.lang.Throwable): void;
-                    }
                     class SerializationContext {
                         public ignoreGeneratedID: boolean;
                         public model: KObject<any, any>;
-                        public finishCallback: ThrowableCallback<string>;
+                        public finishCallback: (a: string, error: java.lang.Throwable) => void;
                         public printer: java.lang.StringBuilder;
-                        public attributesVisitor: AttributesVisitor;
+                        public attributesVisitor: (metaAttribute: meta.MetaAttribute, value: any) => void;
                         public addressTable: java.util.HashMap<number, string>;
                         public elementsCount: java.util.HashMap<string, number>;
                         public packageList: java.util.ArrayList<string>;
@@ -1108,8 +1086,8 @@ declare module org {
                     class XmiFormat implements ModelFormat {
                         private _view;
                         constructor(p_view: KView);
-                        public save(model: KObject<any, any>, callback: ThrowableCallback<string>): void;
-                        public load(payload: string, callback: Callback<java.lang.Throwable>): void;
+                        public save(model: KObject<any, any>, callback: (a: string, error: java.lang.Throwable) => void): void;
+                        public load(payload: string, callback: (a: java.lang.Throwable) => void): void;
                     }
                     class XMILoadingContext {
                         public xmiReader: XmlParser;
@@ -1119,7 +1097,7 @@ declare module org {
                         public elementsCount: java.util.HashMap<string, number>;
                         public stats: java.util.HashMap<string, number>;
                         public oppositesAlreadySet: java.util.HashMap<string, boolean>;
-                        public successCallback: Callback<java.lang.Throwable>;
+                        public successCallback: (a: java.lang.Throwable) => void;
                         public isOppositeAlreadySet(localRef: string, oppositeRef: string): boolean;
                         public storeOppositeRelation(localRef: string, oppositeRef: string): void;
                     }
@@ -1130,15 +1108,17 @@ declare module org {
                         static LOADER_XMI_NS_URI: string;
                         constructor(p_factory: KView);
                         static unescapeXml(src: string): string;
-                        static load(p_view: KView, str: string, callback: Callback<java.lang.Throwable>): void;
+                        static load(p_view: KView, str: string, callback: (a: java.lang.Throwable) => void): void;
                         private static deserialize(p_view, context);
                         private static callFactory(p_view, ctx, objectType);
                         private static loadObject(p_view, ctx, xmiAddress, objectType);
                     }
                     class XMIModelSerializer {
-                        static save(model: KObject<any, any>, callback: ThrowableCallback<string>): void;
+                        static save(model: KObject<any, any>, callback: (a: string, error: java.lang.Throwable) => void): void;
                         static escapeXml(ostream: java.lang.StringBuilder, chain: string): void;
                         static formatMetaClassName(metaClassName: string): string;
+                        private static nonContainedReferencesCallbackChain(ref, next, p_context, p_currentElement);
+                        private static containedReferencesCallbackChain(ref, nextReference, context, currentElement);
                     }
                     class XMIResolveCommand {
                         private context;

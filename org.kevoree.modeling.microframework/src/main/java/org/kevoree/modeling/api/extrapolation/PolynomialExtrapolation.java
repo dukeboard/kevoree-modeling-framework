@@ -60,9 +60,12 @@ public class PolynomialExtrapolation implements Extrapolation {
         }
     }
 
-    private static PolynomialExtrapolation INSTANCE = new PolynomialExtrapolation();
+    private static PolynomialExtrapolation INSTANCE;
 
     public static Extrapolation instance() {
+        if(INSTANCE==null){
+            INSTANCE = new PolynomialExtrapolation();
+        }
         return INSTANCE;
     }
 

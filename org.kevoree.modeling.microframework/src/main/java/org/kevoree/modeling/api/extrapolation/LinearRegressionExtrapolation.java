@@ -24,9 +24,12 @@ public class LinearRegressionExtrapolation implements Extrapolation {
         
     }
 
-    private static LinearRegressionExtrapolation INSTANCE = new LinearRegressionExtrapolation();
+    private static LinearRegressionExtrapolation INSTANCE;
 
     public static Extrapolation instance(){
+        if(INSTANCE==null){
+            INSTANCE = new LinearRegressionExtrapolation();
+        }
         return INSTANCE;
     }
 

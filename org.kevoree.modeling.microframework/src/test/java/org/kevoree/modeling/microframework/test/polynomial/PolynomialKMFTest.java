@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.polynomial;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
@@ -60,19 +61,19 @@ public class PolynomialKMFTest {
 
                 System.out.println(element.timeTree().size());
 
-                for (int i = 0; i < 1000; i++) {
-                    element.timeTree().walk(new TimeWalker() {
-                        @Override
-                        public void walk(final long timePoint) {
-                            element.jump(timePoint, new Callback<Element>() {
-                                @Override
-                                public void on(Element element) {
-                                    assert ((element.getValue() - val[(int) timePoint]) < 5);
-                                }
-                            });
-                        }
-                    });
-                }
+                //for (int i = 0; i < 1000; i++) {
+                element.timeTree().walk(new TimeWalker() {
+                    @Override
+                    public void walk(final long timePoint) {
+                        element.jump(timePoint, new Callback<Element>() {
+                            @Override
+                            public void on(Element element) {
+                                Assert.assertTrue((element.getValue() - val[(int) timePoint]) < 5);
+                            }
+                        });
+                    }
+                });
+                //}
 
 
             }

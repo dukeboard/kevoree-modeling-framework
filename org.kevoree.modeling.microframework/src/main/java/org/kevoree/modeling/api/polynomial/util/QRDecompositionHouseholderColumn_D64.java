@@ -27,6 +27,9 @@ public class QRDecompositionHouseholderColumn_D64 {
         int maxLength = Math.max(numCols, numRows);
         if (dataQR == null || dataQR.length < numCols || dataQR[0].length < numRows) {
             dataQR = new double[numCols][numRows];
+            for (int i = 0; i < numCols; i++) {
+                dataQR[i] = new double[numRows];
+            }
             v = new double[maxLength];
             gammas = new double[minLength];
         }
