@@ -39,7 +39,7 @@ public class PolynomialKMFTest {
                 final Element element = t0.createElement();
                 element.setName("e0");
                 node.setElement(element);
-                element.setValue(0l);
+                element.setValue(0.0);
                 //insert 20 variations in time
                 for (int i = 0; i < 1000; i++) {
                     long temp=1;
@@ -47,7 +47,7 @@ public class PolynomialKMFTest {
                         val[i] = val[i] + coef[j]*temp;
                         temp=temp*i;
                     }
-                    final long vv = (long) val[i] ;
+                    final double vv = val[i] ;
                     final long finalI = i;
                     dimension0.time(finalI).lookup(element.uuid(), new Callback<KObject>() {
                         @Override
@@ -93,7 +93,7 @@ public class PolynomialKMFTest {
                 Element element = t0.createElement();
                 element.setName("e0");
                 node.setElement(element);
-                element.setValue(0l);
+                element.setValue(0.0);
                 //insert 20 variations in time
                 for (long i = 1; i <= 10000; i++) {
                     final long finalI = i;
@@ -101,7 +101,7 @@ public class PolynomialKMFTest {
                         @Override
                         public void on(KObject kObject) {
                             Element casted = (Element) kObject;
-                            casted.setValue((long) new Random().nextInt(100000));
+                            casted.setValue((double) new Random().nextInt(100000));
                         }
                     });
                 }

@@ -16,7 +16,7 @@ public interface Element extends KObject<Element, CloudView> {
     public enum METAATTRIBUTES implements MetaAttribute {
 
         NAME("name", 2, 5, true, MetaType.STRING, DiscreteExtrapolation.instance()),
-        VALUE("value", 3, 5, false, MetaType.LONG, PolynomialExtrapolation.instance()); //lexicographic order
+        VALUE("value", 3, 5, false, MetaType.DOUBLE, PolynomialExtrapolation.instance()); //lexicographic order
 
         private String _name;
 
@@ -79,8 +79,8 @@ public interface Element extends KObject<Element, CloudView> {
 
     public Element setName(String name);
 
-    public Long getValue();
+    public Double getValue();
 
-    public Element setValue(Long name);
+    public Element setValue(Double name);
 
 }

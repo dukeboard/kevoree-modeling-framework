@@ -26,6 +26,7 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <tasks>
+                                <delete dir="${basedir}/src/main/js" />
                                 <delete dir="${basedir}/src/main/ts" />
                                 <delete dir="${basedir}/src/test/ts" />
                                 <copy todir="${basedir}/target/sources">

@@ -23,6 +23,11 @@
             <artifactId>undertow-core</artifactId>
             <version>1.2.0.Beta3</version>
         </dependency>
+        <dependency>
+            <groupId>com.eclipsesource.minimal-json</groupId>
+            <artifactId>minimal-json</artifactId>
+            <version>0.9.1</version>
+        </dependency>
     </dependencies>
 
 </project>
