@@ -1,4 +1,4 @@
-package org.kevoree.modeling.databases.leveldb;
+package org.kevoree.modeling.databases.rocksdb;
 
 import org.junit.Assert;
 import org.junit.Test;

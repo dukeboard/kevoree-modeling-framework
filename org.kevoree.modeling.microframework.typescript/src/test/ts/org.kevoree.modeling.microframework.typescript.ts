@@ -7686,14 +7686,13 @@ module org {
 );
                 }
                 System.out.println(element.timeTree().size());
-                for (var i: number = 0; i < 1000; i++) {
-                  element.timeTree().walk(                   (timePoint : number) => {
-                  element.jump(timePoint,                    (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
-                  }
-);
-                  }
+                element.timeTree().walk(                 (timePoint : number) => {
+                element.jump(timePoint,                  (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
+                org.junit.Assert.assertTrue((element.getValue() - val[<number>timePoint]) < 5);
+                }
 );
                 }
+);
                 }
 );
               }
@@ -7727,6 +7726,22 @@ module org {
 
           }
           export class RBTreeTest {
+
+            public printTest(): void {
+              var MIN: number = 0;
+              var MAX: number = 99;
+              for (var j: number = MIN; j <= MAX; j++) {
+                var tree: org.kevoree.modeling.api.time.rbtree.RBTree = new org.kevoree.modeling.api.time.rbtree.RBTree();
+                for (var i: number = MIN; i <= j; i++) {
+                  if ((i % 3) == 0) {
+                    tree.insert(i, org.kevoree.modeling.api.time.rbtree.State.DELETED);
+                  } else {
+                    tree.insert(i, org.kevoree.modeling.api.time.rbtree.State.EXISTS);
+                  }
+                }
+                this.printTree(tree.root);
+              }
+            }
 
             public nextTest(): void {
               var MIN: number = 0;

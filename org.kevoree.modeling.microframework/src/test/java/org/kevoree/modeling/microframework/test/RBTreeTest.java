@@ -17,6 +17,24 @@ import java.util.LinkedList;
 public class RBTreeTest {
 
     @Test
+    public void printTest() {
+        long MIN = 0L;
+        long MAX = 99L;
+        for (long j = MIN; j <= MAX; j++) {
+            RBTree tree = new RBTree();
+            for (long i = MIN; i <= j; i++) {
+                if ((i % 3) == 0L) {
+                    tree.insert(i, State.DELETED);
+                } else {
+                    tree.insert(i, State.EXISTS);
+                }
+            }
+            printTree(tree.root);
+        }
+    }
+
+
+    @Test
     public void nextTest() {
         long MIN = 0L;
         long MAX = 99L;

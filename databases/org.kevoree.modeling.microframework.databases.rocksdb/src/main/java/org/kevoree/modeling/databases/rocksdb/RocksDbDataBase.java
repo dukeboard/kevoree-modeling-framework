@@ -1,11 +1,9 @@
-package org.kevoree.modeling.databases.leveldb;
+package org.kevoree.modeling.databases.rocksdb;
 
-import org.fusesource.leveldbjni.JniDBFactory;
-import org.iq80.leveldb.DB;
-import org.iq80.leveldb.Options;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.data.KDataBase;
+import org.rocksdb.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,43 +11,56 @@ import java.io.IOException;
 /**
  * Created by duke on 11/4/14.
  */
-public class LevelDbDataBase implements KDataBase {
+public class RocksDbDataBase implements KDataBase {
 
-    private Options options = new Options().createIfMissing(true);
+    private Options options;
 
-    private DB db;
+    private RocksDB db;
 
-    public LevelDbDataBase(String storagePath) throws IOException {
+    public RocksDbDataBase(String storagePath) throws IOException, RocksDBException {
+        options = new Options();
+        options.setCreateIfMissing(true);
         File location = new File(storagePath);
         if (!location.exists()) {
             location.mkdirs();
         }
         File targetDB = new File(location, "data");
-        db = JniDBFactory.factory.open(targetDB, options);
+        targetDB.mkdirs();
+        db = RocksDB.open(options, targetDB.getAbsolutePath());
     }
 
     @Override
     public void get(String[] keys, ThrowableCallback<String[]> callback) {
         String[] result = new String[keys.length];
-        for (int i = 0; i < keys.length; i++) {
-            result[i] = JniDBFactory.asString(db.get(JniDBFactory.bytes(keys[i])));
+        try {
+            for (int i = 0; i < keys.length; i++) {
+
+                result[i] = new String(db.get(keys[i].getBytes()));
+
+            }
+            callback.on(result, null);
+        } catch (RocksDBException e) {
+            callback.on(result, e);
         }
-        callback.on(result, null);
     }
 
     @Override
     public void put(String[][] payloads, Callback<Throwable> error) {
-        for (int i = 0; i < payloads.length; i++) {
-            db.put(JniDBFactory.bytes(payloads[i][0]), JniDBFactory.bytes(payloads[i][1]));
+        try {
+            for (int i = 0; i < payloads.length; i++) {
+                db.put(payloads[i][0].getBytes(), payloads[i][1].getBytes());
+            }
+            error.on(null);
+        } catch (RocksDBException e) {
+            error.on(e);
         }
-        error.on(null);
     }
 
     @Override
     public void remove(String[] keys, Callback<Throwable> error) {
         try {
             for (int i = 0; i < keys.length; i++) {
-                db.delete(JniDBFactory.bytes(keys[i]));
+                db.remove(keys[i].getBytes());
             }
             error.on(null);
         } catch (Exception e) {
@@ -60,7 +71,9 @@ public class LevelDbDataBase implements KDataBase {
     @Override
     public void commit(Callback<Throwable> error) {
         try {
-            db.write(db.createWriteBatch());
+            WriteOptions options = new WriteOptions();
+            options.sync();
+            db.write(options, new WriteBatch());
             error.on(null);
         } catch (Exception e) {
             error.on(e);
@@ -69,11 +82,13 @@ public class LevelDbDataBase implements KDataBase {
 
     @Override
     public void close(Callback<Throwable> error) {
-        db.write(db.createWriteBatch());
         try {
+            WriteOptions options = new WriteOptions();
+            options.sync();
+            db.write(options, new WriteBatch());
             db.close();
             error.on(null);
-        } catch (IOException e) {
+        } catch (Exception e) {
             error.on(e);
         }
     }
