@@ -124,6 +124,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
     @Override
     public boolean insert(long time, double value) {
         //If this is the first point in the cset, add it and return
+
         if (weights == null) {
             internal_feed(time, value);
             _lastIndex = time;
@@ -169,7 +170,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
 
     @Override
     public long lastIndex() {
-        return 0;
+        return _lastIndex; //TODO: load and save lastIndex
     }
 
     private static final char sep = '|';
