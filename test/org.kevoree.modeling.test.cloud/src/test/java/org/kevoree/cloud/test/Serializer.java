@@ -42,7 +42,7 @@ public class Serializer {
 
 
                     t0.lookup(nodeT0.uuid(), (root) -> {
-                        t0.createXMISerializer().serialize(root,  (result, error) -> {
+                        t0.xmi().save(root,  (result, error) -> {
                             if (error != null) {
                                 error.printStackTrace();
                             }

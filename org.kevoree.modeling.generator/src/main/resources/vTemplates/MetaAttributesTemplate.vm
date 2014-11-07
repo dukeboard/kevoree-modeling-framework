@@ -6,7 +6,7 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
 #set($attIdx = 0)
 #set($attIdxMax = $classDeclaration.attributes.size() - 1)
 #foreach($attribute in $classDeclaration.attributes)
-    ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, 0, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.Extrapolations.DISCRETE.strategy())#if($attIdx < $attIdxMax),
+    ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, 0, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance())#if($attIdx < $attIdxMax),
 #{else};
 #end
 #set($enumIdx = $enumIdx + 1)
@@ -25,7 +25,7 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
 
     private org.kevoree.modeling.api.meta.MetaType _metaType;
 
-    private org.kevoree.modeling.api.strategy.ExtrapolationStrategy _extrapolationStrategy;
+    private org.kevoree.modeling.api.extrapolation.Extrapolation _extrapolation;
 
     public int index() {
         return _index;
@@ -51,21 +51,21 @@ public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribut
         return ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
     }
 
-    public org.kevoree.modeling.api.strategy.ExtrapolationStrategy strategy() {
-        return _extrapolationStrategy;
+    public org.kevoree.modeling.api.extrapolation.Extrapolation strategy() {
+        return _extrapolation;
     }
 
-    public void setExtrapolationStrategy(org.kevoree.modeling.api.strategy.ExtrapolationStrategy extrapolationStrategy) {
-        this._extrapolationStrategy = extrapolationStrategy;
+    public void setExtrapolation(org.kevoree.modeling.api.extrapolation.Extrapolation extrapolation) {
+        this._extrapolation = extrapolation;
     }
 
-    METAATTRIBUTES(String name, int index, double precision, boolean key, org.kevoree.modeling.api.meta.MetaType metaType, org.kevoree.modeling.api.strategy.ExtrapolationStrategy extrapolationStrategy) {
+    METAATTRIBUTES(String name, int index, double precision, boolean key, org.kevoree.modeling.api.meta.MetaType metaType, org.kevoree.modeling.api.extrapolation.Extrapolation extrapolation) {
         this._name = name;
         this._index = index;
         this._precision = precision;
         this._key = key;
         this._metaType = metaType;
-        this._extrapolationStrategy = extrapolationStrategy;
+        this._extrapolation = extrapolation;
     }
 }
 

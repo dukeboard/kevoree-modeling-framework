@@ -31,10 +31,13 @@
                         <configuration>
                             <metaModelFile>metamodel/Cloud.mm</metaModelFile>
                             <metaModelQualifiedName>cloud.Cloud</metaModelQualifiedName>
+                            <js>true</js>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+<!--
+    -->
 </project>

@@ -7655,6 +7655,27 @@ module org {
           }
 
           export module polynomial {
+            export class PolynomialExtrapolationTest {
+
+              public test(): void {
+                var pe: org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation(0, 5, 10, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                var val: number[] = new Array();
+                var coef: number[] = [2, 2, 3];
+                for (var i: number = 200; i < 1000; i++) {
+                  var temp: number = 1;
+                  for (var j: number = 0; j < coef.length; j++) {
+                    val[i] = val[i] + coef[j] * temp;
+                    temp = temp * i;
+                  }
+                  org.junit.Assert.assertTrue(pe.insert(i, val[i]));
+                }
+                for (var i: number = 200; i < 1000; i++) {
+                  org.junit.Assert.assertTrue((pe.extrapolate(i) - val[i]) < 5);
+                }
+              }
+
+            }
+
             export class PolynomialKMFTest {
 
               public test(): void {
