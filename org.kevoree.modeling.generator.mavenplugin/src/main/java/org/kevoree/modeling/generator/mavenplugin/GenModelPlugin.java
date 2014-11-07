@@ -62,13 +62,13 @@ public class GenModelPlugin extends AbstractMojo {
     @Parameter
     private boolean js = false;
 
-    private static final String LIB_D_TS = "lib.d.ts";
-    private static final String KMF_LIB_D_TS = "org.kevoree.modeling.microframework.typescript.d.ts";
+    public static final String LIB_D_TS = "lib.d.ts";
+    public static final String KMF_LIB_D_TS = "org.kevoree.modeling.microframework.typescript.d.ts";
 
-    private static final String KMF_LIB_JS = "org.kevoree.modeling.microframework.typescript.js";
-    private static final String JAVA_LIB_JS = "java.js";
+    public static final String KMF_LIB_JS = "org.kevoree.modeling.microframework.typescript.js";
+    public static final String JAVA_LIB_JS = "java.js";
 
-    private static final String TSC_JS = "tsc.js";
+    public static final String TSC_JS = "tsc.js";
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {

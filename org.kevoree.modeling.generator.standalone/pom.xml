@@ -13,7 +13,7 @@
 
     <dependencies>
         <dependency>
-            <artifactId>org.kevoree.modeling.generator</artifactId>
+            <artifactId>org.kevoree.modeling.generator.mavenplugin</artifactId>
             <groupId>org.kevoree.modeling</groupId>
             <version>${project.version}</version>
         </dependency>
@@ -21,37 +21,6 @@
 
     <build>
         <plugins>
-
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.kevoree.modeling</groupId>
-                                    <artifactId>org.kevoree.modeling.microframework</artifactId>
-                                    <version>${project.version}</version>
-                                    <overWrite>true</overWrite>
-                                    <destFileName>microframework.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.kevoree.modeling</groupId>
-                                    <artifactId>org.kevoree.modeling.generator</artifactId>
-                                    <version>${project.version}</version>
-                                    <overWrite>true</overWrite>
-                                    <destFileName>generator.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
