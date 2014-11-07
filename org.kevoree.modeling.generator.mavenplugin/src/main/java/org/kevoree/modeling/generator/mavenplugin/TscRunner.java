@@ -12,7 +12,8 @@ import java.util.List;
  */
 public class TscRunner {
 
-    public void runTsc(Path sourceDir, Path targetFile) throws Exception {
+
+    public void runTsc(String tscPath, Path sourceDir, Path targetFile) throws Exception {
         List<String> params = new ArrayList<String>();
         params.add("--out");
         params.add(targetFile.toFile().getAbsolutePath());
@@ -30,29 +31,33 @@ public class TscRunner {
         for (File f : selected) {
             params.add(f.getAbsolutePath());
         }
-        tsc(params.toArray(new String[params.size()]));
+        tsc(tscPath, params.toArray(new String[params.size()]));
     }
 
-    public static void main(String[] args) throws Exception {
-        new TscRunner().tsc("");
-    }
-
-    private void tsc(String... args) throws Exception {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-        engine.eval(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("node.js")));
-        StringBuilder param = new StringBuilder();
-        param.append("process.argv = [\"node\",\"node\"");
-        for (String p : args) {
-            param.append(",\"" + p + "\"");
+    private void tsc(String tscPath, String... args) throws Exception {
+        String[] params = new String[args.length + 2];
+        for (int i = 0; i < args.length; i++) {
+            params[i + 2] = args[i];
         }
-        param.append("];\n");
-       // engine.eval(param.toString());
+        params[0] = "node";
+        params[1] = tscPath;
 
-       // System.err.println(param.toString());
-
-        engine.eval("process.argv = [\"node\",\"node\",\"--out\",\"/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/test/org.kevoree.modeling.test.cloud/target/js/org.kevoree.modeling.test.cloud.js\",\"/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/test/org.kevoree.modeling.test.cloud/target/js/java.d.ts\",\"/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/test/org.kevoree.modeling.test.cloud/target/js/lib.d.ts\",\"/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/test/org.kevoree.modeling.test.cloud/target/js/org.kevoree.modeling.microframework.typescript.d.ts\",\"/Users/duke/Documents/dev/dukeboard/kevoree-modeling-framework/test/org.kevoree.modeling.test.cloud/target/js/org.kevoree.modeling.test.cloud.ts\"];\n");
-
-        engine.eval(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("tsc.js")));
+        ProcessBuilder pb = new ProcessBuilder(params);
+        pb.redirectError();
+        pb.redirectOutput();
+        int res = pb.start().waitFor();
+        if (res != 0) {
+            ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+            engine.eval(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("node.js")));
+            StringBuilder param = new StringBuilder();
+            param.append("process.argv = [\"node\",\"node\"");
+            for (String p : args) {
+                param.append(",\"" + p + "\"");
+            }
+            param.append("];\n");
+            engine.eval(param.toString());
+            engine.eval(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("tsc.js")));
+        }
     }
 
 }
