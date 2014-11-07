@@ -15,6 +15,7 @@ public class TscRunner {
 
     public void runTsc(String tscPath, Path sourceDir, Path targetFile) throws Exception {
         List<String> params = new ArrayList<String>();
+        params.add("--sourcemap");
         params.add("--out");
         params.add(targetFile.toFile().getAbsolutePath());
 
@@ -41,7 +42,6 @@ public class TscRunner {
         }
         params[0] = "node";
         params[1] = tscPath;
-
         ProcessBuilder pb = new ProcessBuilder(params);
         pb.redirectError();
         pb.redirectOutput();
