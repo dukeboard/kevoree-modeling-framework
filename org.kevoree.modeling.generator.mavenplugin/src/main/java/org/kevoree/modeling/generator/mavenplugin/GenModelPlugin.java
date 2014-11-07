@@ -65,6 +65,8 @@ public class GenModelPlugin extends AbstractMojo {
     private static final String LIB_D_TS = "lib.d.ts";
     private static final String KMF_LIB_D_TS = "org.kevoree.modeling.microframework.typescript.d.ts";
 
+    private static final String TSC_JS = "tsc.js";
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -88,6 +90,8 @@ public class GenModelPlugin extends AbstractMojo {
 
                 Files.copy(getClass().getClassLoader().getResourceAsStream(KMF_LIB_D_TS), Paths.get(jsWorkingDir.toPath().toString(), KMF_LIB_D_TS), StandardCopyOption.REPLACE_EXISTING);
 
+                Files.copy(getClass().getClassLoader().getResourceAsStream(TSC_JS), Paths.get(jsWorkingDir.toPath().toString(), TSC_JS), StandardCopyOption.REPLACE_EXISTING);
+
                 SourceTranslator sourceTranslator = new SourceTranslator();
                 for (Artifact a : project.getDependencyArtifacts()) {
                     File file = a.getFile();
@@ -106,7 +110,7 @@ public class GenModelPlugin extends AbstractMojo {
                 */
 
                 TscRunner runner = new TscRunner();
-                runner.runTsc(jsWorkingDir.toPath(), Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js"));
+                runner.runTsc(Paths.get(jsWorkingDir.toPath().toString(), TSC_JS).toFile().getAbsolutePath(),jsWorkingDir.toPath(), Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js"));
 
             }
 
