@@ -59,7 +59,8 @@ public class PolynomialKMFTest {
                     });
                 }
 
-                System.out.println(element.timeTree().size());
+                //System.out.println(element.timeTree().size());
+                Assert.assertTrue(element.timeTree().size()==1);
 
                 for (int i = 200; i < 1000; i++) {
                 element.timeTree().walk(new TimeWalker() {
