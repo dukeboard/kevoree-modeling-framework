@@ -65,6 +65,9 @@ public class GenModelPlugin extends AbstractMojo {
     private static final String LIB_D_TS = "lib.d.ts";
     private static final String KMF_LIB_D_TS = "org.kevoree.modeling.microframework.typescript.d.ts";
 
+    private static final String KMF_LIB_JS = "org.kevoree.modeling.microframework.typescript.js";
+    private static final String JAVA_LIB_JS = "java.js";
+
     private static final String TSC_JS = "tsc.js";
 
     @Override
@@ -85,10 +88,15 @@ public class GenModelPlugin extends AbstractMojo {
             if (js) {
                 Files.createDirectories(jsWorkingDir.toPath());
 
+                Path javaLibJs = Paths.get(jsWorkingDir.toPath().toString(), JAVA_LIB_JS);
+
                 Path libDts = Paths.get(jsWorkingDir.toPath().toString(), LIB_D_TS);
                 Files.copy(this.getClass().getClassLoader().getResourceAsStream("tsc/" + LIB_D_TS), libDts, StandardCopyOption.REPLACE_EXISTING);
 
                 Files.copy(getClass().getClassLoader().getResourceAsStream(KMF_LIB_D_TS), Paths.get(jsWorkingDir.toPath().toString(), KMF_LIB_D_TS), StandardCopyOption.REPLACE_EXISTING);
+
+                Path kmfLibJs = Paths.get(jsWorkingDir.toPath().toString(), KMF_LIB_JS);
+                Files.copy(this.getClass().getClassLoader().getResourceAsStream(KMF_LIB_JS), kmfLibJs, StandardCopyOption.REPLACE_EXISTING);
 
                 Files.copy(getClass().getClassLoader().getResourceAsStream(TSC_JS), Paths.get(jsWorkingDir.toPath().toString(), TSC_JS), StandardCopyOption.REPLACE_EXISTING);
 
@@ -102,15 +110,14 @@ public class GenModelPlugin extends AbstractMojo {
                 }
                 sourceTranslator.translateSources(targetSrcGenDir.getAbsolutePath(), jsWorkingDir.getAbsolutePath(), project.getArtifactId());
 
-                /*
-                StringBuilder sb = new StringBuilder();
-                Files.lines(Paths.get(jsWorkingDir.toPath().toString(), "org.kevoree.modeling.microframework.typescript.ts")).forEachOrdered((line) -> sb.append(line).append("\n"));
-                Files.lines(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-only.ts")).forEachOrdered((line) -> sb.append(line).append("\n"));
-                Files.write(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".ts"), sb.toString().getBytes());
-                */
-
                 TscRunner runner = new TscRunner();
                 runner.runTsc(Paths.get(jsWorkingDir.toPath().toString(), TSC_JS).toFile().getAbsolutePath(),jsWorkingDir.toPath(), Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js"));
+
+                StringBuilder sb = new StringBuilder();
+                Files.lines(javaLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
+                Files.lines(kmfLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
+                Files.lines(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js")).forEachOrdered((line) -> sb.append(line).append("\n"));
+                Files.write(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-merged.js"), sb.toString().getBytes());
 
             }
 
