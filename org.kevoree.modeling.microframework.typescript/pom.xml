@@ -13,6 +13,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <dependencies>
+        <dependency>
+            <artifactId>org.kevoree.modeling.microframework</artifactId>
+            <groupId>org.kevoree.modeling</groupId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
 
@@ -26,9 +34,8 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <tasks>
-                                <delete dir="${basedir}/src/main/js" />
-                                <delete dir="${basedir}/src/main/ts" />
-                                <delete dir="${basedir}/src/test/ts" />
+                                <delete dir="${basedir}/src/main/ts"/>
+                                <delete dir="${basedir}/src/test/ts"/>
                                 <copy todir="${basedir}/target/sources">
                                     <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/main/java"/>
                                 </copy>
@@ -56,7 +63,7 @@
                         </goals>
                         <configuration>
                             <source>${basedir}/../org.kevoree.modeling.microframework/src/main/java</source>
-                            <target>${basedir}/src/main/js</target>
+                            <target>${basedir}/src/main/ts</target>
                         </configuration>
                     </execution>
                     <execution>
@@ -65,8 +72,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <source>${basedir}/target/sources</source>
+                            <source>${basedir}/../org.kevoree.modeling.microframework/src/test/java</source>
                             <target>${basedir}/src/test/ts</target>
+                            <outputFileName>${artifactId}.test</outputFileName>
                         </configuration>
                     </execution>
                 </executions>
@@ -90,35 +98,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!--
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <id>prepare-package-javascript</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/${project.artifactId}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/main/ts</directory>
-                                    <includes>
-                                        <include>**/*.ts</include>
-                                        <include>**/*.js</include>
-                                    </includes>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
             <plugin>
                 <groupId>org.jszip.maven</groupId>
                 <artifactId>jszip-maven-plugin</artifactId>
@@ -128,13 +107,11 @@
                     <execution>
                         <id>JZIP</id>
                         <phase>package</phase>
-                        <goals><goal>jszip</goal></goals>
+                        <goals>
+                            <goal>jszip</goal>
+                        </goals>
                         <configuration>
-                            <contentDirectory>${basedir}/src/main</contentDirectory>
-                            <!--
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                            -->
+                            <contentDirectory>${basedir}/src/main/js</contentDirectory>
                         </configuration>
                     </execution>
                 </executions>

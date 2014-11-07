@@ -6,7 +6,7 @@ module.exports = function(grunt) {
         // define some directories to be used during build
         dir: {
             // location where TypeScript source files are located
-            "source_ts": "src/main/js",
+            "source_ts": "src/main/ts",
             // location where TypeScript/Jasmine test files are located
             "source_test_ts": "src/test/ts",
             // location where all build files shall be placed
@@ -34,7 +34,7 @@ module.exports = function(grunt) {
             },
             // Compiles the tests.
             compile_test: {
-                src: ['<%= dir.source_test_ts %>/**/*.ts'],
+                src: ['<%= dir.source_test_ts %>/**/*.ts','<%= dir.target_js %>/<%= project.name %>.d.ts'],
                 dest: '<%= dir.target_test_js %>',
                 options: {
                     basePath: '<%= dir.source_test_ts %>',
