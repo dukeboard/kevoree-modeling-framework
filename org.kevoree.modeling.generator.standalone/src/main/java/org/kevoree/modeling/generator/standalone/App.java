@@ -2,9 +2,15 @@ package org.kevoree.modeling.generator.standalone;
 
 import org.kevoree.modeling.generator.GenerationContext;
 import org.kevoree.modeling.generator.Generator;
+import org.kevoree.modeling.generator.mavenplugin.GenModelPlugin;
+import org.kevoree.modeling.generator.mavenplugin.TscRunner;
+import org.kevoree.modeling.java2typescript.SourceTranslator;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -70,6 +76,27 @@ public class App {
 
                     Generator generator = new Generator();
                     generator.execute(ctx);
+
+                    if (js) {
+                        Files.createDirectories(outDir.toPath());
+                        Path javaLibJs = Paths.get(outDir.toPath().toString(), GenModelPlugin.JAVA_LIB_JS);
+                        Path libDts = Paths.get(outDir.toPath().toString(), GenModelPlugin.LIB_D_TS);
+                        Files.copy(this.getClass().getClassLoader().getResourceAsStream("tsc/" + GenModelPlugin.LIB_D_TS), libDts, StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(getClass().getClassLoader().getResourceAsStream(GenModelPlugin.KMF_LIB_D_TS), Paths.get(outDir.toPath().toString(), GenModelPlugin.KMF_LIB_D_TS), StandardCopyOption.REPLACE_EXISTING);
+                        Path kmfLibJs = Paths.get(outDir.toPath().toString(), GenModelPlugin.KMF_LIB_JS);
+                        Files.copy(this.getClass().getClassLoader().getResourceAsStream(GenModelPlugin.KMF_LIB_JS), kmfLibJs, StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(getClass().getClassLoader().getResourceAsStream(GenModelPlugin.TSC_JS), Paths.get(outDir.toPath().toString(), GenModelPlugin.TSC_JS), StandardCopyOption.REPLACE_EXISTING);
+                        SourceTranslator sourceTranslator = new SourceTranslator();
+                        //add classpath
+                        sourceTranslator.translateSources(srcOut.getAbsolutePath(), outDir.getAbsolutePath(), ctx.getMetaModelName());
+                        TscRunner runner = new TscRunner();
+                        runner.runTsc(Paths.get(outDir.toPath().toString(), GenModelPlugin.TSC_JS).toFile().getAbsolutePath(), outDir.toPath(), Paths.get(outDir.toPath().toString(), ctx.getMetaModelName() + ".js"));
+                        StringBuilder sb = new StringBuilder();
+                        Files.lines(javaLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
+                        Files.lines(kmfLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
+                        Files.lines(Paths.get(outDir.toPath().toString(), ctx.getMetaModelName() + ".js")).forEachOrdered((line) -> sb.append(line).append("\n"));
+                        Files.write(Paths.get(outDir.toPath().toString(), ctx.getMetaModelName() + "-merged.js"), sb.toString().getBytes());
+                    }
 
                     System.out.println("Output : " + masterOut.getAbsolutePath());
                 } catch (Exception e) {
