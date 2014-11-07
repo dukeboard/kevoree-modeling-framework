@@ -145,7 +145,8 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
             double[] values = new double[ss + 1];
             int current = samples.size();
             for (int i = 0; i < ss; i++) {
-                DataSample ds = samples.get(i * current / ss);
+                int index = Math.round(i * current / ss);
+                DataSample ds = samples.get(index);
                 times[i] = ((double) (ds.time - timeOrigin)) / degradeFactor;
                 values[i] = ds.value;
             }

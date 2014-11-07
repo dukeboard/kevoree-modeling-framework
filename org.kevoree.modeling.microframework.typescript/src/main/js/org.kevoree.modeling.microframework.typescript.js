@@ -3334,7 +3334,8 @@ var org;
                                 var values = new Array();
                                 var current = this.samples.size();
                                 for (var i = 0; i < ss; i++) {
-                                    var ds = this.samples.get(i * current / ss);
+                                    var index = Math.round(i * current / ss);
+                                    var ds = this.samples.get(index);
                                     times[i] = (ds.time - this.timeOrigin) / this.degradeFactor;
                                     values[i] = ds.value;
                                 }

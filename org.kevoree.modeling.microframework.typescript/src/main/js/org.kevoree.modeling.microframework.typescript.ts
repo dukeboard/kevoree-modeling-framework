@@ -3650,7 +3650,8 @@ module org {
                 var values: number[] = new Array();
                 var current: number = this.samples.size();
                 for (var i: number = 0; i < ss; i++) {
-                  var ds: org.kevoree.modeling.api.polynomial.util.DataSample = this.samples.get(i * current / ss);
+                  var index: number = Math.round(i * current / ss);
+                  var ds: org.kevoree.modeling.api.polynomial.util.DataSample = this.samples.get(index);
                   times[i] = (<number>(ds.time - this.timeOrigin)) / this.degradeFactor;
                   values[i] = ds.value;
                 }
