@@ -119,6 +119,8 @@ public class GenModelPlugin extends AbstractMojo {
                 Files.lines(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js")).forEachOrdered((line) -> sb.append(line).append("\n"));
                 Files.write(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-merged.js"), sb.toString().getBytes());
 
+                HtmlTemplateGenerator.generateHtml(jsWorkingDir.toPath(), project.getArtifactId() + ".js" ,targetName);
+
             }
 
         } catch (Exception e) {
