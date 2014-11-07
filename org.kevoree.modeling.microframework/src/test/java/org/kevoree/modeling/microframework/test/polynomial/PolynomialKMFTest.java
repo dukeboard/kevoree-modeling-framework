@@ -5,14 +5,11 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
-import org.kevoree.modeling.api.time.TimeWalker;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.Element;
-
-import java.util.Random;
 
 /**
  * Created by duke on 10/29/14.
@@ -21,18 +18,15 @@ public class PolynomialKMFTest {
 
     @Test
     public void test() {
-
-
+        final int[] nbAssert = new int[1];
+        nbAssert[0] = 0;
         MemoryKDataBase dataBase = new MemoryKDataBase();
         CloudUniverse universe = new CloudUniverse(dataBase);
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
-
                 final double[] val = new double[1000];
                 double[] coef = {2, 2, 3};
-
-
                 CloudView t0 = dimension0.time(0l);
                 Node node = t0.createNode();
                 node.setName("n0");
@@ -58,27 +52,21 @@ public class PolynomialKMFTest {
                         }
                     });
                 }
-
-                //System.out.println(element.timeTree().size());
-                Assert.assertTrue(element.timeTree().size()==1);
-
+                Assert.assertEquals(element.timeTree().size(), 1);
+                nbAssert[0]++;
                 for (int i = 200; i < 1000; i++) {
-                element.timeTree().walk(new TimeWalker() {
-                    @Override
-                    public void walk(final long timePoint) {
-                        element.jump(timePoint, new Callback<Element>() {
-                            @Override
-                            public void on(Element element) {
-                                Assert.assertTrue((element.getValue() - val[(int) timePoint]) < 5);
-                            }
-                        });
-                    }
-                });
+                    final int finalI = i;
+                    element.jump((long) finalI, new Callback<Element>() {
+                        @Override
+                        public void on(Element element) {
+                            nbAssert[0]++;
+                            Assert.assertTrue((element.getValue() - val[finalI]) < 5);
+                        }
+                    });
                 }
-
-
             }
         });
+        Assert.assertEquals(nbAssert[0], 801);
     }
 
  /*   @Test

@@ -5,31 +5,14 @@
     <title></title>
 </head>
 <body>
-
 <script src="../../../target/js-test/org.kevoree.modeling.microframework.typescript.js"></script>
 <script>
-
-    var tests = new org.kevoree.modeling.microframework.test.RBTreeTest();
-    tests.printTest();
-
-
-    var l = new java.util.LinkedList();
-
-    console.log(l.isEmpty());
-
-    l.add("a");
-    l.add("b");
-    l.add("c");
-    l.add("d");
-    l.add("e");
-
-
-
-    console.log(l);
-    console.log("YOOOOOOOOOOOO");
-    console.log(l.poll());
-    console.log(l);
-
+    try {
+        var tests = new org.kevoree.modeling.microframework.test.polynomial.PolynomialKMFTest();
+        tests.test();
+    } catch (e) {
+        console.trace(e);
+    }
 </script>
 
 </body>

@@ -271,7 +271,7 @@ var java;
             };
 
             List.prototype.poll = function () {
-                return this.internalArray.pop();
+                return this.internalArray.shift();
             };
 
             List.prototype.remove = function (val) {

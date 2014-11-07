@@ -243,7 +243,7 @@ module java {
             }
 
             public poll():T{
-                return this.internalArray.pop();
+                return this.internalArray.shift();
             }
 
             remove(val:T) {
@@ -7658,6 +7658,8 @@ module org {
             export class PolynomialKMFTest {
 
               public test(): void {
+                var nbAssert: number[] = new Array();
+                nbAssert[0] = 0;
                 var dataBase: org.kevoree.modeling.api.data.MemoryKDataBase = new org.kevoree.modeling.api.data.MemoryKDataBase();
                 var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(dataBase);
                 universe.newDimension(                 (dimension0 : org.kevoree.modeling.microframework.test.cloud.CloudDimension) => {
@@ -7671,7 +7673,7 @@ module org {
                 element.setName("e0");
                 node.setElement(element);
                 element.setValue(0.0);
-                for (var i: number = 0; i < 1000; i++) {
+                for (var i: number = 200; i < 1000; i++) {
                   var temp: number = 1;
                   for (var j: number = 0; j < coef.length; j++) {
                     val[i] = val[i] + coef[j] * temp;
@@ -7685,41 +7687,19 @@ module org {
                   }
 );
                 }
-                System.out.println(element.timeTree().size());
-                element.timeTree().walk(                 (timePoint : number) => {
-                element.jump(timePoint,                  (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
-                org.junit.Assert.assertTrue((element.getValue() - val[<number>timePoint]) < 5);
-                }
-);
-                }
-);
-                }
-);
-              }
-
-              public test2(): void {
-                var dataBase: org.kevoree.modeling.api.data.MemoryKDataBase = new org.kevoree.modeling.api.data.MemoryKDataBase();
-                var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse(dataBase);
-                universe.newDimension(                 (dimension0 : org.kevoree.modeling.microframework.test.cloud.CloudDimension) => {
-                var t0: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(0);
-                var node: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
-                node.setName("n0");
-                t0.setRoot(node);
-                var element: org.kevoree.modeling.microframework.test.cloud.Element = t0.createElement();
-                element.setName("e0");
-                node.setElement(element);
-                element.setValue(0.0);
-                for (var i: number = 1; i <= 10000; i++) {
+                org.junit.Assert.assertEquals(element.timeTree().size(), 1);
+                nbAssert[0]++;
+                for (var i: number = 200; i < 1000; i++) {
                   var finalI: number = i;
-                  dimension0.time(finalI).lookup(element.uuid(),                    (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
-                  var casted: org.kevoree.modeling.microframework.test.cloud.Element = <org.kevoree.modeling.microframework.test.cloud.Element>kObject;
-                  casted.setValue(<number>new java.util.Random().nextInt(100000));
+                  element.jump(<number>finalI,                    (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
+                  nbAssert[0]++;
+                  org.junit.Assert.assertTrue((element.getValue() - val[finalI]) < 5);
                   }
 );
                 }
-                System.out.println(element.timeTree().size());
                 }
 );
+                org.junit.Assert.assertEquals(nbAssert[0], 801);
               }
 
             }

@@ -243,7 +243,7 @@ module java {
             }
 
             public poll():T{
-                return this.internalArray.pop();
+                return this.internalArray.shift();
             }
 
             remove(val:T) {
