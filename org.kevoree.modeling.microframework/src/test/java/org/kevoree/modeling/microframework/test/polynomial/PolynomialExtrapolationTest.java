@@ -13,7 +13,7 @@ import org.kevoree.modeling.api.polynomial.util.Prioritization;
 public class PolynomialExtrapolationTest {
     @Test
     public void test() {
-        DefaultPolynomialExtrapolation pe = new DefaultPolynomialExtrapolation(0,1,10,1, Prioritization.LOWDEGREES);
+        DefaultPolynomialExtrapolation pe = new DefaultPolynomialExtrapolation(0,5,10,1, Prioritization.LOWDEGREES);
 
         final double[] val = new double[1000];
         double[] coef = {2, 2, 3};
