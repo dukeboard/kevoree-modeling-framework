@@ -42,7 +42,7 @@ public class PolynomialKMFTest {
                 node.setElement(element);
                 element.setValue(0.0);
                 //insert 20 variations in time
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 200; i < 1000; i++) {
                     long temp = 1;
                     for (int j = 0; j < coef.length; j++) {
                         val[i] = val[i] + coef[j] * temp;
@@ -61,7 +61,7 @@ public class PolynomialKMFTest {
 
                 System.out.println(element.timeTree().size());
 
-                //for (int i = 0; i < 1000; i++) {
+                for (int i = 200; i < 1000; i++) {
                 element.timeTree().walk(new TimeWalker() {
                     @Override
                     public void walk(final long timePoint) {
@@ -73,14 +73,14 @@ public class PolynomialKMFTest {
                         });
                     }
                 });
-                //}
+                }
 
 
             }
         });
     }
 
-    @Test
+ /*   @Test
     public void test2() {
         MemoryKDataBase dataBase = new MemoryKDataBase();
         CloudUniverse universe = new CloudUniverse(dataBase);
@@ -123,10 +123,10 @@ public class PolynomialKMFTest {
                     }
                 });
 
-                */
+
 
             }
         });
-    }
+    }*/
 
 }
