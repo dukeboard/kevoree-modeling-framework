@@ -527,10 +527,14 @@ public class DefaultKStore implements KStore {
         if (resolvedRoot == null) {
             callback.on(null);
         } else {
-            final TimeCache timeCache = dimensionCache.timesCaches.get(resolvedRoot);
-            if (timeCache.root != null) {
+            TimeCache timeCache = dimensionCache.timesCaches.get(resolvedRoot);
+            if (timeCache == null) {
+                timeCache = new TimeCache();
+            }
+            if(timeCache.root != null) {
                 callback.on(timeCache.root);
             } else {
+                final TimeCache timeCacheFinal = timeCache;
                 String[] rootKeys = new String[1];
                 rootKeys[0] = keyRoot(dimensionCache.dimension, resolvedRoot);
                 _db.get(rootKeys, new ThrowableCallback<String[]>() {
@@ -544,8 +548,8 @@ public class DefaultKStore implements KStore {
                                 lookup(originView, idRoot, new Callback<KObject>() {
                                     @Override
                                     public void on(KObject resolved) {
-                                        timeCache.root = resolved;
-                                        timeCache.rootDirty = false;
+                                        timeCacheFinal.root = resolved;
+                                        timeCacheFinal.rootDirty = false;
                                         callback.on(resolved);
                                     }
                                 });
