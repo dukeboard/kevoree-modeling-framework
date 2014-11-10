@@ -36,7 +36,7 @@ public class MemoryKDataBase implements KDataBase {
 
     @Override
     public void commit(Callback<Throwable> callback) {
-        //noop
+        callback.on(null);//noop
     }
 
     @Override
