@@ -3235,7 +3235,7 @@ module org {
                         }
 
                         public lastIndex(): number {
-                            return 0;
+                            return this._lastIndex;
                         }
 
                         public save(): string {

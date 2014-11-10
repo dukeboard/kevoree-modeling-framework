@@ -2862,7 +2862,7 @@ var org;
                         };
 
                         DefaultPolynomialExtrapolation.prototype.lastIndex = function () {
-                            return 0;
+                            return this._lastIndex;
                         };
 
                         DefaultPolynomialExtrapolation.prototype.save = function () {

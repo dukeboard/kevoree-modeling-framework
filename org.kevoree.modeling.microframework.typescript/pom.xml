@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>org.kevoree.modeling</groupId>
                 <artifactId>org.kevoree.modeling.java2typescript.mavenplugin</artifactId>
-                <version>1-SNAPSHOT</version>
+                <version>${java2typescript.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>compile-src</id>
