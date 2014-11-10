@@ -62,7 +62,7 @@ public class SaveXMITest {
 
                 localView.lookup(fsm.uuid(), (root) -> {
                     System.out.println("Serialize !");
-                    localView.createXMISerializer().serialize(fsm, (result, error) -> {
+                    localView.xmi().save(fsm, (result, error) -> {
                         if (error != null) {
                             error.printStackTrace();
                         } else{
@@ -86,7 +86,7 @@ public class SaveXMITest {
                     @Override
                     public void on(FSMDimension fsmDim2) {
                         FSMView loadView = fsmDim2.time(0L);
-                        loadView.createXMILoader().load(model[0],new Callback<Throwable>() {
+                        loadView.xmi().load(model[0],new Callback<Throwable>() {
                             @Override
                             public void on(Throwable error) {
                                 System.out.println("Loaded");
