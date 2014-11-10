@@ -385,7 +385,14 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public int size(MetaReference metaReference) {
-        return ((Set<Object>) view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()]).size();
+        Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+        Object ref = raw[metaReference.index()];
+        if(ref == null){
+            return 0;
+        } else {
+            Set<Object> refSet = (Set<Object>)ref;
+            return refSet.size();
+        }
     }
 
     public <C extends KObject> void each(MetaReference metaReference, final Callback<C> callback, final Callback<Throwable> end) {
