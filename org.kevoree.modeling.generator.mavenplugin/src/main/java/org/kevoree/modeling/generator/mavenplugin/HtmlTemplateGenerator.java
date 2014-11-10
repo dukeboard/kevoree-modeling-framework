@@ -12,13 +12,12 @@ public class HtmlTemplateGenerator {
 
 
     public static void generateHtml(Path targetDir, String jsFileName, String metaModelFQN) throws IOException {
-        String metaModelPackage, metaModelName;
+        String  metaModelName;
         if(metaModelFQN.contains(".")) {
-            metaModelPackage = metaModelFQN.substring(0, metaModelFQN.lastIndexOf("."));
-            metaModelName = metaModelFQN.substring(metaModelFQN.lastIndexOf(".")+1);
+           metaModelName = metaModelFQN.substring(metaModelFQN.lastIndexOf(".")+1);
         } else {
             metaModelName = metaModelFQN;
-            metaModelPackage = metaModelFQN.toLowerCase();
+            metaModelFQN = metaModelFQN.toLowerCase() + "." + metaModelFQN;
         }
 
 
