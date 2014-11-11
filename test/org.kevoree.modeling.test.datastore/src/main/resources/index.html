@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script src="./java.js"></script>
+<script src="./org.kevoree.modeling.microframework.typescript.js"></script>
+<script src="./org.kevoree.modeling.test.datastore.js"></script>
+<script src="./org.kevoree.modeling.database.websocket.WebSocketKBroker.js"></script>
+<script>
+
+    var geometryUniverse = new geometry.GeometryUniverse(new org.kevoree.modeling.api.data.MemoryKDataBase());
+    geometryUniverse.storage().setEventBroker(new org.kevoree.modeling.database.websocket.WebSocketKBroker(geometryUniverse.storage().getEventBroker(), "ws://localhost:23665"));
+    geometryUniverse.listen(function(evt) {
+        console.log("Event:",evt);
+    });
+
+</script>
+</body>
+</html>
