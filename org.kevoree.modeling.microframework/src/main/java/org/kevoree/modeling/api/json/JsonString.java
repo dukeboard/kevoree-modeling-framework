@@ -50,47 +50,10 @@ public class JsonString {
         }
     }
 
-    public static void encode(StringBuilder buffer, String chain) {
-        if (chain == null) {
-            return;
-        }
-        int i = 0;
-        while (i < chain.length()) {
-            Character ch = chain.charAt(i);
-            if (ch == '"') {
-                buffer.append(ESCAPE_CHAR);
-                buffer.append('"');
-            } else if (ch == ESCAPE_CHAR) {
-                buffer.append(ESCAPE_CHAR);
-                buffer.append(ESCAPE_CHAR);
-            } else if (ch == '\n') {
-                buffer.append(ESCAPE_CHAR);
-                buffer.append('n');
-            } else if (ch == '\r') {
-                buffer.append(ESCAPE_CHAR);
-                buffer.append('r');
-            } else if (ch == '\t') {
-                buffer.append(ESCAPE_CHAR);
-                buffer.append('t');
-            } else if (ch == '\u2028') {
-                buffer.append(ESCAPE_CHAR);
-                buffer.append('u');
-                buffer.append('2');
-                buffer.append('0');
-                buffer.append('2');
-                buffer.append('8');
-            } else if (ch == '\u2029') {
-                buffer.append(ESCAPE_CHAR);
-                buffer.append('u');
-                buffer.append('2');
-                buffer.append('0');
-                buffer.append('2');
-                buffer.append('9');
-            } else {
-                buffer.append(ch);
-            }
-            i = i + 1;
-        }
+    public static String encode(String chain) {
+        StringBuilder sb = new StringBuilder();
+        encodeBuffer(sb, chain);
+        return sb.toString();
     }
 
     public static String unescape(String src) {

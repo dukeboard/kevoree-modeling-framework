@@ -13,6 +13,8 @@ import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
+import org.kevoree.modeling.api.event.DefaultKBroker;
+import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.extrapolation.Extrapolation;
 import org.kevoree.modeling.api.json.JsonModelLoader;
 import org.kevoree.modeling.api.meta.MetaAttribute;
@@ -36,9 +38,9 @@ public class DefaultKStore implements KStore {
 
     private KDataBase _db;
 
-    private List<ModelListener> universeListeners = new ArrayList<ModelListener>();
-
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
+
+    private KEventBroker eventBroker;
 
     //TODO loadDirect and save from DB
     long dimKeyCounter = 0;
@@ -48,6 +50,7 @@ public class DefaultKStore implements KStore {
 
     public DefaultKStore(KDataBase p_db) {
         this._db = p_db;
+        eventBroker = new DefaultKBroker(caches);
     }
 
     private String keyTree(KDimension dim, long key) {
@@ -260,6 +263,7 @@ public class DefaultKStore implements KStore {
                 i++;
             }
             _db.put(payloads, callback);
+            eventBroker.flush(dimension.key());
         }
     }
 
@@ -574,50 +578,21 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void registerListener(Object origin, ModelListener listener) {
-        if (origin instanceof AbstractKObject) {
-            DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
-            TimeCache timeCache = dimensionCache.timesCaches.get(((KView) origin).now());
-            List<ModelListener> obj_listeners = timeCache.obj_listeners.get(((KObject) origin).uuid());
-            if (obj_listeners == null) {
-                obj_listeners = new ArrayList<ModelListener>();
-                timeCache.obj_listeners.put(((KObject) origin).uuid(), obj_listeners);
-            }
-            obj_listeners.add(listener);
-        } else if (origin instanceof AbstractKView) {
-            DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
-            TimeCache timeCache = dimensionCache.timesCaches.get(((KView) origin).now());
-            timeCache.listeners.add(listener);
-        } else if (origin instanceof AbstractKDimension) {
-            DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
-            dimensionCache.listeners.add(listener);
-        } else if (origin instanceof AbstractKUniverse) {
-            universeListeners.add(listener);
-        }
+        eventBroker.registerListener(origin, listener);
     }
 
-    //TODO optimize
+
     public void notify(KEvent event) {
-        DimensionCache dimensionCache = caches.get(event.src().dimension().key());
-        TimeCache timeCache = dimensionCache.timesCaches.get(event.src().now());
-        List<ModelListener> obj_listeners = timeCache.obj_listeners.get(event.src().uuid());
-        if (obj_listeners != null) {
-            for (int i = 0; i < obj_listeners.size(); i++) {
-                ModelListener listener = obj_listeners.get(i);
-                listener.on(event);
-            }
-        }
-        for (int i = 0; i < timeCache.listeners.size(); i++) {
-            ModelListener listener = timeCache.listeners.get(i);
-            listener.on(event);
-        }
-        for (int i = 0; i < dimensionCache.listeners.size(); i++) {
-            ModelListener listener = dimensionCache.listeners.get(i);
-            listener.on(event);
-        }
-        for (int i = 0; i < universeListeners.size(); i++) {
-            ModelListener listener = universeListeners.get(i);
-            listener.on(event);
-        }
+        eventBroker.notify(event);
     }
 
+    @Override
+    public KEventBroker getEventBroker() {
+        return eventBroker;
+    }
+
+    @Override
+    public void setEventBroker(KEventBroker eventBroker) {
+        this.eventBroker = eventBroker;
+    }
 }

@@ -222,8 +222,18 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void set(MetaAttribute attribute, Object payload) {
+        String oldValue = null;
+        Object rawOldValue = get(attribute);
+        if(rawOldValue != null) {
+            oldValue = rawOldValue.toString();
+        }
         attribute.strategy().mutate(this, attribute, payload, cachedDependencies(attribute));
-        KEvent event = new DefaultKEvent(KActionType.SET, attribute, this, null, payload);
+        String newValue = null;
+        Object rawNewValue = get(attribute);
+        if(rawNewValue != null) {
+            newValue = rawNewValue.toString();
+        }
+        KEvent event = new DefaultKEvent(KActionType.SET, this, attribute, oldValue, newValue);
         view().dimension().universe().storage().notify(event);
     }
 
@@ -287,6 +297,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 //Inbound
                 Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
                 inboundRefs.put(uuid(), metaReference.index());
+
+                //publish event
+                KEvent event = new DefaultKEvent(actionType, this, metaReference, null,"{\"dim\":\""+param.dimension().key()+"\", \"time\":\""+param.now()+"\", \"uuid\":\""+param.uuid()+"\"}");
+                view().dimension().universe().storage().notify(event);
+
             }
         } else if (actionType.equals(KActionType.SET)) {
             if (!metaReference.single()) {
@@ -324,6 +339,10 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         }
                         param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
                     }
+
+                    KEvent event = new DefaultKEvent(actionType, this, metaReference, "{\"dim\":\""+view().dimension().key()+"\", \"time\":\""+view().now()+"\", \"uuid\":\""+previous+"\"}","{\"dim\":\""+param.dimension().key()+"\", \"time\":\""+param.now()+"\", \"uuid\":\""+param.uuid()+"\"}");
+                    view().dimension().universe().storage().notify(event);
+
                 }
             }
         } else if (actionType.equals(KActionType.REMOVE)) {
@@ -351,6 +370,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                             }
                         }
                     });
+                    //publish event
+                    KEvent event = new DefaultKEvent(actionType, this, metaReference, "{\"dim\":\""+_view.dimension().key()+"\", \"time\":\""+_view.now()+"\", \"uuid\":\""+previousKid+"\"}",null);
+                    view().dimension().universe().storage().notify(event);
                 }
             } else {
                 Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
@@ -372,6 +394,9 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     if (metaReference.opposite() != null && setOpposite) {
                         param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
                     }
+                    //publish event
+                    KEvent event = new DefaultKEvent(actionType, this, metaReference, "{\"dim\":\""+param.dimension().key()+"\", \"time\":\""+param.now()+"\", \"uuid\":\""+param.uuid()+"\"}",null);
+                    view().dimension().universe().storage().notify(event);
                 }
 
                 //Inbounds
@@ -379,9 +404,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 inboundRefs.remove(uuid());
             }
         }
-        //publish event
-        KEvent event = new DefaultKEvent(actionType, metaReference, this, null, param);
-        view().dimension().universe().storage().notify(event);
     }
 
     public int size(MetaReference metaReference) {

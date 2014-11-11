@@ -158,8 +158,8 @@ declare module org {
                     class DefaultKStore implements KStore {
                         static KEY_SEP: string;
                         private _db;
-                        private universeListeners;
                         private caches;
+                        private eventBroker;
                         public dimKeyCounter: number;
                         public objectKey: number;
                         constructor(p_db: KDataBase);
@@ -187,6 +187,8 @@ declare module org {
                         public setRoot(newRoot: KObject<any, any>): void;
                         public registerListener(origin: any, listener: (p: KEvent) => void): void;
                         public notify(event: KEvent): void;
+                        public getEventBroker(): event.KEventBroker;
+                        public setEventBroker(eventBroker: event.KEventBroker): void;
                     }
                     interface KDataBase {
                         get(keys: string[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
@@ -215,6 +217,8 @@ declare module org {
                         cacheLookup(dimension: KDimension<any, any, any>, time: number, key: number): KObject<any, any>;
                         registerListener(origin: any, listener: (p: KEvent) => void): void;
                         notify(event: KEvent): void;
+                        getEventBroker(): event.KEventBroker;
+                        setEventBroker(broker: event.KEventBroker): void;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
@@ -226,19 +230,51 @@ declare module org {
                     }
                 }
                 module event {
+                    class DefaultKBroker implements KEventBroker {
+                        private universeListeners;
+                        private caches;
+                        constructor(pcaches: java.util.Map<number, data.cache.DimensionCache>);
+                        public registerListener(origin: any, listener: (p: KEvent) => void): void;
+                        public notify(event: KEvent): void;
+                        public flush(dimensionKey: number): void;
+                    }
                     class DefaultKEvent implements KEvent {
-                        private _type;
-                        private _meta;
+                        private _dimensionKey;
+                        private _time;
+                        private _uuid;
+                        private _kActionType;
+                        private _metaClass;
+                        private _metaElement;
                         private _pastValue;
                         private _newValue;
-                        private _source;
-                        constructor(p_type: KActionType, p_meta: meta.Meta, p_source: KObject<any, any>, p_pastValue: any, p_newValue: any);
+                        private static LEFT_BRACE;
+                        private static RIGHT_BRACE;
+                        private static DIMENSION_KEY;
+                        private static TIME_KEY;
+                        private static UUID_KEY;
+                        private static TYPE_KEY;
+                        private static CLASS_KEY;
+                        private static ELEMENT_KEY;
+                        private static PAST_VALUE_KEY;
+                        private static NEW_VALUE_KEY;
+                        constructor(p_type: KActionType, p_source: KObject<any, any>, p_meta: meta.Meta, p_pastValue: string, p_newValue: string);
+                        public getSourceDimension(): number;
+                        public getSourceTime(): number;
+                        public getSourceUUID(): number;
+                        public getKActionTypeIndex(): string;
+                        public getMetaClassIndex(): string;
+                        public getMetaElementIndex(): string;
+                        public pastValue(): string;
+                        public newValue(): string;
                         public toString(): string;
-                        public type(): KActionType;
-                        public meta(): meta.Meta;
-                        public pastValue(): any;
-                        public newValue(): any;
-                        public src(): KObject<any, any>;
+                        public toJSON(): string;
+                        static fromJSON(payload: string): KEvent;
+                        private static setEventAttribute(event, currentAttributeName, value);
+                    }
+                    interface KEventBroker {
+                        registerListener(origin: any, listener: (p: KEvent) => void): void;
+                        notify(event: KEvent): void;
+                        flush(dimensionKey: number): void;
                     }
                 }
                 module extrapolation {
@@ -299,7 +335,7 @@ declare module org {
                     class JsonString {
                         private static ESCAPE_CHAR;
                         static encodeBuffer(buffer: java.lang.StringBuilder, chain: string): void;
-                        static encode(buffer: java.lang.StringBuilder, chain: string): void;
+                        static encode(chain: string): string;
                         static unescape(src: string): string;
                     }
                     class JsonToken {
@@ -370,11 +406,15 @@ declare module org {
                     universe(): C;
                 }
                 interface KEvent {
-                    type(): KActionType;
-                    meta(): meta.Meta;
-                    pastValue(): any;
-                    newValue(): any;
-                    src(): KObject<any, any>;
+                    getSourceDimension(): number;
+                    getSourceTime(): number;
+                    getSourceUUID(): number;
+                    getKActionTypeIndex(): string;
+                    getMetaClassIndex(): string;
+                    getMetaElementIndex(): string;
+                    pastValue(): string;
+                    newValue(): string;
+                    toJSON(): string;
                 }
                 interface KObject<A extends KObject<any, any>, B extends KView> {
                     isDirty(): boolean;

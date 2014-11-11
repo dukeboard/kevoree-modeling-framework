@@ -216,8 +216,18 @@ var org;
                         };
 
                         AbstractKObject.prototype.set = function (attribute, payload) {
+                            var oldValue = null;
+                            var rawOldValue = this.get(attribute);
+                            if (rawOldValue != null) {
+                                oldValue = rawOldValue.toString();
+                            }
                             attribute.strategy().mutate(this, attribute, payload, this.cachedDependencies(attribute));
-                            var event = new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.SET, attribute, this, null, payload);
+                            var newValue = null;
+                            var rawNewValue = this.get(attribute);
+                            if (rawNewValue != null) {
+                                newValue = rawNewValue.toString();
+                            }
+                            var event = new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.SET, this, attribute, oldValue, newValue);
                             this.view().dimension().universe().storage().notify(event);
                         };
 
@@ -273,6 +283,8 @@ var org;
                                     }
                                     var inboundRefs = this.getCreateOrUpdatePayloadList(param, AbstractKObject.INBOUNDS_INDEX);
                                     inboundRefs.put(this.uuid(), metaReference.index());
+                                    var event = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, null, "{\"dim\":\"" + param.dimension().key() + "\", \"time\":\"" + param.now() + "\", \"uuid\":\"" + param.uuid() + "\"}");
+                                    this.view().dimension().universe().storage().notify(event);
                                 }
                             } else {
                                 if (actionType.equals(org.kevoree.modeling.api.KActionType.SET)) {
@@ -304,6 +316,8 @@ var org;
                                                 }
                                                 param.mutate(org.kevoree.modeling.api.KActionType.ADD, metaReference.opposite(), this, false);
                                             }
+                                            var event = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, "{\"dim\":\"" + this.view().dimension().key() + "\", \"time\":\"" + this.view().now() + "\", \"uuid\":\"" + previous + "\"}", "{\"dim\":\"" + param.dimension().key() + "\", \"time\":\"" + param.now() + "\", \"uuid\":\"" + param.uuid() + "\"}");
+                                            this.view().dimension().universe().storage().notify(event);
                                         }
                                     }
                                 } else {
@@ -327,6 +341,8 @@ var org;
                                                         inboundRefs.remove(_this.uuid());
                                                     }
                                                 });
+                                                var event = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, "{\"dim\":\"" + this._view.dimension().key() + "\", \"time\":\"" + this._view.now() + "\", \"uuid\":\"" + previousKid + "\"}", null);
+                                                this.view().dimension().universe().storage().notify(event);
                                             }
                                         } else {
                                             var payload = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
@@ -347,6 +363,8 @@ var org;
                                                 if (metaReference.opposite() != null && setOpposite) {
                                                     param.mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference.opposite(), this, false);
                                                 }
+                                                var event = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, "{\"dim\":\"" + param.dimension().key() + "\", \"time\":\"" + param.now() + "\", \"uuid\":\"" + param.uuid() + "\"}", null);
+                                                this.view().dimension().universe().storage().notify(event);
                                             }
                                             var inboundRefs = this.getCreateOrUpdatePayloadList(param, AbstractKObject.INBOUNDS_INDEX);
                                             inboundRefs.remove(this.uuid());
@@ -354,12 +372,17 @@ var org;
                                     }
                                 }
                             }
-                            var event = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, metaReference, this, null, param);
-                            this.view().dimension().universe().storage().notify(event);
                         };
 
                         AbstractKObject.prototype.size = function (metaReference) {
-                            return this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ)[metaReference.index()].size();
+                            var raw = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.READ);
+                            var ref = raw[metaReference.index()];
+                            if (ref == null) {
+                                return 0;
+                            } else {
+                                var refSet = ref;
+                                return refSet.size();
+                            }
                         };
 
                         AbstractKObject.prototype.each = function (metaReference, callback, end) {
@@ -822,7 +845,7 @@ var org;
                         AbstractKView.prototype.create = function (clazz) {
                             var newObj = this.internalCreate(clazz, new org.kevoree.modeling.api.time.DefaultTimeTree().insert(this.now()), this.dimension().universe().storage().nextObjectKey());
                             if (newObj != null) {
-                                this.dimension().universe().storage().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.NEW, null, newObj, null, newObj));
+                                this.dimension().universe().storage().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.NEW, newObj, null, null, null));
                             }
                             return newObj;
                         };
@@ -923,11 +946,11 @@ var org;
                     var cache = data.cache;
                     var DefaultKStore = (function () {
                         function DefaultKStore(p_db) {
-                            this.universeListeners = new java.util.ArrayList();
                             this.caches = new java.util.HashMap();
                             this.dimKeyCounter = 0;
                             this.objectKey = 0;
                             this._db = p_db;
+                            this.eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker(this.caches);
                         }
                         DefaultKStore.prototype.keyTree = function (dim, key) {
                             return "" + dim.key() + DefaultKStore.KEY_SEP + key;
@@ -1130,6 +1153,7 @@ var org;
                                     i++;
                                 }
                                 this._db.put(payloads, callback);
+                                this.eventBroker.flush(dimension.key());
                             }
                         };
 
@@ -1364,9 +1388,13 @@ var org;
                                 callback(null);
                             } else {
                                 var timeCache = dimensionCache.timesCaches.get(resolvedRoot);
+                                if (timeCache == null) {
+                                    timeCache = new org.kevoree.modeling.api.data.cache.TimeCache();
+                                }
                                 if (timeCache.root != null) {
                                     callback(timeCache.root);
                                 } else {
+                                    var timeCacheFinal = timeCache;
                                     var rootKeys = new Array();
                                     rootKeys[0] = this.keyRoot(dimensionCache.dimension, resolvedRoot);
                                     this._db.get(rootKeys, function (res, error) {
@@ -1376,8 +1404,8 @@ var org;
                                             try  {
                                                 var idRoot = java.lang.Long.parseLong(res[0]);
                                                 _this.lookup(originView, idRoot, function (resolved) {
-                                                    timeCache.root = resolved;
-                                                    timeCache.rootDirty = false;
+                                                    timeCacheFinal.root = resolved;
+                                                    timeCacheFinal.rootDirty = false;
                                                     callback(resolved);
                                                 });
                                             } catch ($ex$) {
@@ -1402,55 +1430,19 @@ var org;
                         };
 
                         DefaultKStore.prototype.registerListener = function (origin, listener) {
-                            if (origin instanceof org.kevoree.modeling.api.abs.AbstractKObject) {
-                                var dimensionCache = this.caches.get(origin.key());
-                                var timeCache = dimensionCache.timesCaches.get(origin.now());
-                                var obj_listeners = timeCache.obj_listeners.get(origin.uuid());
-                                if (obj_listeners == null) {
-                                    obj_listeners = new java.util.ArrayList();
-                                    timeCache.obj_listeners.put(origin.uuid(), obj_listeners);
-                                }
-                                obj_listeners.add(listener);
-                            } else {
-                                if (origin instanceof org.kevoree.modeling.api.abs.AbstractKView) {
-                                    var dimensionCache = this.caches.get(origin.key());
-                                    var timeCache = dimensionCache.timesCaches.get(origin.now());
-                                    timeCache.listeners.add(listener);
-                                } else {
-                                    if (origin instanceof org.kevoree.modeling.api.abs.AbstractKDimension) {
-                                        var dimensionCache = this.caches.get(origin.key());
-                                        dimensionCache.listeners.add(listener);
-                                    } else {
-                                        if (origin instanceof org.kevoree.modeling.api.abs.AbstractKUniverse) {
-                                            this.universeListeners.add(listener);
-                                        }
-                                    }
-                                }
-                            }
+                            this.eventBroker.registerListener(origin, listener);
                         };
 
                         DefaultKStore.prototype.notify = function (event) {
-                            var dimensionCache = this.caches.get(event.src().dimension().key());
-                            var timeCache = dimensionCache.timesCaches.get(event.src().now());
-                            var obj_listeners = timeCache.obj_listeners.get(event.src().uuid());
-                            if (obj_listeners != null) {
-                                for (var i = 0; i < obj_listeners.size(); i++) {
-                                    var listener = obj_listeners.get(i);
-                                    listener(event);
-                                }
-                            }
-                            for (var i = 0; i < timeCache.listeners.size(); i++) {
-                                var listener = timeCache.listeners.get(i);
-                                listener(event);
-                            }
-                            for (var i = 0; i < dimensionCache.listeners.size(); i++) {
-                                var listener = dimensionCache.listeners.get(i);
-                                listener(event);
-                            }
-                            for (var i = 0; i < this.universeListeners.size(); i++) {
-                                var listener = this.universeListeners.get(i);
-                                listener(event);
-                            }
+                            this.eventBroker.notify(event);
+                        };
+
+                        DefaultKStore.prototype.getEventBroker = function () {
+                            return this.eventBroker;
+                        };
+
+                        DefaultKStore.prototype.setEventBroker = function (eventBroker) {
+                            this.eventBroker = eventBroker;
                         };
                         DefaultKStore.KEY_SEP = ',';
                         return DefaultKStore;
@@ -1484,6 +1476,7 @@ var org;
                         };
 
                         MemoryKDataBase.prototype.commit = function (callback) {
+                            callback(null);
                         };
 
                         MemoryKDataBase.prototype.close = function (callback) {
@@ -1494,29 +1487,115 @@ var org;
                     data.MemoryKDataBase = MemoryKDataBase;
                 })(api.data || (api.data = {}));
                 var data = api.data;
-                (function (event) {
-                    var DefaultKEvent = (function () {
-                        function DefaultKEvent(p_type, p_meta, p_source, p_pastValue, p_newValue) {
-                            this._type = p_type;
-                            this._meta = p_meta;
-                            this._source = p_source;
-                            this._pastValue = p_pastValue;
-                            this._newValue = p_newValue;
+                (function (_event) {
+                    var DefaultKBroker = (function () {
+                        function DefaultKBroker(pcaches) {
+                            this.universeListeners = new java.util.ArrayList();
+                            this.caches = pcaches;
                         }
-                        DefaultKEvent.prototype.toString = function () {
-                            var newValuePayload = "";
-                            if (this.newValue() != null) {
-                                newValuePayload = this.newValue().toString().replace("\n", "");
+                        DefaultKBroker.prototype.registerListener = function (origin, listener) {
+                            if (origin instanceof org.kevoree.modeling.api.abs.AbstractKObject) {
+                                var dimensionCache = this.caches.get(origin.key());
+                                var timeCache = dimensionCache.timesCaches.get(origin.now());
+                                var obj_listeners = timeCache.obj_listeners.get(origin.uuid());
+                                if (obj_listeners == null) {
+                                    obj_listeners = new java.util.ArrayList();
+                                    timeCache.obj_listeners.put(origin.uuid(), obj_listeners);
+                                }
+                                obj_listeners.add(listener);
+                            } else {
+                                if (origin instanceof org.kevoree.modeling.api.abs.AbstractKView) {
+                                    var dimensionCache = this.caches.get(origin.key());
+                                    var timeCache = dimensionCache.timesCaches.get(origin.now());
+                                    timeCache.listeners.add(listener);
+                                } else {
+                                    if (origin instanceof org.kevoree.modeling.api.abs.AbstractKDimension) {
+                                        var dimensionCache = this.caches.get(origin.key());
+                                        dimensionCache.listeners.add(listener);
+                                    } else {
+                                        if (origin instanceof org.kevoree.modeling.api.abs.AbstractKUniverse) {
+                                            this.universeListeners.add(listener);
+                                        }
+                                    }
+                                }
                             }
-                            return "ModelEvent[src:[t=" + this._source.now() + "]uuid=" + this._source.uuid() + ", type:" + this._type + ", meta:" + this.meta() + ", pastValue:" + this.pastValue() + ", newValue:" + newValuePayload + "]";
                         };
 
-                        DefaultKEvent.prototype.type = function () {
-                            return this._type;
+                        DefaultKBroker.prototype.notify = function (event) {
+                            var dimensionCache = this.caches.get(event.getSourceDimension());
+                            if (dimensionCache != null) {
+                                var timeCache = dimensionCache.timesCaches.get(event.getSourceTime());
+                                var obj_listeners = timeCache.obj_listeners.get(event.getSourceUUID());
+                                if (obj_listeners != null) {
+                                    for (var i = 0; i < obj_listeners.size(); i++) {
+                                        var listener = obj_listeners.get(i);
+                                        listener(event);
+                                    }
+                                }
+                                for (var i = 0; i < timeCache.listeners.size(); i++) {
+                                    var listener = timeCache.listeners.get(i);
+                                    listener(event);
+                                }
+                                for (var i = 0; i < dimensionCache.listeners.size(); i++) {
+                                    var listener = dimensionCache.listeners.get(i);
+                                    listener(event);
+                                }
+                            }
+                            for (var i = 0; i < this.universeListeners.size(); i++) {
+                                var listener = this.universeListeners.get(i);
+                                listener(event);
+                            }
                         };
 
-                        DefaultKEvent.prototype.meta = function () {
-                            return this._meta;
+                        DefaultKBroker.prototype.flush = function (dimensionKey) {
+                        };
+                        return DefaultKBroker;
+                    })();
+                    _event.DefaultKBroker = DefaultKBroker;
+
+                    var DefaultKEvent = (function () {
+                        function DefaultKEvent(p_type, p_source, p_meta, p_pastValue, p_newValue) {
+                            if (p_source != null) {
+                                this._dimensionKey = p_source.dimension().key();
+                                this._time = p_source.now();
+                                this._uuid = p_source.uuid();
+                                this._metaClass = p_source.metaClass().metaName();
+                            }
+                            if (p_type != null) {
+                                this._kActionType = p_type.toString();
+                            }
+                            if (p_meta != null) {
+                                this._metaElement = p_meta.metaName();
+                            }
+                            if (p_pastValue != null) {
+                                this._pastValue = p_pastValue;
+                            }
+                            if (p_newValue != null) {
+                                this._newValue = p_newValue;
+                            }
+                        }
+                        DefaultKEvent.prototype.getSourceDimension = function () {
+                            return this._dimensionKey;
+                        };
+
+                        DefaultKEvent.prototype.getSourceTime = function () {
+                            return this._time;
+                        };
+
+                        DefaultKEvent.prototype.getSourceUUID = function () {
+                            return this._uuid;
+                        };
+
+                        DefaultKEvent.prototype.getKActionTypeIndex = function () {
+                            return this._kActionType;
+                        };
+
+                        DefaultKEvent.prototype.getMetaClassIndex = function () {
+                            return this._metaClass;
+                        };
+
+                        DefaultKEvent.prototype.getMetaElementIndex = function () {
+                            return this._metaElement;
                         };
 
                         DefaultKEvent.prototype.pastValue = function () {
@@ -1527,12 +1606,101 @@ var org;
                             return this._newValue;
                         };
 
-                        DefaultKEvent.prototype.src = function () {
-                            return this._source;
+                        DefaultKEvent.prototype.toString = function () {
+                            return this.toJSON();
                         };
+
+                        DefaultKEvent.prototype.toJSON = function () {
+                            var sb = new java.lang.StringBuilder();
+                            sb.append(DefaultKEvent.LEFT_BRACE);
+                            sb.append("\"").append(DefaultKEvent.DIMENSION_KEY).append("\":\"").append(this._dimensionKey).append("\",");
+                            sb.append("\"").append(DefaultKEvent.TIME_KEY).append("\":\"").append(this._time).append("\",");
+                            sb.append("\"").append(DefaultKEvent.UUID_KEY).append("\":\"").append(this._uuid).append("\",");
+                            sb.append("\"").append(DefaultKEvent.TYPE_KEY).append("\":\"").append(this._kActionType).append("\",");
+                            sb.append("\"").append(DefaultKEvent.CLASS_KEY).append("\":\"").append(this._metaClass).append("\"");
+                            if (this._metaElement != null) {
+                                sb.append(",\"").append(DefaultKEvent.ELEMENT_KEY).append("\":\"").append(this._metaElement).append("\"");
+                            }
+                            if (this._pastValue != null) {
+                                sb.append(",\"").append(DefaultKEvent.PAST_VALUE_KEY).append("\":\"").append(org.kevoree.modeling.api.json.JsonString.encode(this._pastValue)).append("\"");
+                            }
+                            if (this._newValue != null) {
+                                sb.append(",\"").append(DefaultKEvent.NEW_VALUE_KEY).append("\":\"").append(org.kevoree.modeling.api.json.JsonString.encode(this._newValue)).append("\"");
+                            }
+                            sb.append(DefaultKEvent.RIGHT_BRACE);
+                            return sb.toString();
+                        };
+
+                        DefaultKEvent.fromJSON = function (payload) {
+                            var lexer = new org.kevoree.modeling.api.json.Lexer(payload);
+                            var currentToken = lexer.nextToken();
+                            if (currentToken.tokenType() == org.kevoree.modeling.api.json.Type.LEFT_BRACE) {
+                                var currentAttributeName = null;
+                                var event = new org.kevoree.modeling.api.event.DefaultKEvent(null, null, null, null, null);
+                                currentToken = lexer.nextToken();
+                                while (currentToken.tokenType() != org.kevoree.modeling.api.json.Type.EOF) {
+                                    if (currentToken.tokenType() == org.kevoree.modeling.api.json.Type.VALUE) {
+                                        if (currentAttributeName == null) {
+                                            currentAttributeName = currentToken.value().toString();
+                                        } else {
+                                            org.kevoree.modeling.api.event.DefaultKEvent.setEventAttribute(event, currentAttributeName, currentToken.value().toString());
+                                            currentAttributeName = null;
+                                        }
+                                    }
+                                    currentToken = lexer.nextToken();
+                                }
+                                return event;
+                            }
+                            return null;
+                        };
+
+                        DefaultKEvent.setEventAttribute = function (event, currentAttributeName, value) {
+                            if (currentAttributeName.equals(DefaultKEvent.DIMENSION_KEY)) {
+                                event._dimensionKey = java.lang.Long.parseLong(value);
+                            } else {
+                                if (currentAttributeName.equals(DefaultKEvent.TIME_KEY)) {
+                                    event._time = java.lang.Long.parseLong(value);
+                                } else {
+                                    if (currentAttributeName.equals(DefaultKEvent.UUID_KEY)) {
+                                        event._uuid = java.lang.Long.parseLong(value);
+                                    } else {
+                                        if (currentAttributeName.equals(DefaultKEvent.TYPE_KEY)) {
+                                            event._kActionType = value;
+                                        } else {
+                                            if (currentAttributeName.equals(DefaultKEvent.CLASS_KEY)) {
+                                                event._metaClass = value;
+                                            } else {
+                                                if (currentAttributeName.equals(DefaultKEvent.ELEMENT_KEY)) {
+                                                    event._metaElement = value;
+                                                } else {
+                                                    if (currentAttributeName.equals(DefaultKEvent.PAST_VALUE_KEY)) {
+                                                        event._pastValue = org.kevoree.modeling.api.json.JsonString.unescape(value);
+                                                    } else {
+                                                        if (currentAttributeName.equals(DefaultKEvent.NEW_VALUE_KEY)) {
+                                                            event._newValue = org.kevoree.modeling.api.json.JsonString.unescape(value);
+                                                        } else {
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                        DefaultKEvent.LEFT_BRACE = "{";
+                        DefaultKEvent.RIGHT_BRACE = "}";
+                        DefaultKEvent.DIMENSION_KEY = "dim";
+                        DefaultKEvent.TIME_KEY = "time";
+                        DefaultKEvent.UUID_KEY = "uuid";
+                        DefaultKEvent.TYPE_KEY = "type";
+                        DefaultKEvent.CLASS_KEY = "class";
+                        DefaultKEvent.ELEMENT_KEY = "elem";
+                        DefaultKEvent.PAST_VALUE_KEY = "pastValue";
+                        DefaultKEvent.NEW_VALUE_KEY = "newValue";
                         return DefaultKEvent;
                     })();
-                    event.DefaultKEvent = DefaultKEvent;
+                    _event.DefaultKEvent = DefaultKEvent;
                 })(api.event || (api.event = {}));
                 var event = api.event;
                 (function (extrapolation) {
@@ -2028,59 +2196,10 @@ var org;
                             }
                         };
 
-                        JsonString.encode = function (buffer, chain) {
-                            if (chain == null) {
-                                return;
-                            }
-                            var i = 0;
-                            while (i < chain.length) {
-                                var ch = chain.charAt(i);
-                                if (ch == '"') {
-                                    buffer.append(JsonString.ESCAPE_CHAR);
-                                    buffer.append('"');
-                                } else {
-                                    if (ch == JsonString.ESCAPE_CHAR) {
-                                        buffer.append(JsonString.ESCAPE_CHAR);
-                                        buffer.append(JsonString.ESCAPE_CHAR);
-                                    } else {
-                                        if (ch == '\n') {
-                                            buffer.append(JsonString.ESCAPE_CHAR);
-                                            buffer.append('n');
-                                        } else {
-                                            if (ch == '\r') {
-                                                buffer.append(JsonString.ESCAPE_CHAR);
-                                                buffer.append('r');
-                                            } else {
-                                                if (ch == '\t') {
-                                                    buffer.append(JsonString.ESCAPE_CHAR);
-                                                    buffer.append('t');
-                                                } else {
-                                                    if (ch == '\u2028') {
-                                                        buffer.append(JsonString.ESCAPE_CHAR);
-                                                        buffer.append('u');
-                                                        buffer.append('2');
-                                                        buffer.append('0');
-                                                        buffer.append('2');
-                                                        buffer.append('8');
-                                                    } else {
-                                                        if (ch == '\u2029') {
-                                                            buffer.append(JsonString.ESCAPE_CHAR);
-                                                            buffer.append('u');
-                                                            buffer.append('2');
-                                                            buffer.append('0');
-                                                            buffer.append('2');
-                                                            buffer.append('9');
-                                                        } else {
-                                                            buffer.append(ch);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                i = i + 1;
-                            }
+                        JsonString.encode = function (chain) {
+                            var sb = new java.lang.StringBuilder();
+                            org.kevoree.modeling.api.json.JsonString.encodeBuffer(sb, chain);
+                            return sb.toString();
                         };
 
                         JsonString.unescape = function (src) {

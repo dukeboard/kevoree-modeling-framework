@@ -7,14 +7,22 @@ import org.kevoree.modeling.api.meta.Meta;
  */
 public interface KEvent {
 
-    public KActionType type();
+    public Long getSourceDimension();
 
-    public Meta meta();
+    public Long getSourceTime();
 
-    public Object pastValue();
+    public Long getSourceUUID();
 
-    public Object newValue();
+    public String getKActionTypeIndex();
 
-    public KObject src();
+    public String getMetaClassIndex();
+
+    public String getMetaElementIndex();
+
+    public String pastValue();
+
+    public String newValue();
+
+    public String toJSON();
 
 }
