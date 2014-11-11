@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.DefaultKStore;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
+import org.kevoree.modeling.databases.websocket.WebSocketDataBase;
 import org.kevoree.modeling.databases.websocket.WebSocketKBroker;
 
 import java.util.concurrent.Executors;
@@ -23,15 +24,13 @@ public class MainServerTest {
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        GeometryUniverse geoUniverse = new GeometryUniverse(new MemoryKDataBase());
+        MemoryKDataBase actualDataBase = new MemoryKDataBase();
+        WebSocketDataBase wsDbWrapper = new WebSocketDataBase(actualDataBase, 23664);
+
+        GeometryUniverse geoUniverse = new GeometryUniverse(actualDataBase);
         geoUniverse.storage().setEventBroker(new WebSocketKBroker(geoUniverse.storage().getEventBroker(), true));
 
-        geoUniverse.listen(new ModelListener() {
-            @Override
-            public void on(KEvent evt) {
-                System.out.println("Event:" + evt.toJSON());
-            }
-        });
+        String[] colors = new String[]{"red", "green", "blue"};
 
         geoUniverse.dimension(0, (dimension)->{
             GeometryView geoFactory = dimension.time(Long.MIN_VALUE);
@@ -39,6 +38,15 @@ public class MainServerTest {
                 if (results == null || results.length == 0) {
                     Library lib = geoFactory.createLibrary();
                     geoFactory.setRoot(lib);
+                    lib.addShapes(geoFactory.createShape().setName("ShapeR").setColor(colors[0]));
+                    lib.addShapes(geoFactory.createShape().setName("ShapeG").setColor(colors[1]));
+                    lib.addShapes(geoFactory.createShape().setName("ShapeB").setColor(colors[2]));
+
+                    lib.eachShapes(shape->{
+                        shape.listen((event->{
+                        System.out.println(shape.getName() + "=>" + shape.getColor());
+                        }));
+                    }, error->error.printStackTrace());
                     dimension.save(Utils.DefaultPrintStackTraceCallback);
                 }
             });
@@ -47,32 +55,30 @@ public class MainServerTest {
 
 
         Runnable task = new Runnable() {
-            int index = 0;
+            int turn = 0, i = 0;
             public void run() {
-                System.out.println("TaskRun");
                 geoUniverse.dimension(0, (dimension)->{
-                    System.out.println("Got Dimension: key:" + dimension.key());
                     GeometryView geoFactory = dimension.time(Long.MIN_VALUE);
-                    System.out.println("Got Factory time:" + geoFactory.now());
                     geoFactory.select("/", results -> {
-                        System.out.println("Got Root");
                         if(results == null || results.length == 0) {
                             System.err.println("Root not found");
                         } else {
-                            System.out.println("Creating shape " + "Shape"+index);
                             Library root = (Library) results[0];
-                            System.out.println("Reading Shapes size");
-                            int prevSize =root.sizeOfShapes();
-                            System.out.println("Adding shape");
-                            root.addShapes(geoFactory.createShape().setName("Shape"+index));
-                            index++;
-                            System.out.println("Saving Size: "+prevSize+" -> " + root.sizeOfShapes());
-                            dimension.saveUnload(Utils.DefaultPrintStackTraceCallback);
-                            System.out.println("Saved");
+                            i++;
+                            System.out.println("Rolling colors");
+                            root.eachShapes((shape)->{
+                                i++;
+                                shape.setColor(colors[(turn + i)%3]);
+                            },error->{
+                                if(error != null) {
+                                    error.printStackTrace();
+                                }
+                                turn++;
+                            });
+                            dimension.save(Utils.DefaultPrintStackTraceCallback);
                         }
                     });
                 });
-                System.out.println("TaskFinish");
             }
         };
         executor.scheduleWithFixedDelay(task, 5000, 5000, TimeUnit.MILLISECONDS);

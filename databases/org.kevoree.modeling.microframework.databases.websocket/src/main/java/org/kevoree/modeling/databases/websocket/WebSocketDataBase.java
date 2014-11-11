@@ -18,7 +18,7 @@ import static io.undertow.Handlers.websocket;
 /**
  * Created by duke on 11/5/14.
  */
-public class WebSocketDataBase implements KDataBase, WebSocketConnectionCallback {
+public class WebSocketDataBase extends AbstractReceiveListener implements KDataBase, WebSocketConnectionCallback {
 
     private KDataBase wrapped = null;
 
@@ -71,41 +71,52 @@ public class WebSocketDataBase implements KDataBase, WebSocketConnectionCallback
 
     @Override
     public void onConnect(WebSocketHttpExchange webSocketHttpExchange, WebSocketChannel webSocketChannel) {
-        webSocketChannel.getReceiveSetter().set(new AbstractReceiveListener() {
-
-            @Override
-            protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
-                JsonObject jsonMessage = JsonObject.readFrom(message.getData());
-                switch (jsonMessage.get("action").asString()) {
-                    case GET_ACTION:
-                        JsonArray payload = jsonMessage.get("value").asArray();
-                        String[] keys = new String[payload.size()];
-                        for (int i = 0; i < payload.size(); i++) {
-                            keys[i] = payload.get(i).asString();
-                        }
-                        get(keys, new ThrowableCallback<String[]>() {
-                            @Override
-                            public void on(String[] resultPayload, Throwable error) {
-                                JsonArray result = new JsonArray();
-                                for (int i = 0; i < resultPayload.length; i++) {
-                                    result.add(resultPayload[i]);
-                                }
-                                WebSockets.sendText(result.asString(), channel, null);
-                            }
-                        });
-                        break;
-                    case PUT_ACTION:
-                        break;
-                    case REMOVE_ACTION:
-                        break;
-                    case COMMIT_ACTION:
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-        });
+        webSocketChannel.getReceiveSetter().set(this);
         webSocketChannel.resumeReceives();
+    }
+
+    @Override
+    protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
+        String data = message.getData();
+        System.out.println("DataStore::Received:" + data);
+        JsonObject jsonMessage = JsonObject.readFrom(data);
+        switch (jsonMessage.get("action").asString()) {
+            case GET_ACTION: {
+                JsonArray payload = jsonMessage.get("value").asArray();
+                String[] keys = new String[payload.size()];
+                for (int i = 0; i < payload.size(); i++) {
+                    keys[i] = payload.get(i).asString();
+                }
+                get(keys, new ThrowableCallback<String[]>() {
+                    @Override
+                    public void on(String[] resultPayload, Throwable error) {
+                        JsonObject response = new JsonObject();
+                        if(error != null) {
+                            response.add("status", "error");
+                            response.add("value", error.getMessage());
+                        } else {
+                            response.add("status", "success");
+                            JsonArray result = new JsonArray();
+                            for (int i = 0; i < resultPayload.length; i++) {
+                                result.add(resultPayload[i]);
+                            }
+                            response.add("value", result);
+                        }
+                        WebSockets.sendText(response.toString(), channel, null);
+                    }
+                });
+            } break;
+            case PUT_ACTION: {
+
+            } break;
+            case REMOVE_ACTION:{
+
+            } break;
+            case COMMIT_ACTION: {
+
+            } break;
+            default:
+                break;
+        }
     }
 }

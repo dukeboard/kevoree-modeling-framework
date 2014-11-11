@@ -29,8 +29,8 @@ public class DefaultKBroker implements KEventBroker {
 
     public void registerListener(Object origin, ModelListener listener) {
         if (origin instanceof AbstractKObject) {
-            DimensionCache dimensionCache = caches.get(((KDimension) origin).key());
-            TimeCache timeCache = dimensionCache.timesCaches.get(((KView) origin).now());
+            DimensionCache dimensionCache = caches.get(((AbstractKObject) origin).dimension().key());
+            TimeCache timeCache = dimensionCache.timesCaches.get(((AbstractKObject) origin).now());
             List<ModelListener> obj_listeners = timeCache.obj_listeners.get(((KObject) origin).uuid());
             if (obj_listeners == null) {
                 obj_listeners = new ArrayList<ModelListener>();

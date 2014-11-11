@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script src="./java.js"></script>
+<script src="./org.kevoree.modeling.microframework.typescript.js"></script>
+<script src="./org.kevoree.modeling.test.datastore.js"></script>
+<script src="./org.kevoree.modeling.database.websocket.WebSocketKBroker.js"></script>
+<script>
+
+    var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketDataBase("ws://localhost:23664");
+    dataBaseConnection.setAfterConnection(function(){
+        var geometryUniverse = new geometry.GeometryUniverse(dataBaseConnection);
+        geometryUniverse.storage().setEventBroker(new org.kevoree.modeling.database.websocket.WebSocketKBroker(geometryUniverse.storage().getEventBroker(), "ws://localhost:23665"));
+
+        console.log("Looking for the dimension");
+        geometryUniverse.dimension(0, function(dimension){
+            var view = dimension.time(0);
+            view.select("/", function(results){
+                if(results === undefined || results.length == 0) {
+                    console.error("No root found.", results)
+                } else {
+                    console.log("Yeah go ahead !")
+                }
+            });
+        });
+    });
+    dataBaseConnection.connect();
+
+
+
+
+
+</script>
+</body>
+</html>

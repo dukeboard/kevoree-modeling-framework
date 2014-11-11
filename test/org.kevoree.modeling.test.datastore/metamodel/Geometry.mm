@@ -5,4 +5,5 @@ class geometry.Library {
 
 class geometry.Shape {
     @id name : String
+    color : String
 }
