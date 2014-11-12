@@ -12,6 +12,7 @@ import org.kevoree.modeling.databases.websocket.WebSocketKBroker;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,6 +22,8 @@ public class MainServerTest {
 
 
     public static void main(String[] args) {
+
+        Long originOfTime = Long.MIN_VALUE/10000;
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -33,7 +36,8 @@ public class MainServerTest {
         String[] colors = new String[]{"red", "green", "blue"};
 
         geoUniverse.dimension(0, (dimension)->{
-            GeometryView geoFactory = dimension.time(Long.MIN_VALUE);
+
+            GeometryView geoFactory = dimension.time(originOfTime);
             geoFactory.select("/", results -> {
                 if (results == null || results.length == 0) {
                     Library lib = geoFactory.createLibrary();
@@ -48,17 +52,25 @@ public class MainServerTest {
                         }));
                     }, error->error.printStackTrace());
                     dimension.save(Utils.DefaultPrintStackTraceCallback);
+                    System.out.println("Base model commited");
                 }
             });
         });
 
-
+/*
+        Semaphore s = new Semaphore(0);
+        try {
+            s.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        */
 
         Runnable task = new Runnable() {
             int turn = 0, i = 0;
             public void run() {
                 geoUniverse.dimension(0, (dimension)->{
-                    GeometryView geoFactory = dimension.time(Long.MIN_VALUE);
+                    GeometryView geoFactory = dimension.time(originOfTime);
                     geoFactory.select("/", results -> {
                         if(results == null || results.length == 0) {
                             System.err.println("Root not found");
@@ -81,6 +93,6 @@ public class MainServerTest {
                 });
             }
         };
-        executor.scheduleWithFixedDelay(task, 5000, 5000, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(task, 10000, 5000, TimeUnit.MILLISECONDS);
     }
 }

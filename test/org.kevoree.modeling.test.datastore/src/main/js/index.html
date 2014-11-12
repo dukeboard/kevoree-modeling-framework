@@ -5,6 +5,7 @@
     <title></title>
 </head>
 <body>
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
 <script src="./java.js"></script>
 <script src="./org.kevoree.modeling.microframework.typescript.js"></script>
 <script src="./org.kevoree.modeling.test.datastore.js"></script>
@@ -23,16 +24,26 @@
                 if(results === undefined || results.length == 0) {
                     console.error("No root found.", results)
                 } else {
+                    var lib = results[0];
+                    console.log("Before For each");
+                    lib.eachShapes(function(shape){
+                        $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
+                        console.log("Jumping");
+                        shape.jump(shape.timeTree().first(), function(firstShape){
+                            console.log("Jumped to " + firstShape.now());
+                            firstShape.listen(function(event){
+                                if(event.getMetaElement() == shape.metaAttribute("color").metaName()) {
+                                    $('div#' + shape.getName()).css('background-color',event.newValue())
+                                }
+                            });
+                        });
+                    }, function(error){if(error){console.error(error);}});
                     console.log("Yeah go ahead !")
                 }
             });
         });
     });
     dataBaseConnection.connect();
-
-
-
-
 
 </script>
 </body>

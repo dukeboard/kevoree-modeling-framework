@@ -72,9 +72,20 @@ var org;
                             this.clientConnection.onmessage = function (message) {
                                 console.log("MessageReceived:", message);
                                 var json = JSON.parse(message.data);
-                                for (var i = 0; i < json.events.length; i++) {
-                                    var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i]);
-                                    _this.notifyOnly(kEvent);
+                                if (json.action == "get") {
+                                    var callback = _this.getCallbacks.poll();
+                                    if (json.status == "success") {
+                                        callback(json.value, null);
+                                    }
+                                    else if (json.status == "error") {
+                                        callback(null, new java.lang.Exception(json.value));
+                                    }
+                                    else {
+                                        console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
+                                    }
+                                }
+                                else {
+                                    console.error("WebSocketDatabase: Frame of type'" + json.action + "' not supported yet.");
                                 }
                             };
                             this.clientConnection.onerror = function (error) {
