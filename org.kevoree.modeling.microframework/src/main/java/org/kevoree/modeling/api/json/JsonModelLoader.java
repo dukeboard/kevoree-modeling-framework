@@ -117,9 +117,11 @@ public class JsonModelLoader {
                                     }
                                 } else {
                                     try {
-                                        Set<String> plainRawList = (Set<String>) elem.get(k);
                                         Set<Long> convertedRaw = new HashSet<Long>();
-                                        for (String plainRaw : plainRawList) {
+
+                                        String[] plainRawList = ((Set<String>) elem.get(k)).toArray(new String[elem.size()]);
+                                        for(int l = 0; l < plainRawList.length; l++) {
+                                            String plainRaw = plainRawList[l];
                                             try {
                                                 Long converted = Long.parseLong(plainRaw);
                                                 convertedRaw.add(converted);

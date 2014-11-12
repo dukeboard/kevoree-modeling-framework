@@ -427,7 +427,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         } else if (o instanceof Set) {
             Set<Long> objs = (Set<Long>) o;
-            view().lookupAll(objs.toArray(new Long[objs.size()]), new Callback<KObject[]>() {
+            Long[] setContent = objs.toArray(new Long[objs.size()]);
+            view().lookupAll(setContent, new Callback<KObject[]>() {
                 @Override
                 public void on(KObject[] result) {
                     boolean endAlreadyCalled = false;

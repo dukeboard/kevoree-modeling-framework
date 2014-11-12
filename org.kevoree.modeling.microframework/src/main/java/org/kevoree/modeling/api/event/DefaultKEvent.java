@@ -56,15 +56,15 @@ public class DefaultKEvent implements KEvent {
         return _uuid;
     }
 
-    public String getKActionTypeIndex() {
+    public String getKActionType() {
         return _kActionType;
     }
 
-    public String getMetaClassIndex() {
+    public String getMetaClass() {
         return _metaClass;
     }
 
-    public String getMetaElementIndex() {
+    public String getMetaElement() {
         return _metaElement;
     }
 

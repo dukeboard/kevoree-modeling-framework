@@ -13,11 +13,11 @@ public interface KEvent {
 
     public Long getSourceUUID();
 
-    public String getKActionTypeIndex();
+    public String getKActionType();
 
-    public String getMetaClassIndex();
+    public String getMetaClass();
 
-    public String getMetaElementIndex();
+    public String getMetaElement();
 
     public String pastValue();
 

@@ -192,7 +192,7 @@ public class DefaultPolynomialExtrapolation implements PolynomialExtrapolation {
         String[] elems = payload.split(sep + "");
         weights = new double[elems.length];
         for (int i = 0; i < elems.length; i++) {
-            weights[i] = Long.parseLong(elems[i]);
+            weights[i] = Double.parseDouble(elems[i]);
         }
     }
 
