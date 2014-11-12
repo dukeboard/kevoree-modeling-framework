@@ -58,11 +58,11 @@ public class DefaultKStore implements KStore {
     }
 
     private String keyRoot(KDimension dim, long time) {
-        return dim.key() + KEY_SEP + time + KEY_SEP + "root";
+        return "" + dim.key() + KEY_SEP + time + KEY_SEP + "root";
     }
 
     private String keyRootTree(KDimension dim) {
-        return dim.key() + KEY_SEP + "root";
+        return "" + dim.key() + KEY_SEP + "root";
     }
 
     private String keyPayload(KDimension dim, long time, long key) {
@@ -191,37 +191,42 @@ public class DefaultKStore implements KStore {
         new Exception("Not implemented yet !");
     }
 
+    private int getSizeOfDirties(DimensionCache dimensionCache, TimeCache[] timeCaches) {
+        int sizeCache = 0;
+        for (int i = 0; i < timeCaches.length; i++) {
+            TimeCache timeCache = timeCaches[i];
+            KObject[] valuesArr = timeCache.obj_cache.values().toArray(new KObject[timeCache.obj_cache.size()]);
+            for (int j = 0; j < valuesArr.length; j++) {
+                KObject cached = valuesArr[j];
+                if (cached.isDirty()) {
+                    sizeCache++;
+                }
+            }
+            if (timeCache.rootDirty) {
+                sizeCache++;
+            }
+        }
+        TimeTree[] timeTrees = dimensionCache.timeTreeCache.values().toArray(new TimeTree[dimensionCache.timeTreeCache.size()]);
+        for (int k = 0; k < timeTrees.length; k++) {
+            TimeTree timeTree = timeTrees[k];
+            if (timeTree.isDirty()) {
+                sizeCache++;
+            }
+        }
+        if (dimensionCache.rootTimeTree.isDirty()) {
+            sizeCache++;
+        }
+        return sizeCache;
+    }
+
     @Override
     public void save(KDimension dimension, Callback<Throwable> callback) {
         DimensionCache dimensionCache = caches.get(dimension.key());
         if (dimensionCache == null) {
             callback.on(null);
         } else {
-            int sizeCache = 0;
             TimeCache[] timeCaches = dimensionCache.timesCaches.values().toArray(new TimeCache[dimensionCache.timesCaches.size()]);
-            for (int i = 0; i < timeCaches.length; i++) {
-                TimeCache timeCache = timeCaches[i];
-                KObject[] valuesArr = timeCache.obj_cache.values().toArray(new KObject[timeCache.obj_cache.size()]);
-                for (int j = 0; j < valuesArr.length; j++) {
-                    KObject cached = valuesArr[j];
-                    if (cached.isDirty()) {
-                        sizeCache++;
-                    }
-                }
-                if (timeCache.rootDirty) {
-                    sizeCache++;
-                }
-            }
-            TimeTree[] timeTrees = dimensionCache.timeTreeCache.values().toArray(new TimeTree[dimensionCache.timeTreeCache.size()]);
-            for (int i = 0; i < timeTrees.length; i++) {
-                TimeTree timeTree = timeTrees[i];
-                if (timeTree.isDirty()) {
-                    sizeCache++;
-                }
-            }
-            if (dimensionCache.rootTimeTree.isDirty()) {
-                sizeCache++;
-            }
+            int sizeCache = getSizeOfDirties(dimensionCache, timeCaches);
             String[][] payloads = new String[sizeCache][2];
             int i = 0;
             for (int j = 0; j < timeCaches.length; j++) {
@@ -244,10 +249,9 @@ public class DefaultKStore implements KStore {
                 }
             }
 
-
             Long[] keyArr = dimensionCache.timeTreeCache.keySet().toArray(new Long[dimensionCache.timeTreeCache.size()]);
-            for (int k = 0; k < keyArr.length; k++) {
-                Long timeTreeKey = keyArr[k];
+            for (int l = 0; l < keyArr.length; l++) {
+                Long timeTreeKey = keyArr[l];
                 TimeTree timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
                 if (timeTree.isDirty()) {
                     payloads[i][0] = keyTree(dimension, timeTreeKey);
