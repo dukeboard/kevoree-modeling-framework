@@ -318,7 +318,7 @@ public class DefaultKStore implements KStore {
             callback.on(result);
         } else {
             String[] toLoadKeys = new String[toLoad.size()];
-            for (int i = 0; i < toLoadKeys.length; i++) {
+            for (int i = 0; i < toLoad.size(); i++) {
                 toLoadKeys[i] = keyTree(dimension, keys[toLoad.get(i)]);
             }
             _db.get(toLoadKeys, new ThrowableCallback<String[]>() {

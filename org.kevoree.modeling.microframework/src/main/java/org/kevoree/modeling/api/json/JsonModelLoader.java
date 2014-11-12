@@ -73,7 +73,7 @@ public class JsonModelLoader {
             currentToken = lexer.nextToken();
         }
         long[] keys = new long[alls.size()];
-        for (int i = 0; i < keys.length; i++) {
+        for (int i = 0; i < alls.size(); i++) {
             Long kid = Long.parseLong(alls.get(i).get(JsonModelSerializer.KEY_UUID).toString());
             keys[i] = kid;
         }
