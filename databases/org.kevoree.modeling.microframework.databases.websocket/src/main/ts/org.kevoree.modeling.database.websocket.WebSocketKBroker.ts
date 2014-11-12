@@ -81,9 +81,17 @@ module org {
                             this.clientConnection.onmessage = (message : MessageEvent) => {
                                 console.log("MessageReceived:", message);
                                 var json = JSON.parse(message.data);
-                                for(var i = 0; i < json.events.length; i++) {
-                                    var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i]);
-                                    this.notifyOnly(kEvent);
+                                if(json.action == "get") {
+                                    var callback = this.getCallbacks.poll();
+                                    if(json.status == "success") {
+                                        callback(json.value, null);
+                                    } else if(json.status == "error") {
+                                        callback(null, new java.lang.Exception(json.value));
+                                    } else {
+                                        console.error("WebSocketDatabase: Status '"+json.action+"' of not supported yet." )
+                                    }
+                                } else {
+                                    console.error("WebSocketDatabase: Frame of type'" + json.action + "' not supported yet.")
                                 }
                             };
                             this.clientConnection.onerror = function(error){console.error(error);};
@@ -125,7 +133,6 @@ module org {
 
                         private  _baseBroker;
                         private storedEvents = new java.util.HashMap<java.lang.Long, java.util.ArrayList<org.kevoree.modeling.api.KEvent>>();
-
 
 
                         public registerListener(origin: any, listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
