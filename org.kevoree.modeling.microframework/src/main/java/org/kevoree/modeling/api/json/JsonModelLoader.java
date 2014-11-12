@@ -97,7 +97,10 @@ public class JsonModelLoader {
                     }
                     loaded.add(current);
                     Object[] payloadObj = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
-                    for (String k : elem.keySet()) {
+
+                    String[] elemKeys = elem.keySet().toArray(new String[elem.size()]);
+                    for(int j = 0; j < elemKeys.length; j++) {
+                        String k = elemKeys[j];
                         MetaAttribute att = current.metaAttribute(k);
                         if (att != null) {
                             payloadObj[att.index()] = JsonModelLoader.convertRaw(att, elem.get(k));//TODO manage ARRAY for multiplicity 0..*
