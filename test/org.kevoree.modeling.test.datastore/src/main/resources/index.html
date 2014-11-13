@@ -37,7 +37,10 @@
                     dimension.listen(function(event){
                         console.log("Dimension listener Event", event);
                         if(event.kActionType() == org.kevoree.modeling.api.KActionType.ADD.toString() && event.metaClass() == lib.metaClass().metaName() && event.metaElement() == lib.metaReference("shapes").metaName()) {
-                            console.log("Should update shapes");
+                            var newVal = JSON.parse(event.newValue());
+                            view.lookup(newVal.uuid, function(shape){
+                                addShapeToDisplay(shape);
+                            });
                         }
                     });
 
@@ -50,13 +53,13 @@
 
     function addShapeToDisplay(shape) {
         $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
-        shape.jump(shape.timeTree().first(), function(firstShape){
-            firstShape.listen(function(event){
-                if(event.metaElement() == shape.metaAttribute("color").metaName()) {
-                    $('div#' + shape.getName()).css('background-color',event.newValue())
-                }
-            });
+        shape.listen(function(event){
+            if(event.metaElement() == shape.metaAttribute("color").metaName()) {
+                $('div#' + shape.getName()).css('background-color',event.newValue())
+            }
         });
+        //shape.jump(shape.timeTree().first(), function(firstShape){
+        //});
     }
 
     $('#addNewShapeButton').on('click', addNewShape);

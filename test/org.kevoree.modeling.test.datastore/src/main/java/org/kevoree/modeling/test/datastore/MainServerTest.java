@@ -24,7 +24,7 @@ public class MainServerTest {
 
     public static void main(String[] args) {
 
-        Long originOfTime = Long.MIN_VALUE/10000;
+        Long originOfTime = 0L;
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -54,7 +54,6 @@ public class MainServerTest {
                     }, error->error.printStackTrace());
                     dimension.save(Utils.DefaultPrintStackTraceCallback);
                     System.out.println("Base model commited");
-
                 }
             });
             dimension.listen(new ModelListener() {
@@ -66,6 +65,7 @@ public class MainServerTest {
 
 
         });
+/*
 
         Semaphore s = new Semaphore(0);
         try {
@@ -73,8 +73,8 @@ public class MainServerTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        */
 
-/*
         Runnable task = new Runnable() {
             int turn = 0, i = 0;
             public void run() {
@@ -96,13 +96,12 @@ public class MainServerTest {
                                 }
                                 turn++;
                             });
-                            dimension.save(Utils.DefaultPrintStackTraceCallback);
+                            dimension.saveUnload(Utils.DefaultPrintStackTraceCallback);
                         }
                     });
                 });
             }
         };
         executor.scheduleWithFixedDelay(task, 10000, 5000, TimeUnit.MILLISECONDS);
-        */
     }
 }

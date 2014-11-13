@@ -78,7 +78,6 @@ module org {
                         public connect() : void {
                             this.clientConnection = new WebSocket(this.connectionUri);
                             this.clientConnection.onmessage = (message : MessageEvent) => {
-                                console.log("MessageReceived:", message);
                                 var json = JSON.parse(message.data);
                                 if(json.action == "get") {
                                     var getCallback = this.getCallbacks.poll();
@@ -119,7 +118,6 @@ module org {
                             var jsonMessage = {"action":"get", "value":value};
                             this.getCallbacks.add(callback);
                             var stringified = JSON.stringify(jsonMessage);
-                            console.log("Sending Request:", stringified);
                             this.clientConnection.send(stringified);
                         }
 
@@ -134,7 +132,6 @@ module org {
                             var jsonMessage = {"action":"put", "value":payloadList};
                             this.putCallbacks.add(error);
                             var stringified = JSON.stringify(jsonMessage);
-                            console.log("Sending Request:", stringified);
                             this.clientConnection.send(stringified);
                         }
 

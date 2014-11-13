@@ -78,7 +78,6 @@ public class WebSocketDataBase extends AbstractReceiveListener implements KDataB
     @Override
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
         String data = message.getData();
-        System.out.println("DataStore::Received:" + data);
         JsonObject jsonMessage = JsonObject.readFrom(data);
         switch (jsonMessage.get("action").asString()) {
             case GET_ACTION: {
