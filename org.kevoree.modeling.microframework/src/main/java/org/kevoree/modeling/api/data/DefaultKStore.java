@@ -7,10 +7,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ThrowableCallback;
-import org.kevoree.modeling.api.abs.AbstractKDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
-import org.kevoree.modeling.api.abs.AbstractKUniverse;
-import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.event.DefaultKBroker;
@@ -35,6 +32,14 @@ import java.util.Set;
 public class DefaultKStore implements KStore {
 
     public static final char KEY_SEP = ',';
+    public static final String UUID_DB_KEY = "#UUID";
+    public static final String DIM_DB_KEY = "#DIMKEY";
+    private static final int RANGE_LENGTH = 500;
+    private static final int RANGE_THRESHOLD = 100;
+
+    private IDRange currentUUIDRange, nextUUIDRange;
+    private IDRange currentDimensionRange, nextDimensionRange;
+
 
     private KDataBase _db;
 
@@ -43,14 +48,16 @@ public class DefaultKStore implements KStore {
     private KEventBroker eventBroker;
 
     //TODO loadDirect and save from DB
-    long dimKeyCounter = 0;
+    //long dimKeyCounter = 0;
 
     //TODO loadDirect and save from DB
-    long objectKey = 0;
+    //long objectKey = 0;
 
     public DefaultKStore(KDataBase p_db) {
         this._db = p_db;
         eventBroker = new DefaultKBroker(caches);
+        initRange(UUID_DB_KEY);
+        initRange(DIM_DB_KEY);
     }
 
     private String keyTree(KDimension dim, long key) {
@@ -67,6 +74,34 @@ public class DefaultKStore implements KStore {
 
     private String keyPayload(KDimension dim, long time, long key) {
         return "" + dim.key() + KEY_SEP + time + KEY_SEP + key;
+    }
+
+    private void initRange(String key) {
+        _db.get(new String[]{key}, new ThrowableCallback<String[]>(){
+            public void on(String[] results, Throwable throwable) {
+                if(throwable != null) {
+                    throwable.printStackTrace();
+                } else {
+                    long min = 1L;
+                    if(results[0] != null) {
+                        min = Long.parseLong(results[0]);
+                    }
+                    if(key.equals(UUID_DB_KEY)) {
+                        nextUUIDRange = new IDRange(min, min+RANGE_LENGTH, RANGE_THRESHOLD);
+                    } else {
+                        nextDimensionRange = new IDRange(min, min+RANGE_LENGTH, RANGE_THRESHOLD);
+                    }
+                    _db.put(new String[][]{new String[]{key,""+(min+RANGE_LENGTH)}}, new Callback<Throwable>() {
+                        @Override
+                        public void on(Throwable throwable) {
+                            if(throwable != null) {
+                                throwable.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public void initDimension(KDimension dimension, final Callback<Throwable> callback) {
@@ -107,14 +142,24 @@ public class DefaultKStore implements KStore {
 
     @Override
     public long nextDimensionKey() {
-        dimKeyCounter++;
-        return dimKeyCounter;//TODO
+        if(currentDimensionRange == null || currentDimensionRange.isEmpty()) {
+            currentDimensionRange = nextDimensionRange;
+        }
+        if(currentDimensionRange.isThresholdReached()) {
+            initRange(DIM_DB_KEY);
+        }
+        return currentDimensionRange.newUuid();
     }
 
     @Override
     public long nextObjectKey() {
-        objectKey++;
-        return objectKey;//TODO
+        if(currentUUIDRange == null || currentUUIDRange.isEmpty()) {
+            currentUUIDRange = nextUUIDRange;
+        }
+        if(currentUUIDRange.isThresholdReached()) {
+            initRange(UUID_DB_KEY);
+        }
+        return currentUUIDRange.newUuid();
     }
 
     @Override
@@ -235,15 +280,19 @@ public class DefaultKStore implements KStore {
                 for (int k = 0; k < valuesArr.length; k++) { //TODO call directly the ToJSON on the the Object[] raw
                     KObject cached = valuesArr[k];
                     if (cached.isDirty()) {
-                        payloads[i][0] = keyPayload(dimension, cached.now(), cached.uuid());
-                        payloads[i][1] = cached.toJSON();
+                        String[] payloadA = new String[2];
+                        payloadA[0] = keyPayload(dimension, cached.now(), cached.uuid());
+                        payloadA[1] = cached.toJSON();
+                        payloads[i] = payloadA;
                         ((AbstractKObject) cached).setDirty(false);
                         i++;
                     }
                 }
                 if (timeCache.rootDirty) {
-                    payloads[i][0] = keyRoot(dimension, timeCache.root.now());
-                    payloads[i][1] = timeCache.root.uuid() + "";
+                    String[] payloadB = new String[2];
+                    payloadB[0] = keyRoot(dimension, timeCache.root.now());
+                    payloadB[1] = timeCache.root.uuid() + "";
+                    payloads[i] = payloadB;
                     timeCache.rootDirty = false;
                     i++;
                 }
@@ -254,15 +303,19 @@ public class DefaultKStore implements KStore {
                 Long timeTreeKey = keyArr[l];
                 TimeTree timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
                 if (timeTree.isDirty()) {
-                    payloads[i][0] = keyTree(dimension, timeTreeKey);
-                    payloads[i][1] = timeTree.toString();
+                    String[] payloadC = new String[2];
+                    payloadC[0] = keyTree(dimension, timeTreeKey);
+                    payloadC[1] = timeTree.toString();
+                    payloads[i] = payloadC;
                     ((DefaultTimeTree) timeTree).setDirty(false);
                     i++;
                 }
             }
             if (dimensionCache.rootTimeTree.isDirty()) {
-                payloads[i][0] = keyRootTree(dimension);
-                payloads[i][1] = dimensionCache.rootTimeTree.toString();
+                String[] payloadD = new String[2];
+                payloadD[0] = keyRootTree(dimension);
+                payloadD[1] = dimensionCache.rootTimeTree.toString();
+                payloads[i] = payloadD;
                 ((DefaultTimeTree) dimensionCache.rootTimeTree).setDirty(false);
                 i++;
             }

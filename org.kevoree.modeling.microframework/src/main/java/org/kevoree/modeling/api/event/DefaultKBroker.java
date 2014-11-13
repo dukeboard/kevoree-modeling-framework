@@ -54,16 +54,18 @@ public class DefaultKBroker implements KEventBroker {
         DimensionCache dimensionCache = caches.get(event.dimension());
         if(dimensionCache != null) {
             TimeCache timeCache = dimensionCache.timesCaches.get(event.time());
-            List<ModelListener> obj_listeners = timeCache.obj_listeners.get(event.uuid());
-            if (obj_listeners != null) {
-                for (int i = 0; i < obj_listeners.size(); i++) {
-                    ModelListener listener = obj_listeners.get(i);
+            if(timeCache != null) {
+                List<ModelListener> obj_listeners = timeCache.obj_listeners.get(event.uuid());
+                if (obj_listeners != null) {
+                    for (int i = 0; i < obj_listeners.size(); i++) {
+                        ModelListener listener = obj_listeners.get(i);
+                        listener.on(event);
+                    }
+                }
+                for (int i = 0; i < timeCache.listeners.size(); i++) {
+                    ModelListener listener = timeCache.listeners.get(i);
                     listener.on(event);
                 }
-            }
-            for (int i = 0; i < timeCache.listeners.size(); i++) {
-                ModelListener listener = timeCache.listeners.get(i);
-                listener.on(event);
             }
             for (int i = 0; i < dimensionCache.listeners.size(); i++) {
                 ModelListener listener = dimensionCache.listeners.get(i);

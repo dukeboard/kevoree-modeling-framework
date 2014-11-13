@@ -32,22 +32,32 @@
                 } else {
                     var lib = results[0];
                     console.log("Before For each");
-                    lib.eachShapes(function(shape){
-                        $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
-                        shape.jump(shape.timeTree().first(), function(firstShape){
-                            firstShape.listen(function(event){
-                                if(event.metaElement() == shape.metaAttribute("color").metaName()) {
-                                    $('div#' + shape.getName()).css('background-color',event.newValue())
-                                }
-                            });
-                        });
-                    }, function(error){if(error){console.error(error);}});
+                    lib.eachShapes(function(shape){addShapeToDisplay(shape)}, function(error){if(error){console.error(error);}});
+
+                    dimension.listen(function(event){
+                        console.log("Dimension listener Event", event);
+                        if(event.kActionType() == org.kevoree.modeling.api.KActionType.ADD.toString() && event.metaClass() == lib.metaClass().metaName() && event.metaElement() == lib.metaReference("shapes").metaName()) {
+                            console.log("Should update shapes");
+                        }
+                    });
+
                     console.log("Yeah go ahead !")
                 }
             });
         });
     });
     dataBaseConnection.connect();
+
+    function addShapeToDisplay(shape) {
+        $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
+        shape.jump(shape.timeTree().first(), function(firstShape){
+            firstShape.listen(function(event){
+                if(event.metaElement() == shape.metaAttribute("color").metaName()) {
+                    $('div#' + shape.getName()).css('background-color',event.newValue())
+                }
+            });
+        });
+    }
 
     $('#addNewShapeButton').on('click', addNewShape);
 

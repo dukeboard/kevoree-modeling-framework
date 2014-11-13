@@ -98,7 +98,7 @@ declare module java {
             get(key: K): V;
             put(key: K, value: V): void;
             containsKey(key: K): boolean;
-            remove(key: K): void;
+            remove(key: K): V;
             keySet(): Set<K>;
             isEmpty(): boolean;
             values(): Set<V>;

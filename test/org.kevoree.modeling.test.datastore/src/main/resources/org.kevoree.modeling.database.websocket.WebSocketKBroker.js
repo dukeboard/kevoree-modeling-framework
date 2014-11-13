@@ -47,8 +47,7 @@ var org;
                                     serializedEventList.push(eventList.get(i).toJSON());
                                 }
                                 var jsonMessage = { "dimKey": dimensionKey, "events": serializedEventList };
-                                var message = jsonMessage.toString();
-                                this.clientConnection.send(message);
+                                this.clientConnection.send(JSON.stringify(jsonMessage));
                             }
                         };
                         return WebSocketKBroker;
@@ -60,7 +59,6 @@ var org;
                             this.putCallbacks = new java.util.ArrayList();
                             this.removeCallbacks = new java.util.ArrayList();
                             this.commitCallbacks = new java.util.ArrayList();
-                            this.storedEvents = new java.util.HashMap();
                             this.connectionUri = connectionUri;
                         }
                         WebSocketDataBase.prototype.setAfterConnection = function (callback) {
@@ -142,33 +140,6 @@ var org;
                         WebSocketDataBase.prototype.commit = function (error) {
                         };
                         WebSocketDataBase.prototype.close = function (error) {
-                        };
-                        WebSocketDataBase.prototype.registerListener = function (origin, listener) {
-                            this._baseBroker.registerListener(origin, listener);
-                        };
-                        WebSocketDataBase.prototype.notify = function (event) {
-                            this._baseBroker.notify(event);
-                            var dimEvents = this.storedEvents.get(event.dimension());
-                            if (dimEvents == null) {
-                                dimEvents = new java.util.ArrayList();
-                                this.storedEvents.put(event.dimension(), dimEvents);
-                            }
-                            dimEvents.add(event);
-                        };
-                        WebSocketDataBase.prototype.notifyOnly = function (event) {
-                            this._baseBroker.notify(event);
-                        };
-                        WebSocketDataBase.prototype.flush = function (dimensionKey) {
-                            var eventList = this.storedEvents.remove(dimensionKey);
-                            if (eventList != null) {
-                                var serializedEventList = [];
-                                for (var i = 0; i < eventList.size(); i++) {
-                                    serializedEventList.push(eventList.get(i).toJSON());
-                                }
-                                var jsonMessage = { "dimKey": dimensionKey, "events": serializedEventList };
-                                var message = jsonMessage.toString();
-                                this.clientConnection.send(message);
-                            }
                         };
                         return WebSocketDataBase;
                     })();

@@ -157,16 +157,23 @@ declare module org {
                     }
                     class DefaultKStore implements KStore {
                         static KEY_SEP: string;
+                        static UUID_DB_KEY: string;
+                        static DIM_DB_KEY: string;
+                        private static RANGE_LENGTH;
+                        private static RANGE_THRESHOLD;
+                        private currentUUIDRange;
+                        private nextUUIDRange;
+                        private currentDimensionRange;
+                        private nextDimensionRange;
                         private _db;
                         private caches;
                         private eventBroker;
-                        public dimKeyCounter: number;
-                        public objectKey: number;
                         constructor(p_db: KDataBase);
                         private keyTree(dim, key);
                         private keyRoot(dim, time);
                         private keyRootTree(dim);
                         private keyPayload(dim, time, key);
+                        private initRange(key);
                         public initDimension(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         public initKObject(obj: KObject<any, any>, originView: KView): void;
                         public nextDimensionKey(): number;
@@ -190,6 +197,16 @@ declare module org {
                         public notify(event: KEvent): void;
                         public getEventBroker(): event.KEventBroker;
                         public setEventBroker(eventBroker: event.KEventBroker): void;
+                    }
+                    class IDRange {
+                        private min;
+                        private current;
+                        private max;
+                        private threshold;
+                        constructor(min: number, max: number, threshold: number);
+                        public newUuid(): number;
+                        public isThresholdReached(): boolean;
+                        public isEmpty(): boolean;
                     }
                     interface KDataBase {
                         get(keys: string[], callback: (p: string[], p1: java.lang.Throwable) => void): void;

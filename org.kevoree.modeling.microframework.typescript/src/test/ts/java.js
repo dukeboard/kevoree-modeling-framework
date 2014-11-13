@@ -307,7 +307,9 @@ var java;
                 return this.internalMap.has(key);
             };
             Map.prototype.remove = function (key) {
-                return this.remove(key);
+                var tmp = this.internalMap.get(key);
+                this.internalMap.delete(key);
+                return tmp;
             };
             Map.prototype.keySet = function () {
                 var result = new HashSet();

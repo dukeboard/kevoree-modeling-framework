@@ -948,10 +948,10 @@ var org;
                     var DefaultKStore = (function () {
                         function DefaultKStore(p_db) {
                             this.caches = new java.util.HashMap();
-                            this.dimKeyCounter = 0;
-                            this.objectKey = 0;
                             this._db = p_db;
                             this.eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker(this.caches);
+                            this.initRange(DefaultKStore.UUID_DB_KEY);
+                            this.initRange(DefaultKStore.DIM_DB_KEY);
                         }
                         DefaultKStore.prototype.keyTree = function (dim, key) {
                             return "" + dim.key() + DefaultKStore.KEY_SEP + key;
@@ -967,6 +967,30 @@ var org;
 
                         DefaultKStore.prototype.keyPayload = function (dim, time, key) {
                             return "" + dim.key() + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + key;
+                        };
+
+                        DefaultKStore.prototype.initRange = function (key) {
+                            var _this = this;
+                            this._db.get([key], function (results, throwable) {
+                                if (throwable != null) {
+                                    throwable.printStackTrace();
+                                } else {
+                                    var min = 1;
+                                    if (results[0] != null) {
+                                        min = java.lang.Long.parseLong(results[0]);
+                                    }
+                                    if (key.equals(DefaultKStore.UUID_DB_KEY)) {
+                                        _this.nextUUIDRange = new org.kevoree.modeling.api.data.IDRange(min, min + DefaultKStore.RANGE_LENGTH, DefaultKStore.RANGE_THRESHOLD);
+                                    } else {
+                                        _this.nextDimensionRange = new org.kevoree.modeling.api.data.IDRange(min, min + DefaultKStore.RANGE_LENGTH, DefaultKStore.RANGE_THRESHOLD);
+                                    }
+                                    _this._db.put([[key, "" + (min + DefaultKStore.RANGE_LENGTH)]], function (throwable) {
+                                        if (throwable != null) {
+                                            throwable.printStackTrace();
+                                        }
+                                    });
+                                }
+                            });
                         };
 
                         DefaultKStore.prototype.initDimension = function (dimension, callback) {
@@ -1005,13 +1029,23 @@ var org;
                         };
 
                         DefaultKStore.prototype.nextDimensionKey = function () {
-                            this.dimKeyCounter++;
-                            return this.dimKeyCounter;
+                            if (this.currentDimensionRange == null || this.currentDimensionRange.isEmpty()) {
+                                this.currentDimensionRange = this.nextDimensionRange;
+                            }
+                            if (this.currentDimensionRange.isThresholdReached()) {
+                                this.initRange(DefaultKStore.DIM_DB_KEY);
+                            }
+                            return this.currentDimensionRange.newUuid();
                         };
 
                         DefaultKStore.prototype.nextObjectKey = function () {
-                            this.objectKey++;
-                            return this.objectKey;
+                            if (this.currentUUIDRange == null || this.currentUUIDRange.isEmpty()) {
+                                this.currentUUIDRange = this.nextUUIDRange;
+                            }
+                            if (this.currentUUIDRange.isThresholdReached()) {
+                                this.initRange(DefaultKStore.UUID_DB_KEY);
+                            }
+                            return this.currentUUIDRange.newUuid();
                         };
 
                         DefaultKStore.prototype.cacheLookup = function (dimension, time, key) {
@@ -1128,15 +1162,19 @@ var org;
                                     for (var k = 0; k < valuesArr.length; k++) {
                                         var cached = valuesArr[k];
                                         if (cached.isDirty()) {
-                                            payloads[i][0] = this.keyPayload(dimension, cached.now(), cached.uuid());
-                                            payloads[i][1] = cached.toJSON();
+                                            var payloadA = new Array();
+                                            payloadA[0] = this.keyPayload(dimension, cached.now(), cached.uuid());
+                                            payloadA[1] = cached.toJSON();
+                                            payloads[i] = payloadA;
                                             cached.setDirty(false);
                                             i++;
                                         }
                                     }
                                     if (timeCache.rootDirty) {
-                                        payloads[i][0] = this.keyRoot(dimension, timeCache.root.now());
-                                        payloads[i][1] = timeCache.root.uuid() + "";
+                                        var payloadB = new Array();
+                                        payloadB[0] = this.keyRoot(dimension, timeCache.root.now());
+                                        payloadB[1] = timeCache.root.uuid() + "";
+                                        payloads[i] = payloadB;
                                         timeCache.rootDirty = false;
                                         i++;
                                     }
@@ -1146,15 +1184,19 @@ var org;
                                     var timeTreeKey = keyArr[l];
                                     var timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
                                     if (timeTree.isDirty()) {
-                                        payloads[i][0] = this.keyTree(dimension, timeTreeKey);
-                                        payloads[i][1] = timeTree.toString();
+                                        var payloadC = new Array();
+                                        payloadC[0] = this.keyTree(dimension, timeTreeKey);
+                                        payloadC[1] = timeTree.toString();
+                                        payloads[i] = payloadC;
                                         timeTree.setDirty(false);
                                         i++;
                                     }
                                 }
                                 if (dimensionCache.rootTimeTree.isDirty()) {
-                                    payloads[i][0] = this.keyRootTree(dimension);
-                                    payloads[i][1] = dimensionCache.rootTimeTree.toString();
+                                    var payloadD = new Array();
+                                    payloadD[0] = this.keyRootTree(dimension);
+                                    payloadD[1] = dimensionCache.rootTimeTree.toString();
+                                    payloads[i] = payloadD;
                                     dimensionCache.rootTimeTree.setDirty(false);
                                     i++;
                                 }
@@ -1451,9 +1493,40 @@ var org;
                             this.eventBroker = eventBroker;
                         };
                         DefaultKStore.KEY_SEP = ',';
+                        DefaultKStore.UUID_DB_KEY = "#UUID";
+                        DefaultKStore.DIM_DB_KEY = "#DIMKEY";
+                        DefaultKStore.RANGE_LENGTH = 500;
+                        DefaultKStore.RANGE_THRESHOLD = 100;
                         return DefaultKStore;
                     })();
                     data.DefaultKStore = DefaultKStore;
+
+                    var IDRange = (function () {
+                        function IDRange(min, max, threshold) {
+                            this.min = 0;
+                            this.current = 0;
+                            this.max = 0;
+                            this.min = min;
+                            this.current = min;
+                            this.max = max;
+                            this.threshold = threshold;
+                        }
+                        IDRange.prototype.newUuid = function () {
+                            var res = this.current;
+                            this.current++;
+                            return res;
+                        };
+
+                        IDRange.prototype.isThresholdReached = function () {
+                            return (this.max - this.min) <= this.threshold;
+                        };
+
+                        IDRange.prototype.isEmpty = function () {
+                            return this.current > this.max;
+                        };
+                        return IDRange;
+                    })();
+                    data.IDRange = IDRange;
 
                     var MemoryKDataBase = (function () {
                         function MemoryKDataBase() {

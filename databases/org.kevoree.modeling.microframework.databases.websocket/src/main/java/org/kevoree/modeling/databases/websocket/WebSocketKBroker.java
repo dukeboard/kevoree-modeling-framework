@@ -136,16 +136,18 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
 
     @Override
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
+        String messageData = message.getData();
         //forward
         for(int j = 0; j < webSocketClients.size(); j++) {
             WebSocketChannel currentChannel = webSocketClients.get(j);
             if(currentChannel != channel) {
-                WebSockets.sendText(message.getData(), currentChannel, null);
+                WebSockets.sendText(messageData, currentChannel, null);
             }
         }
 
+        System.out.println("Received Events:" + messageData);
         // Notify locally
-        JsonObject jsonMessage = JsonObject.readFrom(message.getData());
+        JsonObject jsonMessage = JsonObject.readFrom(messageData);
         JsonArray events = jsonMessage.get("events").asArray();
         for(int i = 0; i < events.size(); i++) {
             KEvent event = DefaultKEvent.fromJSON(events.get(i).asString());

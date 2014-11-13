@@ -31,12 +31,6 @@ declare module org {
                         remove(keys: string[], error: (p1: java.lang.Throwable) => void): void;
                         commit(error: (p1: java.lang.Throwable) => void): void;
                         close(error: (p1: java.lang.Throwable) => void): void;
-                        private _baseBroker;
-                        private storedEvents;
-                        registerListener(origin: any, listener: (p: api.KEvent) => void): void;
-                        notify(event: any): void;
-                        notifyOnly(event: any): void;
-                        flush(dimensionKey: any): void;
                     }
                 }
             }

@@ -3,6 +3,7 @@ package org.kevoree.modeling.test.datastore;
 import geometry.GeometryUniverse;
 import geometry.GeometryView;
 import geometry.Library;
+import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.DefaultKStore;
@@ -53,8 +54,17 @@ public class MainServerTest {
                     }, error->error.printStackTrace());
                     dimension.save(Utils.DefaultPrintStackTraceCallback);
                     System.out.println("Base model commited");
+
                 }
             });
+            dimension.listen(new ModelListener() {
+                @Override
+                public void on(KEvent evt) {
+                    System.out.println("NewEvent:" + evt.toJSON());
+                }
+            });
+
+
         });
 
         Semaphore s = new Semaphore(0);
