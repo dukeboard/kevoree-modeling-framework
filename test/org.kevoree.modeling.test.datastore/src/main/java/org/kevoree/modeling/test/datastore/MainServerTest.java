@@ -57,15 +57,14 @@ public class MainServerTest {
             });
         });
 
-/*
         Semaphore s = new Semaphore(0);
         try {
             s.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        */
 
+/*
         Runnable task = new Runnable() {
             int turn = 0, i = 0;
             public void run() {
@@ -94,5 +93,6 @@ public class MainServerTest {
             }
         };
         executor.scheduleWithFixedDelay(task, 10000, 5000, TimeUnit.MILLISECONDS);
+        */
     }
 }

@@ -1,5 +1,4 @@
-org.kevoree.modeling.database.websocket.WebSocketKBroker.d.ts
-org.kevoree.modeling.database.websocket.WebSocketKBroker.js/// <reference path="java.d.ts" />
+/// <reference path="java.d.ts" />
 /// <reference path="org.kevoree.modeling.microframework.typescript.d.ts" />
 declare module org {
     module kevoree {

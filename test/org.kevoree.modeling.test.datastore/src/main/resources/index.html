@@ -3,18 +3,24 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="./java.js"></script>
+    <script src="./org.kevoree.modeling.microframework.typescript.js"></script>
+    <script src="./org.kevoree.modeling.test.datastore.js"></script>
+    <script src="./org.kevoree.modeling.database.websocket.WebSocketKBroker.js"></script>
 </head>
 <body>
-<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
-<script src="./java.js"></script>
-<script src="./org.kevoree.modeling.microframework.typescript.js"></script>
-<script src="./org.kevoree.modeling.test.datastore.js"></script>
-<script src="./org.kevoree.modeling.database.websocket.WebSocketKBroker.js"></script>
+
+<button id="addNewShapeButton">AddNewShape</button>
+
+
 <script>
 
     var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketDataBase("ws://localhost:23664");
+    var geometryUniverse;
     dataBaseConnection.setAfterConnection(function(){
-        var geometryUniverse = new geometry.GeometryUniverse(dataBaseConnection);
+        geometryUniverse = new geometry.GeometryUniverse(dataBaseConnection);
         geometryUniverse.storage().setEventBroker(new org.kevoree.modeling.database.websocket.WebSocketKBroker(geometryUniverse.storage().getEventBroker(), "ws://localhost:23665"));
 
         console.log("Looking for the dimension");
@@ -30,7 +36,7 @@
                         $('<div id="'+shape.getName()+'" style="height:50px;width:50px;display: inline-block; margin: 10px;background-color: '+shape.getColor()+';"></div>').appendTo($('body'));
                         shape.jump(shape.timeTree().first(), function(firstShape){
                             firstShape.listen(function(event){
-                                if(event.getMetaElement() == shape.metaAttribute("color").metaName()) {
+                                if(event.metaElement() == shape.metaAttribute("color").metaName()) {
                                     $('div#' + shape.getName()).css('background-color',event.newValue())
                                 }
                             });
@@ -43,6 +49,30 @@
     });
     dataBaseConnection.connect();
 
+    $('#addNewShapeButton').on('click', addNewShape);
+
+    function addNewShape() {
+        geometryUniverse.dimension(0, function(dimension) {
+            var view = dimension.time(0);
+            view.select("/", function (results) {
+                if (results === undefined || results.length == 0) {
+                    console.error("No root found.", results)
+                } else {
+                    var lib = results[0];
+                    var index = lib.sizeOfShapes();
+                    index = index +1;
+                    var newShape = view.createShape();
+                    newShape.setName("Shape"+index);
+                    newShape.setColor("grey");
+                    lib.addShapes(newShape);
+                    dimension.save(function(err){if(err){console.error(err);}});
+                }
+            });
+        });
+    }
+
 </script>
+
+
 </body>
 </html>
