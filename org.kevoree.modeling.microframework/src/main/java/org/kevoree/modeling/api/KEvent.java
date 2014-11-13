@@ -7,17 +7,17 @@ import org.kevoree.modeling.api.meta.Meta;
  */
 public interface KEvent {
 
-    public Long getSourceDimension();
+    public Long dimension();
 
-    public Long getSourceTime();
+    public Long time();
 
-    public Long getSourceUUID();
+    public Long uuid();
 
-    public String getKActionType();
+    public String kActionType();
 
-    public String getMetaClass();
+    public String metaClass();
 
-    public String getMetaElement();
+    public String metaElement();
 
     public String pastValue();
 

@@ -51,10 +51,10 @@ public class DefaultKBroker implements KEventBroker {
 
     //TODO optimize
     public void notify(KEvent event) {
-        DimensionCache dimensionCache = caches.get(event.getSourceDimension());
+        DimensionCache dimensionCache = caches.get(event.dimension());
         if(dimensionCache != null) {
-            TimeCache timeCache = dimensionCache.timesCaches.get(event.getSourceTime());
-            List<ModelListener> obj_listeners = timeCache.obj_listeners.get(event.getSourceUUID());
+            TimeCache timeCache = dimensionCache.timesCaches.get(event.time());
+            List<ModelListener> obj_listeners = timeCache.obj_listeners.get(event.uuid());
             if (obj_listeners != null) {
                 for (int i = 0; i < obj_listeners.size(); i++) {
                     ModelListener listener = obj_listeners.get(i);

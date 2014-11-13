@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.time.TimeTree;
 

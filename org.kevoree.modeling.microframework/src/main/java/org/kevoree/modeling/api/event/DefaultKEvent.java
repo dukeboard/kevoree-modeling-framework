@@ -44,27 +44,27 @@ public class DefaultKEvent implements KEvent {
         }
     }
 
-    public Long getSourceDimension() {
+    public Long dimension() {
         return _dimensionKey;
     }
 
-    public Long getSourceTime() {
+    public Long time() {
         return _time;
     }
 
-    public Long getSourceUUID() {
+    public Long uuid() {
         return _uuid;
     }
 
-    public String getKActionType() {
+    public String kActionType() {
         return _kActionType;
     }
 
-    public String getMetaClass() {
+    public String metaClass() {
         return _metaClass;
     }
 
-    public String getMetaElement() {
+    public String metaElement() {
         return _metaElement;
     }
 
