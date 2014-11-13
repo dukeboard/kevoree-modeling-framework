@@ -175,6 +175,7 @@ declare module org {
                         public raw(origin: KObject<any, any>, accessMode: AccessMode): any[];
                         public discard(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         public delete(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
+                        private getSizeOfDirties(dimensionCache, timeCaches);
                         public save(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         public saveUnload(dimension: KDimension<any, any, any>, callback: (p: java.lang.Throwable) => void): void;
                         public timeTree(dimension: KDimension<any, any, any>, key: number, callback: (p: time.TimeTree) => void): void;
@@ -258,12 +259,12 @@ declare module org {
                         private static PAST_VALUE_KEY;
                         private static NEW_VALUE_KEY;
                         constructor(p_type: KActionType, p_source: KObject<any, any>, p_meta: meta.Meta, p_pastValue: string, p_newValue: string);
-                        public getSourceDimension(): number;
-                        public getSourceTime(): number;
-                        public getSourceUUID(): number;
-                        public getKActionTypeIndex(): string;
-                        public getMetaClassIndex(): string;
-                        public getMetaElementIndex(): string;
+                        public dimension(): number;
+                        public time(): number;
+                        public uuid(): number;
+                        public kActionType(): string;
+                        public metaClass(): string;
+                        public metaElement(): string;
                         public pastValue(): string;
                         public newValue(): string;
                         public toString(): string;
@@ -406,12 +407,12 @@ declare module org {
                     universe(): C;
                 }
                 interface KEvent {
-                    getSourceDimension(): number;
-                    getSourceTime(): number;
-                    getSourceUUID(): number;
-                    getKActionTypeIndex(): string;
-                    getMetaClassIndex(): string;
-                    getMetaElementIndex(): string;
+                    dimension(): number;
+                    time(): number;
+                    uuid(): number;
+                    kActionType(): string;
+                    metaClass(): string;
+                    metaElement(): string;
                     pastValue(): string;
                     newValue(): string;
                     toJSON(): string;

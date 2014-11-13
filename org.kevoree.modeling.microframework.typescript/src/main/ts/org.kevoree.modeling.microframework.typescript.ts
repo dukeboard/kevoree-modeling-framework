@@ -412,7 +412,8 @@ module org {
                             } else {
                                 if (o instanceof java.util.Set) {
                                     var objs: java.util.Set<number> = <java.util.Set<number>>o;
-                                    this.view().lookupAll(objs.toArray(new Array()),                                      (result : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                    var setContent: number[] = objs.toArray(new Array());
+                                    this.view().lookupAll(setContent,                                      (result : org.kevoree.modeling.api.KObject<any, any>[]) => {
                                     var endAlreadyCalled: boolean = false;
                                     try {
                                         for (var l: number = 0; l < result.length; l++) {
@@ -986,11 +987,11 @@ module org {
                         }
 
                         private keyRoot(dim: org.kevoree.modeling.api.KDimension<any, any, any>, time: number): string {
-                            return dim.key() + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + "root";
+                            return "" + dim.key() + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + "root";
                         }
 
                         private keyRootTree(dim: org.kevoree.modeling.api.KDimension<any, any, any>): string {
-                            return dim.key() + DefaultKStore.KEY_SEP + "root";
+                            return "" + dim.key() + DefaultKStore.KEY_SEP + "root";
                         }
 
                         private keyPayload(dim: org.kevoree.modeling.api.KDimension<any, any, any>, time: number, key: number): string {
@@ -1114,36 +1115,41 @@ module org {
                             new java.lang.Exception("Not implemented yet !");
                         }
 
+                        private getSizeOfDirties(dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache, timeCaches: org.kevoree.modeling.api.data.cache.TimeCache[]): number {
+                            var sizeCache: number = 0;
+                            for (var i: number = 0; i < timeCaches.length; i++) {
+                                var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = timeCaches[i];
+                                var valuesArr: org.kevoree.modeling.api.KObject<any, any>[] = timeCache.obj_cache.values().toArray(new Array());
+                                for (var j: number = 0; j < valuesArr.length; j++) {
+                                    var cached: org.kevoree.modeling.api.KObject<any, any> = valuesArr[j];
+                                    if (cached.isDirty()) {
+                                        sizeCache++;
+                                    }
+                                }
+                                if (timeCache.rootDirty) {
+                                    sizeCache++;
+                                }
+                            }
+                            var timeTrees: org.kevoree.modeling.api.time.TimeTree[] = dimensionCache.timeTreeCache.values().toArray(new Array());
+                            for (var k: number = 0; k < timeTrees.length; k++) {
+                                var timeTree: org.kevoree.modeling.api.time.TimeTree = timeTrees[k];
+                                if (timeTree.isDirty()) {
+                                    sizeCache++;
+                                }
+                            }
+                            if (dimensionCache.rootTimeTree.isDirty()) {
+                                sizeCache++;
+                            }
+                            return sizeCache;
+                        }
+
                         public save(dimension: org.kevoree.modeling.api.KDimension<any, any, any>, callback: (p : java.lang.Throwable) => void): void {
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(dimension.key());
                             if (dimensionCache == null) {
                                 callback(null);
                             } else {
-                                var sizeCache: number = 0;
                                 var timeCaches: org.kevoree.modeling.api.data.cache.TimeCache[] = dimensionCache.timesCaches.values().toArray(new Array());
-                                for (var i: number = 0; i < timeCaches.length; i++) {
-                                    var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = timeCaches[i];
-                                    var valuesArr: org.kevoree.modeling.api.KObject<any, any>[] = timeCache.obj_cache.values().toArray(new Array());
-                                    for (var j: number = 0; j < valuesArr.length; j++) {
-                                        var cached: org.kevoree.modeling.api.KObject<any, any> = valuesArr[j];
-                                        if (cached.isDirty()) {
-                                            sizeCache++;
-                                        }
-                                    }
-                                    if (timeCache.rootDirty) {
-                                        sizeCache++;
-                                    }
-                                }
-                                var timeTrees: org.kevoree.modeling.api.time.TimeTree[] = dimensionCache.timeTreeCache.values().toArray(new Array());
-                                for (var i: number = 0; i < timeTrees.length; i++) {
-                                    var timeTree: org.kevoree.modeling.api.time.TimeTree = timeTrees[i];
-                                    if (timeTree.isDirty()) {
-                                        sizeCache++;
-                                    }
-                                }
-                                if (dimensionCache.rootTimeTree.isDirty()) {
-                                    sizeCache++;
-                                }
+                                var sizeCache: number = this.getSizeOfDirties(dimensionCache, timeCaches);
                                 var payloads: string[][] = new Array(new Array());
                                 var i: number = 0;
                                 for (var j: number = 0; j < timeCaches.length; j++) {
@@ -1166,8 +1172,8 @@ module org {
                                     }
                                 }
                                 var keyArr: number[] = dimensionCache.timeTreeCache.keySet().toArray(new Array());
-                                for (var k: number = 0; k < keyArr.length; k++) {
-                                    var timeTreeKey: number = keyArr[k];
+                                for (var l: number = 0; l < keyArr.length; l++) {
+                                    var timeTreeKey: number = keyArr[l];
                                     var timeTree: org.kevoree.modeling.api.time.TimeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
                                     if (timeTree.isDirty()) {
                                         payloads[i][0] = this.keyTree(dimension, timeTreeKey);
@@ -1227,7 +1233,7 @@ module org {
                                 callback(result);
                             } else {
                                 var toLoadKeys: string[] = new Array();
-                                for (var i: number = 0; i < toLoadKeys.length; i++) {
+                                for (var i: number = 0; i < toLoad.size(); i++) {
                                     toLoadKeys[i] = this.keyTree(dimension, keys[toLoad.get(i)]);
                                 }
                                 this._db.get(toLoadKeys,                                  (res : string[], error : java.lang.Throwable) => {
@@ -1591,8 +1597,8 @@ module org {
 
                         public registerListener(origin: any, listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
                             if (origin instanceof org.kevoree.modeling.api.abs.AbstractKObject) {
-                                var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get((<org.kevoree.modeling.api.KDimension<any, any, any>>origin).key());
-                                var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = dimensionCache.timesCaches.get((<org.kevoree.modeling.api.KView>origin).now());
+                                var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get((<org.kevoree.modeling.api.abs.AbstractKObject<any, any>>origin).dimension().key());
+                                var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = dimensionCache.timesCaches.get((<org.kevoree.modeling.api.abs.AbstractKObject<any, any>>origin).now());
                                 var obj_listeners: java.util.List<(p : org.kevoree.modeling.api.KEvent) => void> = timeCache.obj_listeners.get((<org.kevoree.modeling.api.KObject<any, any>>origin).uuid());
                                 if (obj_listeners == null) {
                                     obj_listeners = new java.util.ArrayList<(p : org.kevoree.modeling.api.KEvent) => void>();
@@ -1618,10 +1624,10 @@ module org {
                         }
 
                         public notify(event: org.kevoree.modeling.api.KEvent): void {
-                            var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(event.getSourceDimension());
+                            var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(event.dimension());
                             if (dimensionCache != null) {
-                                var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = dimensionCache.timesCaches.get(event.getSourceTime());
-                                var obj_listeners: java.util.List<(p : org.kevoree.modeling.api.KEvent) => void> = timeCache.obj_listeners.get(event.getSourceUUID());
+                                var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = dimensionCache.timesCaches.get(event.time());
+                                var obj_listeners: java.util.List<(p : org.kevoree.modeling.api.KEvent) => void> = timeCache.obj_listeners.get(event.uuid());
                                 if (obj_listeners != null) {
                                     for (var i: number = 0; i < obj_listeners.size(); i++) {
                                         var listener: (p : org.kevoree.modeling.api.KEvent) => void = obj_listeners.get(i);
@@ -1689,27 +1695,27 @@ module org {
                             }
                         }
 
-                        public getSourceDimension(): number {
+                        public dimension(): number {
                             return this._dimensionKey;
                         }
 
-                        public getSourceTime(): number {
+                        public time(): number {
                             return this._time;
                         }
 
-                        public getSourceUUID(): number {
+                        public uuid(): number {
                             return this._uuid;
                         }
 
-                        public getKActionTypeIndex(): string {
+                        public kActionType(): string {
                             return this._kActionType;
                         }
 
-                        public getMetaClassIndex(): string {
+                        public metaClass(): string {
                             return this._metaClass;
                         }
 
-                        public getMetaElementIndex(): string {
+                        public metaElement(): string {
                             return this._metaElement;
                         }
 
@@ -2042,7 +2048,7 @@ module org {
                                 currentToken = lexer.nextToken();
                             }
                             var keys: number[] = new Array();
-                            for (var i: number = 0; i < keys.length; i++) {
+                            for (var i: number = 0; i < alls.size(); i++) {
                                 var kid: number = java.lang.Long.parseLong(alls.get(i).get(org.kevoree.modeling.api.json.JsonModelSerializer.KEY_UUID).toString());
                                 keys[i] = kid;
                             }
@@ -2064,9 +2070,9 @@ module org {
                                 }
                                 loaded.add(current);
                                 var payloadObj: any[] = factory.dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
-                                //TODO resolve for-each cycle
-                                var k: string;
-                                for (k in elem.keySet()) {
+                                var elemKeys: string[] = elem.keySet().toArray(new Array());
+                                for (var j: number = 0; j < elemKeys.length; j++) {
+                                    var k: string = elemKeys[j];
                                     var att: org.kevoree.modeling.api.meta.MetaAttribute = current.metaAttribute(k);
                                     if (att != null) {
                                         payloadObj[att.index()] = org.kevoree.modeling.api.json.JsonModelLoader.convertRaw(att, elem.get(k));
@@ -2086,11 +2092,10 @@ module org {
                                                  }
                                             } else {
                                                 try {
-                                                    var plainRawList: java.util.Set<string> = <java.util.Set<string>>elem.get(k);
                                                     var convertedRaw: java.util.Set<number> = new java.util.HashSet<number>();
-                                                    //TODO resolve for-each cycle
-                                                    var plainRaw: string;
-                                                    for (plainRaw in plainRawList) {
+                                                    var plainRawList: string[] = (<java.util.Set<string>>elem.get(k)).toArray(new Array());
+                                                    for (var l: number = 0; l < plainRawList.length; l++) {
+                                                        var plainRaw: string = plainRawList[l];
                                                         try {
                                                             var converted: number = java.lang.Long.parseLong(plainRaw);
                                                             convertedRaw.add(converted);
@@ -2654,17 +2659,17 @@ module org {
 
                 export interface KEvent {
 
-                    getSourceDimension(): number;
+                    dimension(): number;
 
-                    getSourceTime(): number;
+                    time(): number;
 
-                    getSourceUUID(): number;
+                    uuid(): number;
 
-                    getKActionTypeIndex(): string;
+                    kActionType(): string;
 
-                    getMetaClassIndex(): string;
+                    metaClass(): string;
 
-                    getMetaElementIndex(): string;
+                    metaElement(): string;
 
                     pastValue(): string;
 
@@ -3400,7 +3405,7 @@ module org {
                             var elems: string[] = payload.split(DefaultPolynomialExtrapolation.sep + "");
                             this.weights = new Array();
                             for (var i: number = 0; i < elems.length; i++) {
-                                this.weights[i] = java.lang.Long.parseLong(elems[i]);
+                                this.weights[i] = java.lang.Double.parseDouble(elems[i]);
                             }
                         }
 

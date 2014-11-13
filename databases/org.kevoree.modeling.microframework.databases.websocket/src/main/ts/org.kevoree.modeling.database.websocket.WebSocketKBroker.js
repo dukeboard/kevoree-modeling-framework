@@ -29,10 +29,10 @@ var org;
                         };
                         WebSocketKBroker.prototype.notify = function (event) {
                             this._baseBroker.notify(event);
-                            var dimEvents = this.storedEvents.get(event.getSourceDimension());
+                            var dimEvents = this.storedEvents.get(event.dimension());
                             if (dimEvents == null) {
                                 dimEvents = new java.util.ArrayList();
-                                this.storedEvents.put(event.getSourceDimension(), dimEvents);
+                                this.storedEvents.put(event.dimension(), dimEvents);
                             }
                             dimEvents.add(event);
                         };
@@ -72,9 +72,32 @@ var org;
                             this.clientConnection.onmessage = function (message) {
                                 console.log("MessageReceived:", message);
                                 var json = JSON.parse(message.data);
-                                for (var i = 0; i < json.events.length; i++) {
-                                    var kEvent = org.kevoree.modeling.api.event.DefaultKEvent.fromJSON(json.events[i]);
-                                    _this.notifyOnly(kEvent);
+                                if (json.action == "get") {
+                                    var getCallback = _this.getCallbacks.poll();
+                                    if (json.status == "success") {
+                                        getCallback(json.value, null);
+                                    }
+                                    else if (json.status == "error") {
+                                        getCallback(null, new java.lang.Exception(json.value));
+                                    }
+                                    else {
+                                        console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
+                                    }
+                                }
+                                else if (json.action == "put") {
+                                    var putCallback = _this.putCallbacks.poll();
+                                    if (json.status == "success") {
+                                        putCallback(null);
+                                    }
+                                    else if (json.status == "error") {
+                                        putCallback(new java.lang.Exception(json.value));
+                                    }
+                                    else {
+                                        console.error("WebSocketDatabase: Status '" + json.action + "' of not supported yet.");
+                                    }
+                                }
+                                else {
+                                    console.error("WebSocketDatabase: Frame of type'" + json.action + "' not supported yet.");
                                 }
                             };
                             this.clientConnection.onerror = function (error) {
@@ -101,6 +124,18 @@ var org;
                             this.clientConnection.send(stringified);
                         };
                         WebSocketDataBase.prototype.put = function (payloads, error) {
+                            var payloadList = [];
+                            for (var i = 0; i < payloads.length; i++) {
+                                var keyValue = [];
+                                keyValue[0] = payloads[i][0];
+                                keyValue[1] = payloads[i][1];
+                                payloadList.push(keyValue);
+                            }
+                            var jsonMessage = { "action": "put", "value": payloadList };
+                            this.putCallbacks.add(error);
+                            var stringified = JSON.stringify(jsonMessage);
+                            console.log("Sending Request:", stringified);
+                            this.clientConnection.send(stringified);
                         };
                         WebSocketDataBase.prototype.remove = function (keys, error) {
                         };
@@ -113,10 +148,10 @@ var org;
                         };
                         WebSocketDataBase.prototype.notify = function (event) {
                             this._baseBroker.notify(event);
-                            var dimEvents = this.storedEvents.get(event.getSourceDimension());
+                            var dimEvents = this.storedEvents.get(event.dimension());
                             if (dimEvents == null) {
                                 dimEvents = new java.util.ArrayList();
-                                this.storedEvents.put(event.getSourceDimension(), dimEvents);
+                                this.storedEvents.put(event.dimension(), dimEvents);
                             }
                             dimEvents.add(event);
                         };

@@ -91,6 +91,7 @@ public class WebSocketDataBase extends AbstractReceiveListener implements KDataB
                     @Override
                     public void on(String[] resultPayload, Throwable error) {
                         JsonObject response = new JsonObject();
+                        response.add("action", jsonMessage.get("action").asString());
                         if(error != null) {
                             response.add("status", "error");
                             response.add("value", error.getMessage());
@@ -107,6 +108,30 @@ public class WebSocketDataBase extends AbstractReceiveListener implements KDataB
                 });
             } break;
             case PUT_ACTION: {
+                JsonArray payload = jsonMessage.get("value").asArray();
+                String[][] payloadList = new String[payload.size()][];
+                for (int i = 0; i < payload.size(); i++) {
+                    JsonArray keyValJson = payload.get(i).asArray();
+                    String[] keyVal = new String[2];
+                    keyVal[0] = keyValJson.get(0).asString();
+                    keyVal[1] = keyValJson.get(1).asString();
+                    payloadList[i]=keyVal;
+                }
+                put(payloadList, new Callback<Throwable>() {
+                    @Override
+                    public void on(Throwable throwable) {
+                        JsonObject response = new JsonObject();
+                        response.add("action", jsonMessage.get("action").asString());
+                        if(throwable != null) {
+                            response.add("status", "error");
+                            response.add("value", throwable.getMessage());
+                        } else {
+                            response.add("status", "success");
+                            response.add("value", "null");
+                        }
+                        WebSockets.sendText(response.toString(), channel, null);
+                    }
+                });
 
             } break;
             case REMOVE_ACTION:{

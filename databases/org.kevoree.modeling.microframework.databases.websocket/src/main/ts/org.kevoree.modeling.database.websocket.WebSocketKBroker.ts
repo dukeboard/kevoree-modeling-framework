@@ -30,10 +30,10 @@ module org {
 
                         public  notify( event) : void {
                             this._baseBroker.notify(event);
-                            var dimEvents : java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.getSourceDimension());
+                            var dimEvents : java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.dimension());
                             if(dimEvents == null) {
                                 dimEvents = new java.util.ArrayList<org.kevoree.modeling.api.KEvent>();
-                                this.storedEvents.put(event.getSourceDimension(), dimEvents);
+                                this.storedEvents.put(event.dimension(), dimEvents);
                             }
                             dimEvents.add(event);
                         }
@@ -82,11 +82,20 @@ module org {
                                 console.log("MessageReceived:", message);
                                 var json = JSON.parse(message.data);
                                 if(json.action == "get") {
-                                    var callback = this.getCallbacks.poll();
+                                    var getCallback = this.getCallbacks.poll();
                                     if(json.status == "success") {
-                                        callback(json.value, null);
+                                        getCallback(json.value, null);
                                     } else if(json.status == "error") {
-                                        callback(null, new java.lang.Exception(json.value));
+                                        getCallback(null, new java.lang.Exception(json.value));
+                                    } else {
+                                        console.error("WebSocketDatabase: Status '"+json.action+"' of not supported yet." )
+                                    }
+                                } else if(json.action == "put") {
+                                    var putCallback = this.putCallbacks.poll();
+                                    if(json.status == "success") {
+                                        putCallback(null);
+                                    } else if(json.status == "error") {
+                                        putCallback(new java.lang.Exception(json.value));
                                     } else {
                                         console.error("WebSocketDatabase: Status '"+json.action+"' of not supported yet." )
                                     }
@@ -116,7 +125,18 @@ module org {
                         }
 
                         public put(payloads:string[][], error:(p1:java.lang.Throwable) => void) : void {
-
+                            var payloadList = [];
+                            for(var i = 0; i < payloads.length; i++) {
+                                var keyValue = [];
+                                keyValue[0] = payloads[i][0];
+                                keyValue[1] = payloads[i][1];
+                                payloadList.push(keyValue);
+                            }
+                            var jsonMessage = {"action":"put", "value":payloadList};
+                            this.putCallbacks.add(error);
+                            var stringified = JSON.stringify(jsonMessage);
+                            console.log("Sending Request:", stringified);
+                            this.clientConnection.send(stringified);
                         }
 
                         public remove(keys:string[], error:(p1:java.lang.Throwable) => void) : void {
@@ -141,10 +161,10 @@ module org {
 
                         public  notify( event) : void {
                             this._baseBroker.notify(event);
-                            var dimEvents : java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.getSourceDimension());
+                            var dimEvents : java.util.ArrayList<org.kevoree.modeling.api.KEvent> = this.storedEvents.get(event.dimension());
                             if(dimEvents == null) {
                                 dimEvents = new java.util.ArrayList<org.kevoree.modeling.api.KEvent>();
-                                this.storedEvents.put(event.getSourceDimension(), dimEvents);
+                                this.storedEvents.put(event.dimension(), dimEvents);
                             }
                             dimEvents.add(event);
                         }

@@ -94,10 +94,10 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
     @Override
     public void notify(KEvent event) {
         _baseBroker.notify(event);
-        ArrayList<KEvent> dimEvents = storedEvents.get(event.getSourceDimension());
+        ArrayList<KEvent> dimEvents = storedEvents.get(event.dimension());
         if(dimEvents == null) {
             dimEvents = new ArrayList<KEvent>();
-            storedEvents.put(event.getSourceDimension(), dimEvents);
+            storedEvents.put(event.dimension(), dimEvents);
         }
         dimEvents.add(event);
     }
