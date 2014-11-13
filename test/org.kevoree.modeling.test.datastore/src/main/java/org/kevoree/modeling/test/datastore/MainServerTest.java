@@ -47,11 +47,6 @@ public class MainServerTest {
                     lib.addShapes(geoFactory.createShape().setName("ShapeG").setColor(colors[1]));
                     lib.addShapes(geoFactory.createShape().setName("ShapeB").setColor(colors[2]));
 
-                    lib.eachShapes(shape->{
-                        shape.listen((event->{
-                        System.out.println(shape.getName() + "=>" + shape.getColor());
-                        }));
-                    }, error->error.printStackTrace());
                     dimension.save(Utils.DefaultPrintStackTraceCallback);
                     System.out.println("Base model commited");
                 }
@@ -59,7 +54,7 @@ public class MainServerTest {
             dimension.listen(new ModelListener() {
                 @Override
                 public void on(KEvent evt) {
-                    System.out.println("NewEvent:" + evt.toJSON());
+                    //System.out.println("NewEvent:" + evt.toJSON());
                 }
             });
 
@@ -85,8 +80,6 @@ public class MainServerTest {
                             System.err.println("Root not found");
                         } else {
                             Library root = (Library) results[0];
-                            i++;
-                            System.out.println("Rolling colors");
                             root.eachShapes((shape)->{
                                 i++;
                                 shape.setColor(colors[(turn + i)%3]);
@@ -102,6 +95,6 @@ public class MainServerTest {
                 });
             }
         };
-        executor.scheduleWithFixedDelay(task, 10000, 5000, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(task, 8000, 2000, TimeUnit.MILLISECONDS);
     }
 }

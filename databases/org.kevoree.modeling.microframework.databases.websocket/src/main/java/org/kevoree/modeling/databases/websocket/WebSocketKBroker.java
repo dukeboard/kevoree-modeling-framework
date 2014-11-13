@@ -145,7 +145,6 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
             }
         }
 
-        System.out.println("Received Events:" + messageData);
         // Notify locally
         JsonObject jsonMessage = JsonObject.readFrom(messageData);
         JsonArray events = jsonMessage.get("events").asArray();

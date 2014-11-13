@@ -31,11 +31,9 @@
                     console.error("No root found.", results)
                 } else {
                     var lib = results[0];
-                    console.log("Before For each");
                     lib.eachShapes(function(shape){addShapeToDisplay(shape)}, function(error){if(error){console.error(error);}});
 
                     dimension.listen(function(event){
-                        console.log("Dimension listener Event", event);
                         if(event.kActionType() == org.kevoree.modeling.api.KActionType.ADD.toString() && event.metaClass() == lib.metaClass().metaName() && event.metaElement() == lib.metaReference("shapes").metaName()) {
                             var newVal = JSON.parse(event.newValue());
                             view.lookup(newVal.uuid, function(shape){
@@ -43,7 +41,6 @@
                             });
                         }
                     });
-
                     console.log("Yeah go ahead !")
                 }
             });
