@@ -15,4 +15,8 @@ public interface PolynomialExtrapolation {
 
     public long lastIndex();
 
+    public long indexBefore(long time);
+
+    public long[] timesAfter (long time);
+
 }
