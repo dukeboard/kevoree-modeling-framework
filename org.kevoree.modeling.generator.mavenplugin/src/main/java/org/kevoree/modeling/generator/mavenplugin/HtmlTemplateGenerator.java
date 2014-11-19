@@ -28,7 +28,7 @@ public class HtmlTemplateGenerator {
         sb.append("<script src=\"./org.kevoree.modeling.microframework.typescript.js\"></script>\n");
         sb.append("<script src=\"./"+jsFileName+"\"></script>\n");
         sb.append("<script>\n");
-        sb.append("    var "+metaModelName.toLowerCase()+"Universe = new "+metaModelFQN+"Universe(new org.kevoree.modeling.api.data.MemoryKDataBase());\n");
+        sb.append("    var "+metaModelName.toLowerCase()+"Universe = new "+metaModelFQN+"Universe();\n");
         sb.append("    "+metaModelName.toLowerCase()+"Universe.newDimension(function(dimension){\n");
         sb.append("        var "+metaModelName.toLowerCase()+"View = dimension.time(0);\n");
         sb.append("\n");

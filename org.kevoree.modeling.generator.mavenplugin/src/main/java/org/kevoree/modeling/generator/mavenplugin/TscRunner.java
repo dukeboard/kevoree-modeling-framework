@@ -42,11 +42,23 @@ public class TscRunner {
         }
         params[0] = "node";
         params[1] = tscPath;
+
+        /*
+        StringBuilder printer = new StringBuilder();
+        for(String p : params){
+            printer.append(p+" ");
+        }
+        System.out.println(printer.toString());
+        */
+        
         ProcessBuilder pb = new ProcessBuilder(params);
         pb.redirectError();
         pb.redirectOutput();
+
+
         int res = pb.start().waitFor();
         if (res != 0) {
+            System.err.println("NodeJS not found, try Java embedded version ...");
             ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
             engine.eval(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("node.js")));
             StringBuilder param = new StringBuilder();

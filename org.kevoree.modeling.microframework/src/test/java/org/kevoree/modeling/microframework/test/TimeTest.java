@@ -18,7 +18,7 @@ public class TimeTest {
 
     @Test
     public void timeCreationTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
@@ -39,7 +39,7 @@ public class TimeTest {
 
     @Test
     public void simpleTimeNavigationTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
@@ -80,7 +80,7 @@ public class TimeTest {
 
     @Test
     public void distortedTimeNavigationTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
@@ -151,7 +151,7 @@ public class TimeTest {
 
     @Test
     public void objectModificationTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {

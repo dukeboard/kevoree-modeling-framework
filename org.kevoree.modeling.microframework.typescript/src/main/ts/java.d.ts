@@ -66,6 +66,7 @@ declare module java {
         }
         class Collections {
             static reverse<A>(p: List<A>): void;
+            static sort<A>(p: List<A>): void;
         }
         class Collection<T> {
             add(val: T): void;
@@ -78,6 +79,7 @@ declare module java {
             toArray(a: T[]): T[];
         }
         class List<T> extends Collection<T> {
+            sort(): void;
             private internalArray;
             addAll(vals: Collection<T>): void;
             clear(): void;

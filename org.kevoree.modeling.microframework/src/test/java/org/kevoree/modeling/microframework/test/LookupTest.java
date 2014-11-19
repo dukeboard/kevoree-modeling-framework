@@ -18,7 +18,7 @@ public class LookupTest {
     @Test
     public void lookupTest() throws Exception {
         final MemoryKDataBase dataBase = new MemoryKDataBase();
-        final CloudUniverse universe = new CloudUniverse(dataBase);
+        final CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(final CloudDimension dimension0) {
@@ -37,7 +37,8 @@ public class LookupTest {
                 dimension0.save(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable e) {
-                        final CloudUniverse universe2 = new CloudUniverse(dataBase);
+                        final CloudUniverse universe2 = new CloudUniverse();
+                        universe2.setDataBase(universe.storage().dataBase());
                         universe2.dimension(dimension0.key(), new Callback<CloudDimension>() {
                             @Override
                             public void on(CloudDimension dimension0_2) {

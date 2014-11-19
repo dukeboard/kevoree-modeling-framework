@@ -53,7 +53,11 @@ public interface KStore {
 
     public void notify(KEvent event);
 
-    KEventBroker getEventBroker();
-    void setEventBroker(KEventBroker broker);
+    public KEventBroker eventBroker();
 
+    public void setEventBroker(KEventBroker broker);
+
+    public KDataBase dataBase();
+
+    public void setDataBase(KDataBase dataBase);
 }

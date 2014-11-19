@@ -25,7 +25,7 @@ public class HelloTest {
 
     @Test
     public void helloTest() {
-        CloudUniverse univers = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse univers = new CloudUniverse();
         univers.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {

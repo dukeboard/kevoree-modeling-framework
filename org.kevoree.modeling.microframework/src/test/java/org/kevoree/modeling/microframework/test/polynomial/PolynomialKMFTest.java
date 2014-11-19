@@ -20,8 +20,7 @@ public class PolynomialKMFTest {
     public void test() {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
-        MemoryKDataBase dataBase = new MemoryKDataBase();
-        CloudUniverse universe = new CloudUniverse(dataBase);
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
@@ -78,8 +77,7 @@ public class PolynomialKMFTest {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
         int max=1000;
-        MemoryKDataBase dataBase = new MemoryKDataBase();
-        CloudUniverse universe = new CloudUniverse(dataBase);
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {

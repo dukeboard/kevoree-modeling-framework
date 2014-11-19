@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.data.DefaultKStore;
 import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.event.KEventBroker;
 
 /**
  * Created by duke on 10/10/14.
@@ -16,8 +17,8 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
     private final KStore _storage;
 
-    protected AbstractKUniverse(KDataBase kDataBase) {
-        _storage = new DefaultKStore(kDataBase);
+    protected AbstractKUniverse() {
+        _storage = new DefaultKStore();
     }
 
     @Override
@@ -82,6 +83,18 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
     public void listen(ModelListener listener) {
         storage().registerListener(this, listener);
+    }
+
+    @Override
+    public KUniverse<A> setEventBroker(KEventBroker eventBroker) {
+        storage().setEventBroker(eventBroker);
+        return this;
+    }
+
+    @Override
+    public KUniverse<A> setDataBase(KDataBase dataBase) {
+        storage().setDataBase(dataBase);
+        return this;
     }
 
 }

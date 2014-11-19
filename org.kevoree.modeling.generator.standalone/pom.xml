@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.generator.standalone</artifactId>
     <name>Kevoree :: Modeling :: Generator :: Standalone</name>
@@ -14,6 +15,11 @@
     <dependencies>
         <dependency>
             <artifactId>org.kevoree.modeling.generator.mavenplugin</artifactId>
+            <groupId>org.kevoree.modeling</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>org.kevoree.modeling.microframework</artifactId>
             <groupId>org.kevoree.modeling</groupId>
             <version>${project.version}</version>
         </dependency>
@@ -33,7 +39,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <appendAssemblyId>true</appendAssemblyId>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>

@@ -8,8 +8,8 @@ import org.kevoree.modeling.api.data.KDataBase;
  */
 public class CloudUniverse extends AbstractKUniverse<CloudDimension> {
 
-    public CloudUniverse(KDataBase kDataBase) {
-        super(kDataBase);
+    public CloudUniverse() {
+        super();
     }
 
     @Override

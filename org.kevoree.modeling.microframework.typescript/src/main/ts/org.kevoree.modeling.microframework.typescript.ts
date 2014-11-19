@@ -728,8 +728,8 @@ module org {
                     export class AbstractKUniverse<A extends org.kevoree.modeling.api.KDimension<any, any, any>> implements org.kevoree.modeling.api.KUniverse<any> {
 
                         private _storage: org.kevoree.modeling.api.data.KStore;
-                        constructor(kDataBase: org.kevoree.modeling.api.data.KDataBase) {
-                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore(kDataBase);
+                        constructor() {
+                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
                         }
 
                         public storage(): org.kevoree.modeling.api.data.KStore {
@@ -777,6 +777,16 @@ module org {
 
                         public listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
                             this.storage().registerListener(this, listener);
+                        }
+
+                        public setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KUniverse<any> {
+                            this.storage().setEventBroker(eventBroker);
+                            return this;
+                        }
+
+                        public setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KUniverse<any> {
+                            this.storage().setDataBase(dataBase);
+                            return this;
                         }
 
                     }
@@ -968,10 +978,10 @@ module org {
                         private nextDimensionRange: org.kevoree.modeling.api.data.IDRange;
                         private _db: org.kevoree.modeling.api.data.KDataBase;
                         private caches: java.util.Map<number, org.kevoree.modeling.api.data.cache.DimensionCache> = new java.util.HashMap<number, org.kevoree.modeling.api.data.cache.DimensionCache>();
-                        private eventBroker: org.kevoree.modeling.api.event.KEventBroker;
-                        constructor(p_db: org.kevoree.modeling.api.data.KDataBase) {
-                            this._db = p_db;
-                            this.eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker(this.caches);
+                        private _eventBroker: org.kevoree.modeling.api.event.KEventBroker;
+                        constructor() {
+                            this._db = new org.kevoree.modeling.api.data.MemoryKDataBase();
+                            this._eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker(this.caches);
                             this.initRange(DefaultKStore.UUID_DB_KEY);
                             this.initRange(DefaultKStore.DIM_DB_KEY);
                         }
@@ -1223,7 +1233,7 @@ module org {
                                     i++;
                                 }
                                 this._db.put(payloads, callback);
-                                this.eventBroker.flush(dimension.key());
+                                this._eventBroker.flush(dimension.key());
                             }
                         }
 
@@ -1496,19 +1506,27 @@ module org {
                         }
 
                         public registerListener(origin: any, listener: (p : org.kevoree.modeling.api.KEvent) => void): void {
-                            this.eventBroker.registerListener(origin, listener);
+                            this._eventBroker.registerListener(origin, listener);
                         }
 
                         public notify(event: org.kevoree.modeling.api.KEvent): void {
-                            this.eventBroker.notify(event);
+                            this._eventBroker.notify(event);
                         }
 
-                        public getEventBroker(): org.kevoree.modeling.api.event.KEventBroker {
-                            return this.eventBroker;
+                        public eventBroker(): org.kevoree.modeling.api.event.KEventBroker {
+                            return this._eventBroker;
                         }
 
-                        public setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): void {
-                            this.eventBroker = eventBroker;
+                        public setEventBroker(p_eventBroker: org.kevoree.modeling.api.event.KEventBroker): void {
+                            this._eventBroker = p_eventBroker;
+                        }
+
+                        public dataBase(): org.kevoree.modeling.api.data.KDataBase {
+                            return this._db;
+                        }
+
+                        public setDataBase(p_dataBase: org.kevoree.modeling.api.data.KDataBase): void {
+                            this._db = p_dataBase;
                         }
 
                     }
@@ -1596,9 +1614,13 @@ module org {
 
                         notify(event: org.kevoree.modeling.api.KEvent): void;
 
-                        getEventBroker(): org.kevoree.modeling.api.event.KEventBroker;
+                        eventBroker(): org.kevoree.modeling.api.event.KEventBroker;
 
                         setEventBroker(broker: org.kevoree.modeling.api.event.KEventBroker): void;
+
+                        dataBase(): org.kevoree.modeling.api.data.KDataBase;
+
+                        setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): void;
 
                     }
 
@@ -1679,16 +1701,18 @@ module org {
                             var dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache = this.caches.get(event.dimension());
                             if (dimensionCache != null) {
                                 var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = dimensionCache.timesCaches.get(event.time());
-                                var obj_listeners: java.util.List<(p : org.kevoree.modeling.api.KEvent) => void> = timeCache.obj_listeners.get(event.uuid());
-                                if (obj_listeners != null) {
-                                    for (var i: number = 0; i < obj_listeners.size(); i++) {
-                                        var listener: (p : org.kevoree.modeling.api.KEvent) => void = obj_listeners.get(i);
+                                if (timeCache != null) {
+                                    var obj_listeners: java.util.List<(p : org.kevoree.modeling.api.KEvent) => void> = timeCache.obj_listeners.get(event.uuid());
+                                    if (obj_listeners != null) {
+                                        for (var i: number = 0; i < obj_listeners.size(); i++) {
+                                            var listener: (p : org.kevoree.modeling.api.KEvent) => void = obj_listeners.get(i);
+                                            listener(event);
+                                        }
+                                    }
+                                    for (var i: number = 0; i < timeCache.listeners.size(); i++) {
+                                        var listener: (p : org.kevoree.modeling.api.KEvent) => void = timeCache.listeners.get(i);
                                         listener(event);
                                     }
-                                }
-                                for (var i: number = 0; i < timeCache.listeners.size(); i++) {
-                                    var listener: (p : org.kevoree.modeling.api.KEvent) => void = timeCache.listeners.get(i);
-                                    listener(event);
                                 }
                                 for (var i: number = 0; i < dimensionCache.listeners.size(); i++) {
                                     var listener: (p : org.kevoree.modeling.api.KEvent) => void = dimensionCache.listeners.get(i);
@@ -2008,6 +2032,73 @@ module org {
 
                     }
 
+                    export class PolynomialExtrapolation2 implements org.kevoree.modeling.api.extrapolation.Extrapolation {
+
+                        private static INSTANCE: org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation2;
+                        public timedDependencies(current: org.kevoree.modeling.api.KObject<any, any>): number[] {
+                            var times: number[] = new Array();
+                            times[0] = current.timeTree().resolve(current.now());
+                            return times;
+                        }
+
+                        public extrapolate(current: org.kevoree.modeling.api.KObject<any, any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, dependencies: org.kevoree.modeling.api.KObject<any, any>[]): any {
+                            var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = <org.kevoree.modeling.api.polynomial.PolynomialExtrapolation>current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
+                            if (pol != null) {
+                                var extrapolatedValue: number = pol.extrapolate(current.now());
+                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.DOUBLE)) {
+                                    return extrapolatedValue;
+                                } else {
+                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.LONG)) {
+                                        return extrapolatedValue.longValue();
+                                    } else {
+                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.FLOAT)) {
+                                            return extrapolatedValue.floatValue();
+                                        } else {
+                                            if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.INT)) {
+                                                return extrapolatedValue.intValue();
+                                            } else {
+                                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.SHORT)) {
+                                                    return extrapolatedValue.shortValue();
+                                                } else {
+                                                    return null;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                return null;
+                            }
+                        }
+
+                        public mutate(current: org.kevoree.modeling.api.KObject<any, any>, attribute: org.kevoree.modeling.api.meta.MetaAttribute, payload: any, dependencies: org.kevoree.modeling.api.KObject<any, any>[]): void {
+                            var previous: any = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
+                            if (previous == null) {
+                                var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation2(current.now(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                                pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
+                                current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+                            } else {
+                                var previousPol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = <org.kevoree.modeling.api.polynomial.PolynomialExtrapolation>previous;
+                                if (!previousPol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()))) {
+                                    var prevTime: number = previousPol.indexBefore(current.now());
+                                    var pol: org.kevoree.modeling.api.polynomial.PolynomialExtrapolation = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation2(prevTime, attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                                    pol.insert(prevTime, previousPol.extrapolate(prevTime));
+                                    pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
+                                    current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+                                    var times: number[] = pol.timesAfter(current.now());
+                                }
+                            }
+                        }
+
+                        public static instance(): org.kevoree.modeling.api.extrapolation.Extrapolation {
+                            if (PolynomialExtrapolation2.INSTANCE == null) {
+                                PolynomialExtrapolation2.INSTANCE = new org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation2();
+                            }
+                            return PolynomialExtrapolation2.INSTANCE;
+                        }
+
+                    }
+
                 }
                 export class InboundReference {
 
@@ -2144,7 +2235,8 @@ module org {
                                                 } else {
                                                     try {
                                                         var convertedRaw: java.util.Set<number> = new java.util.HashSet<number>();
-                                                        var plainRawList: string[] = (<java.util.Set<string>>elem.get(k)).toArray(new Array());
+                                                        var plainRawSet: java.util.Set<string> = <java.util.Set<string>>elem.get(k);
+                                                        var plainRawList: string[] = plainRawSet.toArray(new Array());
                                                         for (var l: number = 0; l < plainRawList.length; l++) {
                                                             var plainRaw: string = plainRawList[l];
                                                             try {
@@ -2822,6 +2914,10 @@ module org {
 
                     listen(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
 
+                    setEventBroker(eventBroker: org.kevoree.modeling.api.event.KEventBroker): org.kevoree.modeling.api.KUniverse<any>;
+
+                    setDataBase(dataBase: org.kevoree.modeling.api.data.KDataBase): org.kevoree.modeling.api.KUniverse<any>;
+
                 }
 
                 export interface KView {
@@ -3423,6 +3519,14 @@ module org {
                             return this._lastIndex;
                         }
 
+                        public indexBefore(time: number): number {
+                            return this._lastIndex;
+                        }
+
+                        public timesAfter(time: number): number[] {
+                            return null;
+                        }
+
                         public save(): string {
                             var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
                             for (var i: number = 0; i < this.weights.length; i++) {
@@ -3444,6 +3548,208 @@ module org {
 
                     }
 
+                    export class DefaultPolynomialExtrapolation2 implements org.kevoree.modeling.api.polynomial.PolynomialExtrapolation {
+
+                        private weights: number[];
+                        private timeOrigin: number;
+                        private timePoints: java.util.List<number> = new java.util.ArrayList<number>();
+                        private degradeFactor: number;
+                        private prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization;
+                        private maxDegree: number;
+                        private toleratedError: number;
+                        private static sep: string = '|';
+                        constructor(timeOrigin: number, toleratedError: number, maxDegree: number, degradeFactor: number, prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization) {
+                            this.timeOrigin = timeOrigin;
+                            this.degradeFactor = degradeFactor;
+                            this.prioritization = prioritization;
+                            this.maxDegree = maxDegree;
+                            this.toleratedError = toleratedError;
+                        }
+
+                        public getSamples(): java.util.List<number> {
+                            return this.timePoints;
+                        }
+
+                        public getDegree(): number {
+                            if (this.weights == null) {
+                                return -1;
+                            } else {
+                                return this.weights.length - 1;
+                            }
+                        }
+
+                        public getTimeOrigin(): number {
+                            return this.timeOrigin;
+                        }
+
+                        private getMaxErr(degree: number, toleratedError: number, maxDegree: number, prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization): number {
+                            var tol: number = toleratedError;
+                            if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
+                                tol = toleratedError / Math.pow(2, maxDegree - degree);
+                            } else {
+                                if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
+                                    tol = toleratedError / Math.pow(2, degree + 0.5);
+                                } else {
+                                    if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
+                                        tol = toleratedError * degree * 2 / (2 * maxDegree);
+                                    }
+                                }
+                            }
+                            return tol;
+                        }
+
+                        private internal_feed(time: number, value: number): void {
+                            if (this.weights == null) {
+                                this.weights = new Array();
+                                this.weights[0] = value;
+                                this.timeOrigin = time;
+                                this.timePoints.add(time);
+                            }
+                        }
+
+                        private maxError(computedWeights: number[], time: number, value: number): number {
+                            var maxErr: number = 0;
+                            var temp: number = 0;
+                            var ds: number;
+                            for (var i: number = 0; i < this.timePoints.size(); i++) {
+                                ds = this.timePoints.get(i);
+                                var val: number = this.internal_extrapolate(ds, computedWeights);
+                                temp = Math.abs(val - this.internal_extrapolate(ds, this.weights));
+                                if (temp > maxErr) {
+                                    maxErr = temp;
+                                }
+                            }
+                            temp = Math.abs(this.internal_extrapolate(time, computedWeights) - value);
+                            if (temp > maxErr) {
+                                maxErr = temp;
+                            }
+                            return maxErr;
+                        }
+
+                        public comparePolynome(p2: org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation2, err: number): boolean {
+                            if (this.weights.length != p2.weights.length) {
+                                return false;
+                            }
+                            for (var i: number = 0; i < this.weights.length; i++) {
+                                if (Math.abs(this.weights[i] - this.weights[i]) > err) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+
+                        private internal_extrapolate(time: number, weights: number[]): number {
+                            var result: number = 0;
+                            var t: number = (<number>(time - this.timeOrigin)) / this.degradeFactor;
+                            var power: number = 1;
+                            for (var j: number = 0; j < weights.length; j++) {
+                                result += weights[j] * power;
+                                power = power * t;
+                            }
+                            return result;
+                        }
+
+                        public extrapolate(time: number): number {
+                            return this.internal_extrapolate(time, this.weights);
+                        }
+
+                        public insert(time: number, value: number): boolean {
+                            if (this.weights == null) {
+                                this.internal_feed(time, value);
+                                return true;
+                            }
+                            var maxError: number = this.getMaxErr(this.getDegree(), this.toleratedError, this.maxDegree, this.prioritization);
+                            if (Math.abs(this.extrapolate(time) - value) <= maxError) {
+                                this.timePoints.add(time);
+                                java.util.Collections.sort(this.timePoints);
+                                return true;
+                            }
+                            var deg: number = this.getDegree();
+                            if (deg < this.maxDegree) {
+                                deg++;
+                                var ss: number = Math.min(deg * 2, this.timePoints.size());
+                                var times: number[] = new Array();
+                                var values: number[] = new Array();
+                                var current: number = this.timePoints.size();
+                                for (var i: number = 0; i < ss; i++) {
+                                    var index: number = Math.round(i * current / ss);
+                                    var ds: number = this.timePoints.get(index);
+                                    times[i] = (<number>(ds - this.timeOrigin)) / this.degradeFactor;
+                                    values[i] = this.internal_extrapolate(ds, this.weights);
+                                }
+                                times[ss] = (<number>(time - this.timeOrigin)) / this.degradeFactor;
+                                values[ss] = value;
+                                var pf: org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                pf.fit(times, values);
+                                if (this.maxError(pf.getCoef(), time, value) <= maxError) {
+                                    this.weights = new Array();
+                                    for (var i: number = 0; i < pf.getCoef().length; i++) {
+                                        this.weights[i] = pf.getCoef()[i];
+                                    }
+                                    this.timePoints.add(time);
+                                    java.util.Collections.sort(this.timePoints);
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+
+                        public lastIndex(): number {
+                            if (this.timePoints.size() != 0) {
+                                return this.timePoints.get(this.timePoints.size() - 1);
+                            } else {
+                                return -1;
+                            }
+                        }
+
+                        public indexBefore(time: number): number {
+                            if (this.timePoints.size() != 0) {
+                                for (var i: number = 0; i < this.timePoints.size() - 1; i++) {
+                                    if (this.timePoints.get(i) < time && this.timePoints.get(i + 1) > time) {
+                                        return this.timePoints.get(i);
+                                    }
+                                }
+                                return this.timePoints.get(this.timePoints.size() - 1);
+                            }
+                            return -1;
+                        }
+
+                        public timesAfter(time: number): number[] {
+                            if (this.timePoints.size() != 0) {
+                                for (var i: number = 0; i < this.timePoints.size() - 1; i++) {
+                                    if (this.timePoints.get(i) < time && this.timePoints.get(i + 1) > time) {
+                                        var result: number[] = new Array();
+                                        for (var j: number = i + 1; j < this.timePoints.size(); j++) {
+                                            result[j - i - 1] = this.timePoints.get(j);
+                                        }
+                                        return result;
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+
+                        public save(): string {
+                            var builder: java.lang.StringBuilder = new java.lang.StringBuilder();
+                            for (var i: number = 0; i < this.weights.length; i++) {
+                                if (i != 0) {
+                                    builder.append(DefaultPolynomialExtrapolation2.sep);
+                                }
+                                builder.append(this.weights[i]);
+                            }
+                            return builder.toString();
+                        }
+
+                        public load(payload: string): void {
+                            var elems: string[] = payload.split(DefaultPolynomialExtrapolation2.sep + "");
+                            this.weights = new Array();
+                            for (var i: number = 0; i < elems.length; i++) {
+                                this.weights[i] = java.lang.Double.parseDouble(elems[i]);
+                            }
+                        }
+
+                    }
+
                     export interface PolynomialExtrapolation {
 
                         save(): string;
@@ -3455,6 +3761,10 @@ module org {
                         insert(time: number, value: number): boolean;
 
                         lastIndex(): number;
+
+                        indexBefore(time: number): number;
+
+                        timesAfter(time: number): number[];
 
                     }
 

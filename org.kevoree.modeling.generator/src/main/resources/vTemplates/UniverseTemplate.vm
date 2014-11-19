@@ -2,8 +2,8 @@ package $context.metaModelPackage;
 
 public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.abs.AbstractKUniverse<${context.metaModelName}Dimension> {
 
-    public ${context.metaModelName}Universe(org.kevoree.modeling.api.data.KDataBase kDataBase) {
-        super(kDataBase);
+    public ${context.metaModelName}Universe() {
+        super();
     }
 
     @Override

@@ -42,10 +42,8 @@ public class DefaultKStore implements KStore {
 
 
     private KDataBase _db;
-
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
-
-    private KEventBroker eventBroker;
+    private KEventBroker _eventBroker;
 
     //TODO loadDirect and save from DB
     //long dimKeyCounter = 0;
@@ -53,9 +51,9 @@ public class DefaultKStore implements KStore {
     //TODO loadDirect and save from DB
     //long objectKey = 0;
 
-    public DefaultKStore(KDataBase p_db) {
-        this._db = p_db;
-        eventBroker = new DefaultKBroker(caches);
+    public DefaultKStore() {
+        this._db = new MemoryKDataBase();
+        this._eventBroker = new DefaultKBroker(caches);
         initRange(UUID_DB_KEY);
         initRange(DIM_DB_KEY);
     }
@@ -77,24 +75,24 @@ public class DefaultKStore implements KStore {
     }
 
     private void initRange(String key) {
-        _db.get(new String[]{key}, new ThrowableCallback<String[]>(){
+        _db.get(new String[]{key}, new ThrowableCallback<String[]>() {
             public void on(String[] results, Throwable throwable) {
-                if(throwable != null) {
+                if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
                     long min = 1L;
-                    if(results[0] != null) {
+                    if (results[0] != null) {
                         min = Long.parseLong(results[0]);
                     }
-                    if(key.equals(UUID_DB_KEY)) {
-                        nextUUIDRange = new IDRange(min, min+RANGE_LENGTH, RANGE_THRESHOLD);
+                    if (key.equals(UUID_DB_KEY)) {
+                        nextUUIDRange = new IDRange(min, min + RANGE_LENGTH, RANGE_THRESHOLD);
                     } else {
-                        nextDimensionRange = new IDRange(min, min+RANGE_LENGTH, RANGE_THRESHOLD);
+                        nextDimensionRange = new IDRange(min, min + RANGE_LENGTH, RANGE_THRESHOLD);
                     }
-                    _db.put(new String[][]{new String[]{key,""+(min+RANGE_LENGTH)}}, new Callback<Throwable>() {
+                    _db.put(new String[][]{new String[]{key, "" + (min + RANGE_LENGTH)}}, new Callback<Throwable>() {
                         @Override
                         public void on(Throwable throwable) {
-                            if(throwable != null) {
+                            if (throwable != null) {
                                 throwable.printStackTrace();
                             }
                         }
@@ -142,10 +140,10 @@ public class DefaultKStore implements KStore {
 
     @Override
     public long nextDimensionKey() {
-        if(currentDimensionRange == null || currentDimensionRange.isEmpty()) {
+        if (currentDimensionRange == null || currentDimensionRange.isEmpty()) {
             currentDimensionRange = nextDimensionRange;
         }
-        if(currentDimensionRange.isThresholdReached()) {
+        if (currentDimensionRange.isThresholdReached()) {
             initRange(DIM_DB_KEY);
         }
         return currentDimensionRange.newUuid();
@@ -153,10 +151,10 @@ public class DefaultKStore implements KStore {
 
     @Override
     public long nextObjectKey() {
-        if(currentUUIDRange == null || currentUUIDRange.isEmpty()) {
+        if (currentUUIDRange == null || currentUUIDRange.isEmpty()) {
             currentUUIDRange = nextUUIDRange;
         }
-        if(currentUUIDRange.isThresholdReached()) {
+        if (currentUUIDRange.isThresholdReached()) {
             initRange(UUID_DB_KEY);
         }
         return currentUUIDRange.newUuid();
@@ -320,7 +318,7 @@ public class DefaultKStore implements KStore {
                 i++;
             }
             _db.put(payloads, callback);
-            eventBroker.flush(dimension.key());
+            _eventBroker.flush(dimension.key());
         }
     }
 
@@ -592,7 +590,7 @@ public class DefaultKStore implements KStore {
             if (timeCache == null) {
                 timeCache = new TimeCache();
             }
-            if(timeCache.root != null) {
+            if (timeCache.root != null) {
                 callback.on(timeCache.root);
             } else {
                 final TimeCache timeCacheFinal = timeCache;
@@ -635,21 +633,31 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void registerListener(Object origin, ModelListener listener) {
-        eventBroker.registerListener(origin, listener);
+        _eventBroker.registerListener(origin, listener);
     }
 
 
     public void notify(KEvent event) {
-        eventBroker.notify(event);
+        _eventBroker.notify(event);
     }
 
     @Override
-    public KEventBroker getEventBroker() {
-        return eventBroker;
+    public KEventBroker eventBroker() {
+        return _eventBroker;
     }
 
     @Override
-    public void setEventBroker(KEventBroker eventBroker) {
-        this.eventBroker = eventBroker;
+    public void setEventBroker(KEventBroker p_eventBroker) {
+        this._eventBroker = p_eventBroker;
+    }
+
+    @Override
+    public KDataBase dataBase() {
+        return this._db;
+    }
+
+    @Override
+    public void setDataBase(KDataBase p_dataBase) {
+        this._db = p_dataBase;
     }
 }

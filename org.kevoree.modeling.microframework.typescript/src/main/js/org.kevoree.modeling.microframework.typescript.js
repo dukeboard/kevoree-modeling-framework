@@ -719,8 +719,8 @@ var org;
                     abs.AbstractKObject = AbstractKObject;
 
                     var AbstractKUniverse = (function () {
-                        function AbstractKUniverse(kDataBase) {
-                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore(kDataBase);
+                        function AbstractKUniverse() {
+                            this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
                         }
                         AbstractKUniverse.prototype.storage = function () {
                             return this._storage;
@@ -767,6 +767,16 @@ var org;
 
                         AbstractKUniverse.prototype.listen = function (listener) {
                             this.storage().registerListener(this, listener);
+                        };
+
+                        AbstractKUniverse.prototype.setEventBroker = function (eventBroker) {
+                            this.storage().setEventBroker(eventBroker);
+                            return this;
+                        };
+
+                        AbstractKUniverse.prototype.setDataBase = function (dataBase) {
+                            this.storage().setDataBase(dataBase);
+                            return this;
                         };
                         return AbstractKUniverse;
                     })();
@@ -946,10 +956,10 @@ var org;
                     })(data.cache || (data.cache = {}));
                     var cache = data.cache;
                     var DefaultKStore = (function () {
-                        function DefaultKStore(p_db) {
+                        function DefaultKStore() {
                             this.caches = new java.util.HashMap();
-                            this._db = p_db;
-                            this.eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker(this.caches);
+                            this._db = new org.kevoree.modeling.api.data.MemoryKDataBase();
+                            this._eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker(this.caches);
                             this.initRange(DefaultKStore.UUID_DB_KEY);
                             this.initRange(DefaultKStore.DIM_DB_KEY);
                         }
@@ -1201,7 +1211,7 @@ var org;
                                     i++;
                                 }
                                 this._db.put(payloads, callback);
-                                this.eventBroker.flush(dimension.key());
+                                this._eventBroker.flush(dimension.key());
                             }
                         };
 
@@ -1478,19 +1488,27 @@ var org;
                         };
 
                         DefaultKStore.prototype.registerListener = function (origin, listener) {
-                            this.eventBroker.registerListener(origin, listener);
+                            this._eventBroker.registerListener(origin, listener);
                         };
 
                         DefaultKStore.prototype.notify = function (event) {
-                            this.eventBroker.notify(event);
+                            this._eventBroker.notify(event);
                         };
 
-                        DefaultKStore.prototype.getEventBroker = function () {
-                            return this.eventBroker;
+                        DefaultKStore.prototype.eventBroker = function () {
+                            return this._eventBroker;
                         };
 
-                        DefaultKStore.prototype.setEventBroker = function (eventBroker) {
-                            this.eventBroker = eventBroker;
+                        DefaultKStore.prototype.setEventBroker = function (p_eventBroker) {
+                            this._eventBroker = p_eventBroker;
+                        };
+
+                        DefaultKStore.prototype.dataBase = function () {
+                            return this._db;
+                        };
+
+                        DefaultKStore.prototype.setDataBase = function (p_dataBase) {
+                            this._db = p_dataBase;
                         };
                         DefaultKStore.KEY_SEP = ',';
                         DefaultKStore.UUID_DB_KEY = "#UUID";
@@ -1604,16 +1622,18 @@ var org;
                             var dimensionCache = this.caches.get(event.dimension());
                             if (dimensionCache != null) {
                                 var timeCache = dimensionCache.timesCaches.get(event.time());
-                                var obj_listeners = timeCache.obj_listeners.get(event.uuid());
-                                if (obj_listeners != null) {
-                                    for (var i = 0; i < obj_listeners.size(); i++) {
-                                        var listener = obj_listeners.get(i);
+                                if (timeCache != null) {
+                                    var obj_listeners = timeCache.obj_listeners.get(event.uuid());
+                                    if (obj_listeners != null) {
+                                        for (var i = 0; i < obj_listeners.size(); i++) {
+                                            var listener = obj_listeners.get(i);
+                                            listener(event);
+                                        }
+                                    }
+                                    for (var i = 0; i < timeCache.listeners.size(); i++) {
+                                        var listener = timeCache.listeners.get(i);
                                         listener(event);
                                     }
-                                }
-                                for (var i = 0; i < timeCache.listeners.size(); i++) {
-                                    var listener = timeCache.listeners.get(i);
-                                    listener(event);
                                 }
                                 for (var i = 0; i < dimensionCache.listeners.size(); i++) {
                                     var listener = dimensionCache.listeners.get(i);
@@ -1907,6 +1927,74 @@ var org;
                         return PolynomialExtrapolation;
                     })();
                     extrapolation.PolynomialExtrapolation = PolynomialExtrapolation;
+
+                    var PolynomialExtrapolation2 = (function () {
+                        function PolynomialExtrapolation2() {
+                        }
+                        PolynomialExtrapolation2.prototype.timedDependencies = function (current) {
+                            var times = new Array();
+                            times[0] = current.timeTree().resolve(current.now());
+                            return times;
+                        };
+
+                        PolynomialExtrapolation2.prototype.extrapolate = function (current, attribute, dependencies) {
+                            var pol = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
+                            if (pol != null) {
+                                var extrapolatedValue = pol.extrapolate(current.now());
+                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.DOUBLE)) {
+                                    return extrapolatedValue;
+                                } else {
+                                    if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.LONG)) {
+                                        return extrapolatedValue.longValue();
+                                    } else {
+                                        if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.FLOAT)) {
+                                            return extrapolatedValue.floatValue();
+                                        } else {
+                                            if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.INT)) {
+                                                return extrapolatedValue.intValue();
+                                            } else {
+                                                if (attribute.metaType().equals(org.kevoree.modeling.api.meta.MetaType.SHORT)) {
+                                                    return extrapolatedValue.shortValue();
+                                                } else {
+                                                    return null;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                return null;
+                            }
+                        };
+
+                        PolynomialExtrapolation2.prototype.mutate = function (current, attribute, payload, dependencies) {
+                            var previous = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ)[attribute.index()];
+                            if (previous == null) {
+                                var pol = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation2(current.now(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                                pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
+                                current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+                            } else {
+                                var previousPol = previous;
+                                if (!previousPol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()))) {
+                                    var prevTime = previousPol.indexBefore(current.now());
+                                    var pol = new org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation2(prevTime, attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                                    pol.insert(prevTime, previousPol.extrapolate(prevTime));
+                                    pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
+                                    current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
+                                    var times = pol.timesAfter(current.now());
+                                }
+                            }
+                        };
+
+                        PolynomialExtrapolation2.instance = function () {
+                            if (PolynomialExtrapolation2.INSTANCE == null) {
+                                PolynomialExtrapolation2.INSTANCE = new org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation2();
+                            }
+                            return PolynomialExtrapolation2.INSTANCE;
+                        };
+                        return PolynomialExtrapolation2;
+                    })();
+                    extrapolation.PolynomialExtrapolation2 = PolynomialExtrapolation2;
                 })(api.extrapolation || (api.extrapolation = {}));
                 var extrapolation = api.extrapolation;
                 var InboundReference = (function () {
@@ -2040,7 +2128,8 @@ var org;
                                                 } else {
                                                     try  {
                                                         var convertedRaw = new java.util.HashSet();
-                                                        var plainRawList = elem.get(k).toArray(new Array());
+                                                        var plainRawSet = elem.get(k);
+                                                        var plainRawList = plainRawSet.toArray(new Array());
                                                         for (var l = 0; l < plainRawList.length; l++) {
                                                             var plainRaw = plainRawList[l];
                                                             try  {
@@ -3060,6 +3149,14 @@ var org;
                             return this._lastIndex;
                         };
 
+                        DefaultPolynomialExtrapolation.prototype.indexBefore = function (time) {
+                            return this._lastIndex;
+                        };
+
+                        DefaultPolynomialExtrapolation.prototype.timesAfter = function (time) {
+                            return null;
+                        };
+
                         DefaultPolynomialExtrapolation.prototype.save = function () {
                             var builder = new java.lang.StringBuilder();
                             for (var i = 0; i < this.weights.length; i++) {
@@ -3082,6 +3179,201 @@ var org;
                         return DefaultPolynomialExtrapolation;
                     })();
                     polynomial.DefaultPolynomialExtrapolation = DefaultPolynomialExtrapolation;
+
+                    var DefaultPolynomialExtrapolation2 = (function () {
+                        function DefaultPolynomialExtrapolation2(timeOrigin, toleratedError, maxDegree, degradeFactor, prioritization) {
+                            this.timePoints = new java.util.ArrayList();
+                            this.timeOrigin = timeOrigin;
+                            this.degradeFactor = degradeFactor;
+                            this.prioritization = prioritization;
+                            this.maxDegree = maxDegree;
+                            this.toleratedError = toleratedError;
+                        }
+                        DefaultPolynomialExtrapolation2.prototype.getSamples = function () {
+                            return this.timePoints;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.getDegree = function () {
+                            if (this.weights == null) {
+                                return -1;
+                            } else {
+                                return this.weights.length - 1;
+                            }
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.getTimeOrigin = function () {
+                            return this.timeOrigin;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.getMaxErr = function (degree, toleratedError, maxDegree, prioritization) {
+                            var tol = toleratedError;
+                            if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
+                                tol = toleratedError / Math.pow(2, maxDegree - degree);
+                            } else {
+                                if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
+                                    tol = toleratedError / Math.pow(2, degree + 0.5);
+                                } else {
+                                    if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
+                                        tol = toleratedError * degree * 2 / (2 * maxDegree);
+                                    }
+                                }
+                            }
+                            return tol;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.internal_feed = function (time, value) {
+                            if (this.weights == null) {
+                                this.weights = new Array();
+                                this.weights[0] = value;
+                                this.timeOrigin = time;
+                                this.timePoints.add(time);
+                            }
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.maxError = function (computedWeights, time, value) {
+                            var maxErr = 0;
+                            var temp = 0;
+                            var ds;
+                            for (var i = 0; i < this.timePoints.size(); i++) {
+                                ds = this.timePoints.get(i);
+                                var val = this.internal_extrapolate(ds, computedWeights);
+                                temp = Math.abs(val - this.internal_extrapolate(ds, this.weights));
+                                if (temp > maxErr) {
+                                    maxErr = temp;
+                                }
+                            }
+                            temp = Math.abs(this.internal_extrapolate(time, computedWeights) - value);
+                            if (temp > maxErr) {
+                                maxErr = temp;
+                            }
+                            return maxErr;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.comparePolynome = function (p2, err) {
+                            if (this.weights.length != p2.weights.length) {
+                                return false;
+                            }
+                            for (var i = 0; i < this.weights.length; i++) {
+                                if (Math.abs(this.weights[i] - this.weights[i]) > err) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.internal_extrapolate = function (time, weights) {
+                            var result = 0;
+                            var t = (time - this.timeOrigin) / this.degradeFactor;
+                            var power = 1;
+                            for (var j = 0; j < weights.length; j++) {
+                                result += weights[j] * power;
+                                power = power * t;
+                            }
+                            return result;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.extrapolate = function (time) {
+                            return this.internal_extrapolate(time, this.weights);
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.insert = function (time, value) {
+                            if (this.weights == null) {
+                                this.internal_feed(time, value);
+                                return true;
+                            }
+                            var maxError = this.getMaxErr(this.getDegree(), this.toleratedError, this.maxDegree, this.prioritization);
+                            if (Math.abs(this.extrapolate(time) - value) <= maxError) {
+                                this.timePoints.add(time);
+                                java.util.Collections.sort(this.timePoints);
+                                return true;
+                            }
+                            var deg = this.getDegree();
+                            if (deg < this.maxDegree) {
+                                deg++;
+                                var ss = Math.min(deg * 2, this.timePoints.size());
+                                var times = new Array();
+                                var values = new Array();
+                                var current = this.timePoints.size();
+                                for (var i = 0; i < ss; i++) {
+                                    var index = Math.round(i * current / ss);
+                                    var ds = this.timePoints.get(index);
+                                    times[i] = (ds - this.timeOrigin) / this.degradeFactor;
+                                    values[i] = this.internal_extrapolate(ds, this.weights);
+                                }
+                                times[ss] = (time - this.timeOrigin) / this.degradeFactor;
+                                values[ss] = value;
+                                var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                pf.fit(times, values);
+                                if (this.maxError(pf.getCoef(), time, value) <= maxError) {
+                                    this.weights = new Array();
+                                    for (var i = 0; i < pf.getCoef().length; i++) {
+                                        this.weights[i] = pf.getCoef()[i];
+                                    }
+                                    this.timePoints.add(time);
+                                    java.util.Collections.sort(this.timePoints);
+                                    return true;
+                                }
+                            }
+                            return false;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.lastIndex = function () {
+                            if (this.timePoints.size() != 0) {
+                                return this.timePoints.get(this.timePoints.size() - 1);
+                            } else {
+                                return -1;
+                            }
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.indexBefore = function (time) {
+                            if (this.timePoints.size() != 0) {
+                                for (var i = 0; i < this.timePoints.size() - 1; i++) {
+                                    if (this.timePoints.get(i) < time && this.timePoints.get(i + 1) > time) {
+                                        return this.timePoints.get(i);
+                                    }
+                                }
+                                return this.timePoints.get(this.timePoints.size() - 1);
+                            }
+                            return -1;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.timesAfter = function (time) {
+                            if (this.timePoints.size() != 0) {
+                                for (var i = 0; i < this.timePoints.size() - 1; i++) {
+                                    if (this.timePoints.get(i) < time && this.timePoints.get(i + 1) > time) {
+                                        var result = new Array();
+                                        for (var j = i + 1; j < this.timePoints.size(); j++) {
+                                            result[j - i - 1] = this.timePoints.get(j);
+                                        }
+                                        return result;
+                                    }
+                                }
+                            }
+                            return null;
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.save = function () {
+                            var builder = new java.lang.StringBuilder();
+                            for (var i = 0; i < this.weights.length; i++) {
+                                if (i != 0) {
+                                    builder.append(DefaultPolynomialExtrapolation2.sep);
+                                }
+                                builder.append(this.weights[i]);
+                            }
+                            return builder.toString();
+                        };
+
+                        DefaultPolynomialExtrapolation2.prototype.load = function (payload) {
+                            var elems = payload.split(DefaultPolynomialExtrapolation2.sep + "");
+                            this.weights = new Array();
+                            for (var i = 0; i < elems.length; i++) {
+                                this.weights[i] = java.lang.Double.parseDouble(elems[i]);
+                            }
+                        };
+                        DefaultPolynomialExtrapolation2.sep = '|';
+                        return DefaultPolynomialExtrapolation2;
+                    })();
+                    polynomial.DefaultPolynomialExtrapolation2 = DefaultPolynomialExtrapolation2;
 
                     (function (util) {
                         var AdjLinearSolverQr = (function () {

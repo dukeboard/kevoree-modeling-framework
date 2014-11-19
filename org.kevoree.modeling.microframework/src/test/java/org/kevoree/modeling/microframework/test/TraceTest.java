@@ -15,7 +15,7 @@ public class TraceTest {
 
     @Test
     public void traceTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {

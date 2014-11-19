@@ -23,7 +23,7 @@ public class CompareTest {
      */
     @Test
     public void diffTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
@@ -80,7 +80,7 @@ public class CompareTest {
      */
     @Test
     public void intersectionTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {
@@ -128,7 +128,7 @@ public class CompareTest {
      */
     @Test
     public void unionTest() {
-        CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+        CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
             public void on(CloudDimension dimension0) {

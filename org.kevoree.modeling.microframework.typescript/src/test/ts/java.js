@@ -36,14 +36,14 @@ Number.prototype.equals = function (other) {
     return this == other;
 };
 /*
-String.prototype.getBytes = function () {
-    var res:number[] = new Number[this.length];
-    for (var i = 0; i < this.length; i++) {
-        res[i] = Number(this.charAt(i));
-    }
-    return res;
-};
-*/
+ String.prototype.getBytes = function () {
+ var res:number[] = new Number[this.length];
+ for (var i = 0; i < this.length; i++) {
+ res[i] = Number(this.charAt(i));
+ }
+ return res;
+ };
+ */
 String.prototype.matches = function (regEx) {
     return this.match(regEx).length > 0;
 };
@@ -192,6 +192,9 @@ var java;
                     p.add(temp.get(i));
                 }
             };
+            Collections.sort = function (p) {
+                p.sort();
+            };
             return Collections;
         })();
         util.Collections = Collections;
@@ -231,6 +234,21 @@ var java;
                 _super.apply(this, arguments);
                 this.internalArray = [];
             }
+            List.prototype.sort = function () {
+                this.internalArray = this.internalArray.sort(function (a, b) {
+                    if (a == b) {
+                        return 0;
+                    }
+                    else {
+                        if (a < b) {
+                            return -1;
+                        }
+                        else {
+                            return 1;
+                        }
+                    }
+                });
+            };
             List.prototype.addAll = function (vals) {
                 var tempArray = vals.toArray(null);
                 for (var i = 0; i < tempArray.length; i++) {
