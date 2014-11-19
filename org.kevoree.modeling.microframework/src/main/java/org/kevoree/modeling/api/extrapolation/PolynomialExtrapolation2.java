@@ -58,7 +58,8 @@ public class PolynomialExtrapolation2 implements Extrapolation {
                 pol.insert(current.now(), Double.parseDouble(payload.toString()));
                 current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
                 long[] times=pol.timesAfter(current.now());
-                // insert again in the tree, and remove it from the previous pol. 
+                // insert again in the tree, and remove it from the previous pol.
+
             }
         }
     }
