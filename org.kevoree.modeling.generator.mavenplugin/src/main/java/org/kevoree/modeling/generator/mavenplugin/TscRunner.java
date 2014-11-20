@@ -15,7 +15,7 @@ public class TscRunner {
 
     public void runTsc(String tscPath, Path sourceDir, Path targetFile) throws Exception {
         List<String> params = new ArrayList<String>();
-        params.add("--sourcemap");
+        //params.add("--sourcemap");
         params.add("--out");
         params.add(targetFile.toFile().getAbsolutePath());
 
