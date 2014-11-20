@@ -33,11 +33,11 @@ public class HtmlTemplateGenerator {
         sb.append("        //set your root element (if necessary) '" + metaModelName.toLowerCase() + "View' ::  " + metaModelName.toLowerCase() + "View.setRoot(<element>);\n");
         sb.append("\n");
         sb.append("        //Load from JSON\n");
-        sb.append("        " + metaModelName.toLowerCase() + "View.json().load(\"Model_As_String\", function(error){console.error(error);});\n");
+        sb.append("        //" + metaModelName.toLowerCase() + "View.json().load(\"Model_As_String\", function(error){console.error(error);});\n");
         sb.append("\n");
         sb.append("        /*  Serialize in JSON:\n");
         sb.append("\n");
-        sb.append("         //" + metaModelName.toLowerCase() + "View.json().save(<model>, function(serializedModel, error){\n");
+        sb.append("         " + metaModelName.toLowerCase() + "View.json().save(<model>, function(serializedModel, error){\n");
         sb.append("         if(!error) {\n");
         sb.append("             //Do something with 'serializedModel'\n");
         sb.append("         } else {\n");
