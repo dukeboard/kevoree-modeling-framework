@@ -86,7 +86,7 @@ declare module org {
                     }
                     class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
-                        constructor(kDataBase: data.KDataBase);
+                        constructor();
                         public storage(): data.KStore;
                         public newDimension(callback: (p: A) => void): void;
                         public internal_create(key: number): A;
@@ -97,6 +97,8 @@ declare module org {
                         public disable(listener: (p: KEvent) => void): void;
                         public stream(query: string, callback: (p: KObject<any, any>) => void): void;
                         public listen(listener: (p: KEvent) => void): void;
+                        public setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
+                        public setDataBase(dataBase: data.KDataBase): KUniverse<any>;
                     }
                     class AbstractKView implements KView {
                         private _now;
@@ -167,8 +169,8 @@ declare module org {
                         private nextDimensionRange;
                         private _db;
                         private caches;
-                        private eventBroker;
-                        constructor(p_db: KDataBase);
+                        private _eventBroker;
+                        constructor();
                         private keyTree(dim, key);
                         private keyRoot(dim, time);
                         private keyRootTree(dim);
@@ -195,8 +197,10 @@ declare module org {
                         public setRoot(newRoot: KObject<any, any>): void;
                         public registerListener(origin: any, listener: (p: KEvent) => void): void;
                         public notify(event: KEvent): void;
-                        public getEventBroker(): event.KEventBroker;
-                        public setEventBroker(eventBroker: event.KEventBroker): void;
+                        public eventBroker(): event.KEventBroker;
+                        public setEventBroker(p_eventBroker: event.KEventBroker): void;
+                        public dataBase(): KDataBase;
+                        public setDataBase(p_dataBase: KDataBase): void;
                     }
                     class IDRange {
                         private min;
@@ -235,8 +239,10 @@ declare module org {
                         cacheLookup(dimension: KDimension<any, any, any>, time: number, key: number): KObject<any, any>;
                         registerListener(origin: any, listener: (p: KEvent) => void): void;
                         notify(event: KEvent): void;
-                        getEventBroker(): event.KEventBroker;
+                        eventBroker(): event.KEventBroker;
                         setEventBroker(broker: event.KEventBroker): void;
+                        dataBase(): KDataBase;
+                        setDataBase(dataBase: KDataBase): void;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
@@ -316,6 +322,13 @@ declare module org {
                         static instance(): Extrapolation;
                     }
                     class PolynomialExtrapolation implements Extrapolation {
+                        private static INSTANCE;
+                        public timedDependencies(current: KObject<any, any>): number[];
+                        public extrapolate(current: KObject<any, any>, attribute: meta.MetaAttribute, dependencies: KObject<any, any>[]): any;
+                        public mutate(current: KObject<any, any>, attribute: meta.MetaAttribute, payload: any, dependencies: KObject<any, any>[]): void;
+                        static instance(): Extrapolation;
+                    }
+                    class PolynomialExtrapolation2 implements Extrapolation {
                         private static INSTANCE;
                         public timedDependencies(current: KObject<any, any>): number[];
                         public extrapolate(current: KObject<any, any>, attribute: meta.MetaAttribute, dependencies: KObject<any, any>[]): any;
@@ -482,6 +495,8 @@ declare module org {
                     stream(query: string, callback: (p: KObject<any, any>) => void): void;
                     storage(): data.KStore;
                     listen(listener: (p: KEvent) => void): void;
+                    setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
+                    setDataBase(dataBase: data.KDataBase): KUniverse<any>;
                 }
                 interface KView {
                     createFQN(metaClassName: string): KObject<any, any>;
@@ -594,6 +609,34 @@ declare module org {
                         public extrapolate(time: number): number;
                         public insert(time: number, value: number): boolean;
                         public lastIndex(): number;
+                        public indexBefore(time: number): number;
+                        public timesAfter(time: number): number[];
+                        public save(): string;
+                        public load(payload: string): void;
+                    }
+                    class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation {
+                        private weights;
+                        private timeOrigin;
+                        private timePoints;
+                        private degradeFactor;
+                        private prioritization;
+                        private maxDegree;
+                        private toleratedError;
+                        private static sep;
+                        constructor(timeOrigin: number, toleratedError: number, maxDegree: number, degradeFactor: number, prioritization: util.Prioritization);
+                        public getSamples(): java.util.List<number>;
+                        public getDegree(): number;
+                        public getTimeOrigin(): number;
+                        private getMaxErr(degree, toleratedError, maxDegree, prioritization);
+                        private internal_feed(time, value);
+                        private maxError(computedWeights, time, value);
+                        public comparePolynome(p2: DefaultPolynomialExtrapolation2, err: number): boolean;
+                        private internal_extrapolate(time, weights);
+                        public extrapolate(time: number): number;
+                        public insert(time: number, value: number): boolean;
+                        public lastIndex(): number;
+                        public indexBefore(time: number): number;
+                        public timesAfter(time: number): number[];
                         public save(): string;
                         public load(payload: string): void;
                     }
@@ -603,6 +646,8 @@ declare module org {
                         extrapolate(time: number): number;
                         insert(time: number, value: number): boolean;
                         lastIndex(): number;
+                        indexBefore(time: number): number;
+                        timesAfter(time: number): number[];
                     }
                     module util {
                         class AdjLinearSolverQr {

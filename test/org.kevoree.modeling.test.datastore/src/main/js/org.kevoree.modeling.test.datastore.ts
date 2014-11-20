@@ -13,8 +13,8 @@ module geometry {
 
     export class GeometryUniverse extends org.kevoree.modeling.api.abs.AbstractKUniverse<any> {
 
-        constructor(kDataBase: org.kevoree.modeling.api.data.KDataBase) {
-            super(kDataBase);
+        constructor() {
+            super();
         }
 
         public internal_create(key: number): geometry.GeometryDimension {

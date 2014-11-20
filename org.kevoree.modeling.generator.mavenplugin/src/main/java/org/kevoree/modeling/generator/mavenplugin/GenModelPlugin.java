@@ -126,6 +126,9 @@ public class GenModelPlugin extends AbstractMojo {
                 tscPath.toFile().delete();
                 libDts.toFile().delete();
 
+                if(!resourceDir.exists()) {
+                    resourceDir.mkdirs();
+                }
                 Path resourceAllJS = Paths.get(resourceDir.toPath().toString(), project.getArtifactId() + "-all.js");
                 Files.copy(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-all.js"), resourceAllJS, StandardCopyOption.REPLACE_EXISTING);
                 HtmlTemplateGenerator.generateHtml(resourceDir.toPath(), project.getArtifactId() + "-all.js", targetName);

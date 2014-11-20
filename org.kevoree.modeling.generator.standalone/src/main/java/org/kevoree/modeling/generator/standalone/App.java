@@ -96,6 +96,9 @@ public class App {
                         tscPath.toFile().delete();
                         libDts.toFile().delete();
 
+                        if(!resourceOut.exists()) {
+                            resourceOut.mkdirs();
+                        }
                         Path resourceAllJS = Paths.get(resourceOut.toPath().toString(), ctx.getMetaModelName() + "-all.js");
                         Files.copy(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + "-all.js"), resourceAllJS, StandardCopyOption.REPLACE_EXISTING);
                         HtmlTemplateGenerator.generateHtml(resourceOut.toPath(), ctx.getMetaModelName() + "-all.js", ctx.getMetaModelName());

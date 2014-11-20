@@ -19,8 +19,8 @@ var geometry;
     geometry.GeometryDimension = GeometryDimension;
     var GeometryUniverse = (function (_super) {
         __extends(GeometryUniverse, _super);
-        function GeometryUniverse(kDataBase) {
-            _super.call(this, kDataBase);
+        function GeometryUniverse() {
+            _super.call(this);
         }
         GeometryUniverse.prototype.internal_create = function (key) {
             return new geometry.GeometryDimension(this, key);
