@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.microframework.typescript</artifactId>
     <name>Kevoree :: Modeling :: MicroFramework :: TypeScript</name>
-    <packaging>jszip</packaging>
+    <packaging>jar</packaging>
 
     <parent>
         <artifactId>org.kevoree.modeling.root</artifactId>
@@ -33,13 +34,13 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <tasks>
-                                <delete dir="${basedir}/src/main/ts" />
-                                <delete dir="${basedir}/src/test/ts" />
+                                <delete dir="${basedir}/src/main/ts"/>
+                                <delete dir="${basedir}/src/test/ts"/>
                                 <copy todir="${basedir}/target/sources">
-                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/main/java" />
+                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/main/java"/>
                                 </copy>
                                 <copy todir="${basedir}/target/sources">
-                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/test/java" />
+                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/test/java"/>
                                 </copy>
                             </tasks>
                         </configuration>
@@ -73,7 +74,6 @@
                         <configuration>
                             <source>${basedir}/../org.kevoree.modeling.microframework/src/test/java</source>
                             <target>${basedir}/src/test/ts</target>
-                            <outputFileName>${artifactId}.test</outputFileName>
                         </configuration>
                     </execution>
                 </executions>
@@ -89,7 +89,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>process-resources</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>npm</goal>
                             <goal>grunt</goal>
@@ -98,20 +98,20 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.jszip.maven</groupId>
-                <artifactId>jszip-maven-plugin</artifactId>
-                <version>0.1-alpha-9</version>
-                <extensions>true</extensions>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
                 <executions>
                     <execution>
-                        <id>JZIP</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jszip</goal>
-                        </goals>
+                        <phase>generate-resources</phase>
                         <configuration>
-                            <contentDirectory>${basedir}/src/main/js</contentDirectory>
+                            <tasks>
+                                <copy todir="${basedir}/src/main/resources" file="${basedir}/src/main/ts/java.js" overwrite="true" />
+                                <copy todir="${basedir}/src/main/resources" file="${basedir}/src/main/ts/java.d.ts" overwrite="true" />
+                            </tasks>
                         </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

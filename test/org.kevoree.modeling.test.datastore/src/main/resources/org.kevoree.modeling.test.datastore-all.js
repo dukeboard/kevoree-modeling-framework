@@ -7224,4 +7224,3 @@ var geometry;
         Shape.METAOPERATION = METAOPERATION;
     })(Shape = geometry.Shape || (geometry.Shape = {}));
 })(geometry || (geometry = {}));
-//# sourceMappingURL=org.kevoree.modeling.test.datastore.js.map

@@ -126,11 +126,21 @@ public class GenModelPlugin extends AbstractMojo {
                 tscPath.toFile().delete();
                 libDts.toFile().delete();
 
-                if(!resourceDir.exists()) {
+                if (!resourceDir.exists()) {
                     resourceDir.mkdirs();
                 }
                 Path resourceAllJS = Paths.get(resourceDir.toPath().toString(), project.getArtifactId() + "-all.js");
                 Files.copy(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-all.js"), resourceAllJS, StandardCopyOption.REPLACE_EXISTING);
+
+                StringBuilder buffer = new StringBuilder();
+                for (Artifact artifact : project.getDependencyArtifacts()) {
+                    if (buffer.length() != 0) {
+                        buffer.append(File.pathSeparator);
+                    }
+                    buffer.append(artifact.getFile().getAbsolutePath());
+                }
+                System.setProperty("additional", buffer.toString());
+
                 HtmlTemplateGenerator.generateHtml(resourceDir.toPath(), project.getArtifactId() + "-all.js", targetName);
 
             }

@@ -1,9 +1,15 @@
 package org.kevoree.modeling.generator.mavenplugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Created by gregory.nain on 07/11/14.
@@ -53,6 +59,26 @@ public class HtmlTemplateGenerator {
         if (!Paths.get(targetDir.toAbsolutePath().toString(), "index.html").toFile().exists()) {
             Files.write(Paths.get(targetDir.toAbsolutePath().toString(), "index.html"), sb.toString().getBytes());
         }
+
+        if (System.getProperty("additional") != null) {
+            String additional = System.getProperty("additional");
+            String[] additionals = additional.split(File.pathSeparator);
+            for (String potential : additionals) {
+                File file = new File(potential);
+                if (file.exists() && file.getName().endsWith(".jar")) {
+                    JarFile jar = new JarFile(file);
+                    Enumeration<JarEntry> iterator = jar.entries();
+                    while (iterator.hasMoreElements()) {
+                        JarEntry entry = iterator.nextElement();
+                        if (entry.getName().endsWith(".js") || entry.getName().endsWith(".ts")) {
+                            Files.copy(jar.getInputStream(entry), Paths.get(targetDir.toAbsolutePath().toString(), entry.getName()), StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                    jar.close();
+                }
+            }
+        }
+
 
     }
 
