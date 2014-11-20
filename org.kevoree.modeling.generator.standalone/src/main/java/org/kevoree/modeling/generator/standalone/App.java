@@ -52,7 +52,6 @@ public class App {
                     if (System.getProperty("resources") != null) {
                         resourceOut = new File(System.getProperty("resources"));
                     }
-                    resourceOut.mkdirs();
                     masterOut.mkdirs();
                     File srcOut = new File(masterOut, "java");
                     srcOut.mkdirs();
@@ -65,6 +64,9 @@ public class App {
                     Generator generator = new Generator();
                     generator.execute(ctx);
                     if (js) {
+                        if (!resourceOut.exists()) {
+                            resourceOut.mkdirs();
+                        }
                         Files.createDirectories(jsDir.toPath());
                         Path javaLibJs = Paths.get(jsDir.toPath().toString(), GenModelPlugin.JAVA_LIB_JS);
                         Path libDts = Paths.get(jsDir.toPath().toString(), GenModelPlugin.LIB_D_TS);
@@ -80,11 +82,9 @@ public class App {
                                 sourceTranslator.getAnalyzer().addClasspath(dep);
                             }
                         }
-
                         sourceTranslator.translateSources(srcOut.getAbsolutePath(), jsDir.getAbsolutePath(), ctx.getMetaModelName());
                         System.out.print("Transpile to JS using TSC...");
                         TscRunner runner = new TscRunner();
-
                         Path tscPath = Paths.get(jsDir.toPath().toString(), GenModelPlugin.TSC_JS);
                         runner.runTsc(tscPath.toFile().getAbsolutePath(), jsDir.toPath(), Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + ".js"));
                         System.out.println("done");
@@ -96,9 +96,6 @@ public class App {
                         tscPath.toFile().delete();
                         libDts.toFile().delete();
 
-                        if(!resourceOut.exists()) {
-                            resourceOut.mkdirs();
-                        }
                         Path resourceAllJS = Paths.get(resourceOut.toPath().toString(), ctx.getMetaModelName() + "-all.js");
                         Files.copy(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + "-all.js"), resourceAllJS, StandardCopyOption.REPLACE_EXISTING);
                         HtmlTemplateGenerator.generateHtml(resourceOut.toPath(), ctx.getMetaModelName() + "-all.js", ctx.getMetaModelName());
