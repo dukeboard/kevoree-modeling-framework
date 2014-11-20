@@ -49,6 +49,7 @@ public class MongoDbDataBase implements KDataBase {
             BasicDBObject obj = new BasicDBObject();
             obj.put(KMF_KEY, payloads[i][0]);
             obj.put(KMF_VAL, payloads[i][1]);
+            objs.add(obj);
         }
         table.aggregate(objs);
         error.on(null);
