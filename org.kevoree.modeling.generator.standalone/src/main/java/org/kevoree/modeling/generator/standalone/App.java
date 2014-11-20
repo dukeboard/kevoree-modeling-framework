@@ -21,20 +21,6 @@ import java.util.jar.JarOutputStream;
  */
 public class App {
 
-    private static boolean deleteDirectory(File path) {
-        if (path.exists()) {
-            File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
-                } else {
-                    files[i].delete();
-                }
-            }
-        }
-        return (path.delete());
-    }
-
     public static void main(final String[] args) throws IOException, InterruptedException {
         ThreadGroup tg = new ThreadGroup("KMFCompiler");
         Thread t = new Thread(tg, new Runnable() {
@@ -62,6 +48,11 @@ public class App {
                     if (System.getProperty("output") != null) {
                         masterOut = new File(System.getProperty("output"));
                     }
+                    File resourceOut = new File("resources");
+                    if (System.getProperty("resources") != null) {
+                        masterOut = new File(System.getProperty("resources"));
+                    }
+                    resourceOut.mkdirs();
                     masterOut.mkdirs();
                     File srcOut = new File(masterOut, "java");
                     srcOut.mkdirs();
@@ -83,8 +74,6 @@ public class App {
                         Files.copy(this.getClass().getClassLoader().getResourceAsStream(GenModelPlugin.KMF_LIB_JS), kmfLibJs, StandardCopyOption.REPLACE_EXISTING);
                         Files.copy(getClass().getClassLoader().getResourceAsStream(GenModelPlugin.TSC_JS), Paths.get(jsDir.toPath().toString(), GenModelPlugin.TSC_JS), StandardCopyOption.REPLACE_EXISTING);
                         SourceTranslator sourceTranslator = new SourceTranslator();
-                        //add classpath
-
                         String[] javaClassPath = System.getProperty("java.class.path").split(File.pathSeparator);
                         for (String dep : javaClassPath) {
                             if (dep.endsWith(".jar")) {
@@ -92,18 +81,25 @@ public class App {
                             }
                         }
 
-                        //
                         sourceTranslator.translateSources(srcOut.getAbsolutePath(), jsDir.getAbsolutePath(), ctx.getMetaModelName());
                         System.out.print("Transpile to JS using TSC...");
                         TscRunner runner = new TscRunner();
-                        runner.runTsc(Paths.get(jsDir.toPath().toString(), GenModelPlugin.TSC_JS).toFile().getAbsolutePath(), jsDir.toPath(), Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + ".js"));
+
+                        Path tscPath = Paths.get(jsDir.toPath().toString(), GenModelPlugin.TSC_JS);
+                        runner.runTsc(tscPath.toFile().getAbsolutePath(), jsDir.toPath(), Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + ".js"));
                         System.out.println("done");
                         StringBuilder sb = new StringBuilder();
                         Files.lines(javaLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
                         Files.lines(kmfLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
                         Files.lines(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + ".js")).forEachOrdered((line) -> sb.append(line).append("\n"));
-                        Files.write(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + "-merged.js"), sb.toString().getBytes());
-                        HtmlTemplateGenerator.generateHtml(jsDir.toPath(), ctx.getMetaModelName() + ".js", ctx.getMetaModelName());
+                        Files.write(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + "-all.js"), sb.toString().getBytes());
+                        tscPath.toFile().delete();
+                        libDts.toFile().delete();
+
+                        Path resourceAllJS = Paths.get(resourceOut.toPath().toString(), ctx.getMetaModelName() + "-all.js");
+                        Files.copy(Paths.get(jsDir.toPath().toString(), ctx.getMetaModelName() + "-all.js"), resourceAllJS, StandardCopyOption.REPLACE_EXISTING);
+                        HtmlTemplateGenerator.generateHtml(resourceOut.toPath(), ctx.getMetaModelName() + "-all.js", ctx.getMetaModelName());
+
                     }
                     System.out.println("Output : " + masterOut.getAbsolutePath());
                 } catch (Exception e) {
@@ -130,69 +126,6 @@ public class App {
         }
         tg.interrupt();
         tg.stop();
-    }
-
-    private static void extract(File srcFile, File destDir) throws IOException {
-        java.util.jar.JarFile jar = new java.util.jar.JarFile(srcFile);
-        java.util.Enumeration enumEntries = jar.entries();
-        while (enumEntries.hasMoreElements()) {
-            java.util.jar.JarEntry file = (java.util.jar.JarEntry) enumEntries.nextElement();
-            java.io.File f = new java.io.File(destDir + java.io.File.separator + file.getName().replace("/", File.separator));
-            if (file.isDirectory()) { // if its a directory, create it
-                f.mkdir();
-                continue;
-            } else {
-                if (!f.getAbsolutePath().endsWith(".class")) {
-                    continue;
-                }
-            }
-
-            java.io.InputStream is = jar.getInputStream(file); // get the input stream
-            java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
-            while (is.available() > 0) {  // write contents of 'is' to 'fos'
-                fos.write(is.read());
-            }
-            fos.close();
-            is.close();
-        }
-    }
-
-    private static void add(File source, JarOutputStream target, String basePath, boolean root) throws IOException {
-        BufferedInputStream in = null;
-        try {
-            if (source.isDirectory()) {
-                String name = source.getPath().replace(basePath, "").replace("\\", "/");
-                if (!name.isEmpty() && !root) {
-                    if (!name.endsWith("/"))
-                        name += "/";
-                    JarEntry entry = new JarEntry(name);
-                    entry.setTime(source.lastModified());
-                    target.putNextEntry(entry);
-                    target.closeEntry();
-                }
-                for (File nestedFile : source.listFiles()) {
-                    add(nestedFile, target, basePath, false);
-                }
-                return;
-            }
-
-            JarEntry entry = new JarEntry(source.getPath().replace(basePath, "").replace("\\", "/"));
-            entry.setTime(source.lastModified());
-            target.putNextEntry(entry);
-            in = new BufferedInputStream(new FileInputStream(source));
-
-            byte[] buffer = new byte[1024];
-            while (true) {
-                int count = in.read(buffer);
-                if (count == -1)
-                    break;
-                target.write(buffer, 0, count);
-            }
-            target.closeEntry();
-        } finally {
-            if (in != null)
-                in.close();
-        }
     }
 
 }

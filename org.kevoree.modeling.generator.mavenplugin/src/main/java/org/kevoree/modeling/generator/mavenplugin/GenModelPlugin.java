@@ -59,6 +59,12 @@ public class GenModelPlugin extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/js")
     private File jsWorkingDir;
 
+    /**
+     * Resource base directory
+     */
+    @Parameter(defaultValue = "${project.basedir}/src/main/resources")
+    private File resourceDir;
+
     @Parameter
     private boolean js = false;
 
@@ -98,7 +104,8 @@ public class GenModelPlugin extends AbstractMojo {
                 Path kmfLibJs = Paths.get(jsWorkingDir.toPath().toString(), KMF_LIB_JS);
                 Files.copy(this.getClass().getClassLoader().getResourceAsStream(KMF_LIB_JS), kmfLibJs, StandardCopyOption.REPLACE_EXISTING);
 
-                Files.copy(getClass().getClassLoader().getResourceAsStream(TSC_JS), Paths.get(jsWorkingDir.toPath().toString(), TSC_JS), StandardCopyOption.REPLACE_EXISTING);
+                Path tscPath = Paths.get(jsWorkingDir.toPath().toString(), TSC_JS);
+                Files.copy(getClass().getClassLoader().getResourceAsStream(TSC_JS), tscPath, StandardCopyOption.REPLACE_EXISTING);
 
                 SourceTranslator sourceTranslator = new SourceTranslator();
                 for (Artifact a : project.getDependencyArtifacts()) {
@@ -109,17 +116,19 @@ public class GenModelPlugin extends AbstractMojo {
                     }
                 }
                 sourceTranslator.translateSources(targetSrcGenDir.getAbsolutePath(), jsWorkingDir.getAbsolutePath(), project.getArtifactId());
-
                 TscRunner runner = new TscRunner();
-                runner.runTsc(Paths.get(jsWorkingDir.toPath().toString(), TSC_JS).toFile().getAbsolutePath(),jsWorkingDir.toPath(), Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js"));
-
+                runner.runTsc(Paths.get(jsWorkingDir.toPath().toString(), TSC_JS).toFile().getAbsolutePath(), jsWorkingDir.toPath(), Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js"));
                 StringBuilder sb = new StringBuilder();
                 Files.lines(javaLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
                 Files.lines(kmfLibJs).forEachOrdered((line) -> sb.append(line).append("\n"));
                 Files.lines(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + ".js")).forEachOrdered((line) -> sb.append(line).append("\n"));
-                Files.write(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-merged.js"), sb.toString().getBytes());
+                Files.write(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-all.js"), sb.toString().getBytes());
+                tscPath.toFile().delete();
+                libDts.toFile().delete();
 
-                HtmlTemplateGenerator.generateHtml(jsWorkingDir.toPath(), project.getArtifactId() + ".js" ,targetName);
+                Path resourceAllJS = Paths.get(resourceDir.toPath().toString(), project.getArtifactId() + "-all.js");
+                Files.copy(Paths.get(jsWorkingDir.toPath().toString(), project.getArtifactId() + "-all.js"), resourceAllJS, StandardCopyOption.REPLACE_EXISTING);
+                HtmlTemplateGenerator.generateHtml(resourceDir.toPath(), project.getArtifactId() + "-all.js", targetName);
 
             }
 
