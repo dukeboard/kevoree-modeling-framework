@@ -50,7 +50,7 @@ public class App {
                     }
                     File resourceOut = new File("resources");
                     if (System.getProperty("resources") != null) {
-                        masterOut = new File(System.getProperty("resources"));
+                        resourceOut = new File(System.getProperty("resources"));
                     }
                     resourceOut.mkdirs();
                     masterOut.mkdirs();
