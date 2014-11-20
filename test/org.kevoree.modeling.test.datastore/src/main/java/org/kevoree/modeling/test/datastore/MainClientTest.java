@@ -23,8 +23,8 @@ public class MainClientTest {
 
         Semaphore s = new Semaphore(0);
 
-        GeometryUniverse geoUniverse = new GeometryUniverse(new MemoryKDataBase());
-        geoUniverse.storage().setEventBroker(new WebSocketKBroker(geoUniverse.storage().getEventBroker(), false, "localhost", WebSocketKBroker.DEFAULT_PORT));
+        GeometryUniverse geoUniverse = new GeometryUniverse();
+        geoUniverse.storage().setEventBroker(new WebSocketKBroker(geoUniverse.storage().eventBroker(), false, "localhost", WebSocketKBroker.DEFAULT_PORT));
 
         geoUniverse.listen(new ModelListener() {
             @Override

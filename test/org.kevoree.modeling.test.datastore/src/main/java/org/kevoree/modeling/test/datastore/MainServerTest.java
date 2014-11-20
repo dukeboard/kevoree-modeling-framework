@@ -28,11 +28,10 @@ public class MainServerTest {
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        MemoryKDataBase actualDataBase = new MemoryKDataBase();
-        WebSocketDataBase wsDbWrapper = new WebSocketDataBase(actualDataBase, 23664);
+        GeometryUniverse geoUniverse = new GeometryUniverse();
+        WebSocketDataBase wsDbWrapper = new WebSocketDataBase(geoUniverse.storage().dataBase(), 23664);
 
-        GeometryUniverse geoUniverse = new GeometryUniverse(actualDataBase);
-        geoUniverse.storage().setEventBroker(new WebSocketKBroker(geoUniverse.storage().getEventBroker(), true));
+        geoUniverse.storage().setEventBroker(new WebSocketKBroker(geoUniverse.storage().eventBroker(), true));
 
         String[] colors = new String[]{"red", "green", "blue"};
 
