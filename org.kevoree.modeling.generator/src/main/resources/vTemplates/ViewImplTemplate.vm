@@ -13,10 +13,10 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
         }
         switch (p_clazz.index()) {
 #set($clsIdx = 0)
-#foreach($class in $context.classDeclarationsList.keySet())
-    #set($lastIdx = $class.lastIndexOf(".")+1)
+#foreach($class in $context.model.classifiers)
+    #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
             case $clsIdx:
-                return this.manageCache(new ${class.substring(0,$class.lastIndexOf("."))}.impl.${class.substring($lastIdx)}Impl(this, ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.$class.toUpperCase().replace(".","_"), p_key, this.now(), this.dimension(), p_timeTree));
+                return this.manageCache(new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.$class.fqn.toUpperCase().replace(".","_"), p_key, this.now(), this.dimension(), p_timeTree));
 #set($clsIdx = $clsIdx+1)
 #end
             default:
@@ -29,11 +29,11 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
         return ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.values();
     }
 
-#foreach($class in $context.classDeclarationsList.keySet())
-#set($lastIdx = $class.lastIndexOf(".")+1)
+#foreach($class in $context.model.classifiers)
+#set($lastIdx = $class.fqn.lastIndexOf(".")+1)
     @Override
-    public $class create$class.substring($lastIdx)() {
-        return ($class) this.create(METACLASSES.$class.toUpperCase().replace(".","_"));
+    public $class.fqn create$class.fqn.substring($lastIdx)() {
+        return ($class.fqn) this.create(METACLASSES.$class.fqn.toUpperCase().replace(".","_"));
     }
 #end
 

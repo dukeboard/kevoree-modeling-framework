@@ -23,7 +23,7 @@ public class Serializer {
         try {
             Semaphore s = new Semaphore(0);
 
-            CloudUniverse universe = new CloudUniverse(new MemoryKDataBase());
+            CloudUniverse universe = new CloudUniverse();
             universe.newDimension(new Callback<CloudDimension>() {
                 @Override
                 public void on(CloudDimension dimension0) {

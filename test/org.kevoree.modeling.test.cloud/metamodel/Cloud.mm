@@ -14,6 +14,9 @@ class cloud.Element {
 
     value : String
 
+    @learn(2.2)
+    load : Double
+
     func trigger (param:String, loop : Int) : String
 }
 

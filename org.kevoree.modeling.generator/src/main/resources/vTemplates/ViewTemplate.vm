@@ -5,13 +5,14 @@ public interface ${context.metaModelName}View extends org.kevoree.modeling.api.K
     public enum METACLASSES implements org.kevoree.modeling.api.meta.MetaClass {
 
 #set($classIdx = 0)
-#set($classIdxMax = $context.classDeclarationsList.keySet().size() - 1)
-#foreach($class in $context.classDeclarationsList.keySet())
-        ${class.toUpperCase().replace(".","_")}("$class",$classIdx)#if($classIdx < $classIdxMax),
+#set($classIdxMax = $context.model.classifiers.size() - 1)
+#foreach($class in $context.model.classifiers)
+        ${class.fqn.toUpperCase().replace(".","_")}("$class.fqn",$classIdx)#if($classIdx < $classIdxMax),
 #{else};
 #end
 #set($classIdx = $classIdx + 1)
 #end
+
         private String _name;
 
         private int _index;
@@ -31,9 +32,9 @@ public interface ${context.metaModelName}View extends org.kevoree.modeling.api.K
 
     }
 
-#foreach($class in $context.classDeclarationsList.keySet())
-#set($lastIdx = $class.lastIndexOf(".")+1)
-    public $class create$class.substring($lastIdx)();
+#foreach($class in $context.model.classifiers)
+#set($lastIdx = $class.fqn.lastIndexOf(".")+1)
+    public $class.fqn create$class.fqn.substring($lastIdx)();
 #end
 
 }

@@ -7,6 +7,7 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.kevoree.modeling.MetaModelLanguageType;
+import org.kevoree.modeling.ast.MModelClassifier;
 import org.kevoree.modeling.generator.misc.VelocityLog;
 import org.kevoree.modeling.util.StandaloneParser;
 
@@ -28,7 +29,6 @@ public class Generator {
         if (!context.getMetaModel().getAbsolutePath().endsWith(MetaModelLanguageType.DEFAULT_EXTENSION)) {
             throw new UnsupportedOperationException("Only *.mm files are currently supported.");
         }
-
 
         File output = context.targetSrcDir;
         Files.walkFileTree(output.toPath(), new FileVisitor<Path>() {
@@ -60,24 +60,21 @@ public class Generator {
         try {
             StandaloneParser parser = new StandaloneParser();
             PsiFile psi = parser.parser(context.getMetaModel());
-            System.out.println("Indexing for Enums");
-            EnumIndexesVisitor enumIndexesVisitor = new EnumIndexesVisitor(context);
-            psi.acceptChildren(enumIndexesVisitor);
-            ProcessorHelper.getInstance().consolidateEnumIndexes(context.classDeclarationsList);
+            MMPsiVisitor MMPsiVisitor = new MMPsiVisitor(context);
+            psi.acceptChildren(MMPsiVisitor);
+            ProcessorHelper.getInstance().consolidate(context.getModel());
             generateUtilities();
-            System.out.println("Generating Classes");
-            context.classDeclarationsList.values().forEach(classDecl -> {
+            for (MModelClassifier classDecl : context.getModel().getClassifiers()) {
                 ClassGenerationContext cgc = new ClassGenerationContext();
                 cgc.generationContext = context;
-                cgc.classDeclaration = context.classDeclarationsList.get(classDecl.getFqn());
+                cgc.classDeclaration = classDecl;
 
                 Path apiFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
                 callVelocity(apiFilePath, "vTemplates/ClassTemplate.vm", cgc);
 
                 Path implFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
                 callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
-            });
-
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

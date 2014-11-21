@@ -17,10 +17,7 @@
  */
 package org.kevoree.modeling.generator;
 
-import org.kevoree.modeling.ast.MModelAttribute;
-import org.kevoree.modeling.ast.MModelClass;
-import org.kevoree.modeling.ast.MModelClassifier;
-import org.kevoree.modeling.ast.MModelReference;
+import org.kevoree.modeling.ast.*;
 import org.kevoree.modeling.idea.psi.MetaModelTypeDeclaration;
 import org.kevoree.modeling.util.PrimitiveTypes;
 
@@ -39,9 +36,16 @@ import java.util.HashMap;
 
 public class ProcessorHelper {
 
-    private static ProcessorHelper INSTANCE = new ProcessorHelper();
+    public boolean isNull(Object o) {
+        return o == null;
+    }
+
+    private static ProcessorHelper INSTANCE = null;
 
     public static ProcessorHelper getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new ProcessorHelper();
+        }
         return INSTANCE;
     }
 
@@ -51,7 +55,6 @@ public class ProcessorHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //if (!file.exists()) file.mkdirs();
     }
 
     public boolean isPrimitive(MetaModelTypeDeclaration tDecl) {
@@ -62,21 +65,18 @@ public class ProcessorHelper {
         return PrimitiveTypes.toEcoreType(t);
     }
 
-    public void consolidateEnumIndexes(HashMap<String, MModelClassifier> enumIndexes) {
+    public void consolidate(MModel model) {
         ArrayList<MModelClassifier> consolidated = new ArrayList<>();
-        enumIndexes.forEach((clazz,decl)->{
-            if(decl == null) {
-                throw new NullPointerException("Classifier Null for FQN:" + clazz);
+        for (MModelClassifier decl : model.getClassifiers()) {
+            if (!consolidated.contains(decl)) {
+                internal_consolidate(decl, consolidated);
             }
-            if(!consolidated.contains(decl)){
-                consolidate(decl, consolidated);
-            }
-        });
+        }
     }
 
-    private void consolidate(MModelClassifier classifierRelDecls, ArrayList<MModelClassifier> consolidated) {
-        if(!consolidated.contains(classifierRelDecls)){
-            if(classifierRelDecls instanceof MModelClass) {
+    private void internal_consolidate(MModelClassifier classifierRelDecls, ArrayList<MModelClassifier> consolidated) {
+        if (!consolidated.contains(classifierRelDecls)) {
+            if (classifierRelDecls instanceof MModelClass) {
                 MModelClass classRelDecls = (MModelClass) classifierRelDecls;
                 classRelDecls.sortAttributes();
                 classRelDecls.sortReferences();
@@ -87,15 +87,15 @@ public class ProcessorHelper {
                 classRelDecls.getParents().forEach(parent -> {
                     if (!consolidated.contains(classRelDecls)) {
                         //TODO: Circularity check and cut
-                        consolidate(parent, consolidated);
+                        internal_consolidate(parent, consolidated);
                     }
-                    parent.getAttributes().forEach(parentAttribute-> {
-                        if(!parentsAttributes.contains(parentAttribute)){
+                    parent.getAttributes().forEach(parentAttribute -> {
+                        if (!parentsAttributes.contains(parentAttribute)) {
                             parentsAttributes.add(parentAttribute);
                         }
                     });
-                    parent.getReferences().forEach(parentReference-> {
-                        if(!parentsReferences.contains(parentReference)){
+                    parent.getReferences().forEach(parentReference -> {
+                        if (!parentsReferences.contains(parentReference)) {
                             parentsReferences.add(parentReference);
                         }
                     });
@@ -110,8 +110,8 @@ public class ProcessorHelper {
         }
     }
 
-
     public String toCamelCase(String ref) {
         return ref.substring(0, 1).toUpperCase() + ref.substring(1);
     }
+
 }

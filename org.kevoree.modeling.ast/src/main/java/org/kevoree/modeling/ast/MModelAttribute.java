@@ -50,9 +50,19 @@ public class MModelAttribute {
         this.learned = learned;
     }
 
+    private Double precision = null;
+
+    public Double getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(Double precision) {
+        this.precision = precision;
+    }
+
     @Override
     public boolean equals(Object o) {
-        return o instanceof MModelAttribute && name.equals(((MModelAttribute)o).name);
+        return o instanceof MModelAttribute && name.equals(((MModelAttribute) o).name);
     }
 
 }

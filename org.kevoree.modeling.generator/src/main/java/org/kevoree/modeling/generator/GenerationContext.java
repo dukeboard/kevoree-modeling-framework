@@ -1,5 +1,6 @@
 package org.kevoree.modeling.generator;
 
+import org.kevoree.modeling.ast.MModel;
 import org.kevoree.modeling.ast.MModelClassifier;
 
 import java.io.File;
@@ -30,9 +31,9 @@ public class GenerationContext {
     }
 
     public void setMetaModelName(String metaModelName) {
-        if(metaModelName.contains(".")) {
+        if (metaModelName.contains(".")) {
             this.metaModelPackage = metaModelName.substring(0, metaModelName.lastIndexOf("."));
-            this.metaModelName = metaModelName.substring(metaModelName.lastIndexOf(".")+1);
+            this.metaModelName = metaModelName.substring(metaModelName.lastIndexOf(".") + 1);
         } else {
             this.metaModelName = metaModelName;
             this.metaModelPackage = metaModelName.toLowerCase();
@@ -56,15 +57,15 @@ public class GenerationContext {
     }
 
     /* GENERATION DATA */
-    public HashMap<String, MModelClassifier> classDeclarationsList = new HashMap<>();
     public ProcessorHelper helper = ProcessorHelper.getInstance();
-
-    public HashMap<String, MModelClassifier> getClassDeclarationsList() {
-        return classDeclarationsList;
-    }
 
     public ProcessorHelper getHelper() {
         return helper;
     }
 
+    private MModel model = new MModel();
+
+    public MModel getModel() {
+        return model;
+    }
 }

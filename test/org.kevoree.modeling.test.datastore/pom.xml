@@ -39,10 +39,6 @@
                             <metaModelFile>metamodel/Geometry.mm</metaModelFile>
                             <js>true</js>
                             <jsWorkingDir>${project.basedir}/src/main/js</jsWorkingDir>
-                            <!--
-                            <metaModelQualifiedName>fsmsample.FSM</metaModelQualifiedName>
-                            <utilityPackage>fsmsample</utilityPackage>
-                            -->
                         </configuration>
                     </execution>
                 </executions>
