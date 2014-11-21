@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by gregory.nain on 07/11/14.
@@ -40,7 +41,12 @@ public class TscRunner {
         for (int i = 0; i < args.length; i++) {
             params[i + 2] = args[i];
         }
-        params[0] = "node";
+
+        if (getOS().equals(OSType.Windows)) {
+            params[0] = "node.exe";
+        } else {
+            params[0] = "node";
+        }
         params[1] = tscPath;
 
         /*
@@ -50,7 +56,7 @@ public class TscRunner {
         }
         System.out.println(printer.toString());
         */
-        
+
         ProcessBuilder pb = new ProcessBuilder(params);
         pb.redirectError();
         pb.redirectOutput();
@@ -71,5 +77,25 @@ public class TscRunner {
             engine.eval(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("tsc.js")));
         }
     }
+
+    public enum OSType {
+        Windows, MacOS, Linux, Other
+    }
+
+    ;
+
+    public static OSType getOS() {
+        String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+        if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
+            return OSType.MacOS;
+        } else if (OS.indexOf("win") >= 0) {
+            return OSType.Windows;
+        } else if (OS.indexOf("nux") >= 0) {
+            return OSType.Linux;
+        } else {
+            return OSType.Other;
+        }
+    }
+
 
 }
