@@ -5,8 +5,9 @@
     <title></title>
 
     <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="./java.js"></script>
     <script src="./org.kevoree.modeling.test.datastore-all.js"></script>
-    <script src="./org.kevoree.modeling.database.websocket.WebSocketKBroker.js"></script>
+    <script src="./org.kevoree.modeling.microframework.databases.websocket.js"></script>
 </head>
 <body>
 
@@ -18,8 +19,9 @@
     var dataBaseConnection = new org.kevoree.modeling.database.websocket.WebSocketDataBase("ws://localhost:23664");
     var geometryUniverse;
     dataBaseConnection.setAfterConnection(function(){
-        geometryUniverse = new geometry.GeometryUniverse(dataBaseConnection);
-        geometryUniverse.storage().setEventBroker(new org.kevoree.modeling.database.websocket.WebSocketKBroker(geometryUniverse.storage().getEventBroker(), "ws://localhost:23665"));
+        geometryUniverse = new geometry.GeometryUniverse();
+        geometryUniverse.storage().setDataBase(dataBaseConnection);
+        geometryUniverse.storage().setEventBroker(new org.kevoree.modeling.database.websocket.WebSocketKBroker(geometryUniverse.storage().eventBroker(), "ws://localhost:23665"));
 
         console.log("Looking for the dimension");
         geometryUniverse.dimension(0, function(dimension){

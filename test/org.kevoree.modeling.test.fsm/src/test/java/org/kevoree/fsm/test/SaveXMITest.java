@@ -24,7 +24,7 @@ public class SaveXMITest {
     @Test
     public void saveXmiTest() {
 
-        FSMUniverse fsmU = new FSMUniverse(new MemoryKDataBase());
+        FSMUniverse fsmU = new FSMUniverse();
         fsmU.newDimension(new Callback<FSMDimension>() {
             @Override
             public void on(FSMDimension fsmDim) {

@@ -27,7 +27,7 @@ public class OppositeTest {
 
     @BeforeClass
     public static void setUp() {
-        universe = new OppositeUniverse(new MemoryKDataBase());
+        universe = new OppositeUniverse();
         universe.newDimension(new Callback<OppositeDimension>() {
             @Override
             public void on(OppositeDimension localDimension) {
