@@ -659,5 +659,7 @@ public class DefaultKStore implements KStore {
     @Override
     public void setDataBase(KDataBase p_dataBase) {
         this._db = p_dataBase;
+        initRange(UUID_DB_KEY);
+        initRange(DIM_DB_KEY);
     }
 }
