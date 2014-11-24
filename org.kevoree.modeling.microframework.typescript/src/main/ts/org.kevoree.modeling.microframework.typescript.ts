@@ -1527,6 +1527,8 @@ module org {
 
                         public setDataBase(p_dataBase: org.kevoree.modeling.api.data.KDataBase): void {
                             this._db = p_dataBase;
+                            this.initRange(DefaultKStore.UUID_DB_KEY);
+                            this.initRange(DefaultKStore.DIM_DB_KEY);
                         }
 
                     }

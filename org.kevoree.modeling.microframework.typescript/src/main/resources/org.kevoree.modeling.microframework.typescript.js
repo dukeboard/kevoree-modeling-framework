@@ -1509,6 +1509,8 @@ var org;
 
                         DefaultKStore.prototype.setDataBase = function (p_dataBase) {
                             this._db = p_dataBase;
+                            this.initRange(DefaultKStore.UUID_DB_KEY);
+                            this.initRange(DefaultKStore.DIM_DB_KEY);
                         };
                         DefaultKStore.KEY_SEP = ',';
                         DefaultKStore.UUID_DB_KEY = "#UUID";
