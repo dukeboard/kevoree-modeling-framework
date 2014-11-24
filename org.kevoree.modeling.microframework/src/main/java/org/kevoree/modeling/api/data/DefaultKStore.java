@@ -287,7 +287,7 @@ public class DefaultKStore implements KStore {
                     if (cached.isDirty()) {
                         String[] payloadA = new String[2];
                         payloadA[0] = keyPayload(dimension, cached.now(), cached.uuid());
-                        payloadA[1] = cached.toJSON();
+                        payloadA[1] = ((AbstractKObject)cached).toRawJSON();
                         payloads[i] = payloadA;
                         ((AbstractKObject) cached).setDirty(false);
                         i++;

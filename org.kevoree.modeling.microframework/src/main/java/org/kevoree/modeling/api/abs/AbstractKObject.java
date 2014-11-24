@@ -14,6 +14,7 @@ import org.kevoree.modeling.api.TraceRequest;
 import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.event.DefaultKEvent;
+import org.kevoree.modeling.api.extrapolation.ExtrapolationModel;
 import org.kevoree.modeling.api.json.JsonModelSerializer;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -580,7 +581,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         internal_visit(visitor, end, true, true, null);
     }
 
+    public String toRawJSON() {
+        return internal_json(true);
+    }
+
     public String toJSON() {
+        return internal_json(false);
+    }
+
+    public String internal_json(boolean isRawJson) {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
         builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
@@ -594,8 +603,24 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             builder.append("true");
         }
         builder.append("\",\n");
+        Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
         for (int i = 0; i < metaAttributes().length; i++) {
-            Object payload = get(metaAttributes()[i]);
+            String payload = null;
+            if (isRawJson) {
+                Object payload_res = raw[metaAttributes()[i].index()];
+                if (payload_res instanceof ExtrapolationModel) {
+                    payload = ((ExtrapolationModel) payload_res).save();
+                } else {
+                    if (payload_res != null) {
+                        payload = payload_res.toString();
+                    }
+                }
+            } else {
+                Object payload_res = get(metaAttributes()[i]);
+                if (payload_res != null) {
+                    payload = payload_res.toString();
+                }
+            }
             if (payload != null) {
                 builder.append("\t");
                 builder.append("\"");
@@ -606,7 +631,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             }
         }
         for (int i = 0; i < metaReferences().length; i++) {
-            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
             Object payload = null;
             if (raw != null) {
                 payload = raw[metaReferences()[i].index()];

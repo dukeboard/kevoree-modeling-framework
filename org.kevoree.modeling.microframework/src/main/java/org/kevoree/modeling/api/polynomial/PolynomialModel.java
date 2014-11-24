@@ -1,13 +1,11 @@
 package org.kevoree.modeling.api.polynomial;
 
+import org.kevoree.modeling.api.extrapolation.ExtrapolationModel;
+
 /**
  * Created by duke on 10/28/14.
  */
-public interface PolynomialExtrapolation {
-
-    public String save();
-
-    public void load(String payload);
+public interface PolynomialModel extends ExtrapolationModel {
 
     public double extrapolate(long time);
 
@@ -17,6 +15,6 @@ public interface PolynomialExtrapolation {
 
     public long indexBefore(long time);
 
-    public long[] timesAfter (long time);
+    public long[] timesAfter(long time);
 
 }

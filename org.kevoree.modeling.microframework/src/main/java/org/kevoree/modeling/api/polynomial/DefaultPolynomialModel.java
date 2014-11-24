@@ -4,28 +4,29 @@ package org.kevoree.modeling.api.polynomial;
  * Created by assaa_000 on 28/10/2014.
  */
 
+import org.kevoree.modeling.api.polynomial.util.DataSample;
 import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by assaa_000 on 23/10/2014.
  */
-public class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation {
+public class DefaultPolynomialModel implements PolynomialModel {
 
     private double[] weights;
     private Long timeOrigin;
-    private List<Long> timePoints = new ArrayList<Long>();
+    private List<DataSample> samples = new ArrayList<DataSample>();
     private int degradeFactor;
     private Prioritization prioritization;
     private int maxDegree;
     private double toleratedError;
+    //TODO add to save
+    private long _lastIndex = -1;
 
-
-    public DefaultPolynomialExtrapolation2(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
+    public DefaultPolynomialModel(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
         this.timeOrigin = timeOrigin;
         this.degradeFactor = degradeFactor;
         this.prioritization = prioritization;
@@ -33,8 +34,8 @@ public class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation 
         this.toleratedError = toleratedError;
     }
 
-    public List<Long> getSamples() {
-        return timePoints;
+    public List<DataSample> getSamples() {
+        return samples;
     }
 
     public int getDegree() {
@@ -68,18 +69,18 @@ public class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation 
             weights = new double[1];
             weights[0] = value;
             timeOrigin = time;
-            timePoints.add(time);
+            samples.add(new DataSample(time, value));
         }
     }
 
     private double maxError(double[] computedWeights, long time, double value) {
         double maxErr = 0;
         double temp = 0;
-        Long ds;
-        for (int i = 0; i < timePoints.size(); i++) {
-            ds = timePoints.get(i);
-            double val = internal_extrapolate(ds, computedWeights);
-            temp = Math.abs(val - internal_extrapolate(ds, weights));
+        DataSample ds;
+        for (int i = 0; i < samples.size(); i++) {
+            ds = samples.get(i);
+            double val = internal_extrapolate(ds.time, computedWeights);
+            temp = Math.abs(val - ds.value);
             if (temp > maxErr) {
                 maxErr = temp;
             }
@@ -91,7 +92,7 @@ public class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation 
         return maxErr;
     }
 
-    public boolean comparePolynome(DefaultPolynomialExtrapolation2 p2, double err) {
+    public boolean comparePolynome(DefaultPolynomialModel p2, double err) {
         if (weights.length != p2.weights.length) {
             return false;
         }
@@ -126,28 +127,29 @@ public class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation 
 
         if (weights == null) {
             internal_feed(time, value);
+            _lastIndex = time;
             return true;
         }
         double maxError = getMaxErr(this.getDegree(), toleratedError, maxDegree, prioritization);
         //If the current model fits well the new value, return
         if (Math.abs(extrapolate(time) - value) <= maxError) {
-            timePoints.add(time);
-            Collections.sort(timePoints);
+            samples.add(new DataSample(time, value));
+            _lastIndex = time;
             return true;
         }
         //If not, first check if we can increase the degree
         int deg = getDegree();
         if (deg < maxDegree) {
             deg++;
-            int ss = Math.min(deg * 2, timePoints.size());
+            int ss = Math.min(deg * 2, samples.size());
             double[] times = new double[ss + 1];
             double[] values = new double[ss + 1];
-            int current = timePoints.size();
+            int current = samples.size();
             for (int i = 0; i < ss; i++) {
                 int index = Math.round(i * current / ss);
-                Long ds = timePoints.get(index);
-                times[i] = ((double) (ds - timeOrigin)) / degradeFactor;
-                values[i] = internal_extrapolate(ds, weights);
+                DataSample ds = samples.get(index);
+                times[i] = ((double) (ds.time - timeOrigin)) / degradeFactor;
+                values[i] = ds.value;
             }
             times[ss] = ((double) (time - timeOrigin)) / degradeFactor;
             values[ss] = value;
@@ -158,8 +160,8 @@ public class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation 
                 for (int i = 0; i < pf.getCoef().length; i++) {
                     weights[i] = pf.getCoef()[i];
                 }
-                timePoints.add(time);
-                Collections.sort(timePoints);
+                samples.add(new DataSample(time, value));
+                _lastIndex = time;
                 return true;
             }
         }
@@ -168,37 +170,16 @@ public class DefaultPolynomialExtrapolation2 implements PolynomialExtrapolation 
 
     @Override
     public long lastIndex() {
-        if (timePoints.size() != 0) {
-            return timePoints.get(timePoints.size() - 1);
-        } else {
-            return -1;
-        }
+        return _lastIndex; //TODO: load and save lastIndex
     }
 
+    @Override
     public long indexBefore(long time) {
-        if (timePoints.size() != 0) {
-            for (int i = 0; i < timePoints.size() - 1; i++) {
-                if (timePoints.get(i) < time && timePoints.get(i + 1) > time)
-                    return timePoints.get(i);
-            }
-            return timePoints.get(timePoints.size() - 1);
-        }
-        return -1;
+        return _lastIndex;
     }
 
     @Override
     public long[] timesAfter(long time) {
-        if (timePoints.size() != 0) {
-            for (int i = 0; i < timePoints.size() - 1; i++) {
-                if (timePoints.get(i) < time && timePoints.get(i + 1) > time) {
-                    long[] result = new long[timePoints.size() - i - 1];
-                    for (int j = i + 1; j < timePoints.size(); j++) {
-                        result[j - i - 1] = timePoints.get(j);
-                    }
-                    return result;
-                }
-            }
-        }
         return null;
     }
 

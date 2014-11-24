@@ -3,7 +3,7 @@ package org.kevoree.modeling.microframework.test.polynomial;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.kevoree.modeling.api.polynomial.DefaultPolynomialExtrapolation;
+import org.kevoree.modeling.api.polynomial.DefaultPolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
 /**
@@ -13,7 +13,7 @@ public class PolynomialExtrapolationTest {
     @Test
     public void test() {
         int toleratedError = 5;
-        DefaultPolynomialExtrapolation pe = new DefaultPolynomialExtrapolation(0, toleratedError, 10, 1, Prioritization.LOWDEGREES);
+        DefaultPolynomialModel pe = new DefaultPolynomialModel(0, toleratedError, 10, 1, Prioritization.LOWDEGREES);
         final double[] val = new double[1000];
         double[] coef = {2, 2, 3};
         for (int i = 200; i < 1000; i++) {
