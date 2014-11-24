@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.databases.leveldb.LevelDbDataBase;
 
 import java.io.IOException;
 
