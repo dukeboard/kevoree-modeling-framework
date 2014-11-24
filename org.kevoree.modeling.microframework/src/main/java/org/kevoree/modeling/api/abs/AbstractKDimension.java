@@ -90,6 +90,10 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
         }
     }
 
+    public void flushTimes() {
+        _timesCache.clear();
+    }
+
     public void listen(ModelListener listener) {
         universe().storage().registerListener(this, listener);
     }

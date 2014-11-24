@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ThrowableCallback;
+import org.kevoree.modeling.api.abs.AbstractKDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
@@ -39,7 +40,6 @@ public class DefaultKStore implements KStore {
 
     private IDRange currentUUIDRange, nextUUIDRange;
     private IDRange currentDimensionRange, nextDimensionRange;
-
 
     private KDataBase _db;
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
@@ -126,6 +126,13 @@ public class DefaultKStore implements KStore {
 
     public void initKObject(KObject obj, KView originView) {
         DimensionCache dimensionCache = caches.get(originView.dimension().key());
+        if (dimensionCache == null) {
+            try {
+                throw new Exception("UnConsistancy error, are you using a reference to a closed object ?");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         if (!dimensionCache.timeTreeCache.containsKey(obj.uuid())) {
             dimensionCache.timeTreeCache.put(obj.uuid(), obj.timeTree());
         }
@@ -327,6 +334,7 @@ public class DefaultKStore implements KStore {
         save(dimension, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
+                ((AbstractKDimension) dimension).flushTimes();
                 if (throwable == null) {
                     discard(dimension, callback);
                 } else {
@@ -335,6 +343,22 @@ public class DefaultKStore implements KStore {
             }
         });
     }
+
+    /*
+    @Override
+    public void saveTimesUnload(final KDimension dimension, final Callback<Throwable> callback) {
+        save(dimension, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+                ((AbstractKDimension) dimension).flushTimes();
+                if (throwable == null) {
+                    discard(dimension, callback);
+                } else {
+                    callback.on(throwable);
+                }
+            }
+        });
+    }*/
 
     @Override
     public void timeTree(KDimension dimension, long key, final Callback<TimeTree> callback) {
@@ -469,24 +493,26 @@ public class DefaultKStore implements KStore {
                             final List<KObject> objs = new ArrayList<KObject>();
                             for (int i = 0; i < objectPayloads.length; i++) {
                                 KObject obj = JsonModelLoader.loadDirect(objectPayloads[i], originView.dimension().time(resolved[i]), null);
-                                //Put in cache
-                                objs.add(obj);
-                                //additional from strategy
-                                Set<Extrapolation> strategies = new HashSet<Extrapolation>();
-                                for (int h = 0; h < obj.metaAttributes().length; h++) {
-                                    MetaAttribute metaAttribute = obj.metaAttributes()[h];
-                                    strategies.add(metaAttribute.strategy());
-                                }
-                                Extrapolation[] strategiesArr = strategies.toArray(new Extrapolation[strategies.size()]);
-                                for (int k = 0; k < strategiesArr.length; k++) {
-                                    Extrapolation strategy = strategiesArr[k];
-                                    Long[] additionalTimes = strategy.timedDependencies(obj);
-                                    for (int j = 0; j < additionalTimes.length; j++) {
-                                        if (additionalTimes[j] != obj.now()) {
-                                            //check if the object is already in cache
-                                            if (cacheLookup(originView.dimension(), additionalTimes[j], obj.uuid()) == null) {
-                                                Object[] payload = new Object[]{keyPayload(originView.dimension(), additionalTimes[j], obj.uuid()), additionalTimes[j]};
-                                                additionalLoad.add(payload);
+                                if (obj != null) {
+                                    //Put in cache
+                                    objs.add(obj);
+                                    //additional from strategy
+                                    Set<Extrapolation> strategies = new HashSet<Extrapolation>();
+                                    for (int h = 0; h < obj.metaAttributes().length; h++) {
+                                        MetaAttribute metaAttribute = obj.metaAttributes()[h];
+                                        strategies.add(metaAttribute.strategy());
+                                    }
+                                    Extrapolation[] strategiesArr = strategies.toArray(new Extrapolation[strategies.size()]);
+                                    for (int k = 0; k < strategiesArr.length; k++) {
+                                        Extrapolation strategy = strategiesArr[k];
+                                        Long[] additionalTimes = strategy.timedDependencies(obj);
+                                        for (int j = 0; j < additionalTimes.length; j++) {
+                                            if (additionalTimes[j] != obj.now()) {
+                                                //check if the object is already in cache
+                                                if (cacheLookup(originView.dimension(), additionalTimes[j], obj.uuid()) == null) {
+                                                    Object[] payload = new Object[]{keyPayload(originView.dimension(), additionalTimes[j], obj.uuid()), additionalTimes[j]};
+                                                    additionalLoad.add(payload);
+                                                }
                                             }
                                         }
                                     }

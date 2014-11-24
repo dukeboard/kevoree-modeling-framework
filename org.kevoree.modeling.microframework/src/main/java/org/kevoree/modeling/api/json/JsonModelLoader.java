@@ -28,15 +28,19 @@ public class JsonModelLoader {
 
     //TODO optimize object creation
     public static KObject loadDirect(String payload, KView factory, Callback<KObject> callback) {
-        Lexer lexer = new Lexer(payload);
-        final KObject[] loaded = new KObject[1];
-        loadObjects(lexer, factory, new Callback<List<KObject>>() {
-            @Override
-            public void on(List<KObject> objs) {
-                loaded[0] = objs.get(0);//we rely on the cache of TimeTree, ugly...
-            }
-        });
-        return loaded[0];
+        if (payload == null) {
+            return null;
+        } else {
+            Lexer lexer = new Lexer(payload);
+            final KObject[] loaded = new KObject[1];
+            loadObjects(lexer, factory, new Callback<List<KObject>>() {
+                @Override
+                public void on(List<KObject> objs) {
+                    loaded[0] = objs.get(0);//we rely on the cache of TimeTree, ugly...
+                }
+            });
+            return loaded[0];
+        }
     }
 
     private static void loadObjects(Lexer lexer, final KView factory, final Callback<List<KObject>> callback) {
@@ -99,7 +103,7 @@ public class JsonModelLoader {
                     Object[] payloadObj = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
 
                     String[] elemKeys = elem.keySet().toArray(new String[elem.size()]);
-                    for(int j = 0; j < elemKeys.length; j++) {
+                    for (int j = 0; j < elemKeys.length; j++) {
                         String k = elemKeys[j];
                         MetaAttribute att = current.metaAttribute(k);
                         if (att != null) {
@@ -120,7 +124,7 @@ public class JsonModelLoader {
                                         Set<Long> convertedRaw = new HashSet<Long>();
                                         Set<String> plainRawSet = (Set<String>) elem.get(k);
                                         String[] plainRawList = plainRawSet.toArray(new String[plainRawSet.size()]);
-                                        for(int l = 0; l < plainRawList.length; l++) {
+                                        for (int l = 0; l < plainRawList.length; l++) {
                                             String plainRaw = plainRawList[l];
                                             try {
                                                 Long converted = Long.parseLong(plainRaw);

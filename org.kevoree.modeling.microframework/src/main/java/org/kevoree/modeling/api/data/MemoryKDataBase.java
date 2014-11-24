@@ -9,10 +9,15 @@ public class MemoryKDataBase implements KDataBase {
 
     private final HashMap<String, String> backend = new HashMap<String, String>();
 
+    public static boolean DEBUG = false;
+
     @Override
     public void put(String[][] payloads, Callback<Throwable> callback) {
         for (int i = 0; i < payloads.length; i++) {
             backend.put(payloads[i][0], payloads[i][1]);
+            if (DEBUG) {
+                System.out.println("PUT " + payloads[i][0] + "->" + payloads[i][1]);
+            }
         }
         callback.on(null);
     }
@@ -22,6 +27,9 @@ public class MemoryKDataBase implements KDataBase {
         String[] values = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
             values[i] = backend.get(keys[i]);
+            if (DEBUG) {
+                System.out.println("GET " + keys[i] + "->" + values[i]);
+            }
         }
         callback.on(values, null);
     }

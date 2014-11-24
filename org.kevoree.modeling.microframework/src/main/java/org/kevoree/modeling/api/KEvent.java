@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.Meta;
+import org.kevoree.modeling.api.meta.MetaClass;
 
 /**
  * Created by duke on 10/29/14.
@@ -13,15 +14,13 @@ public interface KEvent {
 
     public Long uuid();
 
-    public String kActionType();
+    public KActionType actionType();
 
-    public String metaClass();
+    public MetaClass metaClass();
 
-    public String metaElement();
+    public Meta metaElement();
 
-    public String pastValue();
-
-    public String newValue();
+    public Object value();
 
     public String toJSON();
 

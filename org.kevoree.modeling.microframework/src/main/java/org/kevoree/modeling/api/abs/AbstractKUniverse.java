@@ -33,7 +33,13 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
         storage().initDimension(newDimension, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                callback.on(newDimension);
+                if (throwable != null) {
+                    callback.on(newDimension);
+                } else {
+                    throwable.printStackTrace();
+                    //TODO clean newCreatedDimension
+                    callback.on(null);
+                }
             }
         });
     }
