@@ -5,16 +5,16 @@ import org.kevoree.modeling.api.extrapolation.ExtrapolationModel;
 /**
  * Created by duke on 10/28/14.
  */
-public interface PolynomialModel extends ExtrapolationModel {
+public abstract class PolynomialModel extends ExtrapolationModel {
 
-    public double extrapolate(long time);
+    public abstract double extrapolate(long time);
 
-    public boolean insert(long time, double value);
+    public abstract boolean insert(long time, double value);
 
-    public long lastIndex();
+    public abstract long lastIndex();
 
-    public long indexBefore(long time);
+    public abstract long indexBefore(long time);
 
-    public long[] timesAfter(long time);
+    public abstract long[] timesAfter(long time);
 
 }

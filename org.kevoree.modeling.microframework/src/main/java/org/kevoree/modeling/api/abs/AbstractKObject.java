@@ -13,9 +13,11 @@ import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.TraceRequest;
 import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.extrapolation.ExtrapolationModel;
 import org.kevoree.modeling.api.json.JsonModelSerializer;
+import org.kevoree.modeling.api.json.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -39,10 +41,6 @@ import java.util.Set;
  */
 public abstract class AbstractKObject<A extends KObject, B extends KView> implements KObject<A, B> {
 
-    public final static int PARENT_INDEX = 0;
-    public final static int INBOUNDS_INDEX = 1;
-
-    private boolean _isDirty = false;
     private B _view;
     private MetaClass _metaClass;
     private long _uuid;
@@ -60,15 +58,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         this._now = p_now;
         this._dimension = p_dimension;
         this._timeTree = p_timeTree;
-    }
-
-    @Override
-    public boolean isDirty() {
-        return _isDirty;
-    }
-
-    public void setDirty(boolean isDirty) {
-        this._isDirty = isDirty;
     }
 
     @Override
@@ -140,11 +129,11 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Long parentUuid() {
-        return (Long) _view.dimension().universe().storage().raw(this, AccessMode.READ)[PARENT_INDEX];
+        return (Long) _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.PARENT_INDEX];
     }
 
     public void setParentUuid(Long parentKID) {
-        _view.dimension().universe().storage().raw(this, AccessMode.WRITE)[PARENT_INDEX] = parentKID;
+        _view.dimension().universe().storage().raw(this, AccessMode.WRITE)[Index.PARENT_INDEX] = parentKID;
     }
 
     @Override
@@ -243,7 +232,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     private Object getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
         Object previous = view().dimension().universe().storage().raw(obj, AccessMode.WRITE)[payloadIndex];
         if (previous == null) {
-            if (payloadIndex == INBOUNDS_INDEX) {
+            if (payloadIndex == Index.INBOUNDS_INDEX) {
                 previous = new HashMap<Long, Integer>();
             } else {
                 previous = new HashSet<Long>();
@@ -266,7 +255,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
-
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {
                 mutate(KActionType.SET, metaReference, param, setOpposite);
@@ -285,7 +273,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     ((AbstractKObject) param).setParentUuid(_uuid);
                 }
                 //Inbound
-                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, Index.INBOUNDS_INDEX);
                 inboundRefs.put(uuid(), metaReference.index());
 
                 //publish event
@@ -314,7 +302,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         ((AbstractKObject) param).setParentUuid(_uuid);
                     }
                     //Inbound
-                    Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                    Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, Index.INBOUNDS_INDEX);
                     inboundRefs.put(uuid(), metaReference.index());
                     //Opposite
                     final KObject self = this;
@@ -355,7 +343,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                     resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                 }
                                 //Inbounds
-                                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(resolvedParam, INBOUNDS_INDEX);
+                                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(resolvedParam, Index.INBOUNDS_INDEX);
                                 inboundRefs.remove(uuid());
                             }
                         }
@@ -390,7 +378,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 }
 
                 //Inbounds
-                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, INBOUNDS_INDEX);
+                Map<Long, Integer> inboundRefs = (Map<Long, Integer>) getCreateOrUpdatePayloadList(param, Index.INBOUNDS_INDEX);
                 inboundRefs.remove(uuid());
             }
         }
@@ -581,92 +569,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         internal_visit(visitor, end, true, true, null);
     }
 
-    public String toRawJSON() {
-        return internal_json(true);
-    }
-
     public String toJSON() {
-        return internal_json(false);
-    }
-
-    public String internal_json(boolean isRawJson) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{\n");
-        builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
-        builder.append(metaClass().metaName());
-        builder.append("\",\n");
-        builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
-        builder.append(uuid());
-        if (isRoot()) {
-            builder.append("\",\n");
-            builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
-            builder.append("true");
-        }
-        builder.append("\",\n");
-        Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
-        for (int i = 0; i < metaAttributes().length; i++) {
-            String payload = null;
-            if (isRawJson) {
-                Object payload_res = raw[metaAttributes()[i].index()];
-                if (payload_res instanceof ExtrapolationModel) {
-                    payload = ((ExtrapolationModel) payload_res).save();
-                } else {
-                    if (payload_res != null) {
-                        payload = payload_res.toString();
-                    }
-                }
-            } else {
-                Object payload_res = get(metaAttributes()[i]);
-                if (payload_res != null) {
-                    payload = payload_res.toString();
-                }
-            }
-            if (payload != null) {
-                builder.append("\t");
-                builder.append("\"");
-                builder.append(metaAttributes()[i].metaName());
-                builder.append("\":\"");
-                builder.append(payload);
-                builder.append("\",\n");
-            }
-        }
-        for (int i = 0; i < metaReferences().length; i++) {
-            Object payload = null;
-            if (raw != null) {
-                payload = raw[metaReferences()[i].index()];
-            }
-            if (payload != null) {
-                builder.append("\t");
-                builder.append("\"");
-                builder.append(metaReferences()[i].metaName());
-                builder.append("\":");
-                if (metaReferences()[i].single()) {
-                    builder.append("\"");
-                    builder.append(payload);
-                    builder.append("\"");
-                } else {
-                    Set<Long> elems = (Set<Long>) payload;
-                    Long[] elemsArr = elems.toArray(new Long[elems.size()]);
-                    boolean isFirst = true;
-                    builder.append(" [");
-                    for (int j = 0; j < elemsArr.length; j++) {
-                        if (!isFirst) {
-                            builder.append(",");
-                        }
-                        builder.append("\"");
-                        builder.append(elemsArr[j]);
-                        builder.append("\"");
-                        isFirst = false;
-                    }
-                    builder.append("]");
-                }
-                builder.append(",\n");
-            }
-        }
-        //int lastcomma = builder.lastIndexOf(",");
-        //builder.setCharAt(lastcomma, ' ');
-        builder.append("}\n");
-        return builder.toString();
+        return JsonRaw.encode(false, view().dimension().universe().storage().raw(this, AccessMode.READ));
     }
 
     @Override
@@ -708,13 +612,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         return traces.toArray(new ModelTrace[traces.size()]);
     }
 
-
     public void inbounds(final Callback<InboundReference> callback, final Callback<Throwable> end) {
         Object[] rawPayload = view().dimension().universe().storage().raw(this, AccessMode.READ);
         if (rawPayload == null) {
             end.on(new Exception("Object not initialized."));
         } else {
-            Object payload = rawPayload[INBOUNDS_INDEX];
+            Object payload = rawPayload[Index.INBOUNDS_INDEX];
             if (payload != null) {
                 if (payload instanceof Map) {
                     final Map<Long, Integer> refs = (Map<Long, Integer>) payload;

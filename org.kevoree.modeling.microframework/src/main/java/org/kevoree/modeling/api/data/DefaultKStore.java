@@ -15,6 +15,7 @@ import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.extrapolation.Extrapolation;
 import org.kevoree.modeling.api.json.JsonModelLoader;
+import org.kevoree.modeling.api.json.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
@@ -142,7 +143,6 @@ public class DefaultKStore implements KStore {
             timeCache = new TimeCache();
             dimensionCache.timesCaches.put(originView.now(), timeCache);
         }
-        timeCache.obj_cache.put(obj.uuid(), obj);
     }
 
     @Override
@@ -180,9 +180,6 @@ public class DefaultKStore implements KStore {
 
     @Override
     public Object[] raw(KObject origin, AccessMode accessMode) {
-        if (accessMode.equals(AccessMode.WRITE)) {
-            ((AbstractKObject) origin).setDirty(true);
-        }
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         long resolvedTime = origin.timeTree().resolve(origin.now());
         boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.now();
@@ -199,10 +196,14 @@ public class DefaultKStore implements KStore {
             }
         }
         if (!needCopy) {
+            if (accessMode.equals(AccessMode.WRITE)) {
+                payload[Index.IS_DIRTY_INDEX] = true;
+            }
             return payload;
         } else {
             //deep copy the structure
             Object[] cloned = new Object[payload.length];
+            cloned[Index.IS_DIRTY_INDEX] = true;
             for (int i = 0; i < payload.length; i++) {
                 Object resolved = payload[i];
                 if (resolved != null) {
@@ -281,15 +282,16 @@ public class DefaultKStore implements KStore {
             int i = 0;
             for (int j = 0; j < timeCaches.length; j++) {
                 TimeCache timeCache = timeCaches[j];
-                KObject[] valuesArr = timeCache.obj_cache.values().toArray(new KObject[timeCache.obj_cache.size()]);
-                for (int k = 0; k < valuesArr.length; k++) { //TODO call directly the ToJSON on the the Object[] raw
-                    KObject cached = valuesArr[k];
-                    if (cached.isDirty()) {
+                Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
+                for (int k = 0; k < keys.length; k++) { //TODO call directly the ToJSON on the the Object[] raw
+                    Long idObj = keys[k];
+                    Object[] cached_raw = timeCache.payload_cache.get(idObj);
+                    if (cached_raw[Index.IS_DIRTY_INDEX] instanceof Boolean && (Boolean) cached_raw[Index.IS_DIRTY_INDEX]) {
                         String[] payloadA = new String[2];
-                        payloadA[0] = keyPayload(dimension, cached.now(), cached.uuid());
-                        payloadA[1] = ((AbstractKObject)cached).toRawJSON();
+                        payloadA[0] = keyPayload(dimension, now, idObj);
+                        payloadA[1] = JsonRaw.encode(true, cached_raw, idObj);
                         payloads[i] = payloadA;
-                        ((AbstractKObject) cached).setDirty(false);
+                        cached_raw[Index.IS_DIRTY_INDEX] = true;
                         i++;
                     }
                 }
@@ -343,22 +345,6 @@ public class DefaultKStore implements KStore {
             }
         });
     }
-
-    /*
-    @Override
-    public void saveTimesUnload(final KDimension dimension, final Callback<Throwable> callback) {
-        save(dimension, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
-                ((AbstractKDimension) dimension).flushTimes();
-                if (throwable == null) {
-                    discard(dimension, callback);
-                } else {
-                    callback.on(throwable);
-                }
-            }
-        });
-    }*/
 
     @Override
     public void timeTree(KDimension dimension, long key, final Callback<TimeTree> callback) {

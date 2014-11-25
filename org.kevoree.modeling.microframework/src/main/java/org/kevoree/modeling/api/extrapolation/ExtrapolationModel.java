@@ -3,10 +3,12 @@ package org.kevoree.modeling.api.extrapolation;
 /**
  * Created by duke on 11/24/14.
  */
-public interface ExtrapolationModel {
+public abstract class ExtrapolationModel {
 
-    public String save();
+    public abstract String save();
 
-    public void load(String payload);
+    public abstract void load(String payload);
+
+    public abstract boolean isDirty();
 
 }

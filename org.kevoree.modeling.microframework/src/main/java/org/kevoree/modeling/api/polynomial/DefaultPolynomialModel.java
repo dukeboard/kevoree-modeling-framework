@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by assaa_000 on 23/10/2014.
  */
-public class DefaultPolynomialModel implements PolynomialModel {
+public class DefaultPolynomialModel extends PolynomialModel {
 
     private double[] weights;
     private Long timeOrigin;
@@ -124,10 +124,10 @@ public class DefaultPolynomialModel implements PolynomialModel {
     @Override
     public boolean insert(long time, double value) {
         //If this is the first point in the cset, add it and return
-
         if (weights == null) {
             internal_feed(time, value);
             _lastIndex = time;
+            _isDirty = true;
             return true;
         }
         double maxError = getMaxErr(this.getDegree(), toleratedError, maxDegree, prioritization);
@@ -162,6 +162,7 @@ public class DefaultPolynomialModel implements PolynomialModel {
                 }
                 samples.add(new DataSample(time, value));
                 _lastIndex = time;
+                _isDirty = true;
                 return true;
             }
         }
@@ -194,6 +195,7 @@ public class DefaultPolynomialModel implements PolynomialModel {
             }
             builder.append(weights[i]);
         }
+        _isDirty = false;
         return builder.toString();
     }
 
@@ -204,6 +206,14 @@ public class DefaultPolynomialModel implements PolynomialModel {
         for (int i = 0; i < elems.length; i++) {
             weights[i] = Double.parseDouble(elems[i]);
         }
+        _isDirty = false;
+    }
+
+    private boolean _isDirty = false;
+
+    @Override
+    public boolean isDirty() {
+        return _isDirty;
     }
 
 }

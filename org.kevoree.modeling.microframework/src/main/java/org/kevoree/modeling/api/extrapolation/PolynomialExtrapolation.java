@@ -1,6 +1,7 @@
 package org.kevoree.modeling.api.extrapolation;
 
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaType;
@@ -57,6 +58,11 @@ public class PolynomialExtrapolation implements Extrapolation {
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                 pol.insert(current.now(), Double.parseDouble(payload.toString()));
                 current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
+            } else {
+                //Value fit the previous polynomial, but if degrees has changed we have to set the object to dirty for the next save batch
+                if (previousPol.isDirty()) {
+                    ((AbstractKObject) current).setDirty(true);
+                }
             }
         }
     }
@@ -64,7 +70,7 @@ public class PolynomialExtrapolation implements Extrapolation {
     private static PolynomialExtrapolation INSTANCE;
 
     public static Extrapolation instance() {
-        if(INSTANCE==null){
+        if (INSTANCE == null) {
             INSTANCE = new PolynomialExtrapolation();
         }
         return INSTANCE;

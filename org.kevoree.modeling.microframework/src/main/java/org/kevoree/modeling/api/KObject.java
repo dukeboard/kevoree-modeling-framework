@@ -13,8 +13,6 @@ import org.kevoree.modeling.api.trace.TraceSequence;
  */
 public interface KObject<A extends KObject, B extends KView> {
 
-    public boolean isDirty();
-
     public KDimension dimension();
 
     public boolean isDeleted();

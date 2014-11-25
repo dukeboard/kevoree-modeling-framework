@@ -12,7 +12,6 @@ import java.util.Map;
  * Created by duke on 10/30/14.
  */
 public class TimeCache {
-    public Map<Long, KObject> obj_cache = new HashMap<Long, KObject>();
     public Map<Long, Object[]> payload_cache = new HashMap<Long, Object[]>();
     public KObject root = null;
     public boolean rootDirty = false;
