@@ -15,6 +15,7 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.event.DefaultKEvent;
+import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.json.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -163,8 +164,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         //TODO
     }
 
-    public void listen(ModelListener listener) {
-        view().dimension().universe().storage().registerListener(this, listener);
+    public void listen(ModelListener listener, ListenerScope scope) {
+        view().dimension().universe().storage().registerListener(this, listener, scope);
     }
 
     @Override

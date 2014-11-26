@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
+import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.ModelListener;
 
@@ -82,8 +83,8 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
         return internal_create(timePoint);
     }
 
-    public void listen(ModelListener listener) {
-        universe().storage().registerListener(this, listener);
+    public void listen(ModelListener listener, ListenerScope scope) {
+        universe().storage().registerListener(this, listener, scope);
     }
 
     protected abstract A internal_create(Long timePoint);

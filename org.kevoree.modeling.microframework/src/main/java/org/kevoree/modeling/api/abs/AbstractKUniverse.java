@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.event.ListenerScope;
 
 /**
  * Created by duke on 10/10/14.
@@ -87,8 +88,8 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
     }
 
-    public void listen(ModelListener listener) {
-        storage().registerListener(this, listener);
+    public void listen(ModelListener listener, ListenerScope scope) {
+        storage().registerListener(this, listener, scope);
     }
 
     @Override

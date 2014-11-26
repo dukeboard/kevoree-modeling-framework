@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.event.DefaultKEvent;
+import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.operation.DefaultModelCloner;
@@ -125,8 +126,8 @@ public abstract class AbstractKView implements KView {
         return newObj;
     }
 
-    public void listen(ModelListener listener) {
-        dimension().universe().storage().registerListener(this, listener);
+    public void listen(ModelListener listener, ListenerScope scope) {
+        dimension().universe().storage().registerListener(this, listener, scope);
     }
 
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);

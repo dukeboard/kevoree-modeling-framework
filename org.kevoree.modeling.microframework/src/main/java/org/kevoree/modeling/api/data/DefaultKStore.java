@@ -13,6 +13,7 @@ import org.kevoree.modeling.api.data.cache.DimensionCache;
 import org.kevoree.modeling.api.data.cache.TimeCache;
 import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.extrapolation.Extrapolation;
 import org.kevoree.modeling.api.json.JsonModelLoader;
 import org.kevoree.modeling.api.json.JsonRaw;
@@ -55,7 +56,7 @@ public class DefaultKStore implements KStore {
 
     public DefaultKStore() {
         this._db = new MemoryKDataBase();
-        this._eventBroker = new DefaultKBroker(caches);
+        this._eventBroker = new DefaultKBroker();
         initRange(UUID_DB_KEY);
         initRange(DIM_DB_KEY);
     }
@@ -647,8 +648,8 @@ public class DefaultKStore implements KStore {
     }
 
     @Override
-    public void registerListener(Object origin, ModelListener listener) {
-        _eventBroker.registerListener(origin, listener);
+    public void registerListener(Object origin, ModelListener listener, ListenerScope scope) {
+        _eventBroker.registerListener(origin, listener, scope);
     }
 
 
