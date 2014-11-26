@@ -18,7 +18,6 @@ public class DimensionCache {
     public Map<Long, TimeCache> timesCaches = new HashMap<Long, TimeCache>();
     public KDimension dimension;
     public TimeTree rootTimeTree = new DefaultTimeTree();
-    public List<ModelListener> listeners = new ArrayList<ModelListener>();
 
     public DimensionCache(KDimension dimension) {
         this.dimension = dimension;

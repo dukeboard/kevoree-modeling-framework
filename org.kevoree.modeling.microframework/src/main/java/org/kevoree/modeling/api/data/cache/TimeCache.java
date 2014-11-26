@@ -15,6 +15,4 @@ public class TimeCache {
     public Map<Long, Object[]> payload_cache = new HashMap<Long, Object[]>();
     public KObject root = null;
     public boolean rootDirty = false;
-    public List<ModelListener> listeners = new ArrayList<ModelListener>();
-    public Map<Long, List<ModelListener>> obj_listeners = new HashMap<Long, List<ModelListener>>();
 }

@@ -15,8 +15,6 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public KDimension dimension();
 
-    public boolean isDeleted();
-
     public boolean isRoot();
 
     public long uuid();

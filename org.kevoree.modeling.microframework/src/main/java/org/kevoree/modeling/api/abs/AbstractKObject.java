@@ -15,8 +15,6 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.api.extrapolation.ExtrapolationModel;
-import org.kevoree.modeling.api.json.JsonModelSerializer;
 import org.kevoree.modeling.api.json.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -42,18 +40,13 @@ import java.util.Set;
 public abstract class AbstractKObject<A extends KObject, B extends KView> implements KObject<A, B> {
 
     private B _view;
-    private MetaClass _metaClass;
     private long _uuid;
-    private boolean _isDeleted = false;
-    private boolean _isRoot = false;
     private long _now;
     private TimeTree _timeTree;
-    private MetaReference _referenceInParent = null;
     private KDimension _dimension;
 
-    public AbstractKObject(B p_view, MetaClass p_metaClass, long p_uuid, long p_now, KDimension p_dimension, TimeTree p_timeTree) {
+    public AbstractKObject(B p_view, long p_uuid, long p_now, KDimension p_dimension, TimeTree p_timeTree) {
         this._view = p_view;
-        this._metaClass = p_metaClass;
         this._uuid = p_uuid;
         this._now = p_now;
         this._dimension = p_dimension;
@@ -72,21 +65,21 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public MetaClass metaClass() {
-        return this._metaClass;
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return _isDeleted;
+        return (MetaClass) _dimension.universe().storage().raw(this, AccessMode.READ)[Index.META_CLASS_INDEX];
     }
 
     @Override
     public boolean isRoot() {
-        return _isRoot;
+        Boolean isRoot = (Boolean) _dimension.universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX];
+        if (isRoot == null) {
+            return false;
+        } else {
+            return isRoot;
+        }
     }
 
     public void setRoot(boolean isRoot) {
-        this._isRoot = isRoot;
+        _dimension.universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX] = isRoot;
     }
 
     @Override
@@ -106,7 +99,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public void path(final Callback<String> callback) {
-        if (_isRoot) {
+        if (isRoot()) {
             callback.on("/");
         } else {
             parent(new Callback<KObject>() {
@@ -118,7 +111,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                         parent.path(new Callback<String>() {
                             @Override
                             public void on(String parentPath) {
-                                callback.on(Helper.path(parentPath, _referenceInParent, AbstractKObject.this));
+                                callback.on(Helper.path(parentPath, referenceInParent(), AbstractKObject.this));
                             }
                         });
                     }
@@ -147,12 +140,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     protected void set_referenceInParent(MetaReference _referenceInParent) {
-        this._referenceInParent = _referenceInParent;
+        _dimension.universe().storage().raw(this, AccessMode.READ)[Index.REF_IN_PARENT_INDEX] = _referenceInParent;
     }
 
     @Override
     public MetaReference referenceInParent() {
-        return _referenceInParent;
+        return (MetaReference) _dimension.universe().storage().raw(this, AccessMode.READ)[Index.REF_IN_PARENT_INDEX];
     }
 
     @Override
@@ -570,7 +563,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public String toJSON() {
-        return JsonRaw.encode(false, view().dimension().universe().storage().raw(this, AccessMode.READ));
+        return JsonRaw.encode(false, view().dimension().universe().storage().raw(this, AccessMode.READ), _uuid);
     }
 
     @Override

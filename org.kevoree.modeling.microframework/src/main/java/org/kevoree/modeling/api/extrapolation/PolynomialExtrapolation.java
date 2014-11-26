@@ -3,6 +3,7 @@ package org.kevoree.modeling.api.extrapolation;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.polynomial.DefaultPolynomialModel;
@@ -46,7 +47,8 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
-        Object previous = current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
+        Object[] raw = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
+        Object previous = raw[attribute.index()];
         if (previous == null) {
             PolynomialModel pol = new DefaultPolynomialModel(current.now(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
             pol.insert(current.now(), Double.parseDouble(payload.toString()));
@@ -61,7 +63,7 @@ public class PolynomialExtrapolation implements Extrapolation {
             } else {
                 //Value fit the previous polynomial, but if degrees has changed we have to set the object to dirty for the next save batch
                 if (previousPol.isDirty()) {
-                    ((AbstractKObject) current).setDirty(true);
+                    raw[Index.IS_DIRTY_INDEX] = true;
                 }
             }
         }

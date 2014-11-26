@@ -18,9 +18,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
     private KUniverse _universe;
 
     private long _key;
-
-    private Map<Long, A> _timesCache = new HashMap<Long, A>();
-
+    
     protected AbstractKDimension(KUniverse p_universe, long p_key) {
         this._universe = p_universe;
         this._key = p_key;
@@ -81,17 +79,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     @Override
     public synchronized A time(Long timePoint) {
-        if (_timesCache.containsKey(timePoint)) {
-            return _timesCache.get(timePoint);
-        } else {
-            A newCreatedTime = internal_create(timePoint);
-            _timesCache.put(timePoint, newCreatedTime);
-            return newCreatedTime;
-        }
-    }
-
-    public void flushTimes() {
-        _timesCache.clear();
+        return internal_create(timePoint);
     }
 
     public void listen(ModelListener listener) {

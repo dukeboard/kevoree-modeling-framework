@@ -20,6 +20,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -242,14 +243,16 @@ public class DefaultKStore implements KStore {
         new Exception("Not implemented yet !");
     }
 
-    private int getSizeOfDirties(DimensionCache dimensionCache, TimeCache[] timeCaches) {
+    private int getSizeOfDirties(DimensionCache dimensionCache) {
+        TimeCache[] timeCaches = dimensionCache.timesCaches.values().toArray(new TimeCache[dimensionCache.timesCaches.size()]);
         int sizeCache = 0;
         for (int i = 0; i < timeCaches.length; i++) {
             TimeCache timeCache = timeCaches[i];
-            KObject[] valuesArr = timeCache.obj_cache.values().toArray(new KObject[timeCache.obj_cache.size()]);
-            for (int j = 0; j < valuesArr.length; j++) {
-                KObject cached = valuesArr[j];
-                if (cached.isDirty()) {
+            Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
+            for (int k = 0; k < keys.length; k++) {
+                Long idObj = keys[k];
+                Object[] cached_raw = timeCache.payload_cache.get(idObj);
+                if (cached_raw[Index.IS_DIRTY_INDEX] instanceof Boolean && (Boolean) cached_raw[Index.IS_DIRTY_INDEX]) {
                     sizeCache++;
                 }
             }
@@ -276,14 +279,15 @@ public class DefaultKStore implements KStore {
         if (dimensionCache == null) {
             callback.on(null);
         } else {
-            TimeCache[] timeCaches = dimensionCache.timesCaches.values().toArray(new TimeCache[dimensionCache.timesCaches.size()]);
-            int sizeCache = getSizeOfDirties(dimensionCache, timeCaches);
+            Long[] times = dimensionCache.timesCaches.keySet().toArray(new Long[dimensionCache.timesCaches.keySet().size()]);
+            int sizeCache = getSizeOfDirties(dimensionCache);
             String[][] payloads = new String[sizeCache][2];
             int i = 0;
-            for (int j = 0; j < timeCaches.length; j++) {
-                TimeCache timeCache = timeCaches[j];
+            for (int j = 0; j < times.length; j++) {
+                Long now = times[j];
+                TimeCache timeCache = dimensionCache.timesCaches.get(now);
                 Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
-                for (int k = 0; k < keys.length; k++) { //TODO call directly the ToJSON on the the Object[] raw
+                for (int k = 0; k < keys.length; k++) {
                     Long idObj = keys[k];
                     Object[] cached_raw = timeCache.payload_cache.get(idObj);
                     if (cached_raw[Index.IS_DIRTY_INDEX] instanceof Boolean && (Boolean) cached_raw[Index.IS_DIRTY_INDEX]) {
@@ -336,7 +340,6 @@ public class DefaultKStore implements KStore {
         save(dimension, new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
-                ((AbstractKDimension) dimension).flushTimes();
                 if (throwable == null) {
                     discard(dimension, callback);
                 } else {
