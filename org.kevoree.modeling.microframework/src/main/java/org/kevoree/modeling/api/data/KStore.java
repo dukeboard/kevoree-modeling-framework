@@ -29,11 +29,7 @@ public interface KStore {
     public void discard(KDimension dimension, Callback<Throwable> callback);
 
     public void delete(KDimension dimension, Callback<Throwable> callback);
-
-    public void timeTree(KDimension dimension, long key, Callback<TimeTree> callback);
-
-    public void timeTrees(KDimension dimension, long[] keys, Callback<TimeTree[]> callback);
-
+    
     public void initKObject(KObject obj, KView originView);
 
     public void initDimension(KDimension dimension, Callback<Throwable> callback);
@@ -48,9 +44,7 @@ public interface KStore {
 
     public void setRoot(KObject newRoot);
 
-    public KObject cacheLookup(KDimension dimension, long time, long key);
-
-    public void registerListener(Object origin, ModelListener listener, ListenerScope scope);
+    public void registerListener(Object origin, ModelListener listener);
 
     public void notify(KEvent event);
 
