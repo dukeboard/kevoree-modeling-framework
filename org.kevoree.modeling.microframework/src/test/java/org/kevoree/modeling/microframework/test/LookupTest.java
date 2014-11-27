@@ -17,7 +17,6 @@ public class LookupTest {
 
     @Test
     public void lookupTest() throws Exception {
-        final MemoryKDataBase dataBase = new MemoryKDataBase();
         final CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override

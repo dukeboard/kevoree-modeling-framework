@@ -327,7 +327,7 @@ public class DefaultKStore implements KStore {
                     String[] toLoadKeys = new String[toLoadIndexes.size()];
                     for (int i = 0; i < toLoadIndexes.size(); i++) {
                         int toLoadIndex = toLoadIndexes.get(i);
-                        toLoadKeys[i] = keyPayload((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i]);
+                        toLoadKeys[i] = keyPayload((Long) objects[toLoadIndex][INDEX_RESOLVED_DIM], (Long) objects[toLoadIndex][INDEX_RESOLVED_TIME], keys[i]);
                     }
                     _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                         @Override

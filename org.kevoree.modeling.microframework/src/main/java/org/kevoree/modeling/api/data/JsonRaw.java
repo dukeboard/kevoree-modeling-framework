@@ -33,9 +33,9 @@ public class JsonRaw {
                 arrayPayload = null;
                 currentAttributeName = null;
             } else if (currentToken.tokenType().equals(Type.LEFT_BRACE)) {
-                content = new HashMap<String, Object>();
+                //content = new HashMap<String, Object>();
             } else if (currentToken.tokenType().equals(Type.RIGHT_BRACE)) {
-                content = new HashMap<String, Object>(); //RESET should not appear here //
+                //content = new HashMap<String, Object>(); //RESET should not appear here //
             } else if (currentToken.tokenType().equals(Type.VALUE)) {
                 if (currentAttributeName == null) {
                     currentAttributeName = currentToken.value().toString();
@@ -59,10 +59,21 @@ public class JsonRaw {
             entry.metaClass = currentView.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw storage
             entry.raw = new Object[Index.RESERVED_INDEXES + entry.metaClass.metaAttributes().length + entry.metaClass.metaReferences().length];
+            entry.raw[Index.IS_DIRTY_INDEX] = false;
             //Now Fill the Raw Storage
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
             for (int i = 0; i < metaKeys.length; i++) {
-                if (metaKeys[i].equals(JsonModelSerializer.KEY_META)) {
+                if (metaKeys[i].equals(JsonModelSerializer.KEY_ROOT)) {
+                    try {
+                        if ("true".equals(content.get(metaKeys[i]))) {
+                            entry.raw[Index.IS_ROOT_INDEX] = true;
+                        } else {
+                            entry.raw[Index.IS_ROOT_INDEX] = false;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (metaKeys[i].equals(JsonModelSerializer.KEY_META)) {
                     //nothing metaClass is already set
                 } else {
                     MetaAttribute metaAttribute = entry.metaClass.metaAttribute(metaKeys[i]);
