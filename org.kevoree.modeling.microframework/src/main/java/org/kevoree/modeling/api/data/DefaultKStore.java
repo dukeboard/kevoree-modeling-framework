@@ -134,6 +134,9 @@ public class DefaultKStore implements KStore {
     }
 
     public void initKObject(KObject obj, KView originView) {
+
+        System.err.println("InitObj");
+
         write_tree(obj.dimension().key(), obj.uuid(), obj.timeTree());
         CacheEntry cacheEntry = new CacheEntry();
         cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaAttributes().length + obj.metaReferences().length];

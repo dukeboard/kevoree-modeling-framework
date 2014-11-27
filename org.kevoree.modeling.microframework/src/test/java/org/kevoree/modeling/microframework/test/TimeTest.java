@@ -52,14 +52,14 @@ public class TimeTest {
                 final Node node0 = t0.createNode();
                 final Element element0 = t0.createElement();
                 node0.setElement(element0);
-
+/*
                 node0.getElement(new Callback<Element>() {
                     @Override
                     public void on(Element element) {
                         Assert.assertEquals(element0, element);
                         Assert.assertEquals(element.now(), t0.now());
                     }
-                });
+                });*/
 
                 t0.lookup(node0.uuid(), new Callback<KObject>() {
                     @Override
@@ -67,7 +67,7 @@ public class TimeTest {
                         ((Node) kObject).getElement(new Callback<Element>() {
                             @Override
                             public void on(Element element) {
-                                Assert.assertEquals(element, element0);
+                                Assert.assertEquals(element0, element);
                                 Assert.assertEquals(element.now(), t0.now());
                             }
                         });
