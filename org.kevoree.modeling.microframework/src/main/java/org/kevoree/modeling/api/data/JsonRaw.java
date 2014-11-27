@@ -17,6 +17,9 @@ import java.util.Set;
 public class JsonRaw {
 
     public static CacheEntry decode(String payload, KView currentView, long now) {
+        if (payload == null) {
+            return null;
+        }
         Lexer lexer = new Lexer(payload);
         String currentAttributeName = null;
         Set<String> arrayPayload = null;

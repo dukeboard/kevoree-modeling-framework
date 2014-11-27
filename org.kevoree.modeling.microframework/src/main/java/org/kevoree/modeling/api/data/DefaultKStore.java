@@ -337,14 +337,16 @@ public class DefaultKStore implements KStore {
                                 callback.on(null);
                             } else {
                                 for (int i = 0; i < strings.length; i++) {
-                                    int index = toLoadIndexes.get(i);
-                                    //Create the raw CacheEntry
-                                    CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[index][INDEX_RESOLVED_TIME]);
-                                    entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
-                                    //Create and Add the proxy
-                                    resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
-                                    //Save the cache value
-                                    write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_DIM], keys[index], entry);
+                                    if(strings[i] != null){
+                                        int index = toLoadIndexes.get(i);
+                                        //Create the raw CacheEntry
+                                        CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[index][INDEX_RESOLVED_TIME]);
+                                        entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
+                                        //Create and Add the proxy
+                                        resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                        //Save the cache value
+                                        write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_DIM], keys[index], entry);
+                                    }
                                 }
                                 callback.on(resolved);
                             }
@@ -509,7 +511,7 @@ public class DefaultKStore implements KStore {
             @Override
             public void on(TimeTree[] timeTrees) {
                 for (int i = 0; i < timeTrees.length; i++) {
-                    Object[] resolved = new Object[2];
+                    Object[] resolved = new Object[3];
                     resolved[INDEX_RESOLVED_DIM] = originView.dimension().key(); //TODO better ...
                     resolved[INDEX_RESOLVED_TIME] = timeTrees[i].resolve(originView.now());
                     resolved[INDEX_RESOLVED_TIMETREE] = timeTrees[i];
