@@ -81,7 +81,7 @@ public class JsonRaw {
                     Object insideContent = content.get(metaKeys[i]);
                     if (insideContent != null) {
                         if (metaAttribute != null) {
-                            entry.raw[metaAttribute.index()] = metaAttribute.strategy().load(payload, metaAttribute, now);
+                            entry.raw[metaAttribute.index()] = metaAttribute.strategy().load(insideContent.toString(), metaAttribute, now);
                         } else if (metaReference != null) {
                             if (metaReference.single()) {
                                 try {

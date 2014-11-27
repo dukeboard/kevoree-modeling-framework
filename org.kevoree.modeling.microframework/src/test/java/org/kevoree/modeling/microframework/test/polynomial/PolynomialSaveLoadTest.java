@@ -22,11 +22,10 @@ public class PolynomialSaveLoadTest {
         CloudUniverse universe = new CloudUniverse();
         universe.newDimension(new Callback<CloudDimension>() {
             @Override
-            public void on(CloudDimension d) {
-                final CloudDimension[] dimension = {d};
+            public void on(final CloudDimension dimension) {
                 final double[] val = new double[1000];
                 double[] coef = {2, 2, 3};
-                CloudView t0 = dimension[0].time(0l);
+                CloudView t0 = dimension.time(0l);
                 Node node = t0.createNode();
                 node.setName("n0");
                 t0.setRoot(node);
@@ -36,25 +35,15 @@ public class PolynomialSaveLoadTest {
                 element.setValue(0.0);
                 //insert 20 variations in time
                 for (int i = 200; i < 1000; i++) {
-
-
-
+                    //TODO check Assaad
                     if ((i % 100) == 0) {
-                        System.err.println("Save " + i);
-                        dimension[0].save(new Callback<Throwable>() {
+                        dimension.save(new Callback<Throwable>() {
                             @Override
                             public void on(Throwable throwable) {
-                                universe.dimension(dimension[0].key(), new Callback<CloudDimension>() {
-                                    @Override
-                                    public void on(CloudDimension cloudDimension) {
-                                        dimension[0] = cloudDimension;
-                                    }
-                                });
+
                             }
                         });
                     }
-
-
                     long temp = 1;
                     val[i] = 0;
                     for (int j = 0; j < coef.length; j++) {
@@ -63,7 +52,7 @@ public class PolynomialSaveLoadTest {
                     }
                     final double vv = val[i];
                     final long finalI = i;
-                    dimension[0].time(finalI).lookup(element.uuid(), new Callback<KObject>() {
+                    dimension.time(finalI).lookup(element.uuid(), new Callback<KObject>() {
                         @Override
                         public void on(KObject kObject) {
                             Element casted = (Element) kObject;
@@ -86,15 +75,10 @@ public class PolynomialSaveLoadTest {
                 }
                 Assert.assertEquals(element.timeTree().size(), 1);
 
-                dimension[0].save(new Callback<Throwable>() {
+                dimension.save(new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
-                        universe.dimension(dimension[0].key(), new Callback<CloudDimension>() {
-                            @Override
-                            public void on(CloudDimension cloudDimension) {
-                                dimension[0] = cloudDimension;
-                            }
-                        });
+
                     }
                 });
 

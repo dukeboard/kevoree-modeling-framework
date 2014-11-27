@@ -191,6 +191,8 @@ public class DefaultKStore implements KStore {
             clonedEntry.raw = cloned;
             clonedEntry.metaClass = entry.metaClass;
             clonedEntry.timeTree = entry.timeTree;
+            entry.timeTree.insert(origin.now());
+            //TODO update structure for multi dimension
             write_cache(origin.dimension().key(), origin.now(), origin.uuid(), clonedEntry);
             return clonedEntry.raw;
         }
@@ -229,7 +231,7 @@ public class DefaultKStore implements KStore {
                     if (cached_raw[Index.IS_DIRTY_INDEX] instanceof Boolean && (Boolean) cached_raw[Index.IS_DIRTY_INDEX]) {
                         String[] payloadA = new String[2];
                         payloadA[0] = keyPayload(dimension.key(), now, idObj);
-                        payloadA[1] = JsonRaw.encode(cached_raw, idObj,cached_entry.metaClass);
+                        payloadA[1] = JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass);
                         payloads[i] = payloadA;
                         cached_raw[Index.IS_DIRTY_INDEX] = true;
                         i++;
@@ -314,11 +316,13 @@ public class DefaultKStore implements KStore {
                 KObject[] resolved = new KObject[keys.length];
                 List<Integer> toLoadIndexes = new ArrayList<Integer>();
                 for (int i = 0; i < objects.length; i++) {
-                    CacheEntry entry = read_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i]);
-                    if (entry == null) {
-                        toLoadIndexes.add(i);
-                    } else {
-                        resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                    if (objects[i][INDEX_RESOLVED_TIME] != null) {
+                        CacheEntry entry = read_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[i]);
+                        if (entry == null) {
+                            toLoadIndexes.add(i);
+                        } else {
+                            resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[i]);
+                        }
                     }
                 }
                 if (toLoadIndexes.isEmpty()) {
@@ -337,11 +341,11 @@ public class DefaultKStore implements KStore {
                                 callback.on(null);
                             } else {
                                 for (int i = 0; i < strings.length; i++) {
-                                    if(strings[i] != null){
+                                    if (strings[i] != null) {
                                         int index = toLoadIndexes.get(i);
                                         //Create the raw CacheEntry
                                         CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[index][INDEX_RESOLVED_TIME]);
-                                        if(entry != null){
+                                        if (entry != null) {
                                             entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
                                             //Create and Add the proxy
                                             resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);

@@ -8,8 +8,6 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
  */
 public interface Extrapolation {
 
-    public Long[] timedDependencies(KObject current);
-
     public Object extrapolate(KObject current, MetaAttribute attribute);
 
     public void mutate(KObject current, MetaAttribute attribute, Object payload);

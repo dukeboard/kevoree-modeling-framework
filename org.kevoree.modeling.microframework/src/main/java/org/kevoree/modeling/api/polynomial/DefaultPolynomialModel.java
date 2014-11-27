@@ -9,6 +9,7 @@ import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -184,7 +185,7 @@ public class DefaultPolynomialModel extends PolynomialModel {
         return null;
     }
 
-    private static final char sep = '|';
+    private static final String sep = "/";
 
     @Override
     public String save() {
@@ -193,7 +194,7 @@ public class DefaultPolynomialModel extends PolynomialModel {
             if (i != 0) {
                 builder.append(sep);
             }
-            builder.append(weights[i]);
+            builder.append(weights[i] + "");
         }
         _isDirty = false;
         return builder.toString();
@@ -201,7 +202,7 @@ public class DefaultPolynomialModel extends PolynomialModel {
 
     @Override
     public void load(String payload) {
-        String[] elems = payload.split(sep + "");
+        String[] elems = payload.split(sep);
         weights = new double[elems.length];
         for (int i = 0; i < elems.length; i++) {
             weights[i] = Double.parseDouble(elems[i]);

@@ -20,13 +20,6 @@ public class DiscreteExtrapolation implements Extrapolation {
     }
 
     @Override
-    public Long[] timedDependencies(KObject current) {
-        Long[] times = new Long[1];
-        times[0] = current.timeTree().resolve(current.now());
-        return times;
-    }
-
-    @Override
     public Object extrapolate(KObject current, MetaAttribute attribute) {
         Object[] payload = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
         if (payload != null) {

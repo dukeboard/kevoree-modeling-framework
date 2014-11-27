@@ -14,13 +14,6 @@ import org.kevoree.modeling.api.polynomial.util.Prioritization;
  * Created by duke on 10/28/14.
  */
 public class PolynomialExtrapolation implements Extrapolation {
-    @Override
-    public Long[] timedDependencies(KObject current) {
-        //By default we need the current object
-        Long[] times = new Long[1];
-        times[0] = current.timeTree().resolve(current.now());
-        return times;
-    }
 
     @Override
     public Object extrapolate(KObject current, MetaAttribute attribute) {
