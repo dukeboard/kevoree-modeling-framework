@@ -16,7 +16,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
 #foreach($class in $context.model.classifiers)
     #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
             case $clsIdx:
-                return this.manageCache(new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.$class.fqn.toUpperCase().replace(".","_"), p_key, this.now(), this.dimension(), p_timeTree));
+                return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.$class.fqn.toUpperCase().replace(".","_"), p_key, this.now(), this.dimension(), p_timeTree);
 #set($clsIdx = $clsIdx+1)
 #end
             default:
