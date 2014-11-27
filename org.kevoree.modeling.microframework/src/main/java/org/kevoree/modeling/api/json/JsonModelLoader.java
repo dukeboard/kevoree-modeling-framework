@@ -65,7 +65,8 @@ public class JsonModelLoader {
             Long kid = Long.parseLong(alls.get(i).get(JsonModelSerializer.KEY_UUID).toString());
             keys[i] = kid;
         }
-        factory.dimension().timeTrees(keys, new Callback<TimeTree[]>() {
+        /*
+        factory.dimension().universe().storage().timeTrees(keys, new Callback<TimeTree[]>() {
             @Override
             public void on(TimeTree[] timeTrees) {
                 for (int i = 0; i < alls.size(); i++) {
@@ -133,6 +134,7 @@ public class JsonModelLoader {
                 }
             }
         });
+        */
     }
 
 

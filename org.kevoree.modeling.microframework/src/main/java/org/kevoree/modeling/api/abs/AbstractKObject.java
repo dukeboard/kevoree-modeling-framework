@@ -45,13 +45,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     private long _now;
     private TimeTree _timeTree;
     private KDimension _dimension;
+    private MetaClass _metaClass;
 
-    public AbstractKObject(B p_view, long p_uuid, long p_now, KDimension p_dimension, TimeTree p_timeTree) {
+    public AbstractKObject(B p_view, long p_uuid, long p_now, KDimension p_dimension, TimeTree p_timeTree, MetaClass p_metaClass) {
         this._view = p_view;
         this._uuid = p_uuid;
         this._now = p_now;
         this._dimension = p_dimension;
         this._timeTree = p_timeTree;
+        this._metaClass = p_metaClass;
     }
 
     @Override
@@ -66,7 +68,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public MetaClass metaClass() {
-        return (MetaClass) _dimension.universe().storage().raw(this, AccessMode.READ)[Index.META_CLASS_INDEX];
+        return _metaClass;
     }
 
     @Override
@@ -552,7 +554,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public String toJSON() {
-        return JsonRaw.encode(view().dimension().universe().storage().raw(this, AccessMode.READ), _uuid);
+        return JsonRaw.encode(view().dimension().universe().storage().raw(this, AccessMode.READ), _uuid, _metaClass);
     }
 
     @Override

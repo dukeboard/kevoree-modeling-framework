@@ -134,18 +134,13 @@ public class DefaultKStore implements KStore {
     }
 
     public void initKObject(KObject obj, KView originView) {
-        DimensionCache dimensionCache = caches.get(originView.dimension().key());
-        if (dimensionCache == null) {
-            try {
-                throw new Exception("consistency error, are you using a reference to a closed object ?");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            if (!dimensionCache.timeTreeCache.containsKey(obj.uuid())) {
-                dimensionCache.timeTreeCache.put(obj.uuid(), obj.timeTree());
-            }
-        }
+        write_tree(obj.dimension().key(), obj.uuid(), obj.timeTree());
+        CacheEntry cacheEntry = new CacheEntry();
+        cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaAttributes().length + obj.metaReferences().length];
+        cacheEntry.raw[Index.IS_DIRTY_INDEX] = true;
+        cacheEntry.metaClass = obj.metaClass();
+        cacheEntry.timeTree = obj.timeTree();
+        write_cache(obj.dimension().key(), obj.now(), obj.uuid(), cacheEntry);
     }
 
     //TODO
@@ -229,11 +224,12 @@ public class DefaultKStore implements KStore {
                 Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
                 for (int k = 0; k < keys.length; k++) {
                     Long idObj = keys[k];
-                    Object[] cached_raw = timeCache.payload_cache.get(idObj).raw;
+                    CacheEntry cached_entry = timeCache.payload_cache.get(idObj);
+                    Object[] cached_raw = cached_entry.raw;
                     if (cached_raw[Index.IS_DIRTY_INDEX] instanceof Boolean && (Boolean) cached_raw[Index.IS_DIRTY_INDEX]) {
                         String[] payloadA = new String[2];
                         payloadA[0] = keyPayload(dimension.key(), now, idObj);
-                        payloadA[1] = JsonRaw.encode(cached_raw, idObj);
+                        payloadA[1] = JsonRaw.encode(cached_raw, idObj,cached_entry.metaClass);
                         payloads[i] = payloadA;
                         cached_raw[Index.IS_DIRTY_INDEX] = true;
                         i++;

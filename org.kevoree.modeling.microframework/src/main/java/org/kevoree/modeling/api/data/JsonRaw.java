@@ -102,14 +102,13 @@ public class JsonRaw {
         }
     }
 
-    public static String encode(Object[] raw, long uuid) {
-        MetaClass metaClass = (MetaClass) raw[Index.META_CLASS_INDEX];
-        MetaReference[] metaReferences = metaClass.metaReferences();
-        MetaAttribute[] metaAttributes = metaClass.metaAttributes();
+    public static String encode(Object[] raw, long uuid, MetaClass p_metaClass) {
+        MetaReference[] metaReferences = p_metaClass.metaReferences();
+        MetaAttribute[] metaAttributes = p_metaClass.metaAttributes();
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
         builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
-        builder.append(metaClass.metaName());
+        builder.append(p_metaClass.metaName());
         builder.append("\",\n");
         builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
         builder.append(uuid);

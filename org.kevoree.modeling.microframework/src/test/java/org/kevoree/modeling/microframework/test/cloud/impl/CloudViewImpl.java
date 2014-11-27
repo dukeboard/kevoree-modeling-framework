@@ -25,9 +25,9 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
         }
         switch (p_clazz.index()) {
             case 0:
-                return this.manageCache(new NodeImpl(this, p_key, this.now(), this.dimension(), p_timeTree));
+                return this.manageCache(new NodeImpl(this, p_key, this.now(), this.dimension(), p_timeTree, p_clazz));
             case 1:
-                return this.manageCache(new ElementImpl(this, p_key, this.now(), this.dimension(), p_timeTree));
+                return this.manageCache(new ElementImpl(this, p_key, this.now(), this.dimension(), p_timeTree, p_clazz));
             default:
                 return null;
         }
