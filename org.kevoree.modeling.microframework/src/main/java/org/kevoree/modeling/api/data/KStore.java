@@ -29,7 +29,7 @@ public interface KStore {
     public void discard(KDimension dimension, Callback<Throwable> callback);
 
     public void delete(KDimension dimension, Callback<Throwable> callback);
-    
+
     public void initKObject(KObject obj, KView originView);
 
     public void initDimension(KDimension dimension, Callback<Throwable> callback);
@@ -37,8 +37,6 @@ public interface KStore {
     long nextDimensionKey();
 
     long nextObjectKey();
-
-    KDimension dimension(long key);
 
     public void getRoot(KView originView, Callback<KObject> callback);
 

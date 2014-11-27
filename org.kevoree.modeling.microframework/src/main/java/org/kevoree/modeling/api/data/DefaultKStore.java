@@ -44,12 +44,12 @@ public class DefaultKStore implements KStore {
         initRange(DIM_DB_KEY);
     }
 
-    private String keyTree(KDimension dim, long key) {
-        return "" + dim.key() + KEY_SEP + key;
+    private String keyTree(long dim, long key) {
+        return "" + dim + KEY_SEP + key;
     }
 
-    private String keyRoot(KDimension dim, long time) {
-        return "" + dim.key() + KEY_SEP + time + KEY_SEP + "root";
+    private String keyRoot(long dim, long time) {
+        return "" + dim + KEY_SEP + time + KEY_SEP + "root";
     }
 
     private String keyRootTree(KDimension dim) {
@@ -163,16 +163,10 @@ public class DefaultKStore implements KStore {
             return null;
         }
         CacheEntry entry = timeCache.payload_cache.get(origin.uuid());
-        Object[] payload = null;
-        if (entry != null) {
-            payload = entry.raw;
+        if (entry == null) {
+            return null;
         }
-        if (payload == null) {
-            payload = new Object[origin.metaAttributes().length + origin.metaReferences().length + 2];
-            if (accessMode.equals(AccessMode.WRITE) && !needCopy) {
-                timeCache.payload_cache.put(origin.uuid(), payload);
-            }
-        }
+        Object[] payload = entry.raw;
         if (!needCopy) {
             if (accessMode.equals(AccessMode.WRITE)) {
                 payload[Index.IS_DIRTY_INDEX] = true;
@@ -198,14 +192,12 @@ public class DefaultKStore implements KStore {
                     }
                 }
             }
-            TimeCache timeCacheCurrent = dimensionCache.timesCaches.get(origin.now());
-            if (timeCacheCurrent == null) {
-                timeCacheCurrent = new TimeCache();
-                dimensionCache.timesCaches.put(origin.view().now(), timeCacheCurrent);
-            }
-            timeCacheCurrent.payload_cache.put(origin.uuid(), cloned);
-            origin.timeTree().insert(origin.view().now());
-            return cloned;
+            CacheEntry clonedEntry = new CacheEntry();
+            clonedEntry.raw = cloned;
+            clonedEntry.metaClass = entry.metaClass;
+            clonedEntry.timeTree = entry.timeTree;
+            write_cache(origin.dimension().key(), origin.now(), origin.uuid(), clonedEntry);
+            return clonedEntry.raw;
         }
     }
 
@@ -249,7 +241,7 @@ public class DefaultKStore implements KStore {
                 }
                 if (timeCache.rootDirty) {
                     String[] payloadB = new String[2];
-                    payloadB[0] = keyRoot(dimension, timeCache.root.now());
+                    payloadB[0] = keyRoot(dimension.key(), timeCache.root.now());
                     payloadB[1] = timeCache.root.uuid() + "";
                     payloads[i] = payloadB;
                     timeCache.rootDirty = false;
@@ -262,7 +254,7 @@ public class DefaultKStore implements KStore {
                 TimeTree timeTree = dimensionCache.timeTreeCache.get(timeTreeKey);
                 if (timeTree.isDirty()) {
                     String[] payloadC = new String[2];
-                    payloadC[0] = keyTree(dimension, timeTreeKey);
+                    payloadC[0] = keyTree(dimension.key(), timeTreeKey);
                     payloadC[1] = timeTree.toString();
                     payloads[i] = payloadC;
                     ((DefaultTimeTree) timeTree).setDirty(false);
@@ -367,16 +359,6 @@ public class DefaultKStore implements KStore {
         });
     }
 
-    @Override
-    public KDimension dimension(long key) {
-        DimensionCache dimensionCache = caches.get(key);
-        if (dimensionCache != null) {
-            return dimensionCache.dimension;
-        } else {
-            return null;
-        }
-    }
-
     public void getRoot(final KView originView, final Callback<KObject> callback) {
         DimensionCache dimensionCache = caches.get(originView.dimension().key());
         Long resolvedRoot = dimensionCache.rootTimeTree.resolve(originView.now());
@@ -392,7 +374,7 @@ public class DefaultKStore implements KStore {
             } else {
                 final TimeCache timeCacheFinal = timeCache;
                 String[] rootKeys = new String[1];
-                rootKeys[0] = keyRoot(dimensionCache.dimension, resolvedRoot);
+                rootKeys[0] = keyRoot(originView.dimension().key(), resolvedRoot);
                 _db.get(rootKeys, new ThrowableCallback<String[]>() {
                     @Override
                     public void on(String[] res, Throwable error) {
@@ -451,6 +433,7 @@ public class DefaultKStore implements KStore {
     }
 
     /* Private not synchronized methods */
+
     private CacheEntry read_cache(long dimensionKey, long timeKey, long uuid) {
         DimensionCache dimensionCache = caches.get(dimensionKey);
         if (dimensionCache != null) {
@@ -469,8 +452,23 @@ public class DefaultKStore implements KStore {
         DimensionCache dimensionCache = caches.get(dimensionKey);
         if (dimensionCache == null) {
             dimensionCache = new DimensionCache();
+            caches.put(dimensionKey, dimensionCache);
         }
+        TimeCache timeCache = dimensionCache.timesCaches.get(timeKey);
+        if (timeCache == null) {
+            timeCache = new TimeCache();
+            dimensionCache.timesCaches.put(timeKey, timeCache);
+        }
+        timeCache.payload_cache.put(uuid, cacheEntry);
+    }
 
+    private void write_tree(long dimensionKey, long uuid, TimeTree timeTree) {
+        DimensionCache dimensionCache = caches.get(dimensionKey);
+        if (dimensionCache == null) {
+            dimensionCache = new DimensionCache();
+            caches.put(dimensionKey, dimensionCache);
+        }
+        dimensionCache.timeTreeCache.put(uuid, timeTree);
     }
 
     private int size_dirties(DimensionCache dimensionCache) {
@@ -543,7 +541,7 @@ public class DefaultKStore implements KStore {
         } else {
             String[] toLoadKeys = new String[toLoad.size()];
             for (int i = 0; i < toLoad.size(); i++) {
-                toLoadKeys[i] = keyTree(dimension, keys[toLoad.get(i)]);
+                toLoadKeys[i] = keyTree(dimension.key(), keys[toLoad.get(i)]);
             }
             _db.get(toLoadKeys, new ThrowableCallback<String[]>() {
                 @Override
@@ -559,7 +557,8 @@ public class DefaultKStore implements KStore {
                             } else {
                                 newTree.insert(dimension.key());
                             }
-                            dimensionCache.timeTreeCache.put(keys[toLoad.get(i)], newTree);
+                            //Write in cache the Resolved TimeTree
+                            write_tree(dimension.key(), keys[toLoad.get(i)], newTree);
                             result[toLoad.get(i)] = newTree;
                         } catch (Exception e) {
                             e.printStackTrace();
