@@ -164,6 +164,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         //TODO
     }
 
+    @Override
     public void listen(ModelListener listener, ListenerScope scope) {
         view().dimension().universe().storage().eventBroker().registerListener(this, listener, scope);
     }
