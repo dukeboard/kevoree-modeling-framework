@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api;
 
+import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -33,7 +34,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public void stream(String query, Callback<KObject> callback);
 
-    public void listen(ModelListener listener);
+    public void listen(ModelListener listener, ListenerScope scope);
 
     /* Visit API */
     public void visitAttributes(ModelAttributeVisitor visitor);

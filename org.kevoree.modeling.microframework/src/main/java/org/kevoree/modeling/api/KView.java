@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api;
 
+import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.TraceSequence;
@@ -35,7 +36,7 @@ public interface KView {
 
     public KObject createProxy(MetaClass clazz, TimeTree timeTree, long key);
 
-    public void listen(ModelListener listener);
+    public void listen(ModelListener listener, ListenerScope scope);
 
     public void diff(KObject origin, KObject target, Callback<TraceSequence> callback);
 
