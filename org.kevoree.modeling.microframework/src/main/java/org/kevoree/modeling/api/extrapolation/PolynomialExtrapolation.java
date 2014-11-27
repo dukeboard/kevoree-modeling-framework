@@ -23,7 +23,7 @@ public class PolynomialExtrapolation implements Extrapolation {
     }
 
     @Override
-    public Object extrapolate(KObject current, MetaAttribute attribute, KObject[] dependencies) {
+    public Object extrapolate(KObject current, MetaAttribute attribute) {
         PolynomialModel pol = (PolynomialModel) current.view().dimension().universe().storage().raw(current, AccessMode.READ)[attribute.index()];
         if (pol != null) {
             Double extrapolatedValue = pol.extrapolate(current.now());
@@ -46,7 +46,7 @@ public class PolynomialExtrapolation implements Extrapolation {
     }
 
     @Override
-    public void mutate(KObject current, MetaAttribute attribute, Object payload, KObject[] dependencies) {
+    public void mutate(KObject current, MetaAttribute attribute, Object payload) {
         Object[] raw = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
         Object previous = raw[attribute.index()];
         if (previous == null) {
@@ -67,6 +67,22 @@ public class PolynomialExtrapolation implements Extrapolation {
                 }
             }
         }
+    }
+
+    @Override
+    public String save(Object cache) {
+        if (cache instanceof PolynomialModel) {
+            return ((PolynomialModel) cache).save();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Object load(String payload, MetaAttribute attribute, long now) {
+        PolynomialModel pol = new DefaultPolynomialModel(now, attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
+        pol.load(payload);
+        return pol;
     }
 
     private static PolynomialExtrapolation INSTANCE;

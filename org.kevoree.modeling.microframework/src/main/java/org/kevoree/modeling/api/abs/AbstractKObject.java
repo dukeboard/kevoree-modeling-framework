@@ -16,7 +16,7 @@ import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.ListenerScope;
-import org.kevoree.modeling.api.json.JsonRaw;
+import org.kevoree.modeling.api.data.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
@@ -165,7 +165,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public void listen(ModelListener listener, ListenerScope scope) {
-        view().dimension().universe().storage().registerListener(this, listener, scope);
+        view().dimension().universe().storage().eventBroker().registerListener(this, listener, scope);
     }
 
     @Override
@@ -201,26 +201,13 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public Object get(MetaAttribute attribute) {
-        return attribute.strategy().extrapolate(this, attribute, cachedDependencies(attribute));
+        return attribute.strategy().extrapolate(this, attribute);
     }
 
     @Override
     public void set(MetaAttribute attribute, Object payload) {
-        attribute.strategy().mutate(this, attribute, payload, cachedDependencies(attribute));
-        view().dimension().universe().storage().notify(new DefaultKEvent(KActionType.SET, this, attribute, payload));
-    }
-
-    private KObject[] cachedDependencies(MetaAttribute attribute) {
-        Long[] timedDependencies = attribute.strategy().timedDependencies(this);
-        KObject[] cachedObjs = new KObject[timedDependencies.length];
-        for (int i = 0; i < timedDependencies.length; i++) {
-            if (timedDependencies[i] == now()) {
-                cachedObjs[i] = this;
-            } else {//call the cache
-                cachedObjs[i] = view().dimension().universe().storage().cacheLookup(dimension(), timedDependencies[i], uuid());
-            }
-        }
-        return cachedObjs;
+        attribute.strategy().mutate(this, attribute, payload);
+        view().dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.SET, this, attribute, payload));
     }
 
     private Object getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
@@ -272,7 +259,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
                 //publish event
                 KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
-                view().dimension().universe().storage().notify(event);
+                view().dimension().universe().storage().eventBroker().notify(event);
 
             }
         } else if (actionType.equals(KActionType.SET)) {
@@ -313,7 +300,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
 
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
-                    view().dimension().universe().storage().notify(event);
+                    view().dimension().universe().storage().eventBroker().notify(event);
 
                 }
             }
@@ -344,7 +331,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     });
                     //publish event
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, previousKid);
-                    view().dimension().universe().storage().notify(event);
+                    view().dimension().universe().storage().eventBroker().notify(event);
                 }
             } else {
                 Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
@@ -368,7 +355,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                     }
                     //publish event
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
-                    view().dimension().universe().storage().notify(event);
+                    view().dimension().universe().storage().eventBroker().notify(event);
                 }
 
                 //Inbounds
@@ -564,7 +551,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public String toJSON() {
-        return JsonRaw.encode(false, view().dimension().universe().storage().raw(this, AccessMode.READ), _uuid);
+        return JsonRaw.encode(view().dimension().universe().storage().raw(this, AccessMode.READ), _uuid);
     }
 
     @Override

@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
+import org.kevoree.modeling.api.data.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.meta.MetaType;
@@ -25,23 +26,6 @@ import java.util.Set;
  */
 
 public class JsonModelLoader {
-
-    //TODO optimize object creation
-    public static KObject loadDirect(String payload, KView factory, Callback<KObject> callback) {
-        if (payload == null) {
-            return null;
-        } else {
-            Lexer lexer = new Lexer(payload);
-            final KObject[] loaded = new KObject[1];
-            loadObjects(lexer, factory, new Callback<List<KObject>>() {
-                @Override
-                public void on(List<KObject> objs) {
-                    loaded[0] = objs.get(0);//we rely on the cache of TimeTree, ugly...
-                }
-            });
-            return loaded[0];
-        }
-    }
 
     private static void loadObjects(Lexer lexer, final KView factory, final Callback<List<KObject>> callback) {
         final List<KObject> loaded = new ArrayList<KObject>();
@@ -101,13 +85,15 @@ public class JsonModelLoader {
                     }
                     loaded.add(current);
                     Object[] payloadObj = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
-
                     String[] elemKeys = elem.keySet().toArray(new String[elem.size()]);
                     for (int j = 0; j < elemKeys.length; j++) {
                         String k = elemKeys[j];
                         MetaAttribute att = current.metaAttribute(k);
                         if (att != null) {
-                            payloadObj[att.index()] = JsonModelLoader.convertRaw(att, elem.get(k));//TODO manage ARRAY for multiplicity 0..*
+                            Object contentPayload = elem.get(k);
+                            if (contentPayload != null) {
+                                payloadObj[att.index()] = att.strategy().load(contentPayload.toString(), att, factory.now());
+                            }
                         } else {
                             MetaReference ref = current.metaReference(k);
                             if (ref != null) {
@@ -166,31 +152,6 @@ public class JsonModelLoader {
                     }
                 });
             }
-        }
-    }
-
-    public static Object convertRaw(MetaAttribute attribute, Object raw) {
-        try {
-            if (attribute.metaType().equals(MetaType.STRING)) {
-                return raw.toString();
-            } else if (attribute.metaType().equals(MetaType.LONG)) {
-                return Long.parseLong(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.INT)) {
-                return Integer.parseInt(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.BOOL)) {
-                return raw.toString().equals("true");
-            } else if (attribute.metaType().equals(MetaType.SHORT)) {
-                return Short.parseShort(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.DOUBLE)) {
-                return Double.parseDouble(raw.toString());
-            } else if (attribute.metaType().equals(MetaType.FLOAT)) {
-                return Float.parseFloat(raw.toString());
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

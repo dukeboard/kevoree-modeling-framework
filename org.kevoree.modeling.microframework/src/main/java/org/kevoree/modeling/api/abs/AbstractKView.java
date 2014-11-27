@@ -98,7 +98,7 @@ public abstract class AbstractKView implements KView {
     }
 
     @Override
-    public void lookup(long kid, Callback<KObject> callback) {
+    public void lookup(Long kid, Callback<KObject> callback) {
         dimension().universe().storage().lookup(this, kid, callback);
     }
 
@@ -121,13 +121,13 @@ public abstract class AbstractKView implements KView {
     public KObject create(MetaClass clazz) {
         KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
         if (newObj != null) {
-            dimension().universe().storage().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
+            dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
         }
         return newObj;
     }
 
     public void listen(ModelListener listener, ListenerScope scope) {
-        dimension().universe().storage().registerListener(this, listener, scope);
+        dimension().universe().storage().eventBroker().registerListener(this, listener, scope);
     }
 
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);

@@ -49,7 +49,7 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
     @Override
     public void dimension(long key, final Callback<A> callback) {
-        A existingDimension = (A) _storage.getDimension(key);
+        A existingDimension = (A) _storage.dimension(key);
         if (existingDimension != null) {
             callback.on(existingDimension);
         } else {
@@ -89,7 +89,7 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     }
 
     public void listen(ModelListener listener, ListenerScope scope) {
-        storage().registerListener(this, listener, scope);
+        storage().eventBroker().registerListener(this, listener, scope);
     }
 
     @Override

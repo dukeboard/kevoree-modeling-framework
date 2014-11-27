@@ -19,7 +19,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
     private KUniverse _universe;
 
     private long _key;
-    
+
     protected AbstractKDimension(KUniverse p_universe, long p_key) {
         this._universe = p_universe;
         this._key = p_key;
@@ -55,14 +55,6 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
         universe().storage().discard(this, callback);
     }
 
-    public void timeTrees(long[] keys, Callback<TimeTree[]> callback) {
-        universe().storage().timeTrees(this, keys, callback);
-    }
-
-    public void timeTree(long key, Callback<TimeTree> callback) {
-        universe().storage().timeTree(this, key, callback);
-    }
-
     @Override
     public void parent(Callback<B> callback) {
         //TODO
@@ -84,7 +76,7 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
     }
 
     public void listen(ModelListener listener, ListenerScope scope) {
-        universe().storage().registerListener(this, listener, scope);
+        universe().storage().eventBroker().registerListener(this, listener, scope);
     }
 
     protected abstract A internal_create(Long timePoint);

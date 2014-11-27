@@ -9,4 +9,12 @@ public interface MetaClass extends Meta {
 
     MetaReference[] metaReferences();
 
+    MetaOperation[] metaOperations();
+
+    public MetaAttribute metaAttribute(String name);
+
+    public MetaReference metaReference(String name);
+
+    public MetaOperation metaOperation(String name);
+
 }

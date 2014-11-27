@@ -12,4 +12,7 @@ public class Index {
     public final static int META_CLASS_INDEX = 4;
     public final static int REF_IN_PARENT_INDEX = 5;
 
+
+    public final static int RESERVED_INDEXES = 6;
+
 }

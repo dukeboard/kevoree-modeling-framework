@@ -19,7 +19,7 @@ public interface KView {
     
     public void select(String query, Callback<KObject[]> callback);
 
-    public void lookup(long key, Callback<KObject> callback);
+    public void lookup(Long key, Callback<KObject> callback);
 
     public void lookupAll(Long[] keys, Callback<KObject[]> callback);
 

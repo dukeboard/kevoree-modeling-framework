@@ -16,7 +16,7 @@ import org.kevoree.modeling.api.time.TimeTree;
  */
 public interface KStore {
 
-    void lookup(KView originView, long key, Callback<KObject> callback);
+    void lookup(KView originView, Long key, Callback<KObject> callback);
 
     void lookupAll(KView originView, Long[] key, Callback<KObject[]> callback);
 
@@ -38,15 +38,11 @@ public interface KStore {
 
     long nextObjectKey();
 
-    KDimension getDimension(long key);
+    KDimension dimension(long key);
 
     public void getRoot(KView originView, Callback<KObject> callback);
 
     public void setRoot(KObject newRoot);
-
-    public void registerListener(Object origin, ModelListener listener);
-
-    public void notify(KEvent event);
 
     public KEventBroker eventBroker();
 

@@ -132,7 +132,7 @@ public interface Node extends KObject<Node, CloudView> {
         }
     }
 
-    public enum METAOPERATION implements MetaOperation {
+    public enum METAOPERATIONS implements MetaOperation {
 
         TRIGGER("trigger", 6);
 
@@ -152,7 +152,7 @@ public interface Node extends KObject<Node, CloudView> {
             return CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
         }
 
-        METAOPERATION(String name, int index) {
+        METAOPERATIONS(String name, int index) {
             this._name = name;
             this._index = index;
         }
