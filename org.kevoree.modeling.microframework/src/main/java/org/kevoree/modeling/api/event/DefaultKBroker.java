@@ -80,9 +80,11 @@ public class DefaultKBroker implements KEventBroker {
         }
 
         List<ModelListener> dimList = dimensionListeners.get(event.dimension());
-        for (int j = 0; j < dimList.size(); j++) {
-            ModelListener listener = dimList.get(j);
-            listener.on(event);
+        if(dimList != null) {
+            for (int j = 0; j < dimList.size(); j++) {
+                ModelListener listener = dimList.get(j);
+                listener.on(event);
+            }
         }
 
         for (int k = 0; k < timeListeners.size(); k++) {
@@ -99,7 +101,7 @@ public class DefaultKBroker implements KEventBroker {
         }
 
         for (int l = 0; l < objectListeners.size(); l++) {
-            ListenerRegistration reg = timeListeners.get(l);
+            ListenerRegistration reg = objectListeners.get(l);
             if((reg.scope().value() & ListenerScope.UNIVERSE.value())!=0) {
                 if(reg.uuid() == event.uuid()) {
                     reg.listener().on(event);
@@ -129,7 +131,7 @@ public class DefaultKBroker implements KEventBroker {
             if(callback != null) {
                 operationCore.onCall(element, callback, parameters);
             } else {
-              // try remote call
+                // try remote call
             }
         } else {
             //Try remote call
