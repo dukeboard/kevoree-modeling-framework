@@ -3,6 +3,8 @@ package org.kevoree.modeling.api;
 import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 
 /**
  * Created by duke on 9/30/14.
@@ -31,5 +33,7 @@ public interface KUniverse<A extends KDimension> {
     public KUniverse<A> setEventBroker(KEventBroker eventBroker);
 
     public KUniverse<A> setDataBase(KDataBase dataBase);
+
+    public void setOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback);
 
 }

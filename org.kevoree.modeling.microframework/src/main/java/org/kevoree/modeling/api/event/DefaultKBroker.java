@@ -1,12 +1,17 @@
 package org.kevoree.modeling.api.event;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KEvent;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.OperationCallback;
 import org.kevoree.modeling.api.abs.AbstractKDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKView;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +27,8 @@ public class DefaultKBroker implements KEventBroker {
     private Map<Long, List<ModelListener>> dimensionListeners = new HashMap<Long, List<ModelListener>>();
     private List<ListenerRegistration> timeListeners = new ArrayList<ListenerRegistration>();
     private List<ListenerRegistration> objectListeners =new ArrayList<ListenerRegistration>();
+
+    private Map<Integer, Map<Integer, OperationCallback>> operationCallbacks = new HashMap<Integer, Map<Integer, OperationCallback>>();
 
     public DefaultKBroker() {
     }
@@ -52,6 +59,16 @@ public class DefaultKBroker implements KEventBroker {
             ListenerRegistration reg = new ListenerRegistration(listener, sc, ((AbstractKObject) origin).dimension().key(), ((AbstractKObject) origin).now(), ((AbstractKObject) origin).uuid());
             objectListeners.add(reg);
         }
+    }
+
+    @Override
+    public void registerOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback) {
+        Map<Integer, OperationCallback> clazzOperations = operationCallbacks.get(clazz.index());
+        if(clazzOperations == null) {
+            clazzOperations = new HashMap<Integer, OperationCallback>();
+            operationCallbacks.put(clazz.index(), clazzOperations);
+        }
+        clazzOperations.put(operation.index(), callback);
     }
 
     //TODO optimize
@@ -102,5 +119,20 @@ public class DefaultKBroker implements KEventBroker {
     @Override
     public void flush(Long dimensionKey) {
         //noop
+    }
+
+    @Override
+    public void call(KObject element, MetaOperation operation, Callback<Object> callback, Object... parameters) {
+        Map<Integer, OperationCallback> clazzOperations = operationCallbacks.get(element.metaClass().index());
+        if(clazzOperations != null) {
+            OperationCallback operationCore = clazzOperations.get(operation.index());
+            if(callback != null) {
+                operationCore.onCall(element, callback, parameters);
+            } else {
+              // try remote call
+            }
+        } else {
+            //Try remote call
+        }
     }
 }

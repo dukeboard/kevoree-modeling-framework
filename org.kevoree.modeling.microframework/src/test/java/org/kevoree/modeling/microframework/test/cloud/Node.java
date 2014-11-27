@@ -157,6 +157,8 @@ public interface Node extends KObject<Node, CloudView> {
             this._index = index;
         }
 
+
+
     }
 
     public String getName();
@@ -178,6 +180,6 @@ public interface Node extends KObject<Node, CloudView> {
     public void getElement(Callback<Element> obj);
 
     //analog to func trigger(param:STRING) : STRING in .mm
-    public void trigger(String param, Callback<String> callback);
+    public void trigger(Callback<Object> callback, Object... parameters);
 
 }

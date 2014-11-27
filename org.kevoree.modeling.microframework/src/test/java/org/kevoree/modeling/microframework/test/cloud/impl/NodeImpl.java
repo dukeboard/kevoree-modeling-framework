@@ -34,7 +34,7 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
 
     @Override
     public MetaOperation[] metaOperations() {
-        return Node.METAOPERATION.values();
+        return Node.METAOPERATIONS.values();
     }
 
     @Override
@@ -88,7 +88,7 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     }
 
     @Override
-    public void trigger(String param, Callback<String> callback) {
-        //TODO
+    public void trigger(Callback<Object> callback, Object... parameters) {
+        view().dimension().universe().storage().eventBroker().call(this, METAOPERATIONS.TRIGGER, callback, parameters);
     }
 }
