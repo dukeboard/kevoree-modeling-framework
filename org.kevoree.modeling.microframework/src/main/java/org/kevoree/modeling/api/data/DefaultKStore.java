@@ -134,9 +134,6 @@ public class DefaultKStore implements KStore {
     }
 
     public void initKObject(KObject obj, KView originView) {
-
-        System.err.println("InitObj");
-
         write_tree(obj.dimension().key(), obj.uuid(), obj.timeTree());
         CacheEntry cacheEntry = new CacheEntry();
         cacheEntry.raw = new Object[Index.RESERVED_INDEXES + obj.metaAttributes().length + obj.metaReferences().length];
@@ -344,11 +341,13 @@ public class DefaultKStore implements KStore {
                                         int index = toLoadIndexes.get(i);
                                         //Create the raw CacheEntry
                                         CacheEntry entry = JsonRaw.decode(strings[i], originView, (Long) objects[index][INDEX_RESOLVED_TIME]);
-                                        entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
-                                        //Create and Add the proxy
-                                        resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
-                                        //Save the cache value
-                                        write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[index], entry);
+                                        if(entry != null){
+                                            entry.timeTree = (TimeTree) objects[index][INDEX_RESOLVED_TIMETREE];
+                                            //Create and Add the proxy
+                                            resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
+                                            //Save the cache value
+                                            write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[index], entry);
+                                        }
                                     }
                                 }
                                 callback.on(resolved);

@@ -63,11 +63,6 @@ public abstract class AbstractKView implements KView {
         return create(metaClass(metaClassName));
     }
 
-    protected KObject manageCache(KObject obj) {
-        dimension().universe().storage().initKObject(obj, this);
-        return obj;
-    }
-
     @Override
     public void setRoot(KObject elem) {
         ((AbstractKObject) elem).set_referenceInParent(null);
@@ -121,6 +116,7 @@ public abstract class AbstractKView implements KView {
     public KObject create(MetaClass clazz) {
         KObject newObj = internalCreate(clazz, new DefaultTimeTree().insert(now()), dimension().universe().storage().nextObjectKey());
         if (newObj != null) {
+            dimension().universe().storage().initKObject(newObj, this);
             dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.NEW, newObj, clazz, null));
         }
         return newObj;
