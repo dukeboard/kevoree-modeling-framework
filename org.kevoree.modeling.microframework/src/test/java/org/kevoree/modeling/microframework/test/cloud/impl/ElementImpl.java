@@ -15,8 +15,8 @@ import org.kevoree.modeling.microframework.test.cloud.Element;
  */
 public class ElementImpl extends AbstractKObject<Element, CloudView> implements Element {
 
-    public ElementImpl(CloudView factory, MetaClass metaClass, long kid, Long now, KDimension dimension, TimeTree timeTree) {
-        super(factory, metaClass, kid, now, dimension, timeTree);
+    public ElementImpl(CloudView factory, long kid, Long now, KDimension dimension, TimeTree timeTree) {
+        super(factory, kid, now, dimension, timeTree);
     }
 
     @Override
