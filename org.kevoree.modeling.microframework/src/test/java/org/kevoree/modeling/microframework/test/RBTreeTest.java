@@ -29,7 +29,7 @@ public class RBTreeTest {
                     tree.insert(i, State.EXISTS);
                 }
             }
-            printTree(tree.root);
+            //printTree(tree.root);
         }
     }
 
