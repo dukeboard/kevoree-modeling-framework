@@ -42,16 +42,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     private B _view;
     private long _uuid;
-    private long _now;
     private TimeTree _timeTree;
-    private KDimension _dimension;
     private MetaClass _metaClass;
 
-    public AbstractKObject(B p_view, long p_uuid, long p_now, KDimension p_dimension, TimeTree p_timeTree, MetaClass p_metaClass) {
+    public AbstractKObject(B p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
         this._view = p_view;
         this._uuid = p_uuid;
-        this._now = p_now;
-        this._dimension = p_dimension;
         this._timeTree = p_timeTree;
         this._metaClass = p_metaClass;
     }
@@ -73,7 +69,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public boolean isRoot() {
-        Boolean isRoot = (Boolean) _dimension.universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX];
+        Boolean isRoot = (Boolean) _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX];
         if (isRoot == null) {
             return false;
         } else {
@@ -82,12 +78,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public void setRoot(boolean isRoot) {
-        _dimension.universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX] = isRoot;
+        _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.IS_ROOT_INDEX] = isRoot;
     }
 
     @Override
     public long now() {
-        return _now;
+        return _view.now();
     }
 
     @Override
@@ -97,7 +93,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
 
     @Override
     public KDimension dimension() {
-        return _dimension;
+        return _view.dimension();
     }
 
     @Override
@@ -143,12 +139,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     protected void set_referenceInParent(MetaReference _referenceInParent) {
-        _dimension.universe().storage().raw(this, AccessMode.READ)[Index.REF_IN_PARENT_INDEX] = _referenceInParent;
+        _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.REF_IN_PARENT_INDEX] = _referenceInParent;
     }
 
     @Override
     public MetaReference referenceInParent() {
-        return (MetaReference) _dimension.universe().storage().raw(this, AccessMode.READ)[Index.REF_IN_PARENT_INDEX];
+        return (MetaReference) _view.dimension().universe().storage().raw(this, AccessMode.READ)[Index.REF_IN_PARENT_INDEX];
     }
 
     @Override
@@ -341,15 +337,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                 Object previous = payload[metaReference.index()];
                 if (previous != null) {
                     Set<Long> previousList = (Set<Long>) previous;
-                    if (now() != _now) {
-                        Set<Long> previousListNew = new HashSet<Long>();
-                        previousListNew.addAll(previousList);
-                        previousList = previousListNew;
-                        payload[metaReference.index()] = previousList;
-                    }
                     previousList.remove(param.uuid());
                     if (metaReference.contained()) {
-                        //removeFromContainer(param, fireEvent);
                         ((AbstractKObject) param).set_referenceInParent(null);
                         ((AbstractKObject) param).setParentUuid(null);
                     }
@@ -653,5 +642,15 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public abstract MetaReference[] metaReferences();
 
     public abstract MetaOperation[] metaOperations();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AbstractKObject)) {
+            return false;
+        } else {
+            AbstractKObject casted = (AbstractKObject) obj;
+            return (casted.uuid() == _uuid) && _view.equals(casted._view);
+        }
+    }
 
 }

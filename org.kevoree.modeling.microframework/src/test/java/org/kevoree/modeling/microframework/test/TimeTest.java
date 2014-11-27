@@ -56,7 +56,7 @@ public class TimeTest {
                 node0.getElement(new Callback<Element>() {
                     @Override
                     public void on(Element element) {
-                        Assert.assertEquals(element, element0);
+                        Assert.assertEquals(element0, element);
                         Assert.assertEquals(element.now(), t0.now());
                     }
                 });

@@ -18,8 +18,8 @@ public interface Node extends KObject<Node, CloudView> {
     /* Reflexive API Attributes */
     public enum METAATTRIBUTES implements MetaAttribute {
 
-        NAME("name", 2, 5, true, MetaType.STRING, DiscreteExtrapolation.instance()),
-        VALUE("value", 3, 5, false, MetaType.STRING, DiscreteExtrapolation.instance()); //lexicographic order
+        NAME("name", 5, 5, true, MetaType.STRING, DiscreteExtrapolation.instance()),
+        VALUE("value", 6, 5, false, MetaType.STRING, DiscreteExtrapolation.instance()); //lexicographic order
 
         private String _name;
 
@@ -79,8 +79,8 @@ public interface Node extends KObject<Node, CloudView> {
 
     public enum METAREFERENCES implements MetaReference {
 
-        CHILDREN("children", 4, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null),
-        ELEMENT("element", 5, true, true, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
+        CHILDREN("children", 7, true, false, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null),
+        ELEMENT("element", 8, true, true, CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
 
         private String _name;
 
@@ -134,7 +134,7 @@ public interface Node extends KObject<Node, CloudView> {
 
     public enum METAOPERATIONS implements MetaOperation {
 
-        TRIGGER("trigger", 6);
+        TRIGGER("trigger", 9);
 
         private String _name;
 

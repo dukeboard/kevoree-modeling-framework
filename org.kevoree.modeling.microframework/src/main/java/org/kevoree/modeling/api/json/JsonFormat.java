@@ -27,4 +27,5 @@ public class JsonFormat implements ModelFormat {
     public void load(String payload, Callback<Throwable> callback) {
         JsonModelLoader.load(_view, payload, callback);
     }
+    
 }

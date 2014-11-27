@@ -168,4 +168,14 @@ public abstract class AbstractKView implements KView {
         return new XmiFormat(this);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AbstractKView)) {
+            return false;
+        } else {
+            AbstractKView casted = (AbstractKView) obj;
+            return (casted._now == _now) && _dimension.equals(casted._dimension);
+        }
+    }
+
 }

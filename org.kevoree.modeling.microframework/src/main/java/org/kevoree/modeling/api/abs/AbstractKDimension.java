@@ -81,4 +81,14 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
 
     protected abstract A internal_create(Long timePoint);
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AbstractKDimension)) {
+            return false;
+        } else {
+            AbstractKDimension casted = (AbstractKDimension) obj;
+            return casted._key == _key;
+        }
+    }
+
 }
