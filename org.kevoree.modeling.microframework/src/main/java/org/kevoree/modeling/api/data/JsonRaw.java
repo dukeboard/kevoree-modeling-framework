@@ -134,29 +134,29 @@ public class JsonRaw {
         builder.append("\",\n");
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];
-            String payload = metaAttributes[i].strategy().save(payload_res);
-            if (payload != null) {
+            String attrsPayload = metaAttributes[i].strategy().save(payload_res);
+            if (attrsPayload != null) {
                 builder.append("\t");
                 builder.append("\"");
                 builder.append(metaAttributes[i].metaName());
                 builder.append("\":\"");
-                builder.append(payload);
+                builder.append(attrsPayload);
                 builder.append("\",\n");
             }
         }
         for (int i = 0; i < metaReferences.length; i++) {
-            Object payload = raw[metaReferences[i].index()];
-            if (payload != null) {
+            Object refPayload = raw[metaReferences[i].index()];
+            if (refPayload != null) {
                 builder.append("\t");
                 builder.append("\"");
                 builder.append(metaReferences[i].metaName());
                 builder.append("\":");
                 if (metaReferences[i].single()) {
                     builder.append("\"");
-                    builder.append(payload);
+                    builder.append(refPayload);
                     builder.append("\"");
                 } else {
-                    Set<Long> elems = (Set<Long>) payload;
+                    Set<Long> elems = (Set<Long>) refPayload;
                     Long[] elemsArr = elems.toArray(new Long[elems.size()]);
                     boolean isFirst = true;
                     builder.append(" [");
