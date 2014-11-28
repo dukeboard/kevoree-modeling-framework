@@ -7170,6 +7170,12 @@ var cloud;
                 return this;
             };
             ElementImpl.prototype.trigger = function (param, loop, result) {
+                var trigger_params = new Array();
+                trigger_params[0] = param;
+                trigger_params[1] = loop;
+                this.view().dimension().universe().storage().eventBroker().call(this, cloud.Element.METAOPERATIONS.TRIGGER, trigger_params, function (o) {
+                    result(o);
+                });
             };
             return ElementImpl;
         })(org.kevoree.modeling.api.abs.AbstractKObject);

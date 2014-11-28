@@ -16,8 +16,6 @@ import java.util.concurrent.Semaphore;
  */
 public class Serializer {
 
-
-
     @Test
     public void serializeTest() throws InterruptedException {
         try {
