@@ -36,11 +36,12 @@ public class LookupTest {
             public void on(Throwable e) {
                 final CloudUniverse universe2 = new CloudUniverse();
                 universe2.setDataBase(universe.storage().dataBase());
-                CloudDimension dimension0_2 = universe2.newDimension();
+                CloudDimension dimension0_2 = universe2.dimension(dimension0.key());
                 final CloudView t0_2 = dimension0_2.time(0l);
                 t0_2.lookup(node.uuid(), new Callback<KObject>() {
                     @Override
                     public void on(final KObject resolved) {
+                        Assert.assertNotNull(resolved);
                         t0_2.lookup(node.uuid(), new Callback<KObject>() {
                             @Override
                             public void on(KObject resolved2) {
