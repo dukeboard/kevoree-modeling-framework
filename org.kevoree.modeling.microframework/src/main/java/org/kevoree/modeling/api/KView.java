@@ -53,4 +53,5 @@ public interface KView {
 
     public ModelFormat xmi();
 
+    public boolean equals(Object other);
 }

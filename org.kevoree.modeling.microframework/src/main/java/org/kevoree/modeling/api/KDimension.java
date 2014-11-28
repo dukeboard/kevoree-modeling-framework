@@ -28,4 +28,5 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
 
     public C universe();
 
+    public boolean equals(Object other);
 }

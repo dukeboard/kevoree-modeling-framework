@@ -90,4 +90,6 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public String toJSON();
 
+    public boolean equals(Object other);
+
 }
