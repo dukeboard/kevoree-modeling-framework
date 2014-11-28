@@ -3,6 +3,7 @@ package org.kevoree.modeling.microframework.test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KOperation;
+import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
@@ -22,15 +23,18 @@ public class CloudOperationTest {
                 result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.dimension() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
-        universe.newDimension(dimension -> {
-            CloudView view = dimension.time(0L);
-            Node n = view.createNode();
-            n.trigger("MyParam", new Callback<String>() {
-                @Override
-                public void on(String s) {
-                    System.out.println("Operation execution result :  " + s);
-                }
-            });
+        universe.newDimension(new Callback<CloudDimension>() {
+            @Override
+            public void on(CloudDimension dimension) {
+                CloudView view = dimension.time(0L);
+                Node n = view.createNode();
+                n.trigger("MyParam", new Callback<String>() {
+                    @Override
+                    public void on(String s) {
+                        System.out.println("Operation execution result :  " + s);
+                    }
+                });
+            }
         });
 
     }
