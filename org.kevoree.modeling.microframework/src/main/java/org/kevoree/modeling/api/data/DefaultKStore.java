@@ -216,11 +216,12 @@ public class DefaultKStore implements KStore {
                     Long idObj = keys[k];
                     CacheEntry cached_entry = timeCache.payload_cache.get(idObj);
                     Object[] cached_raw = cached_entry.raw;
-                    if (cached_raw[Index.IS_DIRTY_INDEX] instanceof Boolean && (Boolean) cached_raw[Index.IS_DIRTY_INDEX]) {
+                    if (cached_raw[Index.IS_DIRTY_INDEX] != null && cached_raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
                         String[] payloadA = new String[2];
                         payloadA[0] = keyPayload(dimension.key(), now, idObj);
                         payloadA[1] = JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass);
                         payloads[i] = payloadA;
+                        //TODO check this. Shouldn't it be false ?
                         cached_raw[Index.IS_DIRTY_INDEX] = true;
                         i++;
                     }
