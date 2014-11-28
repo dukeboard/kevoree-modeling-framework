@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.json;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
@@ -18,11 +19,14 @@ public class JSONLoadTest {
         CloudUniverse universe = new CloudUniverse();
         CloudDimension dimension0 = universe.newDimension();
 
+        final int[] passed = new int[1];
+
         final CloudView time0 = dimension0.time(0l);
         time0.json().load("[\n" +
                 "{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
                 "\t\"@uuid\" : \"1\",\n" +
+                "\t\"@root\" : \"true\",\n" +
                 "\t\"name\":\"root\",\n" +
                 "\t\"children\": [\"2\",\"3\"],\n" +
                 "}\n" +
@@ -39,16 +43,26 @@ public class JSONLoadTest {
                 "]", new Callback<Throwable>() {
             @Override
             public void on(Throwable res) {
-
                 time0.lookup(1l, new Callback<KObject>() {
                     @Override
                     public void on(KObject r) {
-                        System.err.println(r);
+                        Assert.assertNotNull(r);
+                        Assert.assertTrue(r.isRoot());
+                        passed[0]++;
+                    }
+                });
+                time0.lookup(2l, new Callback<KObject>() {
+                    @Override
+                    public void on(KObject r) {
+                        Assert.assertNotNull(r);
+                        passed[0]++;
                     }
                 });
 
             }
         });
+
+        Assert.assertEquals(passed[0],2);
 
     }
 
