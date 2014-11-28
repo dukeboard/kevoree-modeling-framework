@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by assaa_000 on 23/10/2014.
  */
-public class DefaultPolynomialModel extends PolynomialModel {
+public class DefaultPolynomialModel implements PolynomialModel {
 
     private double[] weights;
     private Long timeOrigin;

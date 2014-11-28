@@ -64,9 +64,10 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public String save(Object cache) {
-        if (cache instanceof PolynomialModel) {
+        try {
             return ((PolynomialModel) cache).save();
-        } else {
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
