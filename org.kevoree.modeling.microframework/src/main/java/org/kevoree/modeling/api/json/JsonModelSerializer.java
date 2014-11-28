@@ -23,6 +23,12 @@ public class JsonModelSerializer /*implements ModelSerializer*/ {
 
     public static final String KEY_ROOT = "@root";
 
+    public static final String PARENT_META = "@parent";
+
+    public static final String PARENT_REF_META = "@ref";
+
+    public static final String INBOUNDS_META = "@inbounds";
+
     //@Override
     public static void serialize(KObject model, final ThrowableCallback<String> callback) {
         final StringBuilder builder = new StringBuilder();

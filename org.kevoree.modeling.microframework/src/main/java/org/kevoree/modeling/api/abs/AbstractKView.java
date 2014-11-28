@@ -65,7 +65,7 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void setRoot(KObject elem) {
-        ((AbstractKObject) elem).set_referenceInParent(null);
+        ((AbstractKObject) elem).set_parent(null,null);
         ((AbstractKObject) elem).setRoot(true);
         dimension().universe().storage().setRoot(elem);
     }

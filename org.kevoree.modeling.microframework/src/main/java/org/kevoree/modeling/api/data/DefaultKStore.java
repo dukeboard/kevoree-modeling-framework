@@ -131,6 +131,8 @@ public class DefaultKStore implements KStore {
         write_cache(obj.dimension().key(), obj.now(), obj.uuid(), cacheEntry);
     }
 
+    private static final String OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
+
     //TODO
     @Override
     public Object[] raw(KObject origin, AccessMode accessMode) {
@@ -139,15 +141,15 @@ public class DefaultKStore implements KStore {
         boolean needCopy = accessMode.equals(AccessMode.WRITE) && resolvedTime != origin.now();
         DimensionCache dimensionCache = caches.get(origin.dimension().key());
         if (dimensionCache == null) {
-            return null;
+            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
         }
         TimeCache timeCache = dimensionCache.timesCaches.get(resolvedTime);
         if (timeCache == null) {
-            return null;
+            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
         }
         CacheEntry entry = timeCache.payload_cache.get(origin.uuid());
         if (entry == null) {
-            return null;
+            throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
         }
         Object[] payload = entry.raw;
         if (!needCopy) {
@@ -197,7 +199,7 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void delete(KDimension dimension, Callback<Throwable> callback) {
-        new Exception("Not implemented yet !");
+        throw new RuntimeException("Not implemented yet !");
     }
 
     @Override

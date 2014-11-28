@@ -16,6 +16,8 @@ import java.util.Set;
  */
 public class JsonRaw {
 
+    public static final String SEP = ",";
+
     public static CacheEntry decode(String payload, KView currentView, long now) {
         if (payload == null) {
             return null;
@@ -63,7 +65,31 @@ public class JsonRaw {
             //Now Fill the Raw Storage
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
             for (int i = 0; i < metaKeys.length; i++) {
-                if (metaKeys[i].equals(JsonModelSerializer.KEY_ROOT)) {
+                if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
+                    //TODO
+                } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
+                    try {
+                        entry.raw[Index.PARENT_INDEX] = Long.parseLong(content.get(metaKeys[i]).toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_REF_META)) {
+                    try {
+                        String raw_payload = content.get(metaKeys[i]).toString();
+                        String[] elems = raw_payload.split(SEP);
+                        if(elems.length == 2){
+                            MetaClass foundMeta = currentView.metaClass(elems[0].trim());
+                            if(foundMeta != null){
+                                MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
+                                if(metaReference != null){
+                                    entry.raw[Index.REF_IN_PARENT_INDEX] = metaReference;
+                                }
+                            }
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                } else if (metaKeys[i].equals(JsonModelSerializer.KEY_ROOT)) {
                     try {
                         if ("true".equals(content.get(metaKeys[i]))) {
                             entry.raw[Index.IS_ROOT_INDEX] = true;
@@ -130,6 +156,49 @@ public class JsonRaw {
             builder.append("\",\n");
             builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
             builder.append("true");
+        }
+        if (raw[Index.PARENT_INDEX] != null) {
+            builder.append("\",\n");
+            builder.append("\t\"" + JsonModelSerializer.PARENT_META + "\" : \"");
+            builder.append(raw[Index.PARENT_INDEX].toString());
+        }
+        if (raw[Index.REF_IN_PARENT_INDEX] != null) {
+            builder.append("\",\n");
+            builder.append("\t\"" + JsonModelSerializer.PARENT_REF_META + "\" : \"");
+            try {
+                builder.append(((MetaReference) raw[Index.REF_IN_PARENT_INDEX]).origin().metaName());
+                builder.append(SEP);
+                builder.append(((MetaReference) raw[Index.REF_IN_PARENT_INDEX]).metaName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (raw[Index.INBOUNDS_INDEX] != null) {
+            builder.append("\",\n");
+            builder.append("\t\"" + JsonModelSerializer.INBOUNDS_META + "\" : \"");
+            try {
+                Map<Long, MetaReference> elems = (Map<Long, MetaReference>) raw[Index.INBOUNDS_INDEX];
+                Long[] elemsArr = elems.keySet().toArray(new Long[elems.size()]);
+                boolean isFirst = true;
+                builder.append(" [");
+                for (int j = 0; j < elemsArr.length; j++) {
+                    if (!isFirst) {
+                        builder.append(",");
+                    }
+                    builder.append("\"");
+                    builder.append(elemsArr[j]);
+                    builder.append(SEP);
+                    MetaReference ref = elems.get(elemsArr[j]);
+                    builder.append(ref.origin().metaName());
+                    builder.append(SEP);
+                    builder.append(ref.metaName());
+                    builder.append("\"");
+                    isFirst = false;
+                }
+                builder.append("]");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         builder.append("\",\n");
         for (int i = 0; i < metaAttributes.length; i++) {
