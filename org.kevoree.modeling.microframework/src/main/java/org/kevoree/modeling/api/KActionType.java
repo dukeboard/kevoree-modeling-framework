@@ -11,20 +11,22 @@ public enum KActionType {
     REMOVE("DEL"),
     NEW("NEW");
 
-    private String code = "";
+    private String _code = "";
 
     KActionType(String code) {
-        this.code = code;
+        this._code = code;
     }
 
     public String toString() {
-        return code;
+        return _code;
     }
+
+    public String code(){return _code;}
 
     public static KActionType parse(String s) {
         for(int i = 0; i < values().length; i++) {
             KActionType current = values()[i];
-            if(current.code.equals(s)) {
+            if(current.code().equals(s)) {
                 return current;
             }
         }
