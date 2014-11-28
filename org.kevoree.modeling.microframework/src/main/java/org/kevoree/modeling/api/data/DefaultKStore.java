@@ -116,26 +116,9 @@ public class DefaultKStore implements KStore {
         return currentUUIDRange.newUuid();
     }
 
-    public void initDimension(KDimension dimension, final Callback<Throwable> callback) {
-        final DimensionCache dimensionCache = new DimensionCache();
-        caches.put(dimension.key(), dimensionCache);
-        String[] rootTreeKeys = new String[1];
-        rootTreeKeys[0] = keyRootTree(dimension);
-        _db.get(rootTreeKeys, new ThrowableCallback<String[]>() {
-            @Override
-            public void on(String[] res, Throwable error) {
-                if (error != null) {
-                    callback.on(error);
-                } else {
-                    try {
-                        ((DefaultTimeTree) dimensionCache.rootTimeTree).load(res[0]);
-                        callback.on(null);
-                    } catch (Exception e) {
-                        callback.on(e);
-                    }
-                }
-            }
-        });
+    @Override
+    public void initDimension(KDimension dimension) {
+        //TODO maybe initiate link to previous dimension
     }
 
     public void initKObject(KObject obj, KView originView) {

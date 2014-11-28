@@ -18,52 +18,45 @@ public class LookupTest {
     @Test
     public void lookupTest() throws Exception {
         final CloudUniverse universe = new CloudUniverse();
-        universe.newDimension(new Callback<CloudDimension>() {
+        CloudDimension dimension0 = universe.newDimension();
+        CloudView t0 = dimension0.time(0l);
+        final Node node = t0.createNode();
+        node.setName("n0");
+        t0.setRoot(node);
+        Assert.assertTrue(node.isRoot());
+        universe.storage().getRoot(t0, new Callback<KObject>() {
             @Override
-            public void on(final CloudDimension dimension0) {
-                CloudView t0 = dimension0.time(0l);
-                final Node node = t0.createNode();
-                node.setName("n0");
-                t0.setRoot(node);
-                Assert.assertTrue(node.isRoot());
-                universe.storage().getRoot(t0, new Callback<KObject>() {
+            public void on(KObject resolvedRoot) {
+                Assert.assertEquals(node, resolvedRoot);
+            }
+        });
+        Assert.assertTrue(node.isRoot());
+        dimension0.save(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable e) {
+                final CloudUniverse universe2 = new CloudUniverse();
+                universe2.setDataBase(universe.storage().dataBase());
+                CloudDimension dimension0_2 = universe2.newDimension();
+                final CloudView t0_2 = dimension0_2.time(0l);
+                t0_2.lookup(node.uuid(), new Callback<KObject>() {
                     @Override
-                    public void on(KObject resolvedRoot) {
-                        Assert.assertEquals(node, resolvedRoot);
-                    }
-                });
-                Assert.assertTrue(node.isRoot());
-                dimension0.save(new Callback<Throwable>() {
-                    @Override
-                    public void on(Throwable e) {
-                        final CloudUniverse universe2 = new CloudUniverse();
-                        universe2.setDataBase(universe.storage().dataBase());
-                        universe2.dimension(dimension0.key(), new Callback<CloudDimension>() {
+                    public void on(final KObject resolved) {
+                        t0_2.lookup(node.uuid(), new Callback<KObject>() {
                             @Override
-                            public void on(CloudDimension dimension0_2) {
-                                final CloudView t0_2 = dimension0_2.time(0l);
-                                t0_2.lookup(node.uuid(), new Callback<KObject>() {
-                                    @Override
-                                    public void on(final KObject resolved) {
-                                        t0_2.lookup(node.uuid(), new Callback<KObject>() {
-                                            @Override
-                                            public void on(KObject resolved2) {
-                                                Assert.assertEquals(resolved, resolved2);
-                                            }
-                                        });
-                                        universe2.storage().getRoot(t0_2, new Callback<KObject>() {
-                                            @Override
-                                            public void on(KObject resolvedRoot) {
-                                                Assert.assertEquals(resolved, resolvedRoot);
-                                            }
-                                        });
-                                        Assert.assertTrue(resolved.isRoot());
-                                    }
-                                });
+                            public void on(KObject resolved2) {
+                                Assert.assertEquals(resolved, resolved2);
                             }
                         });
+                        universe2.storage().getRoot(t0_2, new Callback<KObject>() {
+                            @Override
+                            public void on(KObject resolvedRoot) {
+                                Assert.assertEquals(resolved, resolvedRoot);
+                            }
+                        });
+                        Assert.assertTrue(resolved.isRoot());
                     }
                 });
+
             }
         });
     }

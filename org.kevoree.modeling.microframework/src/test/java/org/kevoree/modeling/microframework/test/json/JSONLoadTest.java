@@ -16,42 +16,40 @@ public class JSONLoadTest {
     @Test
     public void jsonTest() {
         CloudUniverse universe = new CloudUniverse();
-        universe.newDimension(new Callback<CloudDimension>() {
+        CloudDimension dimension0 = universe.newDimension();
+
+        final CloudView time0 = dimension0.time(0l);
+        time0.json().load("[\n" +
+                "{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"1\",\n" +
+                "\t\"name\":\"root\",\n" +
+                "\t\"children\": [\"2\",\"3\"],\n" +
+                "}\n" +
+                ",{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"2\",\n" +
+                "\t\"name\":\"n1\",\n" +
+                "}\n" +
+                ",{\n" +
+                "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
+                "\t\"@uuid\" : \"3\",\n" +
+                "\t\"name\":\"n2\",\n" +
+                "}\n" +
+                "]", new Callback<Throwable>() {
             @Override
-            public void on(CloudDimension dimension0) {
-                final CloudView time0 = dimension0.time(0l);
-                time0.json().load("[\n" +
-                        "{\n" +
-                        "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                        "\t\"@uuid\" : \"1\",\n" +
-                        "\t\"name\":\"root\",\n" +
-                        "\t\"children\": [\"2\",\"3\"],\n" +
-                        "}\n" +
-                        ",{\n" +
-                        "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                        "\t\"@uuid\" : \"2\",\n" +
-                        "\t\"name\":\"n1\",\n" +
-                        "}\n" +
-                        ",{\n" +
-                        "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                        "\t\"@uuid\" : \"3\",\n" +
-                        "\t\"name\":\"n2\",\n" +
-                        "}\n" +
-                        "]", new Callback<Throwable>() {
+            public void on(Throwable res) {
+
+                time0.lookup(1l, new Callback<KObject>() {
                     @Override
-                    public void on(Throwable res) {
-
-                        time0.lookup(1l, new Callback<KObject>() {
-                            @Override
-                            public void on(KObject r) {
-                                System.err.println(r);
-                            }
-                        });
-
+                    public void on(KObject r) {
+                        System.err.println(r);
                     }
                 });
+
             }
         });
+
     }
 
 }

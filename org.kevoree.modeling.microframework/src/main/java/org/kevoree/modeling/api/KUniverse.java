@@ -13,9 +13,9 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 
 public interface KUniverse<A extends KDimension> {
 
-    public void newDimension(Callback<A> callback);
+    public A newDimension();
 
-    public void dimension(long key, Callback<A> callback);
+    public A dimension(long key);
 
     //TODO refactor with promise
     public void saveAll(Callback<Boolean> callback);

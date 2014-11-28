@@ -16,22 +16,20 @@ public class SliceTest {
     @Test
     public void slideTest() {
         CloudUniverse universe = new CloudUniverse();
-        universe.newDimension(new Callback<CloudDimension>() {
-            @Override
-            public void on(CloudDimension dimension0) {
-                CloudView time0 = dimension0.time(0l);
-                Node root = time0.createNode();
-                time0.setRoot(root);
-                root.setName("root");
+        CloudDimension dimension0 = universe.newDimension();
+        CloudView time0 = dimension0.time(0l);
+        Node root = time0.createNode();
+        time0.setRoot(root);
+        root.setName("root");
 
-                Node n1 = time0.createNode();
-                n1.setName("n1");
+        Node n1 = time0.createNode();
+        n1.setName("n1");
 
-                Node n2 = time0.createNode();
-                n2.setName("n2");
+        Node n2 = time0.createNode();
+        n2.setName("n2");
 
-                root.addChildren(n1);
-                root.addChildren(n2);
+        root.addChildren(n1);
+        root.addChildren(n2);
 
                 /*
                 slicer.slice(Arrays.asList(root), new Callback<TraceSequence>() {
@@ -40,10 +38,7 @@ public class SliceTest {
                         System.err.println(seq);
                     }
                 });*/
-            }
-        });
-
-
     }
+
 
 }

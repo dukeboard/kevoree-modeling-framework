@@ -21,37 +21,29 @@ public class Serializer {
     public void serializeTest() throws InterruptedException {
 
         CloudUniverse universe = new CloudUniverse();
-        universe.newDimension(new Callback<CloudDimension>() {
+        CloudDimension dimension0 = universe.newDimension();
+        final CloudView t0 = dimension0.time(0l);
+        Node nodeT0 = t0.createNode();
+        nodeT0.setName("node0");
+        t0.setRoot(nodeT0);
+        Element child0 = t0.createElement();
+        nodeT0.setElement(child0);
+        Node nodeT1 = t0.createNode();
+        nodeT1.setName("n1");
+        nodeT0.addChildren(nodeT1);
+        t0.lookup(nodeT0.uuid(), new Callback<KObject>() {
             @Override
-            public void on(CloudDimension dimension0) {
-                final CloudView t0 = dimension0.time(0l);
-                Node nodeT0 = t0.createNode();
-                nodeT0.setName("node0");
-           /*
-           */
-                t0.setRoot(nodeT0);
-                Element child0 = t0.createElement();
-                nodeT0.setElement(child0);
-                Node nodeT1 = t0.createNode();
-                nodeT1.setName("n1");
-                nodeT0.addChildren(nodeT1);
-
-                t0.lookup(nodeT0.uuid(), new Callback<KObject>() {
+            public void on(KObject root) {
+                t0.xmi().save(root, new ThrowableCallback<String>() {
                     @Override
-                    public void on(KObject root) {
-                        t0.xmi().save(root, new ThrowableCallback<String>() {
-                            @Override
-                            public void on(String result, Throwable error) {
-                                if (error != null) {
-                                    error.printStackTrace();
-                                }
-                            }
-                        });
+                    public void on(String result, Throwable error) {
+                        if (error != null) {
+                            error.printStackTrace();
+                        }
                     }
                 });
             }
         });
-
     }
 
 }

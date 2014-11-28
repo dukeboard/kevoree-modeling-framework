@@ -23,19 +23,16 @@ public class CloudOperationTest {
                 result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.dimension() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
-        universe.newDimension(new Callback<CloudDimension>() {
+        CloudDimension dimension = universe.newDimension();
+        CloudView view = dimension.time(0L);
+        Node n = view.createNode();
+        n.trigger("MyParam", new Callback<String>() {
             @Override
-            public void on(CloudDimension dimension) {
-                CloudView view = dimension.time(0L);
-                Node n = view.createNode();
-                n.trigger("MyParam", new Callback<String>() {
-                    @Override
-                    public void on(String s) {
-                        System.out.println("Operation execution result :  " + s);
-                    }
-                });
+            public void on(String s) {
+                System.out.println("Operation execution result :  " + s);
             }
         });
+
 
     }
 

@@ -16,9 +16,8 @@ public class TraceTest {
     @Test
     public void traceTest() {
         CloudUniverse universe = new CloudUniverse();
-        universe.newDimension(new Callback<CloudDimension>() {
-            @Override
-            public void on(CloudDimension dimension0) {
+        CloudDimension dimension0 = universe.newDimension();
+
                 CloudView time0 = dimension0.time(0l);
                 Node root = time0.createNode();
                 time0.setRoot(root);
@@ -33,8 +32,7 @@ public class TraceTest {
                 root.addChildren(n1);
                 root.addChildren(n2);
 
-            }
-        });
+
     }
 
 }
