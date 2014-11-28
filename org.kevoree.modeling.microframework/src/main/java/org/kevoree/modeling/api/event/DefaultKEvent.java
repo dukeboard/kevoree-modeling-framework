@@ -126,7 +126,7 @@ public class DefaultKEvent implements KEvent {
         } else if (currentAttributeName.equals(UUID_KEY)) {
             event._uuid = Long.parseLong(value);
         } else if (currentAttributeName.equals(TYPE_KEY)) {
-            event._actionType = KActionType.valueOf(value);
+            event._actionType = KActionType.parse(value);
         } else if (currentAttributeName.equals(CLASS_KEY)) {
             //event._metaClass = value;
         } else if (currentAttributeName.equals(ELEMENT_KEY)) {

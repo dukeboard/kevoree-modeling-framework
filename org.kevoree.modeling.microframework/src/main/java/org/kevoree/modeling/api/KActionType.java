@@ -21,4 +21,14 @@ public enum KActionType {
         return code;
     }
 
+    public static KActionType parse(String s) {
+        for(int i = 0; i < values().length; i++) {
+            KActionType current = values()[i];
+            if(current.code.equals(s)) {
+                return current;
+            }
+        }
+        return null;
+    }
+
 }

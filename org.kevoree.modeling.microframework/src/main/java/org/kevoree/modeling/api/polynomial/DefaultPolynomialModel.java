@@ -28,6 +28,7 @@ public class DefaultPolynomialModel extends PolynomialModel {
     private long _lastIndex = -1;
 
     public DefaultPolynomialModel(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
+        super();
         this.timeOrigin = timeOrigin;
         this.degradeFactor = degradeFactor;
         this.prioritization = prioritization;
