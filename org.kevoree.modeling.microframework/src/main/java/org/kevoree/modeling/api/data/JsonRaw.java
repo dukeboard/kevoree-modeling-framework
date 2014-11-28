@@ -126,7 +126,7 @@ public class JsonRaw {
         builder.append("\",\n");
         builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
         builder.append(uuid);
-        if (raw[Index.IS_ROOT_INDEX] instanceof Boolean && (Boolean) raw[Index.IS_ROOT_INDEX]) {
+        if (raw[Index.IS_ROOT_INDEX] != null && raw[Index.IS_ROOT_INDEX].toString().equals("true")) {
             builder.append("\",\n");
             builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
             builder.append("true");

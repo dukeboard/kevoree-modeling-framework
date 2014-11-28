@@ -476,7 +476,7 @@ public class DefaultKStore implements KStore {
             for (int k = 0; k < keys.length; k++) {
                 Long idObj = keys[k];
                 CacheEntry cachedEntry = timeCache.payload_cache.get(idObj);
-                if (cachedEntry != null && cachedEntry.raw[Index.IS_DIRTY_INDEX] instanceof Boolean && (Boolean) cachedEntry.raw[Index.IS_DIRTY_INDEX]) {
+                if (cachedEntry != null && cachedEntry.raw[Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
                     sizeCache++;
                 }
             }
@@ -522,14 +522,18 @@ public class DefaultKStore implements KStore {
 
     private void resolve_timeTrees(final KDimension dimension, final Long[] keys, final Callback<TimeTree[]> callback) {
         final List<Integer> toLoad = new ArrayList<Integer>();
-        final DimensionCache dimensionCache = caches.get(dimension.key());
         final TimeTree[] result = new TimeTree[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            TimeTree cachedTree = dimensionCache.timeTreeCache.get(keys[i]);
-            if (cachedTree != null) {
-                result[i] = cachedTree;
-            } else {
+            final DimensionCache dimensionCache = caches.get(dimension.key());
+            if(dimensionCache==null){
                 toLoad.add(i);
+            } else {
+                TimeTree cachedTree = dimensionCache.timeTreeCache.get(keys[i]);
+                if (cachedTree != null) {
+                    result[i] = cachedTree;
+                } else {
+                    toLoad.add(i);
+                }
             }
         }
         if (toLoad.isEmpty()) {
