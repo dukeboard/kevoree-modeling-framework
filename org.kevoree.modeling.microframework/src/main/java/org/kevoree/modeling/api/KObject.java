@@ -72,10 +72,12 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public MetaOperation metaOperation(String name);
 
+    //TODO drop setOpposite
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite);
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
 
+    //TODO refactor
     public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end);
 
     /* End Reflexive API */

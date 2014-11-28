@@ -17,6 +17,7 @@ public interface KUniverse<A extends KDimension> {
 
     public void dimension(long key, Callback<A> callback);
 
+    //TODO refactor with promise
     public void saveAll(Callback<Boolean> callback);
 
     public void deleteAll(Callback<Boolean> callback);
