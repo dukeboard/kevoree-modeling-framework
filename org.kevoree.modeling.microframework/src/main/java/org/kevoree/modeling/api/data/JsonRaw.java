@@ -77,16 +77,16 @@ public class JsonRaw {
                     try {
                         String raw_payload = content.get(metaKeys[i]).toString();
                         String[] elems = raw_payload.split(SEP);
-                        if(elems.length == 2){
+                        if (elems.length == 2) {
                             MetaClass foundMeta = currentView.metaClass(elems[0].trim());
-                            if(foundMeta != null){
+                            if (foundMeta != null) {
                                 MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
-                                if(metaReference != null){
+                                if (metaReference != null) {
                                     entry.raw[Index.REF_IN_PARENT_INDEX] = metaReference;
                                 }
                             }
                         }
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.KEY_ROOT)) {
