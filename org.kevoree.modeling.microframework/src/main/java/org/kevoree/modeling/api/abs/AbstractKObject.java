@@ -598,25 +598,39 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                     if (metaRef != null) {
                                         InboundReference reference = new InboundReference(metaRef, opposite);
                                         try {
-                                            callback.on(reference);
+                                            if(callback!=null){
+                                                callback.on(reference);
+                                            }
                                         } catch (Throwable t) {
-                                            end.on(t);
+                                            if(end != null){
+                                                end.on(t);
+                                            }
                                         }
                                     } else {
-                                        end.on(new Exception("MetaReference not found with index:" + metaRef + " in refs of " + opposite.metaClass().metaName()));
+                                        if(end!= null){
+                                            end.on(new Exception("MetaReference not found with index:" + metaRef + " in refs of " + opposite.metaClass().metaName()));
+                                        }
                                     }
                                 }
-                                end.on(null);
+                                if(end!=null){
+                                    end.on(null);
+                                }
                             } else {
-                                end.on(new Exception("Could not resolve opposite objects"));
+                                if(end!=null){
+                                    end.on(new Exception("Could not resolve opposite objects"));
+                                }
                             }
                         }
                     });
                 } else {
-                    end.on(new Exception("Inbound refs payload is not a cset"));
+                    if(end!=null){
+                        end.on(new Exception("Inbound refs payload is not a cset"));
+                    }
                 }
             } else {
-                end.on(null);
+                if(end!=null){
+                    end.on(null);
+                }
             }
         }
     }

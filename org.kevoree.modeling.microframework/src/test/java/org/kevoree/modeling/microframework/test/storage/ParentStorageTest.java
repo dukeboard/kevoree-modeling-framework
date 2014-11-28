@@ -3,6 +3,7 @@ package org.kevoree.modeling.microframework.test.storage;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.InboundReference;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
@@ -81,7 +82,16 @@ public class ParentStorageTest {
         root.addChildren(n2);
 
         Assert.assertEquals(n1.parentUuid(), new Long(1));
-        Assert.assertEquals(n1.referenceInParent(),Node.METAREFERENCES.CHILDREN);
+        Assert.assertEquals(n1.referenceInParent(), Node.METAREFERENCES.CHILDREN);
+
+        final int[] i = {0};
+        n1.inbounds(new Callback<InboundReference>() {
+            @Override
+            public void on(InboundReference inboundReference) {
+                i[0]++;
+            }
+        },null);
+        Assert.assertEquals(1,i[0]);
 
         try {
             root.eachChildren(null, null);
@@ -103,8 +113,19 @@ public class ParentStorageTest {
             public void on(KObject r_n1) {
                 Assert.assertNotNull(r_n1.parentUuid());
                 Assert.assertNotNull(r_n1.referenceInParent());
+                r_n1.inbounds(new Callback<InboundReference>() {
+                    @Override
+                    public void on(InboundReference inboundReference) {
+                        i[0]++;
+                    }
+                },null);
+                Assert.assertEquals(2,i[0]);
+                i[0]++;
             }
         });
+
+        //lookup test
+        Assert.assertEquals(3,i[0]);
 
     }
 

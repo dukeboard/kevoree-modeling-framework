@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class JsonRaw {
 
-    public static final String SEP = ",";
+    public static final String SEP = "@";
 
     public static CacheEntry decode(String payload, KView currentView, long now) {
         if (payload == null) {
@@ -66,7 +66,29 @@ public class JsonRaw {
             String[] metaKeys = content.keySet().toArray(new String[content.size()]);
             for (int i = 0; i < metaKeys.length; i++) {
                 if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
-                    //TODO
+                    HashMap<Long, MetaReference> inbounds = new HashMap<Long, MetaReference>();
+                    entry.raw[Index.INBOUNDS_INDEX] = inbounds;
+                    Object raw_payload = content.get(metaKeys[i]);
+                    try {
+                        HashSet<String> raw_keys = (HashSet<String>) raw_payload;
+                        String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
+                        for (int j = 0; j < raw_keys_p.length; j++) {
+                            String raw_elem = raw_keys_p[j];
+                            String[] tuple = raw_elem.split(SEP);
+                            if (tuple.length == 3) {
+                                Long raw_k = Long.parseLong(tuple[0]);
+                                MetaClass foundMeta = currentView.metaClass(tuple[1].trim());
+                                if (foundMeta != null) {
+                                    MetaReference metaReference = foundMeta.metaReference(tuple[2].trim());
+                                    if (metaReference != null) {
+                                        inbounds.put(raw_k, metaReference);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_META)) {
                     try {
                         entry.raw[Index.PARENT_INDEX] = Long.parseLong(content.get(metaKeys[i]).toString());
@@ -175,12 +197,11 @@ public class JsonRaw {
         }
         if (raw[Index.INBOUNDS_INDEX] != null) {
             builder.append("\",\n");
-            builder.append("\t\"" + JsonModelSerializer.INBOUNDS_META + "\" : \"");
+            builder.append("\t\"" + JsonModelSerializer.INBOUNDS_META + "\" : [");
             try {
                 Map<Long, MetaReference> elems = (Map<Long, MetaReference>) raw[Index.INBOUNDS_INDEX];
                 Long[] elemsArr = elems.keySet().toArray(new Long[elems.size()]);
                 boolean isFirst = true;
-                builder.append(" [");
                 for (int j = 0; j < elemsArr.length; j++) {
                     if (!isFirst) {
                         builder.append(",");
@@ -195,12 +216,14 @@ public class JsonRaw {
                     builder.append("\"");
                     isFirst = false;
                 }
-                builder.append("]");
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            builder.append("]");
+            builder.append(",\n");
+        } else {
+            builder.append("\",\n");
         }
-        builder.append("\",\n");
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];
             String attrsPayload = metaAttributes[i].strategy().save(payload_res);
