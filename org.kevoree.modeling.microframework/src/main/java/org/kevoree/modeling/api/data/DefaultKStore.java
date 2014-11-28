@@ -190,7 +190,9 @@ public class DefaultKStore implements KStore {
     @Override
     public void discard(KDimension dimension, Callback<Throwable> callback) {
         caches.remove(dimension.key());
-        callback.on(null);
+        if (callback != null) {
+            callback.on(null);
+        }
     }
 
     @Override
@@ -221,8 +223,7 @@ public class DefaultKStore implements KStore {
                         payloadA[0] = keyPayload(dimension.key(), now, idObj);
                         payloadA[1] = JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass);
                         payloads[i] = payloadA;
-                        //TODO check this. Shouldn't it be false ?
-                        cached_raw[Index.IS_DIRTY_INDEX] = true;
+                        cached_raw[Index.IS_DIRTY_INDEX] = false;
                         i++;
                     }
                 }
@@ -526,7 +527,7 @@ public class DefaultKStore implements KStore {
         final TimeTree[] result = new TimeTree[keys.length];
         for (int i = 0; i < keys.length; i++) {
             final DimensionCache dimensionCache = caches.get(dimension.key());
-            if(dimensionCache==null){
+            if (dimensionCache == null) {
                 toLoad.add(i);
             } else {
                 TimeTree cachedTree = dimensionCache.timeTreeCache.get(keys[i]);
