@@ -97,12 +97,12 @@ public class JsonRaw {
                     }
                 } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_REF_META)) {
                     try {
-                        String raw_payload = content.get(metaKeys[i]).toString();
-                        String[] elems = raw_payload.split(SEP);
-                        if (elems.length == 2) {
-                            MetaClass foundMeta = currentView.metaClass(elems[0].trim());
+                        String raw_payload_ref = content.get(metaKeys[i]).toString();
+                        String[] elemsRefs = raw_payload_ref.split(SEP);
+                        if (elemsRefs.length == 2) {
+                            MetaClass foundMeta = currentView.metaClass(elemsRefs[0].trim());
                             if (foundMeta != null) {
-                                MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
+                                MetaReference metaReference = foundMeta.metaReference(elemsRefs[1].trim());
                                 if (metaReference != null) {
                                     entry.raw[Index.REF_IN_PARENT_INDEX] = metaReference;
                                 }
@@ -199,8 +199,8 @@ public class JsonRaw {
             builder.append("\",\n");
             builder.append("\t\"" + JsonModelSerializer.INBOUNDS_META + "\" : [");
             try {
-                Map<Long, MetaReference> elems = (Map<Long, MetaReference>) raw[Index.INBOUNDS_INDEX];
-                Long[] elemsArr = elems.keySet().toArray(new Long[elems.size()]);
+                Map<Long, MetaReference> elemsInRaw = (Map<Long, MetaReference>) raw[Index.INBOUNDS_INDEX];
+                Long[] elemsArr = elemsInRaw.keySet().toArray(new Long[elemsInRaw.size()]);
                 boolean isFirst = true;
                 for (int j = 0; j < elemsArr.length; j++) {
                     if (!isFirst) {
@@ -209,7 +209,7 @@ public class JsonRaw {
                     builder.append("\"");
                     builder.append(elemsArr[j]);
                     builder.append(SEP);
-                    MetaReference ref = elems.get(elemsArr[j]);
+                    MetaReference ref = elemsInRaw.get(elemsArr[j]);
                     builder.append(ref.origin().metaName());
                     builder.append(SEP);
                     builder.append(ref.metaName());
