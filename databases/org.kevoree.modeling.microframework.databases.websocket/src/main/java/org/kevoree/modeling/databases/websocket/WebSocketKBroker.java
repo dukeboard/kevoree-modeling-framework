@@ -17,7 +17,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.OperationCallback;
+import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.event.ListenerScope;
@@ -98,7 +98,7 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
     }
 
     @Override
-    public void registerOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback) {
+    public void registerOperation(MetaClass clazz, MetaOperation operation, KOperation callback) {
         _baseBroker.registerOperation(clazz, operation, callback);
     }
 

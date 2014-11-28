@@ -36,6 +36,6 @@ public interface KUniverse<A extends KDimension> {
 
     public KUniverse<A> setDataBase(KDataBase dataBase);
 
-    public void setOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback);
+    public void setOperation(MetaOperation metaOperation, KOperation operation);
 
 }

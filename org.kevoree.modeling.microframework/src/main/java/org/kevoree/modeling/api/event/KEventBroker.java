@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.OperationCallback;
+import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
@@ -14,11 +14,14 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 public interface KEventBroker {
 
     void registerListener(Object origin, ModelListener listener, ListenerScope scope);
-    void registerOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback);
+
+    void registerOperation(MetaOperation operation, KOperation callback);
 
     void notify(KEvent event);
 
     void flush(Long dimensionKey);
 
-    void call(KObject element, MetaOperation operation, Callback<Object> callback, Object... parameters);
+    //TODO maybe move into an operation manager
+    void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback);
+
 }

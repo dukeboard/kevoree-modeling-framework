@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.OperationCallback;
+import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.abs.AbstractKDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
@@ -26,9 +26,9 @@ public class DefaultKBroker implements KEventBroker {
     private List<ModelListener> universeListeners = new ArrayList<ModelListener>();
     private Map<Long, List<ModelListener>> dimensionListeners = new HashMap<Long, List<ModelListener>>();
     private List<ListenerRegistration> timeListeners = new ArrayList<ListenerRegistration>();
-    private List<ListenerRegistration> objectListeners =new ArrayList<ListenerRegistration>();
+    private List<ListenerRegistration> objectListeners = new ArrayList<ListenerRegistration>();
 
-    private Map<Integer, Map<Integer, OperationCallback>> operationCallbacks = new HashMap<Integer, Map<Integer, OperationCallback>>();
+    private Map<Integer, Map<Integer, KOperation>> operationCallbacks = new HashMap<Integer, Map<Integer, KOperation>>();
 
     public DefaultKBroker() {
     }
@@ -39,21 +39,21 @@ public class DefaultKBroker implements KEventBroker {
             universeListeners.add(listener);
         } else if (origin instanceof AbstractKDimension) {
             List<ModelListener> dimListeners = dimensionListeners.get(((KDimension) origin).key());
-            if(dimListeners == null) {
+            if (dimListeners == null) {
                 dimListeners = new ArrayList<ModelListener>();
                 dimensionListeners.put(((KDimension) origin).key(), dimListeners);
             }
             dimListeners.add(listener);
         } else if (origin instanceof AbstractKView) {
             ListenerScope sc = scope;
-            if(sc == null) {
+            if (sc == null) {
                 sc = ListenerScope.DIMENSION;
             }
             ListenerRegistration reg = new ListenerRegistration(listener, sc, ((AbstractKView) origin).dimension().key(), ((AbstractKView) origin).now(), 0);
             timeListeners.add(reg);
         } else if (origin instanceof AbstractKObject) {
             ListenerScope sc = scope;
-            if(sc == null) {
+            if (sc == null) {
                 sc = ListenerScope.TIME;
             }
             ListenerRegistration reg = new ListenerRegistration(listener, sc, ((AbstractKObject) origin).dimension().key(), ((AbstractKObject) origin).now(), ((AbstractKObject) origin).uuid());
@@ -62,11 +62,11 @@ public class DefaultKBroker implements KEventBroker {
     }
 
     @Override
-    public void registerOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback) {
-        Map<Integer, OperationCallback> clazzOperations = operationCallbacks.get(clazz.index());
-        if(clazzOperations == null) {
-            clazzOperations = new HashMap<Integer, OperationCallback>();
-            operationCallbacks.put(clazz.index(), clazzOperations);
+    public void registerOperation(MetaOperation operation, KOperation callback) {
+        Map<Integer, KOperation> clazzOperations = operationCallbacks.get(operation.origin().index());
+        if (clazzOperations == null) {
+            clazzOperations = new HashMap<Integer, KOperation>();
+            operationCallbacks.put(operation.origin().index(), clazzOperations);
         }
         clazzOperations.put(operation.index(), callback);
     }
@@ -80,7 +80,7 @@ public class DefaultKBroker implements KEventBroker {
         }
 
         List<ModelListener> dimList = dimensionListeners.get(event.dimension());
-        if(dimList != null) {
+        if (dimList != null) {
             for (int j = 0; j < dimList.size(); j++) {
                 ModelListener listener = dimList.get(j);
                 listener.on(event);
@@ -89,12 +89,12 @@ public class DefaultKBroker implements KEventBroker {
 
         for (int k = 0; k < timeListeners.size(); k++) {
             ListenerRegistration reg = timeListeners.get(k);
-            if((reg.scope().value() & ListenerScope.UNIVERSE.value())!=0) {
-                if(reg.time() == event.time()) {
+            if ((reg.scope().value() & ListenerScope.UNIVERSE.value()) != 0) {
+                if (reg.time() == event.time()) {
                     reg.listener().on(event);
                 }
             } else {
-                if(reg.dimension() == event.dimension() && reg.time() == event.time()) {
+                if (reg.dimension() == event.dimension() && reg.time() == event.time()) {
                     reg.listener().on(event);
                 }
             }
@@ -102,16 +102,16 @@ public class DefaultKBroker implements KEventBroker {
 
         for (int l = 0; l < objectListeners.size(); l++) {
             ListenerRegistration reg = objectListeners.get(l);
-            if((reg.scope().value() & ListenerScope.UNIVERSE.value())!=0) {
-                if(reg.uuid() == event.uuid()) {
+            if ((reg.scope().value() & ListenerScope.UNIVERSE.value()) != 0) {
+                if (reg.uuid() == event.uuid()) {
                     reg.listener().on(event);
                 }
-            } else if((reg.scope().value() & ListenerScope.DIMENSION.value())!=0) {
-                if(reg.dimension() == event.dimension() && reg.uuid() == event.uuid()) {
+            } else if ((reg.scope().value() & ListenerScope.DIMENSION.value()) != 0) {
+                if (reg.dimension() == event.dimension() && reg.uuid() == event.uuid()) {
                     reg.listener().on(event);
                 }
             } else {
-                if(reg.dimension() == event.dimension() && reg.time() == event.time() && reg.uuid() == event.uuid()) {
+                if (reg.dimension() == event.dimension() && reg.time() == event.time() && reg.uuid() == event.uuid()) {
                     reg.listener().on(event);
                 }
             }
@@ -124,17 +124,19 @@ public class DefaultKBroker implements KEventBroker {
     }
 
     @Override
-    public void call(KObject element, MetaOperation operation, Callback<Object> callback, Object... parameters) {
-        Map<Integer, OperationCallback> clazzOperations = operationCallbacks.get(element.metaClass().index());
-        if(clazzOperations != null) {
-            OperationCallback operationCore = clazzOperations.get(operation.index());
-            if(callback != null) {
-                operationCore.onCall(element, callback, parameters);
+    public void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback) {
+        Map<Integer, KOperation> clazzOperations = operationCallbacks.get(source.metaClass().index());
+        if (clazzOperations != null) {
+            KOperation operationCore = clazzOperations.get(operation.index());
+            if (callback != null) {
+                operationCore.on(source, param, callback);
             } else {
                 // try remote call
+                //TODO
             }
         } else {
             //Try remote call
+            //TODO
         }
     }
 }

@@ -4,7 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KUniverse;
-import org.kevoree.modeling.api.OperationCallback;
+import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.data.DefaultKStore;
 import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
@@ -108,7 +108,7 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
 
     @Override
-    public void setOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback) {
-        storage().eventBroker().registerOperation(clazz, operation, callback);
+    public void setOperation(MetaOperation metaOperation, KOperation operation) {
+        storage().eventBroker().registerOperation(metaOperation, operation);
     }
 }

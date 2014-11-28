@@ -2,7 +2,7 @@ package org.kevoree.modeling.microframework.test;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.OperationCallback;
+import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
@@ -16,22 +16,21 @@ public class CloudOperationTest {
 
     public static void main(String[] args) {
         CloudUniverse universe = new CloudUniverse();
-        universe.setOperation(CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, Node.METAOPERATIONS.TRIGGER, new OperationCallback(){
+        universe.setOperation(Node.METAOPERATIONS.TRIGGER, new KOperation() {
             @Override
-            public void onCall(KObject _this, Callback<Object> result, Object... parameters) {
-                result.on("Hey. I received Parameter:" + Arrays.toString(parameters) + " on element:("+_this.dimension()+","+_this.now()+","+_this.uuid()+")");
+            public void on(KObject source, Object[] params, Callback<Object> result) {
+                result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.dimension() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
-
-        universe.newDimension(dimension->{
+        universe.newDimension(dimension -> {
             CloudView view = dimension.time(0L);
             Node n = view.createNode();
-            n.trigger(new Callback<Object>() {
+            n.trigger("MyParam", new Callback<String>() {
                 @Override
-                public void on(Object o) {
-                    System.out.println((String)o);
+                public void on(String s) {
+                    System.out.println("Operation execution result :  " + s);
                 }
-            }, "Parameter1");
+            });
         });
 
     }
