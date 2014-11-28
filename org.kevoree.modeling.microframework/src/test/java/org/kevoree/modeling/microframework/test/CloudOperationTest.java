@@ -20,7 +20,15 @@ public class CloudOperationTest {
         universe.setOperation(Node.METAOPERATIONS.TRIGGER, new KOperation() {
             @Override
             public void on(KObject source, Object[] params, Callback<Object> result) {
-                result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.dimension() + "," + source.now() + "," + source.uuid() + ")");
+                String parameters = "[";
+                for(int i = 0; i < params.length; i++) {
+                    if(i!= 0) {
+                        parameters = parameters + ", ";
+                    }
+                    parameters = parameters + params[i].toString();
+                }
+                parameters = parameters + "]";
+                result.on("Hey. I received Parameter:" + parameters + " on element:(" + source.dimension() + "," + source.now() + "," + source.uuid() + ")");
             }
         });
         CloudDimension dimension = universe.newDimension();
