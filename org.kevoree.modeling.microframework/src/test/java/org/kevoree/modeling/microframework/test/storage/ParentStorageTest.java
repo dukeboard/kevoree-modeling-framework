@@ -35,7 +35,9 @@ public class ParentStorageTest {
         root.addChildren(n1);
         root.addChildren(n2);
 
-        Assert.assertEquals(n1.parentUuid(), new Long(1));
+        Long val = 1L;
+
+        Assert.assertEquals(n1.parentUuid(), val);
         try {
             root.eachChildren(null, null);
         } catch (Exception e) {
@@ -80,8 +82,8 @@ public class ParentStorageTest {
 
         root.addChildren(n1);
         root.addChildren(n2);
-
-        Assert.assertEquals(n1.parentUuid(), new Long(1));
+        Long val = 1L;
+        Assert.assertEquals(n1.parentUuid(), val);
         Assert.assertEquals(n1.referenceInParent(), Node.METAREFERENCES.CHILDREN);
 
         final int[] i = {0};
