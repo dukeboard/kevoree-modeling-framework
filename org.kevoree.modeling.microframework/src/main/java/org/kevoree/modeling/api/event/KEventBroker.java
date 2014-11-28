@@ -15,13 +15,8 @@ public interface KEventBroker {
 
     void registerListener(Object origin, ModelListener listener, ListenerScope scope);
 
-    void registerOperation(MetaOperation operation, KOperation callback);
-
     void notify(KEvent event);
 
     void flush(Long dimensionKey);
-
-    //TODO maybe move into an operation manager
-    void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback);
 
 }

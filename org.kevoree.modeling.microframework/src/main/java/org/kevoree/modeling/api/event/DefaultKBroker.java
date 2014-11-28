@@ -28,8 +28,6 @@ public class DefaultKBroker implements KEventBroker {
     private List<ListenerRegistration> timeListeners = new ArrayList<ListenerRegistration>();
     private List<ListenerRegistration> objectListeners = new ArrayList<ListenerRegistration>();
 
-    private Map<Integer, Map<Integer, KOperation>> operationCallbacks = new HashMap<Integer, Map<Integer, KOperation>>();
-
     public DefaultKBroker() {
     }
 
@@ -61,15 +59,7 @@ public class DefaultKBroker implements KEventBroker {
         }
     }
 
-    @Override
-    public void registerOperation(MetaOperation operation, KOperation callback) {
-        Map<Integer, KOperation> clazzOperations = operationCallbacks.get(operation.origin().index());
-        if (clazzOperations == null) {
-            clazzOperations = new HashMap<Integer, KOperation>();
-            operationCallbacks.put(operation.origin().index(), clazzOperations);
-        }
-        clazzOperations.put(operation.index(), callback);
-    }
+
 
     //TODO optimize
     public void notify(KEvent event) {
@@ -123,20 +113,5 @@ public class DefaultKBroker implements KEventBroker {
         //noop
     }
 
-    @Override
-    public void call(KObject source, MetaOperation operation, Object[] param, Callback<Object> callback) {
-        Map<Integer, KOperation> clazzOperations = operationCallbacks.get(source.metaClass().index());
-        if (clazzOperations != null) {
-            KOperation operationCore = clazzOperations.get(operation.index());
-            if (callback != null) {
-                operationCore.on(source, param, callback);
-            } else {
-                // try remote call
-                //TODO
-            }
-        } else {
-            //Try remote call
-            //TODO
-        }
-    }
+
 }

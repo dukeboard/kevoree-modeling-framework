@@ -10,6 +10,7 @@ import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.util.KOperationManager;
 
 /**
  * Created by duke on 10/17/14.
@@ -49,4 +50,6 @@ public interface KStore {
     public KDataBase dataBase();
 
     public void setDataBase(KDataBase dataBase);
+
+    public KOperationManager operationManager();
 }

@@ -91,10 +91,10 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
     public void trigger(String param, Callback<String> callback) {
         Object[] internal_params = new Object[1];
         internal_params[0] = param;
-        view().dimension().universe().storage().eventBroker().call(this, METAOPERATIONS.TRIGGER, internal_params, new Callback<Object>() {
+        view().dimension().universe().storage().operationManager().call(this, METAOPERATIONS.TRIGGER, internal_params, new Callback<Object>() {
             @Override
             public void on(Object o) {
-                callback.on((String)o);
+                callback.on((String) o);
             }
         });
     }

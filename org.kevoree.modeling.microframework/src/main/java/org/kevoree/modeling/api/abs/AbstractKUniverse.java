@@ -109,6 +109,6 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
     @Override
     public void setOperation(MetaOperation metaOperation, KOperation operation) {
-        storage().eventBroker().registerOperation(metaOperation, operation);
+        storage().operationManager().registerOperation(metaOperation, operation);
     }
 }

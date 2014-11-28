@@ -11,6 +11,8 @@ import org.kevoree.modeling.api.event.DefaultKBroker;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
+import org.kevoree.modeling.api.util.DefaultOperationManager;
+import org.kevoree.modeling.api.util.KOperationManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,13 +38,16 @@ public class DefaultKStore implements KStore {
     private KDataBase _db;
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
     private KEventBroker _eventBroker;
+    private KOperationManager _operationManager;
 
     public DefaultKStore() {
         this._db = new MemoryKDataBase();
         this._eventBroker = new DefaultKBroker();
+        this._operationManager = new DefaultOperationManager(this);
         initRange(UUID_DB_KEY);
         initRange(DIM_DB_KEY);
     }
+
 
     private String keyTree(long dim, long key) {
         return "" + dim + KEY_SEP + key;
@@ -434,6 +439,10 @@ public class DefaultKStore implements KStore {
         this._db = p_dataBase;
         initRange(UUID_DB_KEY);
         initRange(DIM_DB_KEY);
+    }
+
+    public KOperationManager operationManager() {
+        return _operationManager;
     }
 
     /* Private not synchronized methods */

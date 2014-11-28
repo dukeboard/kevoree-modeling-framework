@@ -7173,7 +7173,7 @@ var cloud;
                 var trigger_params = new Array();
                 trigger_params[0] = param;
                 trigger_params[1] = loop;
-                this.view().dimension().universe().storage().eventBroker().call(this, cloud.Element.METAOPERATIONS.TRIGGER, trigger_params, function (o) {
+                this.view().dimension().universe().storage().operationManager().call(this, cloud.Element.METAOPERATIONS.TRIGGER, trigger_params, function (o) {
                     result(o);
                 });
             };
