@@ -1,78 +1,75 @@
 #set($classDeclaration = $context.classDeclaration)
-public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
+    public enum METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
 #if($classDeclaration.attributes.size() == 0)
-;//Nothing in this ENUM
+        ;//Nothing in this ENUM
 #{else}
-    #set($attIdx = 0)
-    #set($attIdxMax = $classDeclaration.attributes.size() - 1)
-    #foreach($attribute in $classDeclaration.attributes)
-        #if($attribute.learned)
-            ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, #if($context.generationContext.helper.isNull(${attribute.precision}))0#{else}$attribute.precision#end, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance())#if($attIdx < $attIdxMax),
+
+#set($attIdx = 0)
+#set($attIdxMax = $classDeclaration.attributes.size() - 1)
+#foreach($attribute in $classDeclaration.attributes)
+#if($attribute.learned)
+        ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, #if($context.generationContext.helper.isNull(${attribute.precision}))0#{else}$attribute.precision#end, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance())#if($attIdx < $attIdxMax),
 #{else};
-            #end
-        #else
-            ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, 0, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance())#if($attIdx < $attIdxMax),
+#end
+#else
+        ${attribute.getName().toUpperCase()}("$attribute.getName()",$enumIdx, 0, #if($attribute.id)true#{else}false#end,org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance())#if($attIdx < $attIdxMax),
 #{else};
-            #end
-        #end
-        #set($enumIdx = $enumIdx + 1)
-        #set($attIdx = $attIdx + 1)
-    #end
+#end
+#end
+    #set($enumIdx = $enumIdx + 1)
+    #set($attIdx = $attIdx + 1)
+#end
 #end
 
-private String _name;
+        private String _name;
+        private int _index;
+        private double _precision;
+        private boolean _key;
+        private org.kevoree.modeling.api.meta.MetaType _metaType;
+        private org.kevoree.modeling.api.extrapolation.Extrapolation _extrapolation;
 
-private int _index;
+        METAATTRIBUTES(String name, int index, double precision, boolean key, org.kevoree.modeling.api.meta.MetaType metaType, org.kevoree.modeling.api.extrapolation.Extrapolation extrapolation) {
+            this._name = name;
+            this._index = index;
+            this._precision = precision;
+            this._key = key;
+            this._metaType = metaType;
+            this._extrapolation = extrapolation;
+        }
 
-private double _precision;
+        public int index() {
+            return _index;
+        }
 
-private boolean _key;
+        public String metaName() {
+            return _name;
+        }
 
-private org.kevoree.modeling.api.meta.MetaType _metaType;
+        public double precision() {
+            return _precision;
+        }
 
-private org.kevoree.modeling.api.extrapolation.Extrapolation _extrapolation;
+        public boolean key() {
+            return _key;
+        }
 
-public int index() {
-return _index;
-}
+        public org.kevoree.modeling.api.meta.MetaType metaType() {
+            return _metaType;
+        }
 
-public String metaName() {
-return _name;
-}
+        public org.kevoree.modeling.api.meta.MetaClass origin(){
+            return ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
+        }
 
-public double precision() {
-return _precision;
-}
+        public org.kevoree.modeling.api.extrapolation.Extrapolation strategy() {
+            return _extrapolation;
+        }
 
-public boolean key() {
-return _key;
-}
+        public void setExtrapolation(org.kevoree.modeling.api.extrapolation.Extrapolation extrapolation) {
+            this._extrapolation = extrapolation;
+        }
 
-public org.kevoree.modeling.api.meta.MetaType metaType() {
-return _metaType;
-}
-
-public org.kevoree.modeling.api.meta.MetaClass origin(){
-return ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View.METACLASSES.${classDeclaration.fqn.toUpperCase().replace(".","_")};
-}
-
-public org.kevoree.modeling.api.extrapolation.Extrapolation strategy() {
-return _extrapolation;
-}
-
-public void setExtrapolation(org.kevoree.modeling.api.extrapolation.Extrapolation extrapolation) {
-this._extrapolation = extrapolation;
-}
-
-METAATTRIBUTES(String name, int index, double precision, boolean key, org.kevoree.modeling.api.meta.MetaType metaType, org.kevoree.modeling.api.extrapolation.Extrapolation extrapolation) {
-this._name = name;
-this._index = index;
-this._precision = precision;
-this._key = key;
-this._metaType = metaType;
-this._extrapolation = extrapolation;
-}
-}
+    }
 
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
 #* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

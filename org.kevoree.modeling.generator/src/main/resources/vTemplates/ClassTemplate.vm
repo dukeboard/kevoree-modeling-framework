@@ -3,7 +3,7 @@ package $classDeclaration.pack;
 
 public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject<$classDeclaration.name, ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View> {
 
-#set($enumIdx = 2)
+#set($enumIdx = 5)
 #parse("vTemplates/MetaAttributesTemplate.vm")
 
 #parse("vTemplates/MetaReferencesTemplate.vm")

@@ -41,6 +41,60 @@ var geometry;
             METACLASSES.prototype.metaName = function () {
                 return this._name;
             };
+            METACLASSES.prototype.metaAttributes = function () {
+                if (this._index == 0) {
+                    return geometry.Shape.METAATTRIBUTES.values();
+                }
+                if (this._index == 1) {
+                    return geometry.Library.METAATTRIBUTES.values();
+                }
+                return new Array();
+            };
+            METACLASSES.prototype.metaReferences = function () {
+                if (this._index == 0) {
+                    return geometry.Shape.METAREFERENCES.values();
+                }
+                if (this._index == 1) {
+                    return geometry.Library.METAREFERENCES.values();
+                }
+                return new Array();
+            };
+            METACLASSES.prototype.metaOperations = function () {
+                if (this._index == 0) {
+                    return geometry.Shape.METAOPERATIONS.values();
+                }
+                if (this._index == 1) {
+                    return geometry.Library.METAOPERATIONS.values();
+                }
+                return new Array();
+            };
+            METACLASSES.prototype.metaAttribute = function (name) {
+                var atts = this.metaAttributes();
+                for (var i = 0; i < atts.length; i++) {
+                    if (atts[i].metaName().equals(name)) {
+                        return atts[i];
+                    }
+                }
+                return null;
+            };
+            METACLASSES.prototype.metaReference = function (name) {
+                var refs = this.metaReferences();
+                for (var i = 0; i < refs.length; i++) {
+                    if (refs[i].metaName().equals(name)) {
+                        return refs[i];
+                    }
+                }
+                return null;
+            };
+            METACLASSES.prototype.metaOperation = function (name) {
+                var ops = this.metaOperations();
+                for (var i = 0; i < ops.length; i++) {
+                    if (ops[i].metaName().equals(name)) {
+                        return ops[i];
+                    }
+                }
+                return null;
+            };
             METACLASSES.prototype.equals = function (other) {
                 return this == other;
             };
@@ -70,9 +124,9 @@ var geometry;
                 }
                 switch (p_clazz.index()) {
                     case 0:
-                        return this.manageCache(new geometry.impl.ShapeImpl(this, geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE, p_key, this.now(), this.dimension(), p_timeTree));
+                        return new geometry.impl.ShapeImpl(this, p_key, p_timeTree, p_clazz);
                     case 1:
-                        return this.manageCache(new geometry.impl.LibraryImpl(this, geometry.GeometryView.METACLASSES.GEOMETRY_LIBRARY, p_key, this.now(), this.dimension(), p_timeTree));
+                        return new geometry.impl.LibraryImpl(this, p_key, p_timeTree, p_clazz);
                     default:
                         return null;
                 }
@@ -91,8 +145,8 @@ var geometry;
         impl.GeometryViewImpl = GeometryViewImpl;
         var LibraryImpl = (function (_super) {
             __extends(LibraryImpl, _super);
-            function LibraryImpl(p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree) {
-                _super.call(this, p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree);
+            function LibraryImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
             LibraryImpl.prototype.metaAttributes = function () {
                 return geometry.Library.METAATTRIBUTES.values();
@@ -101,7 +155,7 @@ var geometry;
                 return geometry.Library.METAREFERENCES.values();
             };
             LibraryImpl.prototype.metaOperations = function () {
-                return geometry.Library.METAOPERATION.values();
+                return geometry.Library.METAOPERATIONS.values();
             };
             LibraryImpl.prototype.addShapes = function (p_obj) {
                 this.mutate(org.kevoree.modeling.api.KActionType.ADD, geometry.Library.METAREFERENCES.SHAPES, p_obj, true);
@@ -122,8 +176,8 @@ var geometry;
         impl.LibraryImpl = LibraryImpl;
         var ShapeImpl = (function (_super) {
             __extends(ShapeImpl, _super);
-            function ShapeImpl(p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree) {
-                _super.call(this, p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree);
+            function ShapeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
             ShapeImpl.prototype.metaAttributes = function () {
                 return geometry.Shape.METAATTRIBUTES.values();
@@ -132,7 +186,7 @@ var geometry;
                 return geometry.Shape.METAREFERENCES.values();
             };
             ShapeImpl.prototype.metaOperations = function () {
-                return geometry.Shape.METAOPERATION.values();
+                return geometry.Shape.METAOPERATIONS.values();
             };
             ShapeImpl.prototype.getColor = function () {
                 return this.get(geometry.Shape.METAATTRIBUTES.COLOR);
@@ -236,38 +290,38 @@ var geometry;
             METAREFERENCES.values = function () {
                 return METAREFERENCES._METAREFERENCESVALUES;
             };
-            METAREFERENCES.SHAPES = new METAREFERENCES("shapes", 2, true, false, geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE);
+            METAREFERENCES.SHAPES = new METAREFERENCES("shapes", 5, true, false, geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE);
             METAREFERENCES._METAREFERENCESVALUES = [
                 METAREFERENCES.SHAPES
             ];
             return METAREFERENCES;
         })();
         Library.METAREFERENCES = METAREFERENCES;
-        var METAOPERATION = (function () {
-            function METAOPERATION(name, index) {
+        var METAOPERATIONS = (function () {
+            function METAOPERATIONS(name, index) {
                 this._name = name;
                 this._index = index;
             }
-            METAOPERATION.prototype.index = function () {
+            METAOPERATIONS.prototype.index = function () {
                 return this._index;
             };
-            METAOPERATION.prototype.metaName = function () {
+            METAOPERATIONS.prototype.metaName = function () {
                 return this._name;
             };
-            METAOPERATION.prototype.origin = function () {
+            METAOPERATIONS.prototype.origin = function () {
                 return geometry.GeometryView.METACLASSES.GEOMETRY_LIBRARY;
             };
-            METAOPERATION.prototype.equals = function (other) {
+            METAOPERATIONS.prototype.equals = function (other) {
                 return this == other;
             };
-            METAOPERATION.values = function () {
-                return METAOPERATION._METAOPERATIONVALUES;
+            METAOPERATIONS.values = function () {
+                return METAOPERATIONS._METAOPERATIONSVALUES;
             };
-            METAOPERATION._METAOPERATIONVALUES = [
+            METAOPERATIONS._METAOPERATIONSVALUES = [
             ];
-            return METAOPERATION;
+            return METAOPERATIONS;
         })();
-        Library.METAOPERATION = METAOPERATION;
+        Library.METAOPERATIONS = METAOPERATIONS;
     })(Library = geometry.Library || (geometry.Library = {}));
     var Shape;
     (function (Shape) {
@@ -310,8 +364,8 @@ var geometry;
             METAATTRIBUTES.values = function () {
                 return METAATTRIBUTES._METAATTRIBUTESVALUES;
             };
-            METAATTRIBUTES.COLOR = new METAATTRIBUTES("color", 2, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-            METAATTRIBUTES.NAME = new METAATTRIBUTES("name", 3, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            METAATTRIBUTES.COLOR = new METAATTRIBUTES("color", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            METAATTRIBUTES.NAME = new METAATTRIBUTES("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
             METAATTRIBUTES._METAATTRIBUTESVALUES = [
                 METAATTRIBUTES.COLOR,
                 METAATTRIBUTES.NAME
@@ -362,30 +416,30 @@ var geometry;
             return METAREFERENCES;
         })();
         Shape.METAREFERENCES = METAREFERENCES;
-        var METAOPERATION = (function () {
-            function METAOPERATION(name, index) {
+        var METAOPERATIONS = (function () {
+            function METAOPERATIONS(name, index) {
                 this._name = name;
                 this._index = index;
             }
-            METAOPERATION.prototype.index = function () {
+            METAOPERATIONS.prototype.index = function () {
                 return this._index;
             };
-            METAOPERATION.prototype.metaName = function () {
+            METAOPERATIONS.prototype.metaName = function () {
                 return this._name;
             };
-            METAOPERATION.prototype.origin = function () {
+            METAOPERATIONS.prototype.origin = function () {
                 return geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE;
             };
-            METAOPERATION.prototype.equals = function (other) {
+            METAOPERATIONS.prototype.equals = function (other) {
                 return this == other;
             };
-            METAOPERATION.values = function () {
-                return METAOPERATION._METAOPERATIONVALUES;
+            METAOPERATIONS.values = function () {
+                return METAOPERATIONS._METAOPERATIONSVALUES;
             };
-            METAOPERATION._METAOPERATIONVALUES = [
+            METAOPERATIONS._METAOPERATIONSVALUES = [
             ];
-            return METAOPERATION;
+            return METAOPERATIONS;
         })();
-        Shape.METAOPERATION = METAOPERATION;
+        Shape.METAOPERATIONS = METAOPERATIONS;
     })(Shape = geometry.Shape || (geometry.Shape = {}));
 })(geometry || (geometry = {}));

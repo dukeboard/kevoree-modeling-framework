@@ -13,10 +13,16 @@ import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
 import org.java_websocket.handshake.ServerHandshake;
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.OperationCallback;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.KEventBroker;
+import org.kevoree.modeling.api.event.ListenerScope;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
 
 import java.io.IOException;
 import java.net.URI;
@@ -87,8 +93,13 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
     }
 
     @Override
-    public void registerListener(Object origin, ModelListener listener) {
-        _baseBroker.registerListener(origin, listener);
+    public void registerListener(Object origin, ModelListener listener, ListenerScope scope) {
+        _baseBroker.registerListener(origin, listener, scope);
+    }
+
+    @Override
+    public void registerOperation(MetaClass clazz, MetaOperation operation, OperationCallback callback) {
+        _baseBroker.registerOperation(clazz, operation, callback);
     }
 
     @Override
@@ -125,6 +136,12 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
                 client.send(message);
             }
         }
+    }
+
+    @Override
+    public void call(KObject element, MetaOperation operation, Callback<Object> callback, Object... parameters) {
+        //TODO: Remote Call
+        _baseBroker.call(element, operation, callback, parameters);
     }
 
     @Override

@@ -38,6 +38,11 @@ module geometry {
             public static GEOMETRY_LIBRARY: METACLASSES = new METACLASSES("geometry.Library", 1);
             private _name: string;
             private _index: number;
+            constructor(name: string, index: number) {
+                this._name = name;
+                this._index = index;
+            }
+
             public index(): number {
                 return this._index;
             }
@@ -46,9 +51,64 @@ module geometry {
                 return this._name;
             }
 
-            constructor(name: string, index: number) {
-                this._name = name;
-                this._index = index;
+            public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
+                if (this._index == 0) {
+                    return geometry.Shape.METAATTRIBUTES.values();
+                }
+                if (this._index == 1) {
+                    return geometry.Library.METAATTRIBUTES.values();
+                }
+                return new Array();
+            }
+
+            public metaReferences(): org.kevoree.modeling.api.meta.MetaReference[] {
+                if (this._index == 0) {
+                    return geometry.Shape.METAREFERENCES.values();
+                }
+                if (this._index == 1) {
+                    return geometry.Library.METAREFERENCES.values();
+                }
+                return new Array();
+            }
+
+            public metaOperations(): org.kevoree.modeling.api.meta.MetaOperation[] {
+                if (this._index == 0) {
+                    return geometry.Shape.METAOPERATIONS.values();
+                }
+                if (this._index == 1) {
+                    return geometry.Library.METAOPERATIONS.values();
+                }
+                return new Array();
+            }
+
+            public metaAttribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute {
+                var atts: org.kevoree.modeling.api.meta.MetaAttribute[] = this.metaAttributes();
+                for (var i: number = 0; i < atts.length; i++) {
+                    if (atts[i].metaName().equals(name)) {
+                        return atts[i];
+                    }
+                }
+                return null;
+            }
+
+            public metaReference(name: string): org.kevoree.modeling.api.meta.MetaReference {
+                var refs: org.kevoree.modeling.api.meta.MetaReference[] = this.metaReferences();
+                for (var i: number = 0; i < refs.length; i++) {
+                    if (refs[i].metaName().equals(name)) {
+                        return refs[i];
+                    }
+                }
+                return null;
+            }
+
+            public metaOperation(name: string): org.kevoree.modeling.api.meta.MetaOperation {
+                var ops: org.kevoree.modeling.api.meta.MetaOperation[] = this.metaOperations();
+                for (var i: number = 0; i < ops.length; i++) {
+                    if (ops[i].metaName().equals(name)) {
+                        return ops[i];
+                    }
+                }
+                return null;
             }
 
             public equals(other: any): boolean {
@@ -78,9 +138,9 @@ module geometry {
                 }
                 switch (p_clazz.index()) {
                     case 0: 
-                    return this.manageCache(new geometry.impl.ShapeImpl(this, geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE, p_key, this.now(), this.dimension(), p_timeTree));
+                    return new geometry.impl.ShapeImpl(this, p_key, p_timeTree, p_clazz);
                     case 1: 
-                    return this.manageCache(new geometry.impl.LibraryImpl(this, geometry.GeometryView.METACLASSES.GEOMETRY_LIBRARY, p_key, this.now(), this.dimension(), p_timeTree));
+                    return new geometry.impl.LibraryImpl(this, p_key, p_timeTree, p_clazz);
                     default: 
                     return null;
                 }
@@ -102,8 +162,8 @@ module geometry {
 
         export class LibraryImpl extends org.kevoree.modeling.api.abs.AbstractKObject<any, any> implements geometry.Library {
 
-            constructor(p_factory: geometry.GeometryView, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, p_uuid: number, p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any, any, any>, p_timeTree: org.kevoree.modeling.api.time.TimeTree) {
-                super(p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree);
+            constructor(p_factory: geometry.GeometryView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                super(p_factory, p_uuid, p_timeTree, p_metaClass);
             }
 
             public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
@@ -115,7 +175,7 @@ module geometry {
             }
 
             public metaOperations(): org.kevoree.modeling.api.meta.MetaOperation[] {
-                return geometry.Library.METAOPERATION.values();
+                return geometry.Library.METAOPERATIONS.values();
             }
 
             public addShapes(p_obj: geometry.Shape): geometry.Library {
@@ -140,8 +200,8 @@ module geometry {
 
         export class ShapeImpl extends org.kevoree.modeling.api.abs.AbstractKObject<any, any> implements geometry.Shape {
 
-            constructor(p_factory: geometry.GeometryView, p_metaClass: org.kevoree.modeling.api.meta.MetaClass, p_uuid: number, p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any, any, any>, p_timeTree: org.kevoree.modeling.api.time.TimeTree) {
-                super(p_factory, p_metaClass, p_uuid, p_now, p_dimension, p_timeTree);
+            constructor(p_factory: geometry.GeometryView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                super(p_factory, p_uuid, p_timeTree, p_metaClass);
             }
 
             public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
@@ -153,7 +213,7 @@ module geometry {
             }
 
             public metaOperations(): org.kevoree.modeling.api.meta.MetaOperation[] {
-                return geometry.Shape.METAOPERATION.values();
+                return geometry.Shape.METAOPERATIONS.values();
             }
 
             public getColor(): string {
@@ -198,6 +258,15 @@ module geometry {
             private _key: boolean;
             private _metaType: org.kevoree.modeling.api.meta.MetaType;
             private _extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation;
+            constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
+                this._name = name;
+                this._index = index;
+                this._precision = precision;
+                this._key = key;
+                this._metaType = metaType;
+                this._extrapolation = extrapolation;
+            }
+
             public index(): number {
                 return this._index;
             }
@@ -230,15 +299,6 @@ module geometry {
                 this._extrapolation = extrapolation;
             }
 
-            constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
-                this._name = name;
-                this._index = index;
-                this._precision = precision;
-                this._key = key;
-                this._metaType = metaType;
-                this._extrapolation = extrapolation;
-            }
-
             public equals(other: any): boolean {
                 return this == other;
             }
@@ -252,12 +312,20 @@ module geometry {
 
         export class METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReference {
 
-            public static SHAPES: METAREFERENCES = new METAREFERENCES("shapes", 2, true, false, geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE);
+            public static SHAPES: METAREFERENCES = new METAREFERENCES("shapes", 5, true, false, geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE);
             private _name: string;
             private _index: number;
             private _contained: boolean;
             private _single: boolean;
             private _metaType: org.kevoree.modeling.api.meta.MetaClass;
+            constructor(name: string, index: number, contained: boolean, single: boolean, metaType: org.kevoree.modeling.api.meta.MetaClass) {
+                this._name = name;
+                this._index = index;
+                this._contained = contained;
+                this._single = single;
+                this._metaType = metaType;
+            }
+
             public index(): number {
                 return this._index;
             }
@@ -289,14 +357,6 @@ module geometry {
                 return geometry.GeometryView.METACLASSES.GEOMETRY_LIBRARY;
             }
 
-            constructor(name: string, index: number, contained: boolean, single: boolean, metaType: org.kevoree.modeling.api.meta.MetaClass) {
-                this._name = name;
-                this._index = index;
-                this._contained = contained;
-                this._single = single;
-                this._metaType = metaType;
-            }
-
             public equals(other: any): boolean {
                 return this == other;
             }
@@ -309,10 +369,15 @@ module geometry {
         }
 
 
-        export class METAOPERATION implements org.kevoree.modeling.api.meta.MetaOperation {
+        export class METAOPERATIONS implements org.kevoree.modeling.api.meta.MetaOperation {
 
             private _name: string;
             private _index: number;
+            constructor(name: string, index: number) {
+                this._name = name;
+                this._index = index;
+            }
+
             public index(): number {
                 return this._index;
             }
@@ -325,18 +390,13 @@ module geometry {
                 return geometry.GeometryView.METACLASSES.GEOMETRY_LIBRARY;
             }
 
-            constructor(name: string, index: number) {
-                this._name = name;
-                this._index = index;
-            }
-
             public equals(other: any): boolean {
                 return this == other;
             }
-            public static _METAOPERATIONVALUES : METAOPERATION[] = [
+            public static _METAOPERATIONSVALUES : METAOPERATIONS[] = [
             ];
-            public static values():METAOPERATION[]{
-                return METAOPERATION._METAOPERATIONVALUES;
+            public static values():METAOPERATIONS[]{
+                return METAOPERATIONS._METAOPERATIONSVALUES;
             }
         }
 
@@ -357,14 +417,23 @@ module geometry {
     export module Shape { 
         export class METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
 
-            public static COLOR: METAATTRIBUTES = new METAATTRIBUTES("color", 2, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-            public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 3, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            public static COLOR: METAATTRIBUTES = new METAATTRIBUTES("color", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
             private _name: string;
             private _index: number;
             private _precision: number;
             private _key: boolean;
             private _metaType: org.kevoree.modeling.api.meta.MetaType;
             private _extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation;
+            constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
+                this._name = name;
+                this._index = index;
+                this._precision = precision;
+                this._key = key;
+                this._metaType = metaType;
+                this._extrapolation = extrapolation;
+            }
+
             public index(): number {
                 return this._index;
             }
@@ -394,15 +463,6 @@ module geometry {
             }
 
             public setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void {
-                this._extrapolation = extrapolation;
-            }
-
-            constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
-                this._name = name;
-                this._index = index;
-                this._precision = precision;
-                this._key = key;
-                this._metaType = metaType;
                 this._extrapolation = extrapolation;
             }
 
@@ -426,6 +486,14 @@ module geometry {
             private _contained: boolean;
             private _single: boolean;
             private _metaType: org.kevoree.modeling.api.meta.MetaClass;
+            constructor(name: string, index: number, contained: boolean, single: boolean, metaType: org.kevoree.modeling.api.meta.MetaClass) {
+                this._name = name;
+                this._index = index;
+                this._contained = contained;
+                this._single = single;
+                this._metaType = metaType;
+            }
+
             public index(): number {
                 return this._index;
             }
@@ -457,14 +525,6 @@ module geometry {
                 return geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE;
             }
 
-            constructor(name: string, index: number, contained: boolean, single: boolean, metaType: org.kevoree.modeling.api.meta.MetaClass) {
-                this._name = name;
-                this._index = index;
-                this._contained = contained;
-                this._single = single;
-                this._metaType = metaType;
-            }
-
             public equals(other: any): boolean {
                 return this == other;
             }
@@ -476,10 +536,15 @@ module geometry {
         }
 
 
-        export class METAOPERATION implements org.kevoree.modeling.api.meta.MetaOperation {
+        export class METAOPERATIONS implements org.kevoree.modeling.api.meta.MetaOperation {
 
             private _name: string;
             private _index: number;
+            constructor(name: string, index: number) {
+                this._name = name;
+                this._index = index;
+            }
+
             public index(): number {
                 return this._index;
             }
@@ -492,18 +557,13 @@ module geometry {
                 return geometry.GeometryView.METACLASSES.GEOMETRY_SHAPE;
             }
 
-            constructor(name: string, index: number) {
-                this._name = name;
-                this._index = index;
-            }
-
             public equals(other: any): boolean {
                 return this == other;
             }
-            public static _METAOPERATIONVALUES : METAOPERATION[] = [
+            public static _METAOPERATIONSVALUES : METAOPERATIONS[] = [
             ];
-            public static values():METAOPERATION[]{
-                return METAOPERATION._METAOPERATIONVALUES;
+            public static values():METAOPERATIONS[]{
+                return METAOPERATIONS._METAOPERATIONSVALUES;
             }
         }
 
