@@ -43,12 +43,13 @@ declare module java {
             static parseShort(val: string): number;
         }
         class Throwable {
-            printStackTrace(): void;
-        }
-        class Exception extends Throwable {
             private message;
             constructor(message: string);
             printStackTrace(): void;
+        }
+        class Exception extends Throwable {
+        }
+        class RuntimeException extends Exception {
         }
         class StringBuilder {
             buffer: string;

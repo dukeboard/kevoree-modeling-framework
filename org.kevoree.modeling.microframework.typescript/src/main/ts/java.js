@@ -119,26 +119,31 @@ var java;
         })();
         lang.Short = Short;
         var Throwable = (function () {
-            function Throwable() {
+            function Throwable(message) {
+                this.message = message;
             }
             Throwable.prototype.printStackTrace = function () {
-                throw new Exception("Abstract implementation");
+                console.error(this.message);
             };
             return Throwable;
         })();
         lang.Throwable = Throwable;
         var Exception = (function (_super) {
             __extends(Exception, _super);
-            function Exception(message) {
-                _super.call(this);
-                this.message = message;
+            function Exception() {
+                _super.apply(this, arguments);
             }
-            Exception.prototype.printStackTrace = function () {
-                console.error(this.message);
-            };
             return Exception;
         })(Throwable);
         lang.Exception = Exception;
+        var RuntimeException = (function (_super) {
+            __extends(RuntimeException, _super);
+            function RuntimeException() {
+                _super.apply(this, arguments);
+            }
+            return RuntimeException;
+        })(Exception);
+        lang.RuntimeException = RuntimeException;
         var StringBuilder = (function () {
             function StringBuilder() {
                 this.buffer = "";
@@ -421,27 +426,41 @@ var org;
             }
             Assert.assertNotNull = function (p) {
                 if (p == null) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be null");
+                    throw "Assert Error " + p + " must not be null";
                 }
             };
             Assert.assertNull = function (p) {
                 if (p != null) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be null");
+                    throw "Assert Error " + p + " must be null";
                 }
             };
             Assert.assertEquals = function (p, p2) {
-                if (p != p2) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be equals to " + p2);
+                if (p.equals !== undefined) {
+                    if (!p.equals(p2)) {
+                        throw "Assert Error \n" + p + "\n must be equal to \n" + p2 + "\n";
+                    }
+                }
+                else {
+                    if (p != p2) {
+                        throw "Assert Error \n" + p + "\n must be equal to \n" + p2 + "\n";
+                    }
                 }
             };
             Assert.assertNotEquals = function (p, p2) {
-                if (p == p2) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be equals to " + p2);
+                if (p.equals !== undefined) {
+                    if (p.equals(p2)) {
+                        throw "Assert Error \n" + p + "\n must not be equal to \n" + p2 + "\n";
+                    }
+                }
+                else {
+                    if (p == p2) {
+                        throw "Assert Error \n" + p + "\n must not be equal to \n" + p2 + "\n";
+                    }
                 }
             };
             Assert.assertTrue = function (b) {
                 if (!b) {
-                    throw new java.lang.Exception("Assert Error " + b + " must be true");
+                    throw "Assert Error " + b + " must be true";
                 }
             };
             return Assert;
