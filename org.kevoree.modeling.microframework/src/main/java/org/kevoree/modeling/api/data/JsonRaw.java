@@ -226,14 +226,16 @@ public class JsonRaw {
         }
         for (int i = 0; i < metaAttributes.length; i++) {
             Object payload_res = raw[metaAttributes[i].index()];
-            String attrsPayload = metaAttributes[i].strategy().save(payload_res);
-            if (attrsPayload != null) {
-                builder.append("\t");
-                builder.append("\"");
-                builder.append(metaAttributes[i].metaName());
-                builder.append("\":\"");
-                builder.append(attrsPayload);
-                builder.append("\",\n");
+            if(payload_res != null) {
+                String attrsPayload = metaAttributes[i].strategy().save(payload_res);
+                if (attrsPayload != null) {
+                    builder.append("\t");
+                    builder.append("\"");
+                    builder.append(metaAttributes[i].metaName());
+                    builder.append("\":\"");
+                    builder.append(attrsPayload);
+                    builder.append("\",\n");
+                }
             }
         }
         for (int i = 0; i < metaReferences.length; i++) {
