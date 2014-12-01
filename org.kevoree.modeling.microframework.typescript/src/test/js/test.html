@@ -10,11 +10,40 @@
 <script src="../../../target/js-test/org.kevoree.modeling.microframework.typescript.js"></script>
 <script>
     try {
+        /*
         var tests = new org.kevoree.modeling.microframework.test.polynomial.PolynomialKMFTest();
         tests.test();
+        */
+        var timeTestSuite = new org.kevoree.modeling.microframework.test.TimeTest();
+        timeTestSuite.timeCreationTest();
+        timeTestSuite.objectModificationTest();
+        timeTestSuite.simpleTimeNavigationTest();
+        timeTestSuite.distortedTimeNavigationTest();
     } catch (e) {
         console.trace(e);
     }
+
+
+
+    /*
+    * "Assert Error {
+     "@meta" : "org.kevoree.modeling.microframework.test.cloud.Element",
+     "@uuid" : "2",
+     "@parent" : "1",
+     "@ref" : "org.kevoree.modeling.microframework.test.cloud.Node@element",
+     "@inbounds" : ["1@org.kevoree.modeling.microframework.test.cloud.Node@element"],
+     }
+     must be equals to {
+     "@meta" : "org.kevoree.modeling.microframework.test.cloud.Element",
+     "@uuid" : "2",
+     "@parent" : "1",
+     "@ref" : "org.kevoree.modeling.microframework.test.cloud.Node@element",
+     "@inbounds" : ["1@org.kevoree.modeling.microframework.test.cloud.Node@element"],
+     }
+     "
+    *
+    * */
+
 </script>
 
 </body>
