@@ -90,9 +90,9 @@ public class JsonModelLoader {
                     if (metaKeys[i].equals(JsonModelSerializer.INBOUNDS_META)) {
                         HashMap<Long, MetaReference> inbounds = new HashMap<Long, MetaReference>();
                         raw[Index.INBOUNDS_INDEX] = inbounds;
-                        Object raw_payload = content.get(metaKeys[i]);
+                        Object inbounds_payload = content.get(metaKeys[i]);
                         try {
-                            HashSet<String> raw_keys = (HashSet<String>) raw_payload;
+                            HashSet<String> raw_keys = (HashSet<String>) inbounds_payload;
                             String[] raw_keys_p = raw_keys.toArray(new String[raw_keys.size()]);
                             for (int j = 0; j < raw_keys_p.length; j++) {
                                 String raw_elem = raw_keys_p[j];
@@ -119,8 +119,8 @@ public class JsonModelLoader {
                         }
                     } else if (metaKeys[i].equals(JsonModelSerializer.PARENT_REF_META)) {
                         try {
-                            String raw_payload = content.get(metaKeys[i]).toString();
-                            String[] elems = raw_payload.split(JsonRaw.SEP);
+                            String parentRef_payload = content.get(metaKeys[i]).toString();
+                            String[] elems = parentRef_payload.split(JsonRaw.SEP);
                             if (elems.length == 2) {
                                 MetaClass foundMeta = factory.metaClass(elems[0].trim());
                                 if (foundMeta != null) {
