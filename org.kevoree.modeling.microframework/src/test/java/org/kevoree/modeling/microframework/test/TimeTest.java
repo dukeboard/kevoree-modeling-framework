@@ -4,11 +4,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.time.TimeWalker;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
 import org.kevoree.modeling.microframework.test.cloud.Element;
+
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Created by thomas on 10/21/14.
@@ -25,12 +29,12 @@ public class TimeTest {
         // create time0
         final CloudView t0 = dimension0.time(0l);
         Assert.assertNotNull(t0);
-        Assert.assertEquals(t0.now(), 0l);
+        assertEquals(t0.now(), 0l);
 
         // create time1
         final CloudView t1 = dimension0.time(1l);
         Assert.assertNotNull(t1);
-        Assert.assertEquals(t1.now(), 1l);
+        assertEquals(t1.now(), 1l);
     }
 
     @Test
@@ -62,8 +66,8 @@ public class TimeTest {
                 ((Node) kObject).getElement(new Callback<Element>() {
                     @Override
                     public void on(Element element) {
-                        Assert.assertEquals(element0, element);
-                        Assert.assertEquals(element.now(), t0.now());
+                        assertEquals(element0, element);
+                        assertEquals(element.now(), t0.now());
                     }
                 });
             }
@@ -130,8 +134,8 @@ public class TimeTest {
                     @Override
                     public void on(Element element) {
                         Assert.assertNotNull(element);
-                        Assert.assertEquals(element, elem1);
-                        Assert.assertEquals(element.now(), t1.now());
+                        assertEquals(element, elem1);
+                        assertEquals(element.now(), t1.now());
                     }
                 });
             }
@@ -169,8 +173,8 @@ public class TimeTest {
         t0.lookup(node0.uuid(), new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                Assert.assertEquals(((Node) kObject).getName(), "node at 0");
-                Assert.assertEquals(((Node) kObject).getValue(), "0");
+                assertEquals(((Node) kObject).getName(), "node at 0");
+                assertEquals(((Node) kObject).getValue(), "0");
             }
         });
 
@@ -179,10 +183,92 @@ public class TimeTest {
         t1.lookup(node0.uuid(), new Callback<KObject>() {
             @Override
             public void on(KObject kObject) {
-                Assert.assertEquals(((Node) kObject).getName(), "node at 1");
-                Assert.assertEquals(((Node) kObject).getValue(), "1");
+                assertEquals(((Node) kObject).getName(), "node at 1");
+                assertEquals(((Node) kObject).getValue(), "1");
             }
         });
     }
+
+    @Test
+    public void timeUpdateWithLookupTest() {
+
+        CloudUniverse universe = new CloudUniverse();
+        CloudDimension dimension = universe.newDimension();
+        CloudView t0 = dimension.time(0L);
+        Node node0 = t0.createNode();
+        node0.setName("Node0");
+        t0.setRoot(node0);
+        dimension.save(throwable->{if(throwable!=null){throwable.printStackTrace();}});
+
+        CloudView t1 = dimension.time(1L);
+        Element element = t1.createElement();
+        element.setName("Element1");
+        t1.lookup(node0.uuid(), node0Back->{
+            ((Node)node0Back).setElement(element);
+        });
+        dimension.save(throwable->{if(throwable!=null){throwable.printStackTrace();}});
+
+        CloudView t0_2 = dimension.time(0L);
+        t0_2.select("/", new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                if(kObjects != null && kObjects.length > 0) {
+                    assertEquals(2, ((Node)kObjects[0]).timeTree().size());
+                }
+            }
+        });
+
+
+
+    }
+
+
+    @Test
+    public void timeUpdateWithSelectTest() {
+
+        CloudUniverse universe = new CloudUniverse();
+        CloudDimension dimension = universe.newDimension();
+        CloudView t0 = dimension.time(0L);
+        Node node0 = t0.createNode();
+        node0.setName("Node0");
+        t0.setRoot(node0);
+        dimension.save(throwable->{if(throwable!=null){throwable.printStackTrace();}});
+
+        CloudView t1 = dimension.time(1L);
+        Element element = t1.createElement();
+        element.setName("Element1");
+        t1.select("/", new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                if(kObjects != null && kObjects.length > 0) {
+                    ((Node)kObjects[0]).setElement(element);
+                }
+            }
+        });
+        dimension.save(throwable->{if(throwable!=null){throwable.printStackTrace();}});
+
+        CloudView t0_2 = dimension.time(0L);
+        t0_2.select("/", new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                if(kObjects != null && kObjects.length > 0) {
+                    /*
+                    ((Node)kObjects[0]).timeTree().walkAsc(new TimeWalker() {
+                        @Override
+                        public void walk(long timePoint) {
+                            System.out.println("TimePoint:" + timePoint);
+                        }
+                    });
+                    */
+                    assertEquals(2, ((Node)kObjects[0]).timeTree().size());
+                }
+            }
+        });
+
+
+
+    }
+
+
 
 }

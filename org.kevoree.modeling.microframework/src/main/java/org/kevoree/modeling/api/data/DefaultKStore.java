@@ -366,7 +366,8 @@ public class DefaultKStore implements KStore {
                 timeCache = new TimeCache();
             }
             if (timeCache.root != null) {
-                callback.on(timeCache.root);
+                lookup(originView, timeCache.root.uuid(), callback);
+                //callback.on(timeCache.root);
             } else {
                 final TimeCache timeCacheFinal = timeCache;
                 String[] rootKeys = new String[1];
