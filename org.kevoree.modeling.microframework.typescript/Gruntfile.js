@@ -5,7 +5,7 @@ module.exports = function(grunt) {
             "source_ts": "src/main/ts",
             "source_test_ts": "src/test/ts",
             "target_js": "src/main/resources",
-            "target_test_js": "target/js-test",
+            "target_test_js": "target/test-classes",
             "target_report": "target/report"
         },
         typescript: {
