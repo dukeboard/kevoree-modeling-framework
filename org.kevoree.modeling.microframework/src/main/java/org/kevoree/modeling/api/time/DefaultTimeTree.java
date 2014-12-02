@@ -141,6 +141,13 @@ public class DefaultTimeTree implements TimeTree {
     }
 
     @Override
+    public TimeTree delete(long time) {
+        versionTree.insert(time, State.DELETED);
+        dirty = true;
+        return this;
+    }
+
+    @Override
     public boolean isDirty() {
         return dirty;
     }

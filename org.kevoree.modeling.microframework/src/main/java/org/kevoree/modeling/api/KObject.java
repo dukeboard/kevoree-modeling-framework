@@ -24,7 +24,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public B view();
 
-    public void delete(Callback<Boolean> callback);
+    public void delete(Callback<Throwable> callback);
 
     public void parent(Callback<KObject> callback);
 

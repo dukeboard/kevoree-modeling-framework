@@ -28,6 +28,8 @@ public interface TimeTree {
 
     public TimeTree insert(long time);
 
+    public TimeTree delete(long time);
+
     //TODO nextGeneration
 
     public boolean isDirty();

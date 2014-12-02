@@ -155,6 +155,11 @@ public class DefaultKStore implements KStore {
             throw new RuntimeException(OUT_OF_CACHE_MESSAGE);
         }
         Object[] payload = entry.raw;
+        if (accessMode.equals(AccessMode.DELETE)) {
+            entry.timeTree.delete(origin.now());
+            entry.raw = null;
+            return payload;
+        }
         if (!needCopy) {
             if (accessMode.equals(AccessMode.WRITE)) {
                 payload[Index.IS_DIRTY_INDEX] = true;

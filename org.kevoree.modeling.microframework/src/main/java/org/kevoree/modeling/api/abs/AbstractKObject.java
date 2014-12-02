@@ -140,8 +140,32 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public void delete(Callback<Boolean> callback) {
-        //TODO
+    public void delete(Callback<Throwable> callback) {
+        KObject toRemove = this;
+        Object[] rawPayload = _view.dimension().universe().storage().raw(this, AccessMode.DELETE);
+        Object payload = rawPayload[Index.INBOUNDS_INDEX];
+        if (payload != null) {
+            try {
+                Map<Long, MetaReference> refs = (Map<Long, MetaReference>) payload;
+                Long[] refArr = refs.keySet().toArray(new Long[refs.size()]);
+                view().lookupAll(refArr, new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] resolved) {
+                        for (int i = 0; i < resolved.length; i++) {
+                            if (resolved[i] != null) {
+                                resolved[i].mutate(KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
+                            }
+                        }
+                        callback.on(null);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                callback.on(e);
+            }
+        } else {
+            callback.on(new Exception("Out of cache error"));
+        }
     }
 
     @Override
@@ -598,37 +622,37 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
                                     if (metaRef != null) {
                                         InboundReference reference = new InboundReference(metaRef, opposite);
                                         try {
-                                            if(callback!=null){
+                                            if (callback != null) {
                                                 callback.on(reference);
                                             }
                                         } catch (Throwable t) {
-                                            if(end != null){
+                                            if (end != null) {
                                                 end.on(t);
                                             }
                                         }
                                     } else {
-                                        if(end!= null){
+                                        if (end != null) {
                                             end.on(new Exception("MetaReference not found with index:" + metaRef + " in refs of " + opposite.metaClass().metaName()));
                                         }
                                     }
                                 }
-                                if(end!=null){
+                                if (end != null) {
                                     end.on(null);
                                 }
                             } else {
-                                if(end!=null){
+                                if (end != null) {
                                     end.on(new Exception("Could not resolve opposite objects"));
                                 }
                             }
                         }
                     });
                 } else {
-                    if(end!=null){
+                    if (end != null) {
                         end.on(new Exception("Inbound refs payload is not a cset"));
                     }
                 }
             } else {
-                if(end!=null){
+                if (end != null) {
                     end.on(null);
                 }
             }
