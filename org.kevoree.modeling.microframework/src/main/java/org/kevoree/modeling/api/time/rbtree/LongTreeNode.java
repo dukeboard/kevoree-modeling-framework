@@ -5,20 +5,14 @@ package org.kevoree.modeling.api.time.rbtree;
  */
 public class LongTreeNode {
 
-    public static final char BLACK_DELETE = '0';
-    public static final char BLACK_EXISTS = '1';
-    public static final char RED_DELETE = '2';
-    public static final char RED_EXISTS = '3';
+    public static final char BLACK = '0';
+    public static final char RED = '2';
 
-    protected long key;
+    public long key;
 
-    public long getKey(){
-        return key;
-    }
+    public long value;
 
-    protected State value;
-
-    protected Color color;
+    public Color color;
 
     private LongTreeNode left;
 
@@ -26,13 +20,12 @@ public class LongTreeNode {
 
     private LongTreeNode parent = null;
 
-    public LongTreeNode(long key, State value, Color color, LongTreeNode left, LongTreeNode right) {
+    public LongTreeNode(long key, long value, Color color, LongTreeNode left, LongTreeNode right) {
         this.key = key;
         this.value = value;
         this.color = color;
         this.left = left;
         this.right = right;
-
         if (left != null) {
             left.parent = this;
         }
@@ -96,20 +89,14 @@ public class LongTreeNode {
 
     public void serialize(StringBuilder builder) {
         builder.append("|");
-        if (value == State.DELETED) {
-            if (color == Color.BLACK) {
-                builder.append(BLACK_DELETE);
-            } else {
-                builder.append(RED_DELETE);
-            }
+        if (color == Color.BLACK) {
+            builder.append(BLACK);
         } else {
-            if (color == Color.BLACK) {
-                builder.append(BLACK_EXISTS);
-            } else {
-                builder.append(RED_EXISTS);
-            }
+            builder.append(RED);
         }
         builder.append(key);
+        builder.append("@");
+        builder.append(value);
         if (left == null && right == null) {
             builder.append("%");
         } else {
@@ -125,33 +112,6 @@ public class LongTreeNode {
             }
         }
     }
-
-    /*
-    unefficient for the moment
-    fun serializeBinary(buffer: ByteBuffer) {
-        buffer.put(0)
-        buffer.putLong(domainKey)
-        if(value == STATE.EXISTS){
-            buffer.put(0)
-        } else {
-            buffer.put(1)
-        }
-        if(color == Color.RED){
-            buffer.put(0)
-        } else {
-            buffer.put(1)
-        }
-        if (left != null) {
-            left?.serializeBinary(buffer)
-        } else {
-            buffer.put(1)
-        }
-        if (right != null) {
-            right?.serializeBinary(buffer)
-        } else {
-            buffer.put(1)
-        }
-    } */
 
     public LongTreeNode next() {
         LongTreeNode p = this;
@@ -199,6 +159,76 @@ public class LongTreeNode {
                 return null;
             }
         }
+    }
+
+    public static LongTreeNode unserialize(TreeReaderContext ctx) throws Exception {
+        return internal_unserialize(true, ctx);
+    }
+
+    public static LongTreeNode internal_unserialize(boolean rightBranch, TreeReaderContext ctx) throws Exception {
+        if (ctx.index >= ctx.payload.length()) {
+            return null;
+        }
+        char ch = ctx.payload.charAt(ctx.index);
+        if (ch == '%') {
+            if (rightBranch) {
+                ctx.index = ctx.index + 1;
+            }
+            return null;
+        }
+        if (ch == '#') {
+            ctx.index = ctx.index + 1;
+            return null;
+        }
+        if (ch != '|') {
+            throw new Exception("Error while loading BTree");
+        }
+        ctx.index = ctx.index + 1;
+        ch = ctx.payload.charAt(ctx.index);
+        Color color = Color.BLACK;
+        if (ch == RED) {
+            color = Color.RED;
+        }
+        ctx.index = ctx.index + 1;
+        ch = ctx.payload.charAt(ctx.index);
+        int i = 0;
+        while (ctx.index + 1 < ctx.payload.length() && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
+            ctx.index = ctx.index + 1;
+            ch = ctx.payload.charAt(ctx.index);
+        }
+        if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
+        }
+        Long key = Long.parseLong(new String(ctx.buffer, 0, i));
+        i=0;
+        ctx.index = ctx.index + 1; //We drop separator
+        ch = ctx.payload.charAt(ctx.index);
+        while (ctx.index + 1 < ctx.payload.length() && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
+            ctx.index = ctx.index + 1;
+            ch = ctx.payload.charAt(ctx.index);
+        }
+        if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+            ctx.buffer[i] = ch;
+            i++;
+        }
+        Long value = Long.parseLong(new String(ctx.buffer, 0, i));
+        LongTreeNode p = new LongTreeNode(key, value, color, null, null);
+        LongTreeNode left = internal_unserialize(false, ctx);
+        if (left != null) {
+            left.setParent(p);
+        }
+        LongTreeNode right = internal_unserialize(true, ctx);
+        if (right != null) {
+            right.setParent(p);
+        }
+        p.setLeft(left);
+        p.setRight(right);
+        return p;
     }
 
 

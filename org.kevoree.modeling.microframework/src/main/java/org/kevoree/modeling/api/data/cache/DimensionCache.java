@@ -1,7 +1,7 @@
 package org.kevoree.modeling.api.data.cache;
 
-import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.api.time.rbtree.LongRBTree;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +12,6 @@ import java.util.Map;
 public class DimensionCache {
     public Map<Long, TimeTree> timeTreeCache = new HashMap<Long, TimeTree>();
     public Map<Long, TimeCache> timesCaches = new HashMap<Long, TimeCache>();
-    public TimeTree rootTimeTree = new DefaultTimeTree();
+    public LongRBTree roots = null;
 
 }

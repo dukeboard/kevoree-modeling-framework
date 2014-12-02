@@ -22,7 +22,7 @@ public class BasicSelectTest {
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node);
+        t0.setRoot(node,null);
         final Node node2 = t0.createNode();
         node2.setName("n1");
         node.addChildren(node2);

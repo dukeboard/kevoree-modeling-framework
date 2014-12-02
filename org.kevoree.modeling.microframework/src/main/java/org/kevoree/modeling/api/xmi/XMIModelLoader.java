@@ -68,7 +68,7 @@ public class XMIModelLoader {
         }
     }
 
-    public static void load(KView p_view,String str, Callback<Throwable> callback) {
+    public static void load(KView p_view, String str, Callback<Throwable> callback) {
         XmlParser parser = new XmlParser(str);
         if (!parser.hasNext()) {
             callback.on(null);
@@ -76,12 +76,12 @@ public class XMIModelLoader {
             XMILoadingContext context = new XMILoadingContext();
             context.successCallback = callback;
             context.xmiReader = parser;
-            deserialize(p_view,context);
+            deserialize(p_view, context);
         }
     }
 
 
-    private static void deserialize(KView p_view,XMILoadingContext context) {
+    private static void deserialize(KView p_view, XMILoadingContext context) {
         try {
             String nsURI;
             XmlParser reader = context.xmiReader;
@@ -104,21 +104,21 @@ public class XMIModelLoader {
                         if (realTypeName == null) {
                             realTypeName = xsiType;
                         }
-                        context.loadedRoots = loadObject(p_view,context, "/", xsiType + "." + localName);
+                        context.loadedRoots = loadObject(p_view, context, "/", xsiType + "." + localName);
                     }
                 }
             }
-            for (int i=0;i<context.resolvers.size();i++) {
+            for (int i = 0; i < context.resolvers.size(); i++) {
                 context.resolvers.get(i).run();
             }
-            p_view.setRoot(context.loadedRoots);
+            p_view.setRoot(context.loadedRoots, null);
             context.successCallback.on(null);
         } catch (Exception e) {
             context.successCallback.on(e);
         }
     }
 
-    private static KObject callFactory(KView p_view,XMILoadingContext ctx, String objectType) {
+    private static KObject callFactory(KView p_view, XMILoadingContext ctx, String objectType) {
         KObject modelElem = null;
         if (objectType != null) {
             modelElem = p_view.createFQN(objectType);
@@ -146,9 +146,9 @@ public class XMIModelLoader {
     }
 
 
-    private static KObject loadObject(KView p_view,XMILoadingContext ctx, String xmiAddress, String objectType) throws Exception {
+    private static KObject loadObject(KView p_view, XMILoadingContext ctx, String xmiAddress, String objectType) throws Exception {
         String elementTagName = ctx.xmiReader.getLocalName();
-        KObject modelElem = callFactory(p_view,ctx, objectType);
+        KObject modelElem = callFactory(p_view, ctx, objectType);
         if (modelElem == null) {
             throw new Exception("Could not create an object for local name " + elementTagName);
         }
@@ -201,7 +201,7 @@ public class XMIModelLoader {
                         ctx.elementsCount.put(key, i);
                     }
                     String subElementId = xmiAddress + "/@" + subElemName + (i != 0 ? "." + i : "");
-                    KObject containedElement = loadObject(p_view,ctx, subElementId, subElemName);
+                    KObject containedElement = loadObject(p_view, ctx, subElementId, subElemName);
                     modelElem.mutate(KActionType.ADD, modelElem.metaReference(subElemName), containedElement, true);
                     ctx.elementsCount.put(xmiAddress + "/@" + subElemName, i + 1);
                 } else if (tok.equals(XmlToken.END_TAG)) {

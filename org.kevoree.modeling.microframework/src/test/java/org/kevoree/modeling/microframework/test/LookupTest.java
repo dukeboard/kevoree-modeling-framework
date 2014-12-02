@@ -17,12 +17,15 @@ public class LookupTest {
 
     @Test
     public void lookupTest() throws Exception {
+
+        MemoryKDataBase.DEBUG = true;
+
         final CloudUniverse universe = new CloudUniverse();
         CloudDimension dimension0 = universe.newDimension();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node);
+        t0.setRoot(node,null);
         Assert.assertTrue(node.isRoot());
         universe.storage().getRoot(t0, new Callback<KObject>() {
             @Override

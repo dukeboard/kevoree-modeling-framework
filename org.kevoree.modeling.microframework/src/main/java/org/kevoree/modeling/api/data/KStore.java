@@ -41,7 +41,7 @@ public interface KStore {
 
     public void getRoot(KView originView, Callback<KObject> callback);
 
-    public void setRoot(KObject newRoot);
+    public void setRoot(KObject newRoot, Callback<Throwable> callback);
 
     public KEventBroker eventBroker();
 

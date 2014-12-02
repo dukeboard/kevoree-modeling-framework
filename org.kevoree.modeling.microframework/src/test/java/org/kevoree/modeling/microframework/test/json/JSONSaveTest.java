@@ -21,7 +21,7 @@ public class JSONSaveTest {
 
         CloudView time0 = dimension0.time(0l);
         Node root = time0.createNode();
-        time0.setRoot(root);
+        time0.setRoot(root,null);
         root.setName("root");
         Node n1 = time0.createNode();
         n1.setName("n1");

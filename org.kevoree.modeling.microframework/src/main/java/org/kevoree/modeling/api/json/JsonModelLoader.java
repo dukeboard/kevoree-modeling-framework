@@ -83,7 +83,7 @@ public class JsonModelLoader {
                     KObject current = factory.createProxy(metaClass, timeTree, kid);
                     factory.dimension().universe().storage().initKObject(current, factory);
                     if (isRoot) {
-                        factory.setRoot(current);
+                        factory.setRoot(current,null);//todo force the direct set
                     }
                     Object[] raw = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
                     String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);

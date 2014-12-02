@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test;
+package org.kevoree.modeling.microframework.test.tree;
 
 
 import org.junit.Test;

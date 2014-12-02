@@ -25,7 +25,7 @@ public class Serializer {
         final CloudView t0 = dimension0.time(0l);
         Node nodeT0 = t0.createNode();
         nodeT0.setName("node0");
-        t0.setRoot(nodeT0);
+        t0.setRoot(nodeT0,null);
         Element child0 = t0.createElement();
         nodeT0.setElement(child0);
         Node nodeT1 = t0.createNode();

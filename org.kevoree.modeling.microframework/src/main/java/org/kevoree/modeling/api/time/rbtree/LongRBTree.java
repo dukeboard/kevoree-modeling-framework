@@ -5,13 +5,15 @@ package org.kevoree.modeling.api.time.rbtree;
  */
 public class LongRBTree {
 
-    public TreeNode root = null;
+    public LongTreeNode root = null;
 
     private int _size = 0;
 
     public int size() {
         return _size;
     }
+
+    public boolean dirty = false;
 
     public String serialize() {
         StringBuilder builder = new StringBuilder();
@@ -21,14 +23,6 @@ public class LongRBTree {
         }
         return builder.toString();
     }
-
-    /*
-     fun serializeBinary() : ByteBuffer {
-         var bb = ByteBuffer.allocate(_size*13)
-         root?.serializeBinary(bb)
-         return bb
-     }*/
-
 
     public void unserialize(String payload) throws Exception {
         if (payload == null || payload.length() == 0) {
@@ -43,11 +37,16 @@ public class LongRBTree {
             ch = payload.charAt(i);
         }
         _size = Integer.parseInt(buffer.toString());
-        root = new ReaderContext(i, payload).unserialize(true);
+        TreeReaderContext ctx = new TreeReaderContext();
+        ctx.index = i;
+        ctx.payload = payload;
+        ctx.buffer = new char[20];
+        root = LongTreeNode.unserialize(ctx);
+        dirty = false;
     }
 
-    public TreeNode previousOrEqual(long key) {
-        TreeNode p = root;
+    public LongTreeNode previousOrEqual(long key) {
+        LongTreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -65,8 +64,8 @@ public class LongRBTree {
                 if (p.getLeft() != null) {
                     p = p.getLeft();
                 } else {
-                    TreeNode parent = p.getParent();
-                    TreeNode ch = p;
+                    LongTreeNode parent = p.getParent();
+                    LongTreeNode ch = p;
                     while (parent != null && ch == parent.getLeft()) {
                         ch = parent;
                         parent = parent.getParent();
@@ -78,8 +77,8 @@ public class LongRBTree {
         return null;
     }
 
-    public TreeNode nextOrEqual(long key) {
-        TreeNode p = root;
+    public LongTreeNode nextOrEqual(long key) {
+        LongTreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -97,8 +96,8 @@ public class LongRBTree {
                 if (p.getRight() != null) {
                     p = p.getRight();
                 } else {
-                    TreeNode parent = p.getParent();
-                    TreeNode ch = p;
+                    LongTreeNode parent = p.getParent();
+                    LongTreeNode ch = p;
                     while (parent != null && ch == parent.getRight()) {
                         ch = parent;
                         parent = parent.getParent();
@@ -110,8 +109,8 @@ public class LongRBTree {
         return null;
     }
 
-    public TreeNode previous(long key) {
-        TreeNode p = root;
+    public LongTreeNode previous(long key) {
+        LongTreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -136,24 +135,24 @@ public class LongRBTree {
     }
 
 
-    public TreeNode previousWhileNot(long key, State until) {
-        TreeNode elm = previousOrEqual(key);
-        if (elm.value.equals(until)) {
+    public LongTreeNode previousWhileNot(long key, long until) {
+        LongTreeNode elm = previousOrEqual(key);
+        if (elm.value == until) {
             return null;
         } else {
             if (elm.key == key) {
                 elm = elm.previous();
             }
         }
-        if (elm == null || elm.value.equals(until)) {
+        if (elm == null || elm.value == until) {
             return null;
         } else {
             return elm;
         }
     }
 
-    public TreeNode next(long key) {
-        TreeNode p = root;
+    public LongTreeNode next(long key) {
+        LongTreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -177,24 +176,24 @@ public class LongRBTree {
         return null;
     }
 
-    public TreeNode nextWhileNot(long key, State until) {
-        TreeNode elm = nextOrEqual(key);
-        if (elm.value.equals(until)) {
+    public LongTreeNode nextWhileNot(long key, long until) {
+        LongTreeNode elm = nextOrEqual(key);
+        if (elm.value == until) {
             return null;
         } else {
             if (elm.key == key) {
                 elm = elm.next();
             }
         }
-        if (elm == null || elm.value.equals(until)) {
+        if (elm == null || elm.value == until) {
             return null;
         } else {
             return elm;
         }
     }
 
-    public TreeNode first() {
-        TreeNode p = root;
+    public LongTreeNode first() {
+        LongTreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -208,8 +207,8 @@ public class LongRBTree {
         return null;
     }
 
-    public TreeNode last() {
-        TreeNode p = root;
+    public LongTreeNode last() {
+        LongTreeNode p = root;
         if (p == null) {
             return null;
         }
@@ -223,17 +222,17 @@ public class LongRBTree {
         return null;
     }
 
-    public TreeNode firstWhileNot(long key, State until) {
-        TreeNode elm = previousOrEqual(key);
+    public LongTreeNode firstWhileNot(long key, long until) {
+        LongTreeNode elm = previousOrEqual(key);
         if (elm == null) {
             return null;
-        } else if (elm.value.equals(until)) {
+        } else if (elm.value == until) {
             return null;
         }
-        TreeNode prev = null;
+        LongTreeNode prev = null;
         do {
             prev = elm.previous();
-            if (prev == null || prev.value.equals(until)) {
+            if (prev == null || prev.value == until) {
                 return elm;
             } else {
                 elm = prev;
@@ -242,17 +241,17 @@ public class LongRBTree {
         return prev;
     }
 
-    public TreeNode lastWhileNot(long key, State until) {
-        TreeNode elm = previousOrEqual(key);
+    public LongTreeNode lastWhileNot(long key, long until) {
+        LongTreeNode elm = previousOrEqual(key);
         if (elm == null) {
             return null;
-        } else if (elm.value.equals(until)) {
+        } else if (elm.value == until) {
             return null;
         }
-        TreeNode next;
+        LongTreeNode next;
         do {
             next = elm.next();
-            if (next == null || next.value.equals(until)) {
+            if (next == null || next.value == until) {
                 return elm;
             } else {
                 elm = next;
@@ -261,8 +260,8 @@ public class LongRBTree {
         return next;
     }
 
-    private TreeNode lookupNode(long key) {
-        TreeNode n = root;
+    private LongTreeNode lookupNode(long key) {
+        LongTreeNode n = root;
         if (n == null) {
             return null;
         }
@@ -280,8 +279,8 @@ public class LongRBTree {
         return n;
     }
 
-    public State lookup(long key) {
-        TreeNode n = lookupNode(key);
+    public Long lookup(long key) {
+        LongTreeNode n = lookupNode(key);
         if (n == null) {
             return null;
         } else {
@@ -289,8 +288,8 @@ public class LongRBTree {
         }
     }
 
-    private void rotateLeft(TreeNode n) {
-        TreeNode r = n.getRight();
+    private void rotateLeft(LongTreeNode n) {
+        LongTreeNode r = n.getRight();
         replaceNode(n, r);
         n.setRight(r.getLeft());
         if (r.getLeft() != null) {
@@ -300,8 +299,8 @@ public class LongRBTree {
         n.setParent(r);
     }
 
-    private void rotateRight(TreeNode n) {
-        TreeNode l = n.getLeft();
+    private void rotateRight(LongTreeNode n) {
+        LongTreeNode l = n.getLeft();
         replaceNode(n, l);
         n.setLeft(l.getRight());
         if (l.getRight() != null) {
@@ -312,7 +311,7 @@ public class LongRBTree {
         n.setParent(l);
     }
 
-    private void replaceNode(TreeNode oldn, TreeNode newn) {
+    private void replaceNode(LongTreeNode oldn, LongTreeNode newn) {
         if (oldn.getParent() == null) {
             root = newn;
         } else {
@@ -327,13 +326,14 @@ public class LongRBTree {
         }
     }
 
-    public void insert(long key, State value) {
-        TreeNode insertedNode = new TreeNode(key, value, Color.RED, null, null);
+    public void insert(long key, long value) {
+        dirty = true;
+        LongTreeNode insertedNode = new LongTreeNode(key, value, Color.RED, null, null);
         if (root == null) {
             _size++;
             root = insertedNode;
         } else {
-            TreeNode n = root;
+            LongTreeNode n = root;
             while (true) {
                 if (key == n.key) {
                     n.value = value;
@@ -362,7 +362,7 @@ public class LongRBTree {
         insertCase1(insertedNode);
     }
 
-    private void insertCase1(TreeNode n) {
+    private void insertCase1(LongTreeNode n) {
         if (n.getParent() == null) {
             n.color = Color.BLACK;
         } else {
@@ -370,7 +370,7 @@ public class LongRBTree {
         }
     }
 
-    private void insertCase2(TreeNode n) {
+    private void insertCase2(LongTreeNode n) {
         if (nodeColor(n.getParent()) == Color.BLACK) {
             return;
         } else {
@@ -378,7 +378,7 @@ public class LongRBTree {
         }
     }
 
-    private void insertCase3(TreeNode n) {
+    private void insertCase3(LongTreeNode n) {
         if (nodeColor(n.uncle()) == Color.RED) {
             n.getParent().color = Color.BLACK;
             n.uncle().color = Color.BLACK;
@@ -389,8 +389,8 @@ public class LongRBTree {
         }
     }
 
-    private void insertCase4(TreeNode n_n) {
-        TreeNode n = n_n;
+    private void insertCase4(LongTreeNode n_n) {
+        LongTreeNode n = n_n;
         if (n == n.getParent().getRight() && n.getParent() == n.grandparent().getLeft()) {
             rotateLeft(n.getParent());
             n = n.getLeft();
@@ -403,7 +403,7 @@ public class LongRBTree {
         insertCase5(n);
     }
 
-    private void insertCase5(TreeNode n) {
+    private void insertCase5(LongTreeNode n) {
         n.getParent().color = Color.BLACK;
         n.grandparent().color = Color.RED;
         if (n == n.getParent().getLeft() && n.getParent() == n.grandparent().getLeft()) {
@@ -414,14 +414,14 @@ public class LongRBTree {
     }
 
     public void delete(long key) {
-        TreeNode n = lookupNode(key);
+        LongTreeNode n = lookupNode(key);
         if (n == null) {
             return;
         } else {
             _size--;
             if (n.getLeft() != null && n.getRight() != null) {
                 // Copy domainKey/value from predecessor and then delete it instead
-                TreeNode pred = n.getLeft();
+                LongTreeNode pred = n.getLeft();
                 while (pred.getRight() != null) {
                     pred = pred.getRight();
                 }
@@ -429,7 +429,7 @@ public class LongRBTree {
                 n.value = pred.value;
                 n = pred;
             }
-            TreeNode child;
+            LongTreeNode child;
             if (n.getRight() == null) {
                 child = n.getLeft();
             } else {
@@ -443,7 +443,7 @@ public class LongRBTree {
         }
     }
 
-    private void deleteCase1(TreeNode n) {
+    private void deleteCase1(LongTreeNode n) {
         if (n.getParent() == null) {
             return;
         } else {
@@ -451,7 +451,7 @@ public class LongRBTree {
         }
     }
 
-    private void deleteCase2(TreeNode n) {
+    private void deleteCase2(LongTreeNode n) {
         if (nodeColor(n.sibling()) == Color.RED) {
             n.getParent().color = Color.RED;
             n.sibling().color = Color.BLACK;
@@ -464,7 +464,7 @@ public class LongRBTree {
         deleteCase3(n);
     }
 
-    private void deleteCase3(TreeNode n) {
+    private void deleteCase3(LongTreeNode n) {
         if (nodeColor(n.getParent()) == Color.BLACK && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.BLACK) {
             n.sibling().color = Color.RED;
             deleteCase1(n.getParent());
@@ -473,7 +473,7 @@ public class LongRBTree {
         }
     }
 
-    private void deleteCase4(TreeNode n) {
+    private void deleteCase4(LongTreeNode n) {
         if (nodeColor(n.getParent()) == Color.RED && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.BLACK && nodeColor(n.sibling().getRight()) == Color.BLACK) {
             n.sibling().color = Color.RED;
             n.getParent().color = Color.BLACK;
@@ -482,7 +482,7 @@ public class LongRBTree {
         }
     }
 
-    private void deleteCase5(TreeNode n) {
+    private void deleteCase5(LongTreeNode n) {
         if (n == n.getParent().getLeft() && nodeColor(n.sibling()) == Color.BLACK && nodeColor(n.sibling().getLeft()) == Color.RED && nodeColor(n.sibling().getRight()) == Color.BLACK) {
             n.sibling().color = Color.RED;
             n.sibling().getLeft().color = Color.BLACK;
@@ -495,7 +495,7 @@ public class LongRBTree {
         deleteCase6(n);
     }
 
-    private void deleteCase6(TreeNode n) {
+    private void deleteCase6(LongTreeNode n) {
         n.sibling().color = nodeColor(n.getParent());
         n.getParent().color = Color.BLACK;
         if (n == n.getParent().getLeft()) {
@@ -507,7 +507,7 @@ public class LongRBTree {
         }
     }
 
-    private Color nodeColor(TreeNode n) {
+    private Color nodeColor(LongTreeNode n) {
         if (n == null) {
             return Color.BLACK;
         } else {

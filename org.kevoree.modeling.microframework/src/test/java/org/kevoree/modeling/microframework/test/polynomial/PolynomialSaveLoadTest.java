@@ -27,7 +27,7 @@ public class PolynomialSaveLoadTest {
         CloudView t0 = dimension.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node);
+        t0.setRoot(node,null);
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);

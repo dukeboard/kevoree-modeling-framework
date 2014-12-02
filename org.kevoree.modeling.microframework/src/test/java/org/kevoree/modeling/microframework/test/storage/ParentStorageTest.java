@@ -24,7 +24,7 @@ public class ParentStorageTest {
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root);
+        time0.setRoot(root,null);
 
         Node n1 = time0.createNode();
         n1.setName("n1");
@@ -72,7 +72,7 @@ public class ParentStorageTest {
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root);
+        time0.setRoot(root,null);
 
         Node n1 = time0.createNode();
         n1.setName("n1");

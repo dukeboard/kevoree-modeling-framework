@@ -43,7 +43,10 @@ public class RBTree {
             ch = payload.charAt(i);
         }
         _size = Integer.parseInt(buffer.toString());
-        root = new ReaderContext(i, payload).unserialize(true);
+        TreeReaderContext ctx = new TreeReaderContext();
+        ctx.index = i;
+        ctx.payload = payload;
+        root = TreeNode.unserialize(ctx);
     }
 
     public TreeNode previousOrEqual(long key) {

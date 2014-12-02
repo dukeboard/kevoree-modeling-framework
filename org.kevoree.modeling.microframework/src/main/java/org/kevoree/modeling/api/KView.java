@@ -16,7 +16,7 @@ public interface KView {
 
     public KObject create(MetaClass clazz);
 
-    public void setRoot(KObject elem);
+    public void setRoot(KObject elem, Callback<Throwable> callback);
     
     public void select(String query, Callback<KObject[]> callback);
 
