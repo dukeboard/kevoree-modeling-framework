@@ -194,7 +194,7 @@ public class TimeTest {
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");
-        t0.setRoot(node0);
+        t0.setRoot(node0,null);
         dimension.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -245,7 +245,7 @@ public class TimeTest {
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");
-        t0.setRoot(node0);
+        t0.setRoot(node0,null);
         dimension.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
