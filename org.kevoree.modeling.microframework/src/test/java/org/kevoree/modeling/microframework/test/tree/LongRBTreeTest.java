@@ -21,8 +21,6 @@ public class LongRBTreeTest {
         RBTree treeBis = new RBTree();
         treeBis.unserialize(tree.serialize());
         Assert.assertEquals(tree.size(), treeBis.size());
-        System.err.println(tree.serialize());
-        System.err.println(treeBis.serialize());
         for (int i = 0; i < tree.size(); i++) {
             State resolved = tree.lookup(i);
             State resolvedBis = treeBis.lookup(i);

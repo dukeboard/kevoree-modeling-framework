@@ -13,6 +13,7 @@ import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.time.rbtree.LongRBTree;
+import org.kevoree.modeling.api.time.rbtree.LongTreeNode;
 import org.kevoree.modeling.api.util.DefaultOperationManager;
 import org.kevoree.modeling.api.util.KOperationManager;
 
@@ -354,11 +355,11 @@ public class DefaultKStore implements KStore {
                 if (longRBTree == null) {
                     callback.on(null);
                 } else {
-                    Long resolved = longRBTree.lookup(originView.now());
+                    LongTreeNode resolved = longRBTree.previousOrEqual(originView.now());
                     if (resolved == null) {
                         callback.on(null);
                     } else {
-                        lookup(originView, resolved, callback);
+                        lookup(originView, resolved.value, callback);
                     }
                 }
             }
@@ -372,7 +373,7 @@ public class DefaultKStore implements KStore {
             public void on(LongRBTree longRBTree) {
                 longRBTree.insert(newRoot.now(), newRoot.uuid());
                 ((AbstractKObject) newRoot).setRoot(true);
-                if(callback!=null){
+                if (callback != null) {
                     callback.on(null);
                 }
             }

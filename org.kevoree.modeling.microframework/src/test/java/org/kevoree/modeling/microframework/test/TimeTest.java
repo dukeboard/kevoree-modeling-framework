@@ -194,7 +194,7 @@ public class TimeTest {
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");
-        t0.setRoot(node0,null);
+        t0.setRoot(node0, null);
         dimension.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -226,12 +226,11 @@ public class TimeTest {
         t0_2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
-                if(kObjects != null && kObjects.length > 0) {
+                if (kObjects != null && kObjects.length > 0) {
                     Assert.assertEquals(2, ((Node) kObjects[0]).timeTree().size());
                 }
             }
         });
-
 
 
     }
@@ -245,7 +244,7 @@ public class TimeTest {
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();
         node0.setName("Node0");
-        t0.setRoot(node0,null);
+        t0.setRoot(node0, null);
         dimension.save(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -261,8 +260,10 @@ public class TimeTest {
         t1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
-                if(kObjects != null && kObjects.length > 0) {
-                    ((Node)kObjects[0]).setElement(element);
+                if (kObjects != null && kObjects.length > 0) {
+                    ((Node) kObjects[0]).setElement(element);
+
+
                 }
             }
         });
@@ -279,14 +280,13 @@ public class TimeTest {
         t0_2.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] kObjects) {
-                if(kObjects != null && kObjects.length > 0) {
+                if (kObjects != null && kObjects.length > 0) {
                     Assert.assertEquals(2, ((Node) kObjects[0]).timeTree().size());
                 }
             }
         });
 
     }
-
 
 
 }

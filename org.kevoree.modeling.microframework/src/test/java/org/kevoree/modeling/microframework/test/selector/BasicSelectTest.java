@@ -16,13 +16,39 @@ import org.junit.Assert;
 public class BasicSelectTest {
 
     @Test
+    public void rootSelectTest() throws Exception {
+        CloudUniverse universe = new CloudUniverse();
+        CloudDimension dimension0 = universe.newDimension();
+        CloudView t0 = dimension0.time(0l);
+        Node node = t0.createNode();
+        node.setName("n0");
+        t0.setRoot(node, null);
+        t0.select("/", new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                Assert.assertEquals(kObjects[0], node);
+            }
+        });
+        CloudView t1 = dimension0.time(1l);
+        t1.select("/", new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                Assert.assertEquals(node.uuid(),kObjects[0].uuid());
+                Assert.assertEquals(t1.now(),kObjects[0].now());
+            }
+        });
+
+    }
+
+
+    @Test
     public void selectTest() throws Exception {
         CloudUniverse universe = new CloudUniverse();
         CloudDimension dimension0 = universe.newDimension();
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node,null);
+        t0.setRoot(node, null);
         final Node node2 = t0.createNode();
         node2.setName("n1");
         node.addChildren(node2);
