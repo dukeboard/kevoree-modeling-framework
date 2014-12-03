@@ -73,6 +73,7 @@
                         <configuration>
                             <source>${basedir}/../org.kevoree.modeling.microframework/src/test/java</source>
                             <target>${basedir}/src/test/ts</target>
+                            <flatJUnit>true</flatJUnit>
                         </configuration>
                     </execution>
                 </executions>

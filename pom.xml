@@ -63,7 +63,7 @@
 
     <properties>
         <kmf.plugin.version>13</kmf.plugin.version>
-        <java2typescript.plugin.version>4-SNAPSHOT</java2typescript.plugin.version>
+        <java2typescript.plugin.version>5-SNAPSHOT</java2typescript.plugin.version>
     </properties>
 
     <modules>
