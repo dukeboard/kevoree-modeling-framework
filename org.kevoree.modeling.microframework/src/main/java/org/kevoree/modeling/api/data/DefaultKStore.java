@@ -292,7 +292,7 @@ public class DefaultKStore implements KStore {
             callback.on(null);
         } else {
             Long[] times = dimensionCache.timesCaches.keySet().toArray(new Long[dimensionCache.timesCaches.keySet().size()]);
-            int sizeCache = size_dirties(dimensionCache);
+            int sizeCache = size_dirties(dimensionCache)+2;
             String[][] payloads = new String[sizeCache][2];
             int i = 0;
             for (int j = 0; j < times.length; j++) {
