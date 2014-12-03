@@ -97,10 +97,6 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
         _baseBroker.registerListener(origin, listener, scope);
     }
 
-    @Override
-    public void registerOperation(MetaClass clazz, MetaOperation operation, KOperation callback) {
-        _baseBroker.registerOperation(clazz, operation, callback);
-    }
 
     @Override
     public void notify(KEvent event) {
@@ -138,11 +134,6 @@ public class WebSocketKBroker extends AbstractReceiveListener implements KEventB
         }
     }
 
-    @Override
-    public void call(KObject element, MetaOperation operation, Callback<Object> callback, Object... parameters) {
-        //TODO: Remote Call
-        _baseBroker.call(element, operation, callback, parameters);
-    }
 
     @Override
     public void onConnect(WebSocketHttpExchange webSocketHttpExchange, WebSocketChannel webSocketChannel) {
