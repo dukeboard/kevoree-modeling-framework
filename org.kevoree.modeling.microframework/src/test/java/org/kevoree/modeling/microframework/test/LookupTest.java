@@ -18,7 +18,7 @@ public class LookupTest {
     @Test
     public void lookupTest() throws Exception {
 
-        MemoryKDataBase.DEBUG = true;
+        //MemoryKDataBase.DEBUG = true;
 
         final CloudUniverse universe = new CloudUniverse();
         universe.connect(null);

@@ -15,7 +15,7 @@ public class PolynomialSaveLoadTest {
     @Test
     public void test() {
 
-        MemoryKDataBase.DEBUG = true;
+        //MemoryKDataBase.DEBUG = true;
 
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;

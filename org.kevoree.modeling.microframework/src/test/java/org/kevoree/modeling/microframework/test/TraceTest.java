@@ -16,7 +16,7 @@ public class TraceTest {
     @Test
     public void traceTest() {
 
-        MemoryKDataBase.DEBUG = true;
+        //MemoryKDataBase.DEBUG = true;
 
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);

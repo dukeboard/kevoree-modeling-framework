@@ -66,7 +66,7 @@ public class ParentStorageTest {
     @Test
     public void parentTest() {
 
-        MemoryKDataBase.DEBUG = true;
+        //MemoryKDataBase.DEBUG = true;
 
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
