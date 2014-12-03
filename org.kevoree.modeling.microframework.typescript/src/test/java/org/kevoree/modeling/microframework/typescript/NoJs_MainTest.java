@@ -15,7 +15,7 @@ import java.util.Locale;
 /**
  * Created by gregory.nain on 28/11/14.
  */
-public class MainTest {
+public class NoJs_MainTest {
     public enum OSType {
         Windows, MacOS, Linux, Other
     }
@@ -42,7 +42,7 @@ public class MainTest {
             params[0] = "node";
         }
 
-        params[1] = MainTest.class.getClassLoader().getResource(file).getFile();
+        params[1] = NoJs_MainTest.class.getClassLoader().getResource(file).getFile();
 
         ProcessBuilder pb = new ProcessBuilder(params);
         pb.redirectError(ProcessBuilder.Redirect.INHERIT);
@@ -50,7 +50,7 @@ public class MainTest {
         try {
             Process p = pb.start();
             int res = p.waitFor();
-            Thread.sleep(200);
+            //Thread.sleep(200);
             return res;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -63,7 +63,7 @@ public class MainTest {
 
     @Test
     public void baseTest() {
-        Assert.assertEquals(0,launchRunner("test.js"));
+        Assert.assertEquals(0,launchRunner("MyTestRunner.js"));
     }
 
 }
