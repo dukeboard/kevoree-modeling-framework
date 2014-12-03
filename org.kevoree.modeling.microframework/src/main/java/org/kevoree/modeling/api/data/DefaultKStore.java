@@ -96,7 +96,7 @@ public class DefaultKStore implements KStore {
                                                 String[] payloadKeys3 = new String[2];
                                                 payloadKeys3[0] = keyLastPrefix();
                                                 if (newPrefix == Short.MAX_VALUE) {
-                                                    payloadKeys3[1] = "0";
+                                                    payloadKeys3[1] = "" + Short.MIN_VALUE;
                                                 } else {
                                                     payloadKeys3[1] = "" + (newPrefix + 1);
                                                 }
@@ -107,7 +107,7 @@ public class DefaultKStore implements KStore {
                                                         _dimensionKeyCalculator = new KeyCalculator(newPrefix, newDimIndex);
                                                         _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
                                                         isConnected = true;
-                                                        if(callback!= null){
+                                                        if (callback != null) {
                                                             callback.on(null);
                                                         }
                                                     }
@@ -282,6 +282,9 @@ public class DefaultKStore implements KStore {
         throw new RuntimeException("Not implemented yet !");
     }
 
+
+    //TODO synchronize index and so on at the same time
+
     @Override
     public void save(KDimension dimension, Callback<Throwable> callback) {
         DimensionCache dimensionCache = caches.get(dimension.key());
@@ -331,6 +334,15 @@ public class DefaultKStore implements KStore {
                 dimensionCache.roots.dirty = false;
                 i++;
             }
+            String[] payloadD = new String[2];
+            payloadD[0] = keyLastDimIndex("" + _dimensionKeyCalculator.prefix());
+            payloadD[1] = "" + _dimensionKeyCalculator.lastComputedIndex();
+            payloads[i] = payloadD;
+            i++;
+            String[] payloadD2 = new String[2];
+            payloadD2[0] = keyLastDimIndex("" + _objectKeyCalculator.prefix());
+            payloadD2[1] = "" + _objectKeyCalculator.lastComputedIndex();
+            payloads[i] = payloadD2;
             _db.put(payloads, callback);
             _eventBroker.flush(dimension.key());
         }
