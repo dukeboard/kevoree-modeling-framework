@@ -31,7 +31,7 @@ public class HelloTest {
         universe.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {
-                System.err.println(evt);
+                //System.err.println(evt);
             }
         }, ListenerScope.UNIVERSE);
 
@@ -198,7 +198,7 @@ public class HelloTest {
         Assert.assertEquals(2, i[0]);
         Assert.assertEquals(1, j[0]);
 
-        System.err.println(nodeT0);
+        //System.err.println(nodeT0);
     }
 
 }
