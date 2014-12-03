@@ -7,18 +7,16 @@
 <body>
 <script src="../../../target/classes/java.js"></script>
 <script src="../../../target/classes/org.kevoree.modeling.microframework.typescript.js"></script>
-<script src="../../../target/js-test/org.kevoree.modeling.microframework.typescript.js"></script>
+<script src="../../../target/test-classes/org.kevoree.modeling.microframework.typescript.js"></script>
 <script>
     try {
-        /*
-        var tests = new org.kevoree.modeling.microframework.test.polynomial.PolynomialKMFTest();
-        tests.test();
-        */
-        var timeTestSuite = new org.kevoree.modeling.microframework.test.TimeTest();
-        timeTestSuite.timeCreationTest();
-        timeTestSuite.objectModificationTest();
-        timeTestSuite.simpleTimeNavigationTest();
-        timeTestSuite.distortedTimeNavigationTest();
+        var p_comparetest = new org.kevoree.modeling.microframework.test.CompareTest();
+        p_comparetest.diffTest();
+        p_comparetest.intersectionTest();
+        p_comparetest.unionTest();
+        var p_deletetest = new org.kevoree.modeling.microframework.test.DeleteTest();
+        p_deletetest.basicDeleteTest();
+        console.log("Sortie");
     } catch (e) {
         console.trace(e);
     }

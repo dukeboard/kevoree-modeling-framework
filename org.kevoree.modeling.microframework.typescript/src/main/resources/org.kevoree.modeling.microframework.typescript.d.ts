@@ -39,7 +39,7 @@ declare module org {
                         public parentUuid(): number;
                         public parent(callback: (p: KObject<any, any>) => void): void;
                         public referenceInParent(): meta.MetaReference;
-                        public delete(callback: (p: boolean) => void): void;
+                        public delete(callback: (p: java.lang.Throwable) => void): void;
                         public select(query: string, callback: (p: KObject<any, any>[]) => void): void;
                         public stream(query: string, callback: (p: KObject<any, any>) => void): void;
                         public listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
@@ -73,6 +73,8 @@ declare module org {
                     class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
                         constructor();
+                        public connect(callback: (p: java.lang.Throwable) => void): void;
+                        public close(callback: (p: java.lang.Throwable) => void): void;
                         public storage(): data.KStore;
                         public newDimension(): A;
                         public internal_create(key: number): A;
@@ -95,7 +97,7 @@ declare module org {
                         public dimension(): KDimension<any, any, any>;
                         public metaClass(fqName: string): meta.MetaClass;
                         public createFQN(metaClassName: string): KObject<any, any>;
-                        public setRoot(elem: KObject<any, any>): void;
+                        public setRoot(elem: KObject<any, any>, callback: (p: java.lang.Throwable) => void): void;
                         public select(query: string, callback: (p: KObject<any, any>[]) => void): void;
                         public lookup(kid: number, callback: (p: KObject<any, any>) => void): void;
                         public lookupAll(keys: number[], callback: (p: KObject<any, any>[]) => void): void;
@@ -122,6 +124,7 @@ declare module org {
                     class AccessMode {
                         static READ: AccessMode;
                         static WRITE: AccessMode;
+                        static DELETE: AccessMode;
                         public equals(other: any): boolean;
                         static _AccessModeVALUES: AccessMode[];
                         static values(): AccessMode[];
@@ -130,7 +133,7 @@ declare module org {
                         class DimensionCache {
                             public timeTreeCache: java.util.Map<number, time.TimeTree>;
                             public timesCaches: java.util.Map<number, TimeCache>;
-                            public rootTimeTree: time.TimeTree;
+                            public roots: time.rbtree.LongRBTree;
                         }
                         class TimeCache {
                             public payload_cache: java.util.Map<number, CacheEntry>;
@@ -145,28 +148,27 @@ declare module org {
                     }
                     class DefaultKStore implements KStore {
                         static KEY_SEP: string;
-                        static UUID_DB_KEY: string;
-                        static DIM_DB_KEY: string;
-                        private static RANGE_LENGTH;
-                        private static RANGE_THRESHOLD;
-                        private currentUUIDRange;
-                        private nextUUIDRange;
-                        private currentDimensionRange;
-                        private nextDimensionRange;
                         private _db;
                         private caches;
                         private _eventBroker;
                         private _operationManager;
+                        private _objectKeyCalculator;
+                        private _dimensionKeyCalculator;
+                        private isConnected;
                         private static OUT_OF_CACHE_MESSAGE;
                         private static INDEX_RESOLVED_DIM;
                         private static INDEX_RESOLVED_TIME;
                         private static INDEX_RESOLVED_TIMETREE;
                         constructor();
+                        public connect(callback: (p: java.lang.Throwable) => void): void;
+                        public close(callback: (p: java.lang.Throwable) => void): void;
                         private keyTree(dim, key);
-                        private keyRoot(dim, time);
+                        private keyRoot(dim);
                         private keyRootTree(dim);
                         private keyPayload(dim, time, key);
-                        private initRange(key);
+                        private keyLastPrefix();
+                        private keyLastDimIndex(prefix);
+                        private keyLastObjIndex(prefix);
                         public nextDimensionKey(): number;
                         public nextObjectKey(): number;
                         public initDimension(dimension: KDimension<any, any, any>): void;
@@ -179,7 +181,7 @@ declare module org {
                         public lookup(originView: KView, key: number, callback: (p: KObject<any, any>) => void): void;
                         public lookupAll(originView: KView, keys: number[], callback: (p: KObject<any, any>[]) => void): void;
                         public getRoot(originView: KView, callback: (p: KObject<any, any>) => void): void;
-                        public setRoot(newRoot: KObject<any, any>): void;
+                        public setRoot(newRoot: KObject<any, any>, callback: (p: java.lang.Throwable) => void): void;
                         public eventBroker(): event.KEventBroker;
                         public setEventBroker(p_eventBroker: event.KEventBroker): void;
                         public dataBase(): KDataBase;
@@ -188,9 +190,11 @@ declare module org {
                         private read_cache(dimensionKey, timeKey, uuid);
                         private write_cache(dimensionKey, timeKey, uuid, cacheEntry);
                         private write_tree(dimensionKey, uuid, timeTree);
+                        private write_roots(dimensionKey, timeTree);
                         private size_dirties(dimensionCache);
                         private internal_resolve_dim_time(originView, uuids, callback);
                         private resolve_timeTrees(dimension, keys, callback);
+                        private resolve_roots(dimension, callback);
                     }
                     class IDRange {
                         private min;
@@ -222,6 +226,16 @@ declare module org {
                         commit(error: (p: java.lang.Throwable) => void): void;
                         close(error: (p: java.lang.Throwable) => void): void;
                     }
+                    class KeyCalculator {
+                        static LONG_LIMIT_JS: number;
+                        static INDEX_LIMIT: number;
+                        private _prefix;
+                        private _currentIndex;
+                        constructor(prefix: number, currentIndex: number);
+                        public nextKey(): number;
+                        public lastComputedIndex(): number;
+                        public prefix(): number;
+                    }
                     interface KStore {
                         lookup(originView: KView, key: number, callback: (p: KObject<any, any>) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject<any, any>[]) => void): void;
@@ -235,12 +249,14 @@ declare module org {
                         nextDimensionKey(): number;
                         nextObjectKey(): number;
                         getRoot(originView: KView, callback: (p: KObject<any, any>) => void): void;
-                        setRoot(newRoot: KObject<any, any>): void;
+                        setRoot(newRoot: KObject<any, any>, callback: (p: java.lang.Throwable) => void): void;
                         eventBroker(): event.KEventBroker;
                         setEventBroker(broker: event.KEventBroker): void;
                         dataBase(): KDataBase;
                         setDataBase(dataBase: KDataBase): void;
                         operationManager(): util.KOperationManager;
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
@@ -466,7 +482,7 @@ declare module org {
                     uuid(): number;
                     path(callback: (p: string) => void): void;
                     view(): B;
-                    delete(callback: (p: boolean) => void): void;
+                    delete(callback: (p: java.lang.Throwable) => void): void;
                     parent(callback: (p: KObject<any, any>) => void): void;
                     parentUuid(): number;
                     select(query: string, callback: (p: KObject<any, any>[]) => void): void;
@@ -501,6 +517,8 @@ declare module org {
                     on(source: KObject<any, any>, params: any[], result: (p: any) => void): void;
                 }
                 interface KUniverse<A extends KDimension<any, any, any>> {
+                    connect(callback: (p: java.lang.Throwable) => void): void;
+                    close(callback: (p: java.lang.Throwable) => void): void;
                     newDimension(): A;
                     dimension(key: number): A;
                     saveAll(callback: (p: boolean) => void): void;
@@ -517,7 +535,7 @@ declare module org {
                 interface KView {
                     createFQN(metaClassName: string): KObject<any, any>;
                     create(clazz: meta.MetaClass): KObject<any, any>;
-                    setRoot(elem: KObject<any, any>): void;
+                    setRoot(elem: KObject<any, any>, callback: (p: java.lang.Throwable) => void): void;
                     select(query: string, callback: (p: KObject<any, any>[]) => void): void;
                     lookup(key: number, callback: (p: KObject<any, any>) => void): void;
                     lookupAll(keys: number[], callback: (p: KObject<any, any>[]) => void): void;
@@ -781,6 +799,7 @@ declare module org {
                         public previous(from: number): number;
                         public resolve(time: number): number;
                         public insert(time: number): TimeTree;
+                        public delete(time: number): TimeTree;
                         public isDirty(): boolean;
                         public size(): number;
                         public setDirty(state: boolean): void;
@@ -796,27 +815,28 @@ declare module org {
                             static values(): Color[];
                         }
                         class LongRBTree {
-                            public root: TreeNode;
+                            public root: LongTreeNode;
                             private _size;
+                            public dirty: boolean;
                             public size(): number;
                             public serialize(): string;
                             public unserialize(payload: string): void;
-                            public previousOrEqual(key: number): TreeNode;
-                            public nextOrEqual(key: number): TreeNode;
-                            public previous(key: number): TreeNode;
-                            public previousWhileNot(key: number, until: State): TreeNode;
-                            public next(key: number): TreeNode;
-                            public nextWhileNot(key: number, until: State): TreeNode;
-                            public first(): TreeNode;
-                            public last(): TreeNode;
-                            public firstWhileNot(key: number, until: State): TreeNode;
-                            public lastWhileNot(key: number, until: State): TreeNode;
+                            public previousOrEqual(key: number): LongTreeNode;
+                            public nextOrEqual(key: number): LongTreeNode;
+                            public previous(key: number): LongTreeNode;
+                            public previousWhileNot(key: number, until: number): LongTreeNode;
+                            public next(key: number): LongTreeNode;
+                            public nextWhileNot(key: number, until: number): LongTreeNode;
+                            public first(): LongTreeNode;
+                            public last(): LongTreeNode;
+                            public firstWhileNot(key: number, until: number): LongTreeNode;
+                            public lastWhileNot(key: number, until: number): LongTreeNode;
                             private lookupNode(key);
-                            public lookup(key: number): State;
+                            public lookup(key: number): number;
                             private rotateLeft(n);
                             private rotateRight(n);
                             private replaceNode(oldn, newn);
-                            public insert(key: number, value: State): void;
+                            public insert(key: number, value: number): void;
                             private insertCase1(n);
                             private insertCase2(n);
                             private insertCase3(n);
@@ -832,18 +852,15 @@ declare module org {
                             private nodeColor(n);
                         }
                         class LongTreeNode {
-                            static BLACK_DELETE: string;
-                            static BLACK_EXISTS: string;
-                            static RED_DELETE: string;
-                            static RED_EXISTS: string;
+                            static BLACK: string;
+                            static RED: string;
                             public key: number;
-                            public value: State;
+                            public value: number;
                             public color: Color;
                             private left;
                             private right;
                             private parent;
-                            public getKey(): number;
-                            constructor(key: number, value: State, color: Color, left: LongTreeNode, right: LongTreeNode);
+                            constructor(key: number, value: number, color: Color, left: LongTreeNode, right: LongTreeNode);
                             public grandparent(): LongTreeNode;
                             public sibling(): LongTreeNode;
                             public uncle(): LongTreeNode;
@@ -856,6 +873,8 @@ declare module org {
                             public serialize(builder: java.lang.StringBuilder): void;
                             public next(): LongTreeNode;
                             public previous(): LongTreeNode;
+                            static unserialize(ctx: TreeReaderContext): LongTreeNode;
+                            static internal_unserialize(rightBranch: boolean, ctx: TreeReaderContext): LongTreeNode;
                         }
                         class RBTree {
                             public root: TreeNode;
@@ -893,12 +912,6 @@ declare module org {
                             private deleteCase6(n);
                             private nodeColor(n);
                         }
-                        class ReaderContext {
-                            private payload;
-                            private offset;
-                            constructor(offset: number, payload: string);
-                            public unserialize(rightBranch: boolean): TreeNode;
-                        }
                         class State {
                             static EXISTS: State;
                             static DELETED: State;
@@ -931,6 +944,13 @@ declare module org {
                             public serialize(builder: java.lang.StringBuilder): void;
                             public next(): TreeNode;
                             public previous(): TreeNode;
+                            static unserialize(ctx: TreeReaderContext): TreeNode;
+                            static internal_unserialize(rightBranch: boolean, ctx: TreeReaderContext): TreeNode;
+                        }
+                        class TreeReaderContext {
+                            public payload: string;
+                            public index: number;
+                            public buffer: string[];
                         }
                     }
                     interface TimeTree {
@@ -945,6 +965,7 @@ declare module org {
                         previous(from: number): number;
                         resolve(time: number): number;
                         insert(time: number): TimeTree;
+                        delete(time: number): TimeTree;
                         isDirty(): boolean;
                         size(): number;
                     }

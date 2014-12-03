@@ -145,6 +145,31 @@ var org;
                         };
 
                         AbstractKObject.prototype.delete = function (callback) {
+                            var toRemove = this;
+                            var rawPayload = this._view.dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.DELETE);
+                            var payload = rawPayload[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
+                            if (payload != null) {
+                                try  {
+                                    var refs = payload;
+                                    var refArr = refs.keySet().toArray(new Array());
+                                    this.view().lookupAll(refArr, function (resolved) {
+                                        for (var i = 0; i < resolved.length; i++) {
+                                            if (resolved[i] != null) {
+                                                resolved[i].mutate(org.kevoree.modeling.api.KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
+                                            }
+                                        }
+                                        callback(null);
+                                    });
+                                } catch ($ex$) {
+                                    if ($ex$ instanceof java.lang.Exception) {
+                                        var e = $ex$;
+                                        e.printStackTrace();
+                                        callback(e);
+                                    }
+                                }
+                            } else {
+                                callback(new java.lang.Exception("Out of cache error"));
+                            }
                         };
 
                         AbstractKObject.prototype.select = function (query, callback) {
@@ -625,6 +650,14 @@ var org;
                         function AbstractKUniverse() {
                             this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
                         }
+                        AbstractKUniverse.prototype.connect = function (callback) {
+                            this._storage.connect(callback);
+                        };
+
+                        AbstractKUniverse.prototype.close = function (callback) {
+                            this._storage.close(callback);
+                        };
+
                         AbstractKUniverse.prototype.storage = function () {
                             return this._storage;
                         };
@@ -709,10 +742,10 @@ var org;
                             return this.create(this.metaClass(metaClassName));
                         };
 
-                        AbstractKView.prototype.setRoot = function (elem) {
+                        AbstractKView.prototype.setRoot = function (elem, callback) {
                             elem.set_parent(null, null);
                             elem.setRoot(true);
-                            this.dimension().universe().storage().setRoot(elem);
+                            this.dimension().universe().storage().setRoot(elem, callback);
                         };
 
                         AbstractKView.prototype.select = function (query, callback) {
@@ -824,10 +857,12 @@ var org;
                         };
                         AccessMode.READ = new AccessMode();
                         AccessMode.WRITE = new AccessMode();
+                        AccessMode.DELETE = new AccessMode();
 
                         AccessMode._AccessModeVALUES = [
                             AccessMode.READ,
-                            AccessMode.WRITE
+                            AccessMode.WRITE,
+                            AccessMode.DELETE
                         ];
                         return AccessMode;
                     })();
@@ -838,7 +873,7 @@ var org;
                             function DimensionCache() {
                                 this.timeTreeCache = new java.util.HashMap();
                                 this.timesCaches = new java.util.HashMap();
-                                this.rootTimeTree = new org.kevoree.modeling.api.time.DefaultTimeTree();
+                                this.roots = null;
                             }
                             return DimensionCache;
                         })();
@@ -865,18 +900,113 @@ var org;
                     var DefaultKStore = (function () {
                         function DefaultKStore() {
                             this.caches = new java.util.HashMap();
+                            this._objectKeyCalculator = null;
+                            this._dimensionKeyCalculator = null;
+                            this.isConnected = false;
                             this._db = new org.kevoree.modeling.api.data.MemoryKDataBase();
                             this._eventBroker = new org.kevoree.modeling.api.event.DefaultKBroker();
                             this._operationManager = new org.kevoree.modeling.api.util.DefaultOperationManager(this);
-                            this.initRange(DefaultKStore.UUID_DB_KEY);
-                            this.initRange(DefaultKStore.DIM_DB_KEY);
                         }
+                        DefaultKStore.prototype.connect = function (callback) {
+                            var _this = this;
+                            if (this._db == null) {
+                                callback(new java.lang.Exception("Please attach a KDataBase first !"));
+                            }
+                            var keys = new Array();
+                            keys[0] = this.keyLastPrefix();
+                            this._db.get(keys, function (strings, error) {
+                                if (error != null) {
+                                    if (callback != null) {
+                                        callback(error);
+                                    }
+                                } else {
+                                    if (strings.length == 1) {
+                                        try  {
+                                            var payloadPrefix = strings[0];
+                                            if (payloadPrefix == null || payloadPrefix.equals("")) {
+                                                payloadPrefix = "0";
+                                            }
+                                            var newPrefix = java.lang.Short.parseShort(payloadPrefix);
+                                            var keys2 = new Array();
+                                            keys2[0] = _this.keyLastDimIndex(payloadPrefix);
+                                            keys2[1] = _this.keyLastObjIndex(payloadPrefix);
+                                            _this._db.get(keys2, function (strings, error) {
+                                                if (error != null) {
+                                                    if (callback != null) {
+                                                        callback(error);
+                                                    }
+                                                } else {
+                                                    if (strings.length == 2) {
+                                                        try  {
+                                                            var dimIndexPayload = strings[0];
+                                                            if (dimIndexPayload == null || dimIndexPayload.equals("")) {
+                                                                dimIndexPayload = "0";
+                                                            }
+                                                            var objIndexPayload = strings[1];
+                                                            if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                                objIndexPayload = "0";
+                                                            }
+                                                            var newDimIndex = java.lang.Long.parseLong(dimIndexPayload);
+                                                            var newObjIndex = java.lang.Long.parseLong(objIndexPayload);
+                                                            var keys3 = new Array(new Array());
+                                                            var payloadKeys3 = new Array();
+                                                            payloadKeys3[0] = _this.keyLastPrefix();
+                                                            if (newPrefix == java.lang.Short.MAX_VALUE) {
+                                                                payloadKeys3[1] = "" + java.lang.Short.MIN_VALUE;
+                                                            } else {
+                                                                payloadKeys3[1] = "" + (newPrefix + 1);
+                                                            }
+                                                            keys3[0] = payloadKeys3;
+                                                            _this._db.put(keys3, function (throwable) {
+                                                                _this._dimensionKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newDimIndex);
+                                                                _this._objectKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newObjIndex);
+                                                                _this.isConnected = true;
+                                                                if (callback != null) {
+                                                                    callback(null);
+                                                                }
+                                                            });
+                                                        } catch ($ex$) {
+                                                            if ($ex$ instanceof java.lang.Exception) {
+                                                                var e = $ex$;
+                                                                if (callback != null) {
+                                                                    callback(e);
+                                                                }
+                                                            }
+                                                        }
+                                                    } else {
+                                                        if (callback != null) {
+                                                            callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        } catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                if (callback != null) {
+                                                    callback(e);
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        if (callback != null) {
+                                            callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                        }
+                                    }
+                                }
+                            });
+                        };
+
+                        DefaultKStore.prototype.close = function (callback) {
+                            this.isConnected = false;
+                        };
+
                         DefaultKStore.prototype.keyTree = function (dim, key) {
                             return "" + dim + DefaultKStore.KEY_SEP + key;
                         };
 
-                        DefaultKStore.prototype.keyRoot = function (dim, time) {
-                            return "" + dim + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + "root";
+                        DefaultKStore.prototype.keyRoot = function (dim) {
+                            return "" + dim + DefaultKStore.KEY_SEP + "root";
                         };
 
                         DefaultKStore.prototype.keyRootTree = function (dim) {
@@ -887,48 +1017,30 @@ var org;
                             return "" + dim + DefaultKStore.KEY_SEP + time + DefaultKStore.KEY_SEP + key;
                         };
 
-                        DefaultKStore.prototype.initRange = function (key) {
-                            var _this = this;
-                            this._db.get([key], function (results, throwable) {
-                                if (throwable != null) {
-                                    throwable.printStackTrace();
-                                } else {
-                                    var min = 1;
-                                    if (results[0] != null) {
-                                        min = java.lang.Long.parseLong(results[0]);
-                                    }
-                                    if (key.equals(DefaultKStore.UUID_DB_KEY)) {
-                                        _this.nextUUIDRange = new org.kevoree.modeling.api.data.IDRange(min, min + DefaultKStore.RANGE_LENGTH, DefaultKStore.RANGE_THRESHOLD);
-                                    } else {
-                                        _this.nextDimensionRange = new org.kevoree.modeling.api.data.IDRange(min, min + DefaultKStore.RANGE_LENGTH, DefaultKStore.RANGE_THRESHOLD);
-                                    }
-                                    _this._db.put([[key, "" + (min + DefaultKStore.RANGE_LENGTH)]], function (throwable) {
-                                        if (throwable != null) {
-                                            throwable.printStackTrace();
-                                        }
-                                    });
-                                }
-                            });
+                        DefaultKStore.prototype.keyLastPrefix = function () {
+                            return "ring_prefix";
+                        };
+
+                        DefaultKStore.prototype.keyLastDimIndex = function (prefix) {
+                            return "index_dim_" + prefix;
+                        };
+
+                        DefaultKStore.prototype.keyLastObjIndex = function (prefix) {
+                            return "index_obj_" + prefix;
                         };
 
                         DefaultKStore.prototype.nextDimensionKey = function () {
-                            if (this.currentDimensionRange == null || this.currentDimensionRange.isEmpty()) {
-                                this.currentDimensionRange = this.nextDimensionRange;
+                            if (this._dimensionKeyCalculator == null) {
+                                throw new java.lang.RuntimeException("Please connect your dimension prior to create an a dimension or an object");
                             }
-                            if (this.currentDimensionRange.isThresholdReached()) {
-                                this.initRange(DefaultKStore.DIM_DB_KEY);
-                            }
-                            return this.currentDimensionRange.newUuid();
+                            return this._dimensionKeyCalculator.nextKey();
                         };
 
                         DefaultKStore.prototype.nextObjectKey = function () {
-                            if (this.currentUUIDRange == null || this.currentUUIDRange.isEmpty()) {
-                                this.currentUUIDRange = this.nextUUIDRange;
+                            if (this._objectKeyCalculator == null) {
+                                throw new java.lang.RuntimeException("Please connect your dimension prior to create an a dimension or an object");
                             }
-                            if (this.currentUUIDRange.isThresholdReached()) {
-                                this.initRange(DefaultKStore.UUID_DB_KEY);
-                            }
-                            return this.currentUUIDRange.newUuid();
+                            return this._objectKeyCalculator.nextKey();
                         };
 
                         DefaultKStore.prototype.initDimension = function (dimension) {
@@ -960,6 +1072,11 @@ var org;
                                 throw new java.lang.RuntimeException(DefaultKStore.OUT_OF_CACHE_MESSAGE);
                             }
                             var payload = entry.raw;
+                            if (accessMode.equals(org.kevoree.modeling.api.data.AccessMode.DELETE)) {
+                                entry.timeTree.delete(origin.now());
+                                entry.raw = null;
+                                return payload;
+                            }
                             if (!needCopy) {
                                 if (accessMode.equals(org.kevoree.modeling.api.data.AccessMode.WRITE)) {
                                     payload[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] = true;
@@ -1013,7 +1130,7 @@ var org;
                                 callback(null);
                             } else {
                                 var times = dimensionCache.timesCaches.keySet().toArray(new Array());
-                                var sizeCache = this.size_dirties(dimensionCache);
+                                var sizeCache = this.size_dirties(dimensionCache) + 2;
                                 var payloads = new Array(new Array());
                                 var i = 0;
                                 for (var j = 0; j < times.length; j++) {
@@ -1033,14 +1150,6 @@ var org;
                                             i++;
                                         }
                                     }
-                                    if (timeCache.rootDirty) {
-                                        var payloadB = new Array();
-                                        payloadB[0] = this.keyRoot(dimension.key(), timeCache.root.now());
-                                        payloadB[1] = timeCache.root.uuid() + "";
-                                        payloads[i] = payloadB;
-                                        timeCache.rootDirty = false;
-                                        i++;
-                                    }
                                 }
                                 var keyArr = dimensionCache.timeTreeCache.keySet().toArray(new Array());
                                 for (var l = 0; l < keyArr.length; l++) {
@@ -1055,14 +1164,23 @@ var org;
                                         i++;
                                     }
                                 }
-                                if (dimensionCache.rootTimeTree.isDirty()) {
+                                if (dimensionCache.roots.dirty) {
                                     var payloadD = new Array();
                                     payloadD[0] = this.keyRootTree(dimension);
-                                    payloadD[1] = dimensionCache.rootTimeTree.toString();
+                                    payloadD[1] = dimensionCache.roots.serialize();
                                     payloads[i] = payloadD;
-                                    dimensionCache.rootTimeTree.setDirty(false);
+                                    dimensionCache.roots.dirty = false;
                                     i++;
                                 }
+                                var payloadDim = new Array();
+                                payloadDim[0] = this.keyLastDimIndex("" + this._dimensionKeyCalculator.prefix());
+                                payloadDim[1] = "" + this._dimensionKeyCalculator.lastComputedIndex();
+                                payloads[i] = payloadDim;
+                                i++;
+                                var payloadObj = new Array();
+                                payloadObj[0] = this.keyLastDimIndex("" + this._objectKeyCalculator.prefix());
+                                payloadObj[1] = "" + this._objectKeyCalculator.lastComputedIndex();
+                                payloads[i] = payloadObj;
                                 this._db.put(payloads, callback);
                                 this._eventBroker.flush(dimension.key());
                             }
@@ -1143,51 +1261,28 @@ var org;
 
                         DefaultKStore.prototype.getRoot = function (originView, callback) {
                             var _this = this;
-                            var dimensionCache = this.caches.get(originView.dimension().key());
-                            var resolvedRoot = dimensionCache.rootTimeTree.resolve(originView.now());
-                            if (resolvedRoot == null) {
-                                callback(null);
-                            } else {
-                                var timeCache = dimensionCache.timesCaches.get(resolvedRoot);
-                                if (timeCache == null) {
-                                    timeCache = new org.kevoree.modeling.api.data.cache.TimeCache();
-                                }
-                                if (timeCache.root != null) {
-                                    this.lookup(originView, timeCache.root.uuid(), callback);
+                            this.resolve_roots(originView.dimension(), function (longRBTree) {
+                                if (longRBTree == null) {
+                                    callback(null);
                                 } else {
-                                    var timeCacheFinal = timeCache;
-                                    var rootKeys = new Array();
-                                    rootKeys[0] = this.keyRoot(originView.dimension().key(), resolvedRoot);
-                                    this._db.get(rootKeys, function (res, error) {
-                                        if (error != null) {
-                                            callback(null);
-                                        } else {
-                                            try  {
-                                                var idRoot = java.lang.Long.parseLong(res[0]);
-                                                _this.lookup(originView, idRoot, function (resolved) {
-                                                    timeCacheFinal.root = resolved;
-                                                    timeCacheFinal.rootDirty = false;
-                                                    callback(resolved);
-                                                });
-                                            } catch ($ex$) {
-                                                if ($ex$ instanceof java.lang.Exception) {
-                                                    var e = $ex$;
-                                                    e.printStackTrace();
-                                                    callback(null);
-                                                }
-                                            }
-                                        }
-                                    });
+                                    var resolved = longRBTree.previousOrEqual(originView.now());
+                                    if (resolved == null) {
+                                        callback(null);
+                                    } else {
+                                        _this.lookup(originView, resolved.value, callback);
+                                    }
                                 }
-                            }
+                            });
                         };
 
-                        DefaultKStore.prototype.setRoot = function (newRoot) {
-                            var dimensionCache = this.caches.get(newRoot.dimension().key());
-                            var timeCache = dimensionCache.timesCaches.get(newRoot.now());
-                            timeCache.root = newRoot;
-                            timeCache.rootDirty = true;
-                            dimensionCache.rootTimeTree.insert(newRoot.now());
+                        DefaultKStore.prototype.setRoot = function (newRoot, callback) {
+                            this.resolve_roots(newRoot.dimension(), function (longRBTree) {
+                                longRBTree.insert(newRoot.now(), newRoot.uuid());
+                                newRoot.setRoot(true);
+                                if (callback != null) {
+                                    callback(null);
+                                }
+                            });
                         };
 
                         DefaultKStore.prototype.eventBroker = function () {
@@ -1204,8 +1299,6 @@ var org;
 
                         DefaultKStore.prototype.setDataBase = function (p_dataBase) {
                             this._db = p_dataBase;
-                            this.initRange(DefaultKStore.UUID_DB_KEY);
-                            this.initRange(DefaultKStore.DIM_DB_KEY);
                         };
 
                         DefaultKStore.prototype.operationManager = function () {
@@ -1249,6 +1342,15 @@ var org;
                             dimensionCache.timeTreeCache.put(uuid, timeTree);
                         };
 
+                        DefaultKStore.prototype.write_roots = function (dimensionKey, timeTree) {
+                            var dimensionCache = this.caches.get(dimensionKey);
+                            if (dimensionCache == null) {
+                                dimensionCache = new org.kevoree.modeling.api.data.cache.DimensionCache();
+                                this.caches.put(dimensionKey, dimensionCache);
+                            }
+                            dimensionCache.roots = timeTree;
+                        };
+
                         DefaultKStore.prototype.size_dirties = function (dimensionCache) {
                             var timeCaches = dimensionCache.timesCaches.values().toArray(new Array());
                             var sizeCache = 0;
@@ -1273,7 +1375,7 @@ var org;
                                     sizeCache++;
                                 }
                             }
-                            if (dimensionCache.rootTimeTree.isDirty()) {
+                            if (dimensionCache.roots.dirty) {
                                 sizeCache++;
                             }
                             return sizeCache;
@@ -1342,11 +1444,37 @@ var org;
                                 });
                             }
                         };
+
+                        DefaultKStore.prototype.resolve_roots = function (dimension, callback) {
+                            var _this = this;
+                            var dimensionCache = this.caches.get(dimension.key());
+                            if (dimensionCache != null && dimensionCache.roots != null) {
+                                callback(dimensionCache.roots);
+                            } else {
+                                var keys = new Array();
+                                keys[0] = this.keyRoot(dimension.key());
+                                this._db.get(keys, function (res, error) {
+                                    var tree = new org.kevoree.modeling.api.time.rbtree.LongRBTree();
+                                    if (error != null) {
+                                        error.printStackTrace();
+                                    } else {
+                                        if (res != null && res.length == 1 && res[0] != null && !res[0].equals("")) {
+                                            try  {
+                                                tree.unserialize(res[0]);
+                                            } catch ($ex$) {
+                                                if ($ex$ instanceof java.lang.Exception) {
+                                                    var e = $ex$;
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    _this.write_roots(dimension.key(), tree);
+                                    callback(tree);
+                                });
+                            }
+                        };
                         DefaultKStore.KEY_SEP = ',';
-                        DefaultKStore.UUID_DB_KEY = "#UUID";
-                        DefaultKStore.DIM_DB_KEY = "#DIMKEY";
-                        DefaultKStore.RANGE_LENGTH = 500;
-                        DefaultKStore.RANGE_THRESHOLD = 100;
 
                         DefaultKStore.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                         DefaultKStore.INDEX_RESOLVED_DIM = 0;
@@ -1694,6 +1822,36 @@ var org;
                         return JsonRaw;
                     })();
                     data.JsonRaw = JsonRaw;
+
+                    var KeyCalculator = (function () {
+                        function KeyCalculator(prefix, currentIndex) {
+                            this._prefix = prefix << 53 - 16;
+                            this._currentIndex = currentIndex;
+                        }
+                        KeyCalculator.prototype.nextKey = function () {
+                            if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
+                                throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
+                            }
+                            this._currentIndex++;
+                            var objectKey = this._prefix + this._currentIndex;
+                            if (objectKey > KeyCalculator.LONG_LIMIT_JS) {
+                                throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
+                            }
+                            return objectKey;
+                        };
+
+                        KeyCalculator.prototype.lastComputedIndex = function () {
+                            return this._currentIndex;
+                        };
+
+                        KeyCalculator.prototype.prefix = function () {
+                            return (this._prefix >> 53 - 16);
+                        };
+                        KeyCalculator.LONG_LIMIT_JS = 0x001FFFFFFFFFFFFF;
+                        KeyCalculator.INDEX_LIMIT = 0x0000001FFFFFFFFF;
+                        return KeyCalculator;
+                    })();
+                    data.KeyCalculator = KeyCalculator;
 
                     var MemoryKDataBase = (function () {
                         function MemoryKDataBase() {
@@ -2287,7 +2445,7 @@ var org;
                                         var current = factory.createProxy(metaClass, timeTree, kid);
                                         factory.dimension().universe().storage().initKObject(current, factory);
                                         if (isRoot) {
-                                            factory.setRoot(current);
+                                            factory.setRoot(current, null);
                                         }
                                         var raw = factory.dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE);
                                         var metaKeys = elem.keySet().toArray(new Array());
@@ -4261,6 +4419,12 @@ var org;
                             return this;
                         };
 
+                        DefaultTimeTree.prototype.delete = function (time) {
+                            this.versionTree.insert(time, org.kevoree.modeling.api.time.rbtree.State.DELETED);
+                            this.dirty = true;
+                            return this;
+                        };
+
                         DefaultTimeTree.prototype.isDirty = function () {
                             return this.dirty;
                         };
@@ -4311,6 +4475,7 @@ var org;
                             function LongRBTree() {
                                 this.root = null;
                                 this._size = 0;
+                                this.dirty = false;
                             }
                             LongRBTree.prototype.size = function () {
                                 return this._size;
@@ -4338,7 +4503,12 @@ var org;
                                     ch = payload.charAt(i);
                                 }
                                 this._size = java.lang.Integer.parseInt(buffer.toString());
-                                this.root = new org.kevoree.modeling.api.time.rbtree.ReaderContext(i, payload).unserialize(true);
+                                var ctx = new org.kevoree.modeling.api.time.rbtree.TreeReaderContext();
+                                ctx.index = i;
+                                ctx.payload = payload;
+                                ctx.buffer = new Array();
+                                this.root = org.kevoree.modeling.api.time.rbtree.LongTreeNode.unserialize(ctx);
+                                this.dirty = false;
                             };
 
                             LongRBTree.prototype.previousOrEqual = function (key) {
@@ -4434,14 +4604,14 @@ var org;
 
                             LongRBTree.prototype.previousWhileNot = function (key, until) {
                                 var elm = this.previousOrEqual(key);
-                                if (elm.value.equals(until)) {
+                                if (elm.value == until) {
                                     return null;
                                 } else {
                                     if (elm.key == key) {
                                         elm = elm.previous();
                                     }
                                 }
-                                if (elm == null || elm.value.equals(until)) {
+                                if (elm == null || elm.value == until) {
                                     return null;
                                 } else {
                                     return elm;
@@ -4477,14 +4647,14 @@ var org;
 
                             LongRBTree.prototype.nextWhileNot = function (key, until) {
                                 var elm = this.nextOrEqual(key);
-                                if (elm.value.equals(until)) {
+                                if (elm.value == until) {
                                     return null;
                                 } else {
                                     if (elm.key == key) {
                                         elm = elm.next();
                                     }
                                 }
-                                if (elm == null || elm.value.equals(until)) {
+                                if (elm == null || elm.value == until) {
                                     return null;
                                 } else {
                                     return elm;
@@ -4526,14 +4696,14 @@ var org;
                                 if (elm == null) {
                                     return null;
                                 } else {
-                                    if (elm.value.equals(until)) {
+                                    if (elm.value == until) {
                                         return null;
                                     }
                                 }
                                 var prev = null;
                                 do {
                                     prev = elm.previous();
-                                    if (prev == null || prev.value.equals(until)) {
+                                    if (prev == null || prev.value == until) {
                                         return elm;
                                     } else {
                                         elm = prev;
@@ -4547,14 +4717,14 @@ var org;
                                 if (elm == null) {
                                     return null;
                                 } else {
-                                    if (elm.value.equals(until)) {
+                                    if (elm.value == until) {
                                         return null;
                                     }
                                 }
                                 var next;
                                 do {
                                     next = elm.next();
-                                    if (next == null || next.value.equals(until)) {
+                                    if (next == null || next.value == until) {
                                         return elm;
                                     } else {
                                         elm = next;
@@ -4629,7 +4799,8 @@ var org;
                             };
 
                             LongRBTree.prototype.insert = function (key, value) {
-                                var insertedNode = new org.kevoree.modeling.api.time.rbtree.TreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
+                                this.dirty = true;
+                                var insertedNode = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, org.kevoree.modeling.api.time.rbtree.Color.RED, null, null);
                                 if (this.root == null) {
                                     this._size++;
                                     this.root = insertedNode;
@@ -4837,10 +5008,6 @@ var org;
                                 }
                                 this.parent = null;
                             }
-                            LongTreeNode.prototype.getKey = function () {
-                                return this.key;
-                            };
-
                             LongTreeNode.prototype.grandparent = function () {
                                 if (this.parent != null) {
                                     return this.parent.parent;
@@ -4895,20 +5062,14 @@ var org;
 
                             LongTreeNode.prototype.serialize = function (builder) {
                                 builder.append("|");
-                                if (this.value == org.kevoree.modeling.api.time.rbtree.State.DELETED) {
-                                    if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        builder.append(LongTreeNode.BLACK_DELETE);
-                                    } else {
-                                        builder.append(LongTreeNode.RED_DELETE);
-                                    }
+                                if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
+                                    builder.append(LongTreeNode.BLACK);
                                 } else {
-                                    if (this.color == org.kevoree.modeling.api.time.rbtree.Color.BLACK) {
-                                        builder.append(LongTreeNode.BLACK_EXISTS);
-                                    } else {
-                                        builder.append(LongTreeNode.RED_EXISTS);
-                                    }
+                                    builder.append(LongTreeNode.RED);
                                 }
                                 builder.append(this.key);
+                                builder.append("@");
+                                builder.append(this.value);
                                 if (this.left == null && this.right == null) {
                                     builder.append("%");
                                 } else {
@@ -4972,10 +5133,78 @@ var org;
                                     }
                                 }
                             };
-                            LongTreeNode.BLACK_DELETE = '0';
-                            LongTreeNode.BLACK_EXISTS = '1';
-                            LongTreeNode.RED_DELETE = '2';
-                            LongTreeNode.RED_EXISTS = '3';
+
+                            LongTreeNode.unserialize = function (ctx) {
+                                return org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
+                            };
+
+                            LongTreeNode.internal_unserialize = function (rightBranch, ctx) {
+                                if (ctx.index >= ctx.payload.length) {
+                                    return null;
+                                }
+                                var ch = ctx.payload.charAt(ctx.index);
+                                if (ch == '%') {
+                                    if (rightBranch) {
+                                        ctx.index = ctx.index + 1;
+                                    }
+                                    return null;
+                                }
+                                if (ch == '#') {
+                                    ctx.index = ctx.index + 1;
+                                    return null;
+                                }
+                                if (ch != '|') {
+                                    throw new java.lang.Exception("Error while loading BTree");
+                                }
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                var color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
+                                if (ch == LongTreeNode.RED) {
+                                    color = org.kevoree.modeling.api.time.rbtree.Color.RED;
+                                }
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                var i = 0;
+                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                    ctx.index = ctx.index + 1;
+                                    ch = ctx.payload.charAt(ctx.index);
+                                }
+                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                }
+                                var key = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                                i = 0;
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                    ctx.index = ctx.index + 1;
+                                    ch = ctx.payload.charAt(ctx.index);
+                                }
+                                if (ch != '|' && ch != '#' && ch != '%' && ch != '@') {
+                                    ctx.buffer[i] = ch;
+                                    i++;
+                                }
+                                var value = java.lang.Long.parseLong(StringUtils.copyValueOf(ctx.buffer, 0, i));
+                                var p = new org.kevoree.modeling.api.time.rbtree.LongTreeNode(key, value, color, null, null);
+                                var left = org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(false, ctx);
+                                if (left != null) {
+                                    left.setParent(p);
+                                }
+                                var right = org.kevoree.modeling.api.time.rbtree.LongTreeNode.internal_unserialize(true, ctx);
+                                if (right != null) {
+                                    right.setParent(p);
+                                }
+                                p.setLeft(left);
+                                p.setRight(right);
+                                return p;
+                            };
+                            LongTreeNode.BLACK = '0';
+                            LongTreeNode.RED = '2';
                             return LongTreeNode;
                         })();
                         rbtree.LongTreeNode = LongTreeNode;
@@ -5011,7 +5240,10 @@ var org;
                                     ch = payload.charAt(i);
                                 }
                                 this._size = java.lang.Integer.parseInt(buffer.toString());
-                                this.root = new org.kevoree.modeling.api.time.rbtree.ReaderContext(i, payload).unserialize(true);
+                                var ctx = new org.kevoree.modeling.api.time.rbtree.TreeReaderContext();
+                                ctx.index = i;
+                                ctx.payload = payload;
+                                this.root = org.kevoree.modeling.api.time.rbtree.TreeNode.unserialize(ctx);
                             };
 
                             RBTree.prototype.previousOrEqual = function (key) {
@@ -5494,79 +5726,6 @@ var org;
                         })();
                         rbtree.RBTree = RBTree;
 
-                        var ReaderContext = (function () {
-                            function ReaderContext(offset, payload) {
-                                this.offset = offset;
-                                this.payload = payload;
-                            }
-                            ReaderContext.prototype.unserialize = function (rightBranch) {
-                                if (this.offset >= this.payload.length) {
-                                    return null;
-                                }
-                                var tokenBuild = new java.lang.StringBuilder();
-                                var ch = this.payload.charAt(this.offset);
-                                if (ch == '%') {
-                                    if (rightBranch) {
-                                        this.offset = this.offset + 1;
-                                    }
-                                    return null;
-                                }
-                                if (ch == '#') {
-                                    this.offset = this.offset + 1;
-                                    return null;
-                                }
-                                if (ch != '|') {
-                                    throw new java.lang.Exception("Error while loading BTree");
-                                }
-                                this.offset = this.offset + 1;
-                                ch = this.payload.charAt(this.offset);
-                                var color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                var state = org.kevoree.modeling.api.time.rbtree.State.EXISTS;
-                                switch (ch) {
-                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.BLACK_DELETE:
-                                        color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                        state = org.kevoree.modeling.api.time.rbtree.State.DELETED;
-                                        break;
-                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.BLACK_EXISTS:
-                                        color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
-                                        state = org.kevoree.modeling.api.time.rbtree.State.EXISTS;
-                                        break;
-                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.RED_DELETE:
-                                        color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                        state = org.kevoree.modeling.api.time.rbtree.State.DELETED;
-                                        break;
-                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.RED_EXISTS:
-                                        color = org.kevoree.modeling.api.time.rbtree.Color.RED;
-                                        state = org.kevoree.modeling.api.time.rbtree.State.EXISTS;
-                                        break;
-                                }
-                                this.offset = this.offset + 1;
-                                ch = this.payload.charAt(this.offset);
-                                while (this.offset + 1 < this.payload.length && ch != '|' && ch != '#' && ch != '%') {
-                                    tokenBuild.append(ch);
-                                    this.offset = this.offset + 1;
-                                    ch = this.payload.charAt(this.offset);
-                                }
-                                if (ch != '|' && ch != '#' && ch != '%') {
-                                    tokenBuild.append(ch);
-                                }
-                                var p = new org.kevoree.modeling.api.time.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), state, color, null, null);
-                                var left = this.unserialize(false);
-                                if (left != null) {
-                                    left.setParent(p);
-                                }
-                                var right = this.unserialize(true);
-                                if (right != null) {
-                                    right.setParent(p);
-                                }
-                                p.setLeft(left);
-                                p.setRight(right);
-                                return p;
-                            };
-                            return ReaderContext;
-                        })();
-                        rbtree.ReaderContext = ReaderContext;
-
                         var State = (function () {
                             function State() {
                             }
@@ -5739,6 +5898,75 @@ var org;
                                     }
                                 }
                             };
+
+                            TreeNode.unserialize = function (ctx) {
+                                return org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
+                            };
+
+                            TreeNode.internal_unserialize = function (rightBranch, ctx) {
+                                if (ctx.index >= ctx.payload.length) {
+                                    return null;
+                                }
+                                var tokenBuild = new java.lang.StringBuilder();
+                                var ch = ctx.payload.charAt(ctx.index);
+                                if (ch == '%') {
+                                    if (rightBranch) {
+                                        ctx.index = ctx.index + 1;
+                                    }
+                                    return null;
+                                }
+                                if (ch == '#') {
+                                    ctx.index = ctx.index + 1;
+                                    return null;
+                                }
+                                if (ch != '|') {
+                                    throw new java.lang.Exception("Error while loading BTree");
+                                }
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                var color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
+                                var state = org.kevoree.modeling.api.time.rbtree.State.EXISTS;
+                                switch (ch) {
+                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.BLACK_DELETE:
+                                        color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
+                                        state = org.kevoree.modeling.api.time.rbtree.State.DELETED;
+                                        break;
+                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.BLACK_EXISTS:
+                                        color = org.kevoree.modeling.api.time.rbtree.Color.BLACK;
+                                        state = org.kevoree.modeling.api.time.rbtree.State.EXISTS;
+                                        break;
+                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.RED_DELETE:
+                                        color = org.kevoree.modeling.api.time.rbtree.Color.RED;
+                                        state = org.kevoree.modeling.api.time.rbtree.State.DELETED;
+                                        break;
+                                    case org.kevoree.modeling.api.time.rbtree.TreeNode.RED_EXISTS:
+                                        color = org.kevoree.modeling.api.time.rbtree.Color.RED;
+                                        state = org.kevoree.modeling.api.time.rbtree.State.EXISTS;
+                                        break;
+                                }
+                                ctx.index = ctx.index + 1;
+                                ch = ctx.payload.charAt(ctx.index);
+                                while (ctx.index + 1 < ctx.payload.length && ch != '|' && ch != '#' && ch != '%') {
+                                    tokenBuild.append(ch);
+                                    ctx.index = ctx.index + 1;
+                                    ch = ctx.payload.charAt(ctx.index);
+                                }
+                                if (ch != '|' && ch != '#' && ch != '%') {
+                                    tokenBuild.append(ch);
+                                }
+                                var p = new org.kevoree.modeling.api.time.rbtree.TreeNode(java.lang.Long.parseLong(tokenBuild.toString()), state, color, null, null);
+                                var left = org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(false, ctx);
+                                if (left != null) {
+                                    left.setParent(p);
+                                }
+                                var right = org.kevoree.modeling.api.time.rbtree.TreeNode.internal_unserialize(true, ctx);
+                                if (right != null) {
+                                    right.setParent(p);
+                                }
+                                p.setLeft(left);
+                                p.setRight(right);
+                                return p;
+                            };
                             TreeNode.BLACK_DELETE = '0';
                             TreeNode.BLACK_EXISTS = '1';
                             TreeNode.RED_DELETE = '2';
@@ -5746,6 +5974,13 @@ var org;
                             return TreeNode;
                         })();
                         rbtree.TreeNode = TreeNode;
+
+                        var TreeReaderContext = (function () {
+                            function TreeReaderContext() {
+                            }
+                            return TreeReaderContext;
+                        })();
+                        rbtree.TreeReaderContext = TreeReaderContext;
                     })(_time.rbtree || (_time.rbtree = {}));
                     var rbtree = _time.rbtree;
                 })(api.time || (api.time = {}));
@@ -6631,7 +6866,7 @@ var org;
                                 for (var i = 0; i < context.resolvers.size(); i++) {
                                     context.resolvers.get(i).run();
                                 }
-                                p_view.setRoot(context.loadedRoots);
+                                p_view.setRoot(context.loadedRoots, null);
                                 context.successCallback(null);
                             } catch ($ex$) {
                                 if ($ex$ instanceof java.lang.Exception) {

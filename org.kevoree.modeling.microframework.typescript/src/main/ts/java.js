@@ -35,15 +35,18 @@ var TSSet = Set;
 Number.prototype.equals = function (other) {
     return this == other;
 };
-/*
- String.prototype.getBytes = function () {
- var res:number[] = new Number[this.length];
- for (var i = 0; i < this.length; i++) {
- res[i] = Number(this.charAt(i));
- }
- return res;
- };
- */
+var StringUtils = (function () {
+    function StringUtils() {
+    }
+    StringUtils.copyValueOf = function (data, offset, count) {
+        var result = "";
+        for (var i = offset; i < offset + count; i++) {
+            result += data[i];
+        }
+        return result;
+    };
+    return StringUtils;
+})();
 String.prototype.matches = function (regEx) {
     return this.match(regEx).length > 0;
 };
@@ -115,6 +118,8 @@ var java;
             Short.parseShort = function (val) {
                 return +val;
             };
+            Short.MIN_VALUE = -0x8000;
+            Short.MAX_VALUE = 0x7FFF;
             return Short;
         })();
         lang.Short = Short;
@@ -144,6 +149,14 @@ var java;
             return RuntimeException;
         })(Exception);
         lang.RuntimeException = RuntimeException;
+        var IndexOutOfBoundsException = (function (_super) {
+            __extends(IndexOutOfBoundsException, _super);
+            function IndexOutOfBoundsException() {
+                _super.apply(this, arguments);
+            }
+            return IndexOutOfBoundsException;
+        })(Exception);
+        lang.IndexOutOfBoundsException = IndexOutOfBoundsException;
         var StringBuilder = (function () {
             function StringBuilder() {
                 this.buffer = "";
