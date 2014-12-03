@@ -18,13 +18,11 @@ public class CallbackTester {
         Helper.forall(big, new CallBackChain<String>() {
             @Override
             public void on(String s, Callback<Throwable> next) {
-                System.out.println(s);
                 next.on(null);
             }
         }, new Callback<Throwable>() {
             @Override
             public void on(Throwable t) {
-                System.out.println("End !");
             }
         });
 
