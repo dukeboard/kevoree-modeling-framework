@@ -8,15 +8,13 @@
 <script src="../../../target/classes/java.js"></script>
 <script src="../../../target/classes/org.kevoree.modeling.microframework.typescript.js"></script>
 <script src="../../../target/test-classes/org.kevoree.modeling.microframework.typescript.js"></script>
+<script src="../../../target/test-classes/TestRunner.js"></script>
 <script>
     try {
-        var p_comparetest = new org.kevoree.modeling.microframework.test.CompareTest();
-        p_comparetest.diffTest();
-        p_comparetest.intersectionTest();
-        p_comparetest.unionTest();
-        var p_deletetest = new org.kevoree.modeling.microframework.test.DeleteTest();
-        p_deletetest.basicDeleteTest();
-        console.log("Sortie");
+
+        var timeTestSuite = new FlatJUnitTest();
+        timeTestSuite.run();
+
     } catch (e) {
         console.trace(e);
     }

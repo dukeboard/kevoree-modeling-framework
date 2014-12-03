@@ -155,6 +155,7 @@ declare module org {
                         private _objectKeyCalculator;
                         private _dimensionKeyCalculator;
                         private isConnected;
+                        private static UNIVERSE_NOT_CONNECTED_ERROR;
                         private static OUT_OF_CACHE_MESSAGE;
                         private static INDEX_RESOLVED_DIM;
                         private static INDEX_RESOLVED_TIME;

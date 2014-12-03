@@ -1031,14 +1031,14 @@ var org;
 
                         DefaultKStore.prototype.nextDimensionKey = function () {
                             if (this._dimensionKeyCalculator == null) {
-                                throw new java.lang.RuntimeException("Please connect your dimension prior to create an a dimension or an object");
+                                throw new java.lang.RuntimeException(DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR);
                             }
                             return this._dimensionKeyCalculator.nextKey();
                         };
 
                         DefaultKStore.prototype.nextObjectKey = function () {
                             if (this._objectKeyCalculator == null) {
-                                throw new java.lang.RuntimeException("Please connect your dimension prior to create an a dimension or an object");
+                                throw new java.lang.RuntimeException(DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR);
                             }
                             return this._objectKeyCalculator.nextKey();
                         };
@@ -1352,26 +1352,28 @@ var org;
                         };
 
                         DefaultKStore.prototype.size_dirties = function (dimensionCache) {
-                            var timeCaches = dimensionCache.timesCaches.values().toArray(new Array());
+                            var times = dimensionCache.timesCaches.keySet().toArray(new Array());
                             var sizeCache = 0;
-                            for (var i = 0; i < timeCaches.length; i++) {
-                                var timeCache = timeCaches[i];
-                                var keys = timeCache.payload_cache.keySet().toArray(new Array());
-                                for (var k = 0; k < keys.length; k++) {
-                                    var idObj = keys[k];
-                                    var cachedEntry = timeCache.payload_cache.get(idObj);
-                                    if (cachedEntry != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                            for (var i = 0; i < times.length; i++) {
+                                var timeCache = dimensionCache.timesCaches.get(times[i]);
+                                if (timeCache != null) {
+                                    var keys = timeCache.payload_cache.keySet().toArray(new Array());
+                                    for (var k = 0; k < keys.length; k++) {
+                                        var idObj = keys[k];
+                                        var cachedEntry = timeCache.payload_cache.get(idObj);
+                                        if (cachedEntry != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                                            sizeCache++;
+                                        }
+                                    }
+                                    if (timeCache.rootDirty) {
                                         sizeCache++;
                                     }
                                 }
-                                if (timeCache.rootDirty) {
-                                    sizeCache++;
-                                }
                             }
-                            var timeTrees = dimensionCache.timeTreeCache.values().toArray(new Array());
-                            for (var k = 0; k < timeTrees.length; k++) {
-                                var timeTree = timeTrees[k];
-                                if (timeTree.isDirty()) {
+                            var ids = dimensionCache.timeTreeCache.keySet().toArray(new Array());
+                            for (var k = 0; k < ids.length; k++) {
+                                var timeTree = dimensionCache.timeTreeCache.get(ids[k]);
+                                if (timeTree != null && timeTree.isDirty()) {
                                     sizeCache++;
                                 }
                             }
@@ -1476,6 +1478,7 @@ var org;
                         };
                         DefaultKStore.KEY_SEP = ',';
 
+                        DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your universe prior to create a dimension or an object";
                         DefaultKStore.OUT_OF_CACHE_MESSAGE = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                         DefaultKStore.INDEX_RESOLVED_DIM = 0;
                         DefaultKStore.INDEX_RESOLVED_TIME = 1;

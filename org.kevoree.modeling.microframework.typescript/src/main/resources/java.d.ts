@@ -49,6 +49,7 @@ declare module java {
         }
         class Throwable {
             private message;
+            private error;
             constructor(message: string);
             printStackTrace(): void;
         }

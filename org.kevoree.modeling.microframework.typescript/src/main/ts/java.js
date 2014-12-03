@@ -126,9 +126,10 @@ var java;
         var Throwable = (function () {
             function Throwable(message) {
                 this.message = message;
+                this.error = new Error(message);
             }
             Throwable.prototype.printStackTrace = function () {
-                console.error(this.message);
+                console.error(this.error['stack']);
             };
             return Throwable;
         })();

@@ -178,15 +178,17 @@ public class DefaultKStore implements KStore {
     @Override
     public long nextDimensionKey() {
         if (_dimensionKeyCalculator == null) {
-            throw new RuntimeException("Please connect your dimension prior to create an a dimension or an object");
+            throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
         return _dimensionKeyCalculator.nextKey();
     }
 
+    private static final String UNIVERSE_NOT_CONNECTED_ERROR = "Please connect your universe prior to create a dimension or an object";
+
     @Override
     public long nextObjectKey() {
         if (_objectKeyCalculator == null) {
-            throw new RuntimeException("Please connect your dimension prior to create an a dimension or an object");
+            throw new RuntimeException(UNIVERSE_NOT_CONNECTED_ERROR);
         }
         return _objectKeyCalculator.nextKey();
     }

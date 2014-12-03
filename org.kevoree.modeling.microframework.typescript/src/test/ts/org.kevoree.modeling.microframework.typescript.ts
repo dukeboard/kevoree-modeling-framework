@@ -11,10 +11,8 @@ module org {
                                 big[i] = "say_" + i;
                             }
                             org.kevoree.modeling.api.util.Helper.forall(big,  (s : string, next : (p : java.lang.Throwable) => void) => {
-                                System.out.println(s);
                                 next(null);
                             },  (t : java.lang.Throwable) => {
-                                System.out.println("End !");
                             });
                         }
 
@@ -730,7 +728,6 @@ module org {
                             var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
                             universe.connect(null);
                             universe.listen( (evt : org.kevoree.modeling.api.KEvent) => {
-                                System.err.println(evt);
                             }, org.kevoree.modeling.api.event.ListenerScope.UNIVERSE);
                             var dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension = universe.newDimension();
                             org.junit.Assert.assertNotNull(dimension0);
@@ -823,7 +820,6 @@ module org {
                             });
                             org.junit.Assert.assertEquals(2, i[0]);
                             org.junit.Assert.assertEquals(1, j[0]);
-                            System.err.println(nodeT0);
                         }
 
                     }
@@ -913,7 +909,6 @@ module org {
                     export class LookupTest {
 
                         public lookupTest(): void {
-                            org.kevoree.modeling.api.data.MemoryKDataBase.DEBUG = true;
                             var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
                             universe.connect(null);
                             var dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension = universe.newDimension();
@@ -1055,7 +1050,6 @@ module org {
                         export class PolynomialSaveLoadTest {
 
                             public test(): void {
-                                org.kevoree.modeling.api.data.MemoryKDataBase.DEBUG = true;
                                 var nbAssert: number[] = new Array();
                                 nbAssert[0] = 0;
                                 var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
@@ -1256,7 +1250,6 @@ module org {
                             }
 
                             public parentTest(): void {
-                                org.kevoree.modeling.api.data.MemoryKDataBase.DEBUG = true;
                                 var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
                                 universe.connect(null);
                                 var dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension = universe.newDimension();
@@ -1472,7 +1465,6 @@ module org {
                     export class TraceTest {
 
                         public traceTest(): void {
-                            org.kevoree.modeling.api.data.MemoryKDataBase.DEBUG = true;
                             var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
                             universe.connect(null);
                             var dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension = universe.newDimension();
@@ -1761,10 +1753,11 @@ module org {
 
                     }
                     export module xmi {
-                        export class Serializer {
+                        export class SerializerTest {
 
                             public serializeTest(): void {
                                 var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
+                                universe.connect(null);
                                 var dimension0: org.kevoree.modeling.microframework.test.cloud.CloudDimension = universe.newDimension();
                                 var t0: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(0);
                                 var nodeT0: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();

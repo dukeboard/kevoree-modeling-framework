@@ -14,13 +14,14 @@ import org.kevoree.modeling.microframework.test.cloud.Element;
 /**
  * Created by gregory.nain on 16/10/2014.
  */
-public class Serializer {
+public class SerializerTest {
 
 
     @Test
     public void serializeTest() throws InterruptedException {
 
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension0 = universe.newDimension();
         final CloudView t0 = dimension0.time(0l);
         Node nodeT0 = t0.createNode();

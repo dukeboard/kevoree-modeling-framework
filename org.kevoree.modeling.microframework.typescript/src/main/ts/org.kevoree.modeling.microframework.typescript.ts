@@ -911,6 +911,7 @@ module org {
                         private _objectKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
                         private _dimensionKeyCalculator: org.kevoree.modeling.api.data.KeyCalculator = null;
                         private isConnected: boolean = false;
+                        private static UNIVERSE_NOT_CONNECTED_ERROR: string = "Please connect your universe prior to create a dimension or an object";
                         private static OUT_OF_CACHE_MESSAGE: string = "KMF Error: your object is out of cache, you probably kept an old reference. Please reload it with a lookup";
                         private static INDEX_RESOLVED_DIM: number = 0;
                         private static INDEX_RESOLVED_TIME: number = 1;
@@ -1044,14 +1045,14 @@ module org {
 
                         public nextDimensionKey(): number {
                             if (this._dimensionKeyCalculator == null) {
-                                throw new java.lang.RuntimeException("Please connect your dimension prior to create an a dimension or an object");
+                                throw new java.lang.RuntimeException(DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR);
                             }
                             return this._dimensionKeyCalculator.nextKey();
                         }
 
                         public nextObjectKey(): number {
                             if (this._objectKeyCalculator == null) {
-                                throw new java.lang.RuntimeException("Please connect your dimension prior to create an a dimension or an object");
+                                throw new java.lang.RuntimeException(DefaultKStore.UNIVERSE_NOT_CONNECTED_ERROR);
                             }
                             return this._objectKeyCalculator.nextKey();
                         }
@@ -1362,26 +1363,28 @@ module org {
                         }
 
                         private size_dirties(dimensionCache: org.kevoree.modeling.api.data.cache.DimensionCache): number {
-                            var timeCaches: org.kevoree.modeling.api.data.cache.TimeCache[] = dimensionCache.timesCaches.values().toArray(new Array());
+                            var times: number[] = dimensionCache.timesCaches.keySet().toArray(new Array());
                             var sizeCache: number = 0;
-                            for (var i: number = 0; i < timeCaches.length; i++) {
-                                var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = timeCaches[i];
-                                var keys: number[] = timeCache.payload_cache.keySet().toArray(new Array());
-                                for (var k: number = 0; k < keys.length; k++) {
-                                    var idObj: number = keys[k];
-                                    var cachedEntry: org.kevoree.modeling.api.data.CacheEntry = timeCache.payload_cache.get(idObj);
-                                    if (cachedEntry != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                            for (var i: number = 0; i < times.length; i++) {
+                                var timeCache: org.kevoree.modeling.api.data.cache.TimeCache = dimensionCache.timesCaches.get(times[i]);
+                                if (timeCache != null) {
+                                    var keys: number[] = timeCache.payload_cache.keySet().toArray(new Array());
+                                    for (var k: number = 0; k < keys.length; k++) {
+                                        var idObj: number = keys[k];
+                                        var cachedEntry: org.kevoree.modeling.api.data.CacheEntry = timeCache.payload_cache.get(idObj);
+                                        if (cachedEntry != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[org.kevoree.modeling.api.data.Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                                            sizeCache++;
+                                        }
+                                    }
+                                    if (timeCache.rootDirty) {
                                         sizeCache++;
                                     }
                                 }
-                                if (timeCache.rootDirty) {
-                                    sizeCache++;
-                                }
                             }
-                            var timeTrees: org.kevoree.modeling.api.time.TimeTree[] = dimensionCache.timeTreeCache.values().toArray(new Array());
-                            for (var k: number = 0; k < timeTrees.length; k++) {
-                                var timeTree: org.kevoree.modeling.api.time.TimeTree = timeTrees[k];
-                                if (timeTree.isDirty()) {
+                            var ids: number[] = dimensionCache.timeTreeCache.keySet().toArray(new Array());
+                            for (var k: number = 0; k < ids.length; k++) {
+                                var timeTree: org.kevoree.modeling.api.time.TimeTree = dimensionCache.timeTreeCache.get(ids[k]);
+                                if (timeTree != null && timeTree.isDirty()) {
                                     sizeCache++;
                                 }
                             }
