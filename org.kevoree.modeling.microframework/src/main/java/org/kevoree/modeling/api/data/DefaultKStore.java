@@ -542,26 +542,28 @@ public class DefaultKStore implements KStore {
     }
 
     private int size_dirties(DimensionCache dimensionCache) {
-        TimeCache[] timeCaches = dimensionCache.timesCaches.values().toArray(new TimeCache[dimensionCache.timesCaches.size()]);
+        Long[] times = dimensionCache.timesCaches.keySet().toArray(new Long[dimensionCache.timesCaches.size()]);
         int sizeCache = 0;
-        for (int i = 0; i < timeCaches.length; i++) {
-            TimeCache timeCache = timeCaches[i];
-            Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
-            for (int k = 0; k < keys.length; k++) {
-                Long idObj = keys[k];
-                CacheEntry cachedEntry = timeCache.payload_cache.get(idObj);
-                if (cachedEntry != null && cachedEntry.raw[Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
+        for (int i = 0; i < times.length; i++) {
+            TimeCache timeCache = dimensionCache.timesCaches.get(times[i]);
+            if(timeCache != null){
+                Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
+                for (int k = 0; k < keys.length; k++) {
+                    Long idObj = keys[k];
+                    CacheEntry cachedEntry = timeCache.payload_cache.get(idObj);
+                    if (cachedEntry != null && cachedEntry.raw[Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                        sizeCache++;
+                    }
+                }
+                if (timeCache.rootDirty) {
                     sizeCache++;
                 }
             }
-            if (timeCache.rootDirty) {
-                sizeCache++;
-            }
         }
-        TimeTree[] timeTrees = dimensionCache.timeTreeCache.values().toArray(new TimeTree[dimensionCache.timeTreeCache.size()]);
-        for (int k = 0; k < timeTrees.length; k++) {
-            TimeTree timeTree = timeTrees[k];
-            if (timeTree.isDirty()) {
+        Long[] ids = dimensionCache.timeTreeCache.keySet().toArray(new Long[dimensionCache.timeTreeCache.size()]);
+        for (int k = 0; k < ids.length; k++) {
+            TimeTree timeTree = dimensionCache.timeTreeCache.get(ids[k]);
+            if (timeTree!= null && timeTree.isDirty()) {
                 sizeCache++;
             }
         }
