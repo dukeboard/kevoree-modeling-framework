@@ -202,7 +202,7 @@ public class LongTreeNode {
             ctx.buffer[i] = ch;
             i++;
         }
-        Long key = Long.parseLong(new String(ctx.buffer, 0, i));
+        Long key = Long.parseLong(String.copyValueOf(ctx.buffer, 0, i));
         i=0;
         ctx.index = ctx.index + 1; //We drop separator
         ch = ctx.payload.charAt(ctx.index);
@@ -216,7 +216,7 @@ public class LongTreeNode {
             ctx.buffer[i] = ch;
             i++;
         }
-        Long value = Long.parseLong(new String(ctx.buffer, 0, i));
+        Long value = Long.parseLong(String.copyValueOf(ctx.buffer, 0, i));
         LongTreeNode p = new LongTreeNode(key, value, color, null, null);
         LongTreeNode left = internal_unserialize(false, ctx);
         if (left != null) {
