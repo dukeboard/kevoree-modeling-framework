@@ -17,6 +17,8 @@ public class CloudOperationTest {
 
     public static void main(String[] args) {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         universe.setOperation(Node.METAOPERATIONS.TRIGGER, new KOperation() {
             @Override
             public void on(KObject source, Object[] params, Callback<Object> result) {

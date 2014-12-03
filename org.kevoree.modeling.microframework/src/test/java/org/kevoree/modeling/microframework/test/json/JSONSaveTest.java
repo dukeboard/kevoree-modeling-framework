@@ -17,6 +17,8 @@ public class JSONSaveTest {
     @Test
     public void jsonTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension0 = universe.newDimension();
 
         CloudView time0 = dimension0.time(0l);

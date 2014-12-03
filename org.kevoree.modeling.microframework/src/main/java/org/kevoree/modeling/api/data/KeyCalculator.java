@@ -25,12 +25,10 @@ public class KeyCalculator {
         _currentIndex++;
         //moves the prefix 53-size(short) times to the left;
         long objectKey = _prefix + _currentIndex;
-
         if (objectKey > LONG_LIMIT_JS) {
             throw new IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
         }
         return objectKey;
-
     }
 
     public long lastComputedIndex() {

@@ -21,6 +21,8 @@ public class LookupTest {
         MemoryKDataBase.DEBUG = true;
 
         final CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension0 = universe.newDimension();
         CloudView t0 = dimension0.time(0l);
         final Node node = t0.createNode();

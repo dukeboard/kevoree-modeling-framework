@@ -26,6 +26,16 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     }
 
     @Override
+    public void connect(Callback<Throwable> callback) {
+        _storage.connect(callback);
+    }
+
+    @Override
+    public void close(Callback<Throwable> callback) {
+        _storage.close(callback);
+    }
+
+    @Override
     public KStore storage() {
         return _storage;
     }

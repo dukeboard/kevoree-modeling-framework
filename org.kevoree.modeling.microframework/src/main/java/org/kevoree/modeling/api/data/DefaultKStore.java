@@ -30,27 +30,122 @@ import java.util.Set;
 public class DefaultKStore implements KStore {
 
     public static final char KEY_SEP = ',';
-    public static final String UUID_DB_KEY = "#UUID";
-    public static final String DIM_DB_KEY = "#DIMKEY";
-    private static final int RANGE_LENGTH = 500;
-    private static final int RANGE_THRESHOLD = 100;
-
-    private IDRange currentUUIDRange, nextUUIDRange;
-    private IDRange currentDimensionRange, nextDimensionRange;
 
     private KDataBase _db;
     private Map<Long, DimensionCache> caches = new HashMap<Long, DimensionCache>();
     private KEventBroker _eventBroker;
     private KOperationManager _operationManager;
 
+    private KeyCalculator _objectKeyCalculator = null;
+    private KeyCalculator _dimensionKeyCalculator = null;
+
     public DefaultKStore() {
         this._db = new MemoryKDataBase();
         this._eventBroker = new DefaultKBroker();
         this._operationManager = new DefaultOperationManager(this);
-        initRange(UUID_DB_KEY);
-        initRange(DIM_DB_KEY);
     }
 
+    private boolean isConnected = false;
+
+    @Override
+    public void connect(Callback<Throwable> callback) {
+        if (_db == null) {
+            callback.on(new Exception("Please attach a KDataBase first !"));
+        }
+        String[] keys = new String[1];
+        keys[0] = keyLastPrefix();
+        _db.get(keys, new ThrowableCallback<String[]>() {
+            @Override
+            public void on(String[] strings, Throwable error) {
+                if (error != null) {
+                    if (callback != null) {
+                        callback.on(error);
+                    }
+                } else {
+                    if (strings.length == 1) {
+                        try {
+                            String payloadPrefix = strings[0];
+                            if (payloadPrefix == null || payloadPrefix.equals("")) {
+                                payloadPrefix = "0";
+                            }
+                            final Short newPrefix = Short.parseShort(payloadPrefix);
+                            String[] keys2 = new String[2];
+                            keys2[0] = keyLastDimIndex(payloadPrefix);
+                            keys2[1] = keyLastObjIndex(payloadPrefix);
+                            _db.get(keys2, new ThrowableCallback<String[]>() {
+                                @Override
+                                public void on(String[] strings, Throwable error) {
+                                    if (error != null) {
+                                        if (callback != null) {
+                                            callback.on(error);
+                                        }
+                                    } else {
+                                        if (strings.length == 2) {
+                                            try {
+                                                String dimIndexPayload = strings[0];
+                                                if (dimIndexPayload == null || dimIndexPayload.equals("")) {
+                                                    dimIndexPayload = "0";
+                                                }
+                                                String objIndexPayload = strings[1];
+                                                if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                    objIndexPayload = "0";
+                                                }
+                                                Long newDimIndex = Long.parseLong(dimIndexPayload);
+                                                Long newObjIndex = Long.parseLong(objIndexPayload);
+                                                String[][] keys3 = new String[1][2];
+                                                String[] payloadKeys3 = new String[2];
+                                                payloadKeys3[0] = keyLastPrefix();
+                                                if (newPrefix == Short.MAX_VALUE) {
+                                                    payloadKeys3[1] = "0";
+                                                } else {
+                                                    payloadKeys3[1] = "" + (newPrefix + 1);
+                                                }
+                                                keys3[0] = payloadKeys3;
+                                                _db.put(keys3, new Callback<Throwable>() {
+                                                    @Override
+                                                    public void on(Throwable throwable) {
+                                                        _dimensionKeyCalculator = new KeyCalculator(newPrefix, newDimIndex);
+                                                        _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
+                                                        isConnected = true;
+                                                        if(callback!= null){
+                                                            callback.on(null);
+                                                        }
+                                                    }
+                                                });
+                                            } catch (Exception e) {
+                                                if (callback != null) {
+                                                    callback.on(e);
+                                                }
+                                            }
+                                        } else {
+                                            if (callback != null) {
+                                                callback.on(new Exception("Error while connecting the KDataStore..."));
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
+                        } catch (Exception e) {
+                            if (callback != null) {
+                                callback.on(e);
+                            }
+                        }
+                    } else {
+                        if (callback != null) {
+                            callback.on(new Exception("Error while connecting the KDataStore..."));
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void close(Callback<Throwable> callback) {
+        isConnected = false;
+        //TODO
+    }
 
     private String keyTree(long dim, long key) {
         return "" + dim + KEY_SEP + key;
@@ -68,55 +163,32 @@ public class DefaultKStore implements KStore {
         return "" + dim + KEY_SEP + time + KEY_SEP + key;
     }
 
-    //TODO refactor this...
-    private void initRange(String key) {
-        _db.get(new String[]{key}, new ThrowableCallback<String[]>() {
-            public void on(String[] results, Throwable throwable) {
-                if (throwable != null) {
-                    throwable.printStackTrace();
-                } else {
-                    long min = 1L;
-                    if (results[0] != null) {
-                        min = Long.parseLong(results[0]);
-                    }
-                    if (key.equals(UUID_DB_KEY)) {
-                        nextUUIDRange = new IDRange(min, min + RANGE_LENGTH, RANGE_THRESHOLD);
-                    } else {
-                        nextDimensionRange = new IDRange(min, min + RANGE_LENGTH, RANGE_THRESHOLD);
-                    }
-                    _db.put(new String[][]{new String[]{key, "" + (min + RANGE_LENGTH)}}, new Callback<Throwable>() {
-                        @Override
-                        public void on(Throwable throwable) {
-                            if (throwable != null) {
-                                throwable.printStackTrace();
-                            }
-                        }
-                    });
-                }
-            }
-        });
+    private String keyLastPrefix() {
+        return "ring_prefix";
+    }
+
+    private String keyLastDimIndex(String prefix) {
+        return "index_dim_" + prefix;
+    }
+
+    private String keyLastObjIndex(String prefix) {
+        return "index_obj_" + prefix;
     }
 
     @Override
     public long nextDimensionKey() {
-        if (currentDimensionRange == null || currentDimensionRange.isEmpty()) {
-            currentDimensionRange = nextDimensionRange;
+        if (_dimensionKeyCalculator == null) {
+            throw new RuntimeException("Please connect your dimension prior to create an a dimension or an object");
         }
-        if (currentDimensionRange.isThresholdReached()) {
-            initRange(DIM_DB_KEY);
-        }
-        return currentDimensionRange.newUuid();
+        return _dimensionKeyCalculator.nextKey();
     }
 
     @Override
     public long nextObjectKey() {
-        if (currentUUIDRange == null || currentUUIDRange.isEmpty()) {
-            currentUUIDRange = nextUUIDRange;
+        if (_objectKeyCalculator == null) {
+            throw new RuntimeException("Please connect your dimension prior to create an a dimension or an object");
         }
-        if (currentUUIDRange.isThresholdReached()) {
-            initRange(UUID_DB_KEY);
-        }
-        return currentUUIDRange.newUuid();
+        return _objectKeyCalculator.nextKey();
     }
 
     @Override
@@ -403,8 +475,6 @@ public class DefaultKStore implements KStore {
     @Override
     public void setDataBase(KDataBase p_dataBase) {
         this._db = p_dataBase;
-        initRange(UUID_DB_KEY);
-        initRange(DIM_DB_KEY);
     }
 
     public KOperationManager operationManager() {

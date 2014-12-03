@@ -18,7 +18,9 @@ public class TimeTest {
 
     @Test
     public void timeCreationTest() {
+
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
@@ -37,6 +39,7 @@ public class TimeTest {
     @Test
     public void simpleTimeNavigationTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
@@ -75,6 +78,7 @@ public class TimeTest {
     @Test
     public void distortedTimeNavigationTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
@@ -142,6 +146,7 @@ public class TimeTest {
     @Test
     public void objectModificationTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
@@ -190,6 +195,7 @@ public class TimeTest {
     public void timeUpdateWithLookupTest() {
 
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension = universe.newDimension();
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();
@@ -240,6 +246,7 @@ public class TimeTest {
     public void timeUpdateWithSelectTest() {
 
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension = universe.newDimension();
         CloudView t0 = dimension.time(0L);
         Node node0 = t0.createNode();

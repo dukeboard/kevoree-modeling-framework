@@ -20,6 +20,8 @@ public class PolynomialSaveLoadTest {
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension = universe.newDimension();
 
         final double[] val = new double[1000];

@@ -24,6 +24,8 @@ public class CompareTest {
     @Test
     public void diffTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
@@ -78,6 +80,8 @@ public class CompareTest {
     @Test
     public void intersectionTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension0 = universe.newDimension();
 
         Assert.assertNotNull(dimension0);
@@ -123,6 +127,8 @@ public class CompareTest {
     @Test
     public void unionTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension0 = universe.newDimension();
         Assert.assertNotNull(dimension0);
 

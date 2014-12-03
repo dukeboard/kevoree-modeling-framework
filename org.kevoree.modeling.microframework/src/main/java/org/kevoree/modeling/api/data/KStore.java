@@ -52,4 +52,9 @@ public interface KStore {
     public void setDataBase(KDataBase dataBase);
 
     public KOperationManager operationManager();
+
+    public void connect(Callback<Throwable> callback);
+
+    public void close(Callback<Throwable> callback);
+
 }

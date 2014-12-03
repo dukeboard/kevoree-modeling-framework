@@ -26,6 +26,8 @@ public class HelloTest {
     @Test
     public void helloTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         universe.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {

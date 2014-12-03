@@ -19,6 +19,8 @@ public class ParentStorageTest {
     @Test
     public void discardTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension0 = universe.newDimension();
         CloudView time0 = dimension0.time(0l);
 
@@ -67,6 +69,8 @@ public class ParentStorageTest {
         MemoryKDataBase.DEBUG = true;
 
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
+
         CloudDimension dimension0 = universe.newDimension();
         CloudView time0 = dimension0.time(0l);
 

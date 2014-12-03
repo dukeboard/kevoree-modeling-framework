@@ -13,6 +13,10 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 
 public interface KUniverse<A extends KDimension> {
 
+    public void connect(Callback<Throwable> callback);
+
+    public void close(Callback<Throwable> callback);
+
     public A newDimension();
 
     public A dimension(long key);
