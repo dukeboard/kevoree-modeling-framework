@@ -334,15 +334,15 @@ public class DefaultKStore implements KStore {
                 dimensionCache.roots.dirty = false;
                 i++;
             }
-            String[] payloadD = new String[2];
-            payloadD[0] = keyLastDimIndex("" + _dimensionKeyCalculator.prefix());
-            payloadD[1] = "" + _dimensionKeyCalculator.lastComputedIndex();
-            payloads[i] = payloadD;
+            String[] payloadDim = new String[2];
+            payloadDim[0] = keyLastDimIndex("" + _dimensionKeyCalculator.prefix());
+            payloadDim[1] = "" + _dimensionKeyCalculator.lastComputedIndex();
+            payloads[i] = payloadDim;
             i++;
-            String[] payloadD2 = new String[2];
-            payloadD2[0] = keyLastDimIndex("" + _objectKeyCalculator.prefix());
-            payloadD2[1] = "" + _objectKeyCalculator.lastComputedIndex();
-            payloads[i] = payloadD2;
+            String[] payloadObj = new String[2];
+            payloadObj[0] = keyLastDimIndex("" + _objectKeyCalculator.prefix());
+            payloadObj[1] = "" + _objectKeyCalculator.lastComputedIndex();
+            payloads[i] = payloadObj;
             _db.put(payloads, callback);
             _eventBroker.flush(dimension.key());
         }
