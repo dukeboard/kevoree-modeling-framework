@@ -7,7 +7,7 @@ eval(fs.readFileSync(__dirname + '/../classes/org.kevoree.modeling.microframewor
 eval(fs.readFileSync(__dirname + '/org.kevoree.modeling.microframework.typescript.js')+'');
 eval(fs.readFileSync(__dirname + '/TestRunner.js')+'');
 
-var timeTestSuite = new FlatJUnitTest();
+var timeTestSuite = new gentest.FlatJUnitTest();
 timeTestSuite.run();
 /*
 var myMap = new java.util.HashMap();
