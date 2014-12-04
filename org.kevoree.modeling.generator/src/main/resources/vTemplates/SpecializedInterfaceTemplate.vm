@@ -1,0 +1,7 @@
+package $context.metaModelPackage;
+
+public interface ${context.metaModelName}Object extends org.kevoree.modeling.api.KObject<${context.metaModelName}Object, ${context.metaModelPackage}.${context.metaModelName}View> {
+
+}
+
+#* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

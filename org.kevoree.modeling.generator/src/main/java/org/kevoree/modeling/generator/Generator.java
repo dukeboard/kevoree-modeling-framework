@@ -95,6 +95,11 @@ public class Generator {
         Path viewImplFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + "impl" + File.separator + context.getMetaModelName() + "ViewImpl.java");
         callVelocity(viewImplFilePath, "vTemplates/ViewImplTemplate.vm", context);
 
+        Path specializedInterfaceFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + context.getMetaModelName() + "Object.java");
+        callVelocity(specializedInterfaceFilePath, "vTemplates/SpecializedInterfaceTemplate.vm", context);
+
+        Path specializedAbstractClassFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + context.getMetaModelPackage().replace(".", File.separator) + File.separator + "impl" + File.separator + "Abstract" + context.getMetaModelName() + "Object.java");
+        callVelocity(specializedAbstractClassFilePath, "vTemplates/SpecializedAbstractClassTemplate.vm", context);
     }
 
     private boolean deleteDirectory(File path) {

@@ -1,7 +1,7 @@
 #set($classDeclaration = $context.classDeclaration)
 package $classDeclaration.pack;
 
-public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject<$classDeclaration.name, ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View> {
+public interface $classDeclaration.name extends ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}Object #foreach($parent in $classDeclaration.parents), $parent.getFqn()#end {
 
 #set($enumIdx = 5)
 #parse("vTemplates/MetaAttributesTemplate.vm")

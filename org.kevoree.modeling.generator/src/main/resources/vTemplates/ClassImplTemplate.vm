@@ -1,7 +1,7 @@
 #set($classDeclaration = $context.classDeclaration)
 package ${classDeclaration.pack}.impl;
 
-public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.AbstractKObject<${classDeclaration.pack}.${classDeclaration.name}, ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View> implements ${classDeclaration.pack}.${classDeclaration.name} {
+public class ${classDeclaration.name}Impl extends ${context.generationContext.metaModelPackage}.impl.Abstract${context.generationContext.metaModelName}Object implements ${classDeclaration.pack}.${classDeclaration.name} {
 
     public ${classDeclaration.name}Impl(${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View p_factory, long p_uuid, org.kevoree.modeling.api.time.TimeTree p_timeTree, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
         super(p_factory, p_uuid, p_timeTree, p_metaClass);
