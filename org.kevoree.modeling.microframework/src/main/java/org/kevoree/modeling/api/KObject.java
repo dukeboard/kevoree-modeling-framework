@@ -9,6 +9,8 @@ import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 
+import java.util.List;
+
 /**
  * Created by thomas on 10/2/14.
  */
@@ -100,5 +102,7 @@ public interface KObject<A extends KObject, B extends KView> {
     public void intersection(KObject target, Callback<TraceSequence> callback);
 
     public void clone(Callback<A> callback);
+
+    public void slice(Callback<TraceSequence> callback);
 
 }

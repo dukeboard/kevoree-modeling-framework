@@ -23,6 +23,7 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCloner;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
+import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
@@ -702,5 +703,12 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     public void clone(Callback<A> callback) {
         DefaultModelCloner.clone((A) this, callback);
     }
+
+    public void slice(Callback<TraceSequence> callback) {
+        ArrayList<KObject> params = new ArrayList<KObject>();
+        params.add(this);
+        DefaultModelSlicer.slice(params, callback);
+    }
+
 
 }
