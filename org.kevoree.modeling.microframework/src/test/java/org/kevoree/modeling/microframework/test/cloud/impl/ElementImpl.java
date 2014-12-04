@@ -1,5 +1,7 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -8,11 +10,12 @@ import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
+import org.kevoree.modeling.microframework.test.cloud.Node;
 
 /**
  * Created by duke on 10/13/14.
  */
-public class ElementImpl extends AbstractKObject<Element, CloudView> implements Element {
+public class ElementImpl extends AbstractKObject implements Element {
 
     public ElementImpl(CloudView factory, long kid, TimeTree timeTree, MetaClass p_metaclass) {
         super(factory, kid, timeTree, p_metaclass);
@@ -55,6 +58,23 @@ public class ElementImpl extends AbstractKObject<Element, CloudView> implements 
     public Element setValue(Double p_name) {
         this.set(Element.METAATTRIBUTES.VALUE, p_name);
         return this;
+    }
+
+    @Override
+    public void jump(Long time, final Callback<Element> callback) {
+        view().dimension().time(time).lookup(uuid(), new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                if (callback != null) {
+                    callback.on((Element) kObject);
+                }
+            }
+        });
+    }
+
+    @Override
+    public CloudView view() {
+        return (CloudView) super.view();
     }
 
 

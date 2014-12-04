@@ -42,14 +42,14 @@ import java.util.Set;
 /**
  * Created by duke on 10/9/14.
  */
-public abstract class AbstractKObject<A extends KObject, B extends KView> implements KObject<A, B> {
+public abstract class AbstractKObject implements KObject {
 
-    private B _view;
+    private KView _view;
     private long _uuid;
     private TimeTree _timeTree;
     private MetaClass _metaClass;
 
-    public AbstractKObject(B p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
+    public AbstractKObject(KView p_view, long p_uuid, TimeTree p_timeTree, MetaClass p_metaClass) {
         this._view = p_view;
         this._uuid = p_uuid;
         this._timeTree = p_timeTree;
@@ -57,7 +57,7 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     @Override
-    public B view() {
+    public KView view() {
         return _view;
     }
 
@@ -185,16 +185,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     @Override
     public void listen(ModelListener listener, ListenerScope scope) {
         view().dimension().universe().storage().eventBroker().registerListener(this, listener, scope);
-    }
-
-    @Override
-    public void jump(Long time, final Callback<A> callback) {
-        view().dimension().time(time).lookup(_uuid, new Callback<KObject>() {
-            @Override
-            public void on(KObject kObject) {
-                callback.on((A) kObject);
-            }
-        });
     }
 
     @Override
@@ -698,11 +688,6 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     @Override
     public void intersection(KObject target, Callback<TraceSequence> callback) {
         DefaultModelCompare.intersection(this, target, callback);
-    }
-
-    public void clone(Callback<A> callback) {
-        KObject self = this;//explicit cast for typescript
-        DefaultModelCloner.clone((A)self, callback);
     }
 
     public void slice(Callback<TraceSequence> callback) {

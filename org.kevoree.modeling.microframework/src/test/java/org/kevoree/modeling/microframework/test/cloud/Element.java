@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
@@ -11,7 +12,7 @@ import org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation;
 /**
  * Created by duke on 10/9/14.
  */
-public interface Element extends KObject<Element, CloudView> {
+public interface Element extends KObject {
 
     public enum METAATTRIBUTES implements MetaAttribute {
 
@@ -82,5 +83,10 @@ public interface Element extends KObject<Element, CloudView> {
     public Double getValue();
 
     public Element setValue(Double name);
+
+    @Override
+    public CloudView view();
+
+    public void jump(Long time, Callback<Element> callback);
 
 }

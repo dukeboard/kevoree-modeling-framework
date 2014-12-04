@@ -2,6 +2,7 @@ package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
@@ -13,7 +14,7 @@ import org.kevoree.modeling.api.extrapolation.Extrapolation;
 /**
  * Created by duke on 10/9/14.
  */
-public interface Node extends KObject<Node, CloudView> {
+public interface Node extends KObject {
 
     /* Reflexive API Attributes */
     public enum METAATTRIBUTES implements MetaAttribute {
@@ -179,5 +180,10 @@ public interface Node extends KObject<Node, CloudView> {
     public void getElement(Callback<Element> obj);
 
     public void trigger(String param, Callback<String> callback);
+
+    @Override
+    public CloudView view();
+
+    public void jump(Long time, Callback<Node> callback);
 
 }

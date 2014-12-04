@@ -183,12 +183,6 @@ var org;
                             this.view().dimension().universe().storage().eventBroker().registerListener(this, listener, scope);
                         };
 
-                        AbstractKObject.prototype.jump = function (time, callback) {
-                            this.view().dimension().time(time).lookup(this._uuid, function (kObject) {
-                                callback(kObject);
-                            });
-                        };
-
                         AbstractKObject.prototype.domainKey = function () {
                             var builder = new java.lang.StringBuilder();
                             var atts = this.metaAttributes();
@@ -653,11 +647,6 @@ var org;
 
                         AbstractKObject.prototype.intersection = function (target, callback) {
                             org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, callback);
-                        };
-
-                        AbstractKObject.prototype.clone = function (callback) {
-                            var self = this;
-                            org.kevoree.modeling.api.operation.DefaultModelCloner.clone(self, callback);
                         };
 
                         AbstractKObject.prototype.slice = function (callback) {

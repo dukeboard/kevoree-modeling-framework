@@ -1,8 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
-import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
-import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
@@ -16,7 +14,7 @@ import org.kevoree.modeling.microframework.test.cloud.Node;
 /**
  * Created by duke on 10/10/14.
  */
-public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
+public class NodeImpl extends AbstractKObject implements Node {
 
     public NodeImpl(CloudView p_factory, long p_uuid, TimeTree p_timeTree, MetaClass p_clazz) {
         super(p_factory, p_uuid, p_timeTree, p_clazz);
@@ -100,4 +98,22 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
             }
         });
     }
+
+    @Override
+    public void jump(Long time, final Callback<Node> callback) {
+        view().dimension().time(time).lookup(uuid(), new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                if(callback!= null){
+                    callback.on((Node) kObject);
+                }
+            }
+        });
+    }
+
+    @Override
+    public CloudView view() {
+        return (CloudView) super.view();
+    }
+
 }

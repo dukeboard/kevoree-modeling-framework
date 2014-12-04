@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by thomas on 10/2/14.
  */
-public interface KObject<A extends KObject, B extends KView> {
+public interface KObject {
 
     public KDimension dimension();
 
@@ -24,7 +24,7 @@ public interface KObject<A extends KObject, B extends KView> {
 
     public void path(Callback<String> callback);
 
-    public B view();
+    public KView view();
 
     public void delete(Callback<Throwable> callback);
 
@@ -50,8 +50,6 @@ public interface KObject<A extends KObject, B extends KView> {
 
     /* Time navigation */
     public long now();
-
-    public void jump(Long time, Callback<A> callback);
 
     public TimeTree timeTree();
 
@@ -100,8 +98,6 @@ public interface KObject<A extends KObject, B extends KView> {
     public void merge(KObject target, Callback<TraceSequence> callback);
 
     public void intersection(KObject target, Callback<TraceSequence> callback);
-
-    public void clone(Callback<A> callback);
 
     public void slice(Callback<TraceSequence> callback);
 

@@ -139,7 +139,7 @@ module org {
 
 
                         }
-                        export interface Element extends org.kevoree.modeling.api.KObject<any, any> {
+                        export interface Element extends org.kevoree.modeling.api.KObject {
 
                             getName(): string;
 
@@ -148,6 +148,10 @@ module org {
                             getValue(): number;
 
                             setValue(name: number): org.kevoree.modeling.microframework.test.cloud.Element;
+
+                            view(): org.kevoree.modeling.microframework.test.cloud.CloudView;
+
+                            jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Element) => void): void;
 
                         }
 
@@ -224,7 +228,7 @@ module org {
                                     super(now, dimension);
                                 }
 
-                                public internalCreate(p_clazz: org.kevoree.modeling.api.meta.MetaClass, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_key: number): org.kevoree.modeling.api.KObject<any, any> {
+                                public internalCreate(p_clazz: org.kevoree.modeling.api.meta.MetaClass, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_key: number): org.kevoree.modeling.api.KObject {
                                     if (p_clazz == null) {
                                         return null;
                                     }
@@ -252,7 +256,7 @@ module org {
 
                             }
 
-                            export class ElementImpl extends org.kevoree.modeling.api.abs.AbstractKObject<any, any> implements org.kevoree.modeling.microframework.test.cloud.Element {
+                            export class ElementImpl extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.microframework.test.cloud.Element {
 
                                 private _mataReferences: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
                                 constructor(factory: org.kevoree.modeling.microframework.test.cloud.CloudView, kid: number, timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaclass: org.kevoree.modeling.api.meta.MetaClass) {
@@ -289,9 +293,21 @@ module org {
                                     return this;
                                 }
 
+                                public jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Element) => void): void {
+                                    this.view().dimension().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
+                                        if (callback != null) {
+                                            callback(<org.kevoree.modeling.microframework.test.cloud.Element>kObject);
+                                        }
+                                    });
+                                }
+
+                                public view(): org.kevoree.modeling.microframework.test.cloud.CloudView {
+                                    return <org.kevoree.modeling.microframework.test.cloud.CloudView>super.view();
+                                }
+
                             }
 
-                            export class NodeImpl extends org.kevoree.modeling.api.abs.AbstractKObject<any, any> implements org.kevoree.modeling.microframework.test.cloud.Node {
+                            export class NodeImpl extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.microframework.test.cloud.Node {
 
                                 constructor(p_factory: org.kevoree.modeling.microframework.test.cloud.CloudView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_clazz: org.kevoree.modeling.api.meta.MetaClass) {
                                     super(p_factory, p_uuid, p_timeTree, p_clazz);
@@ -360,10 +376,22 @@ module org {
                                     });
                                 }
 
+                                public jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Node) => void): void {
+                                    this.view().dimension().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
+                                        if (callback != null) {
+                                            callback(<org.kevoree.modeling.microframework.test.cloud.Node>kObject);
+                                        }
+                                    });
+                                }
+
+                                public view(): org.kevoree.modeling.microframework.test.cloud.CloudView {
+                                    return <org.kevoree.modeling.microframework.test.cloud.CloudView>super.view();
+                                }
+
                             }
 
                         }
-                        export interface Node extends org.kevoree.modeling.api.KObject<any, any> {
+                        export interface Node extends org.kevoree.modeling.api.KObject {
 
                             getName(): string;
 
@@ -384,6 +412,10 @@ module org {
                             getElement(obj: (p : org.kevoree.modeling.microframework.test.cloud.Element) => void): void;
 
                             trigger(param: string, callback: (p : string) => void): void;
+
+                            view(): org.kevoree.modeling.microframework.test.cloud.CloudView;
+
+                            jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Node) => void): void;
 
                         }
 
@@ -553,7 +585,7 @@ module org {
                         public static main(args: string[]): void {
                             var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
                             universe.connect(null);
-                            universe.setOperation(org.kevoree.modeling.microframework.test.cloud.Node.METAOPERATIONS.TRIGGER,  (source : org.kevoree.modeling.api.KObject<any, any>, params : any[], result : (p : any) => void) => {
+                            universe.setOperation(org.kevoree.modeling.microframework.test.cloud.Node.METAOPERATIONS.TRIGGER,  (source : org.kevoree.modeling.api.KObject, params : any[], result : (p : any) => void) => {
                                 var parameters: string = "[";
                                 for (var i: number = 0; i < params.length; i++) {
                                     if (i != 0) {
@@ -671,7 +703,7 @@ module org {
                             });
                             var factory1: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(1);
                             var e: org.kevoree.modeling.microframework.test.cloud.Element = factory1.createElement();
-                            factory1.select("/",  (results : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                            factory1.select("/",  (results : org.kevoree.modeling.api.KObject[]) => {
                                 if (results != null && results.length > 0) {
                                     var n2: org.kevoree.modeling.microframework.test.cloud.Node = <org.kevoree.modeling.microframework.test.cloud.Node>results[0];
                                     n2.setElement(e);
@@ -683,7 +715,7 @@ module org {
                                 }
                             });
                             var factory2: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(2);
-                            factory2.select("/",  (results : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                            factory2.select("/",  (results : org.kevoree.modeling.api.KObject[]) => {
                                 if (results != null && results.length > 0) {
                                     var n2: org.kevoree.modeling.microframework.test.cloud.Node = <org.kevoree.modeling.microframework.test.cloud.Node>results[0];
                                     n2.getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
@@ -703,7 +735,7 @@ module org {
                                 }
                             });
                             var factory3: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(3);
-                            factory3.select("/",  (results : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                            factory3.select("/",  (results : org.kevoree.modeling.api.KObject[]) => {
                                 if (results != null && results.length > 0) {
                                     var n2: org.kevoree.modeling.microframework.test.cloud.Node = <org.kevoree.modeling.microframework.test.cloud.Node>results[0];
                                     n2.getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
@@ -712,7 +744,7 @@ module org {
                                 }
                             });
                             var factory2_2: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(2);
-                            factory2_2.select("/",  (results : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                            factory2_2.select("/",  (results : org.kevoree.modeling.api.KObject[]) => {
                                 if (results != null && results.length > 0) {
                                     var n2: org.kevoree.modeling.microframework.test.cloud.Node = <org.kevoree.modeling.microframework.test.cloud.Node>results[0];
                                     n2.getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
@@ -764,7 +796,7 @@ module org {
                             nodeT1.addChildren(nodeT3);
                             i[0] = 0;
                             var j: number[] = [0];
-                            nodeT0.visit( (elem : org.kevoree.modeling.api.KObject<any, any>) => {
+                            nodeT0.visit( (elem : org.kevoree.modeling.api.KObject) => {
                                 i[0]++;
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             },  (t : java.lang.Throwable) => {
@@ -774,7 +806,7 @@ module org {
                             org.junit.Assert.assertEquals(1, j[0]);
                             i[0] = 0;
                             j[0] = 0;
-                            nodeT1.visit( (elem : org.kevoree.modeling.api.KObject<any, any>) => {
+                            nodeT1.visit( (elem : org.kevoree.modeling.api.KObject) => {
                                 i[0]++;
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             },  (t : java.lang.Throwable) => {
@@ -784,7 +816,7 @@ module org {
                             org.junit.Assert.assertEquals(1, j[0]);
                             i[0] = 0;
                             j[0] = 0;
-                            nodeT3.visit( (elem : org.kevoree.modeling.api.KObject<any, any>) => {
+                            nodeT3.visit( (elem : org.kevoree.modeling.api.KObject) => {
                                 i[0]++;
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             },  (t : java.lang.Throwable) => {
@@ -794,7 +826,7 @@ module org {
                             org.junit.Assert.assertEquals(1, j[0]);
                             i[0] = 0;
                             j[0] = 0;
-                            nodeT0.treeVisit( (elem : org.kevoree.modeling.api.KObject<any, any>) => {
+                            nodeT0.treeVisit( (elem : org.kevoree.modeling.api.KObject) => {
                                 i[0]++;
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             },  (t : java.lang.Throwable) => {
@@ -804,7 +836,7 @@ module org {
                             org.junit.Assert.assertEquals(1, j[0]);
                             i[0] = 0;
                             j[0] = 0;
-                            nodeT0.graphVisit( (elem : org.kevoree.modeling.api.KObject<any, any>) => {
+                            nodeT0.graphVisit( (elem : org.kevoree.modeling.api.KObject) => {
                                 i[0]++;
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             },  (t : java.lang.Throwable) => {
@@ -814,7 +846,7 @@ module org {
                             org.junit.Assert.assertEquals(1, j[0]);
                             i[0] = 0;
                             j[0] = 0;
-                            nodeT0.graphVisit( (elem : org.kevoree.modeling.api.KObject<any, any>) => {
+                            nodeT0.graphVisit( (elem : org.kevoree.modeling.api.KObject) => {
                                 i[0]++;
                                 return org.kevoree.modeling.api.VisitResult.CONTINUE;
                             },  (t : java.lang.Throwable) => {
@@ -848,12 +880,12 @@ module org {
                                 var passed: number[] = new Array();
                                 var time0: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(0);
                                 time0.json().load("[\n" + "{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"1\",\n" + "\t\"@root\" : \"true\",\n" + "\t\"name\":\"root\",\n" + "\t\"children\": [\"2\",\"3\"],\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"2\",\n" + "\t\"name\":\"n1\",\n" + "}\n" + ",{\n" + "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" + "\t\"@uuid\" : \"3\",\n" + "\t\"name\":\"n2\",\n" + "}\n" + "]",  (res : java.lang.Throwable) => {
-                                    time0.lookup(1,  (r : org.kevoree.modeling.api.KObject<any, any>) => {
+                                    time0.lookup(1,  (r : org.kevoree.modeling.api.KObject) => {
                                         org.junit.Assert.assertNotNull(r);
                                         org.junit.Assert.assertTrue(r.isRoot());
                                         passed[0]++;
                                     });
-                                    time0.lookup(2,  (r : org.kevoree.modeling.api.KObject<any, any>) => {
+                                    time0.lookup(2,  (r : org.kevoree.modeling.api.KObject) => {
                                         org.junit.Assert.assertNotNull(r);
                                         passed[0]++;
                                     });
@@ -919,7 +951,7 @@ module org {
                             node.setName("n0");
                             t0.setRoot(node, null);
                             org.junit.Assert.assertTrue(node.isRoot());
-                            universe.storage().getRoot(t0,  (resolvedRoot : org.kevoree.modeling.api.KObject<any, any>) => {
+                            universe.storage().getRoot(t0,  (resolvedRoot : org.kevoree.modeling.api.KObject) => {
                                 org.junit.Assert.assertEquals(node, resolvedRoot);
                             });
                             org.junit.Assert.assertTrue(node.isRoot());
@@ -928,12 +960,12 @@ module org {
                                 universe2.setDataBase(universe.storage().dataBase());
                                 var dimension0_2: org.kevoree.modeling.microframework.test.cloud.CloudDimension = universe2.dimension(dimension0.key());
                                 var t0_2: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0_2.time(0);
-                                t0_2.lookup(node.uuid(),  (resolved : org.kevoree.modeling.api.KObject<any, any>) => {
+                                t0_2.lookup(node.uuid(),  (resolved : org.kevoree.modeling.api.KObject) => {
                                     org.junit.Assert.assertNotNull(resolved);
-                                    t0_2.lookup(node.uuid(),  (resolved2 : org.kevoree.modeling.api.KObject<any, any>) => {
+                                    t0_2.lookup(node.uuid(),  (resolved2 : org.kevoree.modeling.api.KObject) => {
                                         org.junit.Assert.assertEquals(resolved, resolved2);
                                     });
-                                    universe2.storage().getRoot(t0_2,  (resolvedRoot : org.kevoree.modeling.api.KObject<any, any>) => {
+                                    universe2.storage().getRoot(t0_2,  (resolvedRoot : org.kevoree.modeling.api.KObject) => {
                                         org.junit.Assert.assertEquals(resolved, resolvedRoot);
                                     });
                                     org.junit.Assert.assertTrue(resolved.isRoot());
@@ -994,7 +1026,7 @@ module org {
                                     }
                                     var vv: number = val[i];
                                     var finalI: number = i;
-                                    dimension0.time(finalI).lookup(element.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                                    dimension0.time(finalI).lookup(element.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                         var casted: org.kevoree.modeling.microframework.test.cloud.Element = <org.kevoree.modeling.microframework.test.cloud.Element>kObject;
                                         casted.setValue(vv);
                                     });
@@ -1029,7 +1061,7 @@ module org {
                                 for (var i: number = 0; i < max; i++) {
                                     var vv: number = val[i];
                                     var finalI: number = i;
-                                    dimension0.time(finalI).lookup(element.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                                    dimension0.time(finalI).lookup(element.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                         var casted: org.kevoree.modeling.microframework.test.cloud.Element = <org.kevoree.modeling.microframework.test.cloud.Element>kObject;
                                         casted.setValue(vv);
                                     });
@@ -1080,7 +1112,7 @@ module org {
                                     }
                                     var vv: number = val[i];
                                     var finalI: number = i;
-                                    dimension.time(finalI).lookup(element.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                                    dimension.time(finalI).lookup(element.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                         var casted: org.kevoree.modeling.microframework.test.cloud.Element = <org.kevoree.modeling.microframework.test.cloud.Element>kObject;
                                         casted.setValue(vv);
                                     });
@@ -1114,11 +1146,11 @@ module org {
                                 var node: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                                 node.setName("n0");
                                 t0.setRoot(node, null);
-                                t0.select("/",  (kObjects : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("/",  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(kObjects[0], node);
                                 });
                                 var t1: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(1);
-                                t1.select("/",  (kObjects : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t1.select("/",  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(node.uuid(), kObjects[0].uuid());
                                     org.junit.Assert.assertEquals(t1.now(), kObjects[0].now());
                                 });
@@ -1144,44 +1176,44 @@ module org {
                                 var node5: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                                 node5.setName("n5");
                                 node3.addChildren(node5);
-                                t0.select("children[]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("children[]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(1, selecteds.length);
                                     org.junit.Assert.assertEquals(node2, selecteds[0]);
                                 });
-                                t0.select("children[name=*]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("children[name=*]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(1, selecteds.length);
                                     org.junit.Assert.assertEquals(node2, selecteds[0]);
                                 });
-                                t0.select("children[name=n*]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("children[name=n*]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(1, selecteds.length);
                                     org.junit.Assert.assertEquals(node2, selecteds[0]);
                                 });
-                                t0.select("children[name=n1]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("children[name=n1]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(1, selecteds.length);
                                     org.junit.Assert.assertEquals(node2, selecteds[0]);
                                 });
-                                t0.select("children[name=!n1]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("children[name=!n1]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(0, selecteds.length);
                                 });
-                                t0.select("children[name!=n1]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("children[name!=n1]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(0, selecteds.length);
                                 });
-                                t0.select("children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(1, selecteds.length);
                                     org.junit.Assert.assertEquals(node3, selecteds[0]);
                                 });
-                                t0.select("/children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                t0.select("/children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(1, selecteds.length);
                                     org.junit.Assert.assertEquals(node3, selecteds[0]);
                                 });
-                                node.select("children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                node.select("children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(1, selecteds.length);
                                     org.junit.Assert.assertEquals(node3, selecteds[0]);
                                 });
-                                node.select("/children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                node.select("/children[name=n1]/children[name=n2]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(0, selecteds.length);
                                 });
-                                node.select("children[name=n1]/children[name=n2]/children[name=*]",  (selecteds : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                                node.select("children[name=n1]/children[name=n2]/children[name=*]",  (selecteds : org.kevoree.modeling.api.KObject[]) => {
                                     org.junit.Assert.assertEquals(2, selecteds.length);
                                 });
                             }
@@ -1246,7 +1278,7 @@ module org {
                                         org.junit.Assert.assertNotNull(e);
                                     }
                                  }
-                                time0.lookup(n1.uuid(),  (r_n1 : org.kevoree.modeling.api.KObject<any, any>) => {
+                                time0.lookup(n1.uuid(),  (r_n1 : org.kevoree.modeling.api.KObject) => {
                                     org.junit.Assert.assertNull(r_n1);
                                 });
                             }
@@ -1291,7 +1323,7 @@ module org {
                                         org.junit.Assert.assertNotNull(e);
                                     }
                                  }
-                                time0.lookup(n1.uuid(),  (r_n1 : org.kevoree.modeling.api.KObject<any, any>) => {
+                                time0.lookup(n1.uuid(),  (r_n1 : org.kevoree.modeling.api.KObject) => {
                                     org.junit.Assert.assertNotNull(r_n1.parentUuid());
                                     org.junit.Assert.assertNotNull(r_n1.referenceInParent());
                                     r_n1.inbounds( (inboundReference : org.kevoree.modeling.api.InboundReference) => {
@@ -1330,7 +1362,7 @@ module org {
                             var node0: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                             var element0: org.kevoree.modeling.microframework.test.cloud.Element = t0.createElement();
                             node0.setElement(element0);
-                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 (<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
                                     org.junit.Assert.assertEquals(element0, element);
                                     org.junit.Assert.assertEquals(element.now(), t0.now());
@@ -1348,7 +1380,7 @@ module org {
                             node0.getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
                                 org.junit.Assert.assertNull(element);
                             });
-                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 (<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
                                     org.junit.Assert.assertNull(element);
                                 });
@@ -1356,12 +1388,12 @@ module org {
                             var t1: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(1);
                             var elem1: org.kevoree.modeling.microframework.test.cloud.Element = t1.createElement();
                             node0.setElement(elem1);
-                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 (<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
                                     org.junit.Assert.assertNull(element);
                                 });
                             });
-                            t1.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t1.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 (<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getElement( (element : org.kevoree.modeling.microframework.test.cloud.Element) => {
                                     org.junit.Assert.assertNotNull(element);
                                     org.junit.Assert.assertEquals(element, elem1);
@@ -1382,15 +1414,15 @@ module org {
                             var elem0: org.kevoree.modeling.microframework.test.cloud.Element = t0.createElement();
                             node0.setElement(elem0);
                             var t1: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension0.time(1);
-                            t1.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t1.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 (<org.kevoree.modeling.microframework.test.cloud.Node>kObject).setName("node at 1");
                                 (<org.kevoree.modeling.microframework.test.cloud.Node>kObject).setValue("1");
                             });
-                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t0.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 org.junit.Assert.assertEquals((<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getName(), "node at 0");
                                 org.junit.Assert.assertEquals((<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getValue(), "0");
                             });
-                            t1.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t1.lookup(node0.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
                                 org.junit.Assert.assertEquals((<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getName(), "node at 1");
                                 org.junit.Assert.assertEquals((<org.kevoree.modeling.microframework.test.cloud.Node>kObject).getValue(), "1");
                             });
@@ -1412,7 +1444,7 @@ module org {
                             var t1: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(1);
                             var element: org.kevoree.modeling.microframework.test.cloud.Element = t1.createElement();
                             element.setName("Element1");
-                            t1.lookup(node0.uuid(),  (node0Back : org.kevoree.modeling.api.KObject<any, any>) => {
+                            t1.lookup(node0.uuid(),  (node0Back : org.kevoree.modeling.api.KObject) => {
                                 (<org.kevoree.modeling.microframework.test.cloud.Node>node0Back).setElement(element);
                             });
                             dimension.save( (throwable : java.lang.Throwable) => {
@@ -1421,7 +1453,7 @@ module org {
                                 }
                             });
                             var t0_2: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(0);
-                            t0_2.select("/",  (kObjects : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                            t0_2.select("/",  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                                 if (kObjects != null && kObjects.length > 0) {
                                     org.junit.Assert.assertEquals(2, (<org.kevoree.modeling.microframework.test.cloud.Node>kObjects[0]).timeTree().size());
                                 }
@@ -1444,7 +1476,7 @@ module org {
                             var t1: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(1);
                             var element: org.kevoree.modeling.microframework.test.cloud.Element = t1.createElement();
                             element.setName("Element1");
-                            t1.select("/",  (kObjects : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                            t1.select("/",  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                                 if (kObjects != null && kObjects.length > 0) {
                                     (<org.kevoree.modeling.microframework.test.cloud.Node>kObjects[0]).setElement(element);
                                 }
@@ -1455,7 +1487,7 @@ module org {
                                 }
                             });
                             var t0_2: org.kevoree.modeling.microframework.test.cloud.CloudView = dimension.time(0);
-                            t0_2.select("/",  (kObjects : org.kevoree.modeling.api.KObject<any, any>[]) => {
+                            t0_2.select("/",  (kObjects : org.kevoree.modeling.api.KObject[]) => {
                                 if (kObjects != null && kObjects.length > 0) {
                                     org.junit.Assert.assertEquals(2, (<org.kevoree.modeling.microframework.test.cloud.Node>kObjects[0]).timeTree().size());
                                 }
@@ -1770,7 +1802,7 @@ module org {
                                 var nodeT1: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                                 nodeT1.setName("n1");
                                 nodeT0.addChildren(nodeT1);
-                                t0.lookup(nodeT0.uuid(),  (root : org.kevoree.modeling.api.KObject<any, any>) => {
+                                t0.lookup(nodeT0.uuid(),  (root : org.kevoree.modeling.api.KObject) => {
                                     t0.xmi().save(root,  (result : string, error : java.lang.Throwable) => {
                                         if (error != null) {
                                             error.printStackTrace();
