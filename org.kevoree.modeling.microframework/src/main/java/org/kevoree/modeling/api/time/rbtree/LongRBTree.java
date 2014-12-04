@@ -326,7 +326,7 @@ public class LongRBTree {
         }
     }
 
-    public void insert(long key, long value) {
+    public synchronized void insert(long key, long value) {
         dirty = true;
         LongTreeNode insertedNode = new LongTreeNode(key, value, Color.RED, null, null);
         if (root == null) {

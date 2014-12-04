@@ -134,7 +134,7 @@ public class DefaultTimeTree implements TimeTree {
     }
 
     @Override
-    public TimeTree insert(long time) {
+    public synchronized TimeTree insert(long time) {
         versionTree.insert(time, State.EXISTS);
         dirty = true;
         return this;
