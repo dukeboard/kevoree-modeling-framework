@@ -656,6 +656,14 @@ var org;
                         };
 
                         AbstractKObject.prototype.clone = function (callback) {
+                            var self = this;
+                            org.kevoree.modeling.api.operation.DefaultModelCloner.clone(self, callback);
+                        };
+
+                        AbstractKObject.prototype.slice = function (callback) {
+                            var params = new java.util.ArrayList();
+                            params.add(this);
+                            org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(params, callback);
                         };
                         return AbstractKObject;
                     })();

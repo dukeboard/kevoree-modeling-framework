@@ -73,6 +73,7 @@ declare module org {
                         public merge(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
                         public intersection(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
                         public clone(callback: (p: A) => void): void;
+                        public slice(callback: (p: trace.TraceSequence) => void): void;
                     }
                     class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
@@ -517,6 +518,7 @@ declare module org {
                     merge(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
                     intersection(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
                     clone(callback: (p: A) => void): void;
+                    slice(callback: (p: trace.TraceSequence) => void): void;
                 }
                 interface KOperation {
                     on(source: KObject<any, any>, params: any[], result: (p: any) => void): void;

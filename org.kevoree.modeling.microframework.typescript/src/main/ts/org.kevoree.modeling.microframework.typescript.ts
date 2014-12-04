@@ -662,6 +662,14 @@ module org {
                         }
 
                         public clone(callback: (p : A) => void): void {
+                            var self: org.kevoree.modeling.api.KObject<any, any> = this;
+                            org.kevoree.modeling.api.operation.DefaultModelCloner.clone(<A>self, callback);
+                        }
+
+                        public slice(callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
+                            var params: java.util.ArrayList<org.kevoree.modeling.api.KObject<any, any>> = new java.util.ArrayList<org.kevoree.modeling.api.KObject<any, any>>();
+                            params.add(this);
+                            org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(params, callback);
                         }
 
                     }
@@ -3267,6 +3275,8 @@ module org {
                     intersection(target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
 
                     clone(callback: (p : A) => void): void;
+
+                    slice(callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
 
                 }
 

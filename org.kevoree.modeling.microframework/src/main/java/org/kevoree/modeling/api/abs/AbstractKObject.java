@@ -701,7 +701,8 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
     }
 
     public void clone(Callback<A> callback) {
-        DefaultModelCloner.clone((A) this, callback);
+        KObject self = this;//explicit cast for typescript
+        DefaultModelCloner.clone((A)self, callback);
     }
 
     public void slice(Callback<TraceSequence> callback) {
