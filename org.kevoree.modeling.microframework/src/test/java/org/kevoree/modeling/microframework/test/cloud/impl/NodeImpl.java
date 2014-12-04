@@ -94,7 +94,9 @@ public class NodeImpl extends AbstractKObject<Node, CloudView> implements Node {
         view().dimension().universe().storage().operationManager().call(this, METAOPERATIONS.TRIGGER, internal_params, new Callback<Object>() {
             @Override
             public void on(Object o) {
-                callback.on((String) o);
+                if (callback != null) {
+                    callback.on((String) o);
+                }
             }
         });
     }

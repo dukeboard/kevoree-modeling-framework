@@ -39,6 +39,7 @@ public interface KView {
 
     public void listen(ModelListener listener, ListenerScope scope);
 
+    //Move to KObject
     public void diff(KObject origin, KObject target, Callback<TraceSequence> callback);
 
     public void merge(KObject origin, KObject target, Callback<TraceSequence> callback);

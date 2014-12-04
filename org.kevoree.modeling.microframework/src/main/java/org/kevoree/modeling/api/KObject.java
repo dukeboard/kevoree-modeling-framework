@@ -7,7 +7,6 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.trace.TraceSequence;
 
 /**
  * Created by thomas on 10/2/14.

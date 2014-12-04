@@ -102,7 +102,9 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 #{end}
         view().dimension().universe().storage().operationManager().call(this, METAOPERATIONS.${operation.name.toUpperCase()}, ${operation.name}_params, new org.kevoree.modeling.api.Callback<Object>() {
             public void on(Object o) {
-                result.on((#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end)o);
+                if(result!=null){
+                    result.on((#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end)o);
+                }
             }
         });
     }

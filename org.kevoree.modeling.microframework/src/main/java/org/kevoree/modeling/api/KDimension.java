@@ -1,7 +1,5 @@
 package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.time.TimeTree;
-
 /**
  * Created by duke on 9/30/14.
  */

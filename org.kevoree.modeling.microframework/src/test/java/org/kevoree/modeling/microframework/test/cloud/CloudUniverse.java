@@ -1,8 +1,6 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
-import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
-import org.kevoree.modeling.api.data.KDataBase;
 
 /**
  * Created by duke on 10/10/14.
