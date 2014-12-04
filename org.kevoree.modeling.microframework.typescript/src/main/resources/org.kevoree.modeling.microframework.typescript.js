@@ -642,6 +642,21 @@ var org;
                                 return (casted.uuid() == this._uuid) && this._view.equals(casted._view);
                             }
                         };
+
+                        AbstractKObject.prototype.diff = function (target, callback) {
+                            org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, callback);
+                        };
+
+                        AbstractKObject.prototype.merge = function (target, callback) {
+                            org.kevoree.modeling.api.operation.DefaultModelCompare.merge(this, target, callback);
+                        };
+
+                        AbstractKObject.prototype.intersection = function (target, callback) {
+                            org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, callback);
+                        };
+
+                        AbstractKObject.prototype.clone = function (callback) {
+                        };
                         return AbstractKObject;
                     })();
                     abs.AbstractKObject = AbstractKObject;
@@ -802,24 +817,8 @@ var org;
                             throw "Abstract method";
                         };
 
-                        AbstractKView.prototype.diff = function (origin, target, callback) {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.diff(origin, target, callback);
-                        };
-
-                        AbstractKView.prototype.merge = function (origin, target, callback) {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.merge(origin, target, callback);
-                        };
-
-                        AbstractKView.prototype.intersection = function (origin, target, callback) {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(origin, target, callback);
-                        };
-
                         AbstractKView.prototype.slice = function (elems, callback) {
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(elems, callback);
-                        };
-
-                        AbstractKView.prototype.clone = function (o, callback) {
-                            org.kevoree.modeling.api.operation.DefaultModelCloner.clone(o, callback);
                         };
 
                         AbstractKView.prototype.json = function () {

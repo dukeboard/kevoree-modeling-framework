@@ -21,11 +21,14 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.operation.DefaultModelCloner;
+import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
+import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.Helper;
 
 import java.util.ArrayList;
@@ -679,6 +682,25 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
             AbstractKObject casted = (AbstractKObject) obj;
             return (casted.uuid() == _uuid) && _view.equals(casted._view);
         }
+    }
+
+    @Override
+    public void diff(KObject target, Callback<TraceSequence> callback) {
+        DefaultModelCompare.diff(this, target, callback);
+    }
+
+    @Override
+    public void merge(KObject target, Callback<TraceSequence> callback) {
+        DefaultModelCompare.merge(this, target, callback);
+    }
+
+    @Override
+    public void intersection(KObject target, Callback<TraceSequence> callback) {
+        DefaultModelCompare.intersection(this, target, callback);
+    }
+
+    public void clone(Callback<A> callback) {
+        DefaultModelCloner.clone((A) this, callback);
     }
 
 }

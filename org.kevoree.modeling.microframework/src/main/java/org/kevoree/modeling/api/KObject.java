@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
+import org.kevoree.modeling.api.trace.TraceSequence;
 
 /**
  * Created by thomas on 10/2/14.
@@ -90,5 +91,14 @@ public interface KObject<A extends KObject, B extends KView> {
     public String toJSON();
 
     public boolean equals(Object other);
+
+    /* Model operations */
+    public void diff(KObject target, Callback<TraceSequence> callback);
+
+    public void merge(KObject target, Callback<TraceSequence> callback);
+
+    public void intersection(KObject target, Callback<TraceSequence> callback);
+
+    public void clone(Callback<A> callback);
 
 }

@@ -649,6 +649,21 @@ module org {
                             }
                         }
 
+                        public diff(target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
+                            org.kevoree.modeling.api.operation.DefaultModelCompare.diff(this, target, callback);
+                        }
+
+                        public merge(target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
+                            org.kevoree.modeling.api.operation.DefaultModelCompare.merge(this, target, callback);
+                        }
+
+                        public intersection(target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
+                            org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(this, target, callback);
+                        }
+
+                        public clone(callback: (p : A) => void): void {
+                        }
+
                     }
 
                     export class AbstractKUniverse<A extends org.kevoree.modeling.api.KDimension<any, any, any>> implements org.kevoree.modeling.api.KUniverse<any> {
@@ -813,24 +828,8 @@ module org {
                             throw "Abstract method";
                         }
 
-                        public diff(origin: org.kevoree.modeling.api.KObject<any, any>, target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.diff(origin, target, callback);
-                        }
-
-                        public merge(origin: org.kevoree.modeling.api.KObject<any, any>, target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.merge(origin, target, callback);
-                        }
-
-                        public intersection(origin: org.kevoree.modeling.api.KObject<any, any>, target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
-                            org.kevoree.modeling.api.operation.DefaultModelCompare.intersection(origin, target, callback);
-                        }
-
                         public slice(elems: java.util.List<org.kevoree.modeling.api.KObject<any, any>>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void {
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(elems, callback);
-                        }
-
-                        public clone<A extends org.kevoree.modeling.api.KObject<any, any>> (o: A, callback: (p : A) => void): void {
-                            org.kevoree.modeling.api.operation.DefaultModelCloner.clone(o, callback);
                         }
 
                         public json(): org.kevoree.modeling.api.ModelFormat {
@@ -3261,6 +3260,14 @@ module org {
 
                     equals(other: any): boolean;
 
+                    diff(target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
+
+                    merge(target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
+
+                    intersection(target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
+
+                    clone(callback: (p : A) => void): void;
+
                 }
 
                 export interface KOperation {
@@ -3329,15 +3336,7 @@ module org {
 
                     listen(listener: (p : org.kevoree.modeling.api.KEvent) => void, scope: org.kevoree.modeling.api.event.ListenerScope): void;
 
-                    diff(origin: org.kevoree.modeling.api.KObject<any, any>, target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-
-                    merge(origin: org.kevoree.modeling.api.KObject<any, any>, target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-
-                    intersection(origin: org.kevoree.modeling.api.KObject<any, any>, target: org.kevoree.modeling.api.KObject<any, any>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-
                     slice(elems: java.util.List<org.kevoree.modeling.api.KObject<any, any>>, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
-
-                    clone<A extends org.kevoree.modeling.api.KObject<any, any>> (o: A, callback: (p : A) => void): void;
 
                     json(): org.kevoree.modeling.api.ModelFormat;
 

@@ -131,28 +131,8 @@ public abstract class AbstractKView implements KView {
     public abstract MetaClass[] metaClasses();
 
     @Override
-    public void diff(KObject origin, KObject target, Callback<TraceSequence> callback) {
-        DefaultModelCompare.diff(origin, target, callback);
-    }
-
-    @Override
-    public void merge(KObject origin, KObject target, Callback<TraceSequence> callback) {
-        DefaultModelCompare.merge(origin, target, callback);
-    }
-
-    @Override
-    public void intersection(KObject origin, KObject target, Callback<TraceSequence> callback) {
-        DefaultModelCompare.intersection(origin, target, callback);
-    }
-
-    @Override
     public void slice(List<KObject> elems, Callback<TraceSequence> callback) {
         DefaultModelSlicer.slice(elems, callback);
-    }
-
-    @Override
-    public <A extends KObject> void clone(A o, Callback<A> callback) {
-        DefaultModelCloner.clone(o, callback);
     }
 
     @Override

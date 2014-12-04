@@ -1,6 +1,5 @@
 package org.kevoree.modeling.microframework.test.cloud.impl;
 
-import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;

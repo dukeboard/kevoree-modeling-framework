@@ -354,7 +354,9 @@ module org {
                                     var internal_params: any[] = new Array();
                                     internal_params[0] = param;
                                     this.view().dimension().universe().storage().operationManager().call(this, org.kevoree.modeling.microframework.test.cloud.Node.METAOPERATIONS.TRIGGER, internal_params,  (o : any) => {
-                                        callback(<string>o);
+                                        if (callback != null) {
+                                            callback(<string>o);
+                                        }
                                     });
                                 }
 
@@ -586,14 +588,14 @@ module org {
                             var node0_1: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                             node0_1.setName("node0_1");
                             node0_1.setValue("0_1");
-                            t0.diff(node0_0, node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
+                            node0_0.diff(node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
                                 org.junit.Assert.assertNotEquals(traceSequence.traces().length, 0);
                                 org.junit.Assert.assertEquals("[{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"},\n" + "{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"value\",\"val\":\"0_1\"}]", traceSequence.toString());
                             });
-                            t0.diff(node0_0, node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
+                            node0_0.diff(node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
                                 new org.kevoree.modeling.api.trace.ModelTraceApplicator(node0_0).applyTraceSequence(traceSequence,  (throwable : java.lang.Throwable) => {
                                     org.junit.Assert.assertNull(throwable);
-                                    t0.diff(node0_0, node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
+                                    node0_0.diff(node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
                                         org.junit.Assert.assertEquals(traceSequence.traces().length, 0);
                                     });
                                 });
@@ -612,13 +614,13 @@ module org {
                             var node0_1: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                             node0_1.setName("node0_1");
                             node0_1.setValue("0_1");
-                            t0.intersection(node0_0, node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
+                            node0_0.intersection(node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
                                 org.junit.Assert.assertEquals(traceSequence.traces().length, 0);
                             });
                             var node0_2: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                             node0_2.setName("node0_2");
                             node0_2.setValue("0_1");
-                            t0.intersection(node0_2, node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
+                            node0_2.intersection(node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
                                 org.junit.Assert.assertEquals(traceSequence.traces().length, 1);
                                 org.junit.Assert.assertEquals("[{\"type\":\"SET\",\"src\":\"3\",\"meta\":\"value\",\"val\":\"0_1\"}]", traceSequence.toString());
                             });
@@ -639,7 +641,7 @@ module org {
                             var node0_1: org.kevoree.modeling.microframework.test.cloud.Node = t0.createNode();
                             node0_1.setName("node0_1");
                             node0_1.setValue("0_1");
-                            t0.merge(node0_0, node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
+                            node0_0.merge(node0_1,  (traceSequence : org.kevoree.modeling.api.trace.TraceSequence) => {
                                 org.junit.Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"name\",\"val\":\"node0_1\"}", traceSequence.traces()[0].toString());
                                 org.junit.Assert.assertEquals("{\"type\":\"SET\",\"src\":\"1\",\"meta\":\"value\",\"val\":\"0_1\"}", traceSequence.traces()[1].toString());
                                 org.junit.Assert.assertEquals("{\"type\":\"ADD\",\"src\":\"1\",\"meta\":\"element\"}", traceSequence.traces()[2].toString());

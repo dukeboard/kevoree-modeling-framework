@@ -69,6 +69,10 @@ declare module org {
                         public metaReferences(): meta.MetaReference[];
                         public metaOperations(): meta.MetaOperation[];
                         public equals(obj: any): boolean;
+                        public diff(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
+                        public merge(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
+                        public intersection(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
+                        public clone(callback: (p: A) => void): void;
                     }
                     class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
@@ -107,11 +111,7 @@ declare module org {
                         public listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
                         public internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject<any, any>;
                         public metaClasses(): meta.MetaClass[];
-                        public diff(origin: KObject<any, any>, target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
-                        public merge(origin: KObject<any, any>, target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
-                        public intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
                         public slice(elems: java.util.List<KObject<any, any>>, callback: (p: trace.TraceSequence) => void): void;
-                        public clone<A extends KObject<any, any>>(o: A, callback: (p: A) => void): void;
                         public json(): ModelFormat;
                         public xmi(): ModelFormat;
                         public equals(obj: any): boolean;
@@ -513,6 +513,10 @@ declare module org {
                     set(attribute: meta.MetaAttribute, payload: any): void;
                     toJSON(): string;
                     equals(other: any): boolean;
+                    diff(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
+                    merge(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
+                    intersection(target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
+                    clone(callback: (p: A) => void): void;
                 }
                 interface KOperation {
                     on(source: KObject<any, any>, params: any[], result: (p: any) => void): void;
@@ -547,11 +551,7 @@ declare module org {
                     now(): number;
                     createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject<any, any>;
                     listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
-                    diff(origin: KObject<any, any>, target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
-                    merge(origin: KObject<any, any>, target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
-                    intersection(origin: KObject<any, any>, target: KObject<any, any>, callback: (p: trace.TraceSequence) => void): void;
                     slice(elems: java.util.List<KObject<any, any>>, callback: (p: trace.TraceSequence) => void): void;
-                    clone<A extends KObject<any, any>>(o: A, callback: (p: A) => void): void;
                     json(): ModelFormat;
                     xmi(): ModelFormat;
                     equals(other: any): boolean;
