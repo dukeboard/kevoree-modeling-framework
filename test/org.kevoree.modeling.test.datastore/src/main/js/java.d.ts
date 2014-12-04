@@ -25,6 +25,9 @@ interface String {
     matches: (regEx: String) => boolean;
     isEmpty: () => boolean;
 }
+declare class StringUtils {
+    static copyValueOf(data: string[], offset: number, count: number): string;
+}
 declare module java {
     module lang {
         class Double {
@@ -40,15 +43,21 @@ declare module java {
             static parseLong(val: string): number;
         }
         class Short {
+            static MIN_VALUE: number;
+            static MAX_VALUE: number;
             static parseShort(val: string): number;
         }
         class Throwable {
+            private message;
+            private error;
+            constructor(message: string);
             printStackTrace(): void;
         }
         class Exception extends Throwable {
-            private message;
-            constructor(message: string);
-            printStackTrace(): void;
+        }
+        class RuntimeException extends Exception {
+        }
+        class IndexOutOfBoundsException extends Exception {
         }
         class StringBuilder {
             buffer: string;

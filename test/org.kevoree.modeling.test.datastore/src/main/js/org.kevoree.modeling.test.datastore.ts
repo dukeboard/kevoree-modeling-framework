@@ -11,6 +11,10 @@ module geometry {
 
     }
 
+    export interface GeometryObject extends org.kevoree.modeling.api.KObject<any, any> {
+
+    }
+
     export class GeometryUniverse extends org.kevoree.modeling.api.abs.AbstractKUniverse<any> {
 
         constructor() {
@@ -126,6 +130,14 @@ module geometry {
 
     }
     export module impl {
+        export class AbstractGeometryObject extends org.kevoree.modeling.api.abs.AbstractKObject<any, any> {
+
+            constructor(p_view: geometry.GeometryView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                super(p_view, p_uuid, p_timeTree, p_metaClass);
+            }
+
+        }
+
         export class GeometryViewImpl extends org.kevoree.modeling.api.abs.AbstractKView implements geometry.GeometryView {
 
             constructor(p_now: number, p_dimension: org.kevoree.modeling.api.KDimension<any, any, any>) {
@@ -160,7 +172,7 @@ module geometry {
 
         }
 
-        export class LibraryImpl extends org.kevoree.modeling.api.abs.AbstractKObject<any, any> implements geometry.Library {
+        export class LibraryImpl extends geometry.impl.AbstractGeometryObject implements geometry.Library {
 
             constructor(p_factory: geometry.GeometryView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                 super(p_factory, p_uuid, p_timeTree, p_metaClass);
@@ -198,7 +210,7 @@ module geometry {
 
         }
 
-        export class ShapeImpl extends org.kevoree.modeling.api.abs.AbstractKObject<any, any> implements geometry.Shape {
+        export class ShapeImpl extends geometry.impl.AbstractGeometryObject implements geometry.Shape {
 
             constructor(p_factory: geometry.GeometryView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
                 super(p_factory, p_uuid, p_timeTree, p_metaClass);
@@ -237,7 +249,7 @@ module geometry {
         }
 
     }
-    export interface Library extends org.kevoree.modeling.api.KObject<any, any> {
+    export interface Library extends geometry.GeometryObject {
 
         addShapes(p_obj: geometry.Shape): geometry.Library;
 
@@ -402,7 +414,7 @@ module geometry {
 
 
     }
-    export interface Shape extends org.kevoree.modeling.api.KObject<any, any> {
+    export interface Shape extends geometry.GeometryObject {
 
         getColor(): string;
 

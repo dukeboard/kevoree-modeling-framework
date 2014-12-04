@@ -35,15 +35,18 @@ var TSSet = Set;
 Number.prototype.equals = function (other) {
     return this == other;
 };
-/*
- String.prototype.getBytes = function () {
- var res:number[] = new Number[this.length];
- for (var i = 0; i < this.length; i++) {
- res[i] = Number(this.charAt(i));
- }
- return res;
- };
- */
+var StringUtils = (function () {
+    function StringUtils() {
+    }
+    StringUtils.copyValueOf = function (data, offset, count) {
+        var result = "";
+        for (var i = offset; i < offset + count; i++) {
+            result += data[i];
+        }
+        return result;
+    };
+    return StringUtils;
+})();
 String.prototype.matches = function (regEx) {
     return this.match(regEx).length > 0;
 };
@@ -115,30 +118,46 @@ var java;
             Short.parseShort = function (val) {
                 return +val;
             };
+            Short.MIN_VALUE = -0x8000;
+            Short.MAX_VALUE = 0x7FFF;
             return Short;
         })();
         lang.Short = Short;
         var Throwable = (function () {
-            function Throwable() {
+            function Throwable(message) {
+                this.message = message;
+                this.error = new Error(message);
             }
             Throwable.prototype.printStackTrace = function () {
-                throw new Exception("Abstract implementation");
+                console.error(this.error['stack']);
             };
             return Throwable;
         })();
         lang.Throwable = Throwable;
         var Exception = (function (_super) {
             __extends(Exception, _super);
-            function Exception(message) {
-                _super.call(this);
-                this.message = message;
+            function Exception() {
+                _super.apply(this, arguments);
             }
-            Exception.prototype.printStackTrace = function () {
-                console.error(this.message);
-            };
             return Exception;
         })(Throwable);
         lang.Exception = Exception;
+        var RuntimeException = (function (_super) {
+            __extends(RuntimeException, _super);
+            function RuntimeException() {
+                _super.apply(this, arguments);
+            }
+            return RuntimeException;
+        })(Exception);
+        lang.RuntimeException = RuntimeException;
+        var IndexOutOfBoundsException = (function (_super) {
+            __extends(IndexOutOfBoundsException, _super);
+            function IndexOutOfBoundsException() {
+                _super.apply(this, arguments);
+            }
+            return IndexOutOfBoundsException;
+        })(Exception);
+        lang.IndexOutOfBoundsException = IndexOutOfBoundsException;
         var StringBuilder = (function () {
             function StringBuilder() {
                 this.buffer = "";
@@ -421,27 +440,41 @@ var org;
             }
             Assert.assertNotNull = function (p) {
                 if (p == null) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be null");
+                    throw "Assert Error " + p + " must not be null";
                 }
             };
             Assert.assertNull = function (p) {
                 if (p != null) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be null");
+                    throw "Assert Error " + p + " must be null";
                 }
             };
             Assert.assertEquals = function (p, p2) {
-                if (p != p2) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be equals to " + p2);
+                if (p.equals !== undefined) {
+                    if (!p.equals(p2)) {
+                        throw "Assert Error \n" + p + "\n must be equal to \n" + p2 + "\n";
+                    }
+                }
+                else {
+                    if (p != p2) {
+                        throw "Assert Error \n" + p + "\n must be equal to \n" + p2 + "\n";
+                    }
                 }
             };
             Assert.assertNotEquals = function (p, p2) {
-                if (p == p2) {
-                    throw new java.lang.Exception("Assert Error " + p + " must be equals to " + p2);
+                if (p.equals !== undefined) {
+                    if (p.equals(p2)) {
+                        throw "Assert Error \n" + p + "\n must not be equal to \n" + p2 + "\n";
+                    }
+                }
+                else {
+                    if (p == p2) {
+                        throw "Assert Error \n" + p + "\n must not be equal to \n" + p2 + "\n";
+                    }
                 }
             };
             Assert.assertTrue = function (b) {
                 if (!b) {
-                    throw new java.lang.Exception("Assert Error " + b + " must be true");
+                    throw "Assert Error " + b + " must be true";
                 }
             };
             return Assert;

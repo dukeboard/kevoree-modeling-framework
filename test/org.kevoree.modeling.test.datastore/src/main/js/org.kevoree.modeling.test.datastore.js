@@ -113,6 +113,14 @@ var geometry;
     })(GeometryView = geometry.GeometryView || (geometry.GeometryView = {}));
     var impl;
     (function (impl) {
+        var AbstractGeometryObject = (function (_super) {
+            __extends(AbstractGeometryObject, _super);
+            function AbstractGeometryObject(p_view, p_uuid, p_timeTree, p_metaClass) {
+                _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+            }
+            return AbstractGeometryObject;
+        })(org.kevoree.modeling.api.abs.AbstractKObject);
+        impl.AbstractGeometryObject = AbstractGeometryObject;
         var GeometryViewImpl = (function (_super) {
             __extends(GeometryViewImpl, _super);
             function GeometryViewImpl(p_now, p_dimension) {
@@ -172,7 +180,7 @@ var geometry;
                 return this.size(geometry.Library.METAREFERENCES.SHAPES);
             };
             return LibraryImpl;
-        })(org.kevoree.modeling.api.abs.AbstractKObject);
+        })(geometry.impl.AbstractGeometryObject);
         impl.LibraryImpl = LibraryImpl;
         var ShapeImpl = (function (_super) {
             __extends(ShapeImpl, _super);
@@ -203,7 +211,7 @@ var geometry;
                 return this;
             };
             return ShapeImpl;
-        })(org.kevoree.modeling.api.abs.AbstractKObject);
+        })(geometry.impl.AbstractGeometryObject);
         impl.ShapeImpl = ShapeImpl;
     })(impl = geometry.impl || (geometry.impl = {}));
     var Library;

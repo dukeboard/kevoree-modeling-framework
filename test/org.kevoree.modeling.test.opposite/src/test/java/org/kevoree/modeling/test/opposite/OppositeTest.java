@@ -28,13 +28,9 @@ public class OppositeTest {
     @BeforeClass
     public static void setUp() {
         universe = new OppositeUniverse();
-        universe.newDimension(new Callback<OppositeDimension>() {
-            @Override
-            public void on(OppositeDimension localDimension) {
-                factory = localDimension.time(0l);
-
-            }
-        });
+        universe.connect(null);
+        localDimension = universe.newDimension();
+        factory = localDimension.time(0l);
     }
 
 

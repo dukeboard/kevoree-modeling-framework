@@ -28,11 +28,12 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <metaModelFile>metamodel/FSM.mm</metaModelFile>
-                            <metaModelQualifiedName>fsmsample.FSM</metaModelQualifiedName>
                             <!--
+                            <metaModelFile>metamodel/smartgrid.mm</metaModelFile>
                             <utilityPackage>fsmsample</utilityPackage>
                             -->
+                            <metaModelFile>metamodel/FSM.mm</metaModelFile>
+                            <metaModelQualifiedName>fsmsample.FSM</metaModelQualifiedName>
                         </configuration>
                     </execution>
                 </executions>
