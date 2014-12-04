@@ -1,9 +1,0 @@
-package ${context.metaModelPackage}.impl;
-
-public abstract class Abstract${context.metaModelName}Object extends org.kevoree.modeling.api.abs.AbstractKObject<${context.metaModelPackage}.${context.metaModelName}Object, ${context.metaModelPackage}.${context.metaModelName}View>{
-    public Abstract${context.metaModelName}Object(${context.metaModelPackage}.${context.metaModelName}View p_view, long p_uuid, org.kevoree.modeling.api.time.TimeTree p_timeTree, org.kevoree.modeling.api.meta.MetaClass p_metaClass) {
-        super(p_view, p_uuid, p_timeTree, p_metaClass);
-    }
-}
-
-#* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

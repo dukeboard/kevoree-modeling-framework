@@ -1,7 +1,7 @@
 #set($classDeclaration = $context.classDeclaration)
 package $classDeclaration.pack;
 
-public interface $classDeclaration.name extends ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}Object #foreach($parent in $classDeclaration.parents), $parent.getFqn()#end {
+public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject#foreach($parent in $classDeclaration.parents), $parent.getFqn()#end {
 
 #set($enumIdx = 5)
 #parse("vTemplates/MetaAttributesTemplate.vm")
@@ -37,6 +37,9 @@ public interface $classDeclaration.name extends ${context.generationContext.meta
 #foreach($operation in $classDeclaration.operations)
     public void ${operation.name}(#foreach($p in $operation.inputParams)$p.type $p.name, #{end}org.kevoree.modeling.api.Callback<#if(${operation.returnParam})$operation.returnParam.type#{else}Boolean#end> result);
 #end
+
+    @Override
+    public ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View view();
 
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
