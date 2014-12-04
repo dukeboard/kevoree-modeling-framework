@@ -87,6 +87,4 @@ public interface Element extends KObject {
     @Override
     public CloudView view();
 
-    public void jump(Long time, Callback<Element> callback);
-
 }

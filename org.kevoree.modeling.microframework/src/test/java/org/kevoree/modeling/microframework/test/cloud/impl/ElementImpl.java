@@ -61,18 +61,6 @@ public class ElementImpl extends AbstractKObject implements Element {
     }
 
     @Override
-    public void jump(Long time, final Callback<Element> callback) {
-        view().dimension().time(time).lookup(uuid(), new Callback<KObject>() {
-            @Override
-            public void on(KObject kObject) {
-                if (callback != null) {
-                    callback.on((Element) kObject);
-                }
-            }
-        });
-    }
-
-    @Override
     public CloudView view() {
         return (CloudView) super.view();
     }

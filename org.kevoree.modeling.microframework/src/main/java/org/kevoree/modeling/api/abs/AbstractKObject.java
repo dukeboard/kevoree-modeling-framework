@@ -696,4 +696,21 @@ public abstract class AbstractKObject implements KObject {
         DefaultModelSlicer.slice(params, callback);
     }
 
+    @Override
+    public <U extends KObject> void jump(Long time, final Callback<U> callback) {
+        view().dimension().time(time).lookup(uuid(), new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                if (callback != null) {
+                    try {
+                        callback.on((U)kObject);
+                    } catch (Throwable e){
+                        e.printStackTrace();
+                        callback.on(null);
+                    }
+                }
+            }
+        });
+    }
+
 }

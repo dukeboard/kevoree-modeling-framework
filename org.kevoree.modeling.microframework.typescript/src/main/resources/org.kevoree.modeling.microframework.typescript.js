@@ -654,6 +654,22 @@ var org;
                             params.add(this);
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(params, callback);
                         };
+
+                        AbstractKObject.prototype.jump = function (time, callback) {
+                            this.view().dimension().time(time).lookup(this.uuid(), function (kObject) {
+                                if (callback != null) {
+                                    try  {
+                                        callback(kObject);
+                                    } catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Throwable) {
+                                            var e = $ex$;
+                                            e.printStackTrace();
+                                            callback(null);
+                                        }
+                                    }
+                                }
+                            });
+                        };
                         return AbstractKObject;
                     })();
                     abs.AbstractKObject = AbstractKObject;

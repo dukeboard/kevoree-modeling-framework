@@ -184,6 +184,4 @@ public interface Node extends KObject {
     @Override
     public CloudView view();
 
-    public void jump(Long time, Callback<Node> callback);
-
 }

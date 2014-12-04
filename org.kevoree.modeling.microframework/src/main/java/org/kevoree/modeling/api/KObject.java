@@ -101,4 +101,6 @@ public interface KObject {
 
     public void slice(Callback<TraceSequence> callback);
 
+    public <U extends KObject> void jump(Long time, final Callback<U> callback);
+
 }

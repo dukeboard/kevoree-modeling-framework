@@ -661,6 +661,22 @@ module org {
                             org.kevoree.modeling.api.operation.DefaultModelSlicer.slice(params, callback);
                         }
 
+                        public jump<U extends org.kevoree.modeling.api.KObject> (time: number, callback: (p : U) => void): void {
+                            this.view().dimension().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
+                                if (callback != null) {
+                                    try {
+                                        callback(<U>kObject);
+                                    } catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Throwable) {
+                                            var e: java.lang.Throwable = <java.lang.Throwable>$ex$;
+                                            e.printStackTrace();
+                                            callback(null);
+                                        }
+                                     }
+                                }
+                            });
+                        }
+
                     }
 
                     export class AbstractKUniverse<A extends org.kevoree.modeling.api.KDimension<any, any, any>> implements org.kevoree.modeling.api.KUniverse<any> {
@@ -3262,6 +3278,8 @@ module org {
                     intersection(target: org.kevoree.modeling.api.KObject, callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
 
                     slice(callback: (p : org.kevoree.modeling.api.trace.TraceSequence) => void): void;
+
+                    jump<U extends org.kevoree.modeling.api.KObject> (time: number, callback: (p : U) => void): void;
 
                 }
 

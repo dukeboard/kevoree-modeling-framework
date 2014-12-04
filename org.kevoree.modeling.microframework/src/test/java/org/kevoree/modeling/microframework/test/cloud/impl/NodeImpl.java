@@ -100,18 +100,6 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void jump(Long time, final Callback<Node> callback) {
-        view().dimension().time(time).lookup(uuid(), new Callback<KObject>() {
-            @Override
-            public void on(KObject kObject) {
-                if(callback!= null){
-                    callback.on((Node) kObject);
-                }
-            }
-        });
-    }
-
-    @Override
     public CloudView view() {
         return (CloudView) super.view();
     }

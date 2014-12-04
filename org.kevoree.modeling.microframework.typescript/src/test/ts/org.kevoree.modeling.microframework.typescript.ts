@@ -151,8 +151,6 @@ module org {
 
                             view(): org.kevoree.modeling.microframework.test.cloud.CloudView;
 
-                            jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Element) => void): void;
-
                         }
 
                         export module Element { 
@@ -293,14 +291,6 @@ module org {
                                     return this;
                                 }
 
-                                public jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Element) => void): void {
-                                    this.view().dimension().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
-                                        if (callback != null) {
-                                            callback(<org.kevoree.modeling.microframework.test.cloud.Element>kObject);
-                                        }
-                                    });
-                                }
-
                                 public view(): org.kevoree.modeling.microframework.test.cloud.CloudView {
                                     return <org.kevoree.modeling.microframework.test.cloud.CloudView>super.view();
                                 }
@@ -376,14 +366,6 @@ module org {
                                     });
                                 }
 
-                                public jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Node) => void): void {
-                                    this.view().dimension().time(time).lookup(this.uuid(),  (kObject : org.kevoree.modeling.api.KObject) => {
-                                        if (callback != null) {
-                                            callback(<org.kevoree.modeling.microframework.test.cloud.Node>kObject);
-                                        }
-                                    });
-                                }
-
                                 public view(): org.kevoree.modeling.microframework.test.cloud.CloudView {
                                     return <org.kevoree.modeling.microframework.test.cloud.CloudView>super.view();
                                 }
@@ -414,8 +396,6 @@ module org {
                             trigger(param: string, callback: (p : string) => void): void;
 
                             view(): org.kevoree.modeling.microframework.test.cloud.CloudView;
-
-                            jump(time: number, callback: (p : org.kevoree.modeling.microframework.test.cloud.Node) => void): void;
 
                         }
 
