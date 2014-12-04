@@ -710,5 +710,4 @@ public abstract class AbstractKObject<A extends KObject, B extends KView> implem
         DefaultModelSlicer.slice(params, callback);
     }
 
-
 }
