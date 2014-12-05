@@ -219,17 +219,23 @@ public abstract class AbstractKObject implements KObject {
         view().dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.SET, this, attribute, payload));
     }
 
-    private Object getCreateOrUpdatePayloadList(KObject obj, int payloadIndex) {
-        Object previous = view().dimension().universe().storage().raw(obj, AccessMode.WRITE)[payloadIndex];
-        if (previous == null) {
-            if (payloadIndex == Index.INBOUNDS_INDEX) {
-                previous = new HashMap<Long, MetaReference>();
-            } else {
-                previous = new HashSet<Long>();
+
+    private HashMap<Long, MetaReference> getOrCreateInbounds(KObject obj, int payloadIndex) {
+        Object[] rawWrite = view().dimension().universe().storage().raw(obj, AccessMode.WRITE);
+        if (rawWrite[Index.INBOUNDS_INDEX] != null && rawWrite[Index.INBOUNDS_INDEX] instanceof HashMap) {
+            return (HashMap<Long, MetaReference>) rawWrite[Index.INBOUNDS_INDEX];
+        } else {
+            if (rawWrite[Index.INBOUNDS_INDEX] != null) {
+                try {
+                    throw new Exception("Bad cache values in KMF, " + rawWrite[Index.INBOUNDS_INDEX] + " is not an instance of Map for the inbounds reference ");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            view().dimension().universe().storage().raw(obj, AccessMode.WRITE)[payloadIndex] = previous;
+            HashMap<Long, MetaReference> newRefs = new HashMap<Long, MetaReference>();
+            rawWrite[Index.INBOUNDS_INDEX] = newRefs;
+            return newRefs;
         }
-        return previous;
     }
 
     private void removeFromContainer(final KObject param) {
@@ -249,7 +255,21 @@ public abstract class AbstractKObject implements KObject {
             if (metaReference.single()) {
                 mutate(KActionType.SET, metaReference, param, setOpposite);
             } else {
-                Set<Long> previousList = (Set<Long>) getCreateOrUpdatePayloadList(this, metaReference.index());
+                Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
+                Set<Long> previousList;
+                if (raw[metaReference.index()] != null && raw[metaReference.index()] instanceof Set) {
+                    previousList = (Set<Long>) raw[metaReference.index()];
+                } else {
+                    if (raw[metaReference.index()] != null) {
+                        try {
+                            throw new Exception("Bad cache values in KMF, " + raw[metaReference.index()] + " is not an instance of Set for the reference " + metaReference.metaName() + ", index:" + metaReference.index());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    previousList = new HashSet<Long>();
+                    raw[metaReference.index()] = previousList;
+                }
                 //Actual add
                 previousList.add(param.uuid());
                 //Opposite
@@ -262,7 +282,7 @@ public abstract class AbstractKObject implements KObject {
                     ((AbstractKObject) param).set_parent(_uuid, metaReference);
                 }
                 //Inbound
-                Map<Long, MetaReference> inboundRefs = (Map<Long, MetaReference>) getCreateOrUpdatePayloadList(param, Index.INBOUNDS_INDEX);
+                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param, Index.INBOUNDS_INDEX);
                 inboundRefs.put(uuid(), metaReference);
 
                 //publish event
@@ -290,7 +310,7 @@ public abstract class AbstractKObject implements KObject {
                         ((AbstractKObject) param).set_parent(_uuid, metaReference);
                     }
                     //Inbound
-                    Map<Long, MetaReference> inboundRefs = (Map<Long, MetaReference>) getCreateOrUpdatePayloadList(param, Index.INBOUNDS_INDEX);
+                    Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param, Index.INBOUNDS_INDEX);
                     inboundRefs.put(uuid(), metaReference);
                     //Opposite
                     final KObject self = this;
@@ -330,7 +350,7 @@ public abstract class AbstractKObject implements KObject {
                                     resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                 }
                                 //Inbounds
-                                Map<Long, MetaReference> inboundRefs = (Map<Long, MetaReference>) getCreateOrUpdatePayloadList(resolvedParam, Index.INBOUNDS_INDEX);
+                                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(resolvedParam, Index.INBOUNDS_INDEX);
                                 inboundRefs.remove(uuid());
                             }
                         }
@@ -357,7 +377,7 @@ public abstract class AbstractKObject implements KObject {
                 }
 
                 //Inbounds
-                Map<Long, MetaReference> inboundRefs = (Map<Long, MetaReference>) getCreateOrUpdatePayloadList(param, Index.INBOUNDS_INDEX);
+                Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(param, Index.INBOUNDS_INDEX);
                 inboundRefs.remove(uuid());
             }
         }
@@ -703,8 +723,8 @@ public abstract class AbstractKObject implements KObject {
             public void on(KObject kObject) {
                 if (callback != null) {
                     try {
-                        callback.on((U)kObject);
-                    } catch (Throwable e){
+                        callback.on((U) kObject);
+                    } catch (Throwable e) {
                         e.printStackTrace();
                         callback.on(null);
                     }
