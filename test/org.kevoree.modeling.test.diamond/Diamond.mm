@@ -22,7 +22,7 @@ class org.kevoree.diamond.CR : org.kevoree.diamond.B{
     att_cr3 : String
 }
 
-class org.kevoree.diamond.CRA : org.kevoree.diamond.CR{
+class org.kevoree.diamond.CRA : org.kevoree.diamond.CR {
     ref_cra1 : org.kevoree.diamond.A
 }
 
