@@ -219,17 +219,25 @@ module org {
                             this.view().dimension().universe().storage().eventBroker().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.SET, this, attribute, payload));
                         }
 
-                        private getCreateOrUpdatePayloadList(obj: org.kevoree.modeling.api.KObject, payloadIndex: number): any {
-                            var previous: any = this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE)[payloadIndex];
-                            if (previous == null) {
-                                if (payloadIndex == org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX) {
-                                    previous = new java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference>();
-                                } else {
-                                    previous = new java.util.HashSet<number>();
+                        private getOrCreateInbounds(obj: org.kevoree.modeling.api.KObject, payloadIndex: number): java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference> {
+                            var rawWrite: any[] = this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            if (rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null && rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] instanceof java.util.HashMap) {
+                                return <java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference>>rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
+                            } else {
+                                if (rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null) {
+                                    try {
+                                        throw new java.lang.Exception("Bad cache values in KMF, " + rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Map for the inbounds reference ");
+                                    } catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Exception) {
+                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                            e.printStackTrace();
+                                        }
+                                     }
                                 }
-                                this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE)[payloadIndex] = previous;
+                                var newRefs: java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference> = new java.util.HashMap<number, org.kevoree.modeling.api.meta.MetaReference>();
+                                rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] = newRefs;
+                                return newRefs;
                             }
-                            return previous;
                         }
 
                         private removeFromContainer(param: org.kevoree.modeling.api.KObject): void {
@@ -245,7 +253,24 @@ module org {
                                 if (metaReference.single()) {
                                     this.mutate(org.kevoree.modeling.api.KActionType.SET, metaReference, param, setOpposite);
                                 } else {
-                                    var previousList: java.util.Set<number> = <java.util.Set<number>>this.getCreateOrUpdatePayloadList(this, metaReference.index());
+                                    var raw: any[] = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                    var previousList: java.util.Set<number>;
+                                    if (raw[metaReference.index()] != null && raw[metaReference.index()] instanceof java.util.Set) {
+                                        previousList = <java.util.Set<number>>raw[metaReference.index()];
+                                    } else {
+                                        if (raw[metaReference.index()] != null) {
+                                            try {
+                                                throw new java.lang.Exception("Bad cache values in KMF, " + raw[metaReference.index()] + " is not an instance of Set for the reference " + metaReference.metaName() + ", index:" + metaReference.index());
+                                            } catch ($ex$) {
+                                                if ($ex$ instanceof java.lang.Exception) {
+                                                    var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                    e.printStackTrace();
+                                                }
+                                             }
+                                        }
+                                        previousList = new java.util.HashSet<number>();
+                                        raw[metaReference.index()] = previousList;
+                                    }
                                     previousList.add(param.uuid());
                                     if (metaReference.opposite() != null && setOpposite) {
                                         param.mutate(org.kevoree.modeling.api.KActionType.ADD, metaReference.opposite(), this, false);
@@ -254,7 +279,7 @@ module org {
                                         this.removeFromContainer(param);
                                         (<org.kevoree.modeling.api.abs.AbstractKObject>param).set_parent(this._uuid, metaReference);
                                     }
-                                    var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = <java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference>>this.getCreateOrUpdatePayloadList(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                    var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = this.getOrCreateInbounds(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                     inboundRefs.put(this.uuid(), metaReference);
                                     var event: org.kevoree.modeling.api.KEvent = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, param);
                                     this.view().dimension().universe().storage().eventBroker().notify(event);
@@ -277,7 +302,7 @@ module org {
                                                 this.removeFromContainer(param);
                                                 (<org.kevoree.modeling.api.abs.AbstractKObject>param).set_parent(this._uuid, metaReference);
                                             }
-                                            var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = <java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference>>this.getCreateOrUpdatePayloadList(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                            var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = this.getOrCreateInbounds(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                             inboundRefs.put(this.uuid(), metaReference);
                                             var self: org.kevoree.modeling.api.KObject = this;
                                             if (metaReference.opposite() != null && setOpposite) {
@@ -308,7 +333,7 @@ module org {
                                                         if (metaReference.opposite() != null && setOpposite) {
                                                             resolvedParam.mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference.opposite(), self, false);
                                                         }
-                                                        var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = <java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference>>this.getCreateOrUpdatePayloadList(resolvedParam, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                                        var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = this.getOrCreateInbounds(resolvedParam, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                                         inboundRefs.remove(this.uuid());
                                                     }
                                                 });
@@ -330,7 +355,7 @@ module org {
                                                 var event: org.kevoree.modeling.api.KEvent = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, param);
                                                 this.view().dimension().universe().storage().eventBroker().notify(event);
                                             }
-                                            var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = <java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference>>this.getCreateOrUpdatePayloadList(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                            var inboundRefs: java.util.Map<number, org.kevoree.modeling.api.meta.MetaReference> = this.getOrCreateInbounds(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                             inboundRefs.remove(this.uuid());
                                         }
                                     }

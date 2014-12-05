@@ -191,18 +191,27 @@ var org;
                             attribute.strategy().mutate(this, attribute, payload);
                             this.view().dimension().universe().storage().eventBroker().notify(new org.kevoree.modeling.api.event.DefaultKEvent(org.kevoree.modeling.api.KActionType.SET, this, attribute, payload));
                         };
-                        AbstractKObject.prototype.getCreateOrUpdatePayloadList = function (obj, payloadIndex) {
-                            var previous = this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE)[payloadIndex];
-                            if (previous == null) {
-                                if (payloadIndex == org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX) {
-                                    previous = new java.util.HashMap();
-                                }
-                                else {
-                                    previous = new java.util.HashSet();
-                                }
-                                this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE)[payloadIndex] = previous;
+                        AbstractKObject.prototype.getOrCreateInbounds = function (obj, payloadIndex) {
+                            var rawWrite = this.view().dimension().universe().storage().raw(obj, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                            if (rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null && rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] instanceof java.util.HashMap) {
+                                return rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX];
                             }
-                            return previous;
+                            else {
+                                if (rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] != null) {
+                                    try {
+                                        throw new java.lang.Exception("Bad cache values in KMF, " + rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] + " is not an instance of Map for the inbounds reference ");
+                                    }
+                                    catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Exception) {
+                                            var e = $ex$;
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                                var newRefs = new java.util.HashMap();
+                                rawWrite[org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX] = newRefs;
+                                return newRefs;
+                            }
                         };
                         AbstractKObject.prototype.removeFromContainer = function (param) {
                             if (param != null && param.parentUuid() != null && param.parentUuid() != this._uuid) {
@@ -218,7 +227,26 @@ var org;
                                     this.mutate(org.kevoree.modeling.api.KActionType.SET, metaReference, param, setOpposite);
                                 }
                                 else {
-                                    var previousList = this.getCreateOrUpdatePayloadList(this, metaReference.index());
+                                    var raw = this.view().dimension().universe().storage().raw(this, org.kevoree.modeling.api.data.AccessMode.WRITE);
+                                    var previousList;
+                                    if (raw[metaReference.index()] != null && raw[metaReference.index()] instanceof java.util.Set) {
+                                        previousList = raw[metaReference.index()];
+                                    }
+                                    else {
+                                        if (raw[metaReference.index()] != null) {
+                                            try {
+                                                throw new java.lang.Exception("Bad cache values in KMF, " + raw[metaReference.index()] + " is not an instance of Set for the reference " + metaReference.metaName() + ", index:" + metaReference.index());
+                                            }
+                                            catch ($ex$) {
+                                                if ($ex$ instanceof java.lang.Exception) {
+                                                    var e = $ex$;
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+                                        previousList = new java.util.HashSet();
+                                        raw[metaReference.index()] = previousList;
+                                    }
                                     previousList.add(param.uuid());
                                     if (metaReference.opposite() != null && setOpposite) {
                                         param.mutate(org.kevoree.modeling.api.KActionType.ADD, metaReference.opposite(), this, false);
@@ -227,7 +255,7 @@ var org;
                                         this.removeFromContainer(param);
                                         param.set_parent(this._uuid, metaReference);
                                     }
-                                    var inboundRefs = this.getCreateOrUpdatePayloadList(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                    var inboundRefs = this.getOrCreateInbounds(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                     inboundRefs.put(this.uuid(), metaReference);
                                     var event = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, param);
                                     this.view().dimension().universe().storage().eventBroker().notify(event);
@@ -253,7 +281,7 @@ var org;
                                                 this.removeFromContainer(param);
                                                 param.set_parent(this._uuid, metaReference);
                                             }
-                                            var inboundRefs = this.getCreateOrUpdatePayloadList(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                            var inboundRefs = this.getOrCreateInbounds(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                             inboundRefs.put(this.uuid(), metaReference);
                                             var self = this;
                                             if (metaReference.opposite() != null && setOpposite) {
@@ -285,7 +313,7 @@ var org;
                                                         if (metaReference.opposite() != null && setOpposite) {
                                                             resolvedParam.mutate(org.kevoree.modeling.api.KActionType.REMOVE, metaReference.opposite(), self, false);
                                                         }
-                                                        var inboundRefs = _this.getCreateOrUpdatePayloadList(resolvedParam, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                                        var inboundRefs = _this.getOrCreateInbounds(resolvedParam, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                                         inboundRefs.remove(_this.uuid());
                                                     }
                                                 });
@@ -308,7 +336,7 @@ var org;
                                                 var event = new org.kevoree.modeling.api.event.DefaultKEvent(actionType, this, metaReference, param);
                                                 this.view().dimension().universe().storage().eventBroker().notify(event);
                                             }
-                                            var inboundRefs = this.getCreateOrUpdatePayloadList(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
+                                            var inboundRefs = this.getOrCreateInbounds(param, org.kevoree.modeling.api.data.Index.INBOUNDS_INDEX);
                                             inboundRefs.remove(this.uuid());
                                         }
                                     }

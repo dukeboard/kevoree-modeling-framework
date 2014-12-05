@@ -46,7 +46,7 @@ declare module org {
                         domainKey(): string;
                         get(attribute: meta.MetaAttribute): any;
                         set(attribute: meta.MetaAttribute, payload: any): void;
-                        private getCreateOrUpdatePayloadList(obj, payloadIndex);
+                        private getOrCreateInbounds(obj, payloadIndex);
                         private removeFromContainer(param);
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject, setOpposite: boolean): void;
                         size(metaReference: meta.MetaReference): number;
