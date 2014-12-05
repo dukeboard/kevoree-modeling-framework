@@ -252,7 +252,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public void mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
         if (this.metaClass().index() != metaReference.origin().index()) {
-            throw new RuntimeException("Wrong usage of KMF, the metaReference " + metaReference.metaName() + "is not attach to the metaClass " + this.metaClass().metaName());
+            throw new RuntimeException("Wrong usage of KMF, the metaReference " + metaReference.metaName() + " is not attach to the metaClass " + this.metaClass().metaName());
         }
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {
