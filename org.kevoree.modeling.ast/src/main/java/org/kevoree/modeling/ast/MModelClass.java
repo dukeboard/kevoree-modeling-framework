@@ -54,6 +54,9 @@ public class MModelClass extends MModelClassifier{
     public void addOperation(MModelOperation operation) {
         this.operations.add(operation);
     }
+    public void sortOperations() {
+        operations.sort((o1,o2)->o1.getName().compareTo(o2.getName()));
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();

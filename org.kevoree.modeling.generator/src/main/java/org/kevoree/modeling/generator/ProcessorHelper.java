@@ -80,9 +80,11 @@ public class ProcessorHelper {
                 MModelClass classRelDecls = (MModelClass) classifierRelDecls;
                 classRelDecls.sortAttributes();
                 classRelDecls.sortReferences();
+                classRelDecls.sortOperations();
 
                 ArrayList<MModelAttribute> parentsAttributes = new ArrayList<>();
                 ArrayList<MModelReference> parentsReferences = new ArrayList<>();
+                ArrayList<MModelOperation> parentsOperations = new ArrayList<>();
 
                 classRelDecls.getParents().forEach(parent -> {
                     if (!consolidated.contains(classRelDecls)) {
@@ -99,10 +101,15 @@ public class ProcessorHelper {
                             parentsReferences.add(parentReference);
                         }
                     });
-
+                    parent.getOperations().forEach(parentOperation -> {
+                        if (!parentsOperations.contains(parentOperation)) {
+                            parentsOperations.add(parentOperation);
+                        }
+                    });
                 });
                 classRelDecls.getAttributes().addAll(0, parentsAttributes);
                 classRelDecls.getReferences().addAll(0, parentsReferences);
+                classRelDecls.getOperations().addAll(0, parentsOperations);
             } else {
                 throw new UnsupportedOperationException("Enums not yet supported:" + classifierRelDecls.getClass());
             }
