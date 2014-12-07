@@ -4,31 +4,23 @@ import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.abs.AbstractMetaClass;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
 import org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaOperation;
-import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.meta.MetaType;
+import org.kevoree.modeling.api.meta.*;
 
 /**
  * Created by duke on 07/12/14.
  */
 public class MetaElement extends AbstractMetaClass {
 
-    private static MetaElement _instance = null;
-
-    public static MetaElement instance() {
-        if (_instance == null) {
-            _instance = new MetaElement();
-        }
-        return _instance;
+    public static MetaElement build(MetaModel p_origin) {
+        return new MetaElement(p_origin);
     }
 
     public final MetaAttribute ATT_NAME;
 
     public final MetaAttribute ATT_VALUE;
 
-    private MetaElement() {
-        super("org.kevoree.modeling.microframework.test.cloud.Element", 1);
+    private MetaElement(MetaModel p_origin) {
+        super("org.kevoree.modeling.microframework.test.cloud.Element", 1, p_origin);
         ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, MetaType.STRING, DiscreteExtrapolation.instance(), this);
         ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, MetaType.DOUBLE, PolynomialExtrapolation.instance(), this);
         MetaAttribute[] temp_attributes = new MetaAttribute[2];

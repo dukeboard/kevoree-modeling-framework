@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.trace.unresolved;
 
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaOperation;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.*;
 
 /**
  * Created by duke on 10/16/14.
@@ -24,6 +21,11 @@ public class UnresolvedMetaClass implements MetaClass {
     @Override
     public int index() {
         return -1;
+    }
+
+    @Override
+    public MetaModel origin() {
+        return null;
     }
 
     @Override

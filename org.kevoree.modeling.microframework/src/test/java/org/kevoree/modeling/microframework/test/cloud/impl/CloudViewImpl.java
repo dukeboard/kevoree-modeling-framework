@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.abs.AbstractKView;
 import org.kevoree.modeling.api.abs.DynamicAbstractKObject;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
+import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
@@ -39,11 +40,16 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
 
     @Override
     public Node createNode() {
-        return (Node) this.create(MetaNode.instance());
+        return (Node) this.create(dimension().universe().META_NODE);
     }
 
     @Override
     public Element createElement() {
-        return (Element) this.create(MetaElement.instance());
+        return (Element) this.create(dimension().universe().META_ELEMENT);
+    }
+
+    @Override
+    public CloudDimension dimension() {
+        return (CloudDimension) super.dimension();
     }
 }

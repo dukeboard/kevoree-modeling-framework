@@ -18,23 +18,23 @@ public class ElementImpl extends AbstractKObject implements Element {
 
     @Override
     public String getName() {
-        return (String) this.get(MetaElement.instance().ATT_NAME);
+        return (String) this.get(metaClass().ATT_NAME);
     }
 
     @Override
     public Element setName(String p_name) {
-        this.set(MetaElement.instance().ATT_NAME, p_name);
+        this.set(metaClass().ATT_NAME, p_name);
         return this;
     }
 
     @Override
     public Double getValue() {
-        return (Double) this.get(MetaElement.instance().ATT_VALUE);
+        return (Double) this.get(metaClass().ATT_VALUE);
     }
 
     @Override
     public Element setValue(Double p_name) {
-        this.set(MetaElement.instance().ATT_VALUE, p_name);
+        this.set(metaClass().ATT_VALUE, p_name);
         return this;
     }
 
@@ -43,5 +43,9 @@ public class ElementImpl extends AbstractKObject implements Element {
         return (CloudView) super.view();
     }
 
+    @Override
+    public MetaElement metaClass() {
+        return (MetaElement) super.metaClass();
+    }
 
 }

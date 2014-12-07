@@ -1,9 +1,6 @@
 package org.kevoree.modeling.api.abs;
 
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaOperation;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.*;
 
 import java.util.HashMap;
 
@@ -15,6 +12,8 @@ public class AbstractMetaClass implements MetaClass {
     private String _name;
 
     private int _index;
+
+    private MetaModel _origin;
 
     private MetaAttribute[] _atts;
 
@@ -28,6 +27,10 @@ public class AbstractMetaClass implements MetaClass {
 
     private HashMap<String, Integer> _ops_indexes = new HashMap<String, Integer>();
 
+    public MetaModel origin() {
+        return _origin;
+    }
+
     public int index() {
         return _index;
     }
@@ -36,9 +39,10 @@ public class AbstractMetaClass implements MetaClass {
         return _name;
     }
 
-    protected AbstractMetaClass(String p_name, int p_index) {
+    protected AbstractMetaClass(String p_name, int p_index, MetaModel p_origin) {
         this._name = p_name;
         this._index = p_index;
+        this._origin = p_origin;
     }
 
     protected void init(MetaAttribute[] p_atts, MetaReference[] p_refs, MetaOperation[] p_operations) {

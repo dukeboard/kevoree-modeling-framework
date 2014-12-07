@@ -5,23 +5,15 @@ import org.kevoree.modeling.api.abs.AbstractMetaClass;
 import org.kevoree.modeling.api.abs.AbstractMetaOperation;
 import org.kevoree.modeling.api.abs.AbstractMetaReference;
 import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaOperation;
-import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.meta.MetaType;
+import org.kevoree.modeling.api.meta.*;
 
 /**
  * Created by duke on 07/12/14.
  */
 public class MetaNode extends AbstractMetaClass {
 
-    private static MetaNode _instance = null;
-
-    public static MetaNode instance() {
-        if (_instance == null) {
-            _instance = new MetaNode();
-        }
-        return _instance;
+    public static MetaNode build(MetaModel p_origin) {
+        return new MetaNode(p_origin);
     }
 
     public final MetaAttribute ATT_NAME;
@@ -34,8 +26,8 @@ public class MetaNode extends AbstractMetaClass {
 
     public final MetaOperation OP_TRIGGER;
 
-    private MetaNode() {
-        super("org.kevoree.modeling.microframework.test.cloud.Node", 0);
+    private MetaNode(MetaModel p_origin) {
+        super("org.kevoree.modeling.microframework.test.cloud.Node", 0, p_origin);
         ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, MetaType.STRING, DiscreteExtrapolation.instance(), this);
         ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, MetaType.STRING, DiscreteExtrapolation.instance(), this);
         MetaAttribute[] temp_attributes = new MetaAttribute[2];
