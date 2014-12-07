@@ -17,9 +17,7 @@ import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.data.JsonRaw;
-import org.kevoree.modeling.api.meta.MetaAttribute;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaReference;
+import org.kevoree.modeling.api.meta.*;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.select.KSelector;
@@ -207,16 +205,25 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public Object get(MetaAttribute attribute) {
-        return attribute.strategy().extrapolate(this, attribute);
+    public Object get(MetaAttribute p_attribute) {
+        MetaAttribute transposed = internal_transpose_att(p_attribute);
+        if (transposed == null) {
+            throw new RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + metaClass().metaName());
+        } else {
+            return transposed.strategy().extrapolate(this, transposed);
+        }
     }
 
     @Override
-    public void set(MetaAttribute attribute, Object payload) {
-        attribute.strategy().mutate(this, attribute, payload);
-        view().dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.SET, this, attribute, payload));
+    public void set(MetaAttribute p_attribute, Object payload) {
+        MetaAttribute transposed = internal_transpose_att(p_attribute);
+        if (transposed == null) {
+            throw new RuntimeException("Bad KMF usage, the attribute named " + p_attribute.metaName() + " is not part of " + metaClass().metaName());
+        } else {
+            transposed.strategy().mutate(this, transposed, payload);
+            view().dimension().universe().storage().eventBroker().notify(new DefaultKEvent(KActionType.SET, this, transposed, payload));
+        }
     }
-
 
     private HashMap<Long, MetaReference> getOrCreateInbounds(KObject obj, int payloadIndex) {
         Object[] rawWrite = view().dimension().universe().storage().raw(obj, AccessMode.WRITE);
@@ -249,15 +256,15 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void mutate(KActionType actionType, final MetaReference metaReference, KObject param) {
-        internal_mutate(actionType, metaReference, param, true);
+        MetaReference transposed = internal_transpose_ref(metaReference);
+        if (transposed == null) {
+            throw new RuntimeException("Bad KMF usage, the attribute named " + metaReference.metaName() + " is not part of " + metaClass().metaName());
+        } else {
+            internal_mutate(actionType, transposed, param, true);
+        }
     }
 
     public void internal_mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
-        if (this.metaClass().index() != metaReference.origin().index()) {
-            if (this.metaClass().metaReference(metaReference.metaName()) == null) {
-                throw new RuntimeException("Wrong usage of KMF, the metaReference " + metaReference.metaName() + " is not attach to the metaClass " + this.metaClass().metaName());
-            }
-        }
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite);
@@ -390,62 +397,72 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public int size(MetaReference metaReference) {
-        Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
-        Object ref = raw[metaReference.index()];
-        if (ref == null) {
-            return 0;
+    public int size(MetaReference p_metaReference) {
+        MetaReference transposed = internal_transpose_ref(p_metaReference);
+        if (transposed == null) {
+            throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
-            Set<Object> refSet = (Set<Object>) ref;
-            return refSet.size();
+            Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
+            Object ref = raw[transposed.index()];
+            if (ref == null) {
+                return 0;
+            } else {
+                Set<Object> refSet = (Set<Object>) ref;
+                return refSet.size();
+            }
         }
     }
 
-    public <C extends KObject> void each(MetaReference metaReference, final Callback<C> callback, final Callback<Throwable> end) {
-        Object o = view().dimension().universe().storage().raw(this, AccessMode.READ)[metaReference.index()];
-        if (o == null) {
-            if (end != null) {
-                end.on(null);
-            } else {//case of Get on single ref
-                callback.on(null);
-            }
-        } else if (o instanceof Set) {
-            Set<Long> objs = (Set<Long>) o;
-            Long[] setContent = objs.toArray(new Long[objs.size()]);
-            view().lookupAll(setContent, new Callback<KObject[]>() {
-                @Override
-                public void on(KObject[] result) {
-                    boolean endAlreadyCalled = false;
-                    try {
-                        for (int l = 0; l < result.length; l++) {
-                            callback.on((C) result[l]);
-                        }
-                        endAlreadyCalled = true;
-                        if (end != null) {
-                            end.on(null);
-                        }
-                    } catch (Throwable t) {
-                        if (!endAlreadyCalled) {
+    public <C extends KObject> void each(MetaReference p_metaReference, final Callback<C> callback, final Callback<Throwable> end) {
+        MetaReference transposed = internal_transpose_ref(p_metaReference);
+        if (transposed == null) {
+            throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
+        } else {
+            Object o = view().dimension().universe().storage().raw(this, AccessMode.READ)[transposed.index()];
+            if (o == null) {
+                if (end != null) {
+                    end.on(null);
+                } else {//case of Get on single ref
+                    callback.on(null);
+                }
+            } else if (o instanceof Set) {
+                Set<Long> objs = (Set<Long>) o;
+                Long[] setContent = objs.toArray(new Long[objs.size()]);
+                view().lookupAll(setContent, new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] result) {
+                        boolean endAlreadyCalled = false;
+                        try {
+                            for (int l = 0; l < result.length; l++) {
+                                callback.on((C) result[l]);
+                            }
+                            endAlreadyCalled = true;
                             if (end != null) {
-                                end.on(t);
+                                end.on(null);
+                            }
+                        } catch (Throwable t) {
+                            if (!endAlreadyCalled) {
+                                if (end != null) {
+                                    end.on(t);
+                                }
                             }
                         }
                     }
-                }
-            });
-        } else {
-            view().lookup((Long) o, new Callback<KObject>() {
-                @Override
-                public void on(KObject resolved) {
-                    if (callback != null) {
-                        callback.on((C) resolved);
+                });
+            } else {
+                view().lookup((Long) o, new Callback<KObject>() {
+                    @Override
+                    public void on(KObject resolved) {
+                        if (callback != null) {
+                            callback.on((C) resolved);
+                        }
+                        if (end != null) {
+                            end.on(null);
+                        }
                     }
-                    if (end != null) {
-                        end.on(null);
-                    }
-                }
-            });
+                });
 
+            }
         }
     }
 
@@ -702,6 +719,33 @@ public abstract class AbstractKObject implements KObject {
                 }
             }
         });
+    }
+
+    private MetaReference internal_transpose_ref(MetaReference p) {
+        MetaClass selfMeta = metaClass();
+        if (p.origin().index() == selfMeta.index()) {
+            return p;
+        } else {
+            return selfMeta.metaReference(p.metaName());
+        }
+    }
+
+    private MetaAttribute internal_transpose_att(MetaAttribute p) {
+        MetaClass selfMeta = metaClass();
+        if (p.origin().index() == selfMeta.index()) {
+            return p;
+        } else {
+            return selfMeta.metaAttribute(p.metaName());
+        }
+    }
+
+    private MetaOperation internal_transpose_op(MetaOperation p) {
+        MetaClass selfMeta = metaClass();
+        if (p.origin().index() == selfMeta.index()) {
+            return p;
+        } else {
+            return selfMeta.metaOperation(p.metaName());
+        }
     }
 
 }
