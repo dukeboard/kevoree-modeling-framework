@@ -1,17 +1,12 @@
 package org.kevoree.modeling.api.event;
 
-import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KEvent;
-import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.KOperation;
 import org.kevoree.modeling.api.abs.AbstractKDimension;
 import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaOperation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +53,6 @@ public class DefaultKBroker implements KEventBroker {
             objectListeners.add(reg);
         }
     }
-
 
 
     //TODO optimize

@@ -1,12 +1,9 @@
 package org.kevoree.modeling.api.data.cache;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.CacheEntry;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

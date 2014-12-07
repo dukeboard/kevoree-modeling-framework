@@ -11,8 +11,6 @@ import org.kevoree.modeling.api.event.DefaultKEvent;
 import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.operation.DefaultModelCloner;
-import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;

@@ -1,7 +1,6 @@
 package org.kevoree.modeling.api.extrapolation;
 
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.meta.MetaAttribute;

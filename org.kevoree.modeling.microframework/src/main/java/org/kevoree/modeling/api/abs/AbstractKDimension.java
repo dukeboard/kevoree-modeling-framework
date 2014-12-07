@@ -5,11 +5,7 @@ import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.event.ListenerScope;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.ModelListener;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by duke on 10/10/14.

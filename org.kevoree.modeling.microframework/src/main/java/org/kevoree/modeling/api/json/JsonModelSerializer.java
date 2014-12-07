@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
+
 import java.util.Set;
 
 /**
@@ -15,7 +16,7 @@ import java.util.Set;
  * Time: 11:08
  */
 
-public class JsonModelSerializer /*implements ModelSerializer*/ {
+public class JsonModelSerializer {
 
     public static final String KEY_META = "@meta";
 
@@ -45,7 +46,7 @@ public class JsonModelSerializer /*implements ModelSerializer*/ {
             @Override
             public void on(Throwable throwable) {
                 builder.append("]\n");
-                callback.on(builder.toString(),throwable);
+                callback.on(builder.toString(), throwable);
             }
         });
     }
