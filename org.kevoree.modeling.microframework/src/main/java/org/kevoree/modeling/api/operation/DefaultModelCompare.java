@@ -167,14 +167,14 @@ public class DefaultModelCompare {
         }
         Map<MetaReference, Object> valuesRef = new HashMap<MetaReference, Object>();
         if (references) {
-            for (int i = 0; i < current.metaReferences().length; i++) {
-                MetaReference reference = current.metaReferences()[i];
+            for (int i = 0; i < current.metaClass().metaReferences().length; i++) {
+                MetaReference reference = current.metaClass().metaReferences()[i];
                 Object payload = current.view().dimension().universe().storage().raw(current, AccessMode.READ)[reference.index()];
                 valuesRef.put(reference, payload);
             }
             if (sibling != null) {
-                for (int i = 0; i < sibling.metaReferences().length; i++) {
-                    MetaReference reference = sibling.metaReferences()[i];
+                for (int i = 0; i < sibling.metaClass().metaReferences().length; i++) {
+                    MetaReference reference = sibling.metaClass().metaReferences()[i];
                     Object payload2 = sibling.view().dimension().universe().storage().raw(sibling, AccessMode.READ)[reference.index()];
                     Object payload1 = valuesRef.get(reference);
                     if (reference.single()) {

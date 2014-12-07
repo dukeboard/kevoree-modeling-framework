@@ -17,7 +17,7 @@ public interface KView {
     public KObject create(MetaClass clazz);
 
     public void setRoot(KObject elem, Callback<Throwable> callback);
-    
+
     public void select(String query, Callback<KObject[]> callback);
 
     public void lookup(Long key, Callback<KObject> callback);
@@ -25,10 +25,6 @@ public interface KView {
     public void lookupAll(Long[] keys, Callback<KObject[]> callback);
 
     public void stream(String query, Callback<KObject> callback);
-
-    public MetaClass[] metaClasses();
-
-    public MetaClass metaClass(String fqName);
 
     public KDimension dimension();
 

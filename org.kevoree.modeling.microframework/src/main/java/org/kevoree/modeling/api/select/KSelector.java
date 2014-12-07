@@ -28,8 +28,8 @@ public class KSelector {
             String relationNameRegex = extractedQuery.relationName.replace("*", ".*");
             Set<Long> collected = new HashSet<Long>();
             Object[] raw = root.dimension().universe().storage().raw(root, AccessMode.READ);
-            for (int i = 0; i < root.metaReferences().length; i++) {
-                MetaReference reference = root.metaReferences()[i];
+            for (int i = 0; i < root.metaClass().metaReferences().length; i++) {
+                MetaReference reference = root.metaClass().metaReferences()[i];
                 if (reference.metaName().matches(relationNameRegex)) {
                     Object refPayLoad = raw[reference.index()];
                     if (refPayLoad != null) {
@@ -57,8 +57,8 @@ public class KSelector {
                             boolean selectedForNext = true;
                             for (String paramKey : extractedQuery.params.keySet()) {
                                 KQueryParam param = extractedQuery.params.get(paramKey);
-                                for (int j = 0; j < resolved.metaAttributes().length; j++) {
-                                    MetaAttribute metaAttribute = resolved.metaAttributes()[i];
+                                for (int j = 0; j < resolved.metaClass().metaAttributes().length; j++) {
+                                    MetaAttribute metaAttribute = resolved.metaClass().metaAttributes()[i];
                                     if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
                                         Object o_raw = resolved.get(metaAttribute);
                                         if (o_raw != null) {

@@ -63,29 +63,29 @@ public class JsonModelSerializer /*implements ModelSerializer*/ {
             builder.append("true");
         }
         builder.append("\",\n");
-        for (int i = 0; i < elem.metaAttributes().length; i++) {
-            Object payload = elem.get(elem.metaAttributes()[i]);
+        for (int i = 0; i < elem.metaClass().metaAttributes().length; i++) {
+            Object payload = elem.get(elem.metaClass().metaAttributes()[i]);
             if (payload != null) {
                 builder.append("\t");
                 builder.append("\"");
-                builder.append(elem.metaAttributes()[i].metaName());
+                builder.append(elem.metaClass().metaAttributes()[i].metaName());
                 builder.append("\" : \"");
                 builder.append(payload.toString());
                 builder.append("\",\n");
             }
         }
-        for (int i = 0; i < elem.metaReferences().length; i++) {
+        for (int i = 0; i < elem.metaClass().metaReferences().length; i++) {
             Object[] raw = elem.view().dimension().universe().storage().raw(elem, AccessMode.READ);
             Object payload = null;
             if (raw != null) {
-                payload = raw[elem.metaReferences()[i].index()];
+                payload = raw[elem.metaClass().metaReferences()[i].index()];
             }
             if (payload != null) {
                 builder.append("\t");
                 builder.append("\"");
-                builder.append(elem.metaReferences()[i].metaName());
+                builder.append(elem.metaClass().metaReferences()[i].metaName());
                 builder.append("\" :");
-                if (elem.metaReferences()[i].single()) {
+                if (elem.metaClass().metaReferences()[i].single()) {
                     builder.append("\"");
                     builder.append(payload.toString());
                     builder.append("\"");

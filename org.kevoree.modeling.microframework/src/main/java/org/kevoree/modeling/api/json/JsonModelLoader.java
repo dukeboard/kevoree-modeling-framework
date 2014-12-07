@@ -8,6 +8,7 @@ import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.data.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.time.TimeTree;
@@ -32,6 +33,7 @@ public class JsonModelLoader {
         if (payload == null) {
             callback.on(null);
         } else {
+            MetaModel metaModel = factory.dimension().universe().metaModel();
             Lexer lexer = new Lexer(payload);
             JsonToken currentToken = lexer.nextToken();
             if (currentToken.tokenType() != Type.LEFT_BRACKET) {
@@ -79,11 +81,11 @@ public class JsonModelLoader {
                     }
                     TimeTree timeTree = new DefaultTimeTree();
                     timeTree.insert(factory.now());
-                    MetaClass metaClass = factory.metaClass(meta);
+                    MetaClass metaClass = metaModel.metaClass(meta);
                     KObject current = factory.createProxy(metaClass, timeTree, kid);
                     factory.dimension().universe().storage().initKObject(current, factory);
                     if (isRoot) {
-                        factory.setRoot(current,null);//todo force the direct set
+                        factory.setRoot(current, null);//todo force the direct set
                     }
                     Object[] raw = factory.dimension().universe().storage().raw(current, AccessMode.WRITE);
                     String[] metaKeys = elem.keySet().toArray(new String[elem.size()]);
@@ -99,7 +101,7 @@ public class JsonModelLoader {
                                 String[] tuple = raw_elem.split(JsonRaw.SEP);
                                 if (tuple.length == 3) {
                                     Long raw_k = Long.parseLong(tuple[0]);
-                                    MetaClass foundMeta = factory.metaClass(tuple[1].trim());
+                                    MetaClass foundMeta = metaModel.metaClass(tuple[1].trim());
                                     if (foundMeta != null) {
                                         MetaReference metaReference = foundMeta.metaReference(tuple[2].trim());
                                         if (metaReference != null) {
@@ -122,7 +124,7 @@ public class JsonModelLoader {
                             String parentRef_payload = content.get(metaKeys[i]).toString();
                             String[] elems = parentRef_payload.split(JsonRaw.SEP);
                             if (elems.length == 2) {
-                                MetaClass foundMeta = factory.metaClass(elems[0].trim());
+                                MetaClass foundMeta = metaModel.metaClass(elems[0].trim());
                                 if (foundMeta != null) {
                                     MetaReference metaReference = foundMeta.metaReference(elems[1].trim());
                                     if (metaReference != null) {

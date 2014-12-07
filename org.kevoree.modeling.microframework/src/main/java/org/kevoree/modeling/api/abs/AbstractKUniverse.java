@@ -12,6 +12,7 @@ import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
 /**

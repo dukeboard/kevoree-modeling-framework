@@ -70,7 +70,7 @@ public class XMIModelSerializer {
                         index++;
                     }
                     context.model.visitAttributes(context.attributesVisitor);
-                    Helper.forall(context.model.metaReferences(), new CallBackChain<MetaReference>(){
+                    Helper.forall(context.model.metaClass().metaReferences(), new CallBackChain<MetaReference>(){
                         @Override
                         public void on(MetaReference metaReference, Callback<Throwable> next) {
                             nonContainedReferencesCallbackChain(metaReference, next, context, context.model);
@@ -80,7 +80,7 @@ public class XMIModelSerializer {
                         public void on(Throwable err) {
                             if (err == null) {
                                 context.printer.append(">\n");
-                                Helper.forall(context.model.metaReferences(), new CallBackChain<MetaReference>(){
+                                Helper.forall(context.model.metaClass().metaReferences(), new CallBackChain<MetaReference>(){
                                     @Override
                                     public void on(MetaReference metaReference, Callback<Throwable> next) {
                                         containedReferencesCallbackChain(metaReference, next, context, context.model);
@@ -175,7 +175,7 @@ public class XMIModelSerializer {
                     context.printer.append(ref.metaName());
                     context.printer.append(" xsi:type=\"" + XMIModelSerializer.formatMetaClassName(elem.metaClass().metaName()) + "\"");
                     elem.visitAttributes(context.attributesVisitor);
-                    Helper.forall(elem.metaReferences(), new CallBackChain<MetaReference>(){
+                    Helper.forall(elem.metaClass().metaReferences(), new CallBackChain<MetaReference>(){
                         @Override
                         public void on(MetaReference metaReference, Callback<Throwable> next) {
                             nonContainedReferencesCallbackChain(metaReference, next, context, elem);
@@ -185,7 +185,7 @@ public class XMIModelSerializer {
                         public void on(Throwable err) {
                             if (err == null) {
                                 context.printer.append(">\n");
-                                Helper.forall(elem.metaReferences(), new CallBackChain<MetaReference>(){
+                                Helper.forall(elem.metaClass().metaReferences(), new CallBackChain<MetaReference>(){
                                     @Override
                                     public void on(MetaReference metaReference, Callback<Throwable> next) {
                                         containedReferencesCallbackChain(metaReference, next, context, elem);

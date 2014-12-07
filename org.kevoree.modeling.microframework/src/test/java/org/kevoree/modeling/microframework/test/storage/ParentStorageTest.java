@@ -10,6 +10,7 @@ import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
+import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
 /**
  * Created by duke on 28/11/14.
@@ -26,7 +27,7 @@ public class ParentStorageTest {
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root,null);
+        time0.setRoot(root, null);
 
         Node n1 = time0.createNode();
         n1.setName("n1");
@@ -76,7 +77,7 @@ public class ParentStorageTest {
 
         Node root = time0.createNode();
         root.setName("root");
-        time0.setRoot(root,null);
+        time0.setRoot(root, null);
 
         Node n1 = time0.createNode();
         n1.setName("n1");
@@ -88,7 +89,7 @@ public class ParentStorageTest {
         root.addChildren(n2);
         Long val = 1L;
         Assert.assertEquals(n1.parentUuid(), val);
-        Assert.assertEquals(n1.referenceInParent(), Node.METAREFERENCES.CHILDREN);
+        Assert.assertEquals(n1.referenceInParent(), MetaNode.instance().REF_CHILDREN);
 
         final int[] i = {0};
         n1.inbounds(new Callback<InboundReference>() {
@@ -96,8 +97,8 @@ public class ParentStorageTest {
             public void on(InboundReference inboundReference) {
                 i[0]++;
             }
-        },null);
-        Assert.assertEquals(1,i[0]);
+        }, null);
+        Assert.assertEquals(1, i[0]);
 
         try {
             root.eachChildren(null, null);
@@ -124,14 +125,14 @@ public class ParentStorageTest {
                     public void on(InboundReference inboundReference) {
                         i[0]++;
                     }
-                },null);
-                Assert.assertEquals(2,i[0]);
+                }, null);
+                Assert.assertEquals(2, i[0]);
                 i[0]++;
             }
         });
 
         //lookup test
-        Assert.assertEquals(3,i[0]);
+        Assert.assertEquals(3, i[0]);
 
     }
 

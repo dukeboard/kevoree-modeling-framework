@@ -19,9 +19,7 @@ import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.data.JsonRaw;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.operation.DefaultModelCloner;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.select.KSelector;
@@ -190,7 +188,7 @@ public abstract class AbstractKObject implements KObject {
     @Override
     public String domainKey() {
         StringBuilder builder = new StringBuilder();
-        MetaAttribute[] atts = metaAttributes();
+        MetaAttribute[] atts = metaClass().metaAttributes();
         for (int i = 0; i < atts.length; i++) {
             MetaAttribute att = atts[i];
             if (att.key()) {
@@ -449,40 +447,10 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void visitAttributes(ModelAttributeVisitor visitor) {
-        MetaAttribute[] metaAttributes = metaAttributes();
+        MetaAttribute[] metaAttributes = metaClass().metaAttributes();
         for (int i = 0; i < metaAttributes.length; i++) {
             visitor.visit(metaAttributes[i], get(metaAttributes[i]));
         }
-    }
-
-    @Override
-    public MetaAttribute metaAttribute(String name) {
-        for (int i = 0; i < metaAttributes().length; i++) {
-            if (metaAttributes()[i].metaName().equals(name)) {
-                return metaAttributes()[i];
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public MetaReference metaReference(String name) {
-        for (int i = 0; i < metaReferences().length; i++) {
-            if (metaReferences()[i].metaName().equals(name)) {
-                return metaReferences()[i];
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public MetaOperation metaOperation(String name) {
-        for (int i = 0; i < metaOperations().length; i++) {
-            if (metaOperations()[i].metaName().equals(name)) {
-                return metaOperations()[i];
-            }
-        }
-        return null;
     }
 
     public void visit(ModelVisitor visitor, Callback<Throwable> end) {
@@ -494,8 +462,8 @@ public abstract class AbstractKObject implements KObject {
             alreadyVisited.add(uuid());
         }
         Set<Long> toResolveds = new HashSet<Long>();
-        for (int i = 0; i < metaReferences().length; i++) {
-            MetaReference reference = metaReferences()[i];
+        for (int i = 0; i < metaClass().metaReferences().length; i++) {
+            MetaReference reference = metaClass().metaReferences()[i];
             if (!(treeOnly && !reference.contained())) {
                 Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
                 Object o = null;
@@ -590,8 +558,8 @@ public abstract class AbstractKObject implements KObject {
     public ModelTrace[] traces(TraceRequest request) {
         List<ModelTrace> traces = new ArrayList<ModelTrace>();
         if (TraceRequest.ATTRIBUTES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-            for (int i = 0; i < metaAttributes().length; i++) {
-                MetaAttribute current = metaAttributes()[i];
+            for (int i = 0; i < metaClass().metaAttributes().length; i++) {
+                MetaAttribute current = metaClass().metaAttributes()[i];
                 Object payload = get(current);
                 if (payload != null) {
                     traces.add(new ModelSetTrace(_uuid, current, payload));
@@ -599,8 +567,8 @@ public abstract class AbstractKObject implements KObject {
             }
         }
         if (TraceRequest.REFERENCES_ONLY.equals(request) || TraceRequest.ATTRIBUTES_REFERENCES.equals(request)) {
-            for (int i = 0; i < metaReferences().length; i++) {
-                MetaReference ref = metaReferences()[i];
+            for (int i = 0; i < metaClass().metaReferences().length; i++) {
+                MetaReference ref = metaClass().metaReferences()[i];
                 Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.READ);
                 Object o = null;
                 if (raw != null) {
@@ -683,12 +651,6 @@ public abstract class AbstractKObject implements KObject {
         raw[Index.PARENT_INDEX] = p_parentKID;
         raw[Index.REF_IN_PARENT_INDEX] = p_metaReference;
     }
-
-    public abstract MetaAttribute[] metaAttributes();
-
-    public abstract MetaReference[] metaReferences();
-
-    public abstract MetaOperation[] metaOperations();
 
     @Override
     public boolean equals(Object obj) {

@@ -1,14 +1,26 @@
 package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.abs.AbstractKUniverse;
+import org.kevoree.modeling.api.abs.AbstractMetaModel;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
+import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
+import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
 /**
  * Created by duke on 10/10/14.
  */
 public class CloudUniverse extends AbstractKUniverse<CloudDimension> {
 
+    private MetaModel _metaModel;
+
     public CloudUniverse() {
         super();
+        _metaModel = new AbstractMetaModel("Cloud", -1);
+        MetaClass[] tempMetaClasses = new MetaClass[2];
+        tempMetaClasses[0] = MetaNode.instance();
+        tempMetaClasses[1] = MetaElement.instance();
+        ((AbstractMetaModel) _metaModel).init(tempMetaClasses);
     }
 
     @Override
@@ -16,4 +28,9 @@ public class CloudUniverse extends AbstractKUniverse<CloudDimension> {
         return new CloudDimension(this, key);
     }
 
+
+    @Override
+    public MetaModel metaModel() {
+        return _metaModel;
+    }
 }

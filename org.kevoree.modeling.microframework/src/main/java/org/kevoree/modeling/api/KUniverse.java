@@ -5,6 +5,7 @@ import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
 /**
@@ -41,5 +42,7 @@ public interface KUniverse<A extends KDimension> {
     public KUniverse<A> setDataBase(KDataBase dataBase);
 
     public void setOperation(MetaOperation metaOperation, KOperation operation);
+
+    public MetaModel metaModel();
 
 }

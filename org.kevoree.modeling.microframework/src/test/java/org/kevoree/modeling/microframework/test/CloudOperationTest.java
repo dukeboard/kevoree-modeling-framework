@@ -7,6 +7,7 @@ import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Node;
+import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
 import java.util.Arrays;
 
@@ -19,7 +20,7 @@ public class CloudOperationTest {
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
 
-        universe.setOperation(Node.METAOPERATIONS.TRIGGER, new KOperation() {
+        universe.setOperation(MetaNode.instance().OP_TRIGGER, new KOperation() {
             @Override
             public void on(KObject source, Object[] params, Callback<Object> result) {
                 String parameters = "[";

@@ -60,18 +60,6 @@ public interface KObject {
 
     public MetaClass metaClass();
 
-    public MetaAttribute[] metaAttributes();
-
-    public MetaReference[] metaReferences();
-
-    public MetaOperation[] metaOperations();
-
-    public MetaAttribute metaAttribute(String name);
-
-    public MetaReference metaReference(String name);
-
-    public MetaOperation metaOperation(String name);
-
     //TODO drop setOpposite
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite);
 

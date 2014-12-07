@@ -4,6 +4,7 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.json.*;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaReference;
 
 import java.util.HashMap;
@@ -57,8 +58,9 @@ public class JsonRaw {
             return null;
         } else {
             CacheEntry entry = new CacheEntry();
+            MetaModel metaModel = currentView.dimension().universe().metaModel();
             //Init metaClass before everything
-            entry.metaClass = currentView.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
+            entry.metaClass = metaModel.metaClass(content.get(JsonModelSerializer.KEY_META).toString());
             //Init the Raw storage
             entry.raw = new Object[Index.RESERVED_INDEXES + entry.metaClass.metaAttributes().length + entry.metaClass.metaReferences().length];
             entry.raw[Index.IS_DIRTY_INDEX] = false;
@@ -77,7 +79,7 @@ public class JsonRaw {
                             String[] tuple = raw_elem.split(SEP);
                             if (tuple.length == 3) {
                                 Long raw_k = Long.parseLong(tuple[0]);
-                                MetaClass foundMeta = currentView.metaClass(tuple[1].trim());
+                                MetaClass foundMeta = metaModel.metaClass(tuple[1].trim());
                                 if (foundMeta != null) {
                                     MetaReference metaReference = foundMeta.metaReference(tuple[2].trim());
                                     if (metaReference != null) {
@@ -100,7 +102,7 @@ public class JsonRaw {
                         String raw_payload_ref = content.get(metaKeys[i]).toString();
                         String[] elemsRefs = raw_payload_ref.split(SEP);
                         if (elemsRefs.length == 2) {
-                            MetaClass foundMeta = currentView.metaClass(elemsRefs[0].trim());
+                            MetaClass foundMeta = metaModel.metaClass(elemsRefs[0].trim());
                             if (foundMeta != null) {
                                 MetaReference metaReference = foundMeta.metaReference(elemsRefs[1].trim());
                                 if (metaReference != null) {

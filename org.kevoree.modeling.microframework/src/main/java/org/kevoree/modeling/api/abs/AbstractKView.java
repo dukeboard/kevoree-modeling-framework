@@ -48,26 +48,16 @@ public abstract class AbstractKView implements KView {
         return _dimension;
     }
 
-    public MetaClass metaClass(String fqName) {
-        MetaClass[] metaClasses = metaClasses();
-        for (int i = 0; i < metaClasses.length; i++) {
-            if (metaClasses[i].metaName().equals(fqName)) {
-                return metaClasses[i];
-            }
-        }
-        return null;
-    }
-
     @Override
     public KObject createFQN(String metaClassName) {
-        return create(metaClass(metaClassName));
+        return create(dimension().universe().metaModel().metaClass(metaClassName));
     }
 
     @Override
     public void setRoot(KObject elem, Callback<Throwable> callback) {
-        ((AbstractKObject) elem).set_parent(null,null);
+        ((AbstractKObject) elem).set_parent(null, null);
         ((AbstractKObject) elem).setRoot(true);
-        dimension().universe().storage().setRoot(elem,callback);
+        dimension().universe().storage().setRoot(elem, callback);
     }
 
     @Override
@@ -127,8 +117,6 @@ public abstract class AbstractKView implements KView {
     }
 
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);
-
-    public abstract MetaClass[] metaClasses();
 
     @Override
     public void slice(List<KObject> elems, Callback<TraceSequence> callback) {
