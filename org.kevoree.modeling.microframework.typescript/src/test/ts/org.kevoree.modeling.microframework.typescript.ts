@@ -33,12 +33,26 @@ module org {
 
                         export class CloudUniverse extends org.kevoree.modeling.api.abs.AbstractKUniverse<any> {
 
+                            private _metaModel: org.kevoree.modeling.api.meta.MetaModel;
+                            public META_NODE: org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
+                            public META_ELEMENT: org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
                             constructor() {
                                 super();
+                                this._metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("Cloud", -1);
+                                this.META_NODE = org.kevoree.modeling.microframework.test.cloud.meta.MetaNode.build(this._metaModel);
+                                this.META_ELEMENT = org.kevoree.modeling.microframework.test.cloud.meta.MetaElement.build(this._metaModel);
+                                var tempMetaClasses: org.kevoree.modeling.api.meta.MetaClass[] = new Array();
+                                tempMetaClasses[0] = this.META_NODE;
+                                tempMetaClasses[1] = this.META_ELEMENT;
+                                (<org.kevoree.modeling.api.abs.AbstractMetaModel>this._metaModel).init(tempMetaClasses);
                             }
 
                             public internal_create(key: number): org.kevoree.modeling.microframework.test.cloud.CloudDimension {
                                 return new org.kevoree.modeling.microframework.test.cloud.CloudDimension(this, key);
+                            }
+
+                            public metaModel(): org.kevoree.modeling.api.meta.MetaModel {
+                                return this._metaModel;
                             }
 
                         }
@@ -49,96 +63,10 @@ module org {
 
                             createElement(): org.kevoree.modeling.microframework.test.cloud.Element;
 
-                        }
-
-                        export module CloudView { 
-                            export class METACLASSES implements org.kevoree.modeling.api.meta.MetaClass {
-
-                                public static ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE: METACLASSES = new METACLASSES("org.kevoree.modeling.microframework.test.cloud.Node", 0);
-                                public static ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT: METACLASSES = new METACLASSES("org.kevoree.modeling.microframework.test.cloud.Element", 1);
-                                private _name: string;
-                                private _index: number;
-                                public index(): number {
-                                    return this._index;
-                                }
-
-                                public metaName(): string {
-                                    return this._name;
-                                }
-
-                                constructor(name: string, index: number) {
-                                    this._name = name;
-                                    this._index = index;
-                                }
-
-                                public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
-                                    if (this._index == 0) {
-                                        return org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.values();
-                                    }
-                                    if (this._index == 1) {
-                                        return org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.values();
-                                    }
-                                    return new Array();
-                                }
-
-                                public metaReferences(): org.kevoree.modeling.api.meta.MetaReference[] {
-                                    if (this._index == 0) {
-                                        return org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.values();
-                                    }
-                                    return new Array();
-                                }
-
-                                public metaOperations(): org.kevoree.modeling.api.meta.MetaOperation[] {
-                                    if (this._index == 0) {
-                                        return org.kevoree.modeling.microframework.test.cloud.Node.METAOPERATIONS.values();
-                                    }
-                                    return new Array();
-                                }
-
-                                public metaAttribute(name: string): org.kevoree.modeling.api.meta.MetaAttribute {
-                                    var atts: org.kevoree.modeling.api.meta.MetaAttribute[] = this.metaAttributes();
-                                    for (var i: number = 0; i < atts.length; i++) {
-                                        if (atts[i].metaName().equals(name)) {
-                                            return atts[i];
-                                        }
-                                    }
-                                    return null;
-                                }
-
-                                public metaReference(name: string): org.kevoree.modeling.api.meta.MetaReference {
-                                    var refs: org.kevoree.modeling.api.meta.MetaReference[] = this.metaReferences();
-                                    for (var i: number = 0; i < refs.length; i++) {
-                                        if (refs[i].metaName().equals(name)) {
-                                            return refs[i];
-                                        }
-                                    }
-                                    return null;
-                                }
-
-                                public metaOperation(name: string): org.kevoree.modeling.api.meta.MetaOperation {
-                                    var ops: org.kevoree.modeling.api.meta.MetaOperation[] = this.metaOperations();
-                                    for (var i: number = 0; i < ops.length; i++) {
-                                        if (ops[i].metaName().equals(name)) {
-                                            return ops[i];
-                                        }
-                                    }
-                                    return null;
-                                }
-
-                                public equals(other: any): boolean {
-                                    return this == other;
-                                }
-                                public static _METACLASSESVALUES : METACLASSES[] = [
-                                    METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE
-                                    ,METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT
-                                ];
-                                public static values():METACLASSES[]{
-                                    return METACLASSES._METACLASSESVALUES;
-                                }
-                            }
-
+                            dimension(): org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 
                         }
+
                         export interface Element extends org.kevoree.modeling.api.KObject {
 
                             getName(): string;
@@ -153,72 +81,6 @@ module org {
 
                         }
 
-                        export module Element { 
-                            export class METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
-
-                                public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 5, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-                                public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 6, 5, false, org.kevoree.modeling.api.meta.MetaType.DOUBLE, org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance());
-                                private _name: string;
-                                private _index: number;
-                                private _precision: number;
-                                private _key: boolean;
-                                private _metaType: org.kevoree.modeling.api.meta.MetaType;
-                                private extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation;
-                                public metaType(): org.kevoree.modeling.api.meta.MetaType {
-                                    return this._metaType;
-                                }
-
-                                public index(): number {
-                                    return this._index;
-                                }
-
-                                public metaName(): string {
-                                    return this._name;
-                                }
-
-                                public precision(): number {
-                                    return this._precision;
-                                }
-
-                                public key(): boolean {
-                                    return this._key;
-                                }
-
-                                public origin(): org.kevoree.modeling.api.meta.MetaClass {
-                                    return org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT;
-                                }
-
-                                public strategy(): org.kevoree.modeling.api.extrapolation.Extrapolation {
-                                    return this.extrapolation;
-                                }
-
-                                public setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void {
-                                    this.extrapolation = extrapolation;
-                                }
-
-                                constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
-                                    this._name = name;
-                                    this._index = index;
-                                    this._precision = precision;
-                                    this._key = key;
-                                    this._metaType = metaType;
-                                    this.extrapolation = extrapolation;
-                                }
-
-                                public equals(other: any): boolean {
-                                    return this == other;
-                                }
-                                public static _METAATTRIBUTESVALUES : METAATTRIBUTES[] = [
-                                    METAATTRIBUTES.NAME
-                                    ,METAATTRIBUTES.VALUE
-                                ];
-                                public static values():METAATTRIBUTES[]{
-                                    return METAATTRIBUTES._METAATTRIBUTESVALUES;
-                                }
-                            }
-
-
-                        }
                         export module impl {
                             export class CloudViewImpl extends org.kevoree.modeling.api.abs.AbstractKView implements org.kevoree.modeling.microframework.test.cloud.CloudView {
 
@@ -236,63 +98,54 @@ module org {
                                         case 1: 
                                         return new org.kevoree.modeling.microframework.test.cloud.impl.ElementImpl(this, p_key, p_timeTree, p_clazz);
                                         default: 
-                                        return null;
+                                        return new org.kevoree.modeling.api.abs.DynamicKObject(this, p_key, p_timeTree, p_clazz);
                                     }
                                 }
 
-                                public metaClasses(): org.kevoree.modeling.api.meta.MetaClass[] {
-                                    return org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.values();
-                                }
-
                                 public createNode(): org.kevoree.modeling.microframework.test.cloud.Node {
-                                    return <org.kevoree.modeling.microframework.test.cloud.Node>this.create(org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE);
+                                    return <org.kevoree.modeling.microframework.test.cloud.Node>this.create(this.dimension().universe().META_NODE);
                                 }
 
                                 public createElement(): org.kevoree.modeling.microframework.test.cloud.Element {
-                                    return <org.kevoree.modeling.microframework.test.cloud.Element>this.create(org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT);
+                                    return <org.kevoree.modeling.microframework.test.cloud.Element>this.create(this.dimension().universe().META_ELEMENT);
+                                }
+
+                                public dimension(): org.kevoree.modeling.microframework.test.cloud.CloudDimension {
+                                    return <org.kevoree.modeling.microframework.test.cloud.CloudDimension>super.dimension();
                                 }
 
                             }
 
                             export class ElementImpl extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.microframework.test.cloud.Element {
 
-                                private _mataReferences: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
                                 constructor(factory: org.kevoree.modeling.microframework.test.cloud.CloudView, kid: number, timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaclass: org.kevoree.modeling.api.meta.MetaClass) {
                                     super(factory, kid, timeTree, p_metaclass);
                                 }
 
-                                public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
-                                    return org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.values();
-                                }
-
-                                public metaReferences(): org.kevoree.modeling.api.meta.MetaReference[] {
-                                    return this._mataReferences;
-                                }
-
-                                public metaOperations(): org.kevoree.modeling.api.meta.MetaOperation[] {
-                                    return new Array();
-                                }
-
                                 public getName(): string {
-                                    return <string>this.get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.NAME);
+                                    return <string>this.get(this.metaClass().ATT_NAME);
                                 }
 
                                 public setName(p_name: string): org.kevoree.modeling.microframework.test.cloud.Element {
-                                    this.set(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.NAME, p_name);
+                                    this.set(this.metaClass().ATT_NAME, p_name);
                                     return this;
                                 }
 
                                 public getValue(): number {
-                                    return <number>this.get(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE);
+                                    return <number>this.get(this.metaClass().ATT_VALUE);
                                 }
 
                                 public setValue(p_name: number): org.kevoree.modeling.microframework.test.cloud.Element {
-                                    this.set(org.kevoree.modeling.microframework.test.cloud.Element.METAATTRIBUTES.VALUE, p_name);
+                                    this.set(this.metaClass().ATT_VALUE, p_name);
                                     return this;
                                 }
 
                                 public view(): org.kevoree.modeling.microframework.test.cloud.CloudView {
                                     return <org.kevoree.modeling.microframework.test.cloud.CloudView>super.view();
+                                }
+
+                                public metaClass(): org.kevoree.modeling.microframework.test.cloud.meta.MetaElement {
+                                    return <org.kevoree.modeling.microframework.test.cloud.meta.MetaElement>super.metaClass();
                                 }
 
                             }
@@ -303,63 +156,51 @@ module org {
                                     super(p_factory, p_uuid, p_timeTree, p_clazz);
                                 }
 
-                                public metaAttributes(): org.kevoree.modeling.api.meta.MetaAttribute[] {
-                                    return org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.values();
-                                }
-
-                                public metaReferences(): org.kevoree.modeling.api.meta.MetaReference[] {
-                                    return org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.values();
-                                }
-
-                                public metaOperations(): org.kevoree.modeling.api.meta.MetaOperation[] {
-                                    return org.kevoree.modeling.microframework.test.cloud.Node.METAOPERATIONS.values();
-                                }
-
                                 public getName(): string {
-                                    return <string>this.get(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.NAME);
+                                    return <string>this.get(this.metaClass().ATT_NAME);
                                 }
 
                                 public setName(p_name: string): org.kevoree.modeling.microframework.test.cloud.Node {
-                                    this.set(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.NAME, p_name);
+                                    this.set(this.metaClass().ATT_NAME, p_name);
                                     return this;
                                 }
 
                                 public getValue(): string {
-                                    return <string>this.get(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.VALUE);
+                                    return <string>this.get(this.metaClass().ATT_VALUE);
                                 }
 
                                 public setValue(p_value: string): org.kevoree.modeling.microframework.test.cloud.Node {
-                                    this.set(org.kevoree.modeling.microframework.test.cloud.Node.METAATTRIBUTES.VALUE, p_value);
+                                    this.set(this.metaClass().ATT_VALUE, p_value);
                                     return this;
                                 }
 
                                 public addChildren(p_obj: org.kevoree.modeling.microframework.test.cloud.Node): org.kevoree.modeling.microframework.test.cloud.Node {
-                                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.CHILDREN, p_obj, true);
+                                    this.mutate(org.kevoree.modeling.api.KActionType.ADD, this.metaClass().REF_CHILDREN, p_obj);
                                     return this;
                                 }
 
                                 public removeChildren(p_obj: org.kevoree.modeling.microframework.test.cloud.Node): org.kevoree.modeling.microframework.test.cloud.Node {
-                                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.CHILDREN, p_obj, true);
+                                    this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, this.metaClass().REF_CHILDREN, p_obj);
                                     return this;
                                 }
 
                                 public eachChildren(p_callback: (p : org.kevoree.modeling.microframework.test.cloud.Node) => void, p_end: (p : java.lang.Throwable) => void): void {
-                                    this.each(org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.CHILDREN, p_callback, p_end);
+                                    this.each(this.metaClass().REF_CHILDREN, p_callback, p_end);
                                 }
 
                                 public setElement(p_obj: org.kevoree.modeling.microframework.test.cloud.Element): org.kevoree.modeling.microframework.test.cloud.Node {
-                                    this.mutate(org.kevoree.modeling.api.KActionType.SET, org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.ELEMENT, p_obj, true);
+                                    this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_ELEMENT, p_obj);
                                     return this;
                                 }
 
                                 public getElement(p_callback: (p : org.kevoree.modeling.microframework.test.cloud.Element) => void): void {
-                                    this.each(org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.ELEMENT, p_callback, null);
+                                    this.each(this.metaClass().REF_ELEMENT, p_callback, null);
                                 }
 
                                 public trigger(param: string, callback: (p : string) => void): void {
                                     var internal_params: any[] = new Array();
                                     internal_params[0] = param;
-                                    this.view().dimension().universe().storage().operationManager().call(this, org.kevoree.modeling.microframework.test.cloud.Node.METAOPERATIONS.TRIGGER, internal_params,  (o : any) => {
+                                    this.view().dimension().universe().storage().operationManager().call(this, this.metaClass().OP_TRIGGER, internal_params,  (o : any) => {
                                         if (callback != null) {
                                             callback(<string>o);
                                         }
@@ -368,6 +209,65 @@ module org {
 
                                 public view(): org.kevoree.modeling.microframework.test.cloud.CloudView {
                                     return <org.kevoree.modeling.microframework.test.cloud.CloudView>super.view();
+                                }
+
+                                public metaClass(): org.kevoree.modeling.microframework.test.cloud.meta.MetaNode {
+                                    return <org.kevoree.modeling.microframework.test.cloud.meta.MetaNode>super.metaClass();
+                                }
+
+                            }
+
+                        }
+                        export module meta {
+                            export class MetaElement extends org.kevoree.modeling.api.abs.AbstractMetaClass {
+
+                                public ATT_NAME: org.kevoree.modeling.api.meta.MetaAttribute;
+                                public ATT_VALUE: org.kevoree.modeling.api.meta.MetaAttribute;
+                                public static build(p_origin: org.kevoree.modeling.api.meta.MetaModel): org.kevoree.modeling.microframework.test.cloud.meta.MetaElement {
+                                    return new org.kevoree.modeling.microframework.test.cloud.meta.MetaElement(p_origin);
+                                }
+
+                                constructor(p_origin: org.kevoree.modeling.api.meta.MetaModel) {
+                                    super("org.kevoree.modeling.microframework.test.cloud.Element", 1, p_origin);
+                                    this.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                                    this.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 6, 5, false, org.kevoree.modeling.api.meta.MetaType.DOUBLE, org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance(), this);
+                                    var temp_attributes: org.kevoree.modeling.api.meta.MetaAttribute[] = new Array();
+                                    temp_attributes[0] = this.ATT_NAME;
+                                    temp_attributes[1] = this.ATT_VALUE;
+                                    var temp_references: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
+                                    var temp_operations: org.kevoree.modeling.api.meta.MetaOperation[] = new Array();
+                                    this.init(temp_attributes, temp_references, temp_operations);
+                                }
+
+                            }
+
+                            export class MetaNode extends org.kevoree.modeling.api.abs.AbstractMetaClass {
+
+                                public ATT_NAME: org.kevoree.modeling.api.meta.MetaAttribute;
+                                public ATT_VALUE: org.kevoree.modeling.api.meta.MetaAttribute;
+                                public REF_CHILDREN: org.kevoree.modeling.api.meta.MetaReference;
+                                public REF_ELEMENT: org.kevoree.modeling.api.meta.MetaReference;
+                                public OP_TRIGGER: org.kevoree.modeling.api.meta.MetaOperation;
+                                public static build(p_origin: org.kevoree.modeling.api.meta.MetaModel): org.kevoree.modeling.microframework.test.cloud.meta.MetaNode {
+                                    return new org.kevoree.modeling.microframework.test.cloud.meta.MetaNode(p_origin);
+                                }
+
+                                constructor(p_origin: org.kevoree.modeling.api.meta.MetaModel) {
+                                    super("org.kevoree.modeling.microframework.test.cloud.Node", 0, p_origin);
+                                    this.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                                    this.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 6, 5, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                                    var temp_attributes: org.kevoree.modeling.api.meta.MetaAttribute[] = new Array();
+                                    temp_attributes[0] = this.ATT_NAME;
+                                    temp_attributes[1] = this.ATT_VALUE;
+                                    this.REF_CHILDREN = new org.kevoree.modeling.api.abs.AbstractMetaReference("children", 7, true, false, null, null, null, this);
+                                    this.REF_ELEMENT = new org.kevoree.modeling.api.abs.AbstractMetaReference("element", 8, true, true, null, null, null, this);
+                                    var temp_references: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
+                                    temp_references[0] = this.REF_CHILDREN;
+                                    temp_references[1] = this.REF_ELEMENT;
+                                    this.OP_TRIGGER = new org.kevoree.modeling.api.abs.AbstractMetaOperation("trigger", 9, this);
+                                    var temp_operations: org.kevoree.modeling.api.meta.MetaOperation[] = new Array();
+                                    temp_operations[0] = this.OP_TRIGGER;
+                                    this.init(temp_attributes, temp_references, temp_operations);
                                 }
 
                             }
@@ -399,173 +299,13 @@ module org {
 
                         }
 
-                        export module Node { 
-                            export class METAATTRIBUTES implements org.kevoree.modeling.api.meta.MetaAttribute {
-
-                                public static NAME: METAATTRIBUTES = new METAATTRIBUTES("name", 5, 5, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-                                public static VALUE: METAATTRIBUTES = new METAATTRIBUTES("value", 6, 5, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
-                                private _name: string;
-                                private _index: number;
-                                private _precision: number;
-                                private _key: boolean;
-                                private _metaType: org.kevoree.modeling.api.meta.MetaType;
-                                private extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation;
-                                public metaType(): org.kevoree.modeling.api.meta.MetaType {
-                                    return this._metaType;
-                                }
-
-                                public origin(): org.kevoree.modeling.api.meta.MetaClass {
-                                    return org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
-                                }
-
-                                public index(): number {
-                                    return this._index;
-                                }
-
-                                public metaName(): string {
-                                    return this._name;
-                                }
-
-                                public precision(): number {
-                                    return this._precision;
-                                }
-
-                                public key(): boolean {
-                                    return this._key;
-                                }
-
-                                public strategy(): org.kevoree.modeling.api.extrapolation.Extrapolation {
-                                    return this.extrapolation;
-                                }
-
-                                public setExtrapolation(extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation): void {
-                                    this.extrapolation = extrapolation;
-                                }
-
-                                constructor(name: string, index: number, precision: number, key: boolean, metaType: org.kevoree.modeling.api.meta.MetaType, extrapolation: org.kevoree.modeling.api.extrapolation.Extrapolation) {
-                                    this._name = name;
-                                    this._index = index;
-                                    this._precision = precision;
-                                    this._key = key;
-                                    this._metaType = metaType;
-                                    this.extrapolation = extrapolation;
-                                }
-
-                                public equals(other: any): boolean {
-                                    return this == other;
-                                }
-                                public static _METAATTRIBUTESVALUES : METAATTRIBUTES[] = [
-                                    METAATTRIBUTES.NAME
-                                    ,METAATTRIBUTES.VALUE
-                                ];
-                                public static values():METAATTRIBUTES[]{
-                                    return METAATTRIBUTES._METAATTRIBUTESVALUES;
-                                }
-                            }
-
-
-                            export class METAREFERENCES implements org.kevoree.modeling.api.meta.MetaReference {
-
-                                public static CHILDREN: METAREFERENCES = new METAREFERENCES("children", 7, true, false, org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE, null);
-                                public static ELEMENT: METAREFERENCES = new METAREFERENCES("element", 8, true, true, org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_ELEMENT, null);
-                                private _name: string;
-                                private _index: number;
-                                private _contained: boolean;
-                                private _single: boolean;
-                                private _metaType: org.kevoree.modeling.api.meta.MetaClass;
-                                private _opposite: org.kevoree.modeling.api.meta.MetaReference;
-                                public single(): boolean {
-                                    return this._single;
-                                }
-
-                                public metaType(): org.kevoree.modeling.api.meta.MetaClass {
-                                    return this._metaType;
-                                }
-
-                                public opposite(): org.kevoree.modeling.api.meta.MetaReference {
-                                    return this._opposite;
-                                }
-
-                                public index(): number {
-                                    return this._index;
-                                }
-
-                                public metaName(): string {
-                                    return this._name;
-                                }
-
-                                public contained(): boolean {
-                                    return this._contained;
-                                }
-
-                                public origin(): org.kevoree.modeling.api.meta.MetaClass {
-                                    return org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
-                                }
-
-                                constructor(name: string, index: number, contained: boolean, single: boolean, metaType: org.kevoree.modeling.api.meta.MetaClass, opposite: org.kevoree.modeling.api.meta.MetaReference) {
-                                    this._name = name;
-                                    this._index = index;
-                                    this._contained = contained;
-                                    this._single = single;
-                                    this._metaType = metaType;
-                                    this._opposite = opposite;
-                                }
-
-                                public equals(other: any): boolean {
-                                    return this == other;
-                                }
-                                public static _METAREFERENCESVALUES : METAREFERENCES[] = [
-                                    METAREFERENCES.CHILDREN
-                                    ,METAREFERENCES.ELEMENT
-                                ];
-                                public static values():METAREFERENCES[]{
-                                    return METAREFERENCES._METAREFERENCESVALUES;
-                                }
-                            }
-
-
-                            export class METAOPERATIONS implements org.kevoree.modeling.api.meta.MetaOperation {
-
-                                public static TRIGGER: METAOPERATIONS = new METAOPERATIONS("trigger", 9);
-                                private _name: string;
-                                private _index: number;
-                                public index(): number {
-                                    return this._index;
-                                }
-
-                                public metaName(): string {
-                                    return this._name;
-                                }
-
-                                public origin(): org.kevoree.modeling.api.meta.MetaClass {
-                                    return org.kevoree.modeling.microframework.test.cloud.CloudView.METACLASSES.ORG_KEVOREE_MODELING_MICROFRAMEWORK_TEST_CLOUD_NODE;
-                                }
-
-                                constructor(name: string, index: number) {
-                                    this._name = name;
-                                    this._index = index;
-                                }
-
-                                public equals(other: any): boolean {
-                                    return this == other;
-                                }
-                                public static _METAOPERATIONSVALUES : METAOPERATIONS[] = [
-                                    METAOPERATIONS.TRIGGER
-                                ];
-                                public static values():METAOPERATIONS[]{
-                                    return METAOPERATIONS._METAOPERATIONSVALUES;
-                                }
-                            }
-
-
-                        }
                     }
                     export class CloudOperationTest {
 
                         public static main(args: string[]): void {
                             var universe: org.kevoree.modeling.microframework.test.cloud.CloudUniverse = new org.kevoree.modeling.microframework.test.cloud.CloudUniverse();
                             universe.connect(null);
-                            universe.setOperation(org.kevoree.modeling.microframework.test.cloud.Node.METAOPERATIONS.TRIGGER,  (source : org.kevoree.modeling.api.KObject, params : any[], result : (p : any) => void) => {
+                            universe.setOperation(universe.META_NODE.OP_TRIGGER,  (source : org.kevoree.modeling.api.KObject, params : any[], result : (p : any) => void) => {
                                 var parameters: string = "[";
                                 for (var i: number = 0; i < params.length; i++) {
                                     if (i != 0) {
@@ -1279,7 +1019,7 @@ module org {
                                 root.addChildren(n2);
                                 var val: number = 1;
                                 org.junit.Assert.assertEquals(n1.parentUuid(), val);
-                                org.junit.Assert.assertEquals(n1.referenceInParent(), org.kevoree.modeling.microframework.test.cloud.Node.METAREFERENCES.CHILDREN);
+                                org.junit.Assert.assertEquals(n1.referenceInParent(), universe.META_NODE.REF_CHILDREN);
                                 var i: number[] = [0];
                                 n1.inbounds( (inboundReference : org.kevoree.modeling.api.InboundReference) => {
                                     i[0]++;

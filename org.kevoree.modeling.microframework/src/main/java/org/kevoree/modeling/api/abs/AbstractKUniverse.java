@@ -11,6 +11,7 @@ import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.KEventBroker;
 import org.kevoree.modeling.api.event.ListenerScope;
+import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
 /**
@@ -19,6 +20,8 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 public abstract class AbstractKUniverse<A extends KDimension> implements KUniverse<A> {
 
     private final KStore _storage;
+
+    public abstract MetaModel metaModel();
 
     protected AbstractKUniverse() {
         _storage = new DefaultKStore();

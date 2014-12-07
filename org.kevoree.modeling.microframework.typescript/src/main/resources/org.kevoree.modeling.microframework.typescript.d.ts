@@ -44,17 +44,15 @@ declare module org {
                         stream(query: string, callback: (p: KObject) => void): void;
                         listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
                         domainKey(): string;
-                        get(attribute: meta.MetaAttribute): any;
-                        set(attribute: meta.MetaAttribute, payload: any): void;
+                        get(p_attribute: meta.MetaAttribute): any;
+                        set(p_attribute: meta.MetaAttribute, payload: any): void;
                         private getOrCreateInbounds(obj, payloadIndex);
                         private removeFromContainer(param);
-                        mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject, setOpposite: boolean): void;
-                        size(metaReference: meta.MetaReference): number;
-                        each<C extends KObject>(metaReference: meta.MetaReference, callback: (p: C) => void, end: (p: java.lang.Throwable) => void): void;
+                        mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
+                        internal_mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject, setOpposite: boolean): void;
+                        size(p_metaReference: meta.MetaReference): number;
+                        each<C extends KObject>(p_metaReference: meta.MetaReference, callback: (p: C) => void, end: (p: java.lang.Throwable) => void): void;
                         visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
-                        metaAttribute(name: string): meta.MetaAttribute;
-                        metaReference(name: string): meta.MetaReference;
-                        metaOperation(name: string): meta.MetaOperation;
                         visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
                         private internal_visit(visitor, end, deep, treeOnly, alreadyVisited);
                         graphVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
@@ -64,18 +62,19 @@ declare module org {
                         traces(request: TraceRequest): trace.ModelTrace[];
                         inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
                         set_parent(p_parentKID: number, p_metaReference: meta.MetaReference): void;
-                        metaAttributes(): meta.MetaAttribute[];
-                        metaReferences(): meta.MetaReference[];
-                        metaOperations(): meta.MetaOperation[];
                         equals(obj: any): boolean;
                         diff(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         merge(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         slice(callback: (p: trace.TraceSequence) => void): void;
                         jump<U extends KObject>(time: number, callback: (p: U) => void): void;
+                        private internal_transpose_ref(p);
+                        private internal_transpose_att(p);
+                        private internal_transpose_op(p);
                     }
                     class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
+                        metaModel(): meta.MetaModel;
                         constructor();
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
@@ -99,7 +98,6 @@ declare module org {
                         constructor(p_now: number, p_dimension: KDimension<any, any, any>);
                         now(): number;
                         dimension(): KDimension<any, any, any>;
-                        metaClass(fqName: string): meta.MetaClass;
                         createFQN(metaClassName: string): KObject;
                         setRoot(elem: KObject, callback: (p: java.lang.Throwable) => void): void;
                         select(query: string, callback: (p: KObject[]) => void): void;
@@ -110,11 +108,92 @@ declare module org {
                         create(clazz: meta.MetaClass): KObject;
                         listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
                         internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
-                        metaClasses(): meta.MetaClass[];
                         slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
                         json(): ModelFormat;
                         xmi(): ModelFormat;
                         equals(obj: any): boolean;
+                    }
+                    class AbstractMetaAttribute implements meta.MetaAttribute {
+                        private _name;
+                        private _index;
+                        private _precision;
+                        private _key;
+                        private _metaType;
+                        private _extrapolation;
+                        private _origin;
+                        metaType(): meta.MetaType;
+                        origin(): meta.MetaClass;
+                        index(): number;
+                        metaName(): string;
+                        precision(): number;
+                        key(): boolean;
+                        strategy(): extrapolation.Extrapolation;
+                        setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
+                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: meta.MetaType, p_extrapolation: extrapolation.Extrapolation, p_origin: meta.MetaClass);
+                    }
+                    class AbstractMetaClass implements meta.MetaClass {
+                        private _name;
+                        private _index;
+                        private _origin;
+                        private _atts;
+                        private _refs;
+                        private _operations;
+                        private _atts_indexes;
+                        private _refs_indexes;
+                        private _ops_indexes;
+                        origin(): meta.MetaModel;
+                        index(): number;
+                        metaName(): string;
+                        constructor(p_name: string, p_index: number, p_origin: meta.MetaModel);
+                        init(p_atts: meta.MetaAttribute[], p_refs: meta.MetaReference[], p_operations: meta.MetaOperation[]): void;
+                        metaAttributes(): meta.MetaAttribute[];
+                        metaReferences(): meta.MetaReference[];
+                        metaOperations(): meta.MetaOperation[];
+                        metaAttribute(name: string): meta.MetaAttribute;
+                        metaReference(name: string): meta.MetaReference;
+                        metaOperation(name: string): meta.MetaOperation;
+                    }
+                    class AbstractMetaModel implements meta.MetaModel {
+                        private _name;
+                        private _index;
+                        private _metaClasses;
+                        private _metaClasses_indexes;
+                        index(): number;
+                        metaName(): string;
+                        constructor(p_name: string, p_index: number);
+                        metaClasses(): meta.MetaClass[];
+                        metaClass(name: string): meta.MetaClass;
+                        init(p_metaClasses: meta.MetaClass[]): void;
+                    }
+                    class AbstractMetaOperation implements meta.MetaOperation {
+                        private _name;
+                        private _index;
+                        private _origin;
+                        index(): number;
+                        metaName(): string;
+                        origin(): meta.MetaClass;
+                        constructor(p_name: string, p_index: number, p_origin: meta.MetaClass);
+                    }
+                    class AbstractMetaReference implements meta.MetaReference {
+                        private _name;
+                        private _index;
+                        private _contained;
+                        private _single;
+                        private _metaType;
+                        private _opposite_index;
+                        private _opposite_ref_index;
+                        private _origin;
+                        single(): boolean;
+                        metaType(): meta.MetaClass;
+                        opposite(): meta.MetaReference;
+                        index(): number;
+                        metaName(): string;
+                        contained(): boolean;
+                        origin(): meta.MetaClass;
+                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType: meta.MetaClass, p_opposite_index: number, p_opposite_ref_index: number, p_origin: meta.MetaClass);
+                    }
+                    class DynamicKObject extends AbstractKObject {
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
                     }
                 }
                 interface Callback<A> {
@@ -196,16 +275,6 @@ declare module org {
                         private internal_resolve_dim_time(originView, uuids, callback);
                         private resolve_timeTrees(dimension, keys, callback);
                         private resolve_roots(dimension, callback);
-                    }
-                    class IDRange {
-                        private min;
-                        private current;
-                        private max;
-                        private threshold;
-                        constructor(min: number, max: number, threshold: number);
-                        newUuid(): number;
-                        isThresholdReached(): boolean;
-                        isEmpty(): boolean;
                     }
                     class Index {
                         static PARENT_INDEX: number;
@@ -498,13 +567,7 @@ declare module org {
                     referenceInParent(): meta.MetaReference;
                     domainKey(): string;
                     metaClass(): meta.MetaClass;
-                    metaAttributes(): meta.MetaAttribute[];
-                    metaReferences(): meta.MetaReference[];
-                    metaOperations(): meta.MetaOperation[];
-                    metaAttribute(name: string): meta.MetaAttribute;
-                    metaReference(name: string): meta.MetaReference;
-                    metaOperation(name: string): meta.MetaOperation;
-                    mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject, setOpposite: boolean): void;
+                    mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                     each<C extends KObject>(metaReference: meta.MetaReference, callback: (p: C) => void, end: (p: java.lang.Throwable) => void): void;
                     inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
@@ -536,6 +599,7 @@ declare module org {
                     setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
                     setDataBase(dataBase: data.KDataBase): KUniverse<any>;
                     setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                    metaModel(): meta.MetaModel;
                 }
                 interface KView {
                     createFQN(metaClassName: string): KObject;
@@ -545,8 +609,6 @@ declare module org {
                     lookup(key: number, callback: (p: KObject) => void): void;
                     lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
                     stream(query: string, callback: (p: KObject) => void): void;
-                    metaClasses(): meta.MetaClass[];
-                    metaClass(fqName: string): meta.MetaClass;
                     dimension(): KDimension<any, any, any>;
                     now(): number;
                     createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
@@ -570,12 +632,17 @@ declare module org {
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
                     }
                     interface MetaClass extends Meta {
+                        origin(): MetaModel;
                         metaAttributes(): MetaAttribute[];
                         metaReferences(): MetaReference[];
                         metaOperations(): MetaOperation[];
                         metaAttribute(name: string): MetaAttribute;
                         metaReference(name: string): MetaReference;
                         metaOperation(name: string): MetaOperation;
+                    }
+                    interface MetaModel extends Meta {
+                        metaClasses(): MetaClass[];
+                        metaClass(name: string): MetaClass;
                     }
                     interface MetaOperation extends Meta {
                         origin(): MetaClass;
@@ -1078,6 +1145,7 @@ declare module org {
                             constructor(p_metaName: string);
                             metaName(): string;
                             index(): number;
+                            origin(): meta.MetaModel;
                             metaAttributes(): meta.MetaAttribute[];
                             metaReferences(): meta.MetaReference[];
                             metaOperations(): meta.MetaOperation[];
