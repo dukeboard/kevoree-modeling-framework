@@ -22,12 +22,12 @@ public class XMIResolveCommand {
     void run() throws Exception {
         KObject referencedElement = context.map.get(ref);
         if (referencedElement != null) {
-            target.mutate(mutatorType, target.metaClass().metaReference(refName), referencedElement, true);
+            target.mutate(mutatorType, target.metaClass().metaReference(refName), referencedElement);
             return;
         }
         referencedElement = context.map.get("/");
         if (referencedElement != null) {
-            target.mutate(mutatorType, target.metaClass().metaReference(refName), referencedElement, true);
+            target.mutate(mutatorType, target.metaClass().metaReference(refName), referencedElement);
             return;
         }
         throw new Exception("KMF Load error : reference " + ref + " not found in map when trying to  " + mutatorType + " " + refName + "  on " + target.metaClass().metaName() + "(uuid:" + target.uuid() + ")");

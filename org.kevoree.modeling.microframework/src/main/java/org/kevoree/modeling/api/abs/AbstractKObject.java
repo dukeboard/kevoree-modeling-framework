@@ -155,7 +155,7 @@ public abstract class AbstractKObject implements KObject {
                     public void on(KObject[] resolved) {
                         for (int i = 0; i < resolved.length; i++) {
                             if (resolved[i] != null) {
-                                resolved[i].mutate(KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
+                                ((AbstractKObject) resolved[i]).internal_mutate(KActionType.REMOVE, refs.get(refArr[i]), toRemove, false);
                             }
                         }
                         callback.on(null);
@@ -241,14 +241,18 @@ public abstract class AbstractKObject implements KObject {
             view().lookup(param.parentUuid(), new Callback<KObject>() {
                 @Override
                 public void on(KObject parent) {
-                    parent.mutate(KActionType.REMOVE, param.referenceInParent(), param, true);
+                    ((AbstractKObject) parent).internal_mutate(KActionType.REMOVE, param.referenceInParent(), param, true);
                 }
             });
         }
     }
 
     @Override
-    public void mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
+    public void mutate(KActionType actionType, final MetaReference metaReference, KObject param) {
+        internal_mutate(actionType, metaReference, param, true);
+    }
+
+    public void internal_mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
         if (this.metaClass().index() != metaReference.origin().index()) {
             if (this.metaClass().metaReference(metaReference.metaName()) == null) {
                 throw new RuntimeException("Wrong usage of KMF, the metaReference " + metaReference.metaName() + " is not attach to the metaClass " + this.metaClass().metaName());
@@ -256,7 +260,7 @@ public abstract class AbstractKObject implements KObject {
         }
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {
-                mutate(KActionType.SET, metaReference, param, setOpposite);
+                internal_mutate(KActionType.SET, metaReference, param, setOpposite);
             } else {
                 Object[] raw = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
                 Set<Long> previousList;
@@ -277,7 +281,7 @@ public abstract class AbstractKObject implements KObject {
                 previousList.add(param.uuid());
                 //Opposite
                 if (metaReference.opposite() != null && setOpposite) {
-                    param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                    ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
                 }
                 //Container
                 if (metaReference.contained()) {
@@ -295,16 +299,16 @@ public abstract class AbstractKObject implements KObject {
             }
         } else if (actionType.equals(KActionType.SET)) {
             if (!metaReference.single()) {
-                mutate(KActionType.ADD, metaReference, param, setOpposite);
+                internal_mutate(KActionType.ADD, metaReference, param, setOpposite);
             } else {
                 if (param == null) {
-                    mutate(KActionType.REMOVE, metaReference, null, setOpposite);
+                    internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                 } else {
                     //Actual add
                     Object[] payload = view().dimension().universe().storage().raw(this, AccessMode.WRITE);
                     Object previous = payload[metaReference.index()];
                     if (previous != null) {
-                        mutate(KActionType.REMOVE, metaReference, null, setOpposite);
+                        internal_mutate(KActionType.REMOVE, metaReference, null, setOpposite);
                     }
                     payload[metaReference.index()] = param.uuid();
                     //Container
@@ -322,11 +326,11 @@ public abstract class AbstractKObject implements KObject {
                             view().lookup((Long) previous, new Callback<KObject>() {
                                 @Override
                                 public void on(KObject resolved) {
-                                    resolved.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
+                                    ((AbstractKObject) resolved).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                 }
                             });
                         }
-                        param.mutate(KActionType.ADD, metaReference.opposite(), this, false);
+                        ((AbstractKObject) param).internal_mutate(KActionType.ADD, metaReference.opposite(), this, false);
                     }
 
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);
@@ -350,7 +354,7 @@ public abstract class AbstractKObject implements KObject {
                                     ((AbstractKObject) resolvedParam).set_parent(null, null);
                                 }
                                 if (metaReference.opposite() != null && setOpposite) {
-                                    resolvedParam.mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
+                                    ((AbstractKObject) resolvedParam).internal_mutate(KActionType.REMOVE, metaReference.opposite(), self, false);
                                 }
                                 //Inbounds
                                 Map<Long, MetaReference> inboundRefs = getOrCreateInbounds(resolvedParam, Index.INBOUNDS_INDEX);
@@ -372,7 +376,7 @@ public abstract class AbstractKObject implements KObject {
                         ((AbstractKObject) param).set_parent(null, null);
                     }
                     if (metaReference.opposite() != null && setOpposite) {
-                        param.mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
+                        ((AbstractKObject) param).internal_mutate(KActionType.REMOVE, metaReference.opposite(), this, false);
                     }
                     //publish event
                     KEvent event = new DefaultKEvent(actionType, this, metaReference, param);

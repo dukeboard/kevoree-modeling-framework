@@ -61,7 +61,7 @@ public interface KObject {
     public MetaClass metaClass();
 
     //TODO drop setOpposite
-    public void mutate(KActionType actionType, MetaReference metaReference, KObject param, boolean setOpposite);
+    public void mutate(KActionType actionType, MetaReference metaReference, KObject param);
 
     public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
 

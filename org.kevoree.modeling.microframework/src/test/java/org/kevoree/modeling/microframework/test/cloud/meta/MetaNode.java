@@ -33,8 +33,8 @@ public class MetaNode extends AbstractMetaClass {
         MetaAttribute[] temp_attributes = new MetaAttribute[2];
         temp_attributes[0] = ATT_NAME;
         temp_attributes[1] = ATT_VALUE;
-        REF_CHILDREN = new AbstractMetaReference("children", 7, true, false, this, null, this);
-        REF_ELEMENT = new AbstractMetaReference("element", 8, true, true, null/*TODO ELEMENT*/, null, this);
+        REF_CHILDREN = new AbstractMetaReference("children", 7, true, false, null, null, null, this);
+        REF_ELEMENT = new AbstractMetaReference("element", 8, true, true, null, null, null, this);
         MetaReference[] temp_references = new MetaReference[2];
         temp_references[0] = REF_CHILDREN;
         temp_references[1] = REF_ELEMENT;

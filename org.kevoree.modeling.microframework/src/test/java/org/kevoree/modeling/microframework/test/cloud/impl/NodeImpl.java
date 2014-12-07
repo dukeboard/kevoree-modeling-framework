@@ -40,13 +40,13 @@ public class NodeImpl extends AbstractKObject implements Node {
 
     @Override
     public Node addChildren(Node p_obj) {
-        this.mutate(KActionType.ADD, metaClass().REF_CHILDREN, p_obj, true);
+        this.mutate(KActionType.ADD, metaClass().REF_CHILDREN, p_obj);
         return this;
     }
 
     @Override
     public Node removeChildren(Node p_obj) {
-        this.mutate(KActionType.REMOVE, metaClass().REF_CHILDREN, p_obj, true);
+        this.mutate(KActionType.REMOVE, metaClass().REF_CHILDREN, p_obj);
         return this;
     }
 
@@ -57,7 +57,7 @@ public class NodeImpl extends AbstractKObject implements Node {
 
     @Override
     public Node setElement(Element p_obj) {
-        this.mutate(KActionType.SET, metaClass().REF_ELEMENT, p_obj, true);
+        this.mutate(KActionType.SET, metaClass().REF_ELEMENT, p_obj);
         return this;
     }
 

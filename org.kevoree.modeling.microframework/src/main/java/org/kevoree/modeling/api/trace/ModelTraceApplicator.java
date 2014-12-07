@@ -30,7 +30,7 @@ public class ModelTraceApplicator {
 
     private void tryClosePending(Long srcKID) {
         if (pendingObj != null && !(pendingObjKID.equals(srcKID))) {
-            pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj, true);
+            pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj);
             pendingObj = null;
             pendingObjKID = null;
             pendingParentRef = null;
@@ -44,7 +44,7 @@ public class ModelTraceApplicator {
                 @Override
                 public void on(KObject targetElem) {
                     if (targetElem != null) {
-                        target.mutate(KActionType.ADD, reference, targetElem, true);
+                        target.mutate(KActionType.ADD, reference, targetElem);
                         callback.on(null);
                     } else {
                         if (metaClass == null) {
@@ -115,7 +115,7 @@ public class ModelTraceApplicator {
                         targetModel.view().lookup(removeTrace.getObjKID(), new Callback<KObject>() {
                             @Override
                             public void on(KObject remoteObj) {
-                                targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj, true);
+                                targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj);
                                 callback.on(null);
                             }
                         });

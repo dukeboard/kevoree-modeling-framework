@@ -2,17 +2,14 @@ package org.kevoree.modeling.microframework.test.cloud.impl;
 
 import org.kevoree.modeling.api.KDimension;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.abs.AbstractKObject;
 import org.kevoree.modeling.api.abs.AbstractKView;
-import org.kevoree.modeling.api.abs.DynamicAbstractKObject;
+import org.kevoree.modeling.api.abs.DynamicKObject;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
 import org.kevoree.modeling.microframework.test.cloud.Element;
 import org.kevoree.modeling.microframework.test.cloud.Node;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
-import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
 /**
  * Created by duke on 10/9/14.
@@ -34,7 +31,7 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
             case 1:
                 return new ElementImpl(this, p_key, p_timeTree, p_clazz);
             default:
-                return new DynamicAbstractKObject(this, p_key, p_timeTree, p_clazz);
+                return new DynamicKObject(this, p_key, p_timeTree, p_clazz);
         }
     }
 
