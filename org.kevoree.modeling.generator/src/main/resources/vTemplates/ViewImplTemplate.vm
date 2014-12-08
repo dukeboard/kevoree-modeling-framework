@@ -24,7 +24,7 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
 #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
     @Override
     public $class.fqn create$class.fqn.substring($lastIdx)() {
-        return ($class.fqn) this.create(METACLASSES.$class.fqn.toUpperCase().replace(".","_"));
+        return ($class.fqn) this.create(dimension().universe().META_$class.fqn.toUpperCase().replace(".","_"));
     }
 #end
 

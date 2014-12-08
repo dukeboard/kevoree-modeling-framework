@@ -26,10 +26,10 @@ public static Meta${classDeclaration.name} build(org.kevoree.modeling.api.meta.M
         #foreach($attribute in $classDeclaration.attributes)
             #if($attribute.learned)
 
-            ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("${attribute.name}", ${attribute.index}, #if($context.generationContext.helper.isNull(${attribute.precision}))0#{else}$attribute.precision#end, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), PolynomialExtrapolation.instance(), this);
+            ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("${attribute.name}", ${attribute.index}, #if($context.generationContext.helper.isNull(${attribute.precision}))0#{else}$attribute.precision#end, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance(), this);
             #else
 
-            ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("${attribute.name}", ${attribute.index}, 0, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), DiscreteExtrapolation.instance(), this);
+            ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("${attribute.name}", ${attribute.index}, 0, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
             #end
 
             temp_attributes[${attribute.attIndex}] = ATT_${attribute.name.toUpperCase()};
@@ -50,7 +50,7 @@ public static Meta${classDeclaration.name} build(org.kevoree.modeling.api.meta.M
 
         org.kevoree.modeling.api.meta.MetaOperation[] temp_operations = new org.kevoree.modeling.api.meta.MetaOperation[${classDeclaration.operations.size()}];
         #foreach($operation in $classDeclaration.operations)
-        OP_${operation.name.toUpperCase()} = new AbstractMetaOperation("${operation.name}", ${operation.index}, this);
+        OP_${operation.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaOperation("${operation.name}", ${operation.index}, this);
         temp_operations[${operation.opIndex}] = OP_${operation.name.toUpperCase()};
         #end
 
