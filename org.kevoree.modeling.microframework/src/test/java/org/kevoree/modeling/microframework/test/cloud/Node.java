@@ -2,6 +2,7 @@ package org.kevoree.modeling.microframework.test.cloud;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
 /**
  * Created by duke on 10/9/14.
@@ -30,5 +31,8 @@ public interface Node extends KObject {
 
     @Override
     public CloudView view();
+
+    @Override
+    public MetaNode metaClass();
 
 }

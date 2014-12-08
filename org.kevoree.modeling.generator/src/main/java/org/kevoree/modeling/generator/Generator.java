@@ -74,6 +74,9 @@ public class Generator {
 
                 Path implFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
                 callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
+
+                Path metaFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "meta" + File.separator + "Meta" + cgc.classDeclaration.getName() + ".java");
+                callVelocity(metaFilePath, "vTemplates/MetaClassTemplate.vm", cgc);
             }
         } catch (Exception e) {
             e.printStackTrace();
