@@ -1,12 +1,6 @@
 #set($classDeclaration = $context.classDeclaration)
 package ${classDeclaration.pack}.meta;
 
-import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
-import org.kevoree.modeling.api.abs.AbstractMetaOperation;
-import org.kevoree.modeling.api.abs.AbstractMetaReference;
-import org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation;
-import org.kevoree.modeling.api.meta.*;
-
 public class Meta${classDeclaration.name} extends org.kevoree.modeling.api.abs.AbstractMetaClass {
 
 public static Meta${classDeclaration.name} build(org.kevoree.modeling.api.meta.MetaModel p_origin) {
@@ -29,36 +23,30 @@ public static Meta${classDeclaration.name} build(org.kevoree.modeling.api.meta.M
         super("${classDeclaration.fqn}", 0, p_origin);
 
         org.kevoree.modeling.api.meta.MetaAttribute[] temp_attributes = new org.kevoree.modeling.api.meta.MetaAttribute[${classDeclaration.attributes.size()}];
-        #set($attributeI = 0)
         #foreach($attribute in $classDeclaration.attributes)
             #if($attribute.learned)
 
-            ATT_${attribute.name.toUpperCase()} = new AbstractMetaAttribute("${attribute.name}", 5, #if($context.generationContext.helper.isNull(${attribute.precision}))0#{else}$attribute.precision#end, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), PolynomialExtrapolation.instance(), this);
+            ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("${attribute.name}", ${attribute.index}, #if($context.generationContext.helper.isNull(${attribute.precision}))0#{else}$attribute.precision#end, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), PolynomialExtrapolation.instance(), this);
             #else
 
-            ATT_${attribute.name.toUpperCase()} = new AbstractMetaAttribute("${attribute.name}", 5, 0, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), DiscreteExtrapolation.instance(), this);
+            ATT_${attribute.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("${attribute.name}", ${attribute.index}, 0, #if($attribute.id)true#{else}false#end, org.kevoree.modeling.api.meta.MetaType.$attribute.type.toUpperCase(), DiscreteExtrapolation.instance(), this);
             #end
 
-            temp_attributes[${attributeI}] = ATT_${attribute.name.toUpperCase()};
+            temp_attributes[${attribute.attIndex}] = ATT_${attribute.name.toUpperCase()};
 
-            #set($attributeI = $attributeI +1)
         #end
 
         org.kevoree.modeling.api.meta.MetaReference[] temp_references = new org.kevoree.modeling.api.meta.MetaReference[${classDeclaration.references.size()}];
-        #set($referenceI = 0)
         #foreach($reference in $classDeclaration.references)
 
-        REF_${reference.name.toUpperCase()} = new AbstractMetaAttribute("${reference.name}", 5, ${attribute.precision}, true, MetaType.STRING, DiscreteExtrapolation.instance(), this);
-        temp_references[${referenceI}] = REF_${reference.name.toUpperCase()};
-            #set($attributeI = $attributeI +1)
+        REF_${reference.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaReference("${reference.name}", ${reference.index}, ${reference.contained}, ${reference.single}, ${reference.type.index}, null, null, this);
+        temp_references[${reference.refIndex}] = REF_${reference.name.toUpperCase()};
         #end
 
         org.kevoree.modeling.api.meta.MetaOperation[] temp_operations = new org.kevoree.modeling.api.meta.MetaOperation[${classDeclaration.operations.size()}];
-        #set($operationI = 0)
         #foreach($operation in $classDeclaration.operations)
-        OP_${operation.name.toUpperCase()} = new AbstractMetaOperation("trigger", 9, this);
-        temp_operations[${referenceI}] = OP_${operation.name.toUpperCase()};
-            #set($operationI = $operationI +1)
+        OP_${operation.name.toUpperCase()} = new AbstractMetaOperation("${operation.name}", ${operation.index}, this);
+        temp_operations[${operation.opIndex}] = OP_${operation.name.toUpperCase()};
         #end
 
         init(temp_attributes, temp_references, temp_operations);

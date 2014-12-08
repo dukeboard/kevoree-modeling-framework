@@ -19,6 +19,16 @@ public class MModelReference {
         this.index = index;
     }
 
+    public Integer getRefIndex() {
+        return refIndex;
+    }
+
+    public void setRefIndex(Integer refIndex) {
+        this.refIndex = refIndex;
+    }
+
+    protected Integer refIndex = -1;
+
     private boolean contained = false;
 
     private boolean single = false;

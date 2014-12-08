@@ -12,6 +12,16 @@ public class MModelOperation {
     public String name;
     protected Integer index = -1;
 
+    public Integer getOpIndex() {
+        return opIndex;
+    }
+
+    public void setOpIndex(Integer opIndex) {
+        this.opIndex = opIndex;
+    }
+
+    protected Integer opIndex = -1;
+
     public Integer getIndex() {
         return index;
     }

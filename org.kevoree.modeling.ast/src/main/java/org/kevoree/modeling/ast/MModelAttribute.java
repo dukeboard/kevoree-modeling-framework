@@ -23,6 +23,16 @@ public class MModelAttribute {
         this.index = index;
     }
 
+    public Integer getAttIndex() {
+        return attIndex;
+    }
+
+    public void setAttIndex(Integer attIndex) {
+        this.attIndex = attIndex;
+    }
+
+    private Integer attIndex = -1;
+
     public MModelAttribute(String name, String type) {
         this.name = name;
         this.type = type;

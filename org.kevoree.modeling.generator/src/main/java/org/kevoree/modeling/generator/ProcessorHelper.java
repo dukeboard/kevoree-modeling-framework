@@ -79,20 +79,10 @@ public class ProcessorHelper {
             if (classifierRelDecls instanceof MModelClass) {
                 MModelClass classRelDecls = (MModelClass) classifierRelDecls;
                 classifierRelDecls.setIndex(consolidated.size());
-
-                classRelDecls.sortAttributes();
-                classRelDecls.sortReferences();
-                classRelDecls.sortOperations();
-
                 ArrayList<MModelAttribute> parentsAttributes = new ArrayList<>();
                 ArrayList<MModelReference> parentsReferences = new ArrayList<>();
                 ArrayList<MModelOperation> parentsOperations = new ArrayList<>();
-
                 classRelDecls.getParents().forEach(parent -> {
-                    if (!consolidated.contains(classRelDecls)) {
-                        //TODO: Circularity check and cut
-                        internal_consolidate(parent, consolidated);
-                    }
                     parent.getAttributes().forEach(parentAttribute -> {
                         if (!parentsAttributes.contains(parentAttribute)) {
                             parentsAttributes.add(parentAttribute);
@@ -112,6 +102,22 @@ public class ProcessorHelper {
                 classRelDecls.getAttributes().addAll(0, parentsAttributes);
                 classRelDecls.getReferences().addAll(0, parentsReferences);
                 classRelDecls.getOperations().addAll(0, parentsOperations);
+                int globalIndex = 0;
+                for (int i = 0; i < classRelDecls.getAttributes().size(); i++) {
+                    classRelDecls.getAttributes().get(i).setIndex(globalIndex);
+                    classRelDecls.getAttributes().get(i).setAttIndex(i);
+                    globalIndex++;
+                }
+                for (int i = 0; i < classRelDecls.getReferences().size(); i++) {
+                    classRelDecls.getReferences().get(i).setIndex(globalIndex);
+                    classRelDecls.getReferences().get(i).setRefIndex(i);
+                    globalIndex++;
+                }
+                for (int i = 0; i < classRelDecls.getOperations().size(); i++) {
+                    classRelDecls.getOperations().get(i).setIndex(globalIndex);
+                    classRelDecls.getOperations().get(i).setOpIndex(i);
+                    globalIndex++;
+                }
             } else {
                 throw new UnsupportedOperationException("Enums not yet supported:" + classifierRelDecls.getClass());
             }

@@ -16,7 +16,7 @@ public class AbstractMetaReference implements MetaReference {
 
     private boolean _single;
 
-    private MetaClass _metaType;
+    private Integer _metaType_index;
 
     private Integer _opposite_index;
 
@@ -29,7 +29,7 @@ public class AbstractMetaReference implements MetaReference {
     }
 
     public MetaClass metaType() {
-        return _metaType;
+        return _origin.origin().metaClasses()[_metaType_index];
     }
 
     public MetaReference opposite() {
@@ -58,12 +58,12 @@ public class AbstractMetaReference implements MetaReference {
         return _origin;
     }
 
-    public AbstractMetaReference(String p_name, int p_index, boolean p_contained, boolean p_single, MetaClass p_metaType, Integer p_opposite_index, Integer p_opposite_ref_index, MetaClass p_origin) {
+    public AbstractMetaReference(String p_name, int p_index, boolean p_contained, boolean p_single, Integer p_metaType_index, Integer p_opposite_index, Integer p_opposite_ref_index, MetaClass p_origin) {
         this._name = p_name;
         this._index = p_index;
         this._contained = p_contained;
         this._single = p_single;
-        this._metaType = p_metaType;
+        this._metaType_index = p_metaType_index;
         this._opposite_index = p_opposite_index;
         this._opposite_ref_index = p_opposite_ref_index;
         this._origin = p_origin;
