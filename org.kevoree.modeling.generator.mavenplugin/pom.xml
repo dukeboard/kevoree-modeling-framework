@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.nodejs</artifactId>
+            <version>1.28</version>
+        </dependency>
+        <dependency>
             <groupId>org.kevoree.modeling</groupId>
             <artifactId>org.kevoree.modeling.generator</artifactId>
             <version>${project.parent.version}</version>
@@ -42,11 +47,6 @@
             <groupId>org.kevoree.modeling</groupId>
             <artifactId>org.kevoree.modeling.java2typescript</artifactId>
             <version>${java2typescript.plugin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.nodejs</artifactId>
-            <version>1.28</version>
         </dependency>
     </dependencies>
 
