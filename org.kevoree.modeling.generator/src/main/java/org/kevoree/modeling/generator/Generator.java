@@ -76,7 +76,7 @@ public class Generator {
                 callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
 
                 Path metaFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "meta" + File.separator + "Meta" + cgc.classDeclaration.getName() + ".java");
-                callVelocity(metaFilePath, "vTemplates/MetaClassTemplate.vm", cgc);
+                callVelocity(metaFilePath, "vTemplates/MetaClassTemplate2.vm", cgc);
             }
         } catch (Exception e) {
             e.printStackTrace();
