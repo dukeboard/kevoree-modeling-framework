@@ -4,6 +4,7 @@ import cloud.CloudDimension;
 import cloud.CloudUniverse;
 import cloud.CloudView;
 import cloud.Element;
+import cloud.meta.MetaElement;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
@@ -19,10 +20,10 @@ import static org.junit.Assert.assertEquals;
 public class CloudOperationTest {
 
     @Test
-    public void operationTest(){
+    public void operationTest() {
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
-        universe.setOperation(Element.METAOPERATIONS.TRIGGER, new KOperation() {
+        universe.setOperation(universe.META_CLOUD_ELEMENT.OP_TRIGGER, new KOperation() {
             public void on(KObject source, Object[] params, Callback<Object> result) {
                 result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.dimension().key() + "," + source.now() + "," + source.uuid() + ")");
             }
@@ -38,7 +39,6 @@ public class CloudOperationTest {
             }
         });
     }
-
 
 
     public static void main(String[] args) {

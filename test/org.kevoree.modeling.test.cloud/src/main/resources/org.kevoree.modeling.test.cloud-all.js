@@ -8103,6 +8103,37 @@ var cloud;
             function ElementImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
                 _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
+            ElementImpl.prototype.getLoad = function () {
+                return this.get(this.metaClass().ATT_LOAD);
+            };
+            ElementImpl.prototype.setLoad = function (p_obj) {
+                this.set(this.metaClass().ATT_LOAD, p_obj);
+                return this;
+            };
+            ElementImpl.prototype.getName = function () {
+                return this.get(this.metaClass().ATT_NAME);
+            };
+            ElementImpl.prototype.setName = function (p_obj) {
+                this.set(this.metaClass().ATT_NAME, p_obj);
+                return this;
+            };
+            ElementImpl.prototype.getValue = function () {
+                return this.get(this.metaClass().ATT_VALUE);
+            };
+            ElementImpl.prototype.setValue = function (p_obj) {
+                this.set(this.metaClass().ATT_VALUE, p_obj);
+                return this;
+            };
+            ElementImpl.prototype.trigger = function (param, loop, result) {
+                var trigger_params = new Array();
+                trigger_params[0] = param;
+                trigger_params[1] = loop;
+                this.view().dimension().universe().storage().operationManager().call(this, this.metaClass().OP_TRIGGER, trigger_params, function (o) {
+                    if (result != null) {
+                        result(o);
+                    }
+                });
+            };
             ElementImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);
             };
@@ -8117,6 +8148,41 @@ var cloud;
             function NodeImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
                 _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
+            NodeImpl.prototype.getName = function () {
+                return this.get(this.metaClass().ATT_NAME);
+            };
+            NodeImpl.prototype.setName = function (p_obj) {
+                this.set(this.metaClass().ATT_NAME, p_obj);
+                return this;
+            };
+            NodeImpl.prototype.getValue = function () {
+                return this.get(this.metaClass().ATT_VALUE);
+            };
+            NodeImpl.prototype.setValue = function (p_obj) {
+                this.set(this.metaClass().ATT_VALUE, p_obj);
+                return this;
+            };
+            NodeImpl.prototype.addChildren = function (p_obj) {
+                this.mutate(org.kevoree.modeling.api.KActionType.ADD, this.metaClass().REF_CHILDREN, p_obj);
+                return this;
+            };
+            NodeImpl.prototype.removeChildren = function (p_obj) {
+                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, this.metaClass().REF_CHILDREN, p_obj);
+                return this;
+            };
+            NodeImpl.prototype.eachChildren = function (p_callback, p_end) {
+                this.each(this.metaClass().REF_CHILDREN, p_callback, p_end);
+            };
+            NodeImpl.prototype.sizeOfChildren = function () {
+                return this.size(this.metaClass().REF_CHILDREN);
+            };
+            NodeImpl.prototype.setElement = function (p_obj) {
+                this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_ELEMENT, p_obj);
+                return this;
+            };
+            NodeImpl.prototype.getElement = function (p_callback) {
+                this.each(this.metaClass().REF_ELEMENT, p_callback, null);
+            };
             NodeImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);
             };
@@ -8134,8 +8200,16 @@ var cloud;
             function MetaElement(p_origin) {
                 _super.call(this, "cloud.Element", 1, p_origin);
                 var temp_attributes = new Array();
+                this.ATT_LOAD = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("load", 5, 2.2, false, org.kevoree.modeling.api.meta.MetaType.DOUBLE, org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance(), this);
+                temp_attributes[0] = this.ATT_LOAD;
+                this.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                temp_attributes[1] = this.ATT_NAME;
+                this.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                temp_attributes[2] = this.ATT_VALUE;
                 var temp_references = new Array();
                 var temp_operations = new Array();
+                this.OP_TRIGGER = new org.kevoree.modeling.api.abs.AbstractMetaOperation("trigger", 8, this);
+                temp_operations[0] = this.OP_TRIGGER;
                 this.init(temp_attributes, temp_references, temp_operations);
             }
             MetaElement.build = function (p_origin) {
@@ -8149,7 +8223,15 @@ var cloud;
             function MetaNode(p_origin) {
                 _super.call(this, "cloud.Node", 0, p_origin);
                 var temp_attributes = new Array();
+                this.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                temp_attributes[0] = this.ATT_NAME;
+                this.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                temp_attributes[1] = this.ATT_VALUE;
                 var temp_references = new Array();
+                this.REF_CHILDREN = new org.kevoree.modeling.api.abs.AbstractMetaReference("children", 7, true, false, 0, null, null, this);
+                temp_references[0] = this.REF_CHILDREN;
+                this.REF_ELEMENT = new org.kevoree.modeling.api.abs.AbstractMetaReference("element", 8, true, true, 1, null, null, this);
+                temp_references[1] = this.REF_ELEMENT;
                 var temp_operations = new Array();
                 this.init(temp_attributes, temp_references, temp_operations);
             }

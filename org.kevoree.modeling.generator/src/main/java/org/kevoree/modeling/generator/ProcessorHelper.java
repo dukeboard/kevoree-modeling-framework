@@ -74,7 +74,7 @@ public class ProcessorHelper {
     private void internal_consolidate(MModelClassifier classifierRelDecls) {
         if (classifierRelDecls instanceof MModelClass) {
             MModelClass classRelDecls = (MModelClass) classifierRelDecls;
-            int globalIndex = 0;
+            int globalIndex = 5;
             int localIndex = 0;
             for (MModelAttribute att : classRelDecls.getAttributes()) {
                 att.setIndex(globalIndex);
