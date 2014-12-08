@@ -39,7 +39,12 @@ public static Meta${classDeclaration.name} build(org.kevoree.modeling.api.meta.M
         org.kevoree.modeling.api.meta.MetaReference[] temp_references = new org.kevoree.modeling.api.meta.MetaReference[${classDeclaration.references.size()}];
         #foreach($reference in $classDeclaration.references)
 
-        REF_${reference.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaReference("${reference.name}", ${reference.index}, ${reference.contained}, ${reference.single}, ${reference.type.index}, null, null, this);
+            #if($context.generationContext.helper.isNull(${reference.opposite}))
+            REF_${reference.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaReference("${reference.name}", ${reference.index}, ${reference.contained}, ${reference.single}, ${reference.type.index}, null, null, this);
+            #else
+            REF_${reference.name.toUpperCase()} = new org.kevoree.modeling.api.abs.AbstractMetaReference("${reference.name}", ${reference.index}, ${reference.contained}, ${reference.single}, ${reference.type.index}, ${reference.type.index}, ${reference.opposite.refIndex}, this);
+            #end
+
         temp_references[${reference.refIndex}] = REF_${reference.name.toUpperCase()};
         #end
 
