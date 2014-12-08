@@ -22,9 +22,25 @@ public class MModelClass extends MModelClassifier {
 
     public Collection<MModelAttribute> getAttributes() {
         HashMap<String, MModelAttribute> collected = new HashMap<String, MModelAttribute>();
+        HashMap<String, MModelClass> passed = new HashMap<String, MModelClass>();
+        deep_collect_atts(collected, passed);
+        return collected.values();
+    }
 
-
-        return attributes.values();
+    private void deep_collect_atts(HashMap<String, MModelAttribute> collector, HashMap<String, MModelClass> passed) {
+        if (passed.containsKey(this.getName())) {
+            return;
+        } else {
+            for (String key : attributes.keySet()) {
+                if (collector.containsKey(key)) {
+                    collector.put(key, attributes.get(key));
+                }
+            }
+            passed.put(getName(), this);
+            for (MModelClass parent : getParents()) {
+                parent.deep_collect_atts(collector, passed);
+            }
+        }
     }
 
     public void addReference(MModelReference ref) {
@@ -32,7 +48,26 @@ public class MModelClass extends MModelClassifier {
     }
 
     public Collection<MModelReference> getReferences() {
-        return references.values();
+        HashMap<String, MModelReference> collected = new HashMap<String, MModelReference>();
+        HashMap<String, MModelClass> passed = new HashMap<String, MModelClass>();
+        deep_collect_refs(collected, passed);
+        return collected.values();
+    }
+
+    private void deep_collect_refs(HashMap<String, MModelReference> collector, HashMap<String, MModelClass> passed) {
+        if (passed.containsKey(this.getName())) {
+            return;
+        } else {
+            for (String key : references.keySet()) {
+                if (collector.containsKey(key)) {
+                    collector.put(key, references.get(key));
+                }
+            }
+            passed.put(getName(), this);
+            for (MModelClass parent : getParents()) {
+                parent.deep_collect_refs(collector, passed);
+            }
+        }
     }
 
     public void addParent(MModelClass cls) {
@@ -44,7 +79,26 @@ public class MModelClass extends MModelClassifier {
     }
 
     public Collection<MModelOperation> getOperations() {
-        return operations.values();
+        HashMap<String, MModelOperation> collected = new HashMap<String, MModelOperation>();
+        HashMap<String, MModelClass> passed = new HashMap<String, MModelClass>();
+        deep_collect_ops(collected, passed);
+        return collected.values();
+    }
+
+    private void deep_collect_ops(HashMap<String, MModelOperation> collector, HashMap<String, MModelClass> passed) {
+        if (passed.containsKey(this.getName())) {
+            return;
+        } else {
+            for (String key : operations.keySet()) {
+                if (collector.containsKey(key)) {
+                    collector.put(key, operations.get(key));
+                }
+            }
+            passed.put(getName(), this);
+            for (MModelClass parent : getParents()) {
+                parent.deep_collect_ops(collector, passed);
+            }
+        }
     }
 
     public void addOperation(MModelOperation operation) {
