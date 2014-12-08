@@ -1107,7 +1107,7 @@ module org {
                         private _index: number;
                         private _contained: boolean;
                         private _single: boolean;
-                        private _metaType: org.kevoree.modeling.api.meta.MetaClass;
+                        private _metaType_index: number;
                         private _opposite_index: number;
                         private _opposite_ref_index: number;
                         private _origin: org.kevoree.modeling.api.meta.MetaClass;
@@ -1116,7 +1116,7 @@ module org {
                         }
 
                         public metaType(): org.kevoree.modeling.api.meta.MetaClass {
-                            return this._metaType;
+                            return this._origin.origin().metaClasses()[this._metaType_index];
                         }
 
                         public opposite(): org.kevoree.modeling.api.meta.MetaReference {
@@ -1145,12 +1145,12 @@ module org {
                             return this._origin;
                         }
 
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType: org.kevoree.modeling.api.meta.MetaClass, p_opposite_index: number, p_opposite_ref_index: number, p_origin: org.kevoree.modeling.api.meta.MetaClass) {
+                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType_index: number, p_opposite_index: number, p_opposite_ref_index: number, p_origin: org.kevoree.modeling.api.meta.MetaClass) {
                             this._name = p_name;
                             this._index = p_index;
                             this._contained = p_contained;
                             this._single = p_single;
-                            this._metaType = p_metaType;
+                            this._metaType_index = p_metaType_index;
                             this._opposite_index = p_opposite_index;
                             this._opposite_ref_index = p_opposite_ref_index;
                             this._origin = p_origin;

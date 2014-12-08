@@ -33,9 +33,4 @@ public abstract class MModelClassifier {
         return (pack != null ? pack + "." + name : name);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return this.getClass().isAssignableFrom(obj.getClass()) && this.getFqn().equals(((MModelClassifier) obj).getFqn());
-    }
-
 }

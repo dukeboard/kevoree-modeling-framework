@@ -80,9 +80,4 @@ public class MModelAttribute {
         this.precision = precision;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof MModelAttribute && name.equals(((MModelAttribute) o).name);
-    }
-
 }

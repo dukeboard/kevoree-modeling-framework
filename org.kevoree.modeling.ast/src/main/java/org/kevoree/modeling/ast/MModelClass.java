@@ -5,57 +5,50 @@ import java.util.*;
 /**
  * Created by gregory.nain on 14/10/2014.
  */
-public class MModelClass extends MModelClassifier{
+public class MModelClass extends MModelClassifier {
 
-    private ArrayList<MModelAttribute> attributes = new ArrayList<>();
-    private ArrayList<MModelReference> references = new ArrayList<>();
-    private ArrayList<MModelClass> parents = new ArrayList<>();
-    private ArrayList<MModelOperation> operations = new ArrayList<>();
+    private Map<String, MModelAttribute> attributes = new HashMap<String, MModelAttribute>();
+    private Map<String, MModelReference> references = new HashMap<String, MModelReference>();
+    private Map<String, MModelClass> parents = new HashMap<String, MModelClass>();
+    private Map<String, MModelOperation> operations = new HashMap<String, MModelOperation>();
 
     public MModelClass(String name) {
         this.name = name;
     }
 
     public void addAttribute(MModelAttribute att) {
-        attributes.add(att);
+        attributes.put(att.getName(), att);
     }
 
-    public ArrayList<MModelAttribute> getAttributes() {
-        return attributes;
-    }
-    public void sortAttributes() {
-        attributes.sort((o1,o2)->o1.getName().compareTo(o2.getName()));
+    public Collection<MModelAttribute> getAttributes() {
+        HashMap<String, MModelAttribute> collected = new HashMap<String, MModelAttribute>();
+
+
+        return attributes.values();
     }
 
     public void addReference(MModelReference ref) {
-        references.add(ref);
+        references.put(ref.getName(), ref);
     }
 
-    public ArrayList<MModelReference> getReferences() {
-        return references;
+    public Collection<MModelReference> getReferences() {
+        return references.values();
     }
-    public void sortReferences() {
-        references.sort((o1,o2)->o1.getName().compareTo(o2.getName()));
-    }
-
 
     public void addParent(MModelClass cls) {
-        parents.add(cls);
+        parents.put(cls.getName(), cls);
     }
 
-    public List<MModelClass> getParents() {
-        return parents;
+    public Collection<MModelClass> getParents() {
+        return parents.values();
     }
 
-    public ArrayList<MModelOperation> getOperations() {
-        return operations;
+    public Collection<MModelOperation> getOperations() {
+        return operations.values();
     }
 
     public void addOperation(MModelOperation operation) {
-        this.operations.add(operation);
-    }
-    public void sortOperations() {
-        operations.sort((o1,o2)->o1.getName().compareTo(o2.getName()));
+        this.operations.put(operation.getName(), operation);
     }
 
     public String toString() {
@@ -67,7 +60,7 @@ public class MModelClass extends MModelClassifier{
         sb.append(", parent:");
         sb.append(getParents());
         sb.append(", attributes[");
-        for(MModelAttribute att : attributes) {
+        for (MModelAttribute att : attributes.values()) {
             sb.append(att.getName());
             sb.append(":");
             sb.append(att.getType());
@@ -75,11 +68,11 @@ public class MModelClass extends MModelClassifier{
         }
         sb.append("]");
         sb.append(", references:[");
-        for(MModelReference att : references) {
+        for (MModelReference att : references.values()) {
             sb.append(att.getName());
             sb.append(":");
             sb.append(att.getType().getName());
-            if(att.getOpposite() != null) {
+            if (att.getOpposite() != null) {
                 sb.append("->");
                 sb.append(att.getOpposite().getName());
                 sb.append(":");

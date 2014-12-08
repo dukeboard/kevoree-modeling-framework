@@ -179,7 +179,7 @@ declare module org {
                         private _index;
                         private _contained;
                         private _single;
-                        private _metaType;
+                        private _metaType_index;
                         private _opposite_index;
                         private _opposite_ref_index;
                         private _origin;
@@ -190,7 +190,7 @@ declare module org {
                         metaName(): string;
                         contained(): boolean;
                         origin(): meta.MetaClass;
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType: meta.MetaClass, p_opposite_index: number, p_opposite_ref_index: number, p_origin: meta.MetaClass);
+                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType_index: number, p_opposite_index: number, p_opposite_ref_index: number, p_origin: meta.MetaClass);
                     }
                     class DynamicKObject extends AbstractKObject {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);

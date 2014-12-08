@@ -20,7 +20,7 @@ public static Meta${classDeclaration.name} build(org.kevoree.modeling.api.meta.M
 #end
 
     private Meta${classDeclaration.name}(org.kevoree.modeling.api.meta.MetaModel p_origin) {
-        super("${classDeclaration.fqn}", 0, p_origin);
+        super("${classDeclaration.fqn}", ${classDeclaration.index}, p_origin);
 
         org.kevoree.modeling.api.meta.MetaAttribute[] temp_attributes = new org.kevoree.modeling.api.meta.MetaAttribute[${classDeclaration.attributes.size()}];
         #foreach($attribute in $classDeclaration.attributes)

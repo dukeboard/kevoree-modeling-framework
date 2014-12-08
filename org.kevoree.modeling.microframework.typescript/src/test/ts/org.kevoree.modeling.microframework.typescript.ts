@@ -79,6 +79,8 @@ module org {
 
                             view(): org.kevoree.modeling.microframework.test.cloud.CloudView;
 
+                            metaClass(): org.kevoree.modeling.microframework.test.cloud.meta.MetaElement;
+
                         }
 
                         export module impl {
@@ -296,6 +298,8 @@ module org {
                             trigger(param: string, callback: (p : string) => void): void;
 
                             view(): org.kevoree.modeling.microframework.test.cloud.CloudView;
+
+                            metaClass(): org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 
                         }
 

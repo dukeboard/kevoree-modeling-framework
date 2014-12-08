@@ -1016,12 +1016,12 @@ var org;
                     })();
                     abs.AbstractMetaOperation = AbstractMetaOperation;
                     var AbstractMetaReference = (function () {
-                        function AbstractMetaReference(p_name, p_index, p_contained, p_single, p_metaType, p_opposite_index, p_opposite_ref_index, p_origin) {
+                        function AbstractMetaReference(p_name, p_index, p_contained, p_single, p_metaType_index, p_opposite_index, p_opposite_ref_index, p_origin) {
                             this._name = p_name;
                             this._index = p_index;
                             this._contained = p_contained;
                             this._single = p_single;
-                            this._metaType = p_metaType;
+                            this._metaType_index = p_metaType_index;
                             this._opposite_index = p_opposite_index;
                             this._opposite_ref_index = p_opposite_ref_index;
                             this._origin = p_origin;
@@ -1030,7 +1030,7 @@ var org;
                             return this._single;
                         };
                         AbstractMetaReference.prototype.metaType = function () {
-                            return this._metaType;
+                            return this._origin.origin().metaClasses()[this._metaType_index];
                         };
                         AbstractMetaReference.prototype.opposite = function () {
                             if (this._opposite_index != null && this._opposite_ref_index != null) {

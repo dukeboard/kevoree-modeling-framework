@@ -19,6 +19,7 @@ public class MModel {
     }
 
     public void addClassifier(MModelClassifier classifier) {
+        classifier.setIndex(classifiers.size());
         classifiers.put(classifier.getFqn(), classifier);
     }
 

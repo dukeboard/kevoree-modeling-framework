@@ -66,62 +66,38 @@ public class ProcessorHelper {
     }
 
     public void consolidate(MModel model) {
-        ArrayList<MModelClassifier> consolidated = new ArrayList<>();
         for (MModelClassifier decl : model.getClassifiers()) {
-            if (!consolidated.contains(decl)) {
-                internal_consolidate(decl, consolidated);
-            }
+            internal_consolidate(decl);
         }
     }
 
-    private void internal_consolidate(MModelClassifier classifierRelDecls, ArrayList<MModelClassifier> consolidated) {
-        if (!consolidated.contains(classifierRelDecls)) {
-            if (classifierRelDecls instanceof MModelClass) {
-                MModelClass classRelDecls = (MModelClass) classifierRelDecls;
-                classifierRelDecls.setIndex(consolidated.size());
-                ArrayList<MModelAttribute> parentsAttributes = new ArrayList<>();
-                ArrayList<MModelReference> parentsReferences = new ArrayList<>();
-                ArrayList<MModelOperation> parentsOperations = new ArrayList<>();
-                classRelDecls.getParents().forEach(parent -> {
-                    parent.getAttributes().forEach(parentAttribute -> {
-                        if (!parentsAttributes.contains(parentAttribute)) {
-                            parentsAttributes.add(parentAttribute);
-                        }
-                    });
-                    parent.getReferences().forEach(parentReference -> {
-                        if (!parentsReferences.contains(parentReference)) {
-                            parentsReferences.add(parentReference);
-                        }
-                    });
-                    parent.getOperations().forEach(parentOperation -> {
-                        if (!parentsOperations.contains(parentOperation)) {
-                            parentsOperations.add(parentOperation);
-                        }
-                    });
-                });
-                classRelDecls.getAttributes().addAll(0, parentsAttributes);
-                classRelDecls.getReferences().addAll(0, parentsReferences);
-                classRelDecls.getOperations().addAll(0, parentsOperations);
-                int globalIndex = 0;
-                for (int i = 0; i < classRelDecls.getAttributes().size(); i++) {
-                    classRelDecls.getAttributes().get(i).setIndex(globalIndex);
-                    classRelDecls.getAttributes().get(i).setAttIndex(i);
-                    globalIndex++;
-                }
-                for (int i = 0; i < classRelDecls.getReferences().size(); i++) {
-                    classRelDecls.getReferences().get(i).setIndex(globalIndex);
-                    classRelDecls.getReferences().get(i).setRefIndex(i);
-                    globalIndex++;
-                }
-                for (int i = 0; i < classRelDecls.getOperations().size(); i++) {
-                    classRelDecls.getOperations().get(i).setIndex(globalIndex);
-                    classRelDecls.getOperations().get(i).setOpIndex(i);
-                    globalIndex++;
-                }
-            } else {
-                throw new UnsupportedOperationException("Enums not yet supported:" + classifierRelDecls.getClass());
+    private void internal_consolidate(MModelClassifier classifierRelDecls) {
+        if (classifierRelDecls instanceof MModelClass) {
+            MModelClass classRelDecls = (MModelClass) classifierRelDecls;
+            int globalIndex = 0;
+            int localIndex = 0;
+            for (MModelAttribute att : classRelDecls.getAttributes()) {
+                att.setIndex(globalIndex);
+                att.setAttIndex(localIndex);
+                globalIndex++;
+                localIndex++;
             }
-            consolidated.add(classifierRelDecls);
+            localIndex = 0;
+            for (MModelReference ref : classRelDecls.getReferences()) {
+                ref.setIndex(globalIndex);
+                ref.setRefIndex(localIndex);
+                globalIndex++;
+                localIndex++;
+            }
+            localIndex = 0;
+            for (MModelOperation op : classRelDecls.getOperations()) {
+                op.setIndex(globalIndex);
+                op.setOpIndex(localIndex);
+                globalIndex++;
+                localIndex++;
+            }
+        } else {
+            throw new UnsupportedOperationException("Enums not yet supported:" + classifierRelDecls.getClass());
         }
     }
 

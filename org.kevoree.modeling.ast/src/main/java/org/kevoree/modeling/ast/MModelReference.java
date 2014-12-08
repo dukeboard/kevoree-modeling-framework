@@ -70,10 +70,4 @@ public class MModelReference {
         this.opposite = opposite;
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof MModelReference && name.equals(((MModelReference) o).name);
-    }
-
 }
