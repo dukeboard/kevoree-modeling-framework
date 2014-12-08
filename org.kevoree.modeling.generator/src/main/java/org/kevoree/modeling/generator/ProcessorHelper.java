@@ -96,9 +96,12 @@ public class ProcessorHelper {
                 globalIndex++;
                 localIndex++;
             }
-        } else {
+        }
+        /*
+        else {
             throw new UnsupportedOperationException("Enums not yet supported:" + classifierRelDecls.getClass());
         }
+        */
     }
 
     public String toCamelCase(String ref) {

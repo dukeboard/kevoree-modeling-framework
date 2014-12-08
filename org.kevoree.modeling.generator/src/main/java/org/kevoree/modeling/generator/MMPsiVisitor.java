@@ -20,6 +20,16 @@ public class MMPsiVisitor extends MetaModelVisitor {
     }
 
     @Override
+    public void visitEnumDeclaration(MetaModelEnumDeclaration o) {
+        String enumFqn = o.getTypeDeclaration().getName();
+        MModelEnum enumClass = getOrAddEnum(enumFqn);
+        o.getEnumElemDeclarationList().forEach(enumElement -> {
+            enumClass.addLitteral(enumElement.getText());
+        });
+
+    }
+
+    @Override
     public void visitClassDeclaration(MetaModelClassDeclaration o) {
         String classFqn = o.getTypeDeclaration().getName();
         MModelClass thisClassDeclaration = getOrAddClass(classFqn);
@@ -152,5 +162,16 @@ public class MMPsiVisitor extends MetaModelVisitor {
         return (MModelClass) resolved;
     }
 
+    private MModelEnum getOrAddEnum(String clazz) {
+        MModelClassifier resolved = context.getModel().get(clazz);
+        if (resolved == null) {
+            String relationTypePackage = clazz.substring(0, clazz.lastIndexOf("."));
+            String relationTypeName = clazz.substring(clazz.lastIndexOf(".") + 1);
+            resolved = new MModelEnum(relationTypeName);
+            resolved.setPack(relationTypePackage);
+            context.getModel().addClassifier(resolved);
+        }
+        return (MModelEnum) resolved;
+    }
 
 }

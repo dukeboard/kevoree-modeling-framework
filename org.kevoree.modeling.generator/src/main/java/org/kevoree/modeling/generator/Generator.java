@@ -7,7 +7,9 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.kevoree.modeling.MetaModelLanguageType;
+import org.kevoree.modeling.ast.MModelClass;
 import org.kevoree.modeling.ast.MModelClassifier;
+import org.kevoree.modeling.ast.MModelEnum;
 import org.kevoree.modeling.generator.misc.VelocityLog;
 import org.kevoree.modeling.util.StandaloneParser;
 
@@ -65,18 +67,22 @@ public class Generator {
             ProcessorHelper.getInstance().consolidate(context.getModel());
             generateUtilities();
             for (MModelClassifier classDecl : context.getModel().getClassifiers()) {
-                ClassGenerationContext cgc = new ClassGenerationContext();
-                cgc.generationContext = context;
-                cgc.classDeclaration = classDecl;
+                if(classDecl instanceof MModelClass) {
+                    ClassGenerationContext cgc = new ClassGenerationContext();
+                    cgc.generationContext = context;
+                    cgc.classDeclaration = classDecl;
 
-                Path apiFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
-                callVelocity(apiFilePath, "vTemplates/ClassTemplate.vm", cgc);
+                    Path apiFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getFqn().replace(".", File.separator) + ".java");
+                    callVelocity(apiFilePath, "vTemplates/ClassTemplate.vm", cgc);
 
-                Path implFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
-                callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
+                    Path implFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "impl" + File.separator + cgc.classDeclaration.getName() + "Impl.java");
+                    callVelocity(implFilePath, "vTemplates/ClassImplTemplate.vm", cgc);
 
-                Path metaFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "meta" + File.separator + "Meta" + cgc.classDeclaration.getName() + ".java");
-                callVelocity(metaFilePath, "vTemplates/MetaClassTemplate2.vm", cgc);
+                    Path metaFilePath = Paths.get(context.targetSrcDir.getAbsolutePath() + File.separator + cgc.classDeclaration.getPack().replace(".", File.separator) + File.separator + "meta" + File.separator + "Meta" + cgc.classDeclaration.getName() + ".java");
+                    callVelocity(metaFilePath, "vTemplates/MetaClassTemplate2.vm", cgc);
+                } else if(classDecl instanceof MModelEnum) {
+                    //TODO: Enum generation
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

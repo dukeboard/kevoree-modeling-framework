@@ -16,3 +16,8 @@ class org.kevoree.cloud.Element {
     name : String
     value : String
 }
+
+
+enum org.kevoree.cloud.CloudEnumTester {
+    VAL1 VAL2 VAL3
+}
