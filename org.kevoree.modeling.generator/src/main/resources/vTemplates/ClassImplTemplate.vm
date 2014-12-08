@@ -115,6 +115,11 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
         return (${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View) super.view();
     }
 
+    @Override
+    public ${classDeclaration.pack}.meta.Meta${classDeclaration.name} metaClass(){
+        return (${classDeclaration.pack}.meta.Meta${classDeclaration.name}) super.metaClass();
+    }
+
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
 #* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#
