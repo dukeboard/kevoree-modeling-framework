@@ -33,9 +33,9 @@ public class GenerationContext {
     public void setMetaModelName(String metaModelName) {
         if (metaModelName.contains(".")) {
             this.metaModelPackage = metaModelName.substring(0, metaModelName.lastIndexOf("."));
-            this.metaModelName = metaModelName.substring(metaModelName.lastIndexOf(".") + 1);
+            this.metaModelName = toCamelCase(metaModelName.substring(metaModelName.lastIndexOf(".") + 1));
         } else {
-            this.metaModelName = metaModelName;
+            this.metaModelName = toCamelCase(metaModelName);
             this.metaModelPackage = metaModelName.toLowerCase();
         }
     }
@@ -67,5 +67,9 @@ public class GenerationContext {
 
     public MModel getModel() {
         return model;
+    }
+
+    private String toCamelCase(String other) {
+        return other.substring(0,1).toUpperCase() + other.substring(1);
     }
 }

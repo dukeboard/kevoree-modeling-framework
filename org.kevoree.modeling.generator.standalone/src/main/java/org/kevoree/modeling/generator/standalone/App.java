@@ -58,7 +58,8 @@ public class App {
                     File jsDir = new File(masterOut, "js");
                     jsDir.mkdirs();
                     ctx.setMetaModel(metaModelFile);
-                    ctx.setMetaModelName(metaModelFile.getName().substring(0, metaModelFile.getName().lastIndexOf(".")));
+                    String mmName = metaModelFile.getName().substring(0, metaModelFile.getName().lastIndexOf("."));
+                    ctx.setMetaModelName(mmName.substring(0,1).toUpperCase() + mmName.substring(1));
                     ctx.setTargetSrcDir(srcOut);
                     ctx.setVersion(VersionAnalyzer.getVersion(metaModelFile));
                     Generator generator = new Generator();
