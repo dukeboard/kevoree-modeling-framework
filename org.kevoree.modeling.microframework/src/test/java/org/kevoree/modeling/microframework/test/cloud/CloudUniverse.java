@@ -12,7 +12,7 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
  */
 public class CloudUniverse extends AbstractKUniverse<CloudDimension> {
 
-    private MetaModel _metaModel;
+    private org.kevoree.modeling.api.meta.MetaModel _metaModel;
 
     public final MetaNode META_NODE;
 

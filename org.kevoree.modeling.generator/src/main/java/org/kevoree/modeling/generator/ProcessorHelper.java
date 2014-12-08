@@ -78,6 +78,8 @@ public class ProcessorHelper {
         if (!consolidated.contains(classifierRelDecls)) {
             if (classifierRelDecls instanceof MModelClass) {
                 MModelClass classRelDecls = (MModelClass) classifierRelDecls;
+                classifierRelDecls.setIndex(consolidated.size());
+
                 classRelDecls.sortAttributes();
                 classRelDecls.sortReferences();
                 classRelDecls.sortOperations();

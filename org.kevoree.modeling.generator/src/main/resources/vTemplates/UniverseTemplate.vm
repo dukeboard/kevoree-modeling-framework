@@ -2,8 +2,23 @@ package $context.metaModelPackage;
 
 public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.abs.AbstractKUniverse<${context.metaModelName}Dimension> {
 
+    private org.kevoree.modeling.api.meta.MetaModel _metaModel;
+
+    #foreach($class in $context.model.classifiers)
+
+    public final ${class.pack}.Meta${class.name} META_${class.fqn.toUpperCase().replace(".","_")};
+    #end
+
     public ${context.metaModelName}Universe() {
         super();
+        _metaModel = new AbstractMetaModel("${context.metaModelName}", -1);
+        org.kevoree.modeling.api.meta.MetaClass[] tempMetaClasses = new org.kevoree.modeling.api.meta.MetaClass[${context.model.classifiers.size()}];
+        #foreach($class in $context.model.classifiers)
+
+        META_${class.fqn.toUpperCase().replace(".","_")} = ${context.metaModelPackage}.meta.Meta${class.name}.build(_metaModel);
+        tempMetaClasses[${class.index}] = META_${class.fqn.toUpperCase().replace(".","_")};
+        #end
+        ((org.kevoree.modeling.api.abs.AbstractMetaModel) _metaModel).init(tempMetaClasses);
     }
 
     @Override
@@ -11,7 +26,5 @@ public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.a
         return new ${context.metaModelName}Dimension(this,key);
     }
 }
-
-
-
+    
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

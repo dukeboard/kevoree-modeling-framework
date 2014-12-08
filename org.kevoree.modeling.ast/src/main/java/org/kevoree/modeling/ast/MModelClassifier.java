@@ -7,6 +7,15 @@ public abstract class MModelClassifier {
 
     protected String name;
     protected String pack = null;
+    protected Integer index = -1;
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
 
     public String getName() {
         return name;
@@ -21,12 +30,12 @@ public abstract class MModelClassifier {
     }
 
     public String getFqn() {
-        return (pack != null ? pack+"."+name:name);
+        return (pack != null ? pack + "." + name : name);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return this.getClass().isAssignableFrom(obj.getClass()) && this.getFqn().equals(((MModelClassifier)obj).getFqn());
+        return this.getClass().isAssignableFrom(obj.getClass()) && this.getFqn().equals(((MModelClassifier) obj).getFqn());
     }
 
 }

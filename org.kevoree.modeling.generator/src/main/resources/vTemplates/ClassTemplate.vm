@@ -3,13 +3,6 @@ package $classDeclaration.pack;
 
 public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject#foreach($parent in $classDeclaration.parents), $parent.getFqn()#end {
 
-#set($enumIdx = 5)
-#parse("vTemplates/MetaAttributesTemplate.vm")
-
-#parse("vTemplates/MetaReferencesTemplate.vm")
-
-#parse("vTemplates/MetaOperationTemplate.vm")
-
 #foreach($attribute in $classDeclaration.attributes)
 #if($attribute.single)
     public $context.generationContext.getHelper().convertToJavaType(${attribute.getType()}) get${context.generationContext.helper.toCamelCase($attribute.getName())}();
@@ -20,7 +13,6 @@ public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject
     public void each${context.generationContext.helper.toCamelCase($attribute.getName())}(org.kevoree.modeling.api.Callback<$context.generationContext.getHelper().convertToJavaType(${attribute.getType()})> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end);
 #end
 #end
-
 
 #foreach($rel in $classDeclaration.references)
 #if($rel.single)

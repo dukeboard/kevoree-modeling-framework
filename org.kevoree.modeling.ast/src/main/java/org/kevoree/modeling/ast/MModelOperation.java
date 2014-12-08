@@ -10,6 +10,15 @@ public class MModelOperation {
     public ArrayList<MModelOperationParam> inputParams = new ArrayList<MModelOperationParam>();
     public MModelOperationParam returnParam = null;
     public String name;
+    protected Integer index = -1;
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
 
     public MModelOperation(String name) {
         this.name = name;

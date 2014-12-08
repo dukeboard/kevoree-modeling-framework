@@ -12,19 +12,12 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
             return null;
         }
         switch (p_clazz.index()) {
-#set($clsIdx = 0)
 #foreach($class in $context.model.classifiers)
     #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
-            case $clsIdx : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, p_key, p_timeTree, p_clazz);
-#set($clsIdx = $clsIdx+1)
+            case ${class.index} : return new ${class.fqn.substring(0,$class.fqn.lastIndexOf("."))}.impl.${class.fqn.substring($lastIdx)}Impl(this, p_key, p_timeTree, p_clazz);
 #end
-            default : return null;
+            default : return new org.kevoree.modeling.api.abs.DynamicKObject(this, p_key, p_timeTree, p_clazz);
         }
-    }
-
-    @Override
-    public org.kevoree.modeling.api.meta.MetaClass[] metaClasses() {
-        return ${context.metaModelPackage}.${context.metaModelName}View.METACLASSES.values();
     }
 
 #foreach($class in $context.model.classifiers)
@@ -35,8 +28,11 @@ public class ${context.metaModelName}ViewImpl extends org.kevoree.modeling.api.a
     }
 #end
 
+    @Override
+    public ${context.metaModelPackage}.${context.metaModelName}Dimension dimension() {
+        return (${context.metaModelPackage}.${context.metaModelName}Dimension) super.dimension();
+    }
+
 }
-
-
 
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

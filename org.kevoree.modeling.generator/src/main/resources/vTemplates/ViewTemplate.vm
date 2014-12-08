@@ -2,108 +2,14 @@ package $context.metaModelPackage;
 
 public interface ${context.metaModelName}View extends org.kevoree.modeling.api.KView {
 
-    public enum METACLASSES implements org.kevoree.modeling.api.meta.MetaClass {
-
-#set($classIdx = 0)
-#set($classIdxMax = $context.model.classifiers.size() - 1)
-#foreach($class in $context.model.classifiers)
-        ${class.fqn.toUpperCase().replace(".","_")}("$class.fqn",$classIdx)#if($classIdx < $classIdxMax),
-#{else};
-#end
-#set($classIdx = $classIdx + 1)
-#end
-
-        private String _name;
-        private int _index;
-
-        METACLASSES(String name, int index) {
-            this._name = name;
-            this._index = index;
-        }
-
-        public int index() {
-            return _index;
-        }
-
-        public String metaName() {
-            return _name;
-        }
-
-        public org.kevoree.modeling.api.meta.MetaAttribute[] metaAttributes() {
-#set($classIdx = 0)
-#set($classIdxMax = $context.model.classifiers.size() - 1)
-#foreach($class in $context.model.classifiers)
-            if (_index == $classIdx) {
-                return ${class.fqn}.METAATTRIBUTES.values();
-            }
-#set($classIdx = $classIdx + 1)
-#end
-            return new org.kevoree.modeling.api.meta.MetaAttribute[0];
-        }
-
-        public org.kevoree.modeling.api.meta.MetaReference[] metaReferences() {
-#set($classIdx = 0)
-#set($classIdxMax = $context.model.classifiers.size() - 1)
-#foreach($class in $context.model.classifiers)
-            if (_index == $classIdx) {
-                return ${class.fqn}.METAREFERENCES.values();
-            }
-#set($classIdx = $classIdx + 1)
-#end
-            return new org.kevoree.modeling.api.meta.MetaReference[0];
-        }
-
-        @Override
-        public org.kevoree.modeling.api.meta.MetaOperation[] metaOperations() {
-#set($classIdx = 0)
-#set($classIdxMax = $context.model.classifiers.size() - 1)
-#foreach($class in $context.model.classifiers)
-            if (_index == $classIdx) {
-                return ${class.fqn}.METAOPERATIONS.values();
-            }
-#set($classIdx = $classIdx + 1)
-#end
-            return new org.kevoree.modeling.api.meta.MetaOperation[0];
-        }
-
-        public org.kevoree.modeling.api.meta.MetaAttribute metaAttribute(String name) {
-            org.kevoree.modeling.api.meta.MetaAttribute[] atts = metaAttributes();
-            for (int i = 0; i < atts.length; i++) {
-                if (atts[i].metaName().equals(name)) {
-                    return atts[i];
-                }
-            }
-            return null;
-        }
-
-        public org.kevoree.modeling.api.meta.MetaReference metaReference(String name) {
-            org.kevoree.modeling.api.meta.MetaReference[] refs = metaReferences();
-            for (int i = 0; i < refs.length; i++) {
-                if (refs[i].metaName().equals(name)) {
-                    return refs[i];
-                }
-            }
-            return null;
-        }
-
-        public org.kevoree.modeling.api.meta.MetaOperation metaOperation(String name) {
-            org.kevoree.modeling.api.meta.MetaOperation[] ops = metaOperations();
-            for (int i = 0; i < ops.length; i++) {
-                if (ops[i].metaName().equals(name)) {
-                    return ops[i];
-                }
-            }
-            return null;
-        }
-
-    }
-
 #foreach($class in $context.model.classifiers)
 #set($lastIdx = $class.fqn.lastIndexOf(".")+1)
     public $class.fqn create$class.fqn.substring($lastIdx)();
 #end
 
-}
+    @Override
+    public ${context.metaModelPackage}.${context.metaModelName}Dimension dimension();
 
+}
 
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.GenerationContext" *#

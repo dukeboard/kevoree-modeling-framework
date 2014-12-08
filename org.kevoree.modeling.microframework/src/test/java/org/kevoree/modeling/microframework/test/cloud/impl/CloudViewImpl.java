@@ -49,4 +49,5 @@ public class CloudViewImpl extends AbstractKView implements CloudView {
     public CloudDimension dimension() {
         return (CloudDimension) super.dimension();
     }
+
 }

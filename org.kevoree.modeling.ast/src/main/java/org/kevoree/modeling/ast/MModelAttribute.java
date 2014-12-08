@@ -13,6 +13,16 @@ public class MModelAttribute {
 
     private boolean single = true;
 
+    private Integer index = -1;
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
     public MModelAttribute(String name, String type) {
         this.name = name;
         this.type = type;

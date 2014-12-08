@@ -9,6 +9,16 @@ public class MModelReference {
     private MModelClass type;
     private MModelReference opposite = null;
 
+    private Integer index = -1;
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
     private boolean contained = false;
 
     private boolean single = false;
@@ -53,7 +63,7 @@ public class MModelReference {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof MModelReference && name.equals(((MModelReference)o).name);
+        return o instanceof MModelReference && name.equals(((MModelReference) o).name);
     }
 
 }
