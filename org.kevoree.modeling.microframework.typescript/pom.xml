@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.kevoree.modeling.microframework.typescript</artifactId>
     <name>Kevoree :: Modeling :: MicroFramework :: TypeScript</name>
@@ -33,13 +34,13 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <tasks>
-                                <delete dir="${basedir}/src/main/ts" />
-                                <delete dir="${basedir}/src/test/ts" />
+                                <delete dir="${basedir}/src/main/ts"/>
+                                <delete dir="${basedir}/src/test/ts"/>
                                 <copy todir="${basedir}/target/sources">
-                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/main/java" />
+                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/main/java"/>
                                 </copy>
                                 <copy todir="${basedir}/target/sources">
-                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/test/java" />
+                                    <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/test/java"/>
                                 </copy>
                             </tasks>
                         </configuration>
@@ -63,6 +64,7 @@
                         <configuration>
                             <source>${basedir}/../org.kevoree.modeling.microframework/src/main/java</source>
                             <target>${basedir}/src/main/ts</target>
+                            <targetJS>${basedir}/src/main/resources</targetJS>
                         </configuration>
                     </execution>
                     <execution>
@@ -72,31 +74,14 @@
                         </goals>
                         <configuration>
                             <source>${basedir}/../org.kevoree.modeling.microframework/src/test/java</source>
-                            <target>${basedir}/src/test/ts</target>
+                            <target>${basedir}/target/generated-test-sources</target>
+                            <targetJS>${basedir}/target/test-classes</targetJS>
                             <flatJUnit>true</flatJUnit>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>pl.allegro</groupId>
-                <artifactId>grunt-maven-plugin</artifactId>
-                <version>1.4.1</version>
-                <configuration>
-                    <gruntExecutable>${basedir}/node_modules/grunt-cli/bin/grunt</gruntExecutable>
-                    <gruntBuildDirectory>${project.build.directory}/grunt</gruntBuildDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>npm</goal>
-                            <goal>grunt</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
@@ -105,8 +90,10 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <copy todir="${basedir}/src/main/resources" file="${basedir}/src/main/ts/java.js" overwrite="true" />
-                                <copy todir="${basedir}/src/main/resources" file="${basedir}/src/main/ts/java.d.ts" overwrite="true" />
+                                <copy todir="${basedir}/src/main/resources" file="${basedir}/src/main/ts/java.js"
+                                      overwrite="true"/>
+                                <copy todir="${basedir}/src/main/resources" file="${basedir}/src/main/ts/java.d.ts"
+                                      overwrite="true"/>
                             </tasks>
                         </configuration>
                         <goals>

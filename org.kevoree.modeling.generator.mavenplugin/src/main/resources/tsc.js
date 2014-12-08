@@ -7594,7 +7594,7 @@ var ts;
                     write("_super");
                 }
                 else {
-                    write("super");
+                    write("_super");
                 }
             }
             function emitArrayLiteral(node) {
