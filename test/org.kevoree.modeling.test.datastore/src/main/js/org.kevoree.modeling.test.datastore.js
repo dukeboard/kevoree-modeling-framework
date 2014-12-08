@@ -92,9 +92,6 @@ var geometry;
             LibraryImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);
             };
-            LibraryImpl.prototype.metaClass = function () {
-                return _super.prototype.metaClass.call(this);
-            };
             return LibraryImpl;
         })(org.kevoree.modeling.api.abs.AbstractKObject);
         impl.LibraryImpl = LibraryImpl;
@@ -119,9 +116,6 @@ var geometry;
             };
             ShapeImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);
-            };
-            ShapeImpl.prototype.metaClass = function () {
-                return _super.prototype.metaClass.call(this);
             };
             return ShapeImpl;
         })(org.kevoree.modeling.api.abs.AbstractKObject);

@@ -89,29 +89,25 @@ module geometry {
             }
 
             public addShapes(p_obj: geometry.Shape): geometry.Library {
-                this.mutate(org.kevoree.modeling.api.KActionType.ADD, this.metaClass().REF_SHAPES, p_obj);
+                this.mutate(org.kevoree.modeling.api.KActionType.ADD, (<geometry.meta.MetaLibrary>this.metaClass()).REF_SHAPES, p_obj);
                 return this;
             }
 
             public removeShapes(p_obj: geometry.Shape): geometry.Library {
-                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, this.metaClass().REF_SHAPES, p_obj);
+                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, (<geometry.meta.MetaLibrary>this.metaClass()).REF_SHAPES, p_obj);
                 return this;
             }
 
             public eachShapes(p_callback: (p : geometry.Shape) => void, p_end: (p : java.lang.Throwable) => void): void {
-                this.each(this.metaClass().REF_SHAPES, p_callback, p_end);
+                this.each((<geometry.meta.MetaLibrary>this.metaClass()).REF_SHAPES, p_callback, p_end);
             }
 
             public sizeOfShapes(): number {
-                return this.size(this.metaClass().REF_SHAPES);
+                return this.size((<geometry.meta.MetaLibrary>this.metaClass()).REF_SHAPES);
             }
 
             public view(): geometry.GeometryView {
                 return <geometry.GeometryView>super.view();
-            }
-
-            public metaClass(): geometry.meta.MetaLibrary {
-                return <geometry.meta.MetaLibrary>super.metaClass();
             }
 
         }
@@ -123,29 +119,25 @@ module geometry {
             }
 
             public getColor(): string {
-                return <string>this.get(this.metaClass().ATT_COLOR);
+                return <string>this.get((<geometry.meta.MetaShape>this.metaClass()).ATT_COLOR);
             }
 
             public setColor(p_obj: string): geometry.Shape {
-                this.set(this.metaClass().ATT_COLOR, p_obj);
+                this.set((<geometry.meta.MetaShape>this.metaClass()).ATT_COLOR, p_obj);
                 return this;
             }
 
             public getName(): string {
-                return <string>this.get(this.metaClass().ATT_NAME);
+                return <string>this.get((<geometry.meta.MetaShape>this.metaClass()).ATT_NAME);
             }
 
             public setName(p_obj: string): geometry.Shape {
-                this.set(this.metaClass().ATT_NAME, p_obj);
+                this.set((<geometry.meta.MetaShape>this.metaClass()).ATT_NAME, p_obj);
                 return this;
             }
 
             public view(): geometry.GeometryView {
                 return <geometry.GeometryView>super.view();
-            }
-
-            public metaClass(): geometry.meta.MetaShape {
-                return <geometry.meta.MetaShape>super.metaClass();
             }
 
         }
@@ -162,8 +154,6 @@ module geometry {
         sizeOfShapes(): number;
 
         view(): geometry.GeometryView;
-
-        metaClass(): geometry.meta.MetaLibrary;
 
     }
 
@@ -221,8 +211,6 @@ module geometry {
         setName(p_obj: string): geometry.Shape;
 
         view(): geometry.GeometryView;
-
-        metaClass(): geometry.meta.MetaShape;
 
     }
 
