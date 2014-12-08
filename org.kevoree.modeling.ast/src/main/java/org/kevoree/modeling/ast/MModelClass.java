@@ -32,7 +32,7 @@ public class MModelClass extends MModelClassifier {
             return;
         } else {
             for (String key : attributes.keySet()) {
-                if (collector.containsKey(key)) {
+                if (!collector.containsKey(key)) {
                     collector.put(key, attributes.get(key));
                 }
             }
@@ -59,7 +59,7 @@ public class MModelClass extends MModelClassifier {
             return;
         } else {
             for (String key : references.keySet()) {
-                if (collector.containsKey(key)) {
+                if (!collector.containsKey(key)) {
                     collector.put(key, references.get(key));
                 }
             }
@@ -90,7 +90,7 @@ public class MModelClass extends MModelClassifier {
             return;
         } else {
             for (String key : operations.keySet()) {
-                if (collector.containsKey(key)) {
+                if (!collector.containsKey(key)) {
                     collector.put(key, operations.get(key));
                 }
             }
