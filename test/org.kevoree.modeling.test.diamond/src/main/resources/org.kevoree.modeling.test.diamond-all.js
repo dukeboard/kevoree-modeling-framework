@@ -4,6 +4,490 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var System = (function () {
+    function System() {
+    }
+    System.arraycopy = function (src, srcPos, dest, destPos, numElements) {
+        for (var i = 0; i < numElements; i++) {
+            dest[destPos + i] = src[srcPos + i];
+        }
+    };
+    System.out = {
+        println: function (obj) {
+            console.log(obj);
+        },
+        print: function (obj) {
+            console.log(obj);
+        }
+    };
+    System.err = {
+        println: function (obj) {
+            console.log(obj);
+        },
+        print: function (obj) {
+            console.log(obj);
+        }
+    };
+    return System;
+})();
+var TSMap = Map;
+var TSSet = Set;
+Number.prototype.equals = function (other) {
+    return this == other;
+};
+var StringUtils = (function () {
+    function StringUtils() {
+    }
+    StringUtils.copyValueOf = function (data, offset, count) {
+        var result = "";
+        for (var i = offset; i < offset + count; i++) {
+            result += data[i];
+        }
+        return result;
+    };
+    return StringUtils;
+})();
+String.prototype.matches = function (regEx) {
+    return this.match(regEx).length > 0;
+};
+String.prototype.isEmpty = function () {
+    return this.length == 0;
+};
+String.prototype.equals = function (other) {
+    return this == other;
+};
+String.prototype.startsWith = function (other) {
+    for (var i = 0; i < other.length; i++) {
+        if (other.charAt(i) != this.charAt(i)) {
+            return false;
+        }
+    }
+    return true;
+};
+String.prototype.endsWith = function (other) {
+    for (var i = other.length - 1; i >= 0; i--) {
+        if (other.charAt(i) != this.charAt(i)) {
+            return false;
+        }
+    }
+    return true;
+};
+var java;
+(function (java) {
+    var lang;
+    (function (lang) {
+        var Double = (function () {
+            function Double() {
+            }
+            Double.parseDouble = function (val) {
+                return +val;
+            };
+            return Double;
+        })();
+        lang.Double = Double;
+        var Float = (function () {
+            function Float() {
+            }
+            Float.parseFloat = function (val) {
+                return +val;
+            };
+            return Float;
+        })();
+        lang.Float = Float;
+        var Integer = (function () {
+            function Integer() {
+            }
+            Integer.parseInt = function (val) {
+                return +val;
+            };
+            return Integer;
+        })();
+        lang.Integer = Integer;
+        var Long = (function () {
+            function Long() {
+            }
+            Long.parseLong = function (val) {
+                return +val;
+            };
+            return Long;
+        })();
+        lang.Long = Long;
+        var Short = (function () {
+            function Short() {
+            }
+            Short.parseShort = function (val) {
+                return +val;
+            };
+            Short.MIN_VALUE = -0x8000;
+            Short.MAX_VALUE = 0x7FFF;
+            return Short;
+        })();
+        lang.Short = Short;
+        var Throwable = (function () {
+            function Throwable(message) {
+                this.message = message;
+                this.error = new Error(message);
+            }
+            Throwable.prototype.printStackTrace = function () {
+                console.error(this.error['stack']);
+            };
+            return Throwable;
+        })();
+        lang.Throwable = Throwable;
+        var Exception = (function (_super) {
+            __extends(Exception, _super);
+            function Exception() {
+                _super.apply(this, arguments);
+            }
+            return Exception;
+        })(Throwable);
+        lang.Exception = Exception;
+        var RuntimeException = (function (_super) {
+            __extends(RuntimeException, _super);
+            function RuntimeException() {
+                _super.apply(this, arguments);
+            }
+            return RuntimeException;
+        })(Exception);
+        lang.RuntimeException = RuntimeException;
+        var IndexOutOfBoundsException = (function (_super) {
+            __extends(IndexOutOfBoundsException, _super);
+            function IndexOutOfBoundsException() {
+                _super.apply(this, arguments);
+            }
+            return IndexOutOfBoundsException;
+        })(Exception);
+        lang.IndexOutOfBoundsException = IndexOutOfBoundsException;
+        var StringBuilder = (function () {
+            function StringBuilder() {
+                this.buffer = "";
+                this.length = 0;
+            }
+            StringBuilder.prototype.append = function (val) {
+                this.buffer = this.buffer + val;
+                length = this.buffer.length;
+                return this;
+            };
+            StringBuilder.prototype.toString = function () {
+                return this.buffer;
+            };
+            return StringBuilder;
+        })();
+        lang.StringBuilder = StringBuilder;
+    })(lang = java.lang || (java.lang = {}));
+    var util;
+    (function (util) {
+        var Random = (function () {
+            function Random() {
+            }
+            Random.prototype.nextInt = function (max) {
+                return Math.random() * max;
+            };
+            return Random;
+        })();
+        util.Random = Random;
+        var Arrays = (function () {
+            function Arrays() {
+            }
+            Arrays.fill = function (data, begin, nbElem, param) {
+                var max = begin + nbElem;
+                for (var i = begin; i < max; i++) {
+                    data[i] = param;
+                }
+            };
+            return Arrays;
+        })();
+        util.Arrays = Arrays;
+        var Collections = (function () {
+            function Collections() {
+            }
+            Collections.reverse = function (p) {
+                var temp = new List();
+                for (var i = 0; i < p.size(); i++) {
+                    temp.add(p.get(i));
+                }
+                p.clear();
+                for (var i = temp.size() - 1; i >= 0; i--) {
+                    p.add(temp.get(i));
+                }
+            };
+            Collections.sort = function (p) {
+                p.sort();
+            };
+            return Collections;
+        })();
+        util.Collections = Collections;
+        var Collection = (function () {
+            function Collection() {
+            }
+            Collection.prototype.add = function (val) {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            Collection.prototype.addAll = function (vals) {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            Collection.prototype.remove = function (val) {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            Collection.prototype.clear = function () {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            Collection.prototype.isEmpty = function () {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            Collection.prototype.size = function () {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            Collection.prototype.contains = function (val) {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            Collection.prototype.toArray = function (a) {
+                throw new java.lang.Exception("Abstract implementation");
+            };
+            return Collection;
+        })();
+        util.Collection = Collection;
+        var List = (function (_super) {
+            __extends(List, _super);
+            function List() {
+                _super.apply(this, arguments);
+                this.internalArray = [];
+            }
+            List.prototype.sort = function () {
+                this.internalArray = this.internalArray.sort(function (a, b) {
+                    if (a == b) {
+                        return 0;
+                    }
+                    else {
+                        if (a < b) {
+                            return -1;
+                        }
+                        else {
+                            return 1;
+                        }
+                    }
+                });
+            };
+            List.prototype.addAll = function (vals) {
+                var tempArray = vals.toArray(null);
+                for (var i = 0; i < tempArray.length; i++) {
+                    this.internalArray.push(tempArray[i]);
+                }
+            };
+            List.prototype.clear = function () {
+                this.internalArray = [];
+            };
+            List.prototype.poll = function () {
+                return this.internalArray.shift();
+            };
+            List.prototype.remove = function (val) {
+                //TODO with filter
+            };
+            List.prototype.toArray = function (a) {
+                //TODO
+                var result = new Array(this.internalArray.length);
+                this.internalArray.forEach(function (value, index, p1) {
+                    result[index] = value;
+                });
+                return result;
+            };
+            List.prototype.size = function () {
+                return this.internalArray.length;
+            };
+            List.prototype.add = function (val) {
+                this.internalArray.push(val);
+            };
+            List.prototype.get = function (index) {
+                return this.internalArray[index];
+            };
+            List.prototype.contains = function (val) {
+                for (var i = 0; i < this.internalArray.length; i++) {
+                    if (this.internalArray[i] == val) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            List.prototype.isEmpty = function () {
+                return this.internalArray.length == 0;
+            };
+            return List;
+        })(Collection);
+        util.List = List;
+        var ArrayList = (function (_super) {
+            __extends(ArrayList, _super);
+            function ArrayList() {
+                _super.apply(this, arguments);
+            }
+            return ArrayList;
+        })(List);
+        util.ArrayList = ArrayList;
+        var LinkedList = (function (_super) {
+            __extends(LinkedList, _super);
+            function LinkedList() {
+                _super.apply(this, arguments);
+            }
+            return LinkedList;
+        })(List);
+        util.LinkedList = LinkedList;
+        var Map = (function () {
+            function Map() {
+                this.internalMap = new TSMap();
+            }
+            Map.prototype.get = function (key) {
+                return this.internalMap.get(key);
+            };
+            Map.prototype.put = function (key, value) {
+                this.internalMap.set(key, value);
+            };
+            Map.prototype.containsKey = function (key) {
+                return this.internalMap.has(key);
+            };
+            Map.prototype.remove = function (key) {
+                var tmp = this.internalMap.get(key);
+                this.internalMap.delete(key);
+                return tmp;
+            };
+            Map.prototype.keySet = function () {
+                var result = new HashSet();
+                this.internalMap.forEach(function (value, index, p1) {
+                    result.add(index);
+                });
+                return result;
+            };
+            Map.prototype.isEmpty = function () {
+                return this.internalMap.size == 0;
+            };
+            Map.prototype.values = function () {
+                var result = new HashSet();
+                this.internalMap.forEach(function (value, index, p1) {
+                    result.add(value);
+                });
+                return result;
+            };
+            Map.prototype.clear = function () {
+                this.internalMap = new TSMap();
+            };
+            return Map;
+        })();
+        util.Map = Map;
+        var HashMap = (function (_super) {
+            __extends(HashMap, _super);
+            function HashMap() {
+                _super.apply(this, arguments);
+            }
+            return HashMap;
+        })(Map);
+        util.HashMap = HashMap;
+        var Set = (function (_super) {
+            __extends(Set, _super);
+            function Set() {
+                _super.apply(this, arguments);
+                this.internalSet = new TSSet();
+            }
+            Set.prototype.add = function (val) {
+                this.internalSet.add(val);
+            };
+            Set.prototype.clear = function () {
+                this.internalSet = new TSSet();
+            };
+            Set.prototype.contains = function (val) {
+                return this.internalSet.has(val);
+            };
+            Set.prototype.addAll = function (vals) {
+                var tempArray = vals.toArray(null);
+                for (var i = 0; i < tempArray.length; i++) {
+                    this.internalSet.add(tempArray[i]);
+                }
+            };
+            Set.prototype.remove = function (val) {
+                this.internalSet.delete(val);
+            };
+            Set.prototype.size = function () {
+                return this.internalSet.size;
+            };
+            Set.prototype.isEmpty = function () {
+                return this.internalSet.size == 0;
+            };
+            Set.prototype.toArray = function (other) {
+                var result = new Array(this.internalSet.size);
+                var i = 0;
+                this.internalSet.forEach(function (value, index, origin) {
+                    result[i] = value;
+                    i++;
+                });
+                return result;
+            };
+            return Set;
+        })(Collection);
+        util.Set = Set;
+        var HashSet = (function (_super) {
+            __extends(HashSet, _super);
+            function HashSet() {
+                _super.apply(this, arguments);
+            }
+            return HashSet;
+        })(Set);
+        util.HashSet = HashSet;
+    })(util = java.util || (java.util = {}));
+})(java || (java = {}));
+var org;
+(function (org) {
+    var junit;
+    (function (junit) {
+        var Assert = (function () {
+            function Assert() {
+            }
+            Assert.assertNotNull = function (p) {
+                if (p == null) {
+                    throw "Assert Error " + p + " must not be null";
+                }
+            };
+            Assert.assertNull = function (p) {
+                if (p != null) {
+                    throw "Assert Error " + p + " must be null";
+                }
+            };
+            Assert.assertEquals = function (p, p2) {
+                if (p.equals !== undefined) {
+                    if (!p.equals(p2)) {
+                        throw "Assert Error \n" + p + "\n must be equal to \n" + p2 + "\n";
+                    }
+                }
+                else {
+                    if (p != p2) {
+                        throw "Assert Error \n" + p + "\n must be equal to \n" + p2 + "\n";
+                    }
+                }
+            };
+            Assert.assertNotEquals = function (p, p2) {
+                if (p.equals !== undefined) {
+                    if (p.equals(p2)) {
+                        throw "Assert Error \n" + p + "\n must not be equal to \n" + p2 + "\n";
+                    }
+                }
+                else {
+                    if (p == p2) {
+                        throw "Assert Error \n" + p + "\n must not be equal to \n" + p2 + "\n";
+                    }
+                }
+            };
+            Assert.assertTrue = function (b) {
+                if (!b) {
+                    throw "Assert Error " + b + " must be true";
+                }
+            };
+            return Assert;
+        })();
+        junit.Assert = Assert;
+    })(junit = org.junit || (org.junit = {}));
+})(org || (org = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var org;
 (function (org) {
     var kevoree;
@@ -7540,5 +8024,1040 @@ var org;
                 })(xmi = api.xmi || (api.xmi = {}));
             })(api = modeling.api || (modeling.api = {}));
         })(modeling = kevoree.modeling || (kevoree.modeling = {}));
+    })(kevoree = org.kevoree || (org.kevoree = {}));
+})(org || (org = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var org;
+(function (org) {
+    var kevoree;
+    (function (kevoree) {
+        var diamond;
+        (function (diamond) {
+            var impl;
+            (function (impl) {
+                var AImpl = (function (_super) {
+                    __extends(AImpl, _super);
+                    function AImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                        _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                    }
+                    AImpl.prototype.getAtt_a1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A1);
+                    };
+                    AImpl.prototype.setAtt_a1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A1, p_obj);
+                        return this;
+                    };
+                    AImpl.prototype.getAtt_a2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A2);
+                    };
+                    AImpl.prototype.setAtt_a2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A2, p_obj);
+                        return this;
+                    };
+                    AImpl.prototype.setRef_a2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A2, p_obj);
+                        return this;
+                    };
+                    AImpl.prototype.getRef_a2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A2, p_callback, null);
+                    };
+                    AImpl.prototype.setRef_a1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A1, p_obj);
+                        return this;
+                    };
+                    AImpl.prototype.getRef_a1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A1, p_callback, null);
+                    };
+                    AImpl.prototype.view = function () {
+                        return _super.prototype.view.call(this);
+                    };
+                    AImpl.prototype.metaClass = function () {
+                        return _super.prototype.metaClass.call(this);
+                    };
+                    return AImpl;
+                })(org.kevoree.modeling.api.abs.AbstractKObject);
+                impl.AImpl = AImpl;
+                var BImpl = (function (_super) {
+                    __extends(BImpl, _super);
+                    function BImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                        _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                    }
+                    BImpl.prototype.getAtt_b2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B2);
+                    };
+                    BImpl.prototype.setAtt_b2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B2, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.getAtt_a1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A1);
+                    };
+                    BImpl.prototype.setAtt_a1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A1, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.getAtt_a2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A2);
+                    };
+                    BImpl.prototype.setAtt_a2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A2, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.getAtt_b1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B1);
+                    };
+                    BImpl.prototype.setAtt_b1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B1, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.setRef_a2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A2, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.getRef_a2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A2, p_callback, null);
+                    };
+                    BImpl.prototype.setRef_b2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B2, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.getRef_b2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B2, p_callback, null);
+                    };
+                    BImpl.prototype.setRef_a1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A1, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.getRef_a1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A1, p_callback, null);
+                    };
+                    BImpl.prototype.setRef_b1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B1, p_obj);
+                        return this;
+                    };
+                    BImpl.prototype.getRef_b1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B1, p_callback, null);
+                    };
+                    BImpl.prototype.view = function () {
+                        return _super.prototype.view.call(this);
+                    };
+                    BImpl.prototype.metaClass = function () {
+                        return _super.prototype.metaClass.call(this);
+                    };
+                    return BImpl;
+                })(org.kevoree.modeling.api.abs.AbstractKObject);
+                impl.BImpl = BImpl;
+                var CLImpl = (function (_super) {
+                    __extends(CLImpl, _super);
+                    function CLImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                        _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                    }
+                    CLImpl.prototype.getAtt_b2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B2);
+                    };
+                    CLImpl.prototype.setAtt_b2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B2, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getAtt_a1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A1);
+                    };
+                    CLImpl.prototype.setAtt_a1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A1, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getAtt_a2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A2);
+                    };
+                    CLImpl.prototype.setAtt_a2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A2, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getAtt_b1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B1);
+                    };
+                    CLImpl.prototype.setAtt_b1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B1, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.setRef_cl1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_CL1, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getRef_cl1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_CL1, p_callback, null);
+                    };
+                    CLImpl.prototype.setRef_a2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A2, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getRef_a2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A2, p_callback, null);
+                    };
+                    CLImpl.prototype.setRef_b2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B2, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getRef_b2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B2, p_callback, null);
+                    };
+                    CLImpl.prototype.setRef_a1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A1, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getRef_a1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A1, p_callback, null);
+                    };
+                    CLImpl.prototype.setRef_b1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B1, p_obj);
+                        return this;
+                    };
+                    CLImpl.prototype.getRef_b1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B1, p_callback, null);
+                    };
+                    CLImpl.prototype.view = function () {
+                        return _super.prototype.view.call(this);
+                    };
+                    CLImpl.prototype.metaClass = function () {
+                        return _super.prototype.metaClass.call(this);
+                    };
+                    return CLImpl;
+                })(org.kevoree.modeling.api.abs.AbstractKObject);
+                impl.CLImpl = CLImpl;
+                var CRAImpl = (function (_super) {
+                    __extends(CRAImpl, _super);
+                    function CRAImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                        _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                    }
+                    CRAImpl.prototype.getAtt_b2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B2);
+                    };
+                    CRAImpl.prototype.setAtt_b2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B2, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getAtt_a1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A1);
+                    };
+                    CRAImpl.prototype.setAtt_a1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A1, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getAtt_a2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A2);
+                    };
+                    CRAImpl.prototype.setAtt_a2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A2, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getAtt_b1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B1);
+                    };
+                    CRAImpl.prototype.setAtt_b1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B1, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getAtt_cr2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR2);
+                    };
+                    CRAImpl.prototype.setAtt_cr2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR2, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getAtt_cr1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR1);
+                    };
+                    CRAImpl.prototype.setAtt_cr1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR1, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getAtt_cr3 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR3);
+                    };
+                    CRAImpl.prototype.setAtt_cr3 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR3, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.setRef_cra1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_CRA1, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getRef_cra1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_CRA1, p_callback, null);
+                    };
+                    CRAImpl.prototype.setRef_a2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A2, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getRef_a2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A2, p_callback, null);
+                    };
+                    CRAImpl.prototype.setRef_b2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B2, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getRef_b2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B2, p_callback, null);
+                    };
+                    CRAImpl.prototype.setRef_a1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A1, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getRef_a1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A1, p_callback, null);
+                    };
+                    CRAImpl.prototype.setRef_b1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B1, p_obj);
+                        return this;
+                    };
+                    CRAImpl.prototype.getRef_b1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B1, p_callback, null);
+                    };
+                    CRAImpl.prototype.view = function () {
+                        return _super.prototype.view.call(this);
+                    };
+                    CRAImpl.prototype.metaClass = function () {
+                        return _super.prototype.metaClass.call(this);
+                    };
+                    return CRAImpl;
+                })(org.kevoree.modeling.api.abs.AbstractKObject);
+                impl.CRAImpl = CRAImpl;
+                var CRImpl = (function (_super) {
+                    __extends(CRImpl, _super);
+                    function CRImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                        _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                    }
+                    CRImpl.prototype.getAtt_b2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B2);
+                    };
+                    CRImpl.prototype.setAtt_b2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B2, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getAtt_a1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A1);
+                    };
+                    CRImpl.prototype.setAtt_a1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A1, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getAtt_a2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A2);
+                    };
+                    CRImpl.prototype.setAtt_a2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A2, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getAtt_b1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B1);
+                    };
+                    CRImpl.prototype.setAtt_b1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B1, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getAtt_cr2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR2);
+                    };
+                    CRImpl.prototype.setAtt_cr2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR2, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getAtt_cr1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR1);
+                    };
+                    CRImpl.prototype.setAtt_cr1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR1, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getAtt_cr3 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR3);
+                    };
+                    CRImpl.prototype.setAtt_cr3 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR3, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.setRef_a2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A2, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getRef_a2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A2, p_callback, null);
+                    };
+                    CRImpl.prototype.setRef_b2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B2, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getRef_b2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B2, p_callback, null);
+                    };
+                    CRImpl.prototype.setRef_a1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A1, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getRef_a1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A1, p_callback, null);
+                    };
+                    CRImpl.prototype.setRef_b1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B1, p_obj);
+                        return this;
+                    };
+                    CRImpl.prototype.getRef_b1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B1, p_callback, null);
+                    };
+                    CRImpl.prototype.view = function () {
+                        return _super.prototype.view.call(this);
+                    };
+                    CRImpl.prototype.metaClass = function () {
+                        return _super.prototype.metaClass.call(this);
+                    };
+                    return CRImpl;
+                })(org.kevoree.modeling.api.abs.AbstractKObject);
+                impl.CRImpl = CRImpl;
+                var DImpl = (function (_super) {
+                    __extends(DImpl, _super);
+                    function DImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                        _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                    }
+                    DImpl.prototype.getAtt_b2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B2);
+                    };
+                    DImpl.prototype.setAtt_b2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B2, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_a1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A1);
+                    };
+                    DImpl.prototype.setAtt_a1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_a2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A2);
+                    };
+                    DImpl.prototype.setAtt_a2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A2, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_d2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_D2);
+                    };
+                    DImpl.prototype.setAtt_d2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_D2, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_b1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B1);
+                    };
+                    DImpl.prototype.setAtt_b1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_d1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_D1);
+                    };
+                    DImpl.prototype.setAtt_d1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_D1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_cr2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR2);
+                    };
+                    DImpl.prototype.setAtt_cr2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR2, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_cr1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR1);
+                    };
+                    DImpl.prototype.setAtt_cr1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getAtt_cr3 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR3);
+                    };
+                    DImpl.prototype.setAtt_cr3 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR3, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.setRef_cl1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_CL1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getRef_cl1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_CL1, p_callback, null);
+                    };
+                    DImpl.prototype.setRef_cra1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_CRA1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getRef_cra1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_CRA1, p_callback, null);
+                    };
+                    DImpl.prototype.setRef_a2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A2, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getRef_a2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A2, p_callback, null);
+                    };
+                    DImpl.prototype.setRef_b2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B2, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getRef_b2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B2, p_callback, null);
+                    };
+                    DImpl.prototype.setRef_a1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getRef_a1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A1, p_callback, null);
+                    };
+                    DImpl.prototype.setRef_b1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getRef_b1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B1, p_callback, null);
+                    };
+                    DImpl.prototype.setRef_d1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_D1, p_obj);
+                        return this;
+                    };
+                    DImpl.prototype.getRef_d1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_D1, p_callback, null);
+                    };
+                    DImpl.prototype.view = function () {
+                        return _super.prototype.view.call(this);
+                    };
+                    DImpl.prototype.metaClass = function () {
+                        return _super.prototype.metaClass.call(this);
+                    };
+                    return DImpl;
+                })(org.kevoree.modeling.api.abs.AbstractKObject);
+                impl.DImpl = DImpl;
+                var EImpl = (function (_super) {
+                    __extends(EImpl, _super);
+                    function EImpl(p_factory, p_uuid, p_timeTree, p_metaClass) {
+                        _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
+                    }
+                    EImpl.prototype.getAtt_b2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B2);
+                    };
+                    EImpl.prototype.setAtt_b2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B2, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_a1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A1);
+                    };
+                    EImpl.prototype.setAtt_a1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_a2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_A2);
+                    };
+                    EImpl.prototype.setAtt_a2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_A2, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_d2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_D2);
+                    };
+                    EImpl.prototype.setAtt_d2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_D2, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_b1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_B1);
+                    };
+                    EImpl.prototype.setAtt_b1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_B1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_e1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_E1);
+                    };
+                    EImpl.prototype.setAtt_e1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_E1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_e2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_E2);
+                    };
+                    EImpl.prototype.setAtt_e2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_E2, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_d1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_D1);
+                    };
+                    EImpl.prototype.setAtt_d1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_D1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_cr2 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR2);
+                    };
+                    EImpl.prototype.setAtt_cr2 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR2, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_cr1 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR1);
+                    };
+                    EImpl.prototype.setAtt_cr1 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getAtt_cr3 = function () {
+                        return this.get(this.metaClass().ATT_ATT_CR3);
+                    };
+                    EImpl.prototype.setAtt_cr3 = function (p_obj) {
+                        this.set(this.metaClass().ATT_ATT_CR3, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.setRef_cl1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_CL1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_cl1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_CL1, p_callback, null);
+                    };
+                    EImpl.prototype.setRef_cra1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_CRA1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_cra1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_CRA1, p_callback, null);
+                    };
+                    EImpl.prototype.setRef_a2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A2, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_a2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A2, p_callback, null);
+                    };
+                    EImpl.prototype.setRef_b2 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B2, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_b2 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B2, p_callback, null);
+                    };
+                    EImpl.prototype.setRef_a1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_A1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_a1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_A1, p_callback, null);
+                    };
+                    EImpl.prototype.setRef_b1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_B1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_b1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_B1, p_callback, null);
+                    };
+                    EImpl.prototype.setRef_d1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_D1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_d1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_D1, p_callback, null);
+                    };
+                    EImpl.prototype.setRef_e1 = function (p_obj) {
+                        this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_REF_E1, p_obj);
+                        return this;
+                    };
+                    EImpl.prototype.getRef_e1 = function (p_callback) {
+                        this.each(this.metaClass().REF_REF_E1, p_callback, null);
+                    };
+                    EImpl.prototype.view = function () {
+                        return _super.prototype.view.call(this);
+                    };
+                    EImpl.prototype.metaClass = function () {
+                        return _super.prototype.metaClass.call(this);
+                    };
+                    return EImpl;
+                })(org.kevoree.modeling.api.abs.AbstractKObject);
+                impl.EImpl = EImpl;
+            })(impl = diamond.impl || (diamond.impl = {}));
+            var meta;
+            (function (meta) {
+                var MetaA = (function (_super) {
+                    __extends(MetaA, _super);
+                    function MetaA(p_origin) {
+                        _super.call(this, "org.kevoree.diamond.A", 0, p_origin);
+                        var temp_attributes = new Array();
+                        this.ATT_ATT_A1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a1", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[1] = this.ATT_ATT_A1;
+                        this.ATT_ATT_A2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a2", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[2] = this.ATT_ATT_A2;
+                        var temp_references = new Array();
+                        this.REF_REF_A2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a2", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_A2;
+                        this.REF_REF_A1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a1", 11, false, true, 0, null, null, this);
+                        temp_references[2] = this.REF_REF_A1;
+                        var temp_operations = new Array();
+                        this.init(temp_attributes, temp_references, temp_operations);
+                    }
+                    MetaA.build = function (p_origin) {
+                        return new org.kevoree.diamond.meta.MetaA(p_origin);
+                    };
+                    return MetaA;
+                })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+                meta.MetaA = MetaA;
+                var MetaB = (function (_super) {
+                    __extends(MetaB, _super);
+                    function MetaB(p_origin) {
+                        _super.call(this, "org.kevoree.diamond.B", 1, p_origin);
+                        var temp_attributes = new Array();
+                        this.ATT_ATT_B2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b2", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[0] = this.ATT_ATT_B2;
+                        this.ATT_ATT_A1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a1", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[1] = this.ATT_ATT_A1;
+                        this.ATT_ATT_A2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a2", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[2] = this.ATT_ATT_A2;
+                        this.ATT_ATT_B1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b1", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_B1;
+                        var temp_references = new Array();
+                        this.REF_REF_A2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a2", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_A2;
+                        this.REF_REF_B2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b2", 10, false, true, 0, null, null, this);
+                        temp_references[1] = this.REF_REF_B2;
+                        this.REF_REF_A1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a1", 11, false, true, 0, null, null, this);
+                        temp_references[2] = this.REF_REF_A1;
+                        this.REF_REF_B1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b1", 12, false, true, 0, null, null, this);
+                        temp_references[3] = this.REF_REF_B1;
+                        var temp_operations = new Array();
+                        this.init(temp_attributes, temp_references, temp_operations);
+                    }
+                    MetaB.build = function (p_origin) {
+                        return new org.kevoree.diamond.meta.MetaB(p_origin);
+                    };
+                    return MetaB;
+                })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+                meta.MetaB = MetaB;
+                var MetaCL = (function (_super) {
+                    __extends(MetaCL, _super);
+                    function MetaCL(p_origin) {
+                        _super.call(this, "org.kevoree.diamond.CL", 2, p_origin);
+                        var temp_attributes = new Array();
+                        this.ATT_ATT_B2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b2", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[0] = this.ATT_ATT_B2;
+                        this.ATT_ATT_A1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a1", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[1] = this.ATT_ATT_A1;
+                        this.ATT_ATT_A2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a2", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[2] = this.ATT_ATT_A2;
+                        this.ATT_ATT_B1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b1", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_B1;
+                        var temp_references = new Array();
+                        this.REF_REF_CL1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_cl1", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_CL1;
+                        this.REF_REF_A2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a2", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_A2;
+                        this.REF_REF_B2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b2", 10, false, true, 0, null, null, this);
+                        temp_references[1] = this.REF_REF_B2;
+                        this.REF_REF_A1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a1", 11, false, true, 0, null, null, this);
+                        temp_references[2] = this.REF_REF_A1;
+                        this.REF_REF_B1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b1", 12, false, true, 0, null, null, this);
+                        temp_references[3] = this.REF_REF_B1;
+                        var temp_operations = new Array();
+                        this.init(temp_attributes, temp_references, temp_operations);
+                    }
+                    MetaCL.build = function (p_origin) {
+                        return new org.kevoree.diamond.meta.MetaCL(p_origin);
+                    };
+                    return MetaCL;
+                })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+                meta.MetaCL = MetaCL;
+                var MetaCR = (function (_super) {
+                    __extends(MetaCR, _super);
+                    function MetaCR(p_origin) {
+                        _super.call(this, "org.kevoree.diamond.CR", 3, p_origin);
+                        var temp_attributes = new Array();
+                        this.ATT_ATT_B2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b2", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[0] = this.ATT_ATT_B2;
+                        this.ATT_ATT_A1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a1", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[1] = this.ATT_ATT_A1;
+                        this.ATT_ATT_A2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a2", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[2] = this.ATT_ATT_A2;
+                        this.ATT_ATT_B1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b1", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_B1;
+                        this.ATT_ATT_CR2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr2", 9, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[4] = this.ATT_ATT_CR2;
+                        this.ATT_ATT_CR1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr1", 10, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[5] = this.ATT_ATT_CR1;
+                        this.ATT_ATT_CR3 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr3", 11, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[6] = this.ATT_ATT_CR3;
+                        var temp_references = new Array();
+                        this.REF_REF_A2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a2", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_A2;
+                        this.REF_REF_B2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b2", 10, false, true, 0, null, null, this);
+                        temp_references[1] = this.REF_REF_B2;
+                        this.REF_REF_A1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a1", 11, false, true, 0, null, null, this);
+                        temp_references[2] = this.REF_REF_A1;
+                        this.REF_REF_B1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b1", 12, false, true, 0, null, null, this);
+                        temp_references[3] = this.REF_REF_B1;
+                        var temp_operations = new Array();
+                        this.init(temp_attributes, temp_references, temp_operations);
+                    }
+                    MetaCR.build = function (p_origin) {
+                        return new org.kevoree.diamond.meta.MetaCR(p_origin);
+                    };
+                    return MetaCR;
+                })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+                meta.MetaCR = MetaCR;
+                var MetaCRA = (function (_super) {
+                    __extends(MetaCRA, _super);
+                    function MetaCRA(p_origin) {
+                        _super.call(this, "org.kevoree.diamond.CRA", 4, p_origin);
+                        var temp_attributes = new Array();
+                        this.ATT_ATT_B2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b2", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[0] = this.ATT_ATT_B2;
+                        this.ATT_ATT_A1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a1", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[1] = this.ATT_ATT_A1;
+                        this.ATT_ATT_A2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a2", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[2] = this.ATT_ATT_A2;
+                        this.ATT_ATT_B1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b1", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_B1;
+                        this.ATT_ATT_CR2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr2", 9, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[4] = this.ATT_ATT_CR2;
+                        this.ATT_ATT_CR1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr1", 10, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[5] = this.ATT_ATT_CR1;
+                        this.ATT_ATT_CR3 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr3", 11, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[6] = this.ATT_ATT_CR3;
+                        var temp_references = new Array();
+                        this.REF_REF_CRA1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_cra1", 12, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_CRA1;
+                        this.REF_REF_A2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a2", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_A2;
+                        this.REF_REF_B2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b2", 10, false, true, 0, null, null, this);
+                        temp_references[1] = this.REF_REF_B2;
+                        this.REF_REF_A1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a1", 11, false, true, 0, null, null, this);
+                        temp_references[2] = this.REF_REF_A1;
+                        this.REF_REF_B1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b1", 12, false, true, 0, null, null, this);
+                        temp_references[3] = this.REF_REF_B1;
+                        var temp_operations = new Array();
+                        this.init(temp_attributes, temp_references, temp_operations);
+                    }
+                    MetaCRA.build = function (p_origin) {
+                        return new org.kevoree.diamond.meta.MetaCRA(p_origin);
+                    };
+                    return MetaCRA;
+                })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+                meta.MetaCRA = MetaCRA;
+                var MetaD = (function (_super) {
+                    __extends(MetaD, _super);
+                    function MetaD(p_origin) {
+                        _super.call(this, "org.kevoree.diamond.D", 5, p_origin);
+                        var temp_attributes = new Array();
+                        this.ATT_ATT_B2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b2", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[0] = this.ATT_ATT_B2;
+                        this.ATT_ATT_A1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a1", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[1] = this.ATT_ATT_A1;
+                        this.ATT_ATT_A2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a2", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[2] = this.ATT_ATT_A2;
+                        this.ATT_ATT_D2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_d2", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_D2;
+                        this.ATT_ATT_B1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b1", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_B1;
+                        this.ATT_ATT_D1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_d1", 12, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[7] = this.ATT_ATT_D1;
+                        this.ATT_ATT_CR2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr2", 9, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[4] = this.ATT_ATT_CR2;
+                        this.ATT_ATT_CR1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr1", 10, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[5] = this.ATT_ATT_CR1;
+                        this.ATT_ATT_CR3 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr3", 11, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[6] = this.ATT_ATT_CR3;
+                        var temp_references = new Array();
+                        this.REF_REF_CL1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_cl1", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_CL1;
+                        this.REF_REF_CRA1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_cra1", 12, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_CRA1;
+                        this.REF_REF_A2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a2", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_A2;
+                        this.REF_REF_B2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b2", 10, false, true, 0, null, null, this);
+                        temp_references[1] = this.REF_REF_B2;
+                        this.REF_REF_A1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a1", 11, false, true, 0, null, null, this);
+                        temp_references[2] = this.REF_REF_A1;
+                        this.REF_REF_B1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b1", 12, false, true, 0, null, null, this);
+                        temp_references[3] = this.REF_REF_B1;
+                        this.REF_REF_D1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_d1", 22, false, true, 0, null, null, this);
+                        temp_references[6] = this.REF_REF_D1;
+                        var temp_operations = new Array();
+                        this.init(temp_attributes, temp_references, temp_operations);
+                    }
+                    MetaD.build = function (p_origin) {
+                        return new org.kevoree.diamond.meta.MetaD(p_origin);
+                    };
+                    return MetaD;
+                })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+                meta.MetaD = MetaD;
+                var MetaE = (function (_super) {
+                    __extends(MetaE, _super);
+                    function MetaE(p_origin) {
+                        _super.call(this, "org.kevoree.diamond.E", 6, p_origin);
+                        var temp_attributes = new Array();
+                        this.ATT_ATT_B2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b2", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[0] = this.ATT_ATT_B2;
+                        this.ATT_ATT_A1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a1", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[1] = this.ATT_ATT_A1;
+                        this.ATT_ATT_A2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_a2", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[2] = this.ATT_ATT_A2;
+                        this.ATT_ATT_D2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_d2", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_D2;
+                        this.ATT_ATT_B1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_b1", 8, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[3] = this.ATT_ATT_B1;
+                        this.ATT_ATT_E1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_e1", 10, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[5] = this.ATT_ATT_E1;
+                        this.ATT_ATT_E2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_e2", 11, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[6] = this.ATT_ATT_E2;
+                        this.ATT_ATT_D1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_d1", 12, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[7] = this.ATT_ATT_D1;
+                        this.ATT_ATT_CR2 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr2", 9, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[4] = this.ATT_ATT_CR2;
+                        this.ATT_ATT_CR1 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr1", 10, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[5] = this.ATT_ATT_CR1;
+                        this.ATT_ATT_CR3 = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("att_cr3", 11, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
+                        temp_attributes[6] = this.ATT_ATT_CR3;
+                        var temp_references = new Array();
+                        this.REF_REF_CL1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_cl1", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_CL1;
+                        this.REF_REF_CRA1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_cra1", 12, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_CRA1;
+                        this.REF_REF_A2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a2", 9, false, true, 0, null, null, this);
+                        temp_references[0] = this.REF_REF_A2;
+                        this.REF_REF_B2 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b2", 10, false, true, 0, null, null, this);
+                        temp_references[1] = this.REF_REF_B2;
+                        this.REF_REF_A1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_a1", 11, false, true, 0, null, null, this);
+                        temp_references[2] = this.REF_REF_A1;
+                        this.REF_REF_B1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_b1", 12, false, true, 0, null, null, this);
+                        temp_references[3] = this.REF_REF_B1;
+                        this.REF_REF_D1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_d1", 22, false, true, 0, null, null, this);
+                        temp_references[6] = this.REF_REF_D1;
+                        this.REF_REF_E1 = new org.kevoree.modeling.api.abs.AbstractMetaReference("ref_e1", 23, false, true, 0, null, null, this);
+                        temp_references[7] = this.REF_REF_E1;
+                        var temp_operations = new Array();
+                        this.init(temp_attributes, temp_references, temp_operations);
+                    }
+                    MetaE.build = function (p_origin) {
+                        return new org.kevoree.diamond.meta.MetaE(p_origin);
+                    };
+                    return MetaE;
+                })(org.kevoree.modeling.api.abs.AbstractMetaClass);
+                meta.MetaE = MetaE;
+            })(meta = diamond.meta || (diamond.meta = {}));
+        })(diamond = kevoree.diamond || (kevoree.diamond = {}));
+        var DiamondDimension = (function (_super) {
+            __extends(DiamondDimension, _super);
+            function DiamondDimension(universe, key) {
+                _super.call(this, universe, key);
+            }
+            DiamondDimension.prototype.internal_create = function (timePoint) {
+                return new org.kevoree.impl.DiamondViewImpl(timePoint, this);
+            };
+            return DiamondDimension;
+        })(org.kevoree.modeling.api.abs.AbstractKDimension);
+        kevoree.DiamondDimension = DiamondDimension;
+        var DiamondUniverse = (function (_super) {
+            __extends(DiamondUniverse, _super);
+            function DiamondUniverse() {
+                _super.call(this);
+                this._metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("Diamond", -1);
+                var tempMetaClasses = new Array();
+                this.META_ORG_KEVOREE_DIAMOND_D = org.kevoree.diamond.meta.MetaD.build(this._metaModel);
+                tempMetaClasses[5] = this.META_ORG_KEVOREE_DIAMOND_D;
+                this.META_ORG_KEVOREE_DIAMOND_E = org.kevoree.diamond.meta.MetaE.build(this._metaModel);
+                tempMetaClasses[6] = this.META_ORG_KEVOREE_DIAMOND_E;
+                this.META_ORG_KEVOREE_DIAMOND_CR = org.kevoree.diamond.meta.MetaCR.build(this._metaModel);
+                tempMetaClasses[3] = this.META_ORG_KEVOREE_DIAMOND_CR;
+                this.META_ORG_KEVOREE_DIAMOND_CL = org.kevoree.diamond.meta.MetaCL.build(this._metaModel);
+                tempMetaClasses[2] = this.META_ORG_KEVOREE_DIAMOND_CL;
+                this.META_ORG_KEVOREE_DIAMOND_CRA = org.kevoree.diamond.meta.MetaCRA.build(this._metaModel);
+                tempMetaClasses[4] = this.META_ORG_KEVOREE_DIAMOND_CRA;
+                this.META_ORG_KEVOREE_DIAMOND_A = org.kevoree.diamond.meta.MetaA.build(this._metaModel);
+                tempMetaClasses[0] = this.META_ORG_KEVOREE_DIAMOND_A;
+                this.META_ORG_KEVOREE_DIAMOND_B = org.kevoree.diamond.meta.MetaB.build(this._metaModel);
+                tempMetaClasses[1] = this.META_ORG_KEVOREE_DIAMOND_B;
+                this._metaModel.init(tempMetaClasses);
+            }
+            DiamondUniverse.prototype.internal_create = function (key) {
+                return new org.kevoree.DiamondDimension(this, key);
+            };
+            DiamondUniverse.prototype.metaModel = function () {
+                return this._metaModel;
+            };
+            return DiamondUniverse;
+        })(org.kevoree.modeling.api.abs.AbstractKUniverse);
+        kevoree.DiamondUniverse = DiamondUniverse;
+        var impl;
+        (function (impl) {
+            var DiamondViewImpl = (function (_super) {
+                __extends(DiamondViewImpl, _super);
+                function DiamondViewImpl(p_now, p_dimension) {
+                    _super.call(this, p_now, p_dimension);
+                }
+                DiamondViewImpl.prototype.internalCreate = function (p_clazz, p_timeTree, p_key) {
+                    if (p_clazz == null) {
+                        return null;
+                    }
+                    switch (p_clazz.index()) {
+                        case 5:
+                            return new org.kevoree.diamond.impl.DImpl(this, p_key, p_timeTree, p_clazz);
+                        case 6:
+                            return new org.kevoree.diamond.impl.EImpl(this, p_key, p_timeTree, p_clazz);
+                        case 3:
+                            return new org.kevoree.diamond.impl.CRImpl(this, p_key, p_timeTree, p_clazz);
+                        case 2:
+                            return new org.kevoree.diamond.impl.CLImpl(this, p_key, p_timeTree, p_clazz);
+                        case 4:
+                            return new org.kevoree.diamond.impl.CRAImpl(this, p_key, p_timeTree, p_clazz);
+                        case 0:
+                            return new org.kevoree.diamond.impl.AImpl(this, p_key, p_timeTree, p_clazz);
+                        case 1:
+                            return new org.kevoree.diamond.impl.BImpl(this, p_key, p_timeTree, p_clazz);
+                        default:
+                            return new org.kevoree.modeling.api.abs.DynamicKObject(this, p_key, p_timeTree, p_clazz);
+                    }
+                };
+                DiamondViewImpl.prototype.createD = function () {
+                    return this.create(this.dimension().universe().META_ORG_KEVOREE_DIAMOND_D);
+                };
+                DiamondViewImpl.prototype.createE = function () {
+                    return this.create(this.dimension().universe().META_ORG_KEVOREE_DIAMOND_E);
+                };
+                DiamondViewImpl.prototype.createCR = function () {
+                    return this.create(this.dimension().universe().META_ORG_KEVOREE_DIAMOND_CR);
+                };
+                DiamondViewImpl.prototype.createCL = function () {
+                    return this.create(this.dimension().universe().META_ORG_KEVOREE_DIAMOND_CL);
+                };
+                DiamondViewImpl.prototype.createCRA = function () {
+                    return this.create(this.dimension().universe().META_ORG_KEVOREE_DIAMOND_CRA);
+                };
+                DiamondViewImpl.prototype.createA = function () {
+                    return this.create(this.dimension().universe().META_ORG_KEVOREE_DIAMOND_A);
+                };
+                DiamondViewImpl.prototype.createB = function () {
+                    return this.create(this.dimension().universe().META_ORG_KEVOREE_DIAMOND_B);
+                };
+                DiamondViewImpl.prototype.dimension = function () {
+                    return _super.prototype.dimension.call(this);
+                };
+                return DiamondViewImpl;
+            })(org.kevoree.modeling.api.abs.AbstractKView);
+            impl.DiamondViewImpl = DiamondViewImpl;
+        })(impl = kevoree.impl || (kevoree.impl = {}));
     })(kevoree = org.kevoree || (org.kevoree = {}));
 })(org || (org = {}));
