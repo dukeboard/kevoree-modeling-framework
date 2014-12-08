@@ -33,9 +33,6 @@ public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject
     @Override
     public ${context.generationContext.metaModelPackage}.${context.generationContext.metaModelName}View view();
 
-    @Override
-    public ${classDeclaration.pack}.meta.Meta${classDeclaration.name} metaClass();
-
 }
 #* @vtlvariable name="context" type="org.kevoree.modeling.generator.ClassGenerationContext" *#
 #* @vtlvariable name="classDeclaration" type="org.kevoree.modeling.ast.MModelClass" *#

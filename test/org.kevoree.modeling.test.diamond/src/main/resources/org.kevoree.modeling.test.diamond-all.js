@@ -8076,9 +8076,6 @@ var org;
                     AImpl.prototype.view = function () {
                         return _super.prototype.view.call(this);
                     };
-                    AImpl.prototype.metaClass = function () {
-                        return _super.prototype.metaClass.call(this);
-                    };
                     return AImpl;
                 })(org.kevoree.modeling.api.abs.AbstractKObject);
                 impl.AImpl = AImpl;
@@ -8145,9 +8142,6 @@ var org;
                     };
                     BImpl.prototype.view = function () {
                         return _super.prototype.view.call(this);
-                    };
-                    BImpl.prototype.metaClass = function () {
-                        return _super.prototype.metaClass.call(this);
                     };
                     return BImpl;
                 })(org.kevoree.modeling.api.abs.AbstractKObject);
@@ -8222,9 +8216,6 @@ var org;
                     };
                     CLImpl.prototype.view = function () {
                         return _super.prototype.view.call(this);
-                    };
-                    CLImpl.prototype.metaClass = function () {
-                        return _super.prototype.metaClass.call(this);
                     };
                     return CLImpl;
                 })(org.kevoree.modeling.api.abs.AbstractKObject);
@@ -8321,9 +8312,6 @@ var org;
                     CRAImpl.prototype.view = function () {
                         return _super.prototype.view.call(this);
                     };
-                    CRAImpl.prototype.metaClass = function () {
-                        return _super.prototype.metaClass.call(this);
-                    };
                     return CRAImpl;
                 })(org.kevoree.modeling.api.abs.AbstractKObject);
                 impl.CRAImpl = CRAImpl;
@@ -8411,9 +8399,6 @@ var org;
                     };
                     CRImpl.prototype.view = function () {
                         return _super.prototype.view.call(this);
-                    };
-                    CRImpl.prototype.metaClass = function () {
-                        return _super.prototype.metaClass.call(this);
                     };
                     return CRImpl;
                 })(org.kevoree.modeling.api.abs.AbstractKObject);
@@ -8537,9 +8522,6 @@ var org;
                     };
                     DImpl.prototype.view = function () {
                         return _super.prototype.view.call(this);
-                    };
-                    DImpl.prototype.metaClass = function () {
-                        return _super.prototype.metaClass.call(this);
                     };
                     return DImpl;
                 })(org.kevoree.modeling.api.abs.AbstractKObject);
@@ -8684,9 +8666,6 @@ var org;
                     };
                     EImpl.prototype.view = function () {
                         return _super.prototype.view.call(this);
-                    };
-                    EImpl.prototype.metaClass = function () {
-                        return _super.prototype.metaClass.call(this);
                     };
                     return EImpl;
                 })(org.kevoree.modeling.api.abs.AbstractKObject);

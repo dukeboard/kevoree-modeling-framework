@@ -8137,9 +8137,6 @@ var cloud;
             ElementImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);
             };
-            ElementImpl.prototype.metaClass = function () {
-                return _super.prototype.metaClass.call(this);
-            };
             return ElementImpl;
         })(org.kevoree.modeling.api.abs.AbstractKObject);
         impl.ElementImpl = ElementImpl;
@@ -8185,9 +8182,6 @@ var cloud;
             };
             NodeImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);
-            };
-            NodeImpl.prototype.metaClass = function () {
-                return _super.prototype.metaClass.call(this);
             };
             return NodeImpl;
         })(org.kevoree.modeling.api.abs.AbstractKObject);
