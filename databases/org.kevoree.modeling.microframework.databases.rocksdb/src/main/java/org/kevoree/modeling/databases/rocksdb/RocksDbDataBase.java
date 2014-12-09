@@ -38,9 +38,13 @@ public class RocksDbDataBase implements KDataBase {
                 result[i] = new String(db.get(keys[i].getBytes()));
 
             }
-            callback.on(result, null);
+            if (callback != null) {
+                callback.on(result, null);
+            }
         } catch (RocksDBException e) {
-            callback.on(result, e);
+            if (callback != null) {
+                callback.on(result, e);
+            }
         }
     }
 
@@ -50,9 +54,13 @@ public class RocksDbDataBase implements KDataBase {
             for (int i = 0; i < payloads.length; i++) {
                 db.put(payloads[i][0].getBytes(), payloads[i][1].getBytes());
             }
-            error.on(null);
+            if (error != null) {
+                error.on(null);
+            }
         } catch (RocksDBException e) {
-            error.on(e);
+            if (error != null) {
+                error.on(e);
+            }
         }
     }
 
@@ -62,9 +70,13 @@ public class RocksDbDataBase implements KDataBase {
             for (int i = 0; i < keys.length; i++) {
                 db.remove(keys[i].getBytes());
             }
-            error.on(null);
+            if (error != null) {
+                error.on(null);
+            }
         } catch (Exception e) {
-            error.on(e);
+            if (error != null) {
+                error.on(e);
+            }
         }
     }
 
@@ -74,9 +86,13 @@ public class RocksDbDataBase implements KDataBase {
             WriteOptions options = new WriteOptions();
             options.sync();
             db.write(options, new WriteBatch());
-            error.on(null);
+            if (error != null) {
+                error.on(null);
+            }
         } catch (Exception e) {
-            error.on(e);
+            if (error != null) {
+                error.on(e);
+            }
         }
     }
 
@@ -87,9 +103,13 @@ public class RocksDbDataBase implements KDataBase {
             options.sync();
             db.write(options, new WriteBatch());
             db.close();
-            error.on(null);
+            if (error != null) {
+                error.on(null);
+            }
         } catch (Exception e) {
-            error.on(e);
+            if (error != null) {
+                error.on(e);
+            }
         }
     }
 }

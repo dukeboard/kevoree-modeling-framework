@@ -21,7 +21,9 @@ public class RedisDataBase implements KDataBase {
     @Override
     public void get(String[] keys, ThrowableCallback<String[]> callback) {
         List<String> values = jedis.mget(keys);
-        callback.on(values.toArray(new String[values.size()]), null);
+        if (callback != null) {
+            callback.on(values.toArray(new String[values.size()]), null);
+        }
     }
 
     @Override
@@ -31,8 +33,12 @@ public class RedisDataBase implements KDataBase {
             elems[(i * 2)] = payloads[i][0];
             elems[(i * 2) + 1] = payloads[i][1];
         }
-        jedis.mset(elems);
-        error.on(null);
+        if (jedis != null) {
+            jedis.mset(elems);
+        }
+        if (error != null) {
+            error.on(null);
+        }
     }
 
     @Override
@@ -47,7 +53,9 @@ public class RedisDataBase implements KDataBase {
 
     @Override
     public void close(Callback<Throwable> error) {
-        jedis.close();
+        if (jedis != null) {
+            jedis.close();
+        }
     }
 
 }

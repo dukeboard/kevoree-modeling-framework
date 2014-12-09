@@ -38,7 +38,9 @@ public class MongoDbDataBase implements KDataBase {
                 result[i] = cursor.next().toString();
             }
         }
-        callback.on(result, null);
+        if (callback != null) {
+            callback.on(result, null);
+        }
     }
 
     @Override
@@ -52,23 +54,33 @@ public class MongoDbDataBase implements KDataBase {
             objs.add(obj);
         }
         table.aggregate(objs);
-        error.on(null);
+        if (error != null) {
+            error.on(null);
+        }
     }
 
     @Override
     public void remove(String[] keys, Callback<Throwable> error) {
-        error.on(null);
+        if (error != null) {
+            error.on(null);
+        }
     }
 
     @Override
     public void commit(Callback<Throwable> error) {
-        error.on(null);
+        if (error != null) {
+            error.on(null);
+        }
     }
 
     @Override
     public void close(Callback<Throwable> error) {
-        mongoClient.close();
-        error.on(null);
+        if (mongoClient != null) {
+            mongoClient.close();
+        }
+        if (error != null) {
+            error.on(null);
+        }
     }
 
 
