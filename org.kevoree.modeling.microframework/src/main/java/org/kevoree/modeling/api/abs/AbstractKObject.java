@@ -170,7 +170,36 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void select(String query, Callback<KObject[]> callback) {
-        KSelector.select(this, query, callback);
+        if (callback == null) {
+            return;
+        }
+        if (query == null) {
+            callback.on(new KObject[0]);
+            return;
+        }
+        String cleanedQuery = query;
+        if (cleanedQuery.startsWith("/")) {
+            cleanedQuery = cleanedQuery.substring(1);
+        }
+        if (isRoot()) {
+            KSelector.select(this, cleanedQuery, callback);
+        } else {
+            if (query.startsWith("/")) {
+                final String finalCleanedQuery = cleanedQuery;
+                dimension().universe().storage().getRoot(this.view(), new Callback<KObject>() {
+                    @Override
+                    public void on(KObject rootObj) {
+                        if (rootObj == null) {
+                            callback.on(new KObject[0]);
+                        } else {
+                            KSelector.select(rootObj, finalCleanedQuery, callback);
+                        }
+                    }
+                });
+            } else {
+                KSelector.select(this, query, callback);
+            }
+        }
     }
 
     @Override

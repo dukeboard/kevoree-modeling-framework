@@ -60,21 +60,32 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void select(final String query, final Callback<KObject[]> callback) {
+        if(callback==null){
+            return;
+        }
+        if(query==null){
+            callback.on(new KObject[0]);
+            return;
+        }
         dimension().universe().storage().getRoot(this, new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {
-                String cleanedQuery = query;
-                if (cleanedQuery.equals("/")) {
-                    ArrayList<KObject> res = new ArrayList<KObject>();
-                    if (rootObj != null) {
-                        res.add(rootObj);
-                    }
-                    callback.on(res.toArray(new KObject[res.size()]));
+                if(rootObj==null){
+                    callback.on(new KObject[0]);
                 } else {
-                    if (cleanedQuery.startsWith("/")) {
-                        cleanedQuery = cleanedQuery.substring(1);
+                    String cleanedQuery = query;
+                    if (cleanedQuery.equals("/")) {
+                        ArrayList<KObject> res = new ArrayList<KObject>();
+                        if (rootObj != null) {
+                            res.add(rootObj);
+                        }
+                        callback.on(res.toArray(new KObject[res.size()]));
+                    } else {
+                        if (cleanedQuery.startsWith("/")) {
+                            cleanedQuery = cleanedQuery.substring(1);
+                        }
+                        KSelector.select(rootObj, cleanedQuery, callback);
                     }
-                    KSelector.select(rootObj, cleanedQuery, callback);
                 }
             }
         });

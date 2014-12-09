@@ -19,12 +19,13 @@ import java.util.Set;
 public class KSelector {
 
     public static void select(final KObject root, String query, final Callback<KObject[]> callback) {
-
+        if (callback == null) {
+            return;
+        }
         final KQuery extractedQuery = KQuery.extractFirstQuery(query);
         if (extractedQuery == null) {
             callback.on(new KObject[0]);
         } else {
-
             String relationNameRegex = extractedQuery.relationName.replace("*", ".*");
             Set<Long> collected = new HashSet<Long>();
             Object[] raw = root.dimension().universe().storage().raw(root, AccessMode.READ);
