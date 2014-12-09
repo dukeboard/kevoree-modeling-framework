@@ -24,7 +24,12 @@ public class MModelClass extends MModelClassifier {
         HashMap<String, MModelAttribute> collected = new HashMap<String, MModelAttribute>();
         HashMap<String, MModelClass> passed = new HashMap<String, MModelClass>();
         deep_collect_atts(collected, passed);
-        return collected.values();
+        for(String collectedKey : collected.keySet()){
+            if(!attributes.containsKey(collectedKey)){
+                attributes.put(collectedKey,collected.get(collectedKey).clone());
+            }
+        }
+        return attributes.values();
     }
 
     private void deep_collect_atts(HashMap<String, MModelAttribute> collector, HashMap<String, MModelClass> passed) {
@@ -51,7 +56,12 @@ public class MModelClass extends MModelClassifier {
         HashMap<String, MModelReference> collected = new HashMap<String, MModelReference>();
         HashMap<String, MModelClass> passed = new HashMap<String, MModelClass>();
         deep_collect_refs(collected, passed);
-        return collected.values();
+        for(String collectedKey : collected.keySet()){
+            if(!references.containsKey(collectedKey)){
+                references.put(collectedKey,collected.get(collectedKey).clone());
+            }
+        }
+        return references.values();
     }
 
     private void deep_collect_refs(HashMap<String, MModelReference> collector, HashMap<String, MModelClass> passed) {
@@ -82,7 +92,12 @@ public class MModelClass extends MModelClassifier {
         HashMap<String, MModelOperation> collected = new HashMap<String, MModelOperation>();
         HashMap<String, MModelClass> passed = new HashMap<String, MModelClass>();
         deep_collect_ops(collected, passed);
-        return collected.values();
+        for(String collectedKey : collected.keySet()){
+            if(!operations.containsKey(collectedKey)){
+                operations.put(collectedKey,collected.get(collectedKey).clone());
+            }
+        }
+        return operations.values();
     }
 
     private void deep_collect_ops(HashMap<String, MModelOperation> collector, HashMap<String, MModelClass> passed) {

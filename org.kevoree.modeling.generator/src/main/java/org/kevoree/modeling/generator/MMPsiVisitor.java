@@ -42,8 +42,7 @@ public class MMPsiVisitor extends MetaModelVisitor {
                         relationDecl.getAnnotations().getAnnotationList().forEach(ann -> {
                             if (ann.getText().equalsIgnoreCase("@id")) {
                                 attribute.setId(true);
-                            } else if (ann.getText().toLowerCase().startsWith("@learn")) {
-                                attribute.setLearned(true);
+                            } else if (ann.getText().toLowerCase().startsWith("@precision")) {
                                 MetaModelAnnotationParam param = ann.getAnnotationParam();
                                 if (param != null) {
                                     try {

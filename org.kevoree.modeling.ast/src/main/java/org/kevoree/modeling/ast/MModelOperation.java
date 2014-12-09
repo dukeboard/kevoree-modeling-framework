@@ -45,4 +45,12 @@ public class MModelOperation {
     public String getName() {
         return name;
     }
+
+    public MModelOperation clone() {
+        MModelOperation cloned = new MModelOperation(this.name);
+        cloned.inputParams = inputParams;
+        cloned.returnParam = returnParam;
+        return cloned;
+    }
+
 }

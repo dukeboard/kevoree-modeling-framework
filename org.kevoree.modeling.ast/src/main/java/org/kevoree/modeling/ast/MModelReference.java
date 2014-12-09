@@ -8,8 +8,11 @@ public class MModelReference {
     private String name;
     private MModelClass type;
     private MModelReference opposite = null;
-
     private Integer index = -1;
+    protected Integer refIndex = -1;
+    private boolean contained = false;
+    private boolean single = false;
+
 
     public Integer getIndex() {
         return index;
@@ -27,11 +30,6 @@ public class MModelReference {
         this.refIndex = refIndex;
     }
 
-    protected Integer refIndex = -1;
-
-    private boolean contained = false;
-
-    private boolean single = false;
 
     public MModelReference(String name, MModelClass type) {
         this.name = name;
@@ -68,6 +66,14 @@ public class MModelReference {
 
     public void setOpposite(MModelReference opposite) {
         this.opposite = opposite;
+    }
+
+    public MModelReference clone() {
+        MModelReference cloned = new MModelReference(this.name, this.type);
+        cloned.opposite = opposite;
+        cloned.contained = contained;
+        cloned.single = single;
+        return cloned;
     }
 
 }

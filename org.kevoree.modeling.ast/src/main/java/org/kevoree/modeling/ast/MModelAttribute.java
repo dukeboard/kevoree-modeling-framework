@@ -5,15 +5,13 @@ package org.kevoree.modeling.ast;
  */
 public class MModelAttribute {
 
-    private String name, type;
-
+    private String name;
+    private String type;
     private boolean id = false;
-
-    private boolean learned = false;
-
+    private Double precision = null;
     private boolean single = true;
-
     private Integer index = -1;
+    private Integer attIndex = -1;
 
     public Integer getIndex() {
         return index;
@@ -31,7 +29,6 @@ public class MModelAttribute {
         this.attIndex = attIndex;
     }
 
-    private Integer attIndex = -1;
 
     public MModelAttribute(String name, String type) {
         this.name = name;
@@ -62,22 +59,20 @@ public class MModelAttribute {
         return single;
     }
 
-    public boolean isLearned() {
-        return learned;
-    }
-
-    public void setLearned(boolean learned) {
-        this.learned = learned;
-    }
-
-    private Double precision = null;
-
     public Double getPrecision() {
         return precision;
     }
 
     public void setPrecision(Double precision) {
         this.precision = precision;
+    }
+
+    public MModelAttribute clone() {
+        MModelAttribute cloned = new MModelAttribute(this.name, this.type);
+        cloned.id = id;
+        cloned.precision = precision;
+        cloned.single = single;
+        return cloned;
     }
 
 }
