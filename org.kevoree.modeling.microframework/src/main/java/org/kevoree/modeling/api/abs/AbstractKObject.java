@@ -256,15 +256,16 @@ public abstract class AbstractKObject implements KObject {
 
     @Override
     public void mutate(KActionType actionType, final MetaReference metaReference, KObject param) {
-        MetaReference transposed = internal_transpose_ref(metaReference);
-        if (transposed == null) {
-            throw new RuntimeException("Bad KMF usage, the attribute named " + metaReference.metaName() + " is not part of " + metaClass().metaName());
-        } else {
-            internal_mutate(actionType, transposed, param, true);
-        }
+        internal_mutate(actionType, metaReference, param, true);
     }
 
-    public void internal_mutate(KActionType actionType, final MetaReference metaReference, KObject param, final boolean setOpposite) {
+    public void internal_mutate(KActionType actionType, final MetaReference metaReferenceP, KObject param, final boolean setOpposite) {
+
+        MetaReference metaReference = internal_transpose_ref(metaReferenceP);
+        if (metaReference == null) {
+            throw new RuntimeException("Bad KMF usage, the attribute named " + metaReferenceP.metaName() + " is not part of " + metaClass().metaName());
+        }
+
         if (actionType.equals(KActionType.ADD)) {
             if (metaReference.single()) {
                 internal_mutate(KActionType.SET, metaReference, param, setOpposite);
