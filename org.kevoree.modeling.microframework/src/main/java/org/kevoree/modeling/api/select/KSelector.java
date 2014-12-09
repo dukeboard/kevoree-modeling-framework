@@ -58,7 +58,7 @@ public class KSelector {
                             for (String paramKey : extractedQuery.params.keySet()) {
                                 KQueryParam param = extractedQuery.params.get(paramKey);
                                 for (int j = 0; j < resolved.metaClass().metaAttributes().length; j++) {
-                                    MetaAttribute metaAttribute = resolved.metaClass().metaAttributes()[i];
+                                    MetaAttribute metaAttribute = resolved.metaClass().metaAttributes()[j];
                                     if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
                                         Object o_raw = resolved.get(metaAttribute);
                                         if (o_raw != null) {
