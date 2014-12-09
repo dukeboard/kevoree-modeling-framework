@@ -715,6 +715,18 @@ var org;
                         return AbstractKObject;
                     })();
                     abs.AbstractKObject = AbstractKObject;
+                    var AbstractKObjectInfer = (function (_super) {
+                        __extends(AbstractKObjectInfer, _super);
+                        function AbstractKObjectInfer(p_view, p_uuid, p_timeTree, p_metaClass) {
+                            _super.call(this, p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+                        AbstractKObjectInfer.prototype.infer = function (callback) {
+                        };
+                        AbstractKObjectInfer.prototype.learn = function (param, callback) {
+                        };
+                        return AbstractKObjectInfer;
+                    })(org.kevoree.modeling.api.abs.AbstractKObject);
+                    abs.AbstractKObjectInfer = AbstractKObjectInfer;
                     var AbstractKUniverse = (function () {
                         function AbstractKUniverse() {
                             this._storage = new org.kevoree.modeling.api.data.DefaultKStore();

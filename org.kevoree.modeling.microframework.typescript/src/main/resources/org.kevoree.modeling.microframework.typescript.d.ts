@@ -72,6 +72,11 @@ declare module org {
                         private internal_transpose_att(p);
                         private internal_transpose_op(p);
                     }
+                    class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer<any> {
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        infer(callback: (p: A) => void): void;
+                        learn(param: A, callback: (p: java.lang.Throwable) => void): void;
+                    }
                     class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
                         metaModel(): meta.MetaModel;
@@ -545,6 +550,10 @@ declare module org {
                     metaElement(): meta.Meta;
                     value(): any;
                     toJSON(): string;
+                }
+                interface KInfer<A> extends KObject {
+                    infer(callback: (p: A) => void): void;
+                    learn(param: A, callback: (p: java.lang.Throwable) => void): void;
                 }
                 interface KObject {
                     dimension(): KDimension<any, any, any>;

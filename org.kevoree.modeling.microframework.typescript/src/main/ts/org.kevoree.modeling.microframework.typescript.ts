@@ -721,6 +721,20 @@ module org {
 
                     }
 
+                    export class AbstractKObjectInfer<A> extends org.kevoree.modeling.api.abs.AbstractKObject implements org.kevoree.modeling.api.KInfer<any> {
+
+                        constructor(p_view: org.kevoree.modeling.api.KView, p_uuid: number, p_timeTree: org.kevoree.modeling.api.time.TimeTree, p_metaClass: org.kevoree.modeling.api.meta.MetaClass) {
+                            super(p_view, p_uuid, p_timeTree, p_metaClass);
+                        }
+
+                        public infer(callback: (p : A) => void): void {
+                        }
+
+                        public learn(param: A, callback: (p : java.lang.Throwable) => void): void {
+                        }
+
+                    }
+
                     export class AbstractKUniverse<A extends org.kevoree.modeling.api.KDimension<any, any, any>> implements org.kevoree.modeling.api.KUniverse<any> {
 
                         private _storage: org.kevoree.modeling.api.data.KStore;
@@ -3473,6 +3487,14 @@ module org {
                     value(): any;
 
                     toJSON(): string;
+
+                }
+
+                export interface KInfer<A> extends org.kevoree.modeling.api.KObject {
+
+                    infer(callback: (p : A) => void): void;
+
+                    learn(param: A, callback: (p : java.lang.Throwable) => void): void;
 
                 }
 

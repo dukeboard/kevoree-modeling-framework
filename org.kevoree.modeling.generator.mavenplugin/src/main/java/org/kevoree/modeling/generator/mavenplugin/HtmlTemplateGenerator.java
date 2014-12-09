@@ -32,8 +32,8 @@ public class HtmlTemplateGenerator {
         sb.append("<script src=\"./" + jsFileName + "\"></script>\n");
         sb.append("<script>\n");
         sb.append("    var " + metaModelName.toLowerCase() + "Universe = new " + metaModelFQN + "Universe();\n");
-        sb.append("    " + metaModelName.toLowerCase() + "Universe.newDimension(function(dimension){\n");
-        sb.append("        var " + metaModelName.toLowerCase() + "View = dimension.time(0);\n");
+        sb.append("    " + metaModelName.toLowerCase() + "Universe.connect(function(error){\n");
+        sb.append("        var " + metaModelName.toLowerCase() + "View = "+metaModelName.toLowerCase()+"Universe.newDimension().time(0);\n");
         sb.append("\n");
         sb.append("        //create your root element from '" + metaModelName.toLowerCase() + "View' ::  var element = " + metaModelName.toLowerCase() + "View.create[...]();\n");
         sb.append("        //set your root element (if necessary) '" + metaModelName.toLowerCase() + "View' ::  " + metaModelName.toLowerCase() + "View.setRoot(<element>);\n");
