@@ -34,7 +34,9 @@ public class LevelDbDataBase implements KDataBase {
         for (int i = 0; i < keys.length; i++) {
             result[i] = JniDBFactory.asString(db.get(JniDBFactory.bytes(keys[i])));
         }
-        callback.on(result, null);
+        if(callback!= null){
+            callback.on(result, null);
+        }
     }
 
     @Override
@@ -42,7 +44,9 @@ public class LevelDbDataBase implements KDataBase {
         for (int i = 0; i < payloads.length; i++) {
             db.put(JniDBFactory.bytes(payloads[i][0]), JniDBFactory.bytes(payloads[i][1]));
         }
-        error.on(null);
+        if(error!= null){
+            error.on(null);
+        }
     }
 
     @Override
@@ -51,9 +55,13 @@ public class LevelDbDataBase implements KDataBase {
             for (int i = 0; i < keys.length; i++) {
                 db.delete(JniDBFactory.bytes(keys[i]));
             }
-            error.on(null);
+            if(error!= null){
+                error.on(null);
+            }
         } catch (Exception e) {
-            error.on(e);
+            if(error!=null){
+                error.on(e);
+            }
         }
     }
 
@@ -61,9 +69,13 @@ public class LevelDbDataBase implements KDataBase {
     public void commit(Callback<Throwable> error) {
         try {
             db.write(db.createWriteBatch());
-            error.on(null);
+            if(error!=null){
+                error.on(null);
+            }
         } catch (Exception e) {
-            error.on(e);
+            if(error!= null){
+                error.on(e);
+            }
         }
     }
 
@@ -72,9 +84,13 @@ public class LevelDbDataBase implements KDataBase {
         db.write(db.createWriteBatch());
         try {
             db.close();
-            error.on(null);
+            if(error!=null){
+                error.on(null);
+            }
         } catch (IOException e) {
-            error.on(e);
+            if(error!=null){
+                error.on(e);
+            }
         }
     }
 }
