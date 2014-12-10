@@ -12,6 +12,101 @@ var org;
         (function (modeling) {
             var api;
             (function (api) {
+                var InboundReference = (function () {
+                    function InboundReference(reference, object) {
+                        this.reference = reference;
+                        this.object = object;
+                    }
+                    InboundReference.prototype.getReference = function () {
+                        return this.reference;
+                    };
+                    InboundReference.prototype.getObject = function () {
+                        return this.object;
+                    };
+                    return InboundReference;
+                })();
+                api.InboundReference = InboundReference;
+                var KActionType = (function () {
+                    function KActionType(code) {
+                        this._code = "";
+                        this._code = code;
+                    }
+                    KActionType.prototype.toString = function () {
+                        return this._code;
+                    };
+                    KActionType.prototype.code = function () {
+                        return this._code;
+                    };
+                    KActionType.parse = function (s) {
+                        for (var i = 0; i < org.kevoree.modeling.api.KActionType.values().length; i++) {
+                            var current = org.kevoree.modeling.api.KActionType.values()[i];
+                            if (current.code().equals(s)) {
+                                return current;
+                            }
+                        }
+                        return null;
+                    };
+                    KActionType.prototype.equals = function (other) {
+                        return this == other;
+                    };
+                    KActionType.values = function () {
+                        return KActionType._KActionTypeVALUES;
+                    };
+                    KActionType.CALL = new KActionType("CALL");
+                    KActionType.SET = new KActionType("SET");
+                    KActionType.ADD = new KActionType("ADD");
+                    KActionType.REMOVE = new KActionType("DEL");
+                    KActionType.NEW = new KActionType("NEW");
+                    KActionType._KActionTypeVALUES = [
+                        KActionType.CALL,
+                        KActionType.SET,
+                        KActionType.ADD,
+                        KActionType.REMOVE,
+                        KActionType.NEW
+                    ];
+                    return KActionType;
+                })();
+                api.KActionType = KActionType;
+                var TraceRequest = (function () {
+                    function TraceRequest() {
+                    }
+                    TraceRequest.prototype.equals = function (other) {
+                        return this == other;
+                    };
+                    TraceRequest.values = function () {
+                        return TraceRequest._TraceRequestVALUES;
+                    };
+                    TraceRequest.ATTRIBUTES_ONLY = new TraceRequest();
+                    TraceRequest.REFERENCES_ONLY = new TraceRequest();
+                    TraceRequest.ATTRIBUTES_REFERENCES = new TraceRequest();
+                    TraceRequest._TraceRequestVALUES = [
+                        TraceRequest.ATTRIBUTES_ONLY,
+                        TraceRequest.REFERENCES_ONLY,
+                        TraceRequest.ATTRIBUTES_REFERENCES
+                    ];
+                    return TraceRequest;
+                })();
+                api.TraceRequest = TraceRequest;
+                var VisitResult = (function () {
+                    function VisitResult() {
+                    }
+                    VisitResult.prototype.equals = function (other) {
+                        return this == other;
+                    };
+                    VisitResult.values = function () {
+                        return VisitResult._VisitResultVALUES;
+                    };
+                    VisitResult.CONTINUE = new VisitResult();
+                    VisitResult.SKIP = new VisitResult();
+                    VisitResult.STOP = new VisitResult();
+                    VisitResult._VisitResultVALUES = [
+                        VisitResult.CONTINUE,
+                        VisitResult.SKIP,
+                        VisitResult.STOP
+                    ];
+                    return VisitResult;
+                })();
+                api.VisitResult = VisitResult;
                 var abs;
                 (function (abs) {
                     var AbstractKDimension = (function () {
@@ -164,7 +259,36 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.select = function (query, callback) {
-                            org.kevoree.modeling.api.select.KSelector.select(this, query, callback);
+                            if (callback == null) {
+                                return;
+                            }
+                            if (query == null) {
+                                callback(new Array());
+                                return;
+                            }
+                            var cleanedQuery = query;
+                            if (cleanedQuery.startsWith("/")) {
+                                cleanedQuery = cleanedQuery.substring(1);
+                            }
+                            if (this.isRoot()) {
+                                org.kevoree.modeling.api.select.KSelector.select(this, cleanedQuery, callback);
+                            }
+                            else {
+                                if (query.startsWith("/")) {
+                                    var finalCleanedQuery = cleanedQuery;
+                                    this.dimension().universe().storage().getRoot(this.view(), function (rootObj) {
+                                        if (rootObj == null) {
+                                            callback(new Array());
+                                        }
+                                        else {
+                                            org.kevoree.modeling.api.select.KSelector.select(rootObj, finalCleanedQuery, callback);
+                                        }
+                                    });
+                                }
+                                else {
+                                    org.kevoree.modeling.api.select.KSelector.select(this, query, callback);
+                                }
+                            }
                         };
                         AbstractKObject.prototype.stream = function (query, callback) {
                         };
@@ -239,16 +363,14 @@ var org;
                             }
                         };
                         AbstractKObject.prototype.mutate = function (actionType, metaReference, param) {
-                            var transposed = this.internal_transpose_ref(metaReference);
-                            if (transposed == null) {
-                                throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + metaReference.metaName() + " is not part of " + this.metaClass().metaName());
-                            }
-                            else {
-                                this.internal_mutate(actionType, transposed, param, true);
-                            }
+                            this.internal_mutate(actionType, metaReference, param, true);
                         };
-                        AbstractKObject.prototype.internal_mutate = function (actionType, metaReference, param, setOpposite) {
+                        AbstractKObject.prototype.internal_mutate = function (actionType, metaReferenceP, param, setOpposite) {
                             var _this = this;
+                            var metaReference = this.internal_transpose_ref(metaReferenceP);
+                            if (metaReference == null) {
+                                throw new java.lang.RuntimeException("Bad KMF usage, the attribute named " + metaReferenceP.metaName() + " is not part of " + this.metaClass().metaName());
+                            }
                             if (actionType.equals(org.kevoree.modeling.api.KActionType.ADD)) {
                                 if (metaReference.single()) {
                                     this.internal_mutate(org.kevoree.modeling.api.KActionType.SET, metaReference, param, setOpposite);
@@ -804,20 +926,32 @@ var org;
                             this.dimension().universe().storage().setRoot(elem, callback);
                         };
                         AbstractKView.prototype.select = function (query, callback) {
+                            if (callback == null) {
+                                return;
+                            }
+                            if (query == null) {
+                                callback(new Array());
+                                return;
+                            }
                             this.dimension().universe().storage().getRoot(this, function (rootObj) {
-                                var cleanedQuery = query;
-                                if (cleanedQuery.equals("/")) {
-                                    var res = new java.util.ArrayList();
-                                    if (rootObj != null) {
-                                        res.add(rootObj);
-                                    }
-                                    callback(res.toArray(new Array()));
+                                if (rootObj == null) {
+                                    callback(new Array());
                                 }
                                 else {
-                                    if (cleanedQuery.startsWith("/")) {
-                                        cleanedQuery = cleanedQuery.substring(1);
+                                    var cleanedQuery = query;
+                                    if (cleanedQuery.equals("/")) {
+                                        var res = new java.util.ArrayList();
+                                        if (rootObj != null) {
+                                            res.add(rootObj);
+                                        }
+                                        callback(res.toArray(new Array()));
                                     }
-                                    org.kevoree.modeling.api.select.KSelector.select(rootObj, cleanedQuery, callback);
+                                    else {
+                                        if (cleanedQuery.startsWith("/")) {
+                                            cleanedQuery = cleanedQuery.substring(1);
+                                        }
+                                        org.kevoree.modeling.api.select.KSelector.select(rootObj, cleanedQuery, callback);
+                                    }
                                 }
                             });
                         };
@@ -1098,27 +1232,6 @@ var org;
                         return AccessMode;
                     })();
                     data.AccessMode = AccessMode;
-                    var cache;
-                    (function (cache) {
-                        var DimensionCache = (function () {
-                            function DimensionCache() {
-                                this.timeTreeCache = new java.util.HashMap();
-                                this.timesCaches = new java.util.HashMap();
-                                this.roots = null;
-                            }
-                            return DimensionCache;
-                        })();
-                        cache.DimensionCache = DimensionCache;
-                        var TimeCache = (function () {
-                            function TimeCache() {
-                                this.payload_cache = new java.util.HashMap();
-                                this.root = null;
-                                this.rootDirty = false;
-                            }
-                            return TimeCache;
-                        })();
-                        cache.TimeCache = TimeCache;
-                    })(cache = data.cache || (data.cache = {}));
                     var CacheEntry = (function () {
                         function CacheEntry() {
                         }
@@ -2109,6 +2222,27 @@ var org;
                         return MemoryKDataBase;
                     })();
                     data.MemoryKDataBase = MemoryKDataBase;
+                    var cache;
+                    (function (cache) {
+                        var DimensionCache = (function () {
+                            function DimensionCache() {
+                                this.timeTreeCache = new java.util.HashMap();
+                                this.timesCaches = new java.util.HashMap();
+                                this.roots = null;
+                            }
+                            return DimensionCache;
+                        })();
+                        cache.DimensionCache = DimensionCache;
+                        var TimeCache = (function () {
+                            function TimeCache() {
+                                this.payload_cache = new java.util.HashMap();
+                                this.root = null;
+                                this.rootDirty = false;
+                            }
+                            return TimeCache;
+                        })();
+                        cache.TimeCache = TimeCache;
+                    })(cache = data.cache || (data.cache = {}));
                 })(data = api.data || (api.data = {}));
                 var event;
                 (function (_event) {
@@ -2560,20 +2694,6 @@ var org;
                     })();
                     extrapolation.PolynomialExtrapolation = PolynomialExtrapolation;
                 })(extrapolation = api.extrapolation || (api.extrapolation = {}));
-                var InboundReference = (function () {
-                    function InboundReference(reference, object) {
-                        this.reference = reference;
-                        this.object = object;
-                    }
-                    InboundReference.prototype.getReference = function () {
-                        return this.reference;
-                    };
-                    InboundReference.prototype.getObject = function () {
-                        return this.object;
-                    };
-                    return InboundReference;
-                })();
-                api.InboundReference = InboundReference;
                 var json;
                 (function (json) {
                     var JsonFormat = (function () {
@@ -3236,47 +3356,6 @@ var org;
                     })();
                     json.Type = Type;
                 })(json = api.json || (api.json = {}));
-                var KActionType = (function () {
-                    function KActionType(code) {
-                        this._code = "";
-                        this._code = code;
-                    }
-                    KActionType.prototype.toString = function () {
-                        return this._code;
-                    };
-                    KActionType.prototype.code = function () {
-                        return this._code;
-                    };
-                    KActionType.parse = function (s) {
-                        for (var i = 0; i < org.kevoree.modeling.api.KActionType.values().length; i++) {
-                            var current = org.kevoree.modeling.api.KActionType.values()[i];
-                            if (current.code().equals(s)) {
-                                return current;
-                            }
-                        }
-                        return null;
-                    };
-                    KActionType.prototype.equals = function (other) {
-                        return this == other;
-                    };
-                    KActionType.values = function () {
-                        return KActionType._KActionTypeVALUES;
-                    };
-                    KActionType.CALL = new KActionType("CALL");
-                    KActionType.SET = new KActionType("SET");
-                    KActionType.ADD = new KActionType("ADD");
-                    KActionType.REMOVE = new KActionType("DEL");
-                    KActionType.NEW = new KActionType("NEW");
-                    KActionType._KActionTypeVALUES = [
-                        KActionType.CALL,
-                        KActionType.SET,
-                        KActionType.ADD,
-                        KActionType.REMOVE,
-                        KActionType.NEW
-                    ];
-                    return KActionType;
-                })();
-                api.KActionType = KActionType;
                 var meta;
                 (function (meta) {
                     var MetaType = (function () {
@@ -4418,6 +4497,9 @@ var org;
                         function KSelector() {
                         }
                         KSelector.select = function (root, query, callback) {
+                            if (callback == null) {
+                                return;
+                            }
                             var extractedQuery = org.kevoree.modeling.api.select.KQuery.extractFirstQuery(query);
                             if (extractedQuery == null) {
                                 callback(new Array());
@@ -4458,7 +4540,7 @@ var org;
                                             for (paramKey in extractedQuery.params.keySet()) {
                                                 var param = extractedQuery.params.get(paramKey);
                                                 for (var j = 0; j < resolved.metaClass().metaAttributes().length; j++) {
-                                                    var metaAttribute = resolved.metaClass().metaAttributes()[i];
+                                                    var metaAttribute = resolved.metaClass().metaAttributes()[j];
                                                     if (metaAttribute.metaName().matches(param.name().replace("*", ".*"))) {
                                                         var o_raw = resolved.get(metaAttribute);
                                                         if (o_raw != null) {
@@ -6758,26 +6840,6 @@ var org;
                         unresolved.UnresolvedMetaReference = UnresolvedMetaReference;
                     })(unresolved = _trace.unresolved || (_trace.unresolved = {}));
                 })(trace = api.trace || (api.trace = {}));
-                var TraceRequest = (function () {
-                    function TraceRequest() {
-                    }
-                    TraceRequest.prototype.equals = function (other) {
-                        return this == other;
-                    };
-                    TraceRequest.values = function () {
-                        return TraceRequest._TraceRequestVALUES;
-                    };
-                    TraceRequest.ATTRIBUTES_ONLY = new TraceRequest();
-                    TraceRequest.REFERENCES_ONLY = new TraceRequest();
-                    TraceRequest.ATTRIBUTES_REFERENCES = new TraceRequest();
-                    TraceRequest._TraceRequestVALUES = [
-                        TraceRequest.ATTRIBUTES_ONLY,
-                        TraceRequest.REFERENCES_ONLY,
-                        TraceRequest.ATTRIBUTES_REFERENCES
-                    ];
-                    return TraceRequest;
-                })();
-                api.TraceRequest = TraceRequest;
                 var util;
                 (function (util) {
                     var DefaultOperationManager = (function () {
@@ -6880,26 +6942,6 @@ var org;
                     })();
                     util.Helper = Helper;
                 })(util = api.util || (api.util = {}));
-                var VisitResult = (function () {
-                    function VisitResult() {
-                    }
-                    VisitResult.prototype.equals = function (other) {
-                        return this == other;
-                    };
-                    VisitResult.values = function () {
-                        return VisitResult._VisitResultVALUES;
-                    };
-                    VisitResult.CONTINUE = new VisitResult();
-                    VisitResult.SKIP = new VisitResult();
-                    VisitResult.STOP = new VisitResult();
-                    VisitResult._VisitResultVALUES = [
-                        VisitResult.CONTINUE,
-                        VisitResult.SKIP,
-                        VisitResult.STOP
-                    ];
-                    return VisitResult;
-                })();
-                api.VisitResult = VisitResult;
                 var xmi;
                 (function (xmi) {
                     var SerializationContext = (function () {
