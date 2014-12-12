@@ -16,6 +16,7 @@ import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.util.TimeMachine;
 import org.kevoree.modeling.api.xmi.XmiFormat;
 
 import java.util.ArrayList;
@@ -60,17 +61,17 @@ public abstract class AbstractKView implements KView {
 
     @Override
     public void select(final String query, final Callback<KObject[]> callback) {
-        if(callback==null){
+        if (callback == null) {
             return;
         }
-        if(query==null){
+        if (query == null) {
             callback.on(new KObject[0]);
             return;
         }
         dimension().universe().storage().getRoot(this, new Callback<KObject>() {
             @Override
             public void on(KObject rootObj) {
-                if(rootObj==null){
+                if (rootObj == null) {
                     callback.on(new KObject[0]);
                 } else {
                     String cleanedQuery = query;

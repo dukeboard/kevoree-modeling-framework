@@ -27,7 +27,6 @@ public class HelloTest {
     public void helloTest() {
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
-
         universe.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {
@@ -73,12 +72,14 @@ public class HelloTest {
 
 //        assertTrue(nodeT1.path().endsWith("/children[name=n1]"));
         final int[] i = {0};
-        nodeT0.eachChildren(new Callback<Node>() {
+        nodeT0.eachChildren(new Callback<Node[]>() {
             @Override
-            public void on(Node n) {
-                i[0]++;
+            public void on(Node[] n) {
+                for(int k=0;k<n.length;k++){
+                    i[0]++;
+                }
             }
-        }, null);
+        });
         Assert.assertEquals(1, i[0]);
         Node nodeT3 = t0.createNode();
         nodeT3.setName("n3");

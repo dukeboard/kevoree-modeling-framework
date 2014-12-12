@@ -75,7 +75,7 @@ public class TraceSequence {
             currentToken = lexer.nextToken();
         }
         return this;
-    }
+    }*/
 
     @Override
     public String toString() {
@@ -92,7 +92,7 @@ public class TraceSequence {
         }
         buffer.append("]");
         return buffer.toString();
-    }*/
+    }
 
     public boolean applyOn(KObject target, Callback<Throwable> callback) {
         ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target);

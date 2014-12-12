@@ -53,7 +53,7 @@ public class DefaultModelSlicer {
                     //Add attributes and references of pruned object
                     if (cache.get(elem.uuid()) == null && parentMap.get(elem.uuid()) == null) {
                         if (elem.parentUuid() != null) {
-                            traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid(), elem.metaClass()));
+                            traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid()));
                         }
                         ModelTrace[] toAdd = elem.traces(TraceRequest.ATTRIBUTES_ONLY);
                         for (int i = 0; i < toAdd.length; i++) {
@@ -86,7 +86,8 @@ public class DefaultModelSlicer {
                 }
             }
         });
-        traces.add(new ModelAddTrace(elem.uuid(), null, elem.uuid(), elem.metaClass()));
+        traces.add(new ModelNewTrace(elem.uuid(), elem.metaClass()));
+        traces.add(new ModelAddTrace(elem.uuid(), null, elem.uuid()));
         elem.parent(parentExplorer.get(0));
     }
 

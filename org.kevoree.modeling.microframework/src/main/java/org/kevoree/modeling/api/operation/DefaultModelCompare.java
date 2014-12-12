@@ -33,7 +33,7 @@ public class DefaultModelCompare {
     public static void intersection(KObject origin, KObject target, Callback<TraceSequence> callback) {
         internal_diff(origin, target, true, false, callback);
     }
-
+    
     private static void internal_diff(KObject origin, final KObject target, final boolean inter, final boolean merge, final Callback<TraceSequence> callback) {
         final List<ModelTrace> traces = new ArrayList<ModelTrace>();
         final List<ModelTrace> tracesRef = new ArrayList<ModelTrace>();
@@ -56,15 +56,15 @@ public class DefaultModelCompare {
                     target.treeVisit(new ModelVisitor() {
                         @Override
                         public VisitResult visit(KObject elem) {
-                            Long childPath = elem.uuid();
-                            if (objectsMap.containsKey(childPath)) {
+                            Long childUUID = elem.uuid();
+                            if (objectsMap.containsKey(childUUID)) {
                                 if (inter) {
                                     traces.add(new ModelNewTrace(elem.uuid(), elem.metaClass()));
                                     traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid()));
                                 }
-                                traces.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
-                                tracesRef.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
-                                objectsMap.remove(childPath); //drop from to process elements
+                                traces.addAll(internal_createTraces(objectsMap.get(childUUID), elem, inter, merge, false, true));
+                                tracesRef.addAll(internal_createTraces(objectsMap.get(childUUID), elem, inter, merge, true, false));
+                                objectsMap.remove(childUUID); //drop from to process elements
                             } else {
                                 if (!inter) {
                                     traces.add(new ModelNewTrace(elem.uuid(), elem.metaClass()));
@@ -195,7 +195,6 @@ public class DefaultModelCompare {
                         }
                     } else {
                         if (payload1 == null && payload2 != null) {
-
                             Long[] siblingToAdd = ((Set<Long>) payload2).toArray(new Long[((Set<Long>) payload2).size()]);
                             for (int j = 0; j < siblingToAdd.length; j++) {
                                 Long siblingElem = siblingToAdd[j];

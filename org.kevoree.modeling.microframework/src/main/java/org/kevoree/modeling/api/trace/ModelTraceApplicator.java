@@ -41,14 +41,16 @@ public class ModelTraceApplicator {
                 }
                 if (traces[i] instanceof ModelSetTrace) {
                     if (traces[i].meta() instanceof AbstractMetaAttribute) {
+                        dependencies.add(traces[i].sourceUUID());
+                    } else {
                         try {
                             Long paramUUID = Long.parseLong(((ModelSetTrace) traces[i]).content().toString());
                             dependencies.add(paramUUID);
+                            dependencies.add(traces[i].sourceUUID());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-                    dependencies.add(traces[i].sourceUUID());
                 }
             }
             Long[] dependenciesArray = dependencies.toArray(new Long[dependencies.size()]);
@@ -60,7 +62,7 @@ public class ModelTraceApplicator {
                         try {
                             ModelTrace trace = traces[i];
                             KObject sourceObject = cached.get(trace.sourceUUID());
-                            if (sourceObject == null) {
+                            if (sourceObject != null) {
                                 if (trace instanceof ModelRemoveTrace) {
                                     ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
                                     KObject param = cached.get(removeTrace.paramUUID());

@@ -16,17 +16,15 @@ import org.kevoree.modeling.microframework.test.cloud.Element;
  */
 public class SerializerTest {
 
-
     @Test
     public void serializeTest() throws InterruptedException {
-
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
         CloudDimension dimension0 = universe.newDimension();
         final CloudView t0 = dimension0.time(0l);
         Node nodeT0 = t0.createNode();
         nodeT0.setName("node0");
-        t0.setRoot(nodeT0,null);
+        t0.setRoot(nodeT0, null);
         Element child0 = t0.createElement();
         nodeT0.setElement(child0);
         Node nodeT1 = t0.createNode();

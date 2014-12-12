@@ -63,7 +63,9 @@ public interface KObject {
     //TODO drop setOpposite
     public void mutate(KActionType actionType, MetaReference metaReference, KObject param);
 
-    public <C extends KObject> void each(MetaReference metaReference, Callback<C> callback, Callback<Throwable> end);
+    public void all(MetaReference metaReference, Callback<KObject[]> callback);
+
+    public void single(MetaReference metaReference, Callback<KObject> callback);
 
     //TODO refactor
     public void inbounds(Callback<InboundReference> callback, Callback<Throwable> end);

@@ -60,6 +60,9 @@ public class TimeMachine {
 
                 }
             }, ListenerScope.TIME);
+
+            //TODO drop listener
+
         }
         //save as previous
         this._previous = target;

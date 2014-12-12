@@ -20,7 +20,7 @@ public class ParentStorageTest {
     @Test
     public void discardTest() {
         CloudUniverse universe = new CloudUniverse();
-        universe.connect(null);
+        //universe.connect(null);
 
         CloudDimension dimension0 = universe.newDimension();
         CloudView time0 = dimension0.time(0l);
@@ -42,7 +42,7 @@ public class ParentStorageTest {
 
         Assert.assertEquals(n1.parentUuid(), val);
         try {
-            root.eachChildren(null, null);
+            root.eachChildren(null);
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -50,7 +50,7 @@ public class ParentStorageTest {
         dimension0.discard(null);
 
         try {
-            root.eachChildren(null, null);
+            root.eachChildren(null);
             Assert.assertNull(root);
         } catch (Exception e) {
             Assert.assertNotNull(e);
@@ -87,7 +87,7 @@ public class ParentStorageTest {
 
         root.addChildren(n1);
         root.addChildren(n2);
-        Long val = 1L;
+        Long val = 137438953473L;
         Assert.assertEquals(n1.parentUuid(), val);
         Assert.assertEquals(n1.referenceInParent(), universe.META_NODE.REF_CHILDREN);
 
@@ -101,7 +101,7 @@ public class ParentStorageTest {
         Assert.assertEquals(1, i[0]);
 
         try {
-            root.eachChildren(null, null);
+            root.eachChildren(null);
         } catch (Exception e) {
             Assert.assertNull(e);
         }
@@ -109,7 +109,7 @@ public class ParentStorageTest {
         dimension0.saveUnload(null);
 
         try {
-            root.eachChildren(null, null);
+            root.eachChildren(null);
             Assert.assertNull(root);
         } catch (Exception e) {
             Assert.assertNotNull(e);

@@ -441,55 +441,55 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    public <C extends KObject> void each(MetaReference p_metaReference, final Callback<C> callback, final Callback<Throwable> end) {
+    public void single(MetaReference p_metaReference, Callback<KObject> p_callback) {
         MetaReference transposed = internal_transpose_ref(p_metaReference);
         if (transposed == null) {
-            throw new RuntimeException("Bad KMF usage, the attribute named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
+            throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
         } else {
             Object o = view().dimension().universe().storage().raw(this, AccessMode.READ)[transposed.index()];
             if (o == null) {
-                if (end != null) {
-                    end.on(null);
-                } else {//case of Get on single ref
-                    callback.on(null);
+                p_callback.on(null);
+            } else {
+                try {
+                    Long casted = (Long) o;
+                    view().lookup(casted, new Callback<KObject>() {
+                        @Override
+                        public void on(KObject resolved) {
+                            p_callback.on(resolved);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    p_callback.on(null);
                 }
+            }
+        }
+    }
+
+    public void all(MetaReference p_metaReference, final Callback<KObject[]> p_callback) {
+        MetaReference transposed = internal_transpose_ref(p_metaReference);
+        if (transposed == null) {
+            throw new RuntimeException("Bad KMF usage, the reference named " + p_metaReference.metaName() + " is not part of " + metaClass().metaName());
+        } else {
+            Object o = view().dimension().universe().storage().raw(this, AccessMode.READ)[transposed.index()];
+            if (o == null) {
+                p_callback.on(new KObject[0]);
             } else if (o instanceof Set) {
                 Set<Long> objs = (Set<Long>) o;
                 Long[] setContent = objs.toArray(new Long[objs.size()]);
                 view().lookupAll(setContent, new Callback<KObject[]>() {
                     @Override
                     public void on(KObject[] result) {
-                        boolean endAlreadyCalled = false;
                         try {
-                            for (int l = 0; l < result.length; l++) {
-                                callback.on((C) result[l]);
-                            }
-                            endAlreadyCalled = true;
-                            if (end != null) {
-                                end.on(null);
-                            }
+                            p_callback.on(result);
                         } catch (Throwable t) {
-                            if (!endAlreadyCalled) {
-                                if (end != null) {
-                                    end.on(t);
-                                }
-                            }
+                            t.printStackTrace();
+                            p_callback.on(null);
                         }
                     }
                 });
             } else {
-                view().lookup((Long) o, new Callback<KObject>() {
-                    @Override
-                    public void on(KObject resolved) {
-                        if (callback != null) {
-                            callback.on((C) resolved);
-                        }
-                        if (end != null) {
-                            end.on(null);
-                        }
-                    }
-                });
-
+                p_callback.on(new KObject[0]);
             }
         }
     }

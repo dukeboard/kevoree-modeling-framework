@@ -51,8 +51,19 @@ public class NodeImpl extends AbstractKObject implements Node {
     }
 
     @Override
-    public void eachChildren(Callback<Node> p_callback, Callback<Throwable> p_end) {
-        this.each(metaClass().REF_CHILDREN, p_callback, p_end);
+    public void eachChildren(Callback<Node[]> p_callback) {
+        this.all(metaClass().REF_CHILDREN, new Callback<KObject[]>() {
+            @Override
+            public void on(KObject[] kObjects) {
+                if(p_callback != null){
+                    Node[] casted = new Node[kObjects.length];
+                    for(int i=0;i<casted.length;i++){
+                        casted[i] = (Node) kObjects[i];
+                    }
+                    p_callback.on(casted);
+                }
+            }
+        });
     }
 
     @Override
@@ -63,7 +74,14 @@ public class NodeImpl extends AbstractKObject implements Node {
 
     @Override
     public void getElement(Callback<Element> p_callback) {
-        this.each(metaClass().REF_ELEMENT, p_callback, null);
+        this.single(metaClass().REF_ELEMENT, new Callback<KObject>() {
+            @Override
+            public void on(KObject kObject) {
+                if(p_callback!=null){
+                    p_callback.on((Element) kObject);
+                }
+            }
+        });
     }
 
     @Override
