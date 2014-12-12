@@ -39,6 +39,7 @@ public class TimeMachineTest {
                 timeMachine.set(n0);
                 timeMachine.jumpTime(1);
                 timeMachine.jumpTime(0);
+                n0.setName("n00");
             }
         });
     }

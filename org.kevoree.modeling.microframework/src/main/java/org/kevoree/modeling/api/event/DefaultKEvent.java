@@ -8,10 +8,12 @@ import org.kevoree.modeling.api.json.Lexer;
 import org.kevoree.modeling.api.json.Type;
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.KActionType;
+import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
 import org.kevoree.modeling.api.trace.ModelNewTrace;
+import org.kevoree.modeling.api.trace.ModelSetTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 
 //TODO fix serilization
@@ -153,7 +155,7 @@ public class DefaultKEvent implements KEvent {
             return new ModelAddTrace(_uuid, (MetaReference) _metaElement, ((KObject) _value).uuid());
         }
         if (_actionType.equals(KActionType.SET)) {
-
+            return new ModelSetTrace(_uuid, (MetaAttribute) _metaElement, _value);
         }
         return null;
     }
