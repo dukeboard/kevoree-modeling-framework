@@ -8,11 +8,7 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.trace.ModelAddTrace;
-import org.kevoree.modeling.api.trace.ModelRemoveTrace;
-import org.kevoree.modeling.api.trace.ModelSetTrace;
-import org.kevoree.modeling.api.trace.ModelTrace;
-import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.trace.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,18 +59,16 @@ public class DefaultModelCompare {
                             Long childPath = elem.uuid();
                             if (objectsMap.containsKey(childPath)) {
                                 if (inter) {
-                                    //TODO
-                                    MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
+                                    traces.add(new ModelNewTrace(elem.uuid(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid()));
                                 }
                                 traces.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, false, true));
                                 tracesRef.addAll(internal_createTraces(objectsMap.get(childPath), elem, inter, merge, true, false));
                                 objectsMap.remove(childPath); //drop from to process elements
                             } else {
                                 if (!inter) {
-                                    //TODO
-                                    MetaReference currentReference = null;
-                                    traces.add(new ModelAddTrace(elem.parentUuid(), currentReference, elem.uuid(), elem.metaClass()));
+                                    traces.add(new ModelNewTrace(elem.uuid(), elem.metaClass()));
+                                    traces.add(new ModelAddTrace(elem.parentUuid(), elem.referenceInParent(), elem.uuid()));
                                     traces.addAll(internal_createTraces(elem, elem, true, merge, false, true));
                                     tracesRef.addAll(internal_createTraces(elem, elem, true, merge, true, false));
                                 }
@@ -191,12 +185,12 @@ public class DefaultModelCompare {
                         if (isEquals) {
                             if (inter) {
                                 if (payload2 != null) {
-                                    traces.add(new ModelAddTrace(current.uuid(), reference, (Long) payload2, null));
+                                    traces.add(new ModelAddTrace(current.uuid(), reference, (Long) payload2));
                                 }
                             }
                         } else {
                             if (!inter) {
-                                traces.add(new ModelAddTrace(current.uuid(), reference, (Long) payload2, null));
+                                traces.add(new ModelAddTrace(current.uuid(), reference, (Long) payload2));
                             }
                         }
                     } else {
@@ -206,7 +200,7 @@ public class DefaultModelCompare {
                             for (int j = 0; j < siblingToAdd.length; j++) {
                                 Long siblingElem = siblingToAdd[j];
                                 if (!inter) {
-                                    traces.add(new ModelAddTrace(current.uuid(), reference, siblingElem, null));
+                                    traces.add(new ModelAddTrace(current.uuid(), reference, siblingElem));
                                 }
                             }
                         } else {
@@ -221,7 +215,7 @@ public class DefaultModelCompare {
                                     }
                                     if (isFound) {
                                         if (inter) {
-                                            traces.add(new ModelAddTrace(current.uuid(), reference, currentPath, null));
+                                            traces.add(new ModelAddTrace(current.uuid(), reference, currentPath));
                                         }
                                     } else {
                                         if (!inter) {

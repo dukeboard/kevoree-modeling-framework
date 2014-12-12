@@ -15,6 +15,7 @@ public enum ModelTraceConstants {
     openJSON("{"),
     closeJSON("}"),
     bb("\""),
+    sep("@"),
     coma(","),
     dp(":");
 

@@ -1,21 +1,11 @@
 package org.kevoree.modeling.api.trace;
 
 import org.kevoree.modeling.api.Callback;
-import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
-import org.kevoree.modeling.api.json.JsonString;
-import org.kevoree.modeling.api.json.Lexer;
-import org.kevoree.modeling.api.json.JsonToken;
-import org.kevoree.modeling.api.json.Type;
-import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaAttribute;
-import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaClass;
-import org.kevoree.modeling.api.trace.unresolved.UnresolvedMetaReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,6 +32,7 @@ public class TraceSequence {
         return this;
     }
 
+    /*
     public TraceSequence parse(String addtracesTxt) throws Exception {
         Lexer lexer = new Lexer(addtracesTxt);
         JsonToken currentToken = lexer.nextToken();
@@ -101,7 +92,7 @@ public class TraceSequence {
         }
         buffer.append("]");
         return buffer.toString();
-    }
+    }*/
 
     public boolean applyOn(KObject target, Callback<Throwable> callback) {
         ModelTraceApplicator traceApplicator = new ModelTraceApplicator(target);
@@ -113,6 +104,10 @@ public class TraceSequence {
     public TraceSequence reverse() {
         Collections.reverse(_traces);
         return this;
+    }
+
+    public int size() {
+        return _traces.size();
     }
 
 }

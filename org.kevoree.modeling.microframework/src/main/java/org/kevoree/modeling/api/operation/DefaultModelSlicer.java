@@ -6,6 +6,7 @@ import org.kevoree.modeling.api.ModelVisitor;
 import org.kevoree.modeling.api.TraceRequest;
 import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
+import org.kevoree.modeling.api.trace.ModelNewTrace;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.modeling.api.util.CallBackChain;
@@ -40,7 +41,8 @@ public class DefaultModelSlicer {
                     for (int k = 0; k < parentsArr.length; k++) {
                         KObject parent = parentsArr[k];
                         if (parent.parentUuid() != null) {
-                            traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid(), parent.metaClass()));
+                            traces.add(new ModelNewTrace(parent.uuid(), parent.metaClass()));
+                            traces.add(new ModelAddTrace(parent.parentUuid(), parent.referenceInParent(), parent.uuid()));
                         }
                         ModelTrace[] toAdd = elem.traces(TraceRequest.ATTRIBUTES_ONLY);
                         for (int i = 0; i < toAdd.length; i++) {

@@ -2,6 +2,7 @@ package org.kevoree.modeling.api;
 
 import org.kevoree.modeling.api.meta.Meta;
 import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.trace.ModelTrace;
 
 /**
  * Created by duke on 10/29/14.
@@ -23,5 +24,7 @@ public interface KEvent {
     public Object value();
 
     public String toJSON();
+
+    public ModelTrace toTrace();
 
 }

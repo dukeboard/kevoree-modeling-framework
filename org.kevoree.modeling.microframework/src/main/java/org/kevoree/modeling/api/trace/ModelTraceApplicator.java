@@ -3,11 +3,14 @@ package org.kevoree.modeling.api.trace;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.abs.AbstractMetaAttribute;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.util.CallBackChain;
-import org.kevoree.modeling.api.util.Helper;
+import org.kevoree.modeling.api.time.DefaultTimeTree;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,138 +20,95 @@ import org.kevoree.modeling.api.util.Helper;
  */
 public class ModelTraceApplicator {
 
-    private KObject targetModel;
+    private KObject _targetModel;
 
-    public ModelTraceApplicator(KObject targetModel) {
-        this.targetModel = targetModel;
-    }
-
-    private KObject pendingObj = null;
-    private KObject pendingParent = null;
-    private MetaReference pendingParentRef = null;
-    private Long pendingObjKID = null;
-
-    private void tryClosePending(Long srcKID) {
-        if (pendingObj != null && !(pendingObjKID.equals(srcKID))) {
-            pendingParent.mutate(KActionType.ADD, pendingParentRef, pendingObj);
-            pendingObj = null;
-            pendingObjKID = null;
-            pendingParentRef = null;
-            pendingParent = null;
-        }
-    }
-
-    public void createOrAdd(final Long previousPath, final KObject target, final MetaReference reference, final MetaClass metaClass, final Callback<Throwable> callback) {
-        if (previousPath != null) {
-            targetModel.view().lookup(previousPath, new Callback<KObject>() {
-                @Override
-                public void on(KObject targetElem) {
-                    if (targetElem != null) {
-                        target.mutate(KActionType.ADD, reference, targetElem);
-                        callback.on(null);
-                    } else {
-                        if (metaClass == null) {
-                            callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
-                        } else {
-                            pendingObj = targetModel.view().createFQN(metaClass.metaName());
-                            pendingObjKID = previousPath;
-                            pendingParentRef = reference;
-                            pendingParent = target;
-                            callback.on(null);
-                        }
-                    }
-                }
-            });
-        } else {
-            if (metaClass == null) {
-                callback.on(new Exception("Unknow typeName for potential path " + previousPath + ", to store in " + reference.metaName() + ", unconsistency error"));
-            } else {
-                pendingObj = targetModel.view().createFQN(metaClass.metaName());
-                pendingObjKID = previousPath;
-                pendingParentRef = reference;
-                pendingParent = target;
-                callback.on(null);
-            }
-        }
+    public ModelTraceApplicator(KObject p_targetModel) {
+        this._targetModel = p_targetModel;
     }
 
     public void applyTraceSequence(final TraceSequence traceSeq, final Callback<Throwable> callback) {
-        Helper.forall(traceSeq.traces(), new CallBackChain<ModelTrace>() {
-            @Override
-            public void on(ModelTrace modelTrace, Callback<Throwable> next) {
-                applyTrace(modelTrace, next);
-            }
-        }, new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
-                if (throwable != null) {
-                    callback.on(throwable);
-                } else {
-                    tryClosePending(null);
-                    callback.on(null);
+        try {
+            ModelTrace[] traces = traceSeq.traces();
+            HashSet<Long> dependencies = new HashSet<Long>();
+            for (int i = 0; i < traces.length; i++) {
+                if (traces[i] instanceof ModelAddTrace) {
+                    dependencies.add(((ModelAddTrace) traces[i]).paramUUID());
+                    dependencies.add(traces[i].sourceUUID());
                 }
-            }
-        });
-    }
-
-    public void applyTrace(final ModelTrace trace, final Callback<Throwable> callback) {
-        if (trace instanceof ModelAddTrace) {
-            final ModelAddTrace addTrace = (ModelAddTrace) trace;
-            tryClosePending(null);
-            targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
-                @Override
-                public void on(KObject resolvedTarget) {
-                    if (resolvedTarget == null) {
-                        callback.on(new Exception("Add Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
-                    } else {
-                        createOrAdd(addTrace.getPreviousKID(), resolvedTarget, (MetaReference) trace.getMeta(), addTrace.getMetaClass(), callback);
-                    }
+                if (traces[i] instanceof ModelRemoveTrace) {
+                    dependencies.add(((ModelRemoveTrace) traces[i]).paramUUID());
+                    dependencies.add(traces[i].sourceUUID());
                 }
-            });
-        } else if (trace instanceof ModelRemoveTrace) {
-            final ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
-            tryClosePending(trace.getSrcKID());
-            targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
-                @Override
-                public void on(final KObject targetElem) {
-                    if (targetElem != null) {
-                        targetModel.view().lookup(removeTrace.getObjKID(), new Callback<KObject>() {
-                            @Override
-                            public void on(KObject remoteObj) {
-                                targetElem.mutate(KActionType.REMOVE, (MetaReference) trace.getMeta(), remoteObj);
-                                callback.on(null);
-                            }
-                        });
-                    } else {
-                        callback.on(null);
-                    }
-                }
-            });
-        } else if (trace instanceof ModelSetTrace) {
-            final ModelSetTrace setTrace = (ModelSetTrace) trace;
-            tryClosePending(trace.getSrcKID());
-            if (!trace.getSrcKID().equals(pendingObjKID)) {
-                targetModel.view().lookup(trace.getSrcKID(), new Callback<KObject>() {
-                    @Override
-                    public void on(KObject tempObject) {
-                        if (tempObject == null) {
-                            callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
-                        } else {
-                            tempObject.set((MetaAttribute) setTrace.getMeta(), setTrace.getContent());
-                            callback.on(null);
+                if (traces[i] instanceof ModelSetTrace) {
+                    if (traces[i].meta() instanceof AbstractMetaAttribute) {
+                        try {
+                            Long paramUUID = Long.parseLong(((ModelSetTrace) traces[i]).content().toString());
+                            dependencies.add(paramUUID);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
-                });
-            } else {
-                if (pendingObj == null) {
-                    callback.on(new Exception("Set Trace source not found for path : " + trace.getSrcKID() + " pending " + pendingObjKID + "\n" + trace.toString()));
-                } else {
-                    pendingObj.set((MetaAttribute) setTrace.getMeta(), setTrace.getContent());
-                    callback.on(null);
+                    dependencies.add(traces[i].sourceUUID());
                 }
             }
-        } else {
-            callback.on(new Exception("Unknow trace " + trace));
+            Long[] dependenciesArray = dependencies.toArray(new Long[dependencies.size()]);
+            _targetModel.view().lookupAll(dependenciesArray, new Callback<KObject[]>() {
+                @Override
+                public void on(KObject[] kObjects) {
+                    HashMap<Long, KObject> cached = new HashMap<Long, KObject>();
+                    for (int i = 0; i < traces.length; i++) {
+                        try {
+                            ModelTrace trace = traces[i];
+                            KObject sourceObject = cached.get(trace.sourceUUID());
+                            if (sourceObject == null) {
+                                if (trace instanceof ModelRemoveTrace) {
+                                    ModelRemoveTrace removeTrace = (ModelRemoveTrace) trace;
+                                    KObject param = cached.get(removeTrace.paramUUID());
+                                    if (param != null) {
+                                        sourceObject.mutate(KActionType.REMOVE, (MetaReference) removeTrace.meta(), param);
+                                    }
+                                } else if (trace instanceof ModelAddTrace) {
+                                    ModelAddTrace addTrace = (ModelAddTrace) trace;
+                                    KObject param = cached.get(addTrace.paramUUID());
+                                    if (param != null) {
+                                        sourceObject.mutate(KActionType.ADD, (MetaReference) addTrace.meta(), param);
+                                    }
+                                } else if (trace instanceof ModelSetTrace) {
+                                    ModelSetTrace setTrace = (ModelSetTrace) trace;
+                                    if (trace.meta() instanceof AbstractMetaAttribute) {
+                                        sourceObject.set((MetaAttribute) trace.meta(), setTrace.content());
+                                    } else {
+                                        try {
+                                            Long paramUUID = Long.parseLong(((ModelSetTrace) traces[i]).content().toString());
+                                            KObject param = cached.get(paramUUID);
+                                            if (param != null) {
+                                                sourceObject.mutate(KActionType.SET, (MetaReference) trace.meta(), param);
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                } else if (trace instanceof ModelNewTrace) {
+                                    DefaultTimeTree tree = new DefaultTimeTree();
+                                    tree.insert(_targetModel.now());
+                                    KObject newCreated = _targetModel.view().createProxy((MetaClass) trace.meta(), tree, trace.sourceUUID());
+                                    cached.put(newCreated.uuid(), newCreated);
+                                } else {
+                                    System.err.println("Unknow traceType: " + trace);
+                                }
+                            } else {
+                                System.err.println("Unknow object: " + trace);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.err.println("Error " + e);
+                        }
+                    }
+                    callback.on(null);
+                }
+            });
+        } catch (Exception e) {
+            callback.on(e);
         }
     }
 

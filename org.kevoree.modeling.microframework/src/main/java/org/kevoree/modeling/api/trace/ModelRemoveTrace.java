@@ -10,37 +10,14 @@ import org.kevoree.modeling.api.meta.MetaReference;
  */
 public class ModelRemoveTrace implements ModelTrace {
 
-    private KActionType traceType = KActionType.REMOVE;
+    private long _srcUUID;
+    private MetaReference _reference;
+    private long _paramUUID;
 
-    private Long srcKID;
-
-    private Long objKID;
-
-    private MetaReference reference;
-
-    public ModelRemoveTrace(Long srcKID, MetaReference reference, Long objKID) {
-        this.srcKID = srcKID;
-        this.reference = reference;
-        this.objKID = objKID;
-    }
-
-    public Long getObjKID() {
-        return objKID;
-    }
-
-    @Override
-    public Meta getMeta() {
-        return reference;
-    }
-
-    @Override
-    public KActionType getTraceType() {
-        return traceType;
-    }
-
-    @Override
-    public Long getSrcKID() {
-        return srcKID;
+    public ModelRemoveTrace(long p_srcUUID, MetaReference p_reference, long p_paramUUID) {
+        this._srcUUID = p_srcUUID;
+        this._reference = p_reference;
+        this._paramUUID = p_paramUUID;
     }
 
     @Override
@@ -60,7 +37,7 @@ public class ModelRemoveTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JsonString.encodeBuffer(buffer, srcKID + "");
+        JsonString.encodeBuffer(buffer, _srcUUID + "");
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);
@@ -68,7 +45,7 @@ public class ModelRemoveTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        buffer.append(reference.metaName());
+        buffer.append(_reference.metaName());
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);
@@ -76,10 +53,28 @@ public class ModelRemoveTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JsonString.encodeBuffer(buffer, objKID + "");
+        JsonString.encodeBuffer(buffer, _paramUUID + "");
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.closeJSON);
         return buffer.toString();
     }
 
+    @Override
+    public Meta meta() {
+        return _reference;
+    }
+
+    @Override
+    public KActionType traceType() {
+        return KActionType.REMOVE;
+    }
+
+    @Override
+    public Long sourceUUID() {
+        return _srcUUID;
+    }
+
+    public long paramUUID() {
+        return _paramUUID;
+    }
 }

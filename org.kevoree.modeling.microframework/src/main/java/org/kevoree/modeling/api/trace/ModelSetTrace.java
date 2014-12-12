@@ -10,37 +10,16 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
  */
 public class ModelSetTrace implements ModelTrace {
 
-    private KActionType traceType = KActionType.SET;
+    private Long _srcUUID;
 
-    private Long srcKID;
+    private MetaAttribute _attribute;
 
-    private MetaAttribute attribute;
+    private Object _content;
 
-    private Object content;
-
-    public ModelSetTrace(Long srcKID, MetaAttribute attribute, Object content) {
-        this.srcKID = srcKID;
-        this.attribute = attribute;
-        this.content = content;
-    }
-
-    @Override
-    public KActionType getTraceType() {
-        return traceType;
-    }
-
-    @Override
-    public Long getSrcKID() {
-        return srcKID;
-    }
-
-    @Override
-    public Meta getMeta() {
-        return attribute;
-    }
-
-    public Object getContent() {
-        return content;
+    public ModelSetTrace(long p_srcUUID, MetaAttribute p_attribute, Object p_content) {
+        this._srcUUID = p_srcUUID;
+        this._attribute = p_attribute;
+        this._content = p_content;
     }
 
     @Override
@@ -60,7 +39,7 @@ public class ModelSetTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JsonString.encodeBuffer(buffer, srcKID + "");
+        JsonString.encodeBuffer(buffer, _srcUUID + "");
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.coma);
         buffer.append(ModelTraceConstants.bb);
@@ -68,20 +47,40 @@ public class ModelSetTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        buffer.append(attribute.metaName());
+        buffer.append(_attribute.metaName());
         buffer.append(ModelTraceConstants.bb);
-        if (content != null) {
+        if (_content != null) {
             buffer.append(ModelTraceConstants.coma);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.content);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            JsonString.encodeBuffer(buffer, content.toString());//TODO manage for array
+            JsonString.encodeBuffer(buffer, _content.toString());//TODO manage for array
             buffer.append(ModelTraceConstants.bb);
         }
         buffer.append(ModelTraceConstants.closeJSON);
         return buffer.toString();
     }
+
+    @Override
+    public Meta meta() {
+        return _attribute;
+    }
+
+    @Override
+    public KActionType traceType() {
+        return KActionType.SET;
+    }
+
+    @Override
+    public Long sourceUUID() {
+        return _srcUUID;
+    }
+
+    public Object content() {
+        return _content;
+    }
+
 
 }

@@ -627,10 +627,10 @@ public abstract class AbstractKObject implements KObject {
                     Set<Long> contents = (Set<Long>) o;
                     Long[] contentsArr = contents.toArray(new Long[contents.size()]);
                     for (int j = 0; j < contentsArr.length; j++) {
-                        traces.add(new ModelAddTrace(_uuid, ref, contentsArr[j], null));
+                        traces.add(new ModelAddTrace(_uuid, ref, contentsArr[j]));
                     }
                 } else if (o != null) {
-                    traces.add(new ModelAddTrace(_uuid, ref, (Long) o, null));
+                    traces.add(new ModelAddTrace(_uuid, ref, (Long) o));
                 }
             }
         }

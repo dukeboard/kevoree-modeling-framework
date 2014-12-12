@@ -8,10 +8,10 @@ import org.kevoree.modeling.api.meta.Meta;
  */
 public interface ModelTrace {
 
-    public Meta getMeta();
+    public Meta meta();
 
-    public KActionType getTraceType();
+    public KActionType traceType();
 
-    public Long getSrcKID();
+    public Long sourceUUID();
 
 }

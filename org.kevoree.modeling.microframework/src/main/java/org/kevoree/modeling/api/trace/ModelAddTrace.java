@@ -3,7 +3,6 @@ package org.kevoree.modeling.api.trace;
 import org.kevoree.modeling.api.KActionType;
 import org.kevoree.modeling.api.json.JsonString;
 import org.kevoree.modeling.api.meta.Meta;
-import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaReference;
 
 /**
@@ -11,29 +10,16 @@ import org.kevoree.modeling.api.meta.MetaReference;
  */
 public class ModelAddTrace implements ModelTrace {
 
-    private MetaReference reference;
+    private long _srcUUID;
 
-    private KActionType traceType = KActionType.ADD;
+    private MetaReference _reference;
 
-    private Long srcKID;
+    private long _paramUUID;
 
-    public Long getPreviousKID() {
-        return previousKID;
-    }
-
-    private Long previousKID;
-
-    public MetaClass getMetaClass() {
-        return metaClass;
-    }
-
-    private MetaClass metaClass;
-
-    public ModelAddTrace(Long srcKID, MetaReference reference, Long previousKID, MetaClass metaClass) {
-        this.srcKID = srcKID;
-        this.reference = reference;
-        this.previousKID = previousKID;
-        this.metaClass = metaClass;
+    public ModelAddTrace(Long p_srcUUID, MetaReference p_reference, long p_paramUUID) {
+        this._srcUUID = p_srcUUID;
+        this._reference = p_reference;
+        this._paramUUID = p_paramUUID;
     }
 
     @Override
@@ -53,55 +39,49 @@ public class ModelAddTrace implements ModelTrace {
         buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.dp);
         buffer.append(ModelTraceConstants.bb);
-        JsonString.encodeBuffer(buffer, srcKID + "");
+        JsonString.encodeBuffer(buffer, _srcUUID + "");
         buffer.append(ModelTraceConstants.bb);
-        if (reference != null) {
+        if (_reference != null) {
             buffer.append(ModelTraceConstants.coma);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.meta);
             buffer.append(ModelTraceConstants.bb);
             buffer.append(ModelTraceConstants.dp);
             buffer.append(ModelTraceConstants.bb);
-            buffer.append(reference.metaName());
+            buffer.append(_reference.origin().metaName());
+            buffer.append(ModelTraceConstants.sep);
+            buffer.append(_reference.metaName());
             buffer.append(ModelTraceConstants.bb);
         }
-        if (previousKID != null) {
-            buffer.append(ModelTraceConstants.coma);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.previouspath);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.dp);
-            buffer.append(ModelTraceConstants.bb);
-            JsonString.encodeBuffer(buffer, previousKID + "");
-            buffer.append(ModelTraceConstants.bb);
-        }
-        if (metaClass != null) {
-            buffer.append(ModelTraceConstants.coma);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.typename);
-            buffer.append(ModelTraceConstants.bb);
-            buffer.append(ModelTraceConstants.dp);
-            buffer.append(ModelTraceConstants.bb);
-            JsonString.encodeBuffer(buffer, metaClass.metaName());
-            buffer.append(ModelTraceConstants.bb);
-        }
+        buffer.append(ModelTraceConstants.coma);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.previouspath);
+        buffer.append(ModelTraceConstants.bb);
+        buffer.append(ModelTraceConstants.dp);
+        buffer.append(ModelTraceConstants.bb);
+        JsonString.encodeBuffer(buffer, _paramUUID + "");
+        buffer.append(ModelTraceConstants.bb);
         buffer.append(ModelTraceConstants.closeJSON);
         return buffer.toString();
     }
 
     @Override
-    public Meta getMeta() {
-        return reference;
+    public Meta meta() {
+        return _reference;
     }
 
     @Override
-    public KActionType getTraceType() {
-        return traceType;
+    public KActionType traceType() {
+        return KActionType.ADD;
     }
 
     @Override
-    public Long getSrcKID() {
-        return srcKID;
+    public Long sourceUUID() {
+        return null;
+    }
+
+    public long paramUUID() {
+        return _paramUUID;
     }
 
 }
