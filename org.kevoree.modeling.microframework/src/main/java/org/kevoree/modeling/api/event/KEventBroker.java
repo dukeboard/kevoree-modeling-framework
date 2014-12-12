@@ -14,4 +14,6 @@ public interface KEventBroker {
 
     void flush(Long dimensionKey);
 
+    void unregister(ModelListener listener);
+
 }

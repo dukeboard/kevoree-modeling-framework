@@ -18,6 +18,8 @@ public class TimeMachine {
 
     private Boolean _deepMonitoring;
 
+    private ModelListener _listener = null;
+
     /* Set the object to monitor, additionally set the time and dimension */
     public void set(KObject target) {
         if (_syncCallback != null) {
@@ -44,6 +46,7 @@ public class TimeMachine {
                     _syncCallback.on(sequence);
                 }
             } else {
+                _previous.dimension().universe().storage().eventBroker().unregister(_listener);
                 _previous.merge(target, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
@@ -54,15 +57,17 @@ public class TimeMachine {
                 });
             }
             //init listener
-            target.listen(new ModelListener() {
+            _listener = new ModelListener() {
                 @Override
                 public void on(KEvent evt) {
-
+                    TraceSequence sequence = new TraceSequence();
+                    ArrayList<ModelTrace> traces = new ArrayList<ModelTrace>();
+                    traces.add(evt.toTrace());
+                    sequence.populate(traces);
+                    _syncCallback.on(sequence);
                 }
-            }, ListenerScope.TIME);
-
-            //TODO drop listener
-
+            };
+            target.listen(_listener, ListenerScope.TIME);
         }
         //save as previous
         this._previous = target;
