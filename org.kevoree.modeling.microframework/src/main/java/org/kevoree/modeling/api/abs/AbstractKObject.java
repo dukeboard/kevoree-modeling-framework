@@ -232,7 +232,12 @@ public abstract class AbstractKObject implements KObject {
                 }
             }
         }
-        return builder.toString();
+        String result = builder.toString();
+        if(result.equals("")){
+            return uuid()+"";
+        } else {
+            return result;
+        }
     }
 
     @Override
