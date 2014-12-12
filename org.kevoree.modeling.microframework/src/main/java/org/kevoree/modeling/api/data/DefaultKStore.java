@@ -49,8 +49,16 @@ public class DefaultKStore implements KStore {
 
     @Override
     public void connect(Callback<Throwable> callback) {
+        if (isConnected) {
+            if(callback!=null){
+                callback.on(null);
+            }
+            return;
+        }
         if (_db == null) {
-            callback.on(new Exception("Please attach a KDataBase first !"));
+            if(callback!=null) {
+                callback.on(new Exception("Please attach a KDataBase first !"));
+            }
         }
         String[] keys = new String[1];
         keys[0] = keyLastPrefix();
@@ -294,7 +302,7 @@ public class DefaultKStore implements KStore {
             callback.on(null);
         } else {
             Long[] times = dimensionCache.timesCaches.keySet().toArray(new Long[dimensionCache.timesCaches.keySet().size()]);
-            int sizeCache = size_dirties(dimensionCache)+2;
+            int sizeCache = size_dirties(dimensionCache) + 2;
             String[][] payloads = new String[sizeCache][2];
             int i = 0;
             for (int j = 0; j < times.length; j++) {
@@ -548,7 +556,7 @@ public class DefaultKStore implements KStore {
         int sizeCache = 0;
         for (int i = 0; i < times.length; i++) {
             TimeCache timeCache = dimensionCache.timesCaches.get(times[i]);
-            if(timeCache != null){
+            if (timeCache != null) {
                 Long[] keys = timeCache.payload_cache.keySet().toArray(new Long[timeCache.payload_cache.keySet().size()]);
                 for (int k = 0; k < keys.length; k++) {
                     Long idObj = keys[k];
@@ -565,7 +573,7 @@ public class DefaultKStore implements KStore {
         Long[] ids = dimensionCache.timeTreeCache.keySet().toArray(new Long[dimensionCache.timeTreeCache.size()]);
         for (int k = 0; k < ids.length; k++) {
             TimeTree timeTree = dimensionCache.timeTreeCache.get(ids[k]);
-            if (timeTree!= null && timeTree.isDirty()) {
+            if (timeTree != null && timeTree.isDirty()) {
                 sizeCache++;
             }
         }

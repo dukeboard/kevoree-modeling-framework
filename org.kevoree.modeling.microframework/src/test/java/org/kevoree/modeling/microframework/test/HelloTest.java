@@ -25,20 +25,32 @@ public class HelloTest {
     @Test
     public void helloTest() {
         CloudUniverse universe = new CloudUniverse();
-        universe.connect(null);
+        int[] counter = new int[1];
+        counter[0]=0;
         universe.listen(new ModelListener() {
             @Override
             public void on(KEvent evt) {
-                //System.err.println(evt);
+                counter[0]++;
             }
         });
-
-
         CloudDimension dimension0 = universe.newDimension();
+        dimension0.listen(new ModelListener() {
+            @Override
+            public void on(KEvent evt) {
+                counter[0]++;
+            }
+        });
 
         Assert.assertNotNull(dimension0);
 
         CloudView t0 = dimension0.time(0l);
+        t0.listen(new ModelListener() {
+            @Override
+            public void on(KEvent evt) {
+                counter[0]++;
+            }
+        });
+
         Assert.assertNotNull(t0);
         Assert.assertEquals(t0.now(), 0l);
 
@@ -199,6 +211,9 @@ public class HelloTest {
         Assert.assertEquals(1, j[0]);
 
         //System.err.println(nodeT0);
+
+        Assert.assertEquals(27,counter[0]);
+
     }
 
 }
