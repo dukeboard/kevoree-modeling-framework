@@ -2,14 +2,9 @@ package org.kevoree.modeling.api.data;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
-import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.ModelListener;
-import org.kevoree.modeling.api.ThrowableCallback;
 import org.kevoree.modeling.api.event.KEventBroker;
-import org.kevoree.modeling.api.event.ListenerScope;
-import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.util.KOperationManager;
 
 /**

@@ -10,7 +10,6 @@ import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.event.KEventBroker;
-import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
@@ -86,8 +85,8 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
     }
 
     @Override
-    public void listen(ModelListener listener, ListenerScope scope) {
-        storage().eventBroker().registerListener(this, listener, scope);
+    public void listen(ModelListener listener) {
+        storage().eventBroker().registerListener(this, listener, null);
     }
 
     @Override

@@ -8,7 +8,6 @@ import org.kevoree.modeling.api.KView;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.ModelFormat;
 import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.json.JsonFormat;
 import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
@@ -16,7 +15,6 @@ import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.time.DefaultTimeTree;
 import org.kevoree.modeling.api.trace.TraceSequence;
-import org.kevoree.modeling.api.util.TimeMachine;
 import org.kevoree.modeling.api.xmi.XmiFormat;
 
 import java.util.ArrayList;
@@ -122,8 +120,8 @@ public abstract class AbstractKView implements KView {
         return newObj;
     }
 
-    public void listen(ModelListener listener, ListenerScope scope) {
-        dimension().universe().storage().eventBroker().registerListener(this, listener, scope);
+    public void listen(ModelListener listener) {
+        dimension().universe().storage().eventBroker().registerListener(this, listener, null);
     }
 
     protected abstract KObject internalCreate(MetaClass clazz, TimeTree timeTree, long key);

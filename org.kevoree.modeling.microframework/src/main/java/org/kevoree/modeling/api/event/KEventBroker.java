@@ -8,7 +8,7 @@ import org.kevoree.modeling.api.ModelListener;
  */
 public interface KEventBroker {
 
-    void registerListener(Object origin, ModelListener listener, ListenerScope scope);
+    void registerListener(Object origin, ModelListener listener, Object scope);
 
     void notify(KEvent event);
 

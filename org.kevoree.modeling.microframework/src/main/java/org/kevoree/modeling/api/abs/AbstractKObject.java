@@ -15,9 +15,11 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.event.DefaultKEvent;
-import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.data.JsonRaw;
-import org.kevoree.modeling.api.meta.*;
+import org.kevoree.modeling.api.meta.MetaAttribute;
+import org.kevoree.modeling.api.meta.MetaClass;
+import org.kevoree.modeling.api.meta.MetaOperation;
+import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
 import org.kevoree.modeling.api.select.KSelector;
@@ -208,8 +210,8 @@ public abstract class AbstractKObject implements KObject {
     }
 
     @Override
-    public void listen(ModelListener listener, ListenerScope scope) {
-        view().dimension().universe().storage().eventBroker().registerListener(this, listener, scope);
+    public void listen(ModelListener listener) {
+        dimension().universe().storage().eventBroker().registerListener(this, listener, null);
     }
 
     @Override

@@ -1,15 +1,11 @@
 package org.kevoree.modeling.api;
 
-import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaClass;
-import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
-
-import java.util.List;
 
 /**
  * Created by thomas on 10/2/14.
@@ -36,7 +32,7 @@ public interface KObject {
 
     public void stream(String query, Callback<KObject> callback);
 
-    public void listen(ModelListener listener, ListenerScope scope);
+    public void listen(ModelListener listener);
 
     /* Visit API */
     public void visitAttributes(ModelAttributeVisitor visitor);

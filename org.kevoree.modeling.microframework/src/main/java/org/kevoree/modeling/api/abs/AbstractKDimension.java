@@ -2,9 +2,9 @@ package org.kevoree.modeling.api.abs;
 
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KDimension;
+import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.KUniverse;
 import org.kevoree.modeling.api.KView;
-import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.api.ModelListener;
 
 /**
@@ -71,8 +71,14 @@ public abstract class AbstractKDimension<A extends KView, B extends KDimension, 
         return internal_create(timePoint);
     }
 
-    public void listen(ModelListener listener, ListenerScope scope) {
-        universe().storage().eventBroker().registerListener(this, listener, scope);
+    @Override
+    public void listen(ModelListener listener) {
+        universe().storage().eventBroker().registerListener(this, listener, null);
+    }
+
+    @Override
+    public void listenAllTimes(KObject target, ModelListener listener){
+        universe().storage().eventBroker().registerListener(this, listener, target);
     }
 
     protected abstract A internal_create(Long timePoint);

@@ -1,7 +1,10 @@
 package org.kevoree.modeling.api.util;
 
-import org.kevoree.modeling.api.*;
-import org.kevoree.modeling.api.event.ListenerScope;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KEvent;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.ModelListener;
+import org.kevoree.modeling.api.TraceRequest;
 import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
 
@@ -67,7 +70,7 @@ public class TimeMachine {
                     _syncCallback.on(sequence);
                 }
             };
-            target.listen(_listener, ListenerScope.TIME);
+            target.listen(_listener);
         }
         //save as previous
         this._previous = target;

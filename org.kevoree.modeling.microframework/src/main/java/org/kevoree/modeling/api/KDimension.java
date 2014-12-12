@@ -27,4 +27,9 @@ public interface KDimension<A extends KView, B extends KDimension, C extends KUn
     public C universe();
 
     public boolean equals(Object other);
+
+    public void listen(ModelListener listener);
+
+    public void listenAllTimes(KObject target, ModelListener listener);
+
 }

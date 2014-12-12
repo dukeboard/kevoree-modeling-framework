@@ -3,8 +3,6 @@ package org.kevoree.modeling.api;
 import org.kevoree.modeling.api.data.KDataBase;
 import org.kevoree.modeling.api.data.KStore;
 import org.kevoree.modeling.api.event.KEventBroker;
-import org.kevoree.modeling.api.event.ListenerScope;
-import org.kevoree.modeling.api.meta.MetaClass;
 import org.kevoree.modeling.api.meta.MetaModel;
 import org.kevoree.modeling.api.meta.MetaOperation;
 
@@ -35,7 +33,7 @@ public interface KUniverse<A extends KDimension> {
 
     public KStore storage();
 
-    public void listen(ModelListener listener, ListenerScope scope);
+    public void listen(ModelListener listener);
 
     public KUniverse<A> setEventBroker(KEventBroker eventBroker);
 

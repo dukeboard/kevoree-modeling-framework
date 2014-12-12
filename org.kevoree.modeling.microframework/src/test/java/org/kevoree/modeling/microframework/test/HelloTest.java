@@ -9,7 +9,6 @@ import org.kevoree.modeling.api.VisitResult;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.data.AccessMode;
-import org.kevoree.modeling.api.event.ListenerScope;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -32,7 +31,7 @@ public class HelloTest {
             public void on(KEvent evt) {
                 //System.err.println(evt);
             }
-        }, ListenerScope.UNIVERSE);
+        });
 
 
         CloudDimension dimension0 = universe.newDimension();
