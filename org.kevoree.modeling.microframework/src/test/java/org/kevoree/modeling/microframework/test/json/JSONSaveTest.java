@@ -17,8 +17,6 @@ public class JSONSaveTest {
     @Test
     public void jsonTest() {
         CloudUniverse universe = new CloudUniverse();
-        universe.connect(null);
-
         CloudDimension dimension0 = universe.newDimension();
 
         CloudView time0 = dimension0.time(0l);
@@ -44,19 +42,19 @@ public class JSONSaveTest {
         String payloadResult = "[\n" +
                 "{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"137438953473\",\n" +
+                "\t\"@uuid\" : \"1\",\n" +
                 "\t\"@root\" : \"true\",\n" +
                 "\t\"name\" : \"root\",\n" +
-                "\t\"children\" : [\"137438953474\",\"137438953475\"],\n" +
+                "\t\"children\" : [\"2\",\"3\"],\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"137438953474\",\n" +
+                "\t\"@uuid\" : \"2\",\n" +
                 "\t\"name\" : \"n1\",\n" +
                 "}\n" +
                 ",{\n" +
                 "\t\"@meta\" : \"org.kevoree.modeling.microframework.test.cloud.Node\",\n" +
-                "\t\"@uuid\" : \"137438953475\",\n" +
+                "\t\"@uuid\" : \"3\",\n" +
                 "\t\"name\" : \"n2\",\n" +
                 "}\n" +
                 "]\n";

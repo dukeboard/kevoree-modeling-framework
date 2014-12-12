@@ -1,5 +1,6 @@
 package org.kevoree.modeling.microframework.test.time;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.trace.TraceSequence;
@@ -16,6 +17,10 @@ public class TimeMachineTest {
 
     @Test
     public void timeMachineTest() {
+
+        int[] counter = new int[1];
+        counter[0]=0;
+
         CloudUniverse universe = new CloudUniverse();
         CloudDimension dimension = universe.newDimension();
         CloudView v0 = dimension.time(0l);
@@ -30,8 +35,7 @@ public class TimeMachineTest {
                 timeMachine.init(true, new Callback<TraceSequence>() {
                     @Override
                     public void on(TraceSequence traceSequence) {
-
-                        System.err.println(traceSequence);
+                        counter[0]++;
                     }
                 });
                 timeMachine.set(n0);
@@ -42,6 +46,9 @@ public class TimeMachineTest {
                 n0.setName("n00");
             }
         });
+
+        Assert.assertEquals(6, counter[0]);
+
     }
 
 }

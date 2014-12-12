@@ -87,7 +87,7 @@ public class ParentStorageTest {
 
         root.addChildren(n1);
         root.addChildren(n2);
-        Long val = 137438953473L;
+        Long val = 1L;
         Assert.assertEquals(n1.parentUuid(), val);
         Assert.assertEquals(n1.referenceInParent(), universe.META_NODE.REF_CHILDREN);
 
