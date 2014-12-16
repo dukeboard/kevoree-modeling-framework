@@ -83,8 +83,16 @@ var geometry;
                 this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, this.metaClass().REF_SHAPES, p_obj);
                 return this;
             };
-            LibraryImpl.prototype.eachShapes = function (p_callback, p_end) {
-                this.each(this.metaClass().REF_SHAPES, p_callback, p_end);
+            LibraryImpl.prototype.eachShapes = function (p_callback) {
+                this.all(this.metaClass().REF_SHAPES, function (kObjects) {
+                    if (p_callback != null) {
+                        var casted = new Array();
+                        for (var i = 0; i < casted.length; i++) {
+                            casted[i] = kObjects[i];
+                        }
+                        p_callback(casted);
+                    }
+                });
             };
             LibraryImpl.prototype.sizeOfShapes = function () {
                 return this.size(this.metaClass().REF_SHAPES);
@@ -129,7 +137,7 @@ var geometry;
                 _super.call(this, "geometry.Library", 0, p_origin);
                 var temp_attributes = new Array();
                 var temp_references = new Array();
-                this.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 5, true, false, 1, null, null, this);
+                this.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 5, true, false, 1, null, this);
                 temp_references[0] = this.REF_SHAPES;
                 var temp_operations = new Array();
                 this.init(temp_attributes, temp_references, temp_operations);

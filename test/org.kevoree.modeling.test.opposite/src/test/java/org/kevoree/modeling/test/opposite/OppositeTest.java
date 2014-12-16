@@ -72,57 +72,49 @@ public class OppositeTest {
         B b2 = factory.createB();
 
         a.addMultiRef(b);
-        a.eachMultiRef((ref)->{
-            assertEquals(ref, b);
-        },(end)->{
-            assertEquals(1, a.sizeOfMultiRef());
+        a.eachMultiRef((refs)->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], b);
+            }
         });
+        assertEquals(1, a.sizeOfMultiRef());
 
         a.addMultiRef(b);
-        a.eachMultiRef((ref)->{
-            assertEquals(ref, b);
-        },(end)->{
-            assertEquals(1, a.sizeOfMultiRef());
+        a.eachMultiRef((refs)->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], b);
+            }
         });
+        assertEquals(1, a.sizeOfMultiRef());
 
         a.addMultiRef(b2);
-        a.eachMultiRef((ref)->{
-        },(end)->{
-            assertEquals(2, a.sizeOfMultiRef());
-        });
+
+        assertEquals(2, a.sizeOfMultiRef());
 
         a.addMultiRef(b2);
-        a.eachMultiRef((ref)->{
-
-        },(end)->{
-            assertEquals(2, a.sizeOfMultiRef());
-        });
+        assertEquals(2, a.sizeOfMultiRef());
 
         a.removeMultiRef(b);
-        a.eachMultiRef((ref)->{
-            assertEquals(ref, b2);
-        },(end)->{
-            assertEquals(1, a.sizeOfMultiRef());
+        a.eachMultiRef((refs)->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], b2);
+            }
         });
+        assertEquals(1, a.sizeOfMultiRef());
 
         a.removeMultiRef(b);
-        a.eachMultiRef((ref)->{
-            assertEquals(ref, b2);
-        },(end)->{
-            assertEquals(1, a.sizeOfMultiRef());
+        a.eachMultiRef((refs)->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], b2);
+            }
         });
+        assertEquals(1, a.sizeOfMultiRef());
 
         a.removeMultiRef(b2);
-        a.eachMultiRef((ref)->{
-        },(end)->{
-            assertEquals(0, a.sizeOfMultiRef());
-        });
+        assertEquals(0, a.sizeOfMultiRef());
 
         a.removeMultiRef(b2);
-        a.eachMultiRef((ref)->{
-        },(end)->{
-            assertEquals(0, a.sizeOfMultiRef());
-        });
+        assertEquals(0, a.sizeOfMultiRef());
 
     }
 
@@ -181,66 +173,80 @@ public class OppositeTest {
         A a2 = factory.createA();
 
         b.addMultiRef(a);
-        b.eachMultiRef((ref)->{
-            assertEquals(ref, a);
-            a.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(1, b.sizeOfMultiRef());
+
+        b.eachMultiRef(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], a);
+            }
         });
+        a.parent((parent) -> {
+            assertEquals(parent, b);
+        });
+        assertEquals(1, b.sizeOfMultiRef());
+
 
         b.addMultiRef(a);
-        b.eachMultiRef((ref)->{
-            assertEquals(ref, a);
-            a.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(1, b.sizeOfMultiRef());
+        b.eachMultiRef(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], a);
+            }
         });
+        a.parent((parent) -> {
+            assertEquals(parent, b);
+        });
+        assertEquals(1, b.sizeOfMultiRef());
 
         b.addMultiRef(a2);
-        b.eachMultiRef((ref)->{
-            ref.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(2, b.sizeOfMultiRef());
+        b.eachMultiRef(refs -> {
+            for (int i = 0; i < refs.length; i++) {
+                refs[i].parent((parent) -> {
+                    assertEquals(parent, b);
+                });
+            }
         });
+        assertEquals(2, b.sizeOfMultiRef());
 
         b.addMultiRef(a2);
-        b.eachMultiRef((ref)->{
-            ref.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(2, b.sizeOfMultiRef());
+        b.eachMultiRef(refs -> {
+            for (int i = 0; i < refs.length; i++) {
+                refs[i].parent((parent) -> {
+                    assertEquals(parent, b);
+                });
+            }
         });
+        assertEquals(2, b.sizeOfMultiRef());
 
         b.removeMultiRef(a);
-        b.eachMultiRef((ref)->{
-            assertEquals(ref, a2);
-            a2.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(1, b.sizeOfMultiRef());
+        b.eachMultiRef(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], a2);
+            }
         });
+        a2.parent((parent) -> {
+            assertEquals(parent, b);
+        });
+        assertEquals(1, b.sizeOfMultiRef());
         a.parent(TestCase::assertNull);
 
         b.removeMultiRef(a);
-        b.eachMultiRef((ref)->{
-            assertEquals(ref, a2);
-            a2.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(1, b.sizeOfMultiRef());
+        b.eachMultiRef(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], a2);
+            }
         });
+        a2.parent((parent) -> {
+            assertEquals(parent, b);
+        });
+        assertEquals(1, b.sizeOfMultiRef());
         a.parent(TestCase::assertNull);
 
         b.removeMultiRef(a2);
-        b.eachMultiRef((ref)->{
-        },(end)->{
-            assertEquals(0, b.sizeOfMultiRef());
-        });
+        assertEquals(0, b.sizeOfMultiRef());
         a.parent(TestCase::assertNull);
         a2.parent(TestCase::assertNull);
 
         b.removeMultiRef(a2);
-        b.eachMultiRef((ref)->{
-        },(end)->{
-            assertEquals(0, b.sizeOfMultiRef());
-        });
+        assertEquals(0, b.sizeOfMultiRef());
         a.parent(TestCase::assertNull);
         a2.parent(TestCase::assertNull);
     }
@@ -309,65 +315,78 @@ public class OppositeTest {
         A a2 = factory.createA();
 
         b.addSingleA_multiB(a);
-        b.eachSingleA_multiB((ref)->{
-            assertEquals(ref, a);
-            a.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(1, b.sizeOfSingleA_multiB());
+        b.eachSingleA_multiB(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], a);
+            }
         });
+        a.parent((parent) -> {
+            assertEquals(parent, b);
+        });
+        assertEquals(1, b.sizeOfSingleA_multiB());
         a.getSingleA_multiB((b_cb)->{
             assertNotNull(b_cb);
             assertEquals(b_cb, b);
         });
 
         b.addSingleA_multiB(a2);
-        b.eachSingleA_multiB((ref)->{
-            ref.parent((parent)->{assertEquals(parent, b);});
-            ref.getSingleA_multiB((b_cb)->{
-                assertNotNull(b_cb);
-                assertEquals(b_cb, b);
-            });
-        },(end)->{
-            assertEquals(2, b.sizeOfSingleA_multiB());
+        b.eachSingleA_multiB(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                refs[i].parent((parent) -> {
+                    assertEquals(parent, b);
+                });
+                refs[i].getSingleA_multiB((b_cb)->{
+                    assertNotNull(b_cb);
+                    assertEquals(b_cb, b);
+                });
+            }
         });
+
+        assertEquals(2, b.sizeOfSingleA_multiB());
 
         b.addSingleA_multiB(a2);
-        b.eachSingleA_multiB((ref)->{
-            ref.parent((parent)->{assertEquals(parent, b);});
-            ref.getSingleA_multiB((b_cb)->{
-                assertNotNull(b_cb);
-                assertEquals(b_cb, b);
-            });
-        },(end)->{
-            assertEquals(2, b.sizeOfSingleA_multiB());
+        b.eachSingleA_multiB(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                refs[i].parent((parent) -> {
+                    assertEquals(parent, b);
+                });
+                refs[i].getSingleA_multiB((b_cb)->{
+                    assertNotNull(b_cb);
+                    assertEquals(b_cb, b);
+                });
+            }
         });
+        assertEquals(2, b.sizeOfSingleA_multiB());
 
         b.removeSingleA_multiB(a);
-        b.eachSingleA_multiB((ref)->{
-            assertEquals(ref, a2);
-            a2.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(1, b.sizeOfSingleA_multiB());
+        b.eachSingleA_multiB(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], a2);
+            }
         });
+        a2.parent((parent) -> {
+            assertEquals(parent, b);
+        });
+        assertEquals(1, b.sizeOfSingleA_multiB());
         a.getSingleA_multiB(TestCase::assertNull);
         a.parent(TestCase::assertNull);
 
         b.removeSingleA_multiB(a);
-        b.eachSingleA_multiB((ref)->{
-            assertEquals(ref, a2);
-            a2.parent((parent)->{assertEquals(parent, b);});
-        },(end)->{
-            assertEquals(1, b.sizeOfSingleA_multiB());
+        b.eachSingleA_multiB(refs->{
+            for(int i = 0; i < refs.length; i++) {
+                assertEquals(refs[i], a2);
+            }
         });
+        a2.parent((parent) -> {
+            assertEquals(parent, b);
+        });
+        assertEquals(1, b.sizeOfSingleA_multiB());
         a.getSingleA_multiB(TestCase::assertNull);
         a.parent(TestCase::assertNull);
 
 
         b.removeSingleA_multiB(a2);
-        b.eachSingleA_multiB((ref)->{
-        },(end)->{
-            assertEquals(0, b.sizeOfSingleA_multiB());
-        });
+        assertEquals(0, b.sizeOfSingleA_multiB());
         a.getSingleA_multiB(TestCase::assertNull);
         a2.getSingleA_multiB(TestCase::assertNull);
         a.parent(TestCase::assertNull);

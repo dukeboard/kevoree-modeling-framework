@@ -6,7 +6,7 @@ module geometry {
         }
 
         public internal_create(timePoint: number): geometry.GeometryView {
-            return new geometry.impl.GeometryViewImpl(timePoint, this);
+            return new geometry.impl.GeometryViewImpl(timePoint, <org.kevoree.modeling.api.abs.AbstractKDimension<any, any, any>>this);
         }
 
     }
@@ -21,9 +21,9 @@ module geometry {
             this._metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("Geometry", -1);
             var tempMetaClasses: org.kevoree.modeling.api.meta.MetaClass[] = new Array();
             this.META_GEOMETRY_SHAPE = geometry.meta.MetaShape.build(this._metaModel);
-            tempMetaClasses[1] = this.META_GEOMETRY_SHAPE;
+            tempMetaClasses[1] = <org.kevoree.modeling.api.meta.MetaClass>this.META_GEOMETRY_SHAPE;
             this.META_GEOMETRY_LIBRARY = geometry.meta.MetaLibrary.build(this._metaModel);
-            tempMetaClasses[0] = this.META_GEOMETRY_LIBRARY;
+            tempMetaClasses[0] = <org.kevoree.modeling.api.meta.MetaClass>this.META_GEOMETRY_LIBRARY;
             (<org.kevoree.modeling.api.abs.AbstractMetaModel>this._metaModel).init(tempMetaClasses);
         }
 
@@ -44,6 +44,34 @@ module geometry {
         createLibrary(): geometry.Library;
 
         dimension(): geometry.GeometryDimension;
+
+    }
+
+    export interface Library extends org.kevoree.modeling.api.KObject {
+
+        addShapes(p_obj: geometry.Shape): geometry.Library;
+
+        removeShapes(p_obj: geometry.Shape): geometry.Library;
+
+        eachShapes(p_callback: (p : geometry.Shape[]) => void): void;
+
+        sizeOfShapes(): number;
+
+        view(): geometry.GeometryView;
+
+    }
+
+    export interface Shape extends org.kevoree.modeling.api.KObject {
+
+        getColor(): string;
+
+        setColor(p_obj: string): geometry.Shape;
+
+        getName(): string;
+
+        setName(p_obj: string): geometry.Shape;
+
+        view(): geometry.GeometryView;
 
     }
 
@@ -98,8 +126,16 @@ module geometry {
                 return this;
             }
 
-            public eachShapes(p_callback: (p : geometry.Shape) => void, p_end: (p : java.lang.Throwable) => void): void {
-                this.each((<geometry.meta.MetaLibrary>this.metaClass()).REF_SHAPES, p_callback, p_end);
+            public eachShapes(p_callback: (p : geometry.Shape[]) => void): void {
+                this.all((<geometry.meta.MetaLibrary>this.metaClass()).REF_SHAPES,  (kObjects : org.kevoree.modeling.api.KObject[]) => {
+                    if (p_callback != null) {
+                        var casted: geometry.Shape[] = new Array();
+                        for (var i: number = 0; i < casted.length; i++) {
+                            casted[i] = <geometry.Shape>kObjects[i];
+                        }
+                        p_callback(casted);
+                    }
+                });
             }
 
             public sizeOfShapes(): number {
@@ -143,20 +179,6 @@ module geometry {
         }
 
     }
-    export interface Library extends org.kevoree.modeling.api.KObject {
-
-        addShapes(p_obj: geometry.Shape): geometry.Library;
-
-        removeShapes(p_obj: geometry.Shape): geometry.Library;
-
-        eachShapes(p_callback: (p : geometry.Shape) => void, p_end: (p : java.lang.Throwable) => void): void;
-
-        sizeOfShapes(): number;
-
-        view(): geometry.GeometryView;
-
-    }
-
     export module meta {
         export class MetaLibrary extends org.kevoree.modeling.api.abs.AbstractMetaClass {
 
@@ -169,7 +191,7 @@ module geometry {
                 super("geometry.Library", 0, p_origin);
                 var temp_attributes: org.kevoree.modeling.api.meta.MetaAttribute[] = new Array();
                 var temp_references: org.kevoree.modeling.api.meta.MetaReference[] = new Array();
-                this.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 5, true, false, 1, null, null, this);
+                this.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 5, true, false, 1, null, this);
                 temp_references[0] = this.REF_SHAPES;
                 var temp_operations: org.kevoree.modeling.api.meta.MetaOperation[] = new Array();
                 this.init(temp_attributes, temp_references, temp_operations);
@@ -200,18 +222,4 @@ module geometry {
         }
 
     }
-    export interface Shape extends org.kevoree.modeling.api.KObject {
-
-        getColor(): string;
-
-        setColor(p_obj: string): geometry.Shape;
-
-        getName(): string;
-
-        setName(p_obj: string): geometry.Shape;
-
-        view(): geometry.GeometryView;
-
-    }
-
 }

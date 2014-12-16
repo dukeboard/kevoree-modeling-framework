@@ -2,6 +2,166 @@ declare module org {
     module kevoree {
         module modeling {
             module api {
+                interface Callback<A> {
+                    on(a: A): void;
+                }
+                class InboundReference {
+                    private reference;
+                    private object;
+                    constructor(reference: meta.MetaReference, object: KObject);
+                    getReference(): meta.MetaReference;
+                    getObject(): KObject;
+                }
+                class KActionType {
+                    static CALL: KActionType;
+                    static SET: KActionType;
+                    static ADD: KActionType;
+                    static REMOVE: KActionType;
+                    static NEW: KActionType;
+                    private _code;
+                    constructor(code: string);
+                    toString(): string;
+                    code(): string;
+                    static parse(s: string): KActionType;
+                    equals(other: any): boolean;
+                    static _KActionTypeVALUES: KActionType[];
+                    static values(): KActionType[];
+                }
+                interface KDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> {
+                    key(): number;
+                    parent(callback: (p: B) => void): void;
+                    children(callback: (p: B[]) => void): void;
+                    fork(callback: (p: B) => void): void;
+                    save(callback: (p: java.lang.Throwable) => void): void;
+                    saveUnload(callback: (p: java.lang.Throwable) => void): void;
+                    delete(callback: (p: java.lang.Throwable) => void): void;
+                    discard(callback: (p: java.lang.Throwable) => void): void;
+                    time(timePoint: number): A;
+                    universe(): C;
+                    equals(other: any): boolean;
+                    listen(listener: (p: KEvent) => void): void;
+                    listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
+                }
+                interface KEvent {
+                    dimension(): number;
+                    time(): number;
+                    uuid(): number;
+                    actionType(): KActionType;
+                    metaClass(): meta.MetaClass;
+                    metaElement(): meta.Meta;
+                    value(): any;
+                    toJSON(): string;
+                    toTrace(): trace.ModelTrace;
+                }
+                interface KInfer<A> extends KObject {
+                    infer(callback: (p: A) => void): void;
+                    learn(param: A, callback: (p: java.lang.Throwable) => void): void;
+                }
+                interface KObject {
+                    dimension(): KDimension<any, any, any>;
+                    isRoot(): boolean;
+                    uuid(): number;
+                    path(callback: (p: string) => void): void;
+                    view(): KView;
+                    delete(callback: (p: java.lang.Throwable) => void): void;
+                    parent(callback: (p: KObject) => void): void;
+                    parentUuid(): number;
+                    select(query: string, callback: (p: KObject[]) => void): void;
+                    stream(query: string, callback: (p: KObject) => void): void;
+                    listen(listener: (p: KEvent) => void): void;
+                    visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
+                    visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
+                    graphVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
+                    treeVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
+                    now(): number;
+                    timeTree(): time.TimeTree;
+                    referenceInParent(): meta.MetaReference;
+                    domainKey(): string;
+                    metaClass(): meta.MetaClass;
+                    mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
+                    all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
+                    single(metaReference: meta.MetaReference, callback: (p: KObject) => void): void;
+                    inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
+                    traces(request: TraceRequest): trace.ModelTrace[];
+                    get(attribute: meta.MetaAttribute): any;
+                    set(attribute: meta.MetaAttribute, payload: any): void;
+                    toJSON(): string;
+                    equals(other: any): boolean;
+                    diff(target: KObject, callback: (p: trace.TraceSequence) => void): void;
+                    merge(target: KObject, callback: (p: trace.TraceSequence) => void): void;
+                    intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
+                    slice(callback: (p: trace.TraceSequence) => void): void;
+                    jump<U extends KObject>(time: number, callback: (p: U) => void): void;
+                }
+                interface KOperation {
+                    on(source: KObject, params: any[], result: (p: any) => void): void;
+                }
+                interface KUniverse<A extends KDimension<any, any, any>> {
+                    connect(callback: (p: java.lang.Throwable) => void): void;
+                    close(callback: (p: java.lang.Throwable) => void): void;
+                    newDimension(): A;
+                    dimension(key: number): A;
+                    saveAll(callback: (p: boolean) => void): void;
+                    deleteAll(callback: (p: boolean) => void): void;
+                    unloadAll(callback: (p: boolean) => void): void;
+                    disable(listener: (p: KEvent) => void): void;
+                    stream(query: string, callback: (p: KObject) => void): void;
+                    storage(): data.KStore;
+                    listen(listener: (p: KEvent) => void): void;
+                    setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
+                    setDataBase(dataBase: data.KDataBase): KUniverse<any>;
+                    setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
+                    metaModel(): meta.MetaModel;
+                }
+                interface KView {
+                    createFQN(metaClassName: string): KObject;
+                    create(clazz: meta.MetaClass): KObject;
+                    setRoot(elem: KObject, callback: (p: java.lang.Throwable) => void): void;
+                    select(query: string, callback: (p: KObject[]) => void): void;
+                    lookup(key: number, callback: (p: KObject) => void): void;
+                    lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
+                    stream(query: string, callback: (p: KObject) => void): void;
+                    dimension(): KDimension<any, any, any>;
+                    now(): number;
+                    createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
+                    listen(listener: (p: KEvent) => void): void;
+                    slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
+                    json(): ModelFormat;
+                    xmi(): ModelFormat;
+                    equals(other: any): boolean;
+                }
+                interface ModelAttributeVisitor {
+                    visit(metaAttribute: meta.MetaAttribute, value: any): void;
+                }
+                interface ModelFormat {
+                    save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                    load(payload: string, callback: (p: java.lang.Throwable) => void): void;
+                }
+                interface ModelListener {
+                    on(evt: KEvent): void;
+                }
+                interface ModelVisitor {
+                    visit(elem: KObject): VisitResult;
+                }
+                interface ThrowableCallback<A> {
+                    on(a: A, error: java.lang.Throwable): void;
+                }
+                class TraceRequest {
+                    static ATTRIBUTES_ONLY: TraceRequest;
+                    static REFERENCES_ONLY: TraceRequest;
+                    static ATTRIBUTES_REFERENCES: TraceRequest;
+                    equals(other: any): boolean;
+                    static _TraceRequestVALUES: TraceRequest[];
+                    static values(): TraceRequest[];
+                }
+                class VisitResult {
+                    static CONTINUE: VisitResult;
+                    static SKIP: VisitResult;
+                    static STOP: VisitResult;
+                    equals(other: any): boolean;
+                    static _VisitResultVALUES: VisitResult[];
+                    static values(): VisitResult[];
+                }
                 module abs {
                     class AbstractKDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> implements KDimension<any, any, any> {
                         private _universe;
@@ -17,7 +177,8 @@ declare module org {
                         children(callback: (p: B[]) => void): void;
                         fork(callback: (p: B) => void): void;
                         time(timePoint: number): A;
-                        listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
+                        listen(listener: (p: KEvent) => void): void;
+                        listenAllTimes(target: KObject, listener: (p: KEvent) => void): void;
                         internal_create(timePoint: number): A;
                         equals(obj: any): boolean;
                     }
@@ -42,16 +203,17 @@ declare module org {
                         delete(callback: (p: java.lang.Throwable) => void): void;
                         select(query: string, callback: (p: KObject[]) => void): void;
                         stream(query: string, callback: (p: KObject) => void): void;
-                        listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
+                        listen(listener: (p: KEvent) => void): void;
                         domainKey(): string;
                         get(p_attribute: meta.MetaAttribute): any;
                         set(p_attribute: meta.MetaAttribute, payload: any): void;
                         private getOrCreateInbounds(obj, payloadIndex);
                         private removeFromContainer(param);
                         mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
-                        internal_mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject, setOpposite: boolean): void;
+                        internal_mutate(actionType: KActionType, metaReferenceP: meta.MetaReference, param: KObject, setOpposite: boolean): void;
                         size(p_metaReference: meta.MetaReference): number;
-                        each<C extends KObject>(p_metaReference: meta.MetaReference, callback: (p: C) => void, end: (p: java.lang.Throwable) => void): void;
+                        single(p_metaReference: meta.MetaReference, p_callback: (p: KObject) => void): void;
+                        all(p_metaReference: meta.MetaReference, p_callback: (p: KObject[]) => void): void;
                         visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
                         visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
                         private internal_visit(visitor, end, deep, treeOnly, alreadyVisited);
@@ -72,6 +234,11 @@ declare module org {
                         private internal_transpose_att(p);
                         private internal_transpose_op(p);
                     }
+                    class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer<any> {
+                        constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                        infer(callback: (p: A) => void): void;
+                        learn(param: A, callback: (p: java.lang.Throwable) => void): void;
+                    }
                     class AbstractKUniverse<A extends KDimension<any, any, any>> implements KUniverse<any> {
                         private _storage;
                         metaModel(): meta.MetaModel;
@@ -87,7 +254,7 @@ declare module org {
                         unloadAll(callback: (p: boolean) => void): void;
                         disable(listener: (p: KEvent) => void): void;
                         stream(query: string, callback: (p: KObject) => void): void;
-                        listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
+                        listen(listener: (p: KEvent) => void): void;
                         setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
                         setDataBase(dataBase: data.KDataBase): KUniverse<any>;
                         setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
@@ -106,7 +273,7 @@ declare module org {
                         stream(query: string, callback: (p: KObject) => void): void;
                         createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
                         create(clazz: meta.MetaClass): KObject;
-                        listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
+                        listen(listener: (p: KEvent) => void): void;
                         internalCreate(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
                         slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
                         json(): ModelFormat;
@@ -180,7 +347,6 @@ declare module org {
                         private _contained;
                         private _single;
                         private _metaType_index;
-                        private _opposite_index;
                         private _opposite_ref_index;
                         private _origin;
                         single(): boolean;
@@ -190,14 +356,11 @@ declare module org {
                         metaName(): string;
                         contained(): boolean;
                         origin(): meta.MetaClass;
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType_index: number, p_opposite_index: number, p_opposite_ref_index: number, p_origin: meta.MetaClass);
+                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType_index: number, p_opposite_ref_index: number, p_origin: meta.MetaClass);
                     }
                     class DynamicKObject extends AbstractKObject {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
                     }
-                }
-                interface Callback<A> {
-                    on(a: A): void;
                 }
                 module data {
                     class AccessMode {
@@ -207,18 +370,6 @@ declare module org {
                         equals(other: any): boolean;
                         static _AccessModeVALUES: AccessMode[];
                         static values(): AccessMode[];
-                    }
-                    module cache {
-                        class DimensionCache {
-                            timeTreeCache: java.util.Map<number, time.TimeTree>;
-                            timesCaches: java.util.Map<number, TimeCache>;
-                            roots: time.rbtree.LongRBTree;
-                        }
-                        class TimeCache {
-                            payload_cache: java.util.Map<number, CacheEntry>;
-                            root: KObject;
-                            rootDirty: boolean;
-                        }
                     }
                     class CacheEntry {
                         timeTree: time.TimeTree;
@@ -337,17 +488,31 @@ declare module org {
                         commit(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                     }
+                    module cache {
+                        class DimensionCache {
+                            timeTreeCache: java.util.Map<number, time.TimeTree>;
+                            timesCaches: java.util.Map<number, TimeCache>;
+                            roots: time.rbtree.LongRBTree;
+                        }
+                        class TimeCache {
+                            payload_cache: java.util.Map<number, CacheEntry>;
+                            root: KObject;
+                            rootDirty: boolean;
+                        }
+                    }
                 }
                 module event {
                     class DefaultKBroker implements KEventBroker {
-                        private universeListeners;
-                        private dimensionListeners;
-                        private timeListeners;
-                        private objectListeners;
+                        private static DIM_INDEX;
+                        private static TIME_INDEX;
+                        private static UUID_INDEX;
+                        private static TUPLE_SIZE;
+                        private listeners;
                         constructor();
-                        registerListener(origin: any, listener: (p: KEvent) => void, scope: ListenerScope): void;
+                        registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
+                        unregister(listener: (p: KEvent) => void): void;
                     }
                     class DefaultKEvent implements KEvent {
                         private _dimensionKey;
@@ -378,35 +543,13 @@ declare module org {
                         toJSON(): string;
                         static fromJSON(payload: string): KEvent;
                         private static setEventAttribute(event, currentAttributeName, value);
+                        toTrace(): trace.ModelTrace;
                     }
                     interface KEventBroker {
-                        registerListener(origin: any, listener: (p: KEvent) => void, scope: ListenerScope): void;
+                        registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
-                    }
-                    class ListenerRegistration {
-                        _scope: ListenerScope;
-                        _listener: (p: KEvent) => void;
-                        _dim: number;
-                        _time: number;
-                        _uuid: number;
-                        constructor(plistener: (p: KEvent) => void, pscope: ListenerScope, pdim: number, ptime: number, puuid: number);
-                        scope(): ListenerScope;
-                        listener(): (p: KEvent) => void;
-                        dimension(): number;
-                        time(): number;
-                        uuid(): number;
-                    }
-                    class ListenerScope {
-                        static TIME: ListenerScope;
-                        static DIMENSION: ListenerScope;
-                        static UNIVERSE: ListenerScope;
-                        private _value;
-                        constructor(pvalue: number);
-                        value(): number;
-                        equals(other: any): boolean;
-                        static _ListenerScopeVALUES: ListenerScope[];
-                        static values(): ListenerScope[];
+                        unregister(listener: (p: KEvent) => void): void;
                     }
                 }
                 module extrapolation {
@@ -433,13 +576,6 @@ declare module org {
                         load(payload: string, attribute: meta.MetaAttribute, now: number): any;
                         static instance(): Extrapolation;
                     }
-                }
-                class InboundReference {
-                    private reference;
-                    private object;
-                    constructor(reference: meta.MetaReference, object: KObject);
-                    getReference(): meta.MetaReference;
-                    getObject(): KObject;
                 }
                 module json {
                     class JsonFormat implements ModelFormat {
@@ -508,116 +644,6 @@ declare module org {
                         static values(): Type[];
                     }
                 }
-                class KActionType {
-                    static CALL: KActionType;
-                    static SET: KActionType;
-                    static ADD: KActionType;
-                    static REMOVE: KActionType;
-                    static NEW: KActionType;
-                    private _code;
-                    constructor(code: string);
-                    toString(): string;
-                    code(): string;
-                    static parse(s: string): KActionType;
-                    equals(other: any): boolean;
-                    static _KActionTypeVALUES: KActionType[];
-                    static values(): KActionType[];
-                }
-                interface KDimension<A extends KView, B extends KDimension<any, any, any>, C extends KUniverse<any>> {
-                    key(): number;
-                    parent(callback: (p: B) => void): void;
-                    children(callback: (p: B[]) => void): void;
-                    fork(callback: (p: B) => void): void;
-                    save(callback: (p: java.lang.Throwable) => void): void;
-                    saveUnload(callback: (p: java.lang.Throwable) => void): void;
-                    delete(callback: (p: java.lang.Throwable) => void): void;
-                    discard(callback: (p: java.lang.Throwable) => void): void;
-                    time(timePoint: number): A;
-                    universe(): C;
-                    equals(other: any): boolean;
-                }
-                interface KEvent {
-                    dimension(): number;
-                    time(): number;
-                    uuid(): number;
-                    actionType(): KActionType;
-                    metaClass(): meta.MetaClass;
-                    metaElement(): meta.Meta;
-                    value(): any;
-                    toJSON(): string;
-                }
-                interface KObject {
-                    dimension(): KDimension<any, any, any>;
-                    isRoot(): boolean;
-                    uuid(): number;
-                    path(callback: (p: string) => void): void;
-                    view(): KView;
-                    delete(callback: (p: java.lang.Throwable) => void): void;
-                    parent(callback: (p: KObject) => void): void;
-                    parentUuid(): number;
-                    select(query: string, callback: (p: KObject[]) => void): void;
-                    stream(query: string, callback: (p: KObject) => void): void;
-                    listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
-                    visitAttributes(visitor: (p: meta.MetaAttribute, p1: any) => void): void;
-                    visit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                    graphVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                    treeVisit(visitor: (p: KObject) => VisitResult, end: (p: java.lang.Throwable) => void): void;
-                    now(): number;
-                    timeTree(): time.TimeTree;
-                    referenceInParent(): meta.MetaReference;
-                    domainKey(): string;
-                    metaClass(): meta.MetaClass;
-                    mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
-                    each<C extends KObject>(metaReference: meta.MetaReference, callback: (p: C) => void, end: (p: java.lang.Throwable) => void): void;
-                    inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
-                    traces(request: TraceRequest): trace.ModelTrace[];
-                    get(attribute: meta.MetaAttribute): any;
-                    set(attribute: meta.MetaAttribute, payload: any): void;
-                    toJSON(): string;
-                    equals(other: any): boolean;
-                    diff(target: KObject, callback: (p: trace.TraceSequence) => void): void;
-                    merge(target: KObject, callback: (p: trace.TraceSequence) => void): void;
-                    intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
-                    slice(callback: (p: trace.TraceSequence) => void): void;
-                    jump<U extends KObject>(time: number, callback: (p: U) => void): void;
-                }
-                interface KOperation {
-                    on(source: KObject, params: any[], result: (p: any) => void): void;
-                }
-                interface KUniverse<A extends KDimension<any, any, any>> {
-                    connect(callback: (p: java.lang.Throwable) => void): void;
-                    close(callback: (p: java.lang.Throwable) => void): void;
-                    newDimension(): A;
-                    dimension(key: number): A;
-                    saveAll(callback: (p: boolean) => void): void;
-                    deleteAll(callback: (p: boolean) => void): void;
-                    unloadAll(callback: (p: boolean) => void): void;
-                    disable(listener: (p: KEvent) => void): void;
-                    stream(query: string, callback: (p: KObject) => void): void;
-                    storage(): data.KStore;
-                    listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
-                    setEventBroker(eventBroker: event.KEventBroker): KUniverse<any>;
-                    setDataBase(dataBase: data.KDataBase): KUniverse<any>;
-                    setOperation(metaOperation: meta.MetaOperation, operation: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
-                    metaModel(): meta.MetaModel;
-                }
-                interface KView {
-                    createFQN(metaClassName: string): KObject;
-                    create(clazz: meta.MetaClass): KObject;
-                    setRoot(elem: KObject, callback: (p: java.lang.Throwable) => void): void;
-                    select(query: string, callback: (p: KObject[]) => void): void;
-                    lookup(key: number, callback: (p: KObject) => void): void;
-                    lookupAll(keys: number[], callback: (p: KObject[]) => void): void;
-                    stream(query: string, callback: (p: KObject) => void): void;
-                    dimension(): KDimension<any, any, any>;
-                    now(): number;
-                    createProxy(clazz: meta.MetaClass, timeTree: time.TimeTree, key: number): KObject;
-                    listen(listener: (p: KEvent) => void, scope: event.ListenerScope): void;
-                    slice(elems: java.util.List<KObject>, callback: (p: trace.TraceSequence) => void): void;
-                    json(): ModelFormat;
-                    xmi(): ModelFormat;
-                    equals(other: any): boolean;
-                }
                 module meta {
                     interface Meta {
                         metaName(): string;
@@ -666,19 +692,6 @@ declare module org {
                         static _MetaTypeVALUES: MetaType[];
                         static values(): MetaType[];
                     }
-                }
-                interface ModelAttributeVisitor {
-                    visit(metaAttribute: meta.MetaAttribute, value: any): void;
-                }
-                interface ModelFormat {
-                    save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
-                    load(payload: string, callback: (p: java.lang.Throwable) => void): void;
-                }
-                interface ModelListener {
-                    on(evt: KEvent): void;
-                }
-                interface ModelVisitor {
-                    visit(elem: KObject): VisitResult;
                 }
                 module operation {
                     class DefaultModelCloner {
@@ -849,9 +862,6 @@ declare module org {
                         static select(root: KObject, query: string, callback: (p: KObject[]) => void): void;
                     }
                 }
-                interface ThrowableCallback<A> {
-                    on(a: A, error: java.lang.Throwable): void;
-                }
                 module time {
                     class DefaultTimeTree implements TimeTree {
                         dirty: boolean;
@@ -873,6 +883,25 @@ declare module org {
                         setDirty(state: boolean): void;
                         toString(): string;
                         load(payload: string): void;
+                    }
+                    interface TimeTree {
+                        walk(walker: (p: number) => void): void;
+                        walkAsc(walker: (p: number) => void): void;
+                        walkDesc(walker: (p: number) => void): void;
+                        walkRangeAsc(walker: (p: number) => void, from: number, to: number): void;
+                        walkRangeDesc(walker: (p: number) => void, from: number, to: number): void;
+                        first(): number;
+                        last(): number;
+                        next(from: number): number;
+                        previous(from: number): number;
+                        resolve(time: number): number;
+                        insert(time: number): TimeTree;
+                        delete(time: number): TimeTree;
+                        isDirty(): boolean;
+                        size(): number;
+                    }
+                    interface TimeWalker {
+                        walk(timePoint: number): void;
                     }
                     module rbtree {
                         class Color {
@@ -1021,81 +1050,58 @@ declare module org {
                             buffer: string[];
                         }
                     }
-                    interface TimeTree {
-                        walk(walker: (p: number) => void): void;
-                        walkAsc(walker: (p: number) => void): void;
-                        walkDesc(walker: (p: number) => void): void;
-                        walkRangeAsc(walker: (p: number) => void, from: number, to: number): void;
-                        walkRangeDesc(walker: (p: number) => void, from: number, to: number): void;
-                        first(): number;
-                        last(): number;
-                        next(from: number): number;
-                        previous(from: number): number;
-                        resolve(time: number): number;
-                        insert(time: number): TimeTree;
-                        delete(time: number): TimeTree;
-                        isDirty(): boolean;
-                        size(): number;
-                    }
-                    interface TimeWalker {
-                        walk(timePoint: number): void;
-                    }
                 }
                 module trace {
                     class ModelAddTrace implements ModelTrace {
-                        private reference;
-                        private traceType;
-                        private srcKID;
-                        private previousKID;
-                        private metaClass;
-                        getPreviousKID(): number;
-                        getMetaClass(): meta.MetaClass;
-                        constructor(srcKID: number, reference: meta.MetaReference, previousKID: number, metaClass: meta.MetaClass);
+                        private _srcUUID;
+                        private _reference;
+                        private _paramUUID;
+                        constructor(p_srcUUID: number, p_reference: meta.MetaReference, p_paramUUID: number);
                         toString(): string;
-                        getMeta(): meta.Meta;
-                        getTraceType(): KActionType;
-                        getSrcKID(): number;
+                        meta(): meta.Meta;
+                        traceType(): KActionType;
+                        sourceUUID(): number;
+                        paramUUID(): number;
+                    }
+                    class ModelNewTrace implements ModelTrace {
+                        private _srcUUID;
+                        private _metaClass;
+                        constructor(p_srcUUID: number, p_metaClass: meta.MetaClass);
+                        meta(): meta.Meta;
+                        traceType(): KActionType;
+                        sourceUUID(): number;
                     }
                     class ModelRemoveTrace implements ModelTrace {
-                        private traceType;
-                        private srcKID;
-                        private objKID;
-                        private reference;
-                        constructor(srcKID: number, reference: meta.MetaReference, objKID: number);
-                        getObjKID(): number;
-                        getMeta(): meta.Meta;
-                        getTraceType(): KActionType;
-                        getSrcKID(): number;
+                        private _srcUUID;
+                        private _reference;
+                        private _paramUUID;
+                        constructor(p_srcUUID: number, p_reference: meta.MetaReference, p_paramUUID: number);
                         toString(): string;
+                        meta(): meta.Meta;
+                        traceType(): KActionType;
+                        sourceUUID(): number;
+                        paramUUID(): number;
                     }
                     class ModelSetTrace implements ModelTrace {
-                        private traceType;
-                        private srcKID;
-                        private attribute;
-                        private content;
-                        constructor(srcKID: number, attribute: meta.MetaAttribute, content: any);
-                        getTraceType(): KActionType;
-                        getSrcKID(): number;
-                        getMeta(): meta.Meta;
-                        getContent(): any;
+                        private _srcUUID;
+                        private _attribute;
+                        private _content;
+                        constructor(p_srcUUID: number, p_attribute: meta.MetaAttribute, p_content: any);
                         toString(): string;
+                        meta(): meta.Meta;
+                        traceType(): KActionType;
+                        sourceUUID(): number;
+                        content(): any;
                     }
                     interface ModelTrace {
-                        getMeta(): meta.Meta;
-                        getTraceType(): KActionType;
-                        getSrcKID(): number;
+                        meta(): meta.Meta;
+                        traceType(): KActionType;
+                        sourceUUID(): number;
                     }
                     class ModelTraceApplicator {
-                        private targetModel;
-                        private pendingObj;
-                        private pendingParent;
-                        private pendingParentRef;
-                        private pendingObjKID;
-                        constructor(targetModel: KObject);
-                        private tryClosePending(srcKID);
-                        createOrAdd(previousPath: number, target: KObject, reference: meta.MetaReference, metaClass: meta.MetaClass, callback: (p: java.lang.Throwable) => void): void;
+                        private _targetModel;
+                        constructor(p_targetModel: KObject);
                         applyTraceSequence(traceSeq: TraceSequence, callback: (p: java.lang.Throwable) => void): void;
-                        applyTrace(trace: ModelTrace, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class ModelTraceConstants {
                         static traceType: ModelTraceConstants;
@@ -1108,6 +1114,7 @@ declare module org {
                         static openJSON: ModelTraceConstants;
                         static closeJSON: ModelTraceConstants;
                         static bb: ModelTraceConstants;
+                        static sep: ModelTraceConstants;
                         static coma: ModelTraceConstants;
                         static dp: ModelTraceConstants;
                         private _code;
@@ -1122,57 +1129,11 @@ declare module org {
                         traces(): ModelTrace[];
                         populate(addtraces: java.util.List<ModelTrace>): TraceSequence;
                         append(seq: TraceSequence): TraceSequence;
-                        parse(addtracesTxt: string): TraceSequence;
                         toString(): string;
                         applyOn(target: KObject, callback: (p: java.lang.Throwable) => void): boolean;
                         reverse(): TraceSequence;
+                        size(): number;
                     }
-                    module unresolved {
-                        class UnresolvedMetaAttribute implements meta.MetaAttribute {
-                            private _metaName;
-                            constructor(p_metaName: string);
-                            key(): boolean;
-                            origin(): meta.MetaClass;
-                            metaType(): meta.MetaType;
-                            strategy(): extrapolation.Extrapolation;
-                            precision(): number;
-                            setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
-                            metaName(): string;
-                            index(): number;
-                        }
-                        class UnresolvedMetaClass implements meta.MetaClass {
-                            private _metaName;
-                            constructor(p_metaName: string);
-                            metaName(): string;
-                            index(): number;
-                            origin(): meta.MetaModel;
-                            metaAttributes(): meta.MetaAttribute[];
-                            metaReferences(): meta.MetaReference[];
-                            metaOperations(): meta.MetaOperation[];
-                            metaAttribute(name: string): meta.MetaAttribute;
-                            metaReference(name: string): meta.MetaReference;
-                            metaOperation(name: string): meta.MetaOperation;
-                        }
-                        class UnresolvedMetaReference implements meta.MetaReference {
-                            private _metaName;
-                            constructor(p_metaName: string);
-                            contained(): boolean;
-                            single(): boolean;
-                            metaType(): meta.MetaClass;
-                            opposite(): meta.MetaReference;
-                            origin(): meta.MetaClass;
-                            metaName(): string;
-                            index(): number;
-                        }
-                    }
-                }
-                class TraceRequest {
-                    static ATTRIBUTES_ONLY: TraceRequest;
-                    static REFERENCES_ONLY: TraceRequest;
-                    static ATTRIBUTES_REFERENCES: TraceRequest;
-                    equals(other: any): boolean;
-                    static _TraceRequestVALUES: TraceRequest[];
-                    static values(): TraceRequest[];
                 }
                 module util {
                     interface CallBackChain<A> {
@@ -1201,14 +1162,16 @@ declare module org {
                         registerOperation(operation: meta.MetaOperation, callback: (p: KObject, p1: any[], p2: (p: any) => void) => void): void;
                         call(source: KObject, operation: meta.MetaOperation, param: any[], callback: (p: any) => void): void;
                     }
-                }
-                class VisitResult {
-                    static CONTINUE: VisitResult;
-                    static SKIP: VisitResult;
-                    static STOP: VisitResult;
-                    equals(other: any): boolean;
-                    static _VisitResultVALUES: VisitResult[];
-                    static values(): VisitResult[];
+                    class TimeMachine {
+                        private _previous;
+                        private _syncCallback;
+                        private _deepMonitoring;
+                        private _listener;
+                        set(target: KObject): void;
+                        jumpTime(targetTime: number): void;
+                        jumpDimension(targetDimension: number): void;
+                        init(p_deepMonitoring: boolean, p_callback: (p: trace.TraceSequence) => void): TimeMachine;
+                    }
                 }
                 module xmi {
                     class SerializationContext {
