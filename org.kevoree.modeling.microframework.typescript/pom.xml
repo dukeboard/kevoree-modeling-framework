@@ -34,6 +34,7 @@
                         <configuration>
                             <tasks>
                                 <delete dir="${basedir}/src/main/ts" />
+                                <delete dir="${basedir}/src/main/resources" />
                                 <delete dir="${basedir}/src/test/ts" />
                                 <copy todir="${basedir}/target/sources">
                                     <fileset dir="${basedir}/../org.kevoree.modeling.microframework/src/main/java" />
@@ -76,11 +77,14 @@
                             <target>${basedir}/target/generated-test-sources</target>
                             <targetJS>${basedir}/target/test-classes</targetJS>
                             <flatJUnit>true</flatJUnit>
+                            <copyLibDTs>false</copyLibDTs>
+                            <libraries>
+                                <library>${basedir}/src/main/resources</library>
+                            </libraries>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
