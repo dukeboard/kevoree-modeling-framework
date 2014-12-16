@@ -176,6 +176,15 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>OSS-public</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
     <distributionManagement>
         <repository>
             <id>kevoree.oss.release</id>
