@@ -16,7 +16,7 @@ public class ${context.metaModelName}Universe extends org.kevoree.modeling.api.a
         #foreach($class in $context.model.classifiers)
 
         META_${class.fqn.toUpperCase().replace(".","_")} = ${class.pack}.meta.Meta${class.name}.build(_metaModel);
-        tempMetaClasses[${class.index}] = META_${class.fqn.toUpperCase().replace(".","_")};
+        tempMetaClasses[${class.index}] = (org.kevoree.modeling.api.meta.MetaClass)META_${class.fqn.toUpperCase().replace(".","_")};
         #end
         ((org.kevoree.modeling.api.abs.AbstractMetaModel) _metaModel).init(tempMetaClasses);
     }

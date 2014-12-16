@@ -35,7 +35,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void each${context.generationContext.helper.toCamelCase(${attribute.getName()})}(org.kevoree.modeling.api.Callback<$context.generationContext.getHelper().convertToJavaType(${attribute.getType()})> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end) {
+    public void each${context.generationContext.helper.toCamelCase(${attribute.getName()})}(org.kevoree.modeling.api.Callback<${context.generationContext.getHelper().convertToJavaType(${attribute.getType()})}[]> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end) {
         each(((${classDeclaration.pack}.meta.Meta${classDeclaration.name})metaClass()).ATT_${attribute.getName().toUpperCase()}, p_callback, p_end);
     }
     #end
@@ -53,7 +53,14 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
 
     @Override
     public void get${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}> p_callback) {
-        each(((${classDeclaration.pack}.meta.Meta${classDeclaration.name})metaClass()).REF_${ref.getName().toUpperCase()}, p_callback, null);
+        this.single(((${classDeclaration.pack}.meta.Meta${classDeclaration.name})metaClass()).REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject>() {
+            @Override
+            public void on(org.kevoree.modeling.api.KObject kObject) {
+                if(p_callback!=null){
+                    p_callback.on((${ref.getType().fqn}) kObject);
+                }
+            }
+        });
     }
     #{else}
 
@@ -70,8 +77,19 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
     }
 
     @Override
-    public void each${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}> p_callback, org.kevoree.modeling.api.Callback<Throwable> p_end) {
-        each(((${classDeclaration.pack}.meta.Meta${classDeclaration.name})metaClass()).REF_${ref.getName().toUpperCase()}, p_callback, p_end);
+    public void each${context.generationContext.helper.toCamelCase(${ref.getName()})}(org.kevoree.modeling.api.Callback<${ref.getType().fqn}[]> p_callback) {
+       this.all(((${classDeclaration.pack}.meta.Meta${classDeclaration.name})metaClass()).REF_${ref.getName().toUpperCase()}, new org.kevoree.modeling.api.Callback<org.kevoree.modeling.api.KObject[]>() {
+            @Override
+            public void on(org.kevoree.modeling.api.KObject[] kObjects) {
+                if(p_callback != null){
+                    ${ref.getType().fqn}[] casted = new ${ref.getType().fqn}[kObjects.length];
+                    for(int i=0;i<casted.length;i++){
+                        casted[i] = (${ref.getType().fqn}) kObjects[i];
+                    }
+                    p_callback.on(casted);
+                }
+            }
+        });
     }
 
     public int sizeOf${context.generationContext.helper.toCamelCase($ref.getName())}() {
