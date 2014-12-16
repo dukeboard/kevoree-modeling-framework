@@ -40,7 +40,7 @@ public class TimeMachine {
                     });
                 } else {
                     TraceSequence sequence = new TraceSequence();
-                    ArrayList traces = new ArrayList();
+                    ArrayList<ModelTrace> traces = new ArrayList<ModelTrace>();
                     ModelTrace[] tempTraces = target.traces(TraceRequest.ATTRIBUTES_REFERENCES);
                     for (int i = 0; i < tempTraces.length; i++) {
                         traces.add(tempTraces[i]);
