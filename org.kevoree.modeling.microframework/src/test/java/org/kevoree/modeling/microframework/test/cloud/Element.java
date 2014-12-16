@@ -19,7 +19,4 @@ public interface Element extends KObject {
     @Override
     public CloudView view();
 
-    @Override
-    public MetaElement metaClass();
-
 }

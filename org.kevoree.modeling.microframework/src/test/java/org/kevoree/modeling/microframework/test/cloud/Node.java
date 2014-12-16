@@ -32,7 +32,4 @@ public interface Node extends KObject {
     @Override
     public CloudView view();
 
-    @Override
-    public MetaNode metaClass();
-
 }
