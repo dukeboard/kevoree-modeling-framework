@@ -23,29 +23,32 @@ public class PromiseTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0, throwable -> {
+        t0.setRoot(node0, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
 
-            final Node node1 = t0.createNode();
-            node1.setName("child1");
-            final Element elem1_0 = t0.createElement();
-            node1.setElement(elem1_0);
+                final Node node1 = t0.createNode();
+                node1.setName("child1");
+                final Element elem1_0 = t0.createElement();
+                node1.setElement(elem1_0);
 
-            final Node node2 = t0.createNode();
-            node2.setName("child2");
-            final Element elem2_0 = t0.createElement();
-            node2.setElement(elem2_0);
+                final Node node2 = t0.createNode();
+                node2.setName("child2");
+                final Element elem2_0 = t0.createElement();
+                node2.setElement(elem2_0);
 
-            node0.addChildren(node1);
-            node0.addChildren(node2);
+                node0.addChildren(node1);
+                node0.addChildren(node2);
 
-            // traversal promise
-            node0.traverse(node0.metaClass().metaReference("children")).then(new Callback<KObject[]>() {
-                @Override
-                public void on(KObject[] kObjects) {
-                    Assert.assertEquals(kObjects.length, 2);
-                }
-            });
+                // traversal promise
+                node0.traverse(node0.metaClass().metaReference("children")).then(new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] kObjects) {
+                        Assert.assertEquals(kObjects.length, 2);
+                    }
+                });
 
+            }
         });
     }
 
@@ -59,31 +62,34 @@ public class PromiseTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0, throwable -> {
+        t0.setRoot(node0, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
 
-            final Node node1 = t0.createNode();
-            node1.setName("child1");
-            final Element elem1_0 = t0.createElement();
-            elem1_0.setName("child1_elem1");
-            node1.setElement(elem1_0);
+                final Node node1 = t0.createNode();
+                node1.setName("child1");
+                final Element elem1_0 = t0.createElement();
+                elem1_0.setName("child1_elem1");
+                node1.setElement(elem1_0);
 
-            final Node node2 = t0.createNode();
-            node2.setName("child2");
-            final Element elem2_0 = t0.createElement();
-            elem2_0.setName("child2_elem1");
-            node2.setElement(elem2_0);
+                final Node node2 = t0.createNode();
+                node2.setName("child2");
+                final Element elem2_0 = t0.createElement();
+                elem2_0.setName("child2_elem1");
+                node2.setElement(elem2_0);
 
-            node0.addChildren(node1);
-            node0.addChildren(node2);
+                node0.addChildren(node1);
+                node0.addChildren(node2);
 
-            // chained traversal promise
-            node0.traverse(node0.metaClass().metaReference("children")).traverse(node0.metaClass().metaReference("element")).then(new Callback<KObject[]>() {
-                @Override
-                public void on(KObject[] kObjects) {
-                    Assert.assertEquals(kObjects.length, 2);
-                }
-            });
+                // chained traversal promise
+                node0.traverse(node0.metaClass().metaReference("children")).traverse(node0.metaClass().metaReference("element")).then(new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] kObjects) {
+                        Assert.assertEquals(kObjects.length, 2);
+                    }
+                });
 
+            }
         });
     }
 
@@ -97,38 +103,41 @@ public class PromiseTest {
         final Element elem0_0 = t0.createElement();
         node0.setElement(elem0_0);
 
-        t0.setRoot(node0, throwable -> {
+        t0.setRoot(node0, new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
 
-            final Node node1 = t0.createNode();
-            node1.setName("child1");
-            final Element elem1_0 = t0.createElement();
-            elem1_0.setName("child1_elem1");
-            node1.setElement(elem1_0);
+                final Node node1 = t0.createNode();
+                node1.setName("child1");
+                final Element elem1_0 = t0.createElement();
+                elem1_0.setName("child1_elem1");
+                node1.setElement(elem1_0);
 
-            final Node node2 = t0.createNode();
-            node2.setName("child2");
-            final Element elem2_0 = t0.createElement();
-            elem2_0.setName("child2_elem1");
-            node2.setElement(elem2_0);
+                final Node node2 = t0.createNode();
+                node2.setName("child2");
+                final Element elem2_0 = t0.createElement();
+                elem2_0.setName("child2_elem1");
+                node2.setElement(elem2_0);
 
-            node0.addChildren(node1);
-            node0.addChildren(node2);
+                node0.addChildren(node1);
+                node0.addChildren(node2);
 
-            // chained traversal promise
-            node0.traverse(node0.metaClass().metaReference("children")).filter(new KTraversalFilter() {
-                @Override
-                public boolean filter(KObject obj) {
-                    return ((Node) obj).getName().equals("child1");
-                }
-            }).then(new Callback<KObject[]>() {
-                @Override
-                public void on(KObject[] kObjects) {
-                    Assert.assertEquals(kObjects.length, 1);
-                    Assert.assertEquals(((Node)kObjects[0]).getName(), "child1");
+                // chained traversal promise
+                node0.traverse(node0.metaClass().metaReference("children")).filter(new KTraversalFilter() {
+                    @Override
+                    public boolean filter(KObject obj) {
+                        return ((Node) obj).getName().equals("child1");
+                    }
+                }).then(new Callback<KObject[]>() {
+                    @Override
+                    public void on(KObject[] kObjects) {
+                        Assert.assertEquals(kObjects.length, 1);
+                        Assert.assertEquals(((Node) kObjects[0]).getName(), "child1");
 
-                }
-            });
+                    }
+                });
 
+            }
         });
     }
 }
