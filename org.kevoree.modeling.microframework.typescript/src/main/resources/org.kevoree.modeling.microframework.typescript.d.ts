@@ -81,6 +81,7 @@ declare module org {
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                     all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                     single(metaReference: meta.MetaReference, callback: (p: KObject) => void): void;
+                    traverse(metaReference: meta.MetaReference): promise.KTraversalPromise;
                     inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
@@ -230,9 +231,10 @@ declare module org {
                         intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         slice(callback: (p: trace.TraceSequence) => void): void;
                         jump<U extends KObject>(time: number, callback: (p: U) => void): void;
-                        private internal_transpose_ref(p);
-                        private internal_transpose_att(p);
-                        private internal_transpose_op(p);
+                        internal_transpose_ref(p: meta.MetaReference): meta.MetaReference;
+                        internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
+                        internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
+                        traverse(p_metaReference: meta.MetaReference): promise.KTraversalPromise;
                     }
                     class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer<any> {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
@@ -447,16 +449,6 @@ declare module org {
                         commit(error: (p: java.lang.Throwable) => void): void;
                         close(error: (p: java.lang.Throwable) => void): void;
                     }
-                    class KeyCalculator {
-                        static LONG_LIMIT_JS: number;
-                        static INDEX_LIMIT: number;
-                        private _prefix;
-                        private _currentIndex;
-                        constructor(prefix: number, currentIndex: number);
-                        nextKey(): number;
-                        lastComputedIndex(): number;
-                        prefix(): number;
-                    }
                     interface KStore {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
@@ -478,6 +470,16 @@ declare module org {
                         operationManager(): util.KOperationManager;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
+                    }
+                    class KeyCalculator {
+                        static LONG_LIMIT_JS: number;
+                        static INDEX_LIMIT: number;
+                        private _prefix;
+                        private _currentIndex;
+                        constructor(prefix: number, currentIndex: number);
+                        nextKey(): number;
+                        lastComputedIndex(): number;
+                        prefix(): number;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
@@ -835,6 +837,62 @@ declare module org {
                         }
                     }
                 }
+                module promise {
+                    class DefaultKTraversalPromise implements KTraversalPromise {
+                        private _initObjs;
+                        private _initAction;
+                        private _lastAction;
+                        private _terminated;
+                        constructor(p_root: KObject, p_ref: meta.MetaReference);
+                        traverse(p_metaReference: meta.MetaReference): KTraversalPromise;
+                        attribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
+                        filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
+                        then(callback: (p: KObject[]) => void): void;
+                    }
+                    interface KTraversalAction {
+                        chain(next: KTraversalAction): void;
+                        execute(inputs: KObject[]): void;
+                    }
+                    interface KTraversalFilter {
+                        filter(obj: KObject): boolean;
+                    }
+                    interface KTraversalPromise {
+                        traverse(metaReference: meta.MetaReference): KTraversalPromise;
+                        attribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
+                        filter(filter: (p: KObject) => boolean): KTraversalPromise;
+                        then(callback: (p: KObject[]) => void): void;
+                    }
+                    module actions {
+                        class KFilterAction implements KTraversalAction {
+                            private _next;
+                            private _filter;
+                            constructor(p_filter: (p: KObject) => boolean);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KFilterAttributeAction implements KTraversalAction {
+                            private _next;
+                            private _attribute;
+                            private _expectedValue;
+                            constructor(p_attribute: meta.MetaAttribute, p_expectedValue: any);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KFinalAction implements KTraversalAction {
+                            private _finalCallback;
+                            constructor(p_callback: (p: KObject[]) => void);
+                            chain(next: KTraversalAction): void;
+                            execute(inputs: KObject[]): void;
+                        }
+                        class KTraverseAction implements KTraversalAction {
+                            private _next;
+                            private _reference;
+                            constructor(p_reference: meta.MetaReference);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                    }
+                }
                 module select {
                     class KQuery {
                         static OPEN_BRACKET: string;
@@ -1184,12 +1242,6 @@ declare module org {
                         elementsCount: java.util.HashMap<string, number>;
                         packageList: java.util.ArrayList<string>;
                     }
-                    class XmiFormat implements ModelFormat {
-                        private _view;
-                        constructor(p_view: KView);
-                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
-                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
-                    }
                     class XMILoadingContext {
                         xmiReader: XmlParser;
                         loadedRoots: KObject;
@@ -1229,6 +1281,12 @@ declare module org {
                         private ref;
                         constructor(context: XMILoadingContext, target: KObject, mutatorType: KActionType, refName: string, ref: string);
                         run(): void;
+                    }
+                    class XmiFormat implements ModelFormat {
+                        private _view;
+                        constructor(p_view: KView);
+                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class XmlParser {
                         private payload;

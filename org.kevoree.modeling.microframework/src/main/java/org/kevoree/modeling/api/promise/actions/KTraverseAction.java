@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * Created by duke on 18/12/14.
  */
-public class KTraverseAction implements KTraversalAction, Callback<KObject[]> {
+public class KTraverseAction implements KTraversalAction {
 
     private KTraversalAction _next;
 
@@ -28,11 +28,6 @@ public class KTraverseAction implements KTraversalAction, Callback<KObject[]> {
     @Override
     public void chain(KTraversalAction p_next) {
         _next = p_next;
-    }
-
-    @Override
-    public void on(KObject[] inputs) {
-        _next.execute(inputs);
     }
 
     @Override
@@ -99,7 +94,12 @@ public class KTraverseAction implements KTraversalAction, Callback<KObject[]> {
                 }
             }
             //call
-            currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), this);
+            currentView.lookupAll(nextIds.toArray(new Long[nextIds.size()]), new Callback<KObject[]>() {
+                @Override
+                public void on(KObject[] kObjects) {
+                    _next.execute(kObjects);
+                }
+            });
         }
     }
 
