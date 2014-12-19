@@ -22,6 +22,8 @@ import org.kevoree.modeling.api.meta.MetaOperation;
 import org.kevoree.modeling.api.meta.MetaReference;
 import org.kevoree.modeling.api.operation.DefaultModelCompare;
 import org.kevoree.modeling.api.operation.DefaultModelSlicer;
+import org.kevoree.modeling.api.promise.DefaultKTraversalPromise;
+import org.kevoree.modeling.api.promise.KTraversalPromise;
 import org.kevoree.modeling.api.select.KSelector;
 import org.kevoree.modeling.api.time.TimeTree;
 import org.kevoree.modeling.api.trace.ModelAddTrace;
@@ -233,8 +235,8 @@ public abstract class AbstractKObject implements KObject {
             }
         }
         String result = builder.toString();
-        if(result.equals("")){
-            return uuid()+"";
+        if (result.equals("")) {
+            return uuid() + "";
         } else {
             return result;
         }
@@ -756,7 +758,7 @@ public abstract class AbstractKObject implements KObject {
         });
     }
 
-    private MetaReference internal_transpose_ref(MetaReference p) {
+    public MetaReference internal_transpose_ref(MetaReference p) {
         MetaClass selfMeta = metaClass();
         if (p.origin().index() == selfMeta.index()) {
             return p;
@@ -765,7 +767,7 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    private MetaAttribute internal_transpose_att(MetaAttribute p) {
+    public MetaAttribute internal_transpose_att(MetaAttribute p) {
         MetaClass selfMeta = metaClass();
         if (p.origin().index() == selfMeta.index()) {
             return p;
@@ -774,13 +776,17 @@ public abstract class AbstractKObject implements KObject {
         }
     }
 
-    private MetaOperation internal_transpose_op(MetaOperation p) {
+    public MetaOperation internal_transpose_op(MetaOperation p) {
         MetaClass selfMeta = metaClass();
         if (p.origin().index() == selfMeta.index()) {
             return p;
         } else {
             return selfMeta.metaOperation(p.metaName());
         }
+    }
+
+    public KTraversalPromise traverse(MetaReference p_metaReference) {
+        return new DefaultKTraversalPromise(this, p_metaReference);
     }
 
 }
