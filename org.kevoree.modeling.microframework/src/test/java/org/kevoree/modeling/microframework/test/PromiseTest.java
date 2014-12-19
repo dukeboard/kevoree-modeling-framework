@@ -1,0 +1,134 @@
+package org.kevoree.modeling.microframework.test;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.kevoree.modeling.api.Callback;
+import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.promise.KTraversalFilter;
+import org.kevoree.modeling.microframework.test.cloud.*;
+
+/**
+ * Created by thomas on 19/12/14.
+ */
+public class PromiseTest {
+
+
+    @Test
+    public void simpleTraversalTest() {
+        final CloudUniverse universe = new CloudUniverse();
+        final CloudDimension dimension0 = universe.newDimension();
+        final CloudView t0 = dimension0.time(0l);
+
+        final Node node0 = t0.createNode();
+        final Element elem0_0 = t0.createElement();
+        node0.setElement(elem0_0);
+
+        t0.setRoot(node0, throwable -> {
+
+            final Node node1 = t0.createNode();
+            node1.setName("child1");
+            final Element elem1_0 = t0.createElement();
+            node1.setElement(elem1_0);
+
+            final Node node2 = t0.createNode();
+            node2.setName("child2");
+            final Element elem2_0 = t0.createElement();
+            node2.setElement(elem2_0);
+
+            node0.addChildren(node1);
+            node0.addChildren(node2);
+
+            // traversal promise
+            node0.traverse(node0.metaClass().metaReference("children")).then(new Callback<KObject[]>() {
+                @Override
+                public void on(KObject[] kObjects) {
+                    Assert.assertEquals(kObjects.length, 2);
+                }
+            });
+
+        });
+    }
+
+    @Test
+    public void chainedTraversalTest() {
+        final CloudUniverse universe = new CloudUniverse();
+        final CloudDimension dimension0 = universe.newDimension();
+        final CloudView t0 = dimension0.time(0l);
+
+        final Node node0 = t0.createNode();
+        final Element elem0_0 = t0.createElement();
+        node0.setElement(elem0_0);
+
+        t0.setRoot(node0, throwable -> {
+
+            final Node node1 = t0.createNode();
+            node1.setName("child1");
+            final Element elem1_0 = t0.createElement();
+            elem1_0.setName("child1_elem1");
+            node1.setElement(elem1_0);
+
+            final Node node2 = t0.createNode();
+            node2.setName("child2");
+            final Element elem2_0 = t0.createElement();
+            elem2_0.setName("child2_elem1");
+            node2.setElement(elem2_0);
+
+            node0.addChildren(node1);
+            node0.addChildren(node2);
+
+            // chained traversal promise
+            node0.traverse(node0.metaClass().metaReference("children")).traverse(node0.metaClass().metaReference("element")).then(new Callback<KObject[]>() {
+                @Override
+                public void on(KObject[] kObjects) {
+                    Assert.assertEquals(kObjects.length, 2);
+                }
+            });
+
+        });
+    }
+
+    @Test
+    public void filterTest() {
+        final CloudUniverse universe = new CloudUniverse();
+        final CloudDimension dimension0 = universe.newDimension();
+        final CloudView t0 = dimension0.time(0l);
+
+        final Node node0 = t0.createNode();
+        final Element elem0_0 = t0.createElement();
+        node0.setElement(elem0_0);
+
+        t0.setRoot(node0, throwable -> {
+
+            final Node node1 = t0.createNode();
+            node1.setName("child1");
+            final Element elem1_0 = t0.createElement();
+            elem1_0.setName("child1_elem1");
+            node1.setElement(elem1_0);
+
+            final Node node2 = t0.createNode();
+            node2.setName("child2");
+            final Element elem2_0 = t0.createElement();
+            elem2_0.setName("child2_elem1");
+            node2.setElement(elem2_0);
+
+            node0.addChildren(node1);
+            node0.addChildren(node2);
+
+            // chained traversal promise
+            node0.traverse(node0.metaClass().metaReference("children")).filter(new KTraversalFilter() {
+                @Override
+                public boolean filter(KObject obj) {
+                    return ((Node) obj).getName().equals("child1");
+                }
+            }).then(new Callback<KObject[]>() {
+                @Override
+                public void on(KObject[] kObjects) {
+                    Assert.assertEquals(kObjects.length, 1);
+                    Assert.assertEquals(((Node)kObjects[0]).getName(), "child1");
+
+                }
+            });
+
+        });
+    }
+}

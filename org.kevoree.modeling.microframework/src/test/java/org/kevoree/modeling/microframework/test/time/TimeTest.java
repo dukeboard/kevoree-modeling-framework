@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test;
+package org.kevoree.modeling.microframework.test.time;
 
 import org.junit.Assert;
 import org.junit.Test;

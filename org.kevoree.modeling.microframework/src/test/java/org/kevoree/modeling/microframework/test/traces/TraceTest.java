@@ -1,4 +1,4 @@
-package org.kevoree.modeling.microframework.test;
+package org.kevoree.modeling.microframework.test.traces;
 
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
