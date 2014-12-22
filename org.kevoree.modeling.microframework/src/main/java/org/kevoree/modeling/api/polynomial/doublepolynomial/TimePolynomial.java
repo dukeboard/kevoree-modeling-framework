@@ -6,190 +6,162 @@ import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
  * Created by assaad on 19/12/14.
  */
 public class TimePolynomial {
-    //Todo to save and to load
-    private long timeOrigin;
-    private double[] weights;
-    private int samples;
-    private long samplingPeriod;
 
-    //hard-coded
-    private static int maxTimeDegree=20;
-    private static int toleratedErrorRatio=10;
+    //TODO change for live detectoin
+    private static int toleratedErrorRatio = 10;
 
+    private long _timeOrigin;
+    //TODO change for param value
+    private static int maxTimeDegree = 20;
 
-    public TimePolynomial() {
+    /* State to Save/Load */
+    private double[] _weights;
+    private int _nbSamples;
+    private long _samplingPeriod;
+
+    public TimePolynomial(long p_timeOrigin) {
+        this._timeOrigin = p_timeOrigin;
     }
 
-    public Long getTimeOrigin(){
-        return timeOrigin;
+    public long timeOrigin() {
+        return _timeOrigin;
     }
 
-
-
-    public double convertLongToDouble(Long time){
-        return ((double)(time-timeOrigin))/samplingPeriod;
+    public long samplingPeriod() {
+        return _samplingPeriod;
     }
 
-    public long getSamplingPeriod(){
-        return samplingPeriod;
+    public double[] weights() {
+        return _weights;
     }
 
-    private int getDegree() {
-        if (weights == null) {
+    public int degree() {
+        if (_weights == null) {
             return -1;
         } else {
-            return weights.length - 1;
+            return _weights.length - 1;
         }
     }
 
-    public double[] getWeights(){
-        return weights;
+    public double denormalize(long p_time) {
+        return ((double) (p_time - _timeOrigin)) / _samplingPeriod;
     }
 
-    public void setWeights(double [] weights){
-        this.weights=weights;
-    }
-
-
-
-    public Long internal_extrapolate(int id, double[] newWeights){
+    public double getNormalizedTime(int id) {
         double result = 0;
-        double t = id;
         double power = 1;
-        for (int j = 0; j < newWeights.length; j++) {
-            result += newWeights[j] * power;
-            power = power * t;
+        for (int j = 0; j < _weights.length; j++) {
+            result += _weights[j] * power;
+            power = power * id;
         }
-        result=result*(samplingPeriod)+timeOrigin;
-        return (long) result;
+        return result;
     }
 
-    public int getSamples(){
-        return samples;
+    public long extrapolate(int id) {
+        return test_extrapolate(id, _weights);
     }
 
-    //Not suitable for non-sequential timepoints
-    private Long maxError(double[] computedWeights, int lastId, Long newtime) {
-        Long maxErr = 0l;
+    public int nbSamples() {
+        return _nbSamples;
+    }
 
-        Long time;
-        Long temp;
+    public boolean insert(Long time) {
+        //If this is the first point in the set, add it and return
+        if (_weights == null) {
+            _timeOrigin = time;
+            _weights = new double[1];
+            _weights[0] = 0;
+            _nbSamples = 1;
+            return true;
+        }
+        if (_nbSamples == 1) {
+            _samplingPeriod = time - _timeOrigin;
+            _weights = new double[2];
+            _weights[0] = 0;
+            _weights[1] = 1;
+            _nbSamples = 2;
+            return true;
+        }
+        if (time > extrapolate(_nbSamples - 1)) {
+            //List is ordered
+            //First evaluate if it fits in the current model
+            double maxError = _samplingPeriod / toleratedErrorRatio;
+            if (Math.abs(extrapolate(_nbSamples) - time) <= maxError) {
+                _nbSamples++;
+                return true;
+            }
+            //Else increase the degree till maxDegree
+            int deg = degree();
+            int newMaxDegree = Math.min(_nbSamples, maxTimeDegree);
+            while (deg < newMaxDegree) {
+                deg++;
+                int ss = Math.min(deg * 2, _nbSamples);
+                double[] ids = new double[ss + 1];
+                double[] times = new double[ss + 1];
+                int idtemp;
+                for (int i = 0; i < ss; i++) {
+                    idtemp = (int) (i * _nbSamples / ss);
+                    ids[i] = idtemp;
+                    times[i] = (extrapolate(idtemp) - _timeOrigin) / (_samplingPeriod);
+                }
+                ids[ss] = _nbSamples;
+                times[ss] = (time - _timeOrigin) / (_samplingPeriod);
+                PolynomialFitEjml pf = new PolynomialFitEjml(deg);
+                pf.fit(ids, times);
+                if (maxError(pf.getCoef(), _nbSamples, time) <= maxError) {
+                    _weights = new double[pf.getCoef().length];
+                    for (int i = 0; i < pf.getCoef().length; i++) {
+                        _weights[i] = pf.getCoef()[i];
+                    }
+                    _nbSamples++;
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            //TODO trying to insert in past
+        }
+        return false;
+    }
 
+    //Not suitable for non-sequential timePoints
+    private long maxError(double[] computedWeights, int lastId, long newtime) {
+        long maxErr = 0l;
+        long time;
+        long temp;
         for (int i = 0; i < lastId; i++) {
-            time= internal_extrapolate(i,computedWeights);
-            temp = Math.abs(time - getTime(i));
+            time = test_extrapolate(i, computedWeights);
+            temp = Math.abs(time - extrapolate(i));
             if (temp > maxErr) {
                 maxErr = temp;
             }
         }
-        temp = Math.abs(internal_extrapolate(samples, computedWeights) - newtime);
+        temp = Math.abs(test_extrapolate(_nbSamples, computedWeights) - newtime);
         if (temp > maxErr) {
             maxErr = temp;
         }
         return maxErr;
     }
 
-
-
-
-    public boolean insert(Long time) {
-        //If this is the first point in the set, add it and return
-        if (weights == null) {
-            timeOrigin=time;
-            weights = new double[1];
-            weights[0]=0;
-            samples=1;
-            return true;
-        }
-        if(samples==1){
-            samplingPeriod=time-timeOrigin;
-            weights = new double[2];
-            weights[0]=0;
-            weights[1]=1;
-            samples=2;
-            return true;
-        }
-
-
-        if(time> getTime(samples-1)){
-            //List is ordered
-            //First evaluate if it fits in the current model
-            double maxError = samplingPeriod/toleratedErrorRatio;
-            if (Math.abs(getTime(samples) - time) <= maxError) {
-                samples++;
-                return true;
-            }
-
-            //Else increase the degree till maxDegree
-            int deg = getDegree();
-            int newMaxDegree= Math.min(samples,maxTimeDegree);
-            while (deg < newMaxDegree) {
-                deg++;
-                int ss = Math.min(deg * 2, samples);
-                double[] ids = new double[ss + 1];
-                double[] times = new double[ss + 1];
-                int idtemp;
-                for (int i = 0; i < ss; i++) {
-                    idtemp= (int) (i*samples/ss);
-                    ids[i]= idtemp;
-                    times[i]=(getTime(idtemp)-timeOrigin)/(samplingPeriod);
-                }
-                ids[ss]=samples;
-                times[ss]=(time-timeOrigin)/(samplingPeriod);
-
-                PolynomialFitEjml pf = new PolynomialFitEjml(deg);
-                pf.fit(ids, times);
-                if (maxError(pf.getCoef(), samples, time) <= maxError) {
-                    weights = new double[pf.getCoef().length];
-                    for (int i = 0; i < pf.getCoef().length; i++) {
-                        weights[i] = pf.getCoef()[i];
-                    }
-                    samples++;
-                    return true;
-                }
-            }
-            return false;
-        }
-        else{
-            //trying to insert in past
-
-        }
-        return false;
-
-    }
-
-    public double getNormalizedTime(int id){
+    private long test_extrapolate(int id, double[] newWeights) {
         double result = 0;
-        double t = id;
         double power = 1;
-        for (int j = 0; j < weights.length; j++) {
-            result += weights[j] * power;
-            power = power * t;
+        for (int j = 0; j < newWeights.length; j++) {
+            result += newWeights[j] * power;
+            power = power * id;
         }
-        return result;
-    }
-
-    public Long getTime( int id){
-        double result = 0;
-        double t = id;
-        double power = 1;
-        for (int j = 0; j < weights.length; j++) {
-            result += weights[j] * power;
-            power = power * t;
-        }
-        result=result*(samplingPeriod)+timeOrigin;
+        result = result * (_samplingPeriod) + _timeOrigin;
         return (long) result;
     }
 
-
     //need to be modified for random access
     public void removeLast() {
-        samples--;
+        _nbSamples = _nbSamples - 1;
     }
 
-    public long getLastIndex() {
-        if(samples>0) {
-            return getTime(samples - 1);
+    public long lastIndex() {
+        if (_nbSamples > 0) {
+            return extrapolate(_nbSamples - 1);
         }
         return -1;
     }

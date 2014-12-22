@@ -10,56 +10,152 @@ import org.kevoree.modeling.api.polynomial.util.Prioritization;
  */
 public class DoublePolynomialModel implements PolynomialModel {
 
+    private static final String sep = "/";
+    private Prioritization _prioritization;
+    private int _maxDegree;
+    private double _toleratedError;
+    private boolean _isDirty = false;
 
-    private double[] weights;
-    private TimePolynomial polyTime ;
-    private Prioritization prioritization;
-    private int maxDegree;
-    private double toleratedError;
+    /* State */
+    private double[] _weights;
+    /* State */
+    private final TimePolynomial _polyTime;
 
-
-
-    public DoublePolynomialModel(double toleratedError, int maxDegree, Prioritization prioritization) {
-        this.prioritization = prioritization;
-        this.maxDegree = maxDegree;
-        this.toleratedError = toleratedError;
-        polyTime = new TimePolynomial();
+    public DoublePolynomialModel(long p_timeOrigin, double p_toleratedError, int p_maxDegree, Prioritization p_prioritization) {
+        _polyTime = new TimePolynomial(p_timeOrigin);
+        this._prioritization = p_prioritization;
+        this._maxDegree = p_maxDegree;
+        this._toleratedError = p_toleratedError;
     }
 
-
-    public int getDegree() {
-        if (weights == null) {
+    public int degree() {
+        if (_weights == null) {
             return -1;
         } else {
-            return weights.length - 1;
+            return _weights.length - 1;
         }
     }
 
-    public Long getTimeOrigin() {
-        return polyTime.getTimeOrigin();
+    public long timeOrigin() {
+        return _polyTime.timeOrigin();
     }
 
-    private double getMaxErr(int degree, double toleratedError, int maxDegree, Prioritization prioritization) {
-        double tol = toleratedError;
-        if (prioritization == Prioritization.HIGHDEGREES) {
-            tol = toleratedError / Math.pow(2, maxDegree - degree);
-        } else if (prioritization == Prioritization.LOWDEGREES) {
-            tol = toleratedError / Math.pow(2, degree + 0.5);
-        } else if (prioritization == Prioritization.SAMEPRIORITY) {
-            tol = toleratedError * degree * 2 / (2 * maxDegree);
+    public boolean comparePolynome(DoublePolynomialModel p2, double err) {
+        if (_weights.length != p2._weights.length) {
+            return false;
+        }
+        for (int i = 0; i < _weights.length; i++) {
+            if (Math.abs(_weights[i] - _weights[i]) > err) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public double extrapolate(long time) {
+        return test_extrapolate(_polyTime.denormalize(time), _weights);
+    }
+
+    @Override
+    public boolean insert(long time, double value) {
+        //If this is the first point in the set, add it and return
+        if (_weights == null) {
+            internal_feed(time, value);
+            return true;
+        }
+        //Check if time fits first
+        if (_polyTime.insert(time)) {
+            double maxError = maxErr(this.degree(), _toleratedError, _maxDegree, _prioritization);
+            //If the current model fits well the new value, return
+            if (Math.abs(extrapolate(time) - value) <= maxError) {
+                return true;
+            }
+            //If not, first check if we can increase the degree
+            int deg = degree();
+            int newMaxDegree = Math.min(_polyTime.nbSamples() - 1, _maxDegree);
+            if (deg < newMaxDegree) {
+                deg++;
+                int ss = Math.min(deg * 2, _polyTime.nbSamples() - 1);
+                double[] times = new double[ss + 1];
+                double[] values = new double[ss + 1];
+                int current = _polyTime.nbSamples() - 1;
+                for (int i = 0; i < ss; i++) {
+                    times[i] = _polyTime.getNormalizedTime((int) (i * current / ss));
+                    values[i] = test_extrapolate(times[i], _weights);
+                }
+                times[ss] = _polyTime.denormalize(time);
+                values[ss] = value;
+                PolynomialFitEjml pf = new PolynomialFitEjml(deg);
+                pf.fit(times, values);
+                if (maxError(pf.getCoef(), time, value) <= maxError) {
+                    _weights = new double[pf.getCoef().length];
+                    for (int i = 0; i < pf.getCoef().length; i++) {
+                        _weights[i] = pf.getCoef()[i];
+                    }
+                    return true;
+                }
+            }
+            _polyTime.removeLast();
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public long lastIndex() {
+        return _polyTime.lastIndex(); //TODO: load and save lastIndex
+    }
+
+    @Override
+    public String save() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < _weights.length; i++) {
+            if (i != 0) {
+                builder.append(sep);
+            }
+            builder.append(_weights[i] + "");
+        }
+        _isDirty = false;
+        return builder.toString();
+    }
+
+    @Override
+    public void load(String payload) {
+        String[] elems = payload.split(sep);
+        _weights = new double[elems.length];
+        for (int i = 0; i < elems.length; i++) {
+            _weights[i] = Double.parseDouble(elems[i]);
+        }
+        _isDirty = false;
+    }
+
+    @Override
+    public boolean isDirty() {
+        return _isDirty;
+    }
+
+    /* Private methods section */
+
+    private double maxErr(int p_degree, double p_toleratedError, int p_maxDegree, Prioritization p_prioritization) {
+        double tol = p_toleratedError;
+        if (p_prioritization == Prioritization.HIGHDEGREES) {
+            tol = p_toleratedError / Math.pow(2, p_maxDegree - p_degree);
+        } else if (p_prioritization == Prioritization.LOWDEGREES) {
+            tol = p_toleratedError / Math.pow(2, p_degree + 0.5);
+        } else if (p_prioritization == Prioritization.SAMEPRIORITY) {
+            tol = p_toleratedError * p_degree * 2 / (2 * p_maxDegree);
         }
         return tol;
     }
 
-
-    private void internal_feed(Long time, double value) {
+    private void internal_feed(long time, double value) {
         //If this is the first point in the set, add it and return
-        if (weights == null) {
-            weights = new double[1];
-            weights[0] = value;
-            polyTime.insert(time);
-
-
+        if (_weights == null) {
+            _weights = new double[1];
+            _weights[0] = value;
+            _polyTime.insert(time);
         }
     }
 
@@ -67,34 +163,22 @@ public class DoublePolynomialModel implements PolynomialModel {
         double maxErr = 0;
         double temp = 0;
         double ds;
-        for (int i = 0; i < polyTime.getSamples()-1; i++) {
-            ds = polyTime.getNormalizedTime(i);
-            double val=internal_extrapolate(ds, computedWeights);
-            temp = Math.abs(val - internal_extrapolate(ds, weights));
+        for (int i = 0; i < _polyTime.nbSamples() - 1; i++) {
+            ds = _polyTime.getNormalizedTime(i);
+            double val = test_extrapolate(ds, computedWeights);
+            temp = Math.abs(val - test_extrapolate(ds, _weights));
             if (temp > maxErr) {
                 maxErr = temp;
             }
         }
-        temp = Math.abs(internal_extrapolate(polyTime.convertLongToDouble(time), computedWeights) - value);
+        temp = Math.abs(test_extrapolate(_polyTime.denormalize(time), computedWeights) - value);
         if (temp > maxErr) {
             maxErr = temp;
         }
         return maxErr;
     }
 
-    public boolean comparePolynome(DoublePolynomialModel p2, double err) {
-        if (weights.length != p2.weights.length) {
-            return false;
-        }
-        for (int i = 0; i < weights.length; i++) {
-            if (Math.abs(weights[i] - weights[i]) > err) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private double internal_extrapolate(double time, double[] weights) {
+    private double test_extrapolate(double time, double[] weights) {
         double result = 0;
         double power = 1;
         for (int j = 0; j < weights.length; j++) {
@@ -104,110 +188,4 @@ public class DoublePolynomialModel implements PolynomialModel {
         return result;
     }
 
-    @Override
-    public double extrapolate(long time) {
-        double t = polyTime.convertLongToDouble(time);
-        return internal_extrapolate(t, weights);
-    }
-
-
-    @Override
-    public boolean insert(long time, double value) {
-        //If this is the first point in the set, add it and return
-        if (weights == null) {
-            internal_feed(time, value);
-            return true;
-        }
-
-
-        //Check if time fits first
-        if(polyTime.insert(time)==true) {
-            double maxError = getMaxErr(this.getDegree(), toleratedError, maxDegree, prioritization);
-            //If the current model fits well the new value, return
-            if (Math.abs(extrapolate(time) - value) <= maxError) {
-                return true;
-            }
-            //If not, first check if we can increase the degree
-            int deg = getDegree();
-            int newMaxDegree = Math.min(polyTime.getSamples()-1, maxDegree);
-            if (deg < newMaxDegree) {
-                deg++;
-                int ss = Math.min(deg * 2, polyTime.getSamples()-1);
-                double[] times = new double[ss + 1];
-                double[] values = new double[ss + 1];
-                int current = polyTime.getSamples()-1;
-                for (int i = 0; i < ss; i++) {
-
-
-                    times[i] = polyTime.getNormalizedTime((int) (i * current / ss));
-                    values[i] = internal_extrapolate(times[i],weights);
-                }
-                times[ss] = polyTime.convertLongToDouble(time);
-                values[ss] = value;
-                PolynomialFitEjml pf = new PolynomialFitEjml(deg);
-                pf.fit(times, values);
-                if (maxError(pf.getCoef(), time, value) <= maxError) {
-                    weights = new double[pf.getCoef().length];
-                    for (int i = 0; i < pf.getCoef().length; i++) {
-                        weights[i] = pf.getCoef()[i];
-                    }
-                    return true;
-                }
-            }
-            polyTime.removeLast();
-            return false;
-        }
-        else{
-            return false;
-        }
-    }
-
-
-    @Override
-    public long lastIndex() {
-        return polyTime.getLastIndex(); //TODO: load and save lastIndex
-    }
-
-    @Override
-    public long indexBefore(long time) {
-        return 0;
-    }
-
-
-    @Override
-    public long[] timesAfter(long time) {
-        return null;
-    }
-
-    private static final String sep = "/";
-
-    @Override
-    public String save() {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < weights.length; i++) {
-            if (i != 0) {
-                builder.append(sep);
-            }
-            builder.append(weights[i] + "");
-        }
-        _isDirty = false;
-        return builder.toString();
-    }
-
-    @Override
-    public void load(String payload) {
-        String[] elems = payload.split(sep);
-        weights = new double[elems.length];
-        for (int i = 0; i < elems.length; i++) {
-            weights[i] = Double.parseDouble(elems[i]);
-        }
-        _isDirty = false;
-    }
-
-    private boolean _isDirty = false;
-
-    @Override
-    public boolean isDirty() {
-        return _isDirty;
-    }
 }

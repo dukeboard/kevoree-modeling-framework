@@ -11,10 +11,6 @@ public interface PolynomialModel {
 
     public long lastIndex();
 
-    public long indexBefore(long time);
-
-    public long[] timesAfter(long time);
-
     public String save();
 
     public void load(String payload);

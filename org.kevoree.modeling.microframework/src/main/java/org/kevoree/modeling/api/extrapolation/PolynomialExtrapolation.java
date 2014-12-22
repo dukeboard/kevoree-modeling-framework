@@ -5,7 +5,7 @@ import org.kevoree.modeling.api.data.AccessMode;
 import org.kevoree.modeling.api.data.Index;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaType;
-import org.kevoree.modeling.api.polynomial.DefaultPolynomialModel;
+import org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel;
 import org.kevoree.modeling.api.polynomial.PolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
@@ -42,13 +42,13 @@ public class PolynomialExtrapolation implements Extrapolation {
         Object[] raw = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
         Object previous = raw[attribute.index()];
         if (previous == null) {
-            PolynomialModel pol = new DefaultPolynomialModel(current.now(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
+            PolynomialModel pol = new DoublePolynomialModel(current.now(), attribute.precision(), 20, Prioritization.LOWDEGREES);
             pol.insert(current.now(), Double.parseDouble(payload.toString()));
             current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
         } else {
             PolynomialModel previousPol = (PolynomialModel) previous;
             if (!previousPol.insert(current.now(), Double.parseDouble(payload.toString()))) {
-                PolynomialModel pol = new DefaultPolynomialModel(previousPol.lastIndex(), attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
+                PolynomialModel pol = new DoublePolynomialModel(previousPol.lastIndex(), attribute.precision(), 20, Prioritization.LOWDEGREES);
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                 pol.insert(current.now(), Double.parseDouble(payload.toString()));
                 current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
@@ -73,7 +73,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public Object load(String payload, MetaAttribute attribute, long now) {
-        PolynomialModel pol = new DefaultPolynomialModel(now, attribute.precision(), 20, 1, Prioritization.LOWDEGREES);
+        PolynomialModel pol = new DoublePolynomialModel(now, attribute.precision(), 20, Prioritization.LOWDEGREES);
         pol.load(payload);
         return pol;
     }

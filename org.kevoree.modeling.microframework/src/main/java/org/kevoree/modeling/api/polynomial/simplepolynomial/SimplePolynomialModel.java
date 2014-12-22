@@ -1,21 +1,21 @@
-package org.kevoree.modeling.api.polynomial;
+package org.kevoree.modeling.api.polynomial.simplepolynomial;
 
 /**
  * Created by assaa_000 on 28/10/2014.
  */
 
+import org.kevoree.modeling.api.polynomial.PolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.DataSample;
 import org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by assaa_000 on 23/10/2014.
  */
-public class DefaultPolynomialModel implements PolynomialModel {
+public class SimplePolynomialModel implements PolynomialModel {
 
     private double[] weights;
     private Long timeOrigin;
@@ -27,7 +27,7 @@ public class DefaultPolynomialModel implements PolynomialModel {
     //TODO add to save
     private long _lastIndex = -1;
 
-    public DefaultPolynomialModel(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
+    public SimplePolynomialModel(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
         this.timeOrigin = timeOrigin;
         this.degradeFactor = degradeFactor;
         this.prioritization = prioritization;
@@ -93,7 +93,7 @@ public class DefaultPolynomialModel implements PolynomialModel {
         return maxErr;
     }
 
-    public boolean comparePolynome(DefaultPolynomialModel p2, double err) {
+    public boolean comparePolynome(SimplePolynomialModel p2, double err) {
         if (weights.length != p2.weights.length) {
             return false;
         }
@@ -173,16 +173,6 @@ public class DefaultPolynomialModel implements PolynomialModel {
     @Override
     public long lastIndex() {
         return _lastIndex; //TODO: load and save lastIndex
-    }
-
-    @Override
-    public long indexBefore(long time) {
-        return _lastIndex;
-    }
-
-    @Override
-    public long[] timesAfter(long time) {
-        return null;
     }
 
     private static final String sep = "/";
