@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
+import org.kevoree.modeling.api.data.MemoryKDataBase;
 import org.kevoree.modeling.microframework.test.cloud.*;
 
 /**
@@ -14,7 +15,7 @@ public class PolynomialSaveLoadTest {
     @Test
     public void test() {
 
-        //MemoryKDataBase.DEBUG = true;
+        MemoryKDataBase.DEBUG = true;
 
         final int[] nbAssert = new int[1];
         nbAssert[0] = 0;
@@ -32,10 +33,11 @@ public class PolynomialSaveLoadTest {
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
-        element.setValue(0.0);
+        //element.setValue(0.0);
         //insert 20 variations in time
         for (int i = 200; i < 1000; i++) {
             //TODO check Assaad
+            /*
             if ((i % 100) == 0) {
                 dimension.save(new Callback<Throwable>() {
                     @Override
@@ -43,7 +45,7 @@ public class PolynomialSaveLoadTest {
 
                     }
                 });
-            }
+            }*/
             long temp = 1;
             val[i] = 0;
             for (int j = 0; j < coef.length; j++) {
@@ -60,7 +62,16 @@ public class PolynomialSaveLoadTest {
                 }
             });
         }
-        Assert.assertEquals(element.timeTree().size(), 1);
+
+        dimension.saveUnload(new Callback<Throwable>() {
+            @Override
+            public void on(Throwable throwable) {
+
+            }
+        });
+
+
+        Assert.assertEquals(element.timeTree().size(), 2);
         nbAssert[0]++;
         for (int i = 200; i < 1000; i++) {
             final int finalI = i;
@@ -73,7 +84,7 @@ public class PolynomialSaveLoadTest {
                 }
             });
         }
-        Assert.assertEquals(element.timeTree().size(), 1);
+        Assert.assertEquals(element.timeTree().size(), 2);
 
         dimension.save(new Callback<Throwable>() {
             @Override

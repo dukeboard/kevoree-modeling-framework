@@ -1,6 +1,7 @@
 package org.kevoree.fsm.test;
 
 import fsmsample.*;
+import fsmsample.meta.MetaState;
 import org.junit.Test;
 import org.kevoree.modeling.api.*;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
@@ -49,7 +50,6 @@ public class SaveXMITest {
         s2.addIncomingTransition(t1);
 
         t1.setAction(a1);
-
 
         Semaphore sema = new Semaphore(0);
         String[] model = new String[1];

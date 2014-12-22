@@ -50,13 +50,13 @@ public class DefaultKStore implements KStore {
     @Override
     public void connect(Callback<Throwable> callback) {
         if (isConnected) {
-            if(callback!=null){
+            if (callback != null) {
                 callback.on(null);
             }
             return;
         }
         if (_db == null) {
-            if(callback!=null) {
+            if (callback != null) {
                 callback.on(new Exception("Please attach a KDataBase first !"));
             }
         }
@@ -336,7 +336,7 @@ public class DefaultKStore implements KStore {
                     i++;
                 }
             }
-            if (dimensionCache.roots.dirty) {
+            if (dimensionCache.roots != null && dimensionCache.roots.dirty) {
                 String[] payloadD = new String[2];
                 payloadD[0] = keyRootTree(dimension);
                 payloadD[1] = dimensionCache.roots.serialize();
@@ -577,7 +577,7 @@ public class DefaultKStore implements KStore {
                 sizeCache++;
             }
         }
-        if (dimensionCache.roots.dirty) {
+        if (dimensionCache.roots != null && dimensionCache.roots.dirty) {
             sizeCache++;
         }
         return sizeCache;
