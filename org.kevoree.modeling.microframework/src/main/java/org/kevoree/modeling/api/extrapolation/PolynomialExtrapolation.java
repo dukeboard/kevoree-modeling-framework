@@ -7,6 +7,7 @@ import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaType;
 import org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel;
 import org.kevoree.modeling.api.polynomial.PolynomialModel;
+import org.kevoree.modeling.api.polynomial.simplepolynomial.SimplePolynomialModel;
 import org.kevoree.modeling.api.polynomial.util.Prioritization;
 
 /**
@@ -42,13 +43,13 @@ public class PolynomialExtrapolation implements Extrapolation {
         Object[] raw = current.view().dimension().universe().storage().raw(current, AccessMode.READ);
         Object previous = raw[attribute.index()];
         if (previous == null) {
-            PolynomialModel pol = new DoublePolynomialModel(current.now(), attribute.precision(), 20, Prioritization.LOWDEGREES);
+            PolynomialModel pol = createPolynomialModel(current.now(), attribute.precision());
             pol.insert(current.now(), Double.parseDouble(payload.toString()));
             current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
         } else {
             PolynomialModel previousPol = (PolynomialModel) previous;
             if (!previousPol.insert(current.now(), Double.parseDouble(payload.toString()))) {
-                PolynomialModel pol = new DoublePolynomialModel(previousPol.lastIndex(), attribute.precision(), 20, Prioritization.LOWDEGREES);
+                PolynomialModel pol = createPolynomialModel(previousPol.lastIndex(), attribute.precision());
                 pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                 pol.insert(current.now(), Double.parseDouble(payload.toString()));
                 current.view().dimension().universe().storage().raw(current, AccessMode.WRITE)[attribute.index()] = pol;
@@ -73,7 +74,7 @@ public class PolynomialExtrapolation implements Extrapolation {
 
     @Override
     public Object load(String payload, MetaAttribute attribute, long now) {
-        PolynomialModel pol = new DoublePolynomialModel(now, attribute.precision(), 20, Prioritization.LOWDEGREES);
+        PolynomialModel pol = createPolynomialModel(now, attribute.precision());
         pol.load(payload);
         return pol;
     }
@@ -85,6 +86,11 @@ public class PolynomialExtrapolation implements Extrapolation {
             INSTANCE = new PolynomialExtrapolation();
         }
         return INSTANCE;
+    }
+
+    private PolynomialModel createPolynomialModel(long origin, double precision) {
+        //return new SimplePolynomialModel(origin, precision, 20, Prioritization.LOWDEGREES);
+        return new DoublePolynomialModel(origin, precision, 20, Prioritization.LOWDEGREES);
     }
 
 }

@@ -27,9 +27,9 @@ public class SimplePolynomialModel implements PolynomialModel {
     //TODO add to save
     private long _lastIndex = -1;
 
-    public SimplePolynomialModel(long timeOrigin, double toleratedError, int maxDegree, int degradeFactor, Prioritization prioritization) {
+    public SimplePolynomialModel(long timeOrigin, double toleratedError, int maxDegree, Prioritization prioritization) {
         this.timeOrigin = timeOrigin;
-        this.degradeFactor = degradeFactor;
+        this.degradeFactor = 1;
         this.prioritization = prioritization;
         this.maxDegree = maxDegree;
         this.toleratedError = toleratedError;
