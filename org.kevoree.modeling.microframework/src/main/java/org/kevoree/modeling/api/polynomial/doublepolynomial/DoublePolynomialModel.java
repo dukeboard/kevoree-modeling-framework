@@ -11,6 +11,8 @@ import org.kevoree.modeling.api.polynomial.util.Prioritization;
 public class DoublePolynomialModel implements PolynomialModel {
 
     private static final String sep = "/";
+    public static final String sepW = "%";
+
     private Prioritization _prioritization;
     private int _maxDegree;
     private double _toleratedError;
@@ -105,7 +107,7 @@ public class DoublePolynomialModel implements PolynomialModel {
 
     @Override
     public long lastIndex() {
-        return _polyTime.lastIndex(); //TODO: load and save lastIndex
+        return _polyTime.lastIndex();
     }
 
     @Override
@@ -113,27 +115,35 @@ public class DoublePolynomialModel implements PolynomialModel {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < _weights.length; i++) {
             if (i != 0) {
-                builder.append(sep);
+                builder.append(sepW);
             }
             builder.append(_weights[i] + "");
         }
+        builder.append(sep);
+        builder.append(_polyTime.save());
         _isDirty = false;
         return builder.toString();
     }
 
     @Override
     public void load(String payload) {
-        String[] elems = payload.split(sep);
-        _weights = new double[elems.length];
-        for (int i = 0; i < elems.length; i++) {
-            _weights[i] = Double.parseDouble(elems[i]);
+        String[] parts = payload.split(sep);
+        if (parts.length == 2) {
+            String[] welems = parts[0].split(sepW);
+            _weights = new double[welems.length];
+            for (int i = 0; i < welems.length; i++) {
+                _weights[i] = Double.parseDouble(welems[i]);
+            }
+            _polyTime.load(parts[1]);
+        } else {
+            System.err.println("Bad Polynomial String " + payload);
         }
         _isDirty = false;
     }
 
     @Override
     public boolean isDirty() {
-        return _isDirty;
+        return _isDirty || _polyTime.isDirty();
     }
 
     /* Private methods section */

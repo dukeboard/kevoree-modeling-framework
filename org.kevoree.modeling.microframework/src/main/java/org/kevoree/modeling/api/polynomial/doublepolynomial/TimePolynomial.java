@@ -11,6 +11,7 @@ public class TimePolynomial {
     private static int toleratedErrorRatio = 10;
 
     private long _timeOrigin;
+    private boolean _isDirty = false;
     //TODO change for param value
     private static int maxTimeDegree = 20;
 
@@ -165,4 +166,36 @@ public class TimePolynomial {
         }
         return -1;
     }
+
+    public String save() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < _weights.length; i++) {
+            if (i != 0) {
+                builder.append(DoublePolynomialModel.sepW);
+            }
+            builder.append(_weights[i] + "");
+        }
+        builder.append(DoublePolynomialModel.sepW);
+        builder.append(_nbSamples);
+        builder.append(DoublePolynomialModel.sepW);
+        builder.append(_samplingPeriod);
+        _isDirty = false;
+        return builder.toString();
+    }
+
+    public void load(String payload) {
+        String[] parts = payload.split(DoublePolynomialModel.sepW);
+        _weights = new double[parts.length - 2];
+        for (int i = 0; i < parts.length - 2; i++) {
+            _weights[i] = Double.parseDouble(parts[i]);
+        }
+        _nbSamples = Integer.parseInt(parts[parts.length - 1]);
+        _samplingPeriod = Integer.parseInt(parts[parts.length - 2]);
+        _isDirty = false;
+    }
+
+    public boolean isDirty() {
+        return _isDirty;
+    }
+
 }
