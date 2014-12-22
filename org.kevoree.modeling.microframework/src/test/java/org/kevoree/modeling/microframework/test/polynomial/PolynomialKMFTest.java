@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.data.MemoryKDataBase;
+import org.kevoree.modeling.api.time.TimeWalker;
 import org.kevoree.modeling.microframework.test.cloud.CloudDimension;
 import org.kevoree.modeling.microframework.test.cloud.CloudUniverse;
 import org.kevoree.modeling.microframework.test.cloud.CloudView;
@@ -97,6 +98,14 @@ public class PolynomialKMFTest {
                 }
             });
         }
+
+        element.timeTree().walkAsc(new TimeWalker() {
+            @Override
+            public void walk(long timePoint) {
+                System.err.println(timePoint);
+            }
+        });
+
         // System.out.println(element.timeTree().size());
         Assert.assertEquals(87,element.timeTree().size());
         nbAssert[0]++;
