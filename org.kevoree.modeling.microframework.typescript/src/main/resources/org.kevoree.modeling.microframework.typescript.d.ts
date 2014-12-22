@@ -576,6 +576,7 @@ declare module org {
                         save(cache: any): string;
                         load(payload: string, attribute: meta.MetaAttribute, now: number): any;
                         static instance(): Extrapolation;
+                        private createPolynomialModel(origin, precision);
                     }
                 }
                 module json {
@@ -709,93 +710,93 @@ declare module org {
                     }
                 }
                 module polynomial {
-                    class DefaultPolynomialModel implements PolynomialModel {
-                        private weights;
-                        private timeOrigin;
-                        private samples;
-                        private degradeFactor;
-                        private prioritization;
-                        private maxDegree;
-                        private toleratedError;
-                        private _lastIndex;
-                        private static sep;
-                        private _isDirty;
-                        constructor(timeOrigin: number, toleratedError: number, maxDegree: number, degradeFactor: number, prioritization: util.Prioritization);
-                        getSamples(): java.util.List<util.DataSample>;
-                        getDegree(): number;
-                        getTimeOrigin(): number;
-                        private getMaxErr(degree, toleratedError, maxDegree, prioritization);
-                        private internal_feed(time, value);
-                        private maxError(computedWeights, time, value);
-                        comparePolynome(p2: DefaultPolynomialModel, err: number): boolean;
-                        private internal_extrapolate(time, weights);
-                        extrapolate(time: number): number;
-                        insert(time: number, value: number): boolean;
-                        lastIndex(): number;
-                        indexBefore(time: number): number;
-                        timesAfter(time: number): number[];
-                        save(): string;
-                        load(payload: string): void;
-                        isDirty(): boolean;
-                    }
                     interface PolynomialModel {
                         extrapolate(time: number): number;
                         insert(time: number, value: number): boolean;
                         lastIndex(): number;
-                        indexBefore(time: number): number;
-                        timesAfter(time: number): number[];
                         save(): string;
                         load(payload: string): void;
                         isDirty(): boolean;
                     }
                     module doublepolynomial {
                         class DoublePolynomialModel implements PolynomialModel {
+                            private static sep;
+                            static sepW: string;
+                            private _prioritization;
+                            private _maxDegree;
+                            private _toleratedError;
+                            private _isDirty;
+                            private _weights;
+                            private _polyTime;
+                            constructor(p_timeOrigin: number, p_toleratedError: number, p_maxDegree: number, p_prioritization: util.Prioritization);
+                            degree(): number;
+                            timeOrigin(): number;
+                            comparePolynome(p2: DoublePolynomialModel, err: number): boolean;
+                            extrapolate(time: number): number;
+                            insert(time: number, value: number): boolean;
+                            lastIndex(): number;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                            private maxErr(p_degree, p_toleratedError, p_maxDegree, p_prioritization);
+                            private internal_feed(time, value);
+                            private maxError(computedWeights, time, value);
+                            private test_extrapolate(time, weights);
+                        }
+                        class TimePolynomial {
+                            private static toleratedErrorRatio;
+                            private _timeOrigin;
+                            private _isDirty;
+                            private static maxTimeDegree;
+                            private _weights;
+                            private _nbSamples;
+                            private _samplingPeriod;
+                            constructor(p_timeOrigin: number);
+                            timeOrigin(): number;
+                            samplingPeriod(): number;
+                            weights(): number[];
+                            degree(): number;
+                            denormalize(p_time: number): number;
+                            getNormalizedTime(id: number): number;
+                            extrapolate(id: number): number;
+                            nbSamples(): number;
+                            insert(time: number): boolean;
+                            private maxError(computedWeights, lastId, newtime);
+                            private test_extrapolate(id, newWeights);
+                            removeLast(): void;
+                            lastIndex(): number;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                        }
+                    }
+                    module simplepolynomial {
+                        class SimplePolynomialModel implements PolynomialModel {
                             private weights;
-                            private polyTime;
+                            private timeOrigin;
+                            private samples;
+                            private degradeFactor;
                             private prioritization;
                             private maxDegree;
                             private toleratedError;
+                            private _lastIndex;
                             private static sep;
                             private _isDirty;
-                            constructor(toleratedError: number, maxDegree: number, prioritization: util.Prioritization);
+                            constructor(timeOrigin: number, toleratedError: number, maxDegree: number, prioritization: util.Prioritization);
+                            getSamples(): java.util.List<util.DataSample>;
                             getDegree(): number;
                             getTimeOrigin(): number;
                             private getMaxErr(degree, toleratedError, maxDegree, prioritization);
                             private internal_feed(time, value);
                             private maxError(computedWeights, time, value);
-                            comparePolynome(p2: DoublePolynomialModel, err: number): boolean;
+                            comparePolynome(p2: SimplePolynomialModel, err: number): boolean;
                             private internal_extrapolate(time, weights);
                             extrapolate(time: number): number;
                             insert(time: number, value: number): boolean;
                             lastIndex(): number;
-                            indexBefore(time: number): number;
-                            timesAfter(time: number): number[];
                             save(): string;
                             load(payload: string): void;
                             isDirty(): boolean;
-                        }
-                        class TimePolynomial {
-                            private timeOrigin;
-                            private weights;
-                            private samples;
-                            private samplingPeriod;
-                            private static maxTimeDegree;
-                            private static toleratedErrorRatio;
-                            constructor();
-                            getTimeOrigin(): number;
-                            convertLongToDouble(time: number): number;
-                            getSamplingPeriod(): number;
-                            private getDegree();
-                            getWeights(): number[];
-                            setWeights(weights: number[]): void;
-                            internal_extrapolate(id: number, newWeights: number[]): number;
-                            getSamples(): number;
-                            private maxError(computedWeights, lastId, newtime);
-                            insert(time: number): boolean;
-                            getNormalizedTime(id: number): number;
-                            getTime(id: number): number;
-                            removeLast(): void;
-                            getLastIndex(): number;
                         }
                     }
                     module util {

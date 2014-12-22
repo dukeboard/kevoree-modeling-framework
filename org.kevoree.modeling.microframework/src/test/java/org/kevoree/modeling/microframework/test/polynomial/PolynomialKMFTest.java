@@ -99,15 +99,16 @@ public class PolynomialKMFTest {
             });
         }
 
+/*
         element.timeTree().walkAsc(new TimeWalker() {
             @Override
             public void walk(long timePoint) {
-                System.err.println(timePoint);
+                System.out.println(timePoint);
             }
-        });
+        });*/
 
         // System.out.println(element.timeTree().size());
-        Assert.assertEquals(87,element.timeTree().size());
+        Assert.assertEquals(92,element.timeTree().size());
         nbAssert[0]++;
         //System.out.println(element.getValue());
         for (int i = 0; i < max; i++) {

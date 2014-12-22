@@ -1508,7 +1508,7 @@ var org;
                                         i++;
                                     }
                                 }
-                                if (dimensionCache.roots.dirty) {
+                                if (dimensionCache.roots != null && dimensionCache.roots.dirty) {
                                     var payloadD = new Array();
                                     payloadD[0] = this.keyRootTree(dimension);
                                     payloadD[1] = dimensionCache.roots.serialize();
@@ -1715,7 +1715,7 @@ var org;
                                     sizeCache++;
                                 }
                             }
-                            if (dimensionCache.roots.dirty) {
+                            if (dimensionCache.roots != null && dimensionCache.roots.dirty) {
                                 sizeCache++;
                             }
                             return sizeCache;
@@ -2598,14 +2598,14 @@ var org;
                             var raw = current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.READ);
                             var previous = raw[attribute.index()];
                             if (previous == null) {
-                                var pol = new org.kevoree.modeling.api.polynomial.DefaultPolynomialModel(current.now(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                                var pol = this.createPolynomialModel(current.now(), attribute.precision());
                                 pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
                                 current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
                             }
                             else {
                                 var previousPol = previous;
                                 if (!previousPol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()))) {
-                                    var pol = new org.kevoree.modeling.api.polynomial.DefaultPolynomialModel(previousPol.lastIndex(), attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                                    var pol = this.createPolynomialModel(previousPol.lastIndex(), attribute.precision());
                                     pol.insert(previousPol.lastIndex(), previousPol.extrapolate(previousPol.lastIndex()));
                                     pol.insert(current.now(), java.lang.Double.parseDouble(payload.toString()));
                                     current.view().dimension().universe().storage().raw(current, org.kevoree.modeling.api.data.AccessMode.WRITE)[attribute.index()] = pol;
@@ -2630,7 +2630,7 @@ var org;
                             }
                         };
                         PolynomialExtrapolation.prototype.load = function (payload, attribute, now) {
-                            var pol = new org.kevoree.modeling.api.polynomial.DefaultPolynomialModel(now, attribute.precision(), 20, 1, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
+                            var pol = this.createPolynomialModel(now, attribute.precision());
                             pol.load(payload);
                             return pol;
                         };
@@ -2639,6 +2639,9 @@ var org;
                                 PolynomialExtrapolation.INSTANCE = new org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation();
                             }
                             return PolynomialExtrapolation.INSTANCE;
+                        };
+                        PolynomialExtrapolation.prototype.createPolynomialModel = function (origin, precision) {
+                            return new org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel(origin, precision, 20, org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES);
                         };
                         return PolynomialExtrapolation;
                     })();
@@ -3658,187 +3661,359 @@ var org;
                 })(operation = api.operation || (api.operation = {}));
                 var polynomial;
                 (function (polynomial) {
-                    var DefaultPolynomialModel = (function () {
-                        function DefaultPolynomialModel(timeOrigin, toleratedError, maxDegree, degradeFactor, prioritization) {
-                            this.samples = new java.util.ArrayList();
-                            this._lastIndex = -1;
-                            this._isDirty = false;
-                            this.timeOrigin = timeOrigin;
-                            this.degradeFactor = degradeFactor;
-                            this.prioritization = prioritization;
-                            this.maxDegree = maxDegree;
-                            this.toleratedError = toleratedError;
-                        }
-                        DefaultPolynomialModel.prototype.getSamples = function () {
-                            return this.samples;
-                        };
-                        DefaultPolynomialModel.prototype.getDegree = function () {
-                            if (this.weights == null) {
-                                return -1;
-                            }
-                            else {
-                                return this.weights.length - 1;
-                            }
-                        };
-                        DefaultPolynomialModel.prototype.getTimeOrigin = function () {
-                            return this.timeOrigin;
-                        };
-                        DefaultPolynomialModel.prototype.getMaxErr = function (degree, toleratedError, maxDegree, prioritization) {
-                            var tol = toleratedError;
-                            if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
-                                tol = toleratedError / Math.pow(2, maxDegree - degree);
-                            }
-                            else {
-                                if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
-                                    tol = toleratedError / Math.pow(2, degree + 0.5);
-                                }
-                                else {
-                                    if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
-                                        tol = toleratedError * degree * 2 / (2 * maxDegree);
-                                    }
-                                }
-                            }
-                            return tol;
-                        };
-                        DefaultPolynomialModel.prototype.internal_feed = function (time, value) {
-                            if (this.weights == null) {
-                                this.weights = new Array();
-                                this.weights[0] = value;
-                                this.timeOrigin = time;
-                                this.samples.add(new org.kevoree.modeling.api.polynomial.util.DataSample(time, value));
-                            }
-                        };
-                        DefaultPolynomialModel.prototype.maxError = function (computedWeights, time, value) {
-                            var maxErr = 0;
-                            var temp = 0;
-                            var ds;
-                            for (var i = 0; i < this.samples.size(); i++) {
-                                ds = this.samples.get(i);
-                                var val = this.internal_extrapolate(ds.time, computedWeights);
-                                temp = Math.abs(val - ds.value);
-                                if (temp > maxErr) {
-                                    maxErr = temp;
-                                }
-                            }
-                            temp = Math.abs(this.internal_extrapolate(time, computedWeights) - value);
-                            if (temp > maxErr) {
-                                maxErr = temp;
-                            }
-                            return maxErr;
-                        };
-                        DefaultPolynomialModel.prototype.comparePolynome = function (p2, err) {
-                            if (this.weights.length != p2.weights.length) {
-                                return false;
-                            }
-                            for (var i = 0; i < this.weights.length; i++) {
-                                if (Math.abs(this.weights[i] - this.weights[i]) > err) {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        };
-                        DefaultPolynomialModel.prototype.internal_extrapolate = function (time, weights) {
-                            var result = 0;
-                            var t = (time - this.timeOrigin) / this.degradeFactor;
-                            var power = 1;
-                            for (var j = 0; j < weights.length; j++) {
-                                result += weights[j] * power;
-                                power = power * t;
-                            }
-                            return result;
-                        };
-                        DefaultPolynomialModel.prototype.extrapolate = function (time) {
-                            return this.internal_extrapolate(time, this.weights);
-                        };
-                        DefaultPolynomialModel.prototype.insert = function (time, value) {
-                            if (this.weights == null) {
-                                this.internal_feed(time, value);
-                                this._lastIndex = time;
-                                this._isDirty = true;
-                                return true;
-                            }
-                            var maxError = this.getMaxErr(this.getDegree(), this.toleratedError, this.maxDegree, this.prioritization);
-                            if (Math.abs(this.extrapolate(time) - value) <= maxError) {
-                                this.samples.add(new org.kevoree.modeling.api.polynomial.util.DataSample(time, value));
-                                this._lastIndex = time;
-                                return true;
-                            }
-                            var deg = this.getDegree();
-                            if (deg < this.maxDegree) {
-                                deg++;
-                                var ss = Math.min(deg * 2, this.samples.size());
-                                var times = new Array();
-                                var values = new Array();
-                                var current = this.samples.size();
-                                for (var i = 0; i < ss; i++) {
-                                    var index = Math.round(i * current / ss);
-                                    var ds = this.samples.get(index);
-                                    times[i] = (ds.time - this.timeOrigin) / this.degradeFactor;
-                                    values[i] = ds.value;
-                                }
-                                times[ss] = (time - this.timeOrigin) / this.degradeFactor;
-                                values[ss] = value;
-                                var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
-                                pf.fit(times, values);
-                                if (this.maxError(pf.getCoef(), time, value) <= maxError) {
-                                    this.weights = new Array();
-                                    for (var i = 0; i < pf.getCoef().length; i++) {
-                                        this.weights[i] = pf.getCoef()[i];
-                                    }
-                                    this.samples.add(new org.kevoree.modeling.api.polynomial.util.DataSample(time, value));
-                                    this._lastIndex = time;
-                                    this._isDirty = true;
-                                    return true;
-                                }
-                            }
-                            return false;
-                        };
-                        DefaultPolynomialModel.prototype.lastIndex = function () {
-                            return this._lastIndex;
-                        };
-                        DefaultPolynomialModel.prototype.indexBefore = function (time) {
-                            return this._lastIndex;
-                        };
-                        DefaultPolynomialModel.prototype.timesAfter = function (time) {
-                            return null;
-                        };
-                        DefaultPolynomialModel.prototype.save = function () {
-                            var builder = new java.lang.StringBuilder();
-                            for (var i = 0; i < this.weights.length; i++) {
-                                if (i != 0) {
-                                    builder.append(DefaultPolynomialModel.sep);
-                                }
-                                builder.append(this.weights[i] + "");
-                            }
-                            this._isDirty = false;
-                            return builder.toString();
-                        };
-                        DefaultPolynomialModel.prototype.load = function (payload) {
-                            var elems = payload.split(DefaultPolynomialModel.sep);
-                            this.weights = new Array();
-                            for (var i = 0; i < elems.length; i++) {
-                                this.weights[i] = java.lang.Double.parseDouble(elems[i]);
-                            }
-                            this._isDirty = false;
-                        };
-                        DefaultPolynomialModel.prototype.isDirty = function () {
-                            return this._isDirty;
-                        };
-                        DefaultPolynomialModel.sep = "/";
-                        return DefaultPolynomialModel;
-                    })();
-                    polynomial.DefaultPolynomialModel = DefaultPolynomialModel;
                     var doublepolynomial;
                     (function (doublepolynomial) {
                         var DoublePolynomialModel = (function () {
-                            function DoublePolynomialModel(toleratedError, maxDegree, prioritization) {
+                            function DoublePolynomialModel(p_timeOrigin, p_toleratedError, p_maxDegree, p_prioritization) {
                                 this._isDirty = false;
+                                this._polyTime = new org.kevoree.modeling.api.polynomial.doublepolynomial.TimePolynomial(p_timeOrigin);
+                                this._prioritization = p_prioritization;
+                                this._maxDegree = p_maxDegree;
+                                this._toleratedError = p_toleratedError;
+                            }
+                            DoublePolynomialModel.prototype.degree = function () {
+                                if (this._weights == null) {
+                                    return -1;
+                                }
+                                else {
+                                    return this._weights.length - 1;
+                                }
+                            };
+                            DoublePolynomialModel.prototype.timeOrigin = function () {
+                                return this._polyTime.timeOrigin();
+                            };
+                            DoublePolynomialModel.prototype.comparePolynome = function (p2, err) {
+                                if (this._weights.length != p2._weights.length) {
+                                    return false;
+                                }
+                                for (var i = 0; i < this._weights.length; i++) {
+                                    if (Math.abs(this._weights[i] - this._weights[i]) > err) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            };
+                            DoublePolynomialModel.prototype.extrapolate = function (time) {
+                                return this.test_extrapolate(this._polyTime.denormalize(time), this._weights);
+                            };
+                            DoublePolynomialModel.prototype.insert = function (time, value) {
+                                if (this._weights == null) {
+                                    this.internal_feed(time, value);
+                                    this._isDirty = true;
+                                    return true;
+                                }
+                                if (this._polyTime.insert(time)) {
+                                    var maxError = this.maxErr(this.degree(), this._toleratedError, this._maxDegree, this._prioritization);
+                                    if (Math.abs(this.extrapolate(time) - value) <= maxError) {
+                                        return true;
+                                    }
+                                    var deg = this.degree();
+                                    var newMaxDegree = Math.min(this._polyTime.nbSamples() - 1, this._maxDegree);
+                                    if (deg < newMaxDegree) {
+                                        deg++;
+                                        var ss = Math.min(deg * 2, this._polyTime.nbSamples() - 1);
+                                        var times = new Array();
+                                        var values = new Array();
+                                        var current = this._polyTime.nbSamples() - 1;
+                                        for (var i = 0; i < ss; i++) {
+                                            times[i] = this._polyTime.getNormalizedTime((i * current / ss));
+                                            values[i] = this.test_extrapolate(times[i], this._weights);
+                                        }
+                                        times[ss] = this._polyTime.denormalize(time);
+                                        values[ss] = value;
+                                        var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                        pf.fit(times, values);
+                                        if (this.maxError(pf.getCoef(), time, value) <= maxError) {
+                                            this._weights = new Array();
+                                            for (var i = 0; i < pf.getCoef().length; i++) {
+                                                this._weights[i] = pf.getCoef()[i];
+                                            }
+                                            this._isDirty = true;
+                                            return true;
+                                        }
+                                    }
+                                    this._polyTime.removeLast();
+                                    return false;
+                                }
+                                else {
+                                    return false;
+                                }
+                            };
+                            DoublePolynomialModel.prototype.lastIndex = function () {
+                                return this._polyTime.lastIndex();
+                            };
+                            DoublePolynomialModel.prototype.save = function () {
+                                var builder = new java.lang.StringBuilder();
+                                for (var i = 0; i < this._weights.length; i++) {
+                                    if (i != 0) {
+                                        builder.append(DoublePolynomialModel.sepW);
+                                    }
+                                    builder.append(this._weights[i] + "");
+                                }
+                                builder.append(DoublePolynomialModel.sep);
+                                builder.append(this._polyTime.save());
+                                this._isDirty = false;
+                                return builder.toString();
+                            };
+                            DoublePolynomialModel.prototype.load = function (payload) {
+                                var parts = payload.split(DoublePolynomialModel.sep);
+                                if (parts.length == 2) {
+                                    var welems = parts[0].split(DoublePolynomialModel.sepW);
+                                    this._weights = new Array();
+                                    for (var i = 0; i < welems.length; i++) {
+                                        this._weights[i] = java.lang.Double.parseDouble(welems[i]);
+                                    }
+                                    this._polyTime.load(parts[1]);
+                                }
+                                else {
+                                    System.err.println("Bad Polynomial String " + payload);
+                                }
+                                this._isDirty = false;
+                            };
+                            DoublePolynomialModel.prototype.isDirty = function () {
+                                return this._isDirty || this._polyTime.isDirty();
+                            };
+                            DoublePolynomialModel.prototype.maxErr = function (p_degree, p_toleratedError, p_maxDegree, p_prioritization) {
+                                var tol = p_toleratedError;
+                                if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
+                                    tol = p_toleratedError / Math.pow(2, p_maxDegree - p_degree);
+                                }
+                                else {
+                                    if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
+                                        tol = p_toleratedError / Math.pow(2, p_degree + 0.5);
+                                    }
+                                    else {
+                                        if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
+                                            tol = p_toleratedError * p_degree * 2 / (2 * p_maxDegree);
+                                        }
+                                    }
+                                }
+                                return tol;
+                            };
+                            DoublePolynomialModel.prototype.internal_feed = function (time, value) {
+                                if (this._weights == null) {
+                                    this._weights = new Array();
+                                    this._weights[0] = value;
+                                    this._polyTime.insert(time);
+                                }
+                            };
+                            DoublePolynomialModel.prototype.maxError = function (computedWeights, time, value) {
+                                var maxErr = 0;
+                                var temp = 0;
+                                var ds;
+                                for (var i = 0; i < this._polyTime.nbSamples() - 1; i++) {
+                                    ds = this._polyTime.getNormalizedTime(i);
+                                    var val = this.test_extrapolate(ds, computedWeights);
+                                    temp = Math.abs(val - this.test_extrapolate(ds, this._weights));
+                                    if (temp > maxErr) {
+                                        maxErr = temp;
+                                    }
+                                }
+                                temp = Math.abs(this.test_extrapolate(this._polyTime.denormalize(time), computedWeights) - value);
+                                if (temp > maxErr) {
+                                    maxErr = temp;
+                                }
+                                return maxErr;
+                            };
+                            DoublePolynomialModel.prototype.test_extrapolate = function (time, weights) {
+                                var result = 0;
+                                var power = 1;
+                                for (var j = 0; j < weights.length; j++) {
+                                    result += weights[j] * power;
+                                    power = power * time;
+                                }
+                                return result;
+                            };
+                            DoublePolynomialModel.sep = "/";
+                            DoublePolynomialModel.sepW = "%";
+                            return DoublePolynomialModel;
+                        })();
+                        doublepolynomial.DoublePolynomialModel = DoublePolynomialModel;
+                        var TimePolynomial = (function () {
+                            function TimePolynomial(p_timeOrigin) {
+                                this._isDirty = false;
+                                this._timeOrigin = p_timeOrigin;
+                            }
+                            TimePolynomial.prototype.timeOrigin = function () {
+                                return this._timeOrigin;
+                            };
+                            TimePolynomial.prototype.samplingPeriod = function () {
+                                return this._samplingPeriod;
+                            };
+                            TimePolynomial.prototype.weights = function () {
+                                return this._weights;
+                            };
+                            TimePolynomial.prototype.degree = function () {
+                                if (this._weights == null) {
+                                    return -1;
+                                }
+                                else {
+                                    return this._weights.length - 1;
+                                }
+                            };
+                            TimePolynomial.prototype.denormalize = function (p_time) {
+                                return (p_time - this._timeOrigin) / this._samplingPeriod;
+                            };
+                            TimePolynomial.prototype.getNormalizedTime = function (id) {
+                                var result = 0;
+                                var power = 1;
+                                for (var j = 0; j < this._weights.length; j++) {
+                                    result += this._weights[j] * power;
+                                    power = power * id;
+                                }
+                                return result;
+                            };
+                            TimePolynomial.prototype.extrapolate = function (id) {
+                                return this.test_extrapolate(id, this._weights);
+                            };
+                            TimePolynomial.prototype.nbSamples = function () {
+                                return this._nbSamples;
+                            };
+                            TimePolynomial.prototype.insert = function (time) {
+                                if (this._weights == null) {
+                                    this._timeOrigin = time;
+                                    this._weights = new Array();
+                                    this._weights[0] = 0;
+                                    this._nbSamples = 1;
+                                    this._isDirty = true;
+                                    return true;
+                                }
+                                if (this._nbSamples == 1) {
+                                    this._samplingPeriod = time - this._timeOrigin;
+                                    this._weights = new Array();
+                                    this._weights[0] = 0;
+                                    this._weights[1] = 1;
+                                    this._nbSamples = 2;
+                                    this._isDirty = true;
+                                    return true;
+                                }
+                                if (time > this.extrapolate(this._nbSamples - 1)) {
+                                    var maxError = this._samplingPeriod / TimePolynomial.toleratedErrorRatio;
+                                    if (Math.abs(this.extrapolate(this._nbSamples) - time) <= maxError) {
+                                        this._nbSamples++;
+                                        this._isDirty = true;
+                                        return true;
+                                    }
+                                    var deg = this.degree();
+                                    var newMaxDegree = Math.min(this._nbSamples, TimePolynomial.maxTimeDegree);
+                                    while (deg < newMaxDegree) {
+                                        deg++;
+                                        var ss = Math.min(deg * 2, this._nbSamples);
+                                        var ids = new Array();
+                                        var times = new Array();
+                                        var idtemp;
+                                        for (var i = 0; i < ss; i++) {
+                                            idtemp = (i * this._nbSamples / ss);
+                                            ids[i] = idtemp;
+                                            times[i] = (this.extrapolate(idtemp) - this._timeOrigin) / (this._samplingPeriod);
+                                        }
+                                        ids[ss] = this._nbSamples;
+                                        times[ss] = (time - this._timeOrigin) / (this._samplingPeriod);
+                                        var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                        pf.fit(ids, times);
+                                        if (this.maxError(pf.getCoef(), this._nbSamples, time) <= maxError) {
+                                            this._weights = new Array();
+                                            for (var i = 0; i < pf.getCoef().length; i++) {
+                                                this._weights[i] = pf.getCoef()[i];
+                                            }
+                                            this._nbSamples++;
+                                            this._isDirty = true;
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                }
+                                else {
+                                }
+                                return false;
+                            };
+                            TimePolynomial.prototype.maxError = function (computedWeights, lastId, newtime) {
+                                var maxErr = 0;
+                                var time;
+                                var temp;
+                                for (var i = 0; i < lastId; i++) {
+                                    time = this.test_extrapolate(i, computedWeights);
+                                    temp = Math.abs(time - this.extrapolate(i));
+                                    if (temp > maxErr) {
+                                        maxErr = temp;
+                                    }
+                                }
+                                temp = Math.abs(this.test_extrapolate(this._nbSamples, computedWeights) - newtime);
+                                if (temp > maxErr) {
+                                    maxErr = temp;
+                                }
+                                return maxErr;
+                            };
+                            TimePolynomial.prototype.test_extrapolate = function (id, newWeights) {
+                                var result = 0;
+                                var power = 1;
+                                for (var j = 0; j < newWeights.length; j++) {
+                                    result += newWeights[j] * power;
+                                    power = power * id;
+                                }
+                                result = result * (this._samplingPeriod) + this._timeOrigin;
+                                return result;
+                            };
+                            TimePolynomial.prototype.removeLast = function () {
+                                this._nbSamples = this._nbSamples - 1;
+                            };
+                            TimePolynomial.prototype.lastIndex = function () {
+                                if (this._nbSamples > 0) {
+                                    return this.extrapolate(this._nbSamples - 1);
+                                }
+                                return -1;
+                            };
+                            TimePolynomial.prototype.save = function () {
+                                var builder = new java.lang.StringBuilder();
+                                for (var i = 0; i < this._weights.length; i++) {
+                                    if (i != 0) {
+                                        builder.append(org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel.sepW);
+                                    }
+                                    builder.append(this._weights[i] + "");
+                                }
+                                builder.append(org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel.sepW);
+                                builder.append(this._nbSamples);
+                                builder.append(org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel.sepW);
+                                builder.append(this._samplingPeriod);
+                                this._isDirty = false;
+                                return builder.toString();
+                            };
+                            TimePolynomial.prototype.load = function (payload) {
+                                var parts = payload.split(org.kevoree.modeling.api.polynomial.doublepolynomial.DoublePolynomialModel.sepW);
+                                this._weights = new Array();
+                                for (var i = 0; i < parts.length - 2; i++) {
+                                    this._weights[i] = java.lang.Double.parseDouble(parts[i]);
+                                }
+                                this._nbSamples = java.lang.Integer.parseInt(parts[parts.length - 1]);
+                                this._samplingPeriod = java.lang.Integer.parseInt(parts[parts.length - 2]);
+                                this._isDirty = false;
+                            };
+                            TimePolynomial.prototype.isDirty = function () {
+                                return this._isDirty;
+                            };
+                            TimePolynomial.toleratedErrorRatio = 10;
+                            TimePolynomial.maxTimeDegree = 20;
+                            return TimePolynomial;
+                        })();
+                        doublepolynomial.TimePolynomial = TimePolynomial;
+                    })(doublepolynomial = polynomial.doublepolynomial || (polynomial.doublepolynomial = {}));
+                    var simplepolynomial;
+                    (function (simplepolynomial) {
+                        var SimplePolynomialModel = (function () {
+                            function SimplePolynomialModel(timeOrigin, toleratedError, maxDegree, prioritization) {
+                                this.samples = new java.util.ArrayList();
+                                this._lastIndex = -1;
+                                this._isDirty = false;
+                                this.timeOrigin = timeOrigin;
+                                this.degradeFactor = 1;
                                 this.prioritization = prioritization;
                                 this.maxDegree = maxDegree;
                                 this.toleratedError = toleratedError;
-                                this.polyTime = new org.kevoree.modeling.api.polynomial.doublepolynomial.TimePolynomial();
                             }
-                            DoublePolynomialModel.prototype.getDegree = function () {
+                            SimplePolynomialModel.prototype.getSamples = function () {
+                                return this.samples;
+                            };
+                            SimplePolynomialModel.prototype.getDegree = function () {
                                 if (this.weights == null) {
                                     return -1;
                                 }
@@ -3846,10 +4021,10 @@ var org;
                                     return this.weights.length - 1;
                                 }
                             };
-                            DoublePolynomialModel.prototype.getTimeOrigin = function () {
-                                return this.polyTime.getTimeOrigin();
+                            SimplePolynomialModel.prototype.getTimeOrigin = function () {
+                                return this.timeOrigin;
                             };
-                            DoublePolynomialModel.prototype.getMaxErr = function (degree, toleratedError, maxDegree, prioritization) {
+                            SimplePolynomialModel.prototype.getMaxErr = function (degree, toleratedError, maxDegree, prioritization) {
                                 var tol = toleratedError;
                                 if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
                                     tol = toleratedError / Math.pow(2, maxDegree - degree);
@@ -3866,32 +4041,33 @@ var org;
                                 }
                                 return tol;
                             };
-                            DoublePolynomialModel.prototype.internal_feed = function (time, value) {
+                            SimplePolynomialModel.prototype.internal_feed = function (time, value) {
                                 if (this.weights == null) {
                                     this.weights = new Array();
                                     this.weights[0] = value;
-                                    this.polyTime.insert(time);
+                                    this.timeOrigin = time;
+                                    this.samples.add(new org.kevoree.modeling.api.polynomial.util.DataSample(time, value));
                                 }
                             };
-                            DoublePolynomialModel.prototype.maxError = function (computedWeights, time, value) {
+                            SimplePolynomialModel.prototype.maxError = function (computedWeights, time, value) {
                                 var maxErr = 0;
                                 var temp = 0;
                                 var ds;
-                                for (var i = 0; i < this.polyTime.getSamples() - 1; i++) {
-                                    ds = this.polyTime.getNormalizedTime(i);
-                                    var val = this.internal_extrapolate(ds, computedWeights);
-                                    temp = Math.abs(val - this.internal_extrapolate(ds, this.weights));
+                                for (var i = 0; i < this.samples.size(); i++) {
+                                    ds = this.samples.get(i);
+                                    var val = this.internal_extrapolate(ds.time, computedWeights);
+                                    temp = Math.abs(val - ds.value);
                                     if (temp > maxErr) {
                                         maxErr = temp;
                                     }
                                 }
-                                temp = Math.abs(this.internal_extrapolate(this.polyTime.convertLongToDouble(time), computedWeights) - value);
+                                temp = Math.abs(this.internal_extrapolate(time, computedWeights) - value);
                                 if (temp > maxErr) {
                                     maxErr = temp;
                                 }
                                 return maxErr;
                             };
-                            DoublePolynomialModel.prototype.comparePolynome = function (p2, err) {
+                            SimplePolynomialModel.prototype.comparePolynome = function (p2, err) {
                                 if (this.weights.length != p2.weights.length) {
                                     return false;
                                 }
@@ -3902,242 +4078,92 @@ var org;
                                 }
                                 return true;
                             };
-                            DoublePolynomialModel.prototype.internal_extrapolate = function (time, weights) {
+                            SimplePolynomialModel.prototype.internal_extrapolate = function (time, weights) {
                                 var result = 0;
+                                var t = (time - this.timeOrigin) / this.degradeFactor;
                                 var power = 1;
                                 for (var j = 0; j < weights.length; j++) {
                                     result += weights[j] * power;
-                                    power = power * time;
+                                    power = power * t;
                                 }
                                 return result;
                             };
-                            DoublePolynomialModel.prototype.extrapolate = function (time) {
-                                var t = this.polyTime.convertLongToDouble(time);
-                                return this.internal_extrapolate(t, this.weights);
+                            SimplePolynomialModel.prototype.extrapolate = function (time) {
+                                return this.internal_extrapolate(time, this.weights);
                             };
-                            DoublePolynomialModel.prototype.insert = function (time, value) {
+                            SimplePolynomialModel.prototype.insert = function (time, value) {
                                 if (this.weights == null) {
                                     this.internal_feed(time, value);
+                                    this._lastIndex = time;
+                                    this._isDirty = true;
                                     return true;
                                 }
-                                if (this.polyTime.insert(time) == true) {
-                                    var maxError = this.getMaxErr(this.getDegree(), this.toleratedError, this.maxDegree, this.prioritization);
-                                    if (Math.abs(this.extrapolate(time) - value) <= maxError) {
+                                var maxError = this.getMaxErr(this.getDegree(), this.toleratedError, this.maxDegree, this.prioritization);
+                                if (Math.abs(this.extrapolate(time) - value) <= maxError) {
+                                    this.samples.add(new org.kevoree.modeling.api.polynomial.util.DataSample(time, value));
+                                    this._lastIndex = time;
+                                    return true;
+                                }
+                                var deg = this.getDegree();
+                                if (deg < this.maxDegree) {
+                                    deg++;
+                                    var ss = Math.min(deg * 2, this.samples.size());
+                                    var times = new Array();
+                                    var values = new Array();
+                                    var current = this.samples.size();
+                                    for (var i = 0; i < ss; i++) {
+                                        var index = Math.round(i * current / ss);
+                                        var ds = this.samples.get(index);
+                                        times[i] = (ds.time - this.timeOrigin) / this.degradeFactor;
+                                        values[i] = ds.value;
+                                    }
+                                    times[ss] = (time - this.timeOrigin) / this.degradeFactor;
+                                    values[ss] = value;
+                                    var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                    pf.fit(times, values);
+                                    if (this.maxError(pf.getCoef(), time, value) <= maxError) {
+                                        this.weights = new Array();
+                                        for (var i = 0; i < pf.getCoef().length; i++) {
+                                            this.weights[i] = pf.getCoef()[i];
+                                        }
+                                        this.samples.add(new org.kevoree.modeling.api.polynomial.util.DataSample(time, value));
+                                        this._lastIndex = time;
+                                        this._isDirty = true;
                                         return true;
                                     }
-                                    var deg = this.getDegree();
-                                    var newMaxDegree = Math.min(this.polyTime.getSamples() - 1, this.maxDegree);
-                                    if (deg < newMaxDegree) {
-                                        deg++;
-                                        var ss = Math.min(deg * 2, this.polyTime.getSamples() - 1);
-                                        var times = new Array();
-                                        var values = new Array();
-                                        var current = this.polyTime.getSamples() - 1;
-                                        for (var i = 0; i < ss; i++) {
-                                            times[i] = this.polyTime.getNormalizedTime((i * current / ss));
-                                            values[i] = this.internal_extrapolate(times[i], this.weights);
-                                        }
-                                        times[ss] = this.polyTime.convertLongToDouble(time);
-                                        values[ss] = value;
-                                        var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
-                                        pf.fit(times, values);
-                                        if (this.maxError(pf.getCoef(), time, value) <= maxError) {
-                                            this.weights = new Array();
-                                            for (var i = 0; i < pf.getCoef().length; i++) {
-                                                this.weights[i] = pf.getCoef()[i];
-                                            }
-                                            return true;
-                                        }
-                                    }
-                                    this.polyTime.removeLast();
-                                    return false;
                                 }
-                                else {
-                                    return false;
-                                }
+                                return false;
                             };
-                            DoublePolynomialModel.prototype.lastIndex = function () {
-                                return this.polyTime.getLastIndex();
+                            SimplePolynomialModel.prototype.lastIndex = function () {
+                                return this._lastIndex;
                             };
-                            DoublePolynomialModel.prototype.indexBefore = function (time) {
-                                return 0;
-                            };
-                            DoublePolynomialModel.prototype.timesAfter = function (time) {
-                                return null;
-                            };
-                            DoublePolynomialModel.prototype.save = function () {
+                            SimplePolynomialModel.prototype.save = function () {
                                 var builder = new java.lang.StringBuilder();
                                 for (var i = 0; i < this.weights.length; i++) {
                                     if (i != 0) {
-                                        builder.append(DoublePolynomialModel.sep);
+                                        builder.append(SimplePolynomialModel.sep);
                                     }
                                     builder.append(this.weights[i] + "");
                                 }
                                 this._isDirty = false;
                                 return builder.toString();
                             };
-                            DoublePolynomialModel.prototype.load = function (payload) {
-                                var elems = payload.split(DoublePolynomialModel.sep);
+                            SimplePolynomialModel.prototype.load = function (payload) {
+                                var elems = payload.split(SimplePolynomialModel.sep);
                                 this.weights = new Array();
                                 for (var i = 0; i < elems.length; i++) {
                                     this.weights[i] = java.lang.Double.parseDouble(elems[i]);
                                 }
                                 this._isDirty = false;
                             };
-                            DoublePolynomialModel.prototype.isDirty = function () {
+                            SimplePolynomialModel.prototype.isDirty = function () {
                                 return this._isDirty;
                             };
-                            DoublePolynomialModel.sep = "/";
-                            return DoublePolynomialModel;
+                            SimplePolynomialModel.sep = "/";
+                            return SimplePolynomialModel;
                         })();
-                        doublepolynomial.DoublePolynomialModel = DoublePolynomialModel;
-                        var TimePolynomial = (function () {
-                            function TimePolynomial() {
-                            }
-                            TimePolynomial.prototype.getTimeOrigin = function () {
-                                return this.timeOrigin;
-                            };
-                            TimePolynomial.prototype.convertLongToDouble = function (time) {
-                                return (time - this.timeOrigin) / this.samplingPeriod;
-                            };
-                            TimePolynomial.prototype.getSamplingPeriod = function () {
-                                return this.samplingPeriod;
-                            };
-                            TimePolynomial.prototype.getDegree = function () {
-                                if (this.weights == null) {
-                                    return -1;
-                                }
-                                else {
-                                    return this.weights.length - 1;
-                                }
-                            };
-                            TimePolynomial.prototype.getWeights = function () {
-                                return this.weights;
-                            };
-                            TimePolynomial.prototype.setWeights = function (weights) {
-                                this.weights = weights;
-                            };
-                            TimePolynomial.prototype.internal_extrapolate = function (id, newWeights) {
-                                var result = 0;
-                                var t = id;
-                                var power = 1;
-                                for (var j = 0; j < newWeights.length; j++) {
-                                    result += newWeights[j] * power;
-                                    power = power * t;
-                                }
-                                result = result * (this.samplingPeriod) + this.timeOrigin;
-                                return result;
-                            };
-                            TimePolynomial.prototype.getSamples = function () {
-                                return this.samples;
-                            };
-                            TimePolynomial.prototype.maxError = function (computedWeights, lastId, newtime) {
-                                var maxErr = 0;
-                                var time;
-                                var temp;
-                                for (var i = 0; i < lastId; i++) {
-                                    time = this.internal_extrapolate(i, computedWeights);
-                                    temp = Math.abs(time - this.getTime(i));
-                                    if (temp > maxErr) {
-                                        maxErr = temp;
-                                    }
-                                }
-                                temp = Math.abs(this.internal_extrapolate(this.samples, computedWeights) - newtime);
-                                if (temp > maxErr) {
-                                    maxErr = temp;
-                                }
-                                return maxErr;
-                            };
-                            TimePolynomial.prototype.insert = function (time) {
-                                if (this.weights == null) {
-                                    this.timeOrigin = time;
-                                    this.weights = new Array();
-                                    this.weights[0] = 0;
-                                    this.samples = 1;
-                                    return true;
-                                }
-                                if (this.samples == 1) {
-                                    this.samplingPeriod = time - this.timeOrigin;
-                                    this.weights = new Array();
-                                    this.weights[0] = 0;
-                                    this.weights[1] = 1;
-                                    this.samples = 2;
-                                    return true;
-                                }
-                                if (time > this.getTime(this.samples - 1)) {
-                                    var maxError = this.samplingPeriod / TimePolynomial.toleratedErrorRatio;
-                                    if (Math.abs(this.getTime(this.samples) - time) <= maxError) {
-                                        this.samples++;
-                                        return true;
-                                    }
-                                    var deg = this.getDegree();
-                                    var newMaxDegree = Math.min(this.samples, TimePolynomial.maxTimeDegree);
-                                    while (deg < newMaxDegree) {
-                                        deg++;
-                                        var ss = Math.min(deg * 2, this.samples);
-                                        var ids = new Array();
-                                        var times = new Array();
-                                        var idtemp;
-                                        for (var i = 0; i < ss; i++) {
-                                            idtemp = (i * this.samples / ss);
-                                            ids[i] = idtemp;
-                                            times[i] = (this.getTime(idtemp) - this.timeOrigin) / (this.samplingPeriod);
-                                        }
-                                        ids[ss] = this.samples;
-                                        times[ss] = (time - this.timeOrigin) / (this.samplingPeriod);
-                                        var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
-                                        pf.fit(ids, times);
-                                        if (this.maxError(pf.getCoef(), this.samples, time) <= maxError) {
-                                            this.weights = new Array();
-                                            for (var i = 0; i < pf.getCoef().length; i++) {
-                                                this.weights[i] = pf.getCoef()[i];
-                                            }
-                                            this.samples++;
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                }
-                                else {
-                                }
-                                return false;
-                            };
-                            TimePolynomial.prototype.getNormalizedTime = function (id) {
-                                var result = 0;
-                                var t = id;
-                                var power = 1;
-                                for (var j = 0; j < this.weights.length; j++) {
-                                    result += this.weights[j] * power;
-                                    power = power * t;
-                                }
-                                return result;
-                            };
-                            TimePolynomial.prototype.getTime = function (id) {
-                                var result = 0;
-                                var t = id;
-                                var power = 1;
-                                for (var j = 0; j < this.weights.length; j++) {
-                                    result += this.weights[j] * power;
-                                    power = power * t;
-                                }
-                                result = result * (this.samplingPeriod) + this.timeOrigin;
-                                return result;
-                            };
-                            TimePolynomial.prototype.removeLast = function () {
-                                this.samples--;
-                            };
-                            TimePolynomial.prototype.getLastIndex = function () {
-                                if (this.samples > 0) {
-                                    return this.getTime(this.samples - 1);
-                                }
-                                return -1;
-                            };
-                            TimePolynomial.maxTimeDegree = 20;
-                            TimePolynomial.toleratedErrorRatio = 10;
-                            return TimePolynomial;
-                        })();
-                        doublepolynomial.TimePolynomial = TimePolynomial;
-                    })(doublepolynomial = polynomial.doublepolynomial || (polynomial.doublepolynomial = {}));
+                        simplepolynomial.SimplePolynomialModel = SimplePolynomialModel;
+                    })(simplepolynomial = polynomial.simplepolynomial || (polynomial.simplepolynomial = {}));
                     var util;
                     (function (util) {
                         var AdjLinearSolverQr = (function () {
