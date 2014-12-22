@@ -32,7 +32,7 @@ public class PolynomialKMFTest {
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
-        element.setValue(0.0);
+        //element.setValue(0.0);
         //insert 20 variations in time
         for (int i = 200; i < 1000; i++) {
             long temp = 1;
@@ -51,7 +51,7 @@ public class PolynomialKMFTest {
                 }
             });
         }
-        Assert.assertEquals(1, element.timeTree().size());
+        Assert.assertEquals(2, element.timeTree().size());
         nbAssert[0]++;
         for (int i = 200; i < 1000; i++) {
             final int finalI = i;
