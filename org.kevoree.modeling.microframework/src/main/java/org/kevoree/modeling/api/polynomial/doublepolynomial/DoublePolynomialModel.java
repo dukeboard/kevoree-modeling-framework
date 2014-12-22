@@ -69,7 +69,7 @@ public class DoublePolynomialModel implements PolynomialModel {
         }
         //Check if time fits first
         if (_polyTime.insert(time)) {
-            double maxError = maxErr(this.degree(), _toleratedError, _maxDegree, _prioritization);
+            double maxError = maxErr();
             //If the current model fits well the new value, return
             if (Math.abs(extrapolate(time) - value) <= maxError) {
                 return true;
@@ -150,14 +150,14 @@ public class DoublePolynomialModel implements PolynomialModel {
 
     /* Private methods section */
 
-    private double maxErr(int p_degree, double p_toleratedError, int p_maxDegree, Prioritization p_prioritization) {
-        double tol = p_toleratedError;
-        if (p_prioritization == Prioritization.HIGHDEGREES) {
-            tol = p_toleratedError / Math.pow(2, p_maxDegree - p_degree);
-        } else if (p_prioritization == Prioritization.LOWDEGREES) {
-            tol = p_toleratedError / Math.pow(2, p_degree + 0.5);
-        } else if (p_prioritization == Prioritization.SAMEPRIORITY) {
-            tol = p_toleratedError * p_degree * 2 / (2 * p_maxDegree);
+    private double maxErr() {
+        double tol = _toleratedError;
+        if (_prioritization == Prioritization.HIGHDEGREES) {
+            tol = _toleratedError / Math.pow(2, _maxDegree - degree());
+        } else if (_prioritization == Prioritization.LOWDEGREES) {
+            tol = _toleratedError / Math.pow(2, degree() + 0.5);
+        } else if (_prioritization == Prioritization.SAMEPRIORITY) {
+            tol = _toleratedError * degree() * 2 / (2 * _maxDegree);
         }
         return tol;
     }
