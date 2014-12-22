@@ -98,7 +98,7 @@ public class PolynomialKMFTest {
             });
         }
         // System.out.println(element.timeTree().size());
-        Assert.assertEquals(element.timeTree().size(), 87);
+        Assert.assertEquals(87,element.timeTree().size());
         nbAssert[0]++;
         //System.out.println(element.getValue());
         for (int i = 0; i < max; i++) {
