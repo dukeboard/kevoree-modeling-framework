@@ -22,15 +22,13 @@ public class PolynomialKMFTest {
         nbAssert[0] = 0;
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
-
         CloudDimension dimension0 = universe.newDimension();
-
         final double[] val = new double[1000];
         double[] coef = {2, 2, 3};
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node,null);
+        t0.setRoot(node, null);
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
@@ -53,7 +51,7 @@ public class PolynomialKMFTest {
                 }
             });
         }
-        Assert.assertEquals(element.timeTree().size(), 1);
+        Assert.assertEquals(1, element.timeTree().size());
         nbAssert[0]++;
         for (int i = 200; i < 1000; i++) {
             final int finalI = i;
@@ -86,7 +84,7 @@ public class PolynomialKMFTest {
         CloudView t0 = dimension0.time(0l);
         Node node = t0.createNode();
         node.setName("n0");
-        t0.setRoot(node,null);
+        t0.setRoot(node, null);
         final Element element = t0.createElement();
         element.setName("e0");
         node.setElement(element);
