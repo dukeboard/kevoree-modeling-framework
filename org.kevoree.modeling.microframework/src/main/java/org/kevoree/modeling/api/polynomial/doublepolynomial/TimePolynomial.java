@@ -73,6 +73,7 @@ public class TimePolynomial {
             _weights = new double[1];
             _weights[0] = 0;
             _nbSamples = 1;
+            _isDirty = true;
             return true;
         }
         if (_nbSamples == 1) {
@@ -81,6 +82,7 @@ public class TimePolynomial {
             _weights[0] = 0;
             _weights[1] = 1;
             _nbSamples = 2;
+            _isDirty = true;
             return true;
         }
         if (time > extrapolate(_nbSamples - 1)) {
@@ -89,6 +91,7 @@ public class TimePolynomial {
             double maxError = _samplingPeriod / toleratedErrorRatio;
             if (Math.abs(extrapolate(_nbSamples) - time) <= maxError) {
                 _nbSamples++;
+                _isDirty = true;
                 return true;
             }
             //Else increase the degree till maxDegree
@@ -115,6 +118,7 @@ public class TimePolynomial {
                         _weights[i] = pf.getCoef()[i];
                     }
                     _nbSamples++;
+                    _isDirty = true;
                     return true;
                 }
             }

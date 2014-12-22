@@ -64,6 +64,7 @@ public class DoublePolynomialModel implements PolynomialModel {
         //If this is the first point in the set, add it and return
         if (_weights == null) {
             internal_feed(time, value);
+            _isDirty = true;
             return true;
         }
         //Check if time fits first
@@ -95,6 +96,7 @@ public class DoublePolynomialModel implements PolynomialModel {
                     for (int i = 0; i < pf.getCoef().length; i++) {
                         _weights[i] = pf.getCoef()[i];
                     }
+                    _isDirty = true;
                     return true;
                 }
             }
