@@ -16,26 +16,35 @@ public class AbstractMetaReference implements MetaReference {
 
     private boolean _single;
 
-    private Integer _metaType_index;
+    private LazyResolver _lazyMetaType;
 
-    private Integer _opposite_ref_index;
+    private LazyResolver _lazyMetaOpposite;
 
-    private MetaClass _origin;
+    private LazyResolver _lazyMetaOrigin;
 
     public boolean single() {
         return _single;
     }
 
     public MetaClass metaType() {
-        return _origin.origin().metaClasses()[_metaType_index];
+        if (_lazyMetaType != null) {
+            return (MetaClass) _lazyMetaType.meta();
+        } else {
+            return null;
+        }
     }
 
     public MetaReference opposite() {
-        if (_opposite_ref_index != null) {
-            MetaClass resolvedMeta = _origin.origin().metaClasses()[this._metaType_index];
-            if (resolvedMeta != null) {
-                return resolvedMeta.metaReferences()[_opposite_ref_index];
-            }
+        if (_lazyMetaOpposite != null) {
+            return (MetaReference) _lazyMetaOpposite.meta();
+        }
+        return null;
+    }
+
+    @Override
+    public MetaClass origin() {
+        if (_lazyMetaOrigin != null) {
+            return (MetaClass) _lazyMetaOrigin.meta();
         }
         return null;
     }
@@ -52,18 +61,14 @@ public class AbstractMetaReference implements MetaReference {
         return _contained;
     }
 
-    public MetaClass origin() {
-        return _origin;
-    }
-
-    public AbstractMetaReference(String p_name, int p_index, boolean p_contained, boolean p_single, Integer p_metaType_index, Integer p_opposite_ref_index, MetaClass p_origin) {
+    public AbstractMetaReference(String p_name, int p_index, boolean p_contained, boolean p_single, LazyResolver p_lazyMetaType, LazyResolver p_lazyMetaOpposite, LazyResolver p_lazyMetaOrigin) {
         this._name = p_name;
         this._index = p_index;
         this._contained = p_contained;
         this._single = p_single;
-        this._metaType_index = p_metaType_index;
-        this._opposite_ref_index = p_opposite_ref_index;
-        this._origin = p_origin;
+        this._lazyMetaType = p_lazyMetaType;
+        this._lazyMetaOpposite = p_lazyMetaOpposite;
+        this._lazyMetaOrigin = p_lazyMetaOrigin;
     }
 
 }

@@ -23,10 +23,8 @@ var geometry;
             _super.call(this);
             this._metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("Geometry", -1);
             var tempMetaClasses = new Array();
-            this.META_GEOMETRY_SHAPE = geometry.meta.MetaShape.build(this._metaModel);
-            tempMetaClasses[1] = this.META_GEOMETRY_SHAPE;
-            this.META_GEOMETRY_LIBRARY = geometry.meta.MetaLibrary.build(this._metaModel);
-            tempMetaClasses[0] = this.META_GEOMETRY_LIBRARY;
+            tempMetaClasses[1] = geometry.meta.MetaShape.getInstance();
+            tempMetaClasses[0] = geometry.meta.MetaLibrary.getInstance();
             this._metaModel.init(tempMetaClasses);
         }
         GeometryUniverse.prototype.internal_create = function (key) {
@@ -59,10 +57,10 @@ var geometry;
                 }
             };
             GeometryViewImpl.prototype.createShape = function () {
-                return this.create(this.dimension().universe().META_GEOMETRY_SHAPE);
+                return this.create(geometry.meta.MetaShape.getInstance());
             };
             GeometryViewImpl.prototype.createLibrary = function () {
-                return this.create(this.dimension().universe().META_GEOMETRY_LIBRARY);
+                return this.create(geometry.meta.MetaLibrary.getInstance());
             };
             GeometryViewImpl.prototype.dimension = function () {
                 return _super.prototype.dimension.call(this);
@@ -76,15 +74,15 @@ var geometry;
                 _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
             LibraryImpl.prototype.addShapes = function (p_obj) {
-                this.mutate(org.kevoree.modeling.api.KActionType.ADD, this.metaClass().REF_SHAPES, p_obj);
+                this.mutate(org.kevoree.modeling.api.KActionType.ADD, geometry.meta.MetaLibrary.REF_SHAPES, p_obj);
                 return this;
             };
             LibraryImpl.prototype.removeShapes = function (p_obj) {
-                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, this.metaClass().REF_SHAPES, p_obj);
+                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, geometry.meta.MetaLibrary.REF_SHAPES, p_obj);
                 return this;
             };
             LibraryImpl.prototype.eachShapes = function (p_callback) {
-                this.all(this.metaClass().REF_SHAPES, function (kObjects) {
+                this.all(geometry.meta.MetaLibrary.REF_SHAPES, function (kObjects) {
                     if (p_callback != null) {
                         var casted = new Array();
                         for (var i = 0; i < casted.length; i++) {
@@ -95,7 +93,7 @@ var geometry;
                 });
             };
             LibraryImpl.prototype.sizeOfShapes = function () {
-                return this.size(this.metaClass().REF_SHAPES);
+                return this.size(geometry.meta.MetaLibrary.REF_SHAPES);
             };
             LibraryImpl.prototype.view = function () {
                 return _super.prototype.view.call(this);
@@ -109,17 +107,17 @@ var geometry;
                 _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
             ShapeImpl.prototype.getColor = function () {
-                return this.get(this.metaClass().ATT_COLOR);
+                return this.get(geometry.meta.MetaShape.ATT_COLOR);
             };
             ShapeImpl.prototype.setColor = function (p_obj) {
-                this.set(this.metaClass().ATT_COLOR, p_obj);
+                this.set(geometry.meta.MetaShape.ATT_COLOR, p_obj);
                 return this;
             };
             ShapeImpl.prototype.getName = function () {
-                return this.get(this.metaClass().ATT_NAME);
+                return this.get(geometry.meta.MetaShape.ATT_NAME);
             };
             ShapeImpl.prototype.setName = function (p_obj) {
-                this.set(this.metaClass().ATT_NAME, p_obj);
+                this.set(geometry.meta.MetaShape.ATT_NAME, p_obj);
                 return this;
             };
             ShapeImpl.prototype.view = function () {
@@ -133,37 +131,49 @@ var geometry;
     (function (meta) {
         var MetaLibrary = (function (_super) {
             __extends(MetaLibrary, _super);
-            function MetaLibrary(p_origin) {
-                _super.call(this, "geometry.Library", 0, p_origin);
+            function MetaLibrary() {
+                _super.call(this, "geometry.Library", 0);
                 var temp_attributes = new Array();
                 var temp_references = new Array();
-                this.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 5, true, false, 1, null, this);
-                temp_references[0] = this.REF_SHAPES;
+                temp_references[0] = MetaLibrary.REF_SHAPES;
                 var temp_operations = new Array();
                 this.init(temp_attributes, temp_references, temp_operations);
             }
-            MetaLibrary.build = function (p_origin) {
-                return new geometry.meta.MetaLibrary(p_origin);
+            MetaLibrary.getInstance = function () {
+                if (MetaLibrary.INSTANCE == null) {
+                    MetaLibrary.INSTANCE = new geometry.meta.MetaLibrary();
+                }
+                return MetaLibrary.INSTANCE;
             };
+            MetaLibrary.INSTANCE = null;
+            MetaLibrary.REF_SHAPES = new org.kevoree.modeling.api.abs.AbstractMetaReference("shapes", 5, true, false, function () {
+                return geometry.meta.MetaShape.getInstance();
+            }, null, function () {
+                return geometry.meta.MetaLibrary.getInstance();
+            });
             return MetaLibrary;
         })(org.kevoree.modeling.api.abs.AbstractMetaClass);
         meta.MetaLibrary = MetaLibrary;
         var MetaShape = (function (_super) {
             __extends(MetaShape, _super);
-            function MetaShape(p_origin) {
-                _super.call(this, "geometry.Shape", 1, p_origin);
+            function MetaShape() {
+                _super.call(this, "geometry.Shape", 1);
                 var temp_attributes = new Array();
-                this.ATT_COLOR = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
-                temp_attributes[0] = this.ATT_COLOR;
-                this.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
-                temp_attributes[1] = this.ATT_NAME;
+                temp_attributes[0] = MetaShape.ATT_COLOR;
+                temp_attributes[1] = MetaShape.ATT_NAME;
                 var temp_references = new Array();
                 var temp_operations = new Array();
                 this.init(temp_attributes, temp_references, temp_operations);
             }
-            MetaShape.build = function (p_origin) {
-                return new geometry.meta.MetaShape(p_origin);
+            MetaShape.getInstance = function () {
+                if (MetaShape.INSTANCE == null) {
+                    MetaShape.INSTANCE = new geometry.meta.MetaShape();
+                }
+                return MetaShape.INSTANCE;
             };
+            MetaShape.INSTANCE = null;
+            MetaShape.ATT_COLOR = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("color", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaShape.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
             return MetaShape;
         })(org.kevoree.modeling.api.abs.AbstractMetaClass);
         meta.MetaShape = MetaShape;

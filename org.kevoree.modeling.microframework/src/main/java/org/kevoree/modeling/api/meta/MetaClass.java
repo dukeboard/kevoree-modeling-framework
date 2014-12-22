@@ -5,8 +5,6 @@ package org.kevoree.modeling.api.meta;
  */
 public interface MetaClass extends Meta {
 
-    MetaModel origin();
-
     MetaAttribute[] metaAttributes();
 
     MetaReference[] metaReferences();

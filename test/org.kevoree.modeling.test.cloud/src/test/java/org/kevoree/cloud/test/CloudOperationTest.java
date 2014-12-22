@@ -23,7 +23,7 @@ public class CloudOperationTest {
     public void operationTest() {
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
-        universe.setOperation(universe.META_CLOUD_ELEMENT.OP_TRIGGER, new KOperation() {
+        universe.setOperation(MetaElement.OP_TRIGGER, new KOperation() {
             public void on(KObject source, Object[] params, Callback<Object> result) {
                 result.on("Hey. I received Parameter:" + Arrays.toString(params) + " on element:(" + source.dimension().key() + "," + source.now() + "," + source.uuid() + ")");
             }

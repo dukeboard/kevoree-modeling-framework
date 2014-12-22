@@ -64,6 +64,7 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
 
     @Override
     public void then(Callback<KObject[]> callback) {
+        _terminated = true;
         //set the terminal leaf action
         _lastAction.chain(new KFinalAction(callback));
         //execute the first element of the chain of actions

@@ -1306,31 +1306,16 @@ var org;
                             });
                         };
                         AbstractKObject.prototype.internal_transpose_ref = function (p) {
-                            var selfMeta = this.metaClass();
-                            if (p.origin().index() == selfMeta.index()) {
-                                return p;
-                            }
-                            else {
-                                return selfMeta.metaReference(p.metaName());
-                            }
+                            return this.metaClass().metaReference(p.metaName());
                         };
                         AbstractKObject.prototype.internal_transpose_att = function (p) {
-                            var selfMeta = this.metaClass();
-                            if (p.origin().index() == selfMeta.index()) {
-                                return p;
-                            }
-                            else {
-                                return selfMeta.metaAttribute(p.metaName());
-                            }
+                            return this.metaClass().metaAttribute(p.metaName());
                         };
                         AbstractKObject.prototype.internal_transpose_op = function (p) {
-                            var selfMeta = this.metaClass();
-                            if (p.origin().index() == selfMeta.index()) {
-                                return p;
-                            }
-                            else {
-                                return selfMeta.metaOperation(p.metaName());
-                            }
+                            return this.metaClass().metaOperation(p.metaName());
+                        };
+                        AbstractKObject.prototype.traverse = function (p_metaReference) {
+                            return new org.kevoree.modeling.api.promise.DefaultKTraversalPromise(this, p_metaReference);
                         };
                         return AbstractKObject;
                     })();
@@ -1501,20 +1486,16 @@ var org;
                     })();
                     abs.AbstractKView = AbstractKView;
                     var AbstractMetaAttribute = (function () {
-                        function AbstractMetaAttribute(p_name, p_index, p_precision, p_key, p_metaType, p_extrapolation, p_origin) {
+                        function AbstractMetaAttribute(p_name, p_index, p_precision, p_key, p_metaType, p_extrapolation) {
                             this._name = p_name;
                             this._index = p_index;
                             this._precision = p_precision;
                             this._key = p_key;
                             this._metaType = p_metaType;
                             this._extrapolation = p_extrapolation;
-                            this._origin = p_origin;
                         }
                         AbstractMetaAttribute.prototype.metaType = function () {
                             return this._metaType;
-                        };
-                        AbstractMetaAttribute.prototype.origin = function () {
-                            return this._origin;
                         };
                         AbstractMetaAttribute.prototype.index = function () {
                             return this._index;
@@ -1538,17 +1519,13 @@ var org;
                     })();
                     abs.AbstractMetaAttribute = AbstractMetaAttribute;
                     var AbstractMetaClass = (function () {
-                        function AbstractMetaClass(p_name, p_index, p_origin) {
+                        function AbstractMetaClass(p_name, p_index) {
                             this._atts_indexes = new java.util.HashMap();
                             this._refs_indexes = new java.util.HashMap();
                             this._ops_indexes = new java.util.HashMap();
                             this._name = p_name;
                             this._index = p_index;
-                            this._origin = p_origin;
                         }
-                        AbstractMetaClass.prototype.origin = function () {
-                            return this._origin;
-                        };
                         AbstractMetaClass.prototype.index = function () {
                             return this._index;
                         };
@@ -1643,10 +1620,10 @@ var org;
                     })();
                     abs.AbstractMetaModel = AbstractMetaModel;
                     var AbstractMetaOperation = (function () {
-                        function AbstractMetaOperation(p_name, p_index, p_origin) {
+                        function AbstractMetaOperation(p_name, p_index, p_lazyMetaClass) {
                             this._name = p_name;
                             this._index = p_index;
-                            this._origin = p_origin;
+                            this._lazyMetaClass = p_lazyMetaClass;
                         }
                         AbstractMetaOperation.prototype.index = function () {
                             return this._index;
@@ -1655,33 +1632,44 @@ var org;
                             return this._name;
                         };
                         AbstractMetaOperation.prototype.origin = function () {
-                            return this._origin;
+                            if (this._lazyMetaClass != null) {
+                                return this._lazyMetaClass();
+                            }
+                            return null;
                         };
                         return AbstractMetaOperation;
                     })();
                     abs.AbstractMetaOperation = AbstractMetaOperation;
                     var AbstractMetaReference = (function () {
-                        function AbstractMetaReference(p_name, p_index, p_contained, p_single, p_metaType_index, p_opposite_ref_index, p_origin) {
+                        function AbstractMetaReference(p_name, p_index, p_contained, p_single, p_lazyMetaType, p_lazyMetaOpposite, p_lazyMetaOrigin) {
                             this._name = p_name;
                             this._index = p_index;
                             this._contained = p_contained;
                             this._single = p_single;
-                            this._metaType_index = p_metaType_index;
-                            this._opposite_ref_index = p_opposite_ref_index;
-                            this._origin = p_origin;
+                            this._lazyMetaType = p_lazyMetaType;
+                            this._lazyMetaOpposite = p_lazyMetaOpposite;
+                            this._lazyMetaOrigin = p_lazyMetaOrigin;
                         }
                         AbstractMetaReference.prototype.single = function () {
                             return this._single;
                         };
                         AbstractMetaReference.prototype.metaType = function () {
-                            return this._origin.origin().metaClasses()[this._metaType_index];
+                            if (this._lazyMetaType != null) {
+                                return this._lazyMetaType();
+                            }
+                            else {
+                                return null;
+                            }
                         };
                         AbstractMetaReference.prototype.opposite = function () {
-                            if (this._opposite_ref_index != null) {
-                                var resolvedMeta = this._origin.origin().metaClasses()[this._metaType_index];
-                                if (resolvedMeta != null) {
-                                    return resolvedMeta.metaReferences()[this._opposite_ref_index];
-                                }
+                            if (this._lazyMetaOpposite != null) {
+                                return this._lazyMetaOpposite();
+                            }
+                            return null;
+                        };
+                        AbstractMetaReference.prototype.origin = function () {
+                            if (this._lazyMetaOrigin != null) {
+                                return this._lazyMetaOrigin();
                             }
                             return null;
                         };
@@ -1693,9 +1681,6 @@ var org;
                         };
                         AbstractMetaReference.prototype.contained = function () {
                             return this._contained;
-                        };
-                        AbstractMetaReference.prototype.origin = function () {
-                            return this._origin;
                         };
                         return AbstractMetaReference;
                     })();
@@ -4327,6 +4312,316 @@ var org;
                         return DefaultPolynomialModel;
                     })();
                     polynomial.DefaultPolynomialModel = DefaultPolynomialModel;
+                    var doublepolynomial;
+                    (function (doublepolynomial) {
+                        var DoublePolynomialModel = (function () {
+                            function DoublePolynomialModel(toleratedError, maxDegree, prioritization) {
+                                this._isDirty = false;
+                                this.prioritization = prioritization;
+                                this.maxDegree = maxDegree;
+                                this.toleratedError = toleratedError;
+                                this.polyTime = new org.kevoree.modeling.api.polynomial.doublepolynomial.TimePolynomial();
+                            }
+                            DoublePolynomialModel.prototype.getDegree = function () {
+                                if (this.weights == null) {
+                                    return -1;
+                                }
+                                else {
+                                    return this.weights.length - 1;
+                                }
+                            };
+                            DoublePolynomialModel.prototype.getTimeOrigin = function () {
+                                return this.polyTime.getTimeOrigin();
+                            };
+                            DoublePolynomialModel.prototype.getMaxErr = function (degree, toleratedError, maxDegree, prioritization) {
+                                var tol = toleratedError;
+                                if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
+                                    tol = toleratedError / Math.pow(2, maxDegree - degree);
+                                }
+                                else {
+                                    if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
+                                        tol = toleratedError / Math.pow(2, degree + 0.5);
+                                    }
+                                    else {
+                                        if (prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
+                                            tol = toleratedError * degree * 2 / (2 * maxDegree);
+                                        }
+                                    }
+                                }
+                                return tol;
+                            };
+                            DoublePolynomialModel.prototype.internal_feed = function (time, value) {
+                                if (this.weights == null) {
+                                    this.weights = new Array();
+                                    this.weights[0] = value;
+                                    this.polyTime.insert(time);
+                                }
+                            };
+                            DoublePolynomialModel.prototype.maxError = function (computedWeights, time, value) {
+                                var maxErr = 0;
+                                var temp = 0;
+                                var ds;
+                                for (var i = 0; i < this.polyTime.getSamples() - 1; i++) {
+                                    ds = this.polyTime.getNormalizedTime(i);
+                                    var val = this.internal_extrapolate(ds, computedWeights);
+                                    temp = Math.abs(val - this.internal_extrapolate(ds, this.weights));
+                                    if (temp > maxErr) {
+                                        maxErr = temp;
+                                    }
+                                }
+                                temp = Math.abs(this.internal_extrapolate(this.polyTime.convertLongToDouble(time), computedWeights) - value);
+                                if (temp > maxErr) {
+                                    maxErr = temp;
+                                }
+                                return maxErr;
+                            };
+                            DoublePolynomialModel.prototype.comparePolynome = function (p2, err) {
+                                if (this.weights.length != p2.weights.length) {
+                                    return false;
+                                }
+                                for (var i = 0; i < this.weights.length; i++) {
+                                    if (Math.abs(this.weights[i] - this.weights[i]) > err) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            };
+                            DoublePolynomialModel.prototype.internal_extrapolate = function (time, weights) {
+                                var result = 0;
+                                var power = 1;
+                                for (var j = 0; j < weights.length; j++) {
+                                    result += weights[j] * power;
+                                    power = power * time;
+                                }
+                                return result;
+                            };
+                            DoublePolynomialModel.prototype.extrapolate = function (time) {
+                                var t = this.polyTime.convertLongToDouble(time);
+                                return this.internal_extrapolate(t, this.weights);
+                            };
+                            DoublePolynomialModel.prototype.insert = function (time, value) {
+                                if (this.weights == null) {
+                                    this.internal_feed(time, value);
+                                    return true;
+                                }
+                                if (this.polyTime.insert(time) == true) {
+                                    var maxError = this.getMaxErr(this.getDegree(), this.toleratedError, this.maxDegree, this.prioritization);
+                                    if (Math.abs(this.extrapolate(time) - value) <= maxError) {
+                                        return true;
+                                    }
+                                    var deg = this.getDegree();
+                                    var newMaxDegree = Math.min(this.polyTime.getSamples() - 1, this.maxDegree);
+                                    if (deg < newMaxDegree) {
+                                        deg++;
+                                        var ss = Math.min(deg * 2, this.polyTime.getSamples() - 1);
+                                        var times = new Array();
+                                        var values = new Array();
+                                        var current = this.polyTime.getSamples() - 1;
+                                        for (var i = 0; i < ss; i++) {
+                                            times[i] = this.polyTime.getNormalizedTime((i * current / ss));
+                                            values[i] = this.internal_extrapolate(times[i], this.weights);
+                                        }
+                                        times[ss] = this.polyTime.convertLongToDouble(time);
+                                        values[ss] = value;
+                                        var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                        pf.fit(times, values);
+                                        if (this.maxError(pf.getCoef(), time, value) <= maxError) {
+                                            this.weights = new Array();
+                                            for (var i = 0; i < pf.getCoef().length; i++) {
+                                                this.weights[i] = pf.getCoef()[i];
+                                            }
+                                            return true;
+                                        }
+                                    }
+                                    this.polyTime.removeLast();
+                                    return false;
+                                }
+                                else {
+                                    return false;
+                                }
+                            };
+                            DoublePolynomialModel.prototype.lastIndex = function () {
+                                return this.polyTime.getLastIndex();
+                            };
+                            DoublePolynomialModel.prototype.indexBefore = function (time) {
+                                return 0;
+                            };
+                            DoublePolynomialModel.prototype.timesAfter = function (time) {
+                                return null;
+                            };
+                            DoublePolynomialModel.prototype.save = function () {
+                                var builder = new java.lang.StringBuilder();
+                                for (var i = 0; i < this.weights.length; i++) {
+                                    if (i != 0) {
+                                        builder.append(DoublePolynomialModel.sep);
+                                    }
+                                    builder.append(this.weights[i] + "");
+                                }
+                                this._isDirty = false;
+                                return builder.toString();
+                            };
+                            DoublePolynomialModel.prototype.load = function (payload) {
+                                var elems = payload.split(DoublePolynomialModel.sep);
+                                this.weights = new Array();
+                                for (var i = 0; i < elems.length; i++) {
+                                    this.weights[i] = java.lang.Double.parseDouble(elems[i]);
+                                }
+                                this._isDirty = false;
+                            };
+                            DoublePolynomialModel.prototype.isDirty = function () {
+                                return this._isDirty;
+                            };
+                            DoublePolynomialModel.sep = "/";
+                            return DoublePolynomialModel;
+                        })();
+                        doublepolynomial.DoublePolynomialModel = DoublePolynomialModel;
+                        var TimePolynomial = (function () {
+                            function TimePolynomial() {
+                            }
+                            TimePolynomial.prototype.getTimeOrigin = function () {
+                                return this.timeOrigin;
+                            };
+                            TimePolynomial.prototype.convertLongToDouble = function (time) {
+                                return (time - this.timeOrigin) / this.samplingPeriod;
+                            };
+                            TimePolynomial.prototype.getSamplingPeriod = function () {
+                                return this.samplingPeriod;
+                            };
+                            TimePolynomial.prototype.getDegree = function () {
+                                if (this.weights == null) {
+                                    return -1;
+                                }
+                                else {
+                                    return this.weights.length - 1;
+                                }
+                            };
+                            TimePolynomial.prototype.getWeights = function () {
+                                return this.weights;
+                            };
+                            TimePolynomial.prototype.setWeights = function (weights) {
+                                this.weights = weights;
+                            };
+                            TimePolynomial.prototype.internal_extrapolate = function (id, newWeights) {
+                                var result = 0;
+                                var t = id;
+                                var power = 1;
+                                for (var j = 0; j < newWeights.length; j++) {
+                                    result += newWeights[j] * power;
+                                    power = power * t;
+                                }
+                                result = result * (this.samplingPeriod) + this.timeOrigin;
+                                return result;
+                            };
+                            TimePolynomial.prototype.getSamples = function () {
+                                return this.samples;
+                            };
+                            TimePolynomial.prototype.maxError = function (computedWeights, lastId, newtime) {
+                                var maxErr = 0;
+                                var time;
+                                var temp;
+                                for (var i = 0; i < lastId; i++) {
+                                    time = this.internal_extrapolate(i, computedWeights);
+                                    temp = Math.abs(time - this.getTime(i));
+                                    if (temp > maxErr) {
+                                        maxErr = temp;
+                                    }
+                                }
+                                temp = Math.abs(this.internal_extrapolate(this.samples, computedWeights) - newtime);
+                                if (temp > maxErr) {
+                                    maxErr = temp;
+                                }
+                                return maxErr;
+                            };
+                            TimePolynomial.prototype.insert = function (time) {
+                                if (this.weights == null) {
+                                    this.timeOrigin = time;
+                                    this.weights = new Array();
+                                    this.weights[0] = 0;
+                                    this.samples = 1;
+                                    return true;
+                                }
+                                if (this.samples == 1) {
+                                    this.samplingPeriod = time - this.timeOrigin;
+                                    this.weights = new Array();
+                                    this.weights[0] = 0;
+                                    this.weights[1] = 1;
+                                    this.samples = 2;
+                                    return true;
+                                }
+                                if (time > this.getTime(this.samples - 1)) {
+                                    var maxError = this.samplingPeriod / TimePolynomial.toleratedErrorRatio;
+                                    if (Math.abs(this.getTime(this.samples) - time) <= maxError) {
+                                        this.samples++;
+                                        return true;
+                                    }
+                                    var deg = this.getDegree();
+                                    var newMaxDegree = Math.min(this.samples, TimePolynomial.maxTimeDegree);
+                                    while (deg < newMaxDegree) {
+                                        deg++;
+                                        var ss = Math.min(deg * 2, this.samples);
+                                        var ids = new Array();
+                                        var times = new Array();
+                                        var idtemp;
+                                        for (var i = 0; i < ss; i++) {
+                                            idtemp = (i * this.samples / ss);
+                                            ids[i] = idtemp;
+                                            times[i] = (this.getTime(idtemp) - this.timeOrigin) / (this.samplingPeriod);
+                                        }
+                                        ids[ss] = this.samples;
+                                        times[ss] = (time - this.timeOrigin) / (this.samplingPeriod);
+                                        var pf = new org.kevoree.modeling.api.polynomial.util.PolynomialFitEjml(deg);
+                                        pf.fit(ids, times);
+                                        if (this.maxError(pf.getCoef(), this.samples, time) <= maxError) {
+                                            this.weights = new Array();
+                                            for (var i = 0; i < pf.getCoef().length; i++) {
+                                                this.weights[i] = pf.getCoef()[i];
+                                            }
+                                            this.samples++;
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                }
+                                else {
+                                }
+                                return false;
+                            };
+                            TimePolynomial.prototype.getNormalizedTime = function (id) {
+                                var result = 0;
+                                var t = id;
+                                var power = 1;
+                                for (var j = 0; j < this.weights.length; j++) {
+                                    result += this.weights[j] * power;
+                                    power = power * t;
+                                }
+                                return result;
+                            };
+                            TimePolynomial.prototype.getTime = function (id) {
+                                var result = 0;
+                                var t = id;
+                                var power = 1;
+                                for (var j = 0; j < this.weights.length; j++) {
+                                    result += this.weights[j] * power;
+                                    power = power * t;
+                                }
+                                result = result * (this.samplingPeriod) + this.timeOrigin;
+                                return result;
+                            };
+                            TimePolynomial.prototype.removeLast = function () {
+                                this.samples--;
+                            };
+                            TimePolynomial.prototype.getLastIndex = function () {
+                                if (this.samples > 0) {
+                                    return this.getTime(this.samples - 1);
+                                }
+                                return -1;
+                            };
+                            TimePolynomial.maxTimeDegree = 20;
+                            TimePolynomial.toleratedErrorRatio = 10;
+                            return TimePolynomial;
+                        })();
+                        doublepolynomial.TimePolynomial = TimePolynomial;
+                    })(doublepolynomial = polynomial.doublepolynomial || (polynomial.doublepolynomial = {}));
                     var util;
                     (function (util) {
                         var AdjLinearSolverQr = (function () {
@@ -4779,6 +5074,282 @@ var org;
                         util.QRDecompositionHouseholderColumn_D64 = QRDecompositionHouseholderColumn_D64;
                     })(util = polynomial.util || (polynomial.util = {}));
                 })(polynomial = api.polynomial || (api.polynomial = {}));
+                var promise;
+                (function (promise) {
+                    var DefaultKTraversalPromise = (function () {
+                        function DefaultKTraversalPromise(p_root, p_ref) {
+                            this._terminated = false;
+                            this._initAction = new org.kevoree.modeling.api.promise.actions.KTraverseAction(p_ref);
+                            this._initObjs = new Array();
+                            this._initObjs[0] = p_root;
+                            this._lastAction = this._initAction;
+                        }
+                        DefaultKTraversalPromise.prototype.traverse = function (p_metaReference) {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction = new org.kevoree.modeling.api.promise.actions.KTraverseAction(p_metaReference);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        };
+                        DefaultKTraversalPromise.prototype.attribute = function (p_attribute, p_expectedValue) {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction = new org.kevoree.modeling.api.promise.actions.KFilterAttributeAction(p_attribute, p_expectedValue);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        };
+                        DefaultKTraversalPromise.prototype.filter = function (p_filter) {
+                            if (this._terminated) {
+                                throw new java.lang.RuntimeException("Promise is terminated by the call of then method, please create another promise");
+                            }
+                            var tempAction = new org.kevoree.modeling.api.promise.actions.KFilterAction(p_filter);
+                            this._lastAction.chain(tempAction);
+                            this._lastAction = tempAction;
+                            return this;
+                        };
+                        DefaultKTraversalPromise.prototype.then = function (callback) {
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KFinalAction(callback));
+                            this._initAction.execute(this._initObjs);
+                        };
+                        return DefaultKTraversalPromise;
+                    })();
+                    promise.DefaultKTraversalPromise = DefaultKTraversalPromise;
+                    var actions;
+                    (function (actions) {
+                        var KFilterAction = (function () {
+                            function KFilterAction(p_filter) {
+                                this._filter = p_filter;
+                            }
+                            KFilterAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KFilterAction.prototype.execute = function (p_inputs) {
+                                var nextStep = new java.util.ArrayList();
+                                for (var i = 0; i < p_inputs.length; i++) {
+                                    try {
+                                        if (this._filter(p_inputs[i])) {
+                                            nextStep.add(p_inputs[i]);
+                                        }
+                                    }
+                                    catch ($ex$) {
+                                        if ($ex$ instanceof java.lang.Exception) {
+                                            var e = $ex$;
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                                this._next.execute(nextStep.toArray(new Array()));
+                            };
+                            return KFilterAction;
+                        })();
+                        actions.KFilterAction = KFilterAction;
+                        var KFilterAttributeAction = (function () {
+                            function KFilterAttributeAction(p_attribute, p_expectedValue) {
+                                this._attribute = p_attribute;
+                                this._expectedValue = p_expectedValue;
+                            }
+                            KFilterAttributeAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KFilterAttributeAction.prototype.execute = function (p_inputs) {
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    this._next.execute(p_inputs);
+                                    return;
+                                }
+                                else {
+                                    var currentView = p_inputs[0].view();
+                                    var nextStep = new java.util.ArrayList();
+                                    for (var i = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj = p_inputs[i];
+                                            var raw = currentView.dimension().universe().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
+                                            if (this._attribute == null) {
+                                                if (this._expectedValue == null) {
+                                                    nextStep.add(loopObj);
+                                                }
+                                                else {
+                                                    for (var j = 0; j < loopObj.metaClass().metaAttributes().length; j++) {
+                                                        var ref = loopObj.metaClass().metaAttributes()[j];
+                                                        var resolved = raw[ref.index()];
+                                                        if (resolved == null) {
+                                                            if (this._expectedValue.toString().equals("*")) {
+                                                                nextStep.add(loopObj);
+                                                            }
+                                                            else {
+                                                            }
+                                                        }
+                                                        else {
+                                                            if (resolved == this._expectedValue) {
+                                                                nextStep.add(loopObj);
+                                                            }
+                                                            else {
+                                                                if (resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
+                                                                    nextStep.add(loopObj);
+                                                                }
+                                                                else {
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else {
+                                                var translatedAtt = loopObj.internal_transpose_att(this._attribute);
+                                                if (translatedAtt != null) {
+                                                    var resolved = raw[translatedAtt.index()];
+                                                    if (this._expectedValue == null) {
+                                                        nextStep.add(loopObj);
+                                                    }
+                                                    else {
+                                                        if (resolved == null) {
+                                                            if (this._expectedValue.toString().equals("*")) {
+                                                                nextStep.add(loopObj);
+                                                            }
+                                                            else {
+                                                            }
+                                                        }
+                                                        else {
+                                                            if (resolved == this._expectedValue) {
+                                                                nextStep.add(loopObj);
+                                                            }
+                                                            else {
+                                                                if (resolved.toString().matches(this._expectedValue.toString().replace("*", ".*"))) {
+                                                                    nextStep.add(loopObj);
+                                                                }
+                                                                else {
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                    this._next.execute(nextStep.toArray(new Array()));
+                                }
+                            };
+                            return KFilterAttributeAction;
+                        })();
+                        actions.KFilterAttributeAction = KFilterAttributeAction;
+                        var KFinalAction = (function () {
+                            function KFinalAction(p_callback) {
+                                this._finalCallback = p_callback;
+                            }
+                            KFinalAction.prototype.chain = function (next) {
+                            };
+                            KFinalAction.prototype.execute = function (inputs) {
+                                this._finalCallback(inputs);
+                            };
+                            return KFinalAction;
+                        })();
+                        actions.KFinalAction = KFinalAction;
+                        var KTraverseAction = (function () {
+                            function KTraverseAction(p_reference) {
+                                this._reference = p_reference;
+                            }
+                            KTraverseAction.prototype.chain = function (p_next) {
+                                this._next = p_next;
+                            };
+                            KTraverseAction.prototype.execute = function (p_inputs) {
+                                var _this = this;
+                                if (p_inputs == null || p_inputs.length == 0) {
+                                    this._next.execute(p_inputs);
+                                    return;
+                                }
+                                else {
+                                    var currentView = p_inputs[0].view();
+                                    var nextIds = new java.util.ArrayList();
+                                    for (var i = 0; i < p_inputs.length; i++) {
+                                        try {
+                                            var loopObj = p_inputs[i];
+                                            var raw = currentView.dimension().universe().storage().raw(loopObj, org.kevoree.modeling.api.data.AccessMode.READ);
+                                            if (this._reference == null) {
+                                                for (var j = 0; j < loopObj.metaClass().metaReferences().length; j++) {
+                                                    var ref = loopObj.metaClass().metaReferences()[j];
+                                                    var resolved = raw[ref.index()];
+                                                    if (resolved != null) {
+                                                        if (resolved instanceof java.util.Set) {
+                                                            var resolvedCasted = resolved;
+                                                            var resolvedArr = resolvedCasted.toArray(new Array());
+                                                            for (var k = 0; k < resolvedArr.length; k++) {
+                                                                var idResolved = resolvedArr[k];
+                                                                if (idResolved != null) {
+                                                                    nextIds.add(idResolved);
+                                                                }
+                                                            }
+                                                        }
+                                                        else {
+                                                            try {
+                                                                nextIds.add(resolved);
+                                                            }
+                                                            catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e = $ex$;
+                                                                    e.printStackTrace();
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else {
+                                                var translatedRef = loopObj.internal_transpose_ref(this._reference);
+                                                if (translatedRef != null) {
+                                                    var resolved = raw[translatedRef.index()];
+                                                    if (resolved != null) {
+                                                        if (resolved instanceof java.util.Set) {
+                                                            var resolvedCasted = resolved;
+                                                            var resolvedArr = resolvedCasted.toArray(new Array());
+                                                            for (var j = 0; j < resolvedArr.length; j++) {
+                                                                var idResolved = resolvedArr[j];
+                                                                if (idResolved != null) {
+                                                                    nextIds.add(idResolved);
+                                                                }
+                                                            }
+                                                        }
+                                                        else {
+                                                            try {
+                                                                nextIds.add(resolved);
+                                                            }
+                                                            catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e = $ex$;
+                                                                    e.printStackTrace();
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch ($ex$) {
+                                            if ($ex$ instanceof java.lang.Exception) {
+                                                var e = $ex$;
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                    currentView.lookupAll(nextIds.toArray(new Array()), function (kObjects) {
+                                        _this._next.execute(kObjects);
+                                    });
+                                }
+                            };
+                            return KTraverseAction;
+                        })();
+                        actions.KTraverseAction = KTraverseAction;
+                    })(actions = promise.actions || (promise.actions = {}));
+                })(promise = api.promise || (api.promise = {}));
                 var select;
                 (function (select) {
                     var KQuery = (function () {
@@ -7331,19 +7902,6 @@ var org;
                         return SerializationContext;
                     })();
                     xmi.SerializationContext = SerializationContext;
-                    var XmiFormat = (function () {
-                        function XmiFormat(p_view) {
-                            this._view = p_view;
-                        }
-                        XmiFormat.prototype.save = function (model, callback) {
-                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
-                        };
-                        XmiFormat.prototype.load = function (payload, callback) {
-                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
-                        };
-                        return XmiFormat;
-                    })();
-                    xmi.XmiFormat = XmiFormat;
                     var XMILoadingContext = (function () {
                         function XMILoadingContext() {
                             this.loadedRoots = null;
@@ -7772,6 +8330,19 @@ var org;
                         return XMIResolveCommand;
                     })();
                     xmi.XMIResolveCommand = XMIResolveCommand;
+                    var XmiFormat = (function () {
+                        function XmiFormat(p_view) {
+                            this._view = p_view;
+                        }
+                        XmiFormat.prototype.save = function (model, callback) {
+                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
+                        };
+                        XmiFormat.prototype.load = function (payload, callback) {
+                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
+                        };
+                        return XmiFormat;
+                    })();
+                    xmi.XmiFormat = XmiFormat;
                     var XmlParser = (function () {
                         function XmlParser(str) {
                             this.current = 0;
@@ -7993,10 +8564,8 @@ var cloud;
             _super.call(this);
             this._metaModel = new org.kevoree.modeling.api.abs.AbstractMetaModel("Cloud", -1);
             var tempMetaClasses = new Array();
-            this.META_CLOUD_ELEMENT = cloud.meta.MetaElement.build(this._metaModel);
-            tempMetaClasses[1] = this.META_CLOUD_ELEMENT;
-            this.META_CLOUD_NODE = cloud.meta.MetaNode.build(this._metaModel);
-            tempMetaClasses[0] = this.META_CLOUD_NODE;
+            tempMetaClasses[1] = cloud.meta.MetaElement.getInstance();
+            tempMetaClasses[0] = cloud.meta.MetaNode.getInstance();
             this._metaModel.init(tempMetaClasses);
         }
         CloudUniverse.prototype.internal_create = function (key) {
@@ -8029,10 +8598,10 @@ var cloud;
                 }
             };
             CloudViewImpl.prototype.createElement = function () {
-                return this.create(this.dimension().universe().META_CLOUD_ELEMENT);
+                return this.create(cloud.meta.MetaElement.getInstance());
             };
             CloudViewImpl.prototype.createNode = function () {
-                return this.create(this.dimension().universe().META_CLOUD_NODE);
+                return this.create(cloud.meta.MetaNode.getInstance());
             };
             CloudViewImpl.prototype.dimension = function () {
                 return _super.prototype.dimension.call(this);
@@ -8046,31 +8615,31 @@ var cloud;
                 _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
             ElementImpl.prototype.getLoad = function () {
-                return this.get(this.metaClass().ATT_LOAD);
+                return this.get(cloud.meta.MetaElement.ATT_LOAD);
             };
             ElementImpl.prototype.setLoad = function (p_obj) {
-                this.set(this.metaClass().ATT_LOAD, p_obj);
+                this.set(cloud.meta.MetaElement.ATT_LOAD, p_obj);
                 return this;
             };
             ElementImpl.prototype.getName = function () {
-                return this.get(this.metaClass().ATT_NAME);
+                return this.get(cloud.meta.MetaElement.ATT_NAME);
             };
             ElementImpl.prototype.setName = function (p_obj) {
-                this.set(this.metaClass().ATT_NAME, p_obj);
+                this.set(cloud.meta.MetaElement.ATT_NAME, p_obj);
                 return this;
             };
             ElementImpl.prototype.getValue = function () {
-                return this.get(this.metaClass().ATT_VALUE);
+                return this.get(cloud.meta.MetaElement.ATT_VALUE);
             };
             ElementImpl.prototype.setValue = function (p_obj) {
-                this.set(this.metaClass().ATT_VALUE, p_obj);
+                this.set(cloud.meta.MetaElement.ATT_VALUE, p_obj);
                 return this;
             };
             ElementImpl.prototype.trigger = function (param, loop, result) {
                 var trigger_params = new Array();
                 trigger_params[0] = param;
                 trigger_params[1] = loop;
-                this.view().dimension().universe().storage().operationManager().call(this, this.metaClass().OP_TRIGGER, trigger_params, function (o) {
+                this.view().dimension().universe().storage().operationManager().call(this, cloud.meta.MetaElement.OP_TRIGGER, trigger_params, function (o) {
                     if (result != null) {
                         result(o);
                     }
@@ -8088,29 +8657,29 @@ var cloud;
                 _super.call(this, p_factory, p_uuid, p_timeTree, p_metaClass);
             }
             NodeImpl.prototype.getName = function () {
-                return this.get(this.metaClass().ATT_NAME);
+                return this.get(cloud.meta.MetaNode.ATT_NAME);
             };
             NodeImpl.prototype.setName = function (p_obj) {
-                this.set(this.metaClass().ATT_NAME, p_obj);
+                this.set(cloud.meta.MetaNode.ATT_NAME, p_obj);
                 return this;
             };
             NodeImpl.prototype.getValue = function () {
-                return this.get(this.metaClass().ATT_VALUE);
+                return this.get(cloud.meta.MetaNode.ATT_VALUE);
             };
             NodeImpl.prototype.setValue = function (p_obj) {
-                this.set(this.metaClass().ATT_VALUE, p_obj);
+                this.set(cloud.meta.MetaNode.ATT_VALUE, p_obj);
                 return this;
             };
             NodeImpl.prototype.addChildren = function (p_obj) {
-                this.mutate(org.kevoree.modeling.api.KActionType.ADD, this.metaClass().REF_CHILDREN, p_obj);
+                this.mutate(org.kevoree.modeling.api.KActionType.ADD, cloud.meta.MetaNode.REF_CHILDREN, p_obj);
                 return this;
             };
             NodeImpl.prototype.removeChildren = function (p_obj) {
-                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, this.metaClass().REF_CHILDREN, p_obj);
+                this.mutate(org.kevoree.modeling.api.KActionType.REMOVE, cloud.meta.MetaNode.REF_CHILDREN, p_obj);
                 return this;
             };
             NodeImpl.prototype.eachChildren = function (p_callback) {
-                this.all(this.metaClass().REF_CHILDREN, function (kObjects) {
+                this.all(cloud.meta.MetaNode.REF_CHILDREN, function (kObjects) {
                     if (p_callback != null) {
                         var casted = new Array();
                         for (var i = 0; i < casted.length; i++) {
@@ -8121,14 +8690,14 @@ var cloud;
                 });
             };
             NodeImpl.prototype.sizeOfChildren = function () {
-                return this.size(this.metaClass().REF_CHILDREN);
+                return this.size(cloud.meta.MetaNode.REF_CHILDREN);
             };
             NodeImpl.prototype.setElement = function (p_obj) {
-                this.mutate(org.kevoree.modeling.api.KActionType.SET, this.metaClass().REF_ELEMENT, p_obj);
+                this.mutate(org.kevoree.modeling.api.KActionType.SET, cloud.meta.MetaNode.REF_ELEMENT, p_obj);
                 return this;
             };
             NodeImpl.prototype.getElement = function (p_callback) {
-                this.single(this.metaClass().REF_ELEMENT, function (kObject) {
+                this.single(cloud.meta.MetaNode.REF_ELEMENT, function (kObject) {
                     if (p_callback != null) {
                         p_callback(kObject);
                     }
@@ -8145,47 +8714,65 @@ var cloud;
     (function (meta) {
         var MetaElement = (function (_super) {
             __extends(MetaElement, _super);
-            function MetaElement(p_origin) {
-                _super.call(this, "cloud.Element", 1, p_origin);
+            function MetaElement() {
+                _super.call(this, "cloud.Element", 1);
                 var temp_attributes = new Array();
-                this.ATT_LOAD = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("load", 5, 0, false, org.kevoree.modeling.api.meta.MetaType.DOUBLE, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
-                temp_attributes[0] = this.ATT_LOAD;
-                this.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
-                temp_attributes[1] = this.ATT_NAME;
-                this.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
-                temp_attributes[2] = this.ATT_VALUE;
+                temp_attributes[0] = MetaElement.ATT_LOAD;
+                temp_attributes[1] = MetaElement.ATT_NAME;
+                temp_attributes[2] = MetaElement.ATT_VALUE;
                 var temp_references = new Array();
                 var temp_operations = new Array();
-                this.OP_TRIGGER = new org.kevoree.modeling.api.abs.AbstractMetaOperation("trigger", 8, this);
-                temp_operations[0] = this.OP_TRIGGER;
+                temp_operations[0] = MetaElement.OP_TRIGGER;
                 this.init(temp_attributes, temp_references, temp_operations);
             }
-            MetaElement.build = function (p_origin) {
-                return new cloud.meta.MetaElement(p_origin);
+            MetaElement.getInstance = function () {
+                if (MetaElement.INSTANCE == null) {
+                    MetaElement.INSTANCE = new cloud.meta.MetaElement();
+                }
+                return MetaElement.INSTANCE;
             };
+            MetaElement.INSTANCE = null;
+            MetaElement.ATT_LOAD = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("load", 5, 2.2, false, org.kevoree.modeling.api.meta.MetaType.DOUBLE, org.kevoree.modeling.api.extrapolation.PolynomialExtrapolation.instance());
+            MetaElement.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 6, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaElement.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 7, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaElement.OP_TRIGGER = new org.kevoree.modeling.api.abs.AbstractMetaOperation("trigger", 8, function () {
+                return cloud.meta.MetaElement.getInstance();
+            });
             return MetaElement;
         })(org.kevoree.modeling.api.abs.AbstractMetaClass);
         meta.MetaElement = MetaElement;
         var MetaNode = (function (_super) {
             __extends(MetaNode, _super);
-            function MetaNode(p_origin) {
-                _super.call(this, "cloud.Node", 0, p_origin);
+            function MetaNode() {
+                _super.call(this, "cloud.Node", 0);
                 var temp_attributes = new Array();
-                this.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
-                temp_attributes[0] = this.ATT_NAME;
-                this.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance(), this);
-                temp_attributes[1] = this.ATT_VALUE;
+                temp_attributes[0] = MetaNode.ATT_NAME;
+                temp_attributes[1] = MetaNode.ATT_VALUE;
                 var temp_references = new Array();
-                this.REF_CHILDREN = new org.kevoree.modeling.api.abs.AbstractMetaReference("children", 7, true, false, 0, null, this);
-                temp_references[0] = this.REF_CHILDREN;
-                this.REF_ELEMENT = new org.kevoree.modeling.api.abs.AbstractMetaReference("element", 8, true, true, 1, null, this);
-                temp_references[1] = this.REF_ELEMENT;
+                temp_references[0] = MetaNode.REF_CHILDREN;
+                temp_references[1] = MetaNode.REF_ELEMENT;
                 var temp_operations = new Array();
                 this.init(temp_attributes, temp_references, temp_operations);
             }
-            MetaNode.build = function (p_origin) {
-                return new cloud.meta.MetaNode(p_origin);
+            MetaNode.getInstance = function () {
+                if (MetaNode.INSTANCE == null) {
+                    MetaNode.INSTANCE = new cloud.meta.MetaNode();
+                }
+                return MetaNode.INSTANCE;
             };
+            MetaNode.INSTANCE = null;
+            MetaNode.ATT_NAME = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("name", 5, 0, true, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaNode.ATT_VALUE = new org.kevoree.modeling.api.abs.AbstractMetaAttribute("value", 6, 0, false, org.kevoree.modeling.api.meta.MetaType.STRING, org.kevoree.modeling.api.extrapolation.DiscreteExtrapolation.instance());
+            MetaNode.REF_CHILDREN = new org.kevoree.modeling.api.abs.AbstractMetaReference("children", 7, true, false, function () {
+                return cloud.meta.MetaNode.getInstance();
+            }, null, function () {
+                return cloud.meta.MetaNode.getInstance();
+            });
+            MetaNode.REF_ELEMENT = new org.kevoree.modeling.api.abs.AbstractMetaReference("element", 8, true, true, function () {
+                return cloud.meta.MetaElement.getInstance();
+            }, null, function () {
+                return cloud.meta.MetaNode.getInstance();
+            });
             return MetaNode;
         })(org.kevoree.modeling.api.abs.AbstractMetaClass);
         meta.MetaNode = MetaNode;

@@ -12,24 +12,29 @@ public class AbstractMetaOperation implements MetaOperation {
 
     private int _index;
 
-    private MetaClass _origin;
+    private LazyResolver _lazyMetaClass;
 
+    @Override
     public int index() {
         return _index;
     }
 
+    @Override
     public String metaName() {
         return _name;
     }
 
-    public MetaClass origin() {
-        return _origin;
-    }
-
-    public AbstractMetaOperation(String p_name, int p_index, MetaClass p_origin) {
+    public AbstractMetaOperation(String p_name, int p_index,LazyResolver p_lazyMetaClass) {
         this._name = p_name;
         this._index = p_index;
-        this._origin = p_origin;
+        this._lazyMetaClass = p_lazyMetaClass;
     }
 
+    @Override
+    public MetaClass origin() {
+        if(_lazyMetaClass!=null){
+            return (MetaClass) _lazyMetaClass.meta();
+        }
+        return null;
+    }
 }

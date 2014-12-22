@@ -5,8 +5,6 @@ package org.kevoree.modeling.api.meta;
  */
 public interface MetaOperation extends Meta {
 
-    MetaClass origin();
-
-    //TODO add type information
+    public Meta origin();
 
 }

@@ -289,31 +289,27 @@ declare module org {
                         private _key;
                         private _metaType;
                         private _extrapolation;
-                        private _origin;
                         metaType(): meta.MetaType;
-                        origin(): meta.MetaClass;
                         index(): number;
                         metaName(): string;
                         precision(): number;
                         key(): boolean;
                         strategy(): extrapolation.Extrapolation;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
-                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: meta.MetaType, p_extrapolation: extrapolation.Extrapolation, p_origin: meta.MetaClass);
+                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: meta.MetaType, p_extrapolation: extrapolation.Extrapolation);
                     }
                     class AbstractMetaClass implements meta.MetaClass {
                         private _name;
                         private _index;
-                        private _origin;
                         private _atts;
                         private _refs;
                         private _operations;
                         private _atts_indexes;
                         private _refs_indexes;
                         private _ops_indexes;
-                        origin(): meta.MetaModel;
                         index(): number;
                         metaName(): string;
-                        constructor(p_name: string, p_index: number, p_origin: meta.MetaModel);
+                        constructor(p_name: string, p_index: number);
                         init(p_atts: meta.MetaAttribute[], p_refs: meta.MetaReference[], p_operations: meta.MetaOperation[]): void;
                         metaAttributes(): meta.MetaAttribute[];
                         metaReferences(): meta.MetaReference[];
@@ -337,31 +333,34 @@ declare module org {
                     class AbstractMetaOperation implements meta.MetaOperation {
                         private _name;
                         private _index;
-                        private _origin;
+                        private _lazyMetaClass;
                         index(): number;
                         metaName(): string;
+                        constructor(p_name: string, p_index: number, p_lazyMetaClass: () => meta.Meta);
                         origin(): meta.MetaClass;
-                        constructor(p_name: string, p_index: number, p_origin: meta.MetaClass);
                     }
                     class AbstractMetaReference implements meta.MetaReference {
                         private _name;
                         private _index;
                         private _contained;
                         private _single;
-                        private _metaType_index;
-                        private _opposite_ref_index;
-                        private _origin;
+                        private _lazyMetaType;
+                        private _lazyMetaOpposite;
+                        private _lazyMetaOrigin;
                         single(): boolean;
                         metaType(): meta.MetaClass;
                         opposite(): meta.MetaReference;
+                        origin(): meta.MetaClass;
                         index(): number;
                         metaName(): string;
                         contained(): boolean;
-                        origin(): meta.MetaClass;
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType_index: number, p_opposite_ref_index: number, p_origin: meta.MetaClass);
+                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => meta.Meta, p_lazyMetaOpposite: () => meta.Meta, p_lazyMetaOrigin: () => meta.Meta);
                     }
                     class DynamicKObject extends AbstractKObject {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                    }
+                    interface LazyResolver {
+                        meta(): meta.Meta;
                     }
                 }
                 module data {
@@ -653,14 +652,12 @@ declare module org {
                     }
                     interface MetaAttribute extends Meta {
                         key(): boolean;
-                        origin(): MetaClass;
                         metaType(): MetaType;
                         strategy(): extrapolation.Extrapolation;
                         precision(): number;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
                     }
                     interface MetaClass extends Meta {
-                        origin(): MetaModel;
                         metaAttributes(): MetaAttribute[];
                         metaReferences(): MetaReference[];
                         metaOperations(): MetaOperation[];
@@ -673,7 +670,7 @@ declare module org {
                         metaClass(name: string): MetaClass;
                     }
                     interface MetaOperation extends Meta {
-                        origin(): MetaClass;
+                        origin(): Meta;
                     }
                     interface MetaReference extends Meta {
                         contained(): boolean;
@@ -750,6 +747,56 @@ declare module org {
                         save(): string;
                         load(payload: string): void;
                         isDirty(): boolean;
+                    }
+                    module doublepolynomial {
+                        class DoublePolynomialModel implements PolynomialModel {
+                            private weights;
+                            private polyTime;
+                            private prioritization;
+                            private maxDegree;
+                            private toleratedError;
+                            private static sep;
+                            private _isDirty;
+                            constructor(toleratedError: number, maxDegree: number, prioritization: util.Prioritization);
+                            getDegree(): number;
+                            getTimeOrigin(): number;
+                            private getMaxErr(degree, toleratedError, maxDegree, prioritization);
+                            private internal_feed(time, value);
+                            private maxError(computedWeights, time, value);
+                            comparePolynome(p2: DoublePolynomialModel, err: number): boolean;
+                            private internal_extrapolate(time, weights);
+                            extrapolate(time: number): number;
+                            insert(time: number, value: number): boolean;
+                            lastIndex(): number;
+                            indexBefore(time: number): number;
+                            timesAfter(time: number): number[];
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                        }
+                        class TimePolynomial {
+                            private timeOrigin;
+                            private weights;
+                            private samples;
+                            private samplingPeriod;
+                            private static maxTimeDegree;
+                            private static toleratedErrorRatio;
+                            constructor();
+                            getTimeOrigin(): number;
+                            convertLongToDouble(time: number): number;
+                            getSamplingPeriod(): number;
+                            private getDegree();
+                            getWeights(): number[];
+                            setWeights(weights: number[]): void;
+                            internal_extrapolate(id: number, newWeights: number[]): number;
+                            getSamples(): number;
+                            private maxError(computedWeights, lastId, newtime);
+                            insert(time: number): boolean;
+                            getNormalizedTime(id: number): number;
+                            getTime(id: number): number;
+                            removeLast(): void;
+                            getLastIndex(): number;
+                        }
                     }
                     module util {
                         class AdjLinearSolverQr {

@@ -11,18 +11,21 @@ import org.kevoree.modeling.api.meta.*;
  */
 public class MetaElement extends AbstractMetaClass {
 
-    public static MetaElement build(MetaModel p_origin) {
-        return new MetaElement(p_origin);
+    private static MetaElement INSTANCE = null;
+
+    public static MetaElement getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new MetaElement();
+        }
+        return INSTANCE;
     }
 
-    public final MetaAttribute ATT_NAME;
+    public static final MetaAttribute ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, MetaType.STRING, DiscreteExtrapolation.instance());
 
-    public final MetaAttribute ATT_VALUE;
+    public static final MetaAttribute ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, MetaType.DOUBLE, PolynomialExtrapolation.instance());
 
-    private MetaElement(MetaModel p_origin) {
-        super("org.kevoree.modeling.microframework.test.cloud.Element", 1, p_origin);
-        ATT_NAME = new AbstractMetaAttribute("name", 5, 5, true, MetaType.STRING, DiscreteExtrapolation.instance(), this);
-        ATT_VALUE = new AbstractMetaAttribute("value", 6, 5, false, MetaType.DOUBLE, PolynomialExtrapolation.instance(), this);
+    public MetaElement() {
+        super("org.kevoree.modeling.microframework.test.cloud.Element", 1);
         MetaAttribute[] temp_attributes = new MetaAttribute[2];
         temp_attributes[0] = ATT_NAME;
         temp_attributes[1] = ATT_VALUE;

@@ -22,16 +22,10 @@ public class AbstractMetaAttribute implements MetaAttribute {
 
     private Extrapolation _extrapolation;
 
-    private MetaClass _origin;
 
     @Override
     public MetaType metaType() {
         return _metaType;
-    }
-
-    @Override
-    public MetaClass origin() {
-        return _origin;
     }
 
     @Override
@@ -64,14 +58,13 @@ public class AbstractMetaAttribute implements MetaAttribute {
         this._extrapolation = extrapolation;
     }
 
-    public AbstractMetaAttribute(String p_name, int p_index, double p_precision, boolean p_key, MetaType p_metaType, Extrapolation p_extrapolation, MetaClass p_origin) {
+    public AbstractMetaAttribute(String p_name, int p_index, double p_precision, boolean p_key, MetaType p_metaType, Extrapolation p_extrapolation) {
         this._name = p_name;
         this._index = p_index;
         this._precision = p_precision;
         this._key = p_key;
         this._metaType = p_metaType;
         this._extrapolation = p_extrapolation;
-        this._origin = p_origin;
     }
 
 }

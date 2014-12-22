@@ -13,8 +13,6 @@ public class AbstractMetaClass implements MetaClass {
 
     private int _index;
 
-    private MetaModel _origin;
-
     private MetaAttribute[] _atts;
 
     private MetaReference[] _refs;
@@ -27,10 +25,6 @@ public class AbstractMetaClass implements MetaClass {
 
     private HashMap<String, Integer> _ops_indexes = new HashMap<String, Integer>();
 
-    public MetaModel origin() {
-        return _origin;
-    }
-
     public int index() {
         return _index;
     }
@@ -39,10 +33,9 @@ public class AbstractMetaClass implements MetaClass {
         return _name;
     }
 
-    protected AbstractMetaClass(String p_name, int p_index, MetaModel p_origin) {
+    protected AbstractMetaClass(String p_name, int p_index) {
         this._name = p_name;
         this._index = p_index;
-        this._origin = p_origin;
     }
 
     protected void init(MetaAttribute[] p_atts, MetaReference[] p_refs, MetaOperation[] p_operations) {

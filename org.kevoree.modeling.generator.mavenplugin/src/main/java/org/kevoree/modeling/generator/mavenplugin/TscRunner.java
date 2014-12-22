@@ -78,7 +78,11 @@ public class TscRunner {
             pb.redirectOutput();
             int res = pb.start().waitFor();
             if (res != 0) {
-                throw new Exception("Compilation error, please check your console");
+                StringBuilder builder = new StringBuilder();
+                for(String s : params){
+                    builder.append(" "+s);
+                }
+                throw new Exception("Compilation error, please check your console "+builder.toString());
             }
         } else {
             IRuntimeConfig runtimeConfig = (new NodejsRuntimeConfigBuilder()).defaults().build();

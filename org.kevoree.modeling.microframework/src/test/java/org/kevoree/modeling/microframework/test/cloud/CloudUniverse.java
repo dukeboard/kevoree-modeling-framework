@@ -13,19 +13,13 @@ import org.kevoree.modeling.microframework.test.cloud.meta.MetaNode;
 public class CloudUniverse extends AbstractKUniverse<CloudDimension> {
 
     private org.kevoree.modeling.api.meta.MetaModel _metaModel;
-
-    public final MetaNode META_NODE;
-
-    public final MetaElement META_ELEMENT;
-
+    
     public CloudUniverse() {
         super();
         _metaModel = new AbstractMetaModel("Cloud", -1);
-        META_NODE = MetaNode.build(_metaModel);
-        META_ELEMENT = MetaElement.build(_metaModel);
         MetaClass[] tempMetaClasses = new MetaClass[2];
-        tempMetaClasses[0] = META_NODE;
-        tempMetaClasses[1] = META_ELEMENT;
+        tempMetaClasses[0] = MetaNode.getInstance();
+        tempMetaClasses[1] = MetaElement.getInstance();
         ((AbstractMetaModel) _metaModel).init(tempMetaClasses);
     }
 

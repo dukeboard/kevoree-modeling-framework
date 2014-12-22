@@ -81,6 +81,7 @@ declare module org {
                     mutate(actionType: KActionType, metaReference: meta.MetaReference, param: KObject): void;
                     all(metaReference: meta.MetaReference, callback: (p: KObject[]) => void): void;
                     single(metaReference: meta.MetaReference, callback: (p: KObject) => void): void;
+                    traverse(metaReference: meta.MetaReference): promise.KTraversalPromise;
                     inbounds(callback: (p: InboundReference) => void, end: (p: java.lang.Throwable) => void): void;
                     traces(request: TraceRequest): trace.ModelTrace[];
                     get(attribute: meta.MetaAttribute): any;
@@ -230,9 +231,10 @@ declare module org {
                         intersection(target: KObject, callback: (p: trace.TraceSequence) => void): void;
                         slice(callback: (p: trace.TraceSequence) => void): void;
                         jump<U extends KObject>(time: number, callback: (p: U) => void): void;
-                        private internal_transpose_ref(p);
-                        private internal_transpose_att(p);
-                        private internal_transpose_op(p);
+                        internal_transpose_ref(p: meta.MetaReference): meta.MetaReference;
+                        internal_transpose_att(p: meta.MetaAttribute): meta.MetaAttribute;
+                        internal_transpose_op(p: meta.MetaOperation): meta.MetaOperation;
+                        traverse(p_metaReference: meta.MetaReference): promise.KTraversalPromise;
                     }
                     class AbstractKObjectInfer<A> extends AbstractKObject implements KInfer<any> {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
@@ -287,31 +289,27 @@ declare module org {
                         private _key;
                         private _metaType;
                         private _extrapolation;
-                        private _origin;
                         metaType(): meta.MetaType;
-                        origin(): meta.MetaClass;
                         index(): number;
                         metaName(): string;
                         precision(): number;
                         key(): boolean;
                         strategy(): extrapolation.Extrapolation;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
-                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: meta.MetaType, p_extrapolation: extrapolation.Extrapolation, p_origin: meta.MetaClass);
+                        constructor(p_name: string, p_index: number, p_precision: number, p_key: boolean, p_metaType: meta.MetaType, p_extrapolation: extrapolation.Extrapolation);
                     }
                     class AbstractMetaClass implements meta.MetaClass {
                         private _name;
                         private _index;
-                        private _origin;
                         private _atts;
                         private _refs;
                         private _operations;
                         private _atts_indexes;
                         private _refs_indexes;
                         private _ops_indexes;
-                        origin(): meta.MetaModel;
                         index(): number;
                         metaName(): string;
-                        constructor(p_name: string, p_index: number, p_origin: meta.MetaModel);
+                        constructor(p_name: string, p_index: number);
                         init(p_atts: meta.MetaAttribute[], p_refs: meta.MetaReference[], p_operations: meta.MetaOperation[]): void;
                         metaAttributes(): meta.MetaAttribute[];
                         metaReferences(): meta.MetaReference[];
@@ -335,31 +333,34 @@ declare module org {
                     class AbstractMetaOperation implements meta.MetaOperation {
                         private _name;
                         private _index;
-                        private _origin;
+                        private _lazyMetaClass;
                         index(): number;
                         metaName(): string;
+                        constructor(p_name: string, p_index: number, p_lazyMetaClass: () => meta.Meta);
                         origin(): meta.MetaClass;
-                        constructor(p_name: string, p_index: number, p_origin: meta.MetaClass);
                     }
                     class AbstractMetaReference implements meta.MetaReference {
                         private _name;
                         private _index;
                         private _contained;
                         private _single;
-                        private _metaType_index;
-                        private _opposite_ref_index;
-                        private _origin;
+                        private _lazyMetaType;
+                        private _lazyMetaOpposite;
+                        private _lazyMetaOrigin;
                         single(): boolean;
                         metaType(): meta.MetaClass;
                         opposite(): meta.MetaReference;
+                        origin(): meta.MetaClass;
                         index(): number;
                         metaName(): string;
                         contained(): boolean;
-                        origin(): meta.MetaClass;
-                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_metaType_index: number, p_opposite_ref_index: number, p_origin: meta.MetaClass);
+                        constructor(p_name: string, p_index: number, p_contained: boolean, p_single: boolean, p_lazyMetaType: () => meta.Meta, p_lazyMetaOpposite: () => meta.Meta, p_lazyMetaOrigin: () => meta.Meta);
                     }
                     class DynamicKObject extends AbstractKObject {
                         constructor(p_view: KView, p_uuid: number, p_timeTree: time.TimeTree, p_metaClass: meta.MetaClass);
+                    }
+                    interface LazyResolver {
+                        meta(): meta.Meta;
                     }
                 }
                 module data {
@@ -447,16 +448,6 @@ declare module org {
                         commit(error: (p: java.lang.Throwable) => void): void;
                         close(error: (p: java.lang.Throwable) => void): void;
                     }
-                    class KeyCalculator {
-                        static LONG_LIMIT_JS: number;
-                        static INDEX_LIMIT: number;
-                        private _prefix;
-                        private _currentIndex;
-                        constructor(prefix: number, currentIndex: number);
-                        nextKey(): number;
-                        lastComputedIndex(): number;
-                        prefix(): number;
-                    }
                     interface KStore {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
@@ -478,6 +469,16 @@ declare module org {
                         operationManager(): util.KOperationManager;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
+                    }
+                    class KeyCalculator {
+                        static LONG_LIMIT_JS: number;
+                        static INDEX_LIMIT: number;
+                        private _prefix;
+                        private _currentIndex;
+                        constructor(prefix: number, currentIndex: number);
+                        nextKey(): number;
+                        lastComputedIndex(): number;
+                        prefix(): number;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
@@ -651,14 +652,12 @@ declare module org {
                     }
                     interface MetaAttribute extends Meta {
                         key(): boolean;
-                        origin(): MetaClass;
                         metaType(): MetaType;
                         strategy(): extrapolation.Extrapolation;
                         precision(): number;
                         setExtrapolation(extrapolation: extrapolation.Extrapolation): void;
                     }
                     interface MetaClass extends Meta {
-                        origin(): MetaModel;
                         metaAttributes(): MetaAttribute[];
                         metaReferences(): MetaReference[];
                         metaOperations(): MetaOperation[];
@@ -671,7 +670,7 @@ declare module org {
                         metaClass(name: string): MetaClass;
                     }
                     interface MetaOperation extends Meta {
-                        origin(): MetaClass;
+                        origin(): Meta;
                     }
                     interface MetaReference extends Meta {
                         contained(): boolean;
@@ -748,6 +747,56 @@ declare module org {
                         save(): string;
                         load(payload: string): void;
                         isDirty(): boolean;
+                    }
+                    module doublepolynomial {
+                        class DoublePolynomialModel implements PolynomialModel {
+                            private weights;
+                            private polyTime;
+                            private prioritization;
+                            private maxDegree;
+                            private toleratedError;
+                            private static sep;
+                            private _isDirty;
+                            constructor(toleratedError: number, maxDegree: number, prioritization: util.Prioritization);
+                            getDegree(): number;
+                            getTimeOrigin(): number;
+                            private getMaxErr(degree, toleratedError, maxDegree, prioritization);
+                            private internal_feed(time, value);
+                            private maxError(computedWeights, time, value);
+                            comparePolynome(p2: DoublePolynomialModel, err: number): boolean;
+                            private internal_extrapolate(time, weights);
+                            extrapolate(time: number): number;
+                            insert(time: number, value: number): boolean;
+                            lastIndex(): number;
+                            indexBefore(time: number): number;
+                            timesAfter(time: number): number[];
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                        }
+                        class TimePolynomial {
+                            private timeOrigin;
+                            private weights;
+                            private samples;
+                            private samplingPeriod;
+                            private static maxTimeDegree;
+                            private static toleratedErrorRatio;
+                            constructor();
+                            getTimeOrigin(): number;
+                            convertLongToDouble(time: number): number;
+                            getSamplingPeriod(): number;
+                            private getDegree();
+                            getWeights(): number[];
+                            setWeights(weights: number[]): void;
+                            internal_extrapolate(id: number, newWeights: number[]): number;
+                            getSamples(): number;
+                            private maxError(computedWeights, lastId, newtime);
+                            insert(time: number): boolean;
+                            getNormalizedTime(id: number): number;
+                            getTime(id: number): number;
+                            removeLast(): void;
+                            getLastIndex(): number;
+                        }
                     }
                     module util {
                         class AdjLinearSolverQr {
@@ -832,6 +881,62 @@ declare module org {
                             static divideElements(j: number, numRows: number, u: number[], u_0: number): void;
                             static computeTauAndDivide(j: number, numRows: number, u: number[], max: number): number;
                             static rank1UpdateMultR(A: DenseMatrix64F, u: number[], gamma: number, colA0: number, w0: number, w1: number, _temp: number[]): void;
+                        }
+                    }
+                }
+                module promise {
+                    class DefaultKTraversalPromise implements KTraversalPromise {
+                        private _initObjs;
+                        private _initAction;
+                        private _lastAction;
+                        private _terminated;
+                        constructor(p_root: KObject, p_ref: meta.MetaReference);
+                        traverse(p_metaReference: meta.MetaReference): KTraversalPromise;
+                        attribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
+                        filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
+                        then(callback: (p: KObject[]) => void): void;
+                    }
+                    interface KTraversalAction {
+                        chain(next: KTraversalAction): void;
+                        execute(inputs: KObject[]): void;
+                    }
+                    interface KTraversalFilter {
+                        filter(obj: KObject): boolean;
+                    }
+                    interface KTraversalPromise {
+                        traverse(metaReference: meta.MetaReference): KTraversalPromise;
+                        attribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
+                        filter(filter: (p: KObject) => boolean): KTraversalPromise;
+                        then(callback: (p: KObject[]) => void): void;
+                    }
+                    module actions {
+                        class KFilterAction implements KTraversalAction {
+                            private _next;
+                            private _filter;
+                            constructor(p_filter: (p: KObject) => boolean);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KFilterAttributeAction implements KTraversalAction {
+                            private _next;
+                            private _attribute;
+                            private _expectedValue;
+                            constructor(p_attribute: meta.MetaAttribute, p_expectedValue: any);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
+                        }
+                        class KFinalAction implements KTraversalAction {
+                            private _finalCallback;
+                            constructor(p_callback: (p: KObject[]) => void);
+                            chain(next: KTraversalAction): void;
+                            execute(inputs: KObject[]): void;
+                        }
+                        class KTraverseAction implements KTraversalAction {
+                            private _next;
+                            private _reference;
+                            constructor(p_reference: meta.MetaReference);
+                            chain(p_next: KTraversalAction): void;
+                            execute(p_inputs: KObject[]): void;
                         }
                     }
                 }
@@ -1184,12 +1289,6 @@ declare module org {
                         elementsCount: java.util.HashMap<string, number>;
                         packageList: java.util.ArrayList<string>;
                     }
-                    class XmiFormat implements ModelFormat {
-                        private _view;
-                        constructor(p_view: KView);
-                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
-                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
-                    }
                     class XMILoadingContext {
                         xmiReader: XmlParser;
                         loadedRoots: KObject;
@@ -1229,6 +1328,12 @@ declare module org {
                         private ref;
                         constructor(context: XMILoadingContext, target: KObject, mutatorType: KActionType, refName: string, ref: string);
                         run(): void;
+                    }
+                    class XmiFormat implements ModelFormat {
+                        private _view;
+                        constructor(p_view: KView);
+                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class XmlParser {
                         private payload;

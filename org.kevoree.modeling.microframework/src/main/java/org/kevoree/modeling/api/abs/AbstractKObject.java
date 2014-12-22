@@ -759,30 +759,15 @@ public abstract class AbstractKObject implements KObject {
     }
 
     public MetaReference internal_transpose_ref(MetaReference p) {
-        MetaClass selfMeta = metaClass();
-        if (p.origin().index() == selfMeta.index()) {
-            return p;
-        } else {
-            return selfMeta.metaReference(p.metaName());
-        }
+        return metaClass().metaReference(p.metaName());
     }
 
     public MetaAttribute internal_transpose_att(MetaAttribute p) {
-        MetaClass selfMeta = metaClass();
-        if (p.origin().index() == selfMeta.index()) {
-            return p;
-        } else {
-            return selfMeta.metaAttribute(p.metaName());
-        }
+        return metaClass().metaAttribute(p.metaName());
     }
 
     public MetaOperation internal_transpose_op(MetaOperation p) {
-        MetaClass selfMeta = metaClass();
-        if (p.origin().index() == selfMeta.index()) {
-            return p;
-        } else {
-            return selfMeta.metaOperation(p.metaName());
-        }
+        return metaClass().metaOperation(p.metaName());
     }
 
     public KTraversalPromise traverse(MetaReference p_metaReference) {

@@ -20,12 +20,12 @@ public class CloudOperationTest {
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
 
-        universe.setOperation(universe.META_NODE.OP_TRIGGER, new KOperation() {
+        universe.setOperation(MetaNode.OP_TRIGGER, new KOperation() {
             @Override
             public void on(KObject source, Object[] params, Callback<Object> result) {
                 String parameters = "[";
-                for(int i = 0; i < params.length; i++) {
-                    if(i!= 0) {
+                for (int i = 0; i < params.length; i++) {
+                    if (i != 0) {
                         parameters = parameters + ", ";
                     }
                     parameters = parameters + params[i].toString();

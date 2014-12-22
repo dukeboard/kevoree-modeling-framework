@@ -9,8 +9,6 @@ public interface MetaAttribute extends Meta {
 
     boolean key();
 
-    MetaClass origin();
-
     MetaType metaType();
 
     Extrapolation strategy();

@@ -1,7 +1,7 @@
 #set($classDeclaration = $context.classDeclaration)
-package $classDeclaration.pack;
+package ${classDeclaration.pack};
 
-public interface $classDeclaration.name extends org.kevoree.modeling.api.KObject#foreach($parent in $classDeclaration.parents), $parent.getFqn()#end {
+public interface ${classDeclaration.name} extends org.kevoree.modeling.api.KObject#foreach($parent in $classDeclaration.parents), $parent.getFqn()#end {
 
 #foreach($attribute in $classDeclaration.attributes)
 #if($attribute.single)
