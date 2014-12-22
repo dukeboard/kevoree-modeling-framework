@@ -173,7 +173,7 @@ public class DoublePolynomialModel implements PolynomialModel {
 
     private double maxError(double[] computedWeights, long time, double value) {
         double maxErr = 0;
-        double temp = 0;
+        double temp;
         double ds;
         for (int i = 0; i < _polyTime.nbSamples() - 1; i++) {
             ds = _polyTime.getNormalizedTime(i);
