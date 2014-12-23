@@ -90,6 +90,7 @@
         <module>databases/org.kevoree.modeling.microframework.databases.redis</module>
         <module>databases/org.kevoree.modeling.microframework.databases.mongodb</module>
         <module>databases/org.kevoree.modeling.microframework.databases.websocket</module>
+		<module>databases/org.kevoree.modeling.microframework.databases.chronicle</module>
         <!-- End DataStores -->
 
     </modules>
