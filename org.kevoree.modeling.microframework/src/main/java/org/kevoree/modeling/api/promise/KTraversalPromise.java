@@ -18,4 +18,8 @@ public interface KTraversalPromise {
 
     public void then(Callback<KObject[]> callback);
 
+    public void map(MetaAttribute attribute, Callback<Object[]> callback);
+
 }
+
+

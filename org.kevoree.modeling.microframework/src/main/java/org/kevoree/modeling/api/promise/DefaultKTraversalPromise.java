@@ -4,10 +4,7 @@ import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KObject;
 import org.kevoree.modeling.api.meta.MetaAttribute;
 import org.kevoree.modeling.api.meta.MetaReference;
-import org.kevoree.modeling.api.promise.actions.KFilterAction;
-import org.kevoree.modeling.api.promise.actions.KFilterAttributeAction;
-import org.kevoree.modeling.api.promise.actions.KFinalAction;
-import org.kevoree.modeling.api.promise.actions.KTraverseAction;
+import org.kevoree.modeling.api.promise.actions.*;
 
 /**
  * Created by duke on 18/12/14.
@@ -67,6 +64,15 @@ public class DefaultKTraversalPromise implements KTraversalPromise {
         _terminated = true;
         //set the terminal leaf action
         _lastAction.chain(new KFinalAction(callback));
+        //execute the first element of the chain of actions
+        _initAction.execute(_initObjs);
+    }
+
+    @Override
+    public void map(MetaAttribute attribute, Callback<Object[]> callback) {
+        _terminated = true;
+        //set the terminal leaf action
+        _lastAction.chain(new KMapAction(attribute, callback));
         //execute the first element of the chain of actions
         _initAction.execute(_initObjs);
     }
