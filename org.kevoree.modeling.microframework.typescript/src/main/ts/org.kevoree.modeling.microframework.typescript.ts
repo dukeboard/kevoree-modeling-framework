@@ -2508,6 +2508,39 @@ module org {
 
                     }
 
+                    export class KeyCalculator {
+
+                        public static LONG_LIMIT_JS: number = 0x001FFFFFFFFFFFFF;
+                        public static INDEX_LIMIT: number = 0x0000001FFFFFFFFF;
+                        private _prefix: number;
+                        private _currentIndex: number;
+                        constructor(prefix: number, currentIndex: number) {
+                            this._prefix = (<number>prefix) << 53 - 16;
+                            this._currentIndex = currentIndex;
+                        }
+
+                        public nextKey(): number {
+                            if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
+                                throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
+                            }
+                            this._currentIndex++;
+                            var objectKey: number = this._prefix + this._currentIndex;
+                            if (objectKey > KeyCalculator.LONG_LIMIT_JS) {
+                                throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
+                            }
+                            return objectKey;
+                        }
+
+                        public lastComputedIndex(): number {
+                            return this._currentIndex;
+                        }
+
+                        public prefix(): number {
+                            return <number>(this._prefix >> 53 - 16);
+                        }
+
+                    }
+
                     export interface KStore {
 
                         lookup(originView: org.kevoree.modeling.api.KView, key: number, callback: (p : org.kevoree.modeling.api.KObject) => void): void;
@@ -2549,39 +2582,6 @@ module org {
                         connect(callback: (p : java.lang.Throwable) => void): void;
 
                         close(callback: (p : java.lang.Throwable) => void): void;
-
-                    }
-
-                    export class KeyCalculator {
-
-                        public static LONG_LIMIT_JS: number = 0x001FFFFFFFFFFFFF;
-                        public static INDEX_LIMIT: number = 0x0000001FFFFFFFFF;
-                        private _prefix: number;
-                        private _currentIndex: number;
-                        constructor(prefix: number, currentIndex: number) {
-                            this._prefix = (<number>prefix) << 53 - 16;
-                            this._currentIndex = currentIndex;
-                        }
-
-                        public nextKey(): number {
-                            if (this._currentIndex == KeyCalculator.INDEX_LIMIT) {
-                                throw new java.lang.IndexOutOfBoundsException("Object Index could not be created because it exceeded the capacity of the current prefix. Ask for a new prefix.");
-                            }
-                            this._currentIndex++;
-                            var objectKey: number = this._prefix + this._currentIndex;
-                            if (objectKey > KeyCalculator.LONG_LIMIT_JS) {
-                                throw new java.lang.IndexOutOfBoundsException("Object Index exceeds teh maximum JavaScript number capacity. (2^53)");
-                            }
-                            return objectKey;
-                        }
-
-                        public lastComputedIndex(): number {
-                            return this._currentIndex;
-                        }
-
-                        public prefix(): number {
-                            return <number>(this._prefix >> 53 - 16);
-                        }
 
                     }
 
@@ -8137,6 +8137,23 @@ module org {
                         public packageList: java.util.ArrayList<string> = new java.util.ArrayList<string>();
                     }
 
+                    export class XmiFormat implements org.kevoree.modeling.api.ModelFormat {
+
+                        private _view: org.kevoree.modeling.api.KView;
+                        constructor(p_view: org.kevoree.modeling.api.KView) {
+                            this._view = p_view;
+                        }
+
+                        public save(model: org.kevoree.modeling.api.KObject, callback: (p : string, p1 : java.lang.Throwable) => void): void {
+                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
+                        }
+
+                        public load(payload: string, callback: (p : java.lang.Throwable) => void): void {
+                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
+                        }
+
+                    }
+
                     export class XMILoadingContext {
 
                         public xmiReader: org.kevoree.modeling.api.xmi.XmlParser;
@@ -8555,23 +8572,6 @@ module org {
                                 return;
                             }
                             throw new java.lang.Exception("KMF Load error : reference " + this.ref + " not found in map when trying to  " + this.mutatorType + " " + this.refName + "  on " + this.target.metaClass().metaName() + "(uuid:" + this.target.uuid() + ")");
-                        }
-
-                    }
-
-                    export class XmiFormat implements org.kevoree.modeling.api.ModelFormat {
-
-                        private _view: org.kevoree.modeling.api.KView;
-                        constructor(p_view: org.kevoree.modeling.api.KView) {
-                            this._view = p_view;
-                        }
-
-                        public save(model: org.kevoree.modeling.api.KObject, callback: (p : string, p1 : java.lang.Throwable) => void): void {
-                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
-                        }
-
-                        public load(payload: string, callback: (p : java.lang.Throwable) => void): void {
-                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
                         }
 
                     }
