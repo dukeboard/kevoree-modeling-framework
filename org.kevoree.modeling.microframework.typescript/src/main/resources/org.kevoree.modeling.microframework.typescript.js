@@ -3703,7 +3703,7 @@ var org;
                                     return true;
                                 }
                                 if (this._polyTime.insert(time)) {
-                                    var maxError = this.maxErr(this.degree(), this._toleratedError, this._maxDegree, this._prioritization);
+                                    var maxError = this.maxErr();
                                     if (Math.abs(this.extrapolate(time) - value) <= maxError) {
                                         return true;
                                     }
@@ -3773,18 +3773,18 @@ var org;
                             DoublePolynomialModel.prototype.isDirty = function () {
                                 return this._isDirty || this._polyTime.isDirty();
                             };
-                            DoublePolynomialModel.prototype.maxErr = function (p_degree, p_toleratedError, p_maxDegree, p_prioritization) {
-                                var tol = p_toleratedError;
-                                if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
-                                    tol = p_toleratedError / Math.pow(2, p_maxDegree - p_degree);
+                            DoublePolynomialModel.prototype.maxErr = function () {
+                                var tol = this._toleratedError;
+                                if (this._prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
+                                    tol = this._toleratedError / Math.pow(2, this._maxDegree - this.degree());
                                 }
                                 else {
-                                    if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
-                                        tol = p_toleratedError / Math.pow(2, p_degree + 0.5);
+                                    if (this._prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
+                                        tol = this._toleratedError / Math.pow(2, this.degree() + 0.5);
                                     }
                                     else {
-                                        if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
-                                            tol = p_toleratedError * p_degree * 2 / (2 * p_maxDegree);
+                                        if (this._prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
+                                            tol = this._toleratedError * this.degree() * 2 / (2 * this._maxDegree);
                                         }
                                     }
                                 }
@@ -3799,7 +3799,7 @@ var org;
                             };
                             DoublePolynomialModel.prototype.maxError = function (computedWeights, time, value) {
                                 var maxErr = 0;
-                                var temp = 0;
+                                var temp;
                                 var ds;
                                 for (var i = 0; i < this._polyTime.nbSamples() - 1; i++) {
                                     ds = this._polyTime.getNormalizedTime(i);
@@ -4658,6 +4658,11 @@ var org;
                             this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KFinalAction(callback));
                             this._initAction.execute(this._initObjs);
                         };
+                        DefaultKTraversalPromise.prototype.map = function (attribute, callback) {
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KMapAction(attribute, callback));
+                            this._initAction.execute(this._initObjs);
+                        };
                         return DefaultKTraversalPromise;
                     })();
                     promise.DefaultKTraversalPromise = DefaultKTraversalPromise;
@@ -4796,6 +4801,28 @@ var org;
                             return KFinalAction;
                         })();
                         actions.KFinalAction = KFinalAction;
+                        var KMapAction = (function () {
+                            function KMapAction(p_attribute, p_callback) {
+                                this._finalCallback = p_callback;
+                                this._attribute = p_attribute;
+                            }
+                            KMapAction.prototype.chain = function (next) {
+                            };
+                            KMapAction.prototype.execute = function (inputs) {
+                                var collected = new java.util.ArrayList();
+                                for (var i = 0; i < inputs.length; i++) {
+                                    if (inputs[i] != null) {
+                                        var resolved = inputs[i].get(this._attribute);
+                                        if (resolved != null) {
+                                            collected.add(resolved);
+                                        }
+                                    }
+                                }
+                                this._finalCallback(collected.toArray(new Array()));
+                            };
+                            return KMapAction;
+                        })();
+                        actions.KMapAction = KMapAction;
                         var KTraverseAction = (function () {
                             function KTraverseAction(p_reference) {
                                 this._reference = p_reference;

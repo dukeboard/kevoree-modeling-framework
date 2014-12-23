@@ -4173,7 +4173,7 @@ module org {
                                     return true;
                                 }
                                 if (this._polyTime.insert(time)) {
-                                    var maxError: number = this.maxErr(this.degree(), this._toleratedError, this._maxDegree, this._prioritization);
+                                    var maxError: number = this.maxErr();
                                     if (Math.abs(this.extrapolate(time) - value) <= maxError) {
                                         return true;
                                     }
@@ -4246,16 +4246,16 @@ module org {
                                 return this._isDirty || this._polyTime.isDirty();
                             }
 
-                            private maxErr(p_degree: number, p_toleratedError: number, p_maxDegree: number, p_prioritization: org.kevoree.modeling.api.polynomial.util.Prioritization): number {
-                                var tol: number = p_toleratedError;
-                                if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
-                                    tol = p_toleratedError / Math.pow(2, p_maxDegree - p_degree);
+                            private maxErr(): number {
+                                var tol: number = this._toleratedError;
+                                if (this._prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.HIGHDEGREES) {
+                                    tol = this._toleratedError / Math.pow(2, this._maxDegree - this.degree());
                                 } else {
-                                    if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
-                                        tol = p_toleratedError / Math.pow(2, p_degree + 0.5);
+                                    if (this._prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.LOWDEGREES) {
+                                        tol = this._toleratedError / Math.pow(2, this.degree() + 0.5);
                                     } else {
-                                        if (p_prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
-                                            tol = p_toleratedError * p_degree * 2 / (2 * p_maxDegree);
+                                        if (this._prioritization == org.kevoree.modeling.api.polynomial.util.Prioritization.SAMEPRIORITY) {
+                                            tol = this._toleratedError * this.degree() * 2 / (2 * this._maxDegree);
                                         }
                                     }
                                 }
@@ -4272,7 +4272,7 @@ module org {
 
                             private maxError(computedWeights: number[], time: number, value: number): number {
                                 var maxErr: number = 0;
-                                var temp: number = 0;
+                                var temp: number;
                                 var ds: number;
                                 for (var i: number = 0; i < this._polyTime.nbSamples() - 1; i++) {
                                     ds = this._polyTime.getNormalizedTime(i);
@@ -5222,6 +5222,12 @@ module org {
                             this._initAction.execute(this._initObjs);
                         }
 
+                        public map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void {
+                            this._terminated = true;
+                            this._lastAction.chain(new org.kevoree.modeling.api.promise.actions.KMapAction(attribute, callback));
+                            this._initAction.execute(this._initObjs);
+                        }
+
                     }
 
                     export interface KTraversalAction {
@@ -5247,6 +5253,8 @@ module org {
                         filter(filter: (p : org.kevoree.modeling.api.KObject) => boolean): org.kevoree.modeling.api.promise.KTraversalPromise;
 
                         then(callback: (p : org.kevoree.modeling.api.KObject[]) => void): void;
+
+                        map(attribute: org.kevoree.modeling.api.meta.MetaAttribute, callback: (p : any[]) => void): void;
 
                     }
 
@@ -5381,6 +5389,33 @@ module org {
 
                             public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
                                 this._finalCallback(inputs);
+                            }
+
+                        }
+
+                        export class KMapAction implements org.kevoree.modeling.api.promise.KTraversalAction {
+
+                            private _finalCallback: (p : any[]) => void;
+                            private _attribute: org.kevoree.modeling.api.meta.MetaAttribute;
+                            constructor(p_attribute: org.kevoree.modeling.api.meta.MetaAttribute, p_callback: (p : any[]) => void) {
+                                this._finalCallback = p_callback;
+                                this._attribute = p_attribute;
+                            }
+
+                            public chain(next: org.kevoree.modeling.api.promise.KTraversalAction): void {
+                            }
+
+                            public execute(inputs: org.kevoree.modeling.api.KObject[]): void {
+                                var collected: java.util.List<any> = new java.util.ArrayList<any>();
+                                for (var i: number = 0; i < inputs.length; i++) {
+                                    if (inputs[i] != null) {
+                                        var resolved: any = inputs[i].get(this._attribute);
+                                        if (resolved != null) {
+                                            collected.add(resolved);
+                                        }
+                                    }
+                                }
+                                this._finalCallback(collected.toArray(new Array()));
                             }
 
                         }

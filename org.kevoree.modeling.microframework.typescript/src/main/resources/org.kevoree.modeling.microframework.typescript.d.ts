@@ -738,7 +738,7 @@ declare module org {
                             save(): string;
                             load(payload: string): void;
                             isDirty(): boolean;
-                            private maxErr(p_degree, p_toleratedError, p_maxDegree, p_prioritization);
+                            private maxErr();
                             private internal_feed(time, value);
                             private maxError(computedWeights, time, value);
                             private test_extrapolate(time, weights);
@@ -896,6 +896,7 @@ declare module org {
                         attribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
                         filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
                         then(callback: (p: KObject[]) => void): void;
+                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
                     }
                     interface KTraversalAction {
                         chain(next: KTraversalAction): void;
@@ -909,6 +910,7 @@ declare module org {
                         attribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
                         filter(filter: (p: KObject) => boolean): KTraversalPromise;
                         then(callback: (p: KObject[]) => void): void;
+                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
                     }
                     module actions {
                         class KFilterAction implements KTraversalAction {
@@ -929,6 +931,13 @@ declare module org {
                         class KFinalAction implements KTraversalAction {
                             private _finalCallback;
                             constructor(p_callback: (p: KObject[]) => void);
+                            chain(next: KTraversalAction): void;
+                            execute(inputs: KObject[]): void;
+                        }
+                        class KMapAction implements KTraversalAction {
+                            private _finalCallback;
+                            private _attribute;
+                            constructor(p_attribute: meta.MetaAttribute, p_callback: (p: any[]) => void);
                             chain(next: KTraversalAction): void;
                             execute(inputs: KObject[]): void;
                         }

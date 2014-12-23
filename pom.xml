@@ -59,10 +59,19 @@
             </roles>
             <timezone>+2</timezone>
         </developer>
+        <developer>
+            <name>Assaad MOAWAD</name>
+            <id>assaad.moawad</id>
+            <email>assaad.moawad@uni.lu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+        </developer>
     </developers>
 
     <properties>
-        <kmf.plugin.version>13</kmf.plugin.version>
+        <kmf.plugin.version>15</kmf.plugin.version>
         <java2typescript.plugin.version>10-SNAPSHOT</java2typescript.plugin.version>
     </properties>
 
