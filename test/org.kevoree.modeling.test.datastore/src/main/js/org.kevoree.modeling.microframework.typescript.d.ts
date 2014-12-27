@@ -448,6 +448,16 @@ declare module org {
                         commit(error: (p: java.lang.Throwable) => void): void;
                         close(error: (p: java.lang.Throwable) => void): void;
                     }
+                    class KeyCalculator {
+                        static LONG_LIMIT_JS: number;
+                        static INDEX_LIMIT: number;
+                        private _prefix;
+                        private _currentIndex;
+                        constructor(prefix: number, currentIndex: number);
+                        nextKey(): number;
+                        lastComputedIndex(): number;
+                        prefix(): number;
+                    }
                     interface KStore {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
@@ -469,16 +479,6 @@ declare module org {
                         operationManager(): util.KOperationManager;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
-                    }
-                    class KeyCalculator {
-                        static LONG_LIMIT_JS: number;
-                        static INDEX_LIMIT: number;
-                        private _prefix;
-                        private _currentIndex;
-                        constructor(prefix: number, currentIndex: number);
-                        nextKey(): number;
-                        lastComputedIndex(): number;
-                        prefix(): number;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
@@ -576,6 +576,7 @@ declare module org {
                         save(cache: any): string;
                         load(payload: string, attribute: meta.MetaAttribute, now: number): any;
                         static instance(): Extrapolation;
+                        private createPolynomialModel(origin, precision);
                     }
                 }
                 module json {
@@ -709,93 +710,93 @@ declare module org {
                     }
                 }
                 module polynomial {
-                    class DefaultPolynomialModel implements PolynomialModel {
-                        private weights;
-                        private timeOrigin;
-                        private samples;
-                        private degradeFactor;
-                        private prioritization;
-                        private maxDegree;
-                        private toleratedError;
-                        private _lastIndex;
-                        private static sep;
-                        private _isDirty;
-                        constructor(timeOrigin: number, toleratedError: number, maxDegree: number, degradeFactor: number, prioritization: util.Prioritization);
-                        getSamples(): java.util.List<util.DataSample>;
-                        getDegree(): number;
-                        getTimeOrigin(): number;
-                        private getMaxErr(degree, toleratedError, maxDegree, prioritization);
-                        private internal_feed(time, value);
-                        private maxError(computedWeights, time, value);
-                        comparePolynome(p2: DefaultPolynomialModel, err: number): boolean;
-                        private internal_extrapolate(time, weights);
-                        extrapolate(time: number): number;
-                        insert(time: number, value: number): boolean;
-                        lastIndex(): number;
-                        indexBefore(time: number): number;
-                        timesAfter(time: number): number[];
-                        save(): string;
-                        load(payload: string): void;
-                        isDirty(): boolean;
-                    }
                     interface PolynomialModel {
                         extrapolate(time: number): number;
                         insert(time: number, value: number): boolean;
                         lastIndex(): number;
-                        indexBefore(time: number): number;
-                        timesAfter(time: number): number[];
                         save(): string;
                         load(payload: string): void;
                         isDirty(): boolean;
                     }
                     module doublepolynomial {
                         class DoublePolynomialModel implements PolynomialModel {
+                            private static sep;
+                            static sepW: string;
+                            private _prioritization;
+                            private _maxDegree;
+                            private _toleratedError;
+                            private _isDirty;
+                            private _weights;
+                            private _polyTime;
+                            constructor(p_timeOrigin: number, p_toleratedError: number, p_maxDegree: number, p_prioritization: util.Prioritization);
+                            degree(): number;
+                            timeOrigin(): number;
+                            comparePolynome(p2: DoublePolynomialModel, err: number): boolean;
+                            extrapolate(time: number): number;
+                            insert(time: number, value: number): boolean;
+                            lastIndex(): number;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                            private maxErr();
+                            private internal_feed(time, value);
+                            private maxError(computedWeights, time, value);
+                            private test_extrapolate(time, weights);
+                        }
+                        class TimePolynomial {
+                            private static toleratedErrorRatio;
+                            private _timeOrigin;
+                            private _isDirty;
+                            private static maxTimeDegree;
+                            private _weights;
+                            private _nbSamples;
+                            private _samplingPeriod;
+                            constructor(p_timeOrigin: number);
+                            timeOrigin(): number;
+                            samplingPeriod(): number;
+                            weights(): number[];
+                            degree(): number;
+                            denormalize(p_time: number): number;
+                            getNormalizedTime(id: number): number;
+                            extrapolate(id: number): number;
+                            nbSamples(): number;
+                            insert(time: number): boolean;
+                            private maxError(computedWeights, lastId, newtime);
+                            private test_extrapolate(id, newWeights);
+                            removeLast(): void;
+                            lastIndex(): number;
+                            save(): string;
+                            load(payload: string): void;
+                            isDirty(): boolean;
+                        }
+                    }
+                    module simplepolynomial {
+                        class SimplePolynomialModel implements PolynomialModel {
                             private weights;
-                            private polyTime;
+                            private timeOrigin;
+                            private samples;
+                            private degradeFactor;
                             private prioritization;
                             private maxDegree;
                             private toleratedError;
+                            private _lastIndex;
                             private static sep;
                             private _isDirty;
-                            constructor(toleratedError: number, maxDegree: number, prioritization: util.Prioritization);
+                            constructor(timeOrigin: number, toleratedError: number, maxDegree: number, prioritization: util.Prioritization);
+                            getSamples(): java.util.List<util.DataSample>;
                             getDegree(): number;
                             getTimeOrigin(): number;
                             private getMaxErr(degree, toleratedError, maxDegree, prioritization);
                             private internal_feed(time, value);
                             private maxError(computedWeights, time, value);
-                            comparePolynome(p2: DoublePolynomialModel, err: number): boolean;
+                            comparePolynome(p2: SimplePolynomialModel, err: number): boolean;
                             private internal_extrapolate(time, weights);
                             extrapolate(time: number): number;
                             insert(time: number, value: number): boolean;
                             lastIndex(): number;
-                            indexBefore(time: number): number;
-                            timesAfter(time: number): number[];
                             save(): string;
                             load(payload: string): void;
                             isDirty(): boolean;
-                        }
-                        class TimePolynomial {
-                            private timeOrigin;
-                            private weights;
-                            private samples;
-                            private samplingPeriod;
-                            private static maxTimeDegree;
-                            private static toleratedErrorRatio;
-                            constructor();
-                            getTimeOrigin(): number;
-                            convertLongToDouble(time: number): number;
-                            getSamplingPeriod(): number;
-                            private getDegree();
-                            getWeights(): number[];
-                            setWeights(weights: number[]): void;
-                            internal_extrapolate(id: number, newWeights: number[]): number;
-                            getSamples(): number;
-                            private maxError(computedWeights, lastId, newtime);
-                            insert(time: number): boolean;
-                            getNormalizedTime(id: number): number;
-                            getTime(id: number): number;
-                            removeLast(): void;
-                            getLastIndex(): number;
                         }
                     }
                     module util {
@@ -895,6 +896,7 @@ declare module org {
                         attribute(p_attribute: meta.MetaAttribute, p_expectedValue: any): KTraversalPromise;
                         filter(p_filter: (p: KObject) => boolean): KTraversalPromise;
                         then(callback: (p: KObject[]) => void): void;
+                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
                     }
                     interface KTraversalAction {
                         chain(next: KTraversalAction): void;
@@ -908,6 +910,7 @@ declare module org {
                         attribute(attribute: meta.MetaAttribute, expectedValue: any): KTraversalPromise;
                         filter(filter: (p: KObject) => boolean): KTraversalPromise;
                         then(callback: (p: KObject[]) => void): void;
+                        map(attribute: meta.MetaAttribute, callback: (p: any[]) => void): void;
                     }
                     module actions {
                         class KFilterAction implements KTraversalAction {
@@ -928,6 +931,13 @@ declare module org {
                         class KFinalAction implements KTraversalAction {
                             private _finalCallback;
                             constructor(p_callback: (p: KObject[]) => void);
+                            chain(next: KTraversalAction): void;
+                            execute(inputs: KObject[]): void;
+                        }
+                        class KMapAction implements KTraversalAction {
+                            private _finalCallback;
+                            private _attribute;
+                            constructor(p_attribute: meta.MetaAttribute, p_callback: (p: any[]) => void);
                             chain(next: KTraversalAction): void;
                             execute(inputs: KObject[]): void;
                         }
@@ -1289,6 +1299,12 @@ declare module org {
                         elementsCount: java.util.HashMap<string, number>;
                         packageList: java.util.ArrayList<string>;
                     }
+                    class XmiFormat implements ModelFormat {
+                        private _view;
+                        constructor(p_view: KView);
+                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
+                    }
                     class XMILoadingContext {
                         xmiReader: XmlParser;
                         loadedRoots: KObject;
@@ -1328,12 +1344,6 @@ declare module org {
                         private ref;
                         constructor(context: XMILoadingContext, target: KObject, mutatorType: KActionType, refName: string, ref: string);
                         run(): void;
-                    }
-                    class XmiFormat implements ModelFormat {
-                        private _view;
-                        constructor(p_view: KView);
-                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
-                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class XmlParser {
                         private payload;

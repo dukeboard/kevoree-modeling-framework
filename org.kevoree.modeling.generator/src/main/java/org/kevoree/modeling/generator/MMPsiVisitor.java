@@ -69,10 +69,8 @@ public class MMPsiVisitor extends MetaModelVisitor {
                     }
                     thisClassDeclaration.addAttribute(attribute);
                 } else {
-
                     String relationTypeFqn = relationDecl.getTypeDeclaration().getName();
                     MModelClass relationType = getOrAddClass(relationTypeFqn);
-
                     MModelReference reference = getOrAddReference(thisClassDeclaration, relationDecl.getRelationName().getText(), relationType);
                     if (relationDecl.getAnnotations() != null) {
                         relationDecl.getAnnotations().getAnnotationList().forEach(ann -> {
