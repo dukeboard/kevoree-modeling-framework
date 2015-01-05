@@ -466,6 +466,8 @@ public class DefaultKStore implements KStore {
                                             //Save the cache value
                                             write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[index], entry);
                                         }
+                                    } else {
+                                        System.err.println("Not resolvable UUID " + toLoadIndexes.get(i));
                                     }
                                 }
                                 callback.on(resolved);
