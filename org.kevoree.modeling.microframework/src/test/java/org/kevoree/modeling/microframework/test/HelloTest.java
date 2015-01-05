@@ -25,6 +25,7 @@ public class HelloTest {
     @Test
     public void helloTest() {
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         int[] counter = new int[1];
         counter[0]=0;
         universe.listen(new ModelListener() {

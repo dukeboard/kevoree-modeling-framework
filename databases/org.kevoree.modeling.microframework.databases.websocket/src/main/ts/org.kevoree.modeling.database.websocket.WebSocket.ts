@@ -121,7 +121,7 @@ module org {
                             this.clientConnection.onclose = function (error) {
                                 console.error(error);
                             };
-                            this.clientConnection.onopen = () => {
+                            this.clientConnection.onopen = function() {
                                 if (callback != null) {
                                     callback(null);
                                 }

@@ -851,7 +851,6 @@ var org;
                     var AbstractKUniverse = (function () {
                         function AbstractKUniverse() {
                             this._storage = new org.kevoree.modeling.api.data.DefaultKStore();
-                            this._storage.connect(null);
                         }
                         AbstractKUniverse.prototype.metaModel = function () {
                             throw "Abstract method";
@@ -1256,102 +1255,109 @@ var org;
                                 }
                                 return;
                             }
-                            if (this._db == null) {
+                            if (this._db == null || this._eventBroker == null) {
                                 if (callback != null) {
-                                    callback(new java.lang.Exception("Please attach a KDataBase first !"));
+                                    callback(new java.lang.Exception("Please attach a KDataBase AND a KBroker first !"));
                                 }
                             }
                             else {
-                                this._db.connect(function (throwable) {
+                                this._eventBroker.connect(function (throwable) {
                                     if (throwable == null) {
-                                        var keys = new Array();
-                                        keys[0] = _this.keyLastPrefix();
-                                        _this._db.get(keys, function (strings, error) {
-                                            if (error != null) {
-                                                if (callback != null) {
-                                                    callback(error);
-                                                }
-                                            }
-                                            else {
-                                                if (strings.length == 1) {
-                                                    try {
-                                                        var payloadPrefix = strings[0];
-                                                        if (payloadPrefix == null || payloadPrefix.equals("")) {
-                                                            payloadPrefix = "0";
+                                        _this._db.connect(function (throwable) {
+                                            if (throwable == null) {
+                                                var keys = new Array();
+                                                keys[0] = _this.keyLastPrefix();
+                                                _this._db.get(keys, function (strings, error) {
+                                                    if (error != null) {
+                                                        if (callback != null) {
+                                                            callback(error);
                                                         }
-                                                        var newPrefix = java.lang.Short.parseShort(payloadPrefix);
-                                                        var keys2 = new Array();
-                                                        keys2[0] = _this.keyLastDimIndex(payloadPrefix);
-                                                        keys2[1] = _this.keyLastObjIndex(payloadPrefix);
-                                                        _this._db.get(keys2, function (strings, error) {
-                                                            if (error != null) {
-                                                                if (callback != null) {
-                                                                    callback(error);
+                                                    }
+                                                    else {
+                                                        if (strings.length == 1) {
+                                                            try {
+                                                                var payloadPrefix = strings[0];
+                                                                if (payloadPrefix == null || payloadPrefix.equals("")) {
+                                                                    payloadPrefix = "0";
                                                                 }
-                                                            }
-                                                            else {
-                                                                if (strings.length == 2) {
-                                                                    try {
-                                                                        var dimIndexPayload = strings[0];
-                                                                        if (dimIndexPayload == null || dimIndexPayload.equals("")) {
-                                                                            dimIndexPayload = "0";
+                                                                var newPrefix = java.lang.Short.parseShort(payloadPrefix);
+                                                                var keys2 = new Array();
+                                                                keys2[0] = _this.keyLastDimIndex(payloadPrefix);
+                                                                keys2[1] = _this.keyLastObjIndex(payloadPrefix);
+                                                                _this._db.get(keys2, function (strings, error) {
+                                                                    if (error != null) {
+                                                                        if (callback != null) {
+                                                                            callback(error);
                                                                         }
-                                                                        var objIndexPayload = strings[1];
-                                                                        if (objIndexPayload == null || objIndexPayload.equals("")) {
-                                                                            objIndexPayload = "0";
-                                                                        }
-                                                                        var newDimIndex = java.lang.Long.parseLong(dimIndexPayload);
-                                                                        var newObjIndex = java.lang.Long.parseLong(objIndexPayload);
-                                                                        var keys3 = new Array(new Array());
-                                                                        var payloadKeys3 = new Array();
-                                                                        payloadKeys3[0] = _this.keyLastPrefix();
-                                                                        if (newPrefix == java.lang.Short.MAX_VALUE) {
-                                                                            payloadKeys3[1] = "" + java.lang.Short.MIN_VALUE;
+                                                                    }
+                                                                    else {
+                                                                        if (strings.length == 2) {
+                                                                            try {
+                                                                                var dimIndexPayload = strings[0];
+                                                                                if (dimIndexPayload == null || dimIndexPayload.equals("")) {
+                                                                                    dimIndexPayload = "0";
+                                                                                }
+                                                                                var objIndexPayload = strings[1];
+                                                                                if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                                                    objIndexPayload = "0";
+                                                                                }
+                                                                                var newDimIndex = java.lang.Long.parseLong(dimIndexPayload);
+                                                                                var newObjIndex = java.lang.Long.parseLong(objIndexPayload);
+                                                                                var keys3 = new Array(new Array());
+                                                                                var payloadKeys3 = new Array();
+                                                                                payloadKeys3[0] = _this.keyLastPrefix();
+                                                                                if (newPrefix == java.lang.Short.MAX_VALUE) {
+                                                                                    payloadKeys3[1] = "" + java.lang.Short.MIN_VALUE;
+                                                                                }
+                                                                                else {
+                                                                                    payloadKeys3[1] = "" + (newPrefix + 1);
+                                                                                }
+                                                                                keys3[0] = payloadKeys3;
+                                                                                _this._db.put(keys3, function (throwable) {
+                                                                                    _this._dimensionKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newDimIndex);
+                                                                                    _this._objectKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newObjIndex);
+                                                                                    _this.isConnected = true;
+                                                                                    if (callback != null) {
+                                                                                        callback(null);
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            catch ($ex$) {
+                                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                                    var e = $ex$;
+                                                                                    if (callback != null) {
+                                                                                        callback(e);
+                                                                                    }
+                                                                                }
+                                                                            }
                                                                         }
                                                                         else {
-                                                                            payloadKeys3[1] = "" + (newPrefix + 1);
-                                                                        }
-                                                                        keys3[0] = payloadKeys3;
-                                                                        _this._db.put(keys3, function (throwable) {
-                                                                            _this._dimensionKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newDimIndex);
-                                                                            _this._objectKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newObjIndex);
-                                                                            _this.isConnected = true;
                                                                             if (callback != null) {
-                                                                                callback(null);
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                    catch ($ex$) {
-                                                                        if ($ex$ instanceof java.lang.Exception) {
-                                                                            var e = $ex$;
-                                                                            if (callback != null) {
-                                                                                callback(e);
+                                                                                callback(new java.lang.Exception("Error while connecting the KDataStore..."));
                                                                             }
                                                                         }
                                                                     }
-                                                                }
-                                                                else {
+                                                                });
+                                                            }
+                                                            catch ($ex$) {
+                                                                if ($ex$ instanceof java.lang.Exception) {
+                                                                    var e = $ex$;
                                                                     if (callback != null) {
-                                                                        callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                                                        callback(e);
                                                                     }
                                                                 }
                                                             }
-                                                        });
-                                                    }
-                                                    catch ($ex$) {
-                                                        if ($ex$ instanceof java.lang.Exception) {
-                                                            var e = $ex$;
+                                                        }
+                                                        else {
                                                             if (callback != null) {
-                                                                callback(e);
+                                                                callback(new java.lang.Exception("Error while connecting the KDataStore..."));
                                                             }
                                                         }
                                                     }
-                                                }
-                                                else {
-                                                    if (callback != null) {
-                                                        callback(new java.lang.Exception("Error while connecting the KDataStore..."));
-                                                    }
-                                                }
+                                                });
+                                            }
+                                            else {
+                                                callback(throwable);
                                             }
                                         });
                                     }
@@ -1362,12 +1368,17 @@ var org;
                             }
                         };
                         DefaultKStore.prototype.close = function (callback) {
+                            var _this = this;
                             this.isConnected = false;
                             if (this._db != null) {
-                                this._db.close(callback);
-                            }
-                            else {
-                                callback(new java.lang.Exception("DB not set!"));
+                                this._db.close(function (throwable) {
+                                    if (_this._eventBroker != null) {
+                                        _this._eventBroker.close(callback);
+                                    }
+                                    else {
+                                        callback(null);
+                                    }
+                                });
                             }
                         };
                         DefaultKStore.prototype.keyTree = function (dim, key) {
@@ -1611,6 +1622,9 @@ var org;
                                                         resolved[i] = originView.createProxy(entry.metaClass, entry.timeTree, keys[index]);
                                                         _this.write_cache(objects[i][DefaultKStore.INDEX_RESOLVED_DIM], objects[i][DefaultKStore.INDEX_RESOLVED_TIME], keys[index], entry);
                                                     }
+                                                }
+                                                else {
+                                                    System.err.println("Not resolvable UUID " + toLoadIndexes.get(i));
                                                 }
                                             }
                                             callback(resolved);
@@ -2938,65 +2952,67 @@ var org;
                             });
                         };
                         JsonModelSerializer.printJSON = function (elem, builder) {
-                            builder.append("{\n");
-                            builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
-                            builder.append(elem.metaClass().metaName());
-                            builder.append("\",\n");
-                            builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
-                            builder.append(elem.uuid() + "");
-                            if (elem.isRoot()) {
+                            if (elem != null) {
+                                builder.append("{\n");
+                                builder.append("\t\"" + JsonModelSerializer.KEY_META + "\" : \"");
+                                builder.append(elem.metaClass().metaName());
                                 builder.append("\",\n");
-                                builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
-                                builder.append("true");
-                            }
-                            builder.append("\",\n");
-                            for (var i = 0; i < elem.metaClass().metaAttributes().length; i++) {
-                                var payload = elem.get(elem.metaClass().metaAttributes()[i]);
-                                if (payload != null) {
-                                    builder.append("\t");
-                                    builder.append("\"");
-                                    builder.append(elem.metaClass().metaAttributes()[i].metaName());
-                                    builder.append("\" : \"");
-                                    builder.append(payload.toString());
+                                builder.append("\t\"" + JsonModelSerializer.KEY_UUID + "\" : \"");
+                                builder.append(elem.uuid() + "");
+                                if (elem.isRoot()) {
                                     builder.append("\",\n");
+                                    builder.append("\t\"" + JsonModelSerializer.KEY_ROOT + "\" : \"");
+                                    builder.append("true");
                                 }
-                            }
-                            for (var i = 0; i < elem.metaClass().metaReferences().length; i++) {
-                                var raw = elem.view().dimension().universe().storage().raw(elem, org.kevoree.modeling.api.data.AccessMode.READ);
-                                var payload = null;
-                                if (raw != null) {
-                                    payload = raw[elem.metaClass().metaReferences()[i].index()];
-                                }
-                                if (payload != null) {
-                                    builder.append("\t");
-                                    builder.append("\"");
-                                    builder.append(elem.metaClass().metaReferences()[i].metaName());
-                                    builder.append("\" :");
-                                    if (elem.metaClass().metaReferences()[i].single()) {
+                                builder.append("\",\n");
+                                for (var i = 0; i < elem.metaClass().metaAttributes().length; i++) {
+                                    var payload = elem.get(elem.metaClass().metaAttributes()[i]);
+                                    if (payload != null) {
+                                        builder.append("\t");
                                         builder.append("\"");
+                                        builder.append(elem.metaClass().metaAttributes()[i].metaName());
+                                        builder.append("\" : \"");
                                         builder.append(payload.toString());
-                                        builder.append("\"");
+                                        builder.append("\",\n");
                                     }
-                                    else {
-                                        var elems = payload;
-                                        var elemsArr = elems.toArray(new Array());
-                                        var isFirst = true;
-                                        builder.append(" [");
-                                        for (var j = 0; j < elemsArr.length; j++) {
-                                            if (!isFirst) {
-                                                builder.append(",");
-                                            }
-                                            builder.append("\"");
-                                            builder.append(elemsArr[j] + "");
-                                            builder.append("\"");
-                                            isFirst = false;
-                                        }
-                                        builder.append("]");
-                                    }
-                                    builder.append(",\n");
                                 }
+                                for (var i = 0; i < elem.metaClass().metaReferences().length; i++) {
+                                    var raw = elem.view().dimension().universe().storage().raw(elem, org.kevoree.modeling.api.data.AccessMode.READ);
+                                    var payload = null;
+                                    if (raw != null) {
+                                        payload = raw[elem.metaClass().metaReferences()[i].index()];
+                                    }
+                                    if (payload != null) {
+                                        builder.append("\t");
+                                        builder.append("\"");
+                                        builder.append(elem.metaClass().metaReferences()[i].metaName());
+                                        builder.append("\" :");
+                                        if (elem.metaClass().metaReferences()[i].single()) {
+                                            builder.append("\"");
+                                            builder.append(payload.toString());
+                                            builder.append("\"");
+                                        }
+                                        else {
+                                            var elems = payload;
+                                            var elemsArr = elems.toArray(new Array());
+                                            var isFirst = true;
+                                            builder.append(" [");
+                                            for (var j = 0; j < elemsArr.length; j++) {
+                                                if (!isFirst) {
+                                                    builder.append(",");
+                                                }
+                                                builder.append("\"");
+                                                builder.append(elemsArr[j] + "");
+                                                builder.append("\"");
+                                                isFirst = false;
+                                            }
+                                            builder.append("]");
+                                        }
+                                        builder.append(",\n");
+                                    }
+                                }
+                                builder.append("}\n");
                             }
-                            builder.append("}\n");
                         };
                         JsonModelSerializer.KEY_META = "@meta";
                         JsonModelSerializer.KEY_UUID = "@uuid";
@@ -3004,6 +3020,8 @@ var org;
                         JsonModelSerializer.PARENT_META = "@parent";
                         JsonModelSerializer.PARENT_REF_META = "@ref";
                         JsonModelSerializer.INBOUNDS_META = "@inbounds";
+                        JsonModelSerializer.TIME_META = "@time";
+                        JsonModelSerializer.DIM_META = "@dimension";
                         return JsonModelSerializer;
                     })();
                     json.JsonModelSerializer = JsonModelSerializer;

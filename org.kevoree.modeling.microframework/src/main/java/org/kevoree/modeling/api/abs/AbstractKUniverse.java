@@ -24,7 +24,7 @@ public abstract class AbstractKUniverse<A extends KDimension> implements KUniver
 
     protected AbstractKUniverse() {
         _storage = new DefaultKStore();
-        _storage.connect(null);
+        //_storage.connect(null);
     }
 
     @Override

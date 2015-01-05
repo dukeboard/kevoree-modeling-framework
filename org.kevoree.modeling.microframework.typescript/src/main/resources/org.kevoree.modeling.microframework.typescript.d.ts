@@ -602,6 +602,8 @@ declare module org {
                         static PARENT_META: string;
                         static PARENT_REF_META: string;
                         static INBOUNDS_META: string;
+                        static TIME_META: string;
+                        static DIM_META: string;
                         static serialize(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
                         static printJSON(elem: KObject, builder: java.lang.StringBuilder): void;
                     }

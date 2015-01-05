@@ -22,6 +22,7 @@ public class TimeMachineTest {
         counter[0]=0;
 
         CloudUniverse universe = new CloudUniverse();
+        universe.connect(null);
         CloudDimension dimension = universe.newDimension();
         CloudView v0 = dimension.time(0l);
         Node n0 = v0.createNode();
