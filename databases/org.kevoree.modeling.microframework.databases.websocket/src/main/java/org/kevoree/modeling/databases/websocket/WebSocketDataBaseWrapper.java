@@ -42,10 +42,12 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
     @Override
     public void connect(Callback<Throwable> callback) {
         if(wrapped!= null){
+            server = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(websocket(this)).build();
+            server.start();
             wrapped.connect(callback);
+        } else {
+            callback.on(null);
         }
-        server = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(websocket(this)).build();
-        server.start();
     }
 
     @Override
@@ -58,6 +60,8 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
                     callback.on(throwable);
                 }
             });
+        } else {
+            callback.on(null);
         }
     }
 
