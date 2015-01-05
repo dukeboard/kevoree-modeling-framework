@@ -151,6 +151,7 @@ public class GenModelPlugin extends AbstractMojo {
             throw new MojoExecutionException("KMF Compilation error !", e);
         }
 
-
+        project.addCompileSourceRoot(targetSrcGenDir.getAbsolutePath());
+        
     }
 }
