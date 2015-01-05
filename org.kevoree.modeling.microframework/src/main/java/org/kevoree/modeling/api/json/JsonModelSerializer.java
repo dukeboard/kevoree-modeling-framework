@@ -30,6 +30,10 @@ public class JsonModelSerializer {
 
     public static final String INBOUNDS_META = "@inbounds";
 
+    public static final String TIME_META = "@time";
+
+    public static final String DIM_META = "@dimension";
+
     //@Override
     public static void serialize(KObject model, final ThrowableCallback<String> callback) {
         final StringBuilder builder = new StringBuilder();

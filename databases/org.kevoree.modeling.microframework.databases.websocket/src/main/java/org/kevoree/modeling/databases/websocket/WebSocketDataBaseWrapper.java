@@ -39,20 +39,26 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
 
     private static final String COMMIT_ACTION = "commit";
 
-    public void start() {
-        //noop
+    @Override
+    public void connect(Callback<Throwable> callback) {
+        if(wrapped!= null){
+            wrapped.connect(callback);
+        }
         server = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(websocket(this)).build();
         server.start();
     }
 
-    public void stop(Callback<Throwable> error) {
-        wrapped.close(new Callback<Throwable>() {
-            @Override
-            public void on(Throwable throwable) {
-                server.stop();
-                error.on(throwable);
-            }
-        });
+    @Override
+    public void close(Callback<Throwable> callback) {
+        if(wrapped!= null){
+            wrapped.close(new Callback<Throwable>() {
+                @Override
+                public void on(Throwable throwable) {
+                    server.stop();
+                    callback.on(throwable);
+                }
+            });
+        }
     }
 
     @Override
@@ -162,17 +168,4 @@ public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements
         }
     }
 
-    @Override
-    public void connect(Callback<Throwable> callback) {
-        if(wrapped!= null){
-            wrapped.connect(callback);
-        }
-    }
-
-    @Override
-    public void close(Callback<Throwable> callback) {
-        if(wrapped!= null){
-            wrapped.close(callback);
-        }
-    }
 }
