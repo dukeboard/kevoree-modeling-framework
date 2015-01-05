@@ -45,14 +45,32 @@ public class WebSocketBroker extends AbstractReceiveListener implements KEventBr
 
     @Override
     public void connect(Callback<Throwable> callback) {
-        server = Undertow.builder().addHttpListener(_port, _ip).setHandler(websocket(this)).build();
-        server.start();
+        try {
+            server = Undertow.builder().addHttpListener(_port, _ip).setHandler(websocket(this)).build();
+            server.start();
+            if (callback != null) {
+                callback.on(null);
+            }
+        } catch (Throwable e) {
+            if (callback != null) {
+                callback.on(e);
+            }
+        }
     }
 
     @Override
     public void close(Callback<Throwable> callback) {
-        if (server != null) {
-            server.stop();
+        try {
+            if (server != null) {
+                server.stop();
+            }
+            if (callback != null) {
+                callback.on(null);
+            }
+        } catch (Throwable e) {
+            if (callback != null) {
+                callback.on(e);
+            }
         }
     }
 
