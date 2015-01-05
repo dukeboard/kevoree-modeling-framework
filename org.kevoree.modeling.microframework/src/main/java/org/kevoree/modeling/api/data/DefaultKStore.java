@@ -59,100 +59,114 @@ public class DefaultKStore implements KStore {
             if (callback != null) {
                 callback.on(new Exception("Please attach a KDataBase first !"));
             }
-        }
-        String[] keys = new String[1];
-        keys[0] = keyLastPrefix();
-        _db.get(keys, new ThrowableCallback<String[]>() {
-            @Override
-            public void on(String[] strings, Throwable error) {
-                if (error != null) {
-                    if (callback != null) {
-                        callback.on(error);
-                    }
-                } else {
-                    if (strings.length == 1) {
-                        try {
-                            String payloadPrefix = strings[0];
-                            if (payloadPrefix == null || payloadPrefix.equals("")) {
-                                payloadPrefix = "0";
-                            }
-                            final Short newPrefix = Short.parseShort(payloadPrefix);
-                            String[] keys2 = new String[2];
-                            keys2[0] = keyLastDimIndex(payloadPrefix);
-                            keys2[1] = keyLastObjIndex(payloadPrefix);
-                            _db.get(keys2, new ThrowableCallback<String[]>() {
-                                @Override
-                                public void on(String[] strings, Throwable error) {
-                                    if (error != null) {
-                                        if (callback != null) {
-                                            callback.on(error);
-                                        }
-                                    } else {
-                                        if (strings.length == 2) {
-                                            try {
-                                                String dimIndexPayload = strings[0];
-                                                if (dimIndexPayload == null || dimIndexPayload.equals("")) {
-                                                    dimIndexPayload = "0";
-                                                }
-                                                String objIndexPayload = strings[1];
-                                                if (objIndexPayload == null || objIndexPayload.equals("")) {
-                                                    objIndexPayload = "0";
-                                                }
-                                                Long newDimIndex = Long.parseLong(dimIndexPayload);
-                                                Long newObjIndex = Long.parseLong(objIndexPayload);
-                                                String[][] keys3 = new String[1][2];
-                                                String[] payloadKeys3 = new String[2];
-                                                payloadKeys3[0] = keyLastPrefix();
-                                                if (newPrefix == Short.MAX_VALUE) {
-                                                    payloadKeys3[1] = "" + Short.MIN_VALUE;
-                                                } else {
-                                                    payloadKeys3[1] = "" + (newPrefix + 1);
-                                                }
-                                                keys3[0] = payloadKeys3;
-                                                _db.put(keys3, new Callback<Throwable>() {
-                                                    @Override
-                                                    public void on(Throwable throwable) {
-                                                        _dimensionKeyCalculator = new KeyCalculator(newPrefix, newDimIndex);
-                                                        _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
-                                                        isConnected = true;
+        } else {
+            _db.connect(new Callback<Throwable>() {
+                @Override
+                public void on(Throwable throwable) {
+                    if (throwable == null) {
+                        String[] keys = new String[1];
+                        keys[0] = keyLastPrefix();
+                        _db.get(keys, new ThrowableCallback<String[]>() {
+                            @Override
+                            public void on(String[] strings, Throwable error) {
+                                if (error != null) {
+                                    if (callback != null) {
+                                        callback.on(error);
+                                    }
+                                } else {
+                                    if (strings.length == 1) {
+                                        try {
+                                            String payloadPrefix = strings[0];
+                                            if (payloadPrefix == null || payloadPrefix.equals("")) {
+                                                payloadPrefix = "0";
+                                            }
+                                            final Short newPrefix = Short.parseShort(payloadPrefix);
+                                            String[] keys2 = new String[2];
+                                            keys2[0] = keyLastDimIndex(payloadPrefix);
+                                            keys2[1] = keyLastObjIndex(payloadPrefix);
+                                            _db.get(keys2, new ThrowableCallback<String[]>() {
+                                                @Override
+                                                public void on(String[] strings, Throwable error) {
+                                                    if (error != null) {
                                                         if (callback != null) {
-                                                            callback.on(null);
+                                                            callback.on(error);
+                                                        }
+                                                    } else {
+                                                        if (strings.length == 2) {
+                                                            try {
+                                                                String dimIndexPayload = strings[0];
+                                                                if (dimIndexPayload == null || dimIndexPayload.equals("")) {
+                                                                    dimIndexPayload = "0";
+                                                                }
+                                                                String objIndexPayload = strings[1];
+                                                                if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                                    objIndexPayload = "0";
+                                                                }
+                                                                Long newDimIndex = Long.parseLong(dimIndexPayload);
+                                                                Long newObjIndex = Long.parseLong(objIndexPayload);
+                                                                String[][] keys3 = new String[1][2];
+                                                                String[] payloadKeys3 = new String[2];
+                                                                payloadKeys3[0] = keyLastPrefix();
+                                                                if (newPrefix == Short.MAX_VALUE) {
+                                                                    payloadKeys3[1] = "" + Short.MIN_VALUE;
+                                                                } else {
+                                                                    payloadKeys3[1] = "" + (newPrefix + 1);
+                                                                }
+                                                                keys3[0] = payloadKeys3;
+                                                                _db.put(keys3, new Callback<Throwable>() {
+                                                                    @Override
+                                                                    public void on(Throwable throwable) {
+                                                                        _dimensionKeyCalculator = new KeyCalculator(newPrefix, newDimIndex);
+                                                                        _objectKeyCalculator = new KeyCalculator(newPrefix, newObjIndex);
+                                                                        isConnected = true;
+                                                                        if (callback != null) {
+                                                                            callback.on(null);
+                                                                        }
+                                                                    }
+                                                                });
+                                                            } catch (Exception e) {
+                                                                if (callback != null) {
+                                                                    callback.on(e);
+                                                                }
+                                                            }
+                                                        } else {
+                                                            if (callback != null) {
+                                                                callback.on(new Exception("Error while connecting the KDataStore..."));
+                                                            }
                                                         }
                                                     }
-                                                });
-                                            } catch (Exception e) {
-                                                if (callback != null) {
-                                                    callback.on(e);
                                                 }
-                                            }
-                                        } else {
+                                            });
+
+                                        } catch (Exception e) {
                                             if (callback != null) {
-                                                callback.on(new Exception("Error while connecting the KDataStore..."));
+                                                callback.on(e);
                                             }
+                                        }
+                                    } else {
+                                        if (callback != null) {
+                                            callback.on(new Exception("Error while connecting the KDataStore..."));
                                         }
                                     }
                                 }
-                            });
-
-                        } catch (Exception e) {
-                            if (callback != null) {
-                                callback.on(e);
                             }
-                        }
+                        });
                     } else {
-                        if (callback != null) {
-                            callback.on(new Exception("Error while connecting the KDataStore..."));
-                        }
+                        callback.on(throwable);
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
     public void close(Callback<Throwable> callback) {
         isConnected = false;
-        //TODO
+        if (_db != null) {
+            _db.close(callback);
+        } else {
+            callback.on(new Exception("DB not set!"));
+        }
     }
 
     private String keyTree(long dim, long key) {

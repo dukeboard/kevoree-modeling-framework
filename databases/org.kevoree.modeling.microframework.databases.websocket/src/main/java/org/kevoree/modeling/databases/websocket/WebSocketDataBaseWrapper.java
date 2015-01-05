@@ -18,48 +18,34 @@ import static io.undertow.Handlers.websocket;
 /**
  * Created by duke on 11/5/14.
  */
-public class WebSocketDataBase extends AbstractReceiveListener implements KDataBase, WebSocketConnectionCallback {
+public class WebSocketDataBaseWrapper extends AbstractReceiveListener implements WebSocketConnectionCallback, KDataBase {
 
     private KDataBase wrapped = null;
 
     private Undertow server = null;
 
-    public WebSocketDataBase(KDataBase wrapped, int port) {
-        this.wrapped = wrapped;
-        Undertow server = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(websocket(this)).build();
-        server.start();
+    private int port = 8080;
+
+    public WebSocketDataBaseWrapper(KDataBase p_wrapped, int p_port) {
+        this.wrapped = p_wrapped;
+        this.port = p_port;
     }
 
     private static final String GET_ACTION = "get";
 
-    @Override
-    public void get(String[] keys, ThrowableCallback<String[]> callback) {
-        wrapped.get(keys, callback);
-    }
-
     private static final String PUT_ACTION = "put";
-
-    @Override
-    public void put(String[][] payloads, Callback<Throwable> error) {
-        wrapped.put(payloads, error);
-    }
 
     private static final String REMOVE_ACTION = "remove";
 
-    @Override
-    public void remove(String[] keys, Callback<Throwable> error) {
-        wrapped.remove(keys, error);
-    }
-
     private static final String COMMIT_ACTION = "commit";
 
-    @Override
-    public void commit(Callback<Throwable> error) {
-        wrapped.commit(error);
+    public void start() {
+        //noop
+        server = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(websocket(this)).build();
+        server.start();
     }
 
-    @Override
-    public void close(Callback<Throwable> error) {
+    public void stop(Callback<Throwable> error) {
         wrapped.close(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -86,12 +72,12 @@ public class WebSocketDataBase extends AbstractReceiveListener implements KDataB
                 for (int i = 0; i < payload.size(); i++) {
                     keys[i] = payload.get(i).asString();
                 }
-                get(keys, new ThrowableCallback<String[]>() {
+                wrapped.get(keys, new ThrowableCallback<String[]>() {
                     @Override
                     public void on(String[] resultPayload, Throwable error) {
                         JsonObject response = new JsonObject();
                         response.add("action", jsonMessage.get("action").asString());
-                        if(error != null) {
+                        if (error != null) {
                             response.add("status", "error");
                             response.add("value", error.getMessage());
                         } else {
@@ -105,7 +91,8 @@ public class WebSocketDataBase extends AbstractReceiveListener implements KDataB
                         WebSockets.sendText(response.toString(), channel, null);
                     }
                 });
-            } break;
+            }
+            break;
             case PUT_ACTION: {
                 JsonArray payload = jsonMessage.get("value").asArray();
                 String[][] payloadList = new String[payload.size()][];
@@ -114,14 +101,14 @@ public class WebSocketDataBase extends AbstractReceiveListener implements KDataB
                     String[] keyVal = new String[2];
                     keyVal[0] = keyValJson.get(0).asString();
                     keyVal[1] = keyValJson.get(1).asString();
-                    payloadList[i]=keyVal;
+                    payloadList[i] = keyVal;
                 }
-                put(payloadList, new Callback<Throwable>() {
+                wrapped.put(payloadList, new Callback<Throwable>() {
                     @Override
                     public void on(Throwable throwable) {
                         JsonObject response = new JsonObject();
                         response.add("action", jsonMessage.get("action").asString());
-                        if(throwable != null) {
+                        if (throwable != null) {
                             response.add("status", "error");
                             response.add("value", throwable.getMessage());
                         } else {
@@ -132,15 +119,60 @@ public class WebSocketDataBase extends AbstractReceiveListener implements KDataB
                     }
                 });
 
-            } break;
-            case REMOVE_ACTION:{
+            }
+            break;
+            case REMOVE_ACTION: {
 
-            } break;
+            }
+            break;
             case COMMIT_ACTION: {
 
-            } break;
+            }
+            break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void get(String[] keys, ThrowableCallback<String[]> callback) {
+        if(wrapped!= null){
+            wrapped.get(keys,callback);
+        }
+    }
+
+    @Override
+    public void put(String[][] payloads, Callback<Throwable> error) {
+        if(wrapped!= null){
+            wrapped.put(payloads, error);
+        }
+    }
+
+    @Override
+    public void remove(String[] keys, Callback<Throwable> error) {
+        if(wrapped!= null){
+            wrapped.remove(keys, error);
+        }
+    }
+
+    @Override
+    public void commit(Callback<Throwable> error) {
+        if(wrapped!= null){
+            wrapped.commit(error);
+        }
+    }
+
+    @Override
+    public void connect(Callback<Throwable> callback) {
+        if(wrapped!= null){
+            wrapped.connect(callback);
+        }
+    }
+
+    @Override
+    public void close(Callback<Throwable> callback) {
+        if(wrapped!= null){
+            wrapped.close(callback);
         }
     }
 }

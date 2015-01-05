@@ -48,6 +48,13 @@ public class MemoryKDataBase implements KDataBase {
     }
 
     @Override
+    public void connect(Callback<Throwable> callback) {
+        if (callback != null) {
+            callback.on(null);
+        }
+    }
+
+    @Override
     public void close(Callback<Throwable> callback) {
         backend.clear();
     }

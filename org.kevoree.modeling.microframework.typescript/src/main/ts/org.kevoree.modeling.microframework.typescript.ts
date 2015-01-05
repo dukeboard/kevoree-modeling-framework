@@ -1623,94 +1623,106 @@ module org {
                                 if (callback != null) {
                                     callback(new java.lang.Exception("Please attach a KDataBase first !"));
                                 }
-                            }
-                            var keys: string[] = new Array();
-                            keys[0] = this.keyLastPrefix();
-                            this._db.get(keys,  (strings : string[], error : java.lang.Throwable) => {
-                                if (error != null) {
-                                    if (callback != null) {
-                                        callback(error);
-                                    }
-                                } else {
-                                    if (strings.length == 1) {
-                                        try {
-                                            var payloadPrefix: string = strings[0];
-                                            if (payloadPrefix == null || payloadPrefix.equals("")) {
-                                                payloadPrefix = "0";
-                                            }
-                                            var newPrefix: number = java.lang.Short.parseShort(payloadPrefix);
-                                            var keys2: string[] = new Array();
-                                            keys2[0] = this.keyLastDimIndex(payloadPrefix);
-                                            keys2[1] = this.keyLastObjIndex(payloadPrefix);
-                                            this._db.get(keys2,  (strings : string[], error : java.lang.Throwable) => {
-                                                if (error != null) {
-                                                    if (callback != null) {
-                                                        callback(error);
-                                                    }
-                                                } else {
-                                                    if (strings.length == 2) {
-                                                        try {
-                                                            var dimIndexPayload: string = strings[0];
-                                                            if (dimIndexPayload == null || dimIndexPayload.equals("")) {
-                                                                dimIndexPayload = "0";
-                                                            }
-                                                            var objIndexPayload: string = strings[1];
-                                                            if (objIndexPayload == null || objIndexPayload.equals("")) {
-                                                                objIndexPayload = "0";
-                                                            }
-                                                            var newDimIndex: number = java.lang.Long.parseLong(dimIndexPayload);
-                                                            var newObjIndex: number = java.lang.Long.parseLong(objIndexPayload);
-                                                            var keys3: string[][] = new Array(new Array());
-                                                            var payloadKeys3: string[] = new Array();
-                                                            payloadKeys3[0] = this.keyLastPrefix();
-                                                            if (newPrefix == java.lang.Short.MAX_VALUE) {
-                                                                payloadKeys3[1] = "" + java.lang.Short.MIN_VALUE;
-                                                            } else {
-                                                                payloadKeys3[1] = "" + (newPrefix + 1);
-                                                            }
-                                                            keys3[0] = payloadKeys3;
-                                                            this._db.put(keys3,  (throwable : java.lang.Throwable) => {
-                                                                this._dimensionKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newDimIndex);
-                                                                this._objectKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newObjIndex);
-                                                                this.isConnected = true;
-                                                                if (callback != null) {
-                                                                    callback(null);
-                                                                }
-                                                            });
-                                                        } catch ($ex$) {
-                                                            if ($ex$ instanceof java.lang.Exception) {
-                                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
-                                                                if (callback != null) {
-                                                                    callback(e);
-                                                                }
-                                                            }
-                                                         }
-                                                    } else {
-                                                        if (callback != null) {
-                                                            callback(new java.lang.Exception("Error while connecting the KDataStore..."));
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        } catch ($ex$) {
-                                            if ($ex$ instanceof java.lang.Exception) {
-                                                var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                            } else {
+                                this._db.connect( (throwable : java.lang.Throwable) => {
+                                    if (throwable == null) {
+                                        var keys: string[] = new Array();
+                                        keys[0] = this.keyLastPrefix();
+                                        this._db.get(keys,  (strings : string[], error : java.lang.Throwable) => {
+                                            if (error != null) {
                                                 if (callback != null) {
-                                                    callback(e);
+                                                    callback(error);
+                                                }
+                                            } else {
+                                                if (strings.length == 1) {
+                                                    try {
+                                                        var payloadPrefix: string = strings[0];
+                                                        if (payloadPrefix == null || payloadPrefix.equals("")) {
+                                                            payloadPrefix = "0";
+                                                        }
+                                                        var newPrefix: number = java.lang.Short.parseShort(payloadPrefix);
+                                                        var keys2: string[] = new Array();
+                                                        keys2[0] = this.keyLastDimIndex(payloadPrefix);
+                                                        keys2[1] = this.keyLastObjIndex(payloadPrefix);
+                                                        this._db.get(keys2,  (strings : string[], error : java.lang.Throwable) => {
+                                                            if (error != null) {
+                                                                if (callback != null) {
+                                                                    callback(error);
+                                                                }
+                                                            } else {
+                                                                if (strings.length == 2) {
+                                                                    try {
+                                                                        var dimIndexPayload: string = strings[0];
+                                                                        if (dimIndexPayload == null || dimIndexPayload.equals("")) {
+                                                                            dimIndexPayload = "0";
+                                                                        }
+                                                                        var objIndexPayload: string = strings[1];
+                                                                        if (objIndexPayload == null || objIndexPayload.equals("")) {
+                                                                            objIndexPayload = "0";
+                                                                        }
+                                                                        var newDimIndex: number = java.lang.Long.parseLong(dimIndexPayload);
+                                                                        var newObjIndex: number = java.lang.Long.parseLong(objIndexPayload);
+                                                                        var keys3: string[][] = new Array(new Array());
+                                                                        var payloadKeys3: string[] = new Array();
+                                                                        payloadKeys3[0] = this.keyLastPrefix();
+                                                                        if (newPrefix == java.lang.Short.MAX_VALUE) {
+                                                                            payloadKeys3[1] = "" + java.lang.Short.MIN_VALUE;
+                                                                        } else {
+                                                                            payloadKeys3[1] = "" + (newPrefix + 1);
+                                                                        }
+                                                                        keys3[0] = payloadKeys3;
+                                                                        this._db.put(keys3,  (throwable : java.lang.Throwable) => {
+                                                                            this._dimensionKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newDimIndex);
+                                                                            this._objectKeyCalculator = new org.kevoree.modeling.api.data.KeyCalculator(newPrefix, newObjIndex);
+                                                                            this.isConnected = true;
+                                                                            if (callback != null) {
+                                                                                callback(null);
+                                                                            }
+                                                                        });
+                                                                    } catch ($ex$) {
+                                                                        if ($ex$ instanceof java.lang.Exception) {
+                                                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                                            if (callback != null) {
+                                                                                callback(e);
+                                                                            }
+                                                                        }
+                                                                     }
+                                                                } else {
+                                                                    if (callback != null) {
+                                                                        callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    } catch ($ex$) {
+                                                        if ($ex$ instanceof java.lang.Exception) {
+                                                            var e: java.lang.Exception = <java.lang.Exception>$ex$;
+                                                            if (callback != null) {
+                                                                callback(e);
+                                                            }
+                                                        }
+                                                     }
+                                                } else {
+                                                    if (callback != null) {
+                                                        callback(new java.lang.Exception("Error while connecting the KDataStore..."));
+                                                    }
                                                 }
                                             }
-                                         }
+                                        });
                                     } else {
-                                        if (callback != null) {
-                                            callback(new java.lang.Exception("Error while connecting the KDataStore..."));
-                                        }
+                                        callback(throwable);
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
 
                         public close(callback: (p : java.lang.Throwable) => void): void {
                             this.isConnected = false;
+                            if (this._db != null) {
+                                this._db.close(callback);
+                            } else {
+                                callback(new java.lang.Exception("DB not set!"));
+                            }
                         }
 
                         private keyTree(dim: number, key: number): string {
@@ -2504,7 +2516,9 @@ module org {
 
                         commit(error: (p : java.lang.Throwable) => void): void;
 
-                        close(error: (p : java.lang.Throwable) => void): void;
+                        connect(callback: (p : java.lang.Throwable) => void): void;
+
+                        close(callback: (p : java.lang.Throwable) => void): void;
 
                     }
 
@@ -2621,6 +2635,12 @@ module org {
                             callback(null);
                         }
 
+                        public connect(callback: (p : java.lang.Throwable) => void): void {
+                            if (callback != null) {
+                                callback(null);
+                            }
+                        }
+
                         public close(callback: (p : java.lang.Throwable) => void): void {
                             this.backend.clear();
                         }
@@ -2653,6 +2673,19 @@ module org {
                         private static TUPLE_SIZE: number = 3;
                         private listeners: java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]> = new java.util.HashMap<(p : org.kevoree.modeling.api.KEvent) => void, number[]>();
                         constructor() {
+                        }
+
+                        public connect(callback: (p : java.lang.Throwable) => void): void {
+                            if (callback != null) {
+                                callback(null);
+                            }
+                        }
+
+                        public close(callback: (p : java.lang.Throwable) => void): void {
+                            this.listeners.clear();
+                            if (callback != null) {
+                                callback(null);
+                            }
                         }
 
                         public registerListener(origin: any, listener: (p : org.kevoree.modeling.api.KEvent) => void, scope: any): void {
@@ -2875,13 +2908,17 @@ module org {
 
                     export interface KEventBroker {
 
+                        connect(callback: (p : java.lang.Throwable) => void): void;
+
+                        close(callback: (p : java.lang.Throwable) => void): void;
+
                         registerListener(origin: any, listener: (p : org.kevoree.modeling.api.KEvent) => void, scope: any): void;
+
+                        unregister(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
 
                         notify(event: org.kevoree.modeling.api.KEvent): void;
 
                         flush(dimensionKey: number): void;
-
-                        unregister(listener: (p : org.kevoree.modeling.api.KEvent) => void): void;
 
                     }
 

@@ -58,4 +58,12 @@ public class RedisDataBase implements KDataBase {
         }
     }
 
+    @Override
+    public void connect(Callback<Throwable> callback) {
+        //noop
+        if(callback != null){
+            callback.on(null);
+        }
+    }
+
 }

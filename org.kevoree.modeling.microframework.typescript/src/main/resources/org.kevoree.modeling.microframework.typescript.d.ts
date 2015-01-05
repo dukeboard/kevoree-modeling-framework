@@ -446,7 +446,8 @@ declare module org {
                         put(payloads: string[][], error: (p: java.lang.Throwable) => void): void;
                         remove(keys: string[], error: (p: java.lang.Throwable) => void): void;
                         commit(error: (p: java.lang.Throwable) => void): void;
-                        close(error: (p: java.lang.Throwable) => void): void;
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
                     }
                     interface KStore {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
@@ -487,6 +488,7 @@ declare module org {
                         get(keys: string[], callback: (p: string[], p1: java.lang.Throwable) => void): void;
                         remove(keys: string[], callback: (p: java.lang.Throwable) => void): void;
                         commit(callback: (p: java.lang.Throwable) => void): void;
+                        connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
                     }
                     module cache {
@@ -510,6 +512,8 @@ declare module org {
                         private static TUPLE_SIZE;
                         private listeners;
                         constructor();
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
@@ -547,10 +551,12 @@ declare module org {
                         toTrace(): trace.ModelTrace;
                     }
                     interface KEventBroker {
+                        connect(callback: (p: java.lang.Throwable) => void): void;
+                        close(callback: (p: java.lang.Throwable) => void): void;
                         registerListener(origin: any, listener: (p: KEvent) => void, scope: any): void;
+                        unregister(listener: (p: KEvent) => void): void;
                         notify(event: KEvent): void;
                         flush(dimensionKey: number): void;
-                        unregister(listener: (p: KEvent) => void): void;
                     }
                 }
                 module extrapolation {

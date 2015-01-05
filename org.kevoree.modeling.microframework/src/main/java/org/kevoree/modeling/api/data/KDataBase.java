@@ -19,7 +19,9 @@ public interface KDataBase {
     public void remove(String[] keys, Callback<Throwable> error);
 
     public void commit(Callback<Throwable> error);
+    
+    public void connect(Callback<Throwable> callback);
 
-    public void close(Callback<Throwable> error);
+    public void close(Callback<Throwable> callback);
 
 }

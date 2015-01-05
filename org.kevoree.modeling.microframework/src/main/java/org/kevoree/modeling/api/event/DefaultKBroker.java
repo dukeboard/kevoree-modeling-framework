@@ -1,5 +1,6 @@
 package org.kevoree.modeling.api.event;
 
+import org.kevoree.modeling.api.Callback;
 import org.kevoree.modeling.api.KEvent;
 import org.kevoree.modeling.api.ModelListener;
 import org.kevoree.modeling.api.abs.AbstractKDimension;
@@ -21,6 +22,21 @@ public class DefaultKBroker implements KEventBroker {
     private HashMap<ModelListener, Long[]> listeners = new HashMap<ModelListener, Long[]>();
 
     public DefaultKBroker() {
+    }
+
+    @Override
+    public void connect(Callback<Throwable> callback) {
+        if (callback != null) {
+            callback.on(null);
+        }
+    }
+
+    @Override
+    public void close(Callback<Throwable> callback) {
+        listeners.clear();
+        if (callback != null) {
+            callback.on(null);
+        }
     }
 
     public void registerListener(Object origin, ModelListener listener, Object scope) {
@@ -53,22 +69,22 @@ public class DefaultKBroker implements KEventBroker {
         for (int i = 0; i < keys.length; i++) {
             Object[] tuple = listeners.get(keys[i]);
             boolean match = true;
-            if(tuple[DIM_INDEX] != null){
-                if(!tuple[DIM_INDEX].equals(event.dimension())){
+            if (tuple[DIM_INDEX] != null) {
+                if (!tuple[DIM_INDEX].equals(event.dimension())) {
                     match = false;
                 }
             }
-            if(tuple[TIME_INDEX] != null){
-                if(!tuple[TIME_INDEX].equals(event.time())){
+            if (tuple[TIME_INDEX] != null) {
+                if (!tuple[TIME_INDEX].equals(event.time())) {
                     match = false;
                 }
             }
-            if(tuple[UUID_INDEX] != null){
-                if(!tuple[UUID_INDEX].equals(event.uuid())){
+            if (tuple[UUID_INDEX] != null) {
+                if (!tuple[UUID_INDEX].equals(event.uuid())) {
                     match = false;
                 }
             }
-            if(match){
+            if (match) {
                 keys[i].on(event);
             }
         }
