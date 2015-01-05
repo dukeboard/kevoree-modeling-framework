@@ -83,7 +83,7 @@ public class ${classDeclaration.name}Impl extends org.kevoree.modeling.api.abs.A
             public void on(org.kevoree.modeling.api.KObject[] kObjects) {
                 if(p_callback != null){
                     ${ref.getType().fqn}[] casted = new ${ref.getType().fqn}[kObjects.length];
-                    for(int i=0;i<casted.length;i++){
+                    for(int i=0;i<kObjects.length;i++){
                         casted[i] = (${ref.getType().fqn}) kObjects[i];
                     }
                     p_callback.on(casted);
