@@ -7471,19 +7471,6 @@ var org;
                         return SerializationContext;
                     })();
                     xmi.SerializationContext = SerializationContext;
-                    var XmiFormat = (function () {
-                        function XmiFormat(p_view) {
-                            this._view = p_view;
-                        }
-                        XmiFormat.prototype.save = function (model, callback) {
-                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
-                        };
-                        XmiFormat.prototype.load = function (payload, callback) {
-                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
-                        };
-                        return XmiFormat;
-                    })();
-                    xmi.XmiFormat = XmiFormat;
                     var XMILoadingContext = (function () {
                         function XMILoadingContext() {
                             this.loadedRoots = null;
@@ -7912,6 +7899,19 @@ var org;
                         return XMIResolveCommand;
                     })();
                     xmi.XMIResolveCommand = XMIResolveCommand;
+                    var XmiFormat = (function () {
+                        function XmiFormat(p_view) {
+                            this._view = p_view;
+                        }
+                        XmiFormat.prototype.save = function (model, callback) {
+                            org.kevoree.modeling.api.xmi.XMIModelSerializer.save(model, callback);
+                        };
+                        XmiFormat.prototype.load = function (payload, callback) {
+                            org.kevoree.modeling.api.xmi.XMIModelLoader.load(this._view, payload, callback);
+                        };
+                        return XmiFormat;
+                    })();
+                    xmi.XmiFormat = XmiFormat;
                     var XmlParser = (function () {
                         function XmlParser(str) {
                             this.current = 0;

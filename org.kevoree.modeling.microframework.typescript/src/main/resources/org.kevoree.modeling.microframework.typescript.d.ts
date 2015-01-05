@@ -448,16 +448,6 @@ declare module org {
                         commit(error: (p: java.lang.Throwable) => void): void;
                         close(error: (p: java.lang.Throwable) => void): void;
                     }
-                    class KeyCalculator {
-                        static LONG_LIMIT_JS: number;
-                        static INDEX_LIMIT: number;
-                        private _prefix;
-                        private _currentIndex;
-                        constructor(prefix: number, currentIndex: number);
-                        nextKey(): number;
-                        lastComputedIndex(): number;
-                        prefix(): number;
-                    }
                     interface KStore {
                         lookup(originView: KView, key: number, callback: (p: KObject) => void): void;
                         lookupAll(originView: KView, key: number[], callback: (p: KObject[]) => void): void;
@@ -479,6 +469,16 @@ declare module org {
                         operationManager(): util.KOperationManager;
                         connect(callback: (p: java.lang.Throwable) => void): void;
                         close(callback: (p: java.lang.Throwable) => void): void;
+                    }
+                    class KeyCalculator {
+                        static LONG_LIMIT_JS: number;
+                        static INDEX_LIMIT: number;
+                        private _prefix;
+                        private _currentIndex;
+                        constructor(prefix: number, currentIndex: number);
+                        nextKey(): number;
+                        lastComputedIndex(): number;
+                        prefix(): number;
                     }
                     class MemoryKDataBase implements KDataBase {
                         private backend;
@@ -1299,12 +1299,6 @@ declare module org {
                         elementsCount: java.util.HashMap<string, number>;
                         packageList: java.util.ArrayList<string>;
                     }
-                    class XmiFormat implements ModelFormat {
-                        private _view;
-                        constructor(p_view: KView);
-                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
-                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
-                    }
                     class XMILoadingContext {
                         xmiReader: XmlParser;
                         loadedRoots: KObject;
@@ -1344,6 +1338,12 @@ declare module org {
                         private ref;
                         constructor(context: XMILoadingContext, target: KObject, mutatorType: KActionType, refName: string, ref: string);
                         run(): void;
+                    }
+                    class XmiFormat implements ModelFormat {
+                        private _view;
+                        constructor(p_view: KView);
+                        save(model: KObject, callback: (p: string, p1: java.lang.Throwable) => void): void;
+                        load(payload: string, callback: (p: java.lang.Throwable) => void): void;
                     }
                     class XmlParser {
                         private payload;
