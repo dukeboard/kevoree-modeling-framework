@@ -152,6 +152,6 @@ public class GenModelPlugin extends AbstractMojo {
         }
 
         project.addCompileSourceRoot(targetSrcGenDir.getAbsolutePath());
-        
+
     }
 }
