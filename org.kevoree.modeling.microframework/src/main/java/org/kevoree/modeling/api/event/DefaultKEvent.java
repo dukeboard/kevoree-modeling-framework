@@ -133,7 +133,7 @@ public class DefaultKEvent implements KEvent {
         } else if (currentAttributeName.equals(ELEMENT_KEY)) {
             if (event._metaClass != null) {
                 event._metaElement = event._metaClass.metaAttribute(value);
-                if (event._metaElement != null) {
+                if (event._metaElement == null) {
                     event._metaElement = event._metaClass.metaReference(value);
                 }
             }
