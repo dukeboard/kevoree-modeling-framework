@@ -550,11 +550,11 @@ public abstract class AbstractKObject implements KObject {
                     final List<KObject> nextDeep = new ArrayList<KObject>();
                     for (int i = 0; i < resolveds.length; i++) {
                         KObject resolved = resolveds[i];
-                        if(resolved == null){
-                            System.err.println("Unknow object with ID "+toResolvedArr[i]);
+                        if (resolved == null) {
+                            System.err.println("Unknow object with ID " + toResolvedArr[i]);
                         } else {
                             VisitResult result = visitor.visit(resolved);
-                            if (result.equals(VisitResult.STOP)) {
+                            if (result != null && result.equals(VisitResult.STOP)) {
                                 end.on(null);
                             } else {
                                 if (deep) {

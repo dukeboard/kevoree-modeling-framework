@@ -71,6 +71,9 @@ public class JsonModelLoader {
                     }
                     currentToken = lexer.nextToken();
                 }
+
+
+
                 for (int i = 0; i < alls.size(); i++) {
                     Map<String, Object> elem = alls.get(i);
                     String meta = elem.get(JsonModelSerializer.KEY_META).toString();
@@ -83,7 +86,7 @@ public class JsonModelLoader {
                     TimeTree timeTree = new DefaultTimeTree();
                     timeTree.insert(factory.now());
                     MetaClass metaClass = metaModel.metaClass(meta);
-                    KObject current = ((AbstractKView)factory).createProxy(metaClass, timeTree, kid);
+                    KObject current = ((AbstractKView) factory).createProxy(metaClass, timeTree, kid);
                     factory.dimension().universe().storage().initKObject(current, factory);
                     if (isRoot) {
                         factory.setRoot(current, null);//todo force the direct set
