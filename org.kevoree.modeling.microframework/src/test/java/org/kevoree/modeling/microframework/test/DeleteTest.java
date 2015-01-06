@@ -20,7 +20,7 @@ public class DeleteTest {
     @Test
     public void basicDeleteTest() {
 
-        MemoryKDataBase.DEBUG = true;
+        //MemoryKDataBase.DEBUG = true;
 
         CloudUniverse universe = new CloudUniverse();
         universe.connect(null);
@@ -41,9 +41,9 @@ public class DeleteTest {
         factory1.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-               // if (results != null && results.length > 0) {
-                    Node n2 = (Node) results[0];
-                    n2.setElement(e);
+                // if (results != null && results.length > 0) {
+                Node n2 = (Node) results[0];
+                n2.setElement(e);
                 //}
             }
         });
@@ -60,28 +60,25 @@ public class DeleteTest {
             @Override
             public void on(KObject[] results) {
                 //if (results != null && results.length > 0) {
-                    Node n2 = (Node) results[0];
-                    n2.getElement(new Callback<Element>() {
-                        @Override
-                        public void on(Element element) {
-                            if (element != null) {
-                                element.delete(new Callback<Throwable>() {
-                                    @Override
-                                    public void on(Throwable throwable) {
-                                        if (throwable != null) {
-                                            throwable.printStackTrace();
-                                        }
-                                    }
-                                });
+                Node n2 = (Node) results[0];
+                n2.getElement(new Callback<Element>() {
+                    @Override
+                    public void on(Element element) {
+                        //if (element != null) {
+                        element.delete(new Callback<Throwable>() {
+                            @Override
+                            public void on(Throwable throwable) {
+                                if (throwable != null) {
+                                    throwable.printStackTrace();
+                                }
                             }
-                        }
-                    });
+                        });
+                        //}
+                    }
+                });
                 //}
             }
         });
-
-
-        /*
         dimension.saveUnload(new Callback<Throwable>() {
             @Override
             public void on(Throwable throwable) {
@@ -94,15 +91,15 @@ public class DeleteTest {
         factory3.select("/", new Callback<KObject[]>() {
             @Override
             public void on(KObject[] results) {
-                if (results != null && results.length > 0) {
-                    Node n2 = (Node) results[0];
-                    n2.getElement(new Callback<Element>() {
-                        @Override
-                        public void on(Element element) {
-                            Assert.assertNull(element);
-                        }
-                    });
-                }
+                //if (results != null && results.length > 0) {
+                Node n2 = (Node) results[0];
+                n2.getElement(new Callback<Element>() {
+                    @Override
+                    public void on(Element element) {
+                        Assert.assertNull(element);
+                    }
+                });
+                //}
             }
         });
         CloudView factory2_2 = dimension.time(2l);
@@ -121,7 +118,6 @@ public class DeleteTest {
             }
         });
 
-        */
 
     }
 

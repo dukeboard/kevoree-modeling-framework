@@ -344,7 +344,7 @@ public class DefaultKStore implements KStore {
                     Long idObj = keys[k];
                     CacheEntry cached_entry = timeCache.payload_cache.get(idObj);
                     Object[] cached_raw = cached_entry.raw;
-                    if (cached_raw[Index.IS_DIRTY_INDEX] != null && cached_raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                    if (cached_raw != null && cached_raw[Index.IS_DIRTY_INDEX] != null && cached_raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
                         String[] payloadA = new String[2];
                         payloadA[0] = keyPayload(dimension.key(), now, idObj);
                         payloadA[1] = JsonRaw.encode(cached_raw, idObj, cached_entry.metaClass);
@@ -467,8 +467,6 @@ public class DefaultKStore implements KStore {
                                             //Save the cache value
                                             write_cache((Long) objects[i][INDEX_RESOLVED_DIM], (Long) objects[i][INDEX_RESOLVED_TIME], keys[index], entry);
                                         }
-                                    } else {
-                                        System.err.println("Not resolvable UUID " + toLoadIndexes.get(i));
                                     }
                                 }
                                 callback.on(resolved);
@@ -594,7 +592,7 @@ public class DefaultKStore implements KStore {
                 for (int k = 0; k < keys.length; k++) {
                     Long idObj = keys[k];
                     CacheEntry cachedEntry = timeCache.payload_cache.get(idObj);
-                    if (cachedEntry != null && cachedEntry.raw[Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
+                    if (cachedEntry != null && cachedEntry.raw != null && cachedEntry.raw[Index.IS_DIRTY_INDEX] != null && cachedEntry.raw[Index.IS_DIRTY_INDEX].toString().equals("true")) {
                         sizeCache++;
                     }
                 }
